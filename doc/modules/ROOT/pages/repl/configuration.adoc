@@ -340,12 +340,21 @@ reset automatically by the `track-state` middleware.
 (setq cider-repl-history-size 1000) ; the default is 500
 ----
 
-* To store the REPL history in a file:
+* To store the REPL history of all projects in a single file:
 
 [source,lisp]
 ----
 (setq cider-repl-history-file "path/to/file")
 ----
 
-Note that CIDER writes the history to the file when you kill the REPL
-buffer, which includes invoking `cider-quit`, or when you quit Emacs.
+* To store the REPL history per project (by creating a
+  `.cider-history` file at the root of each):
+
+[source,lisp]
+----
+(setq cider-repl-history-file 'per-project)
+----
+
+Note that CIDER writes the history to the file(s) when you kill the
+REPL buffer, which includes invoking `cider-quit`, or when you quit
+Emacs.
