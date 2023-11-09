@@ -1601,10 +1601,15 @@ If USE-CURRENT-INPUT is non-nil, use the current input."
 (defcustom cider-repl-history-file nil
   "File to save the persistent REPL history to.
 If this is set, the history will be global to all projects.  Otherwise, the
-history is local per project and stored in a file (.cider-history) at its
-root."
+history is local per project and stored in a file (named by
+`cider-repl-local-history-name') at its root."
+
   :type 'string
   :safe #'stringp)
+
+(defconst cider-repl-local-history-name ".cider-history"
+  "Name of the local history file (if `cider-repl-history-file' is not set).
+It will suffixed by the REPL type.")
 
 (defvar cider-repl-input-global-history '()
   "History list of strings read from all REPL buffers.")
@@ -1645,7 +1650,9 @@ The value of `cider-repl-get-history' is set by this function."
     (setq
      cider-repl--history-local-or-global-file
      (when-let* ((dir (clojure-project-dir)))
-       (expand-file-name ".cider-history" dir))))
+       (expand-file-name
+        (concat cider-repl-local-history-name "-" (symbol-name (cider-runtime)))
+        dir))))
   (when cider-repl--history-local-or-global-file
     (condition-case nil
         (progn
