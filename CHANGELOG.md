@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+- [#3574](https://github.com/clojure-emacs/cider/issues/3574): New value `per-project` for `cider-repl-history-file` to save the history on a per-project basis.
+
 ## 1.16.1 (2024-12-03)
 
 ### Changes
