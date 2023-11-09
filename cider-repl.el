@@ -194,7 +194,7 @@ CIDER 1.7."
 This property value must be unique to avoid having adjacent inputs be
 joined together.")
 
-(defvar-local cider-repl-input-history '()
+(defvar-local cider-repl-input-local-history '()
   "History list of strings read from the REPL buffer.")
 
 (defvar-local cider-repl-input-history-items-added 0
@@ -1476,8 +1476,10 @@ WIN, BUFFER and POS are the window, buffer and point under mouse position."
   "Add STRING to the input history.
 Empty strings and duplicates are ignored."
   (unless (or (equal string "")
-              (equal string (car cider-repl-input-history)))
-    (push string cider-repl-input-history)
+              (equal string (car (cider-repl-get-history))))
+    (if cider-repl-history-file
+        (push string cider-repl-input-global-history)
+      (push string cider-repl-input-local-history))
     (cl-incf cider-repl-input-history-items-added)))
 
 (defun cider-repl-delete-current-input ()
@@ -1498,7 +1500,7 @@ Return -1 resp the length of the history if no item matches."
   (let* ((step (cl-ecase direction
                  (forward -1)
                  (backward 1)))
-         (history cider-repl-input-history)
+         (history (cider-repl-get-history))
          (len (length history)))
     (cl-loop for pos = (+ start-pos step) then (+ pos step)
              if (< pos 0) return -1
@@ -1511,14 +1513,14 @@ DIRECTION is 'forward' or 'backward' (in the history list).
 If REGEXP is non-nil, only lines matching REGEXP are considered."
   (setq cider-repl-history-pattern regexp)
   (let* ((min-pos -1)
-         (max-pos (length cider-repl-input-history))
+         (max-pos (length (cider-repl-get-history)))
          (pos0 (cond ((cider-history-search-in-progress-p)
                       cider-repl-input-history-position)
                      (t min-pos)))
          (pos (cider-repl--position-in-history pos0 direction (or regexp "")))
          (msg nil))
     (cond ((and (< min-pos pos) (< pos max-pos))
-           (cider-repl--replace-input (nth pos cider-repl-input-history))
+           (cider-repl--replace-input (nth pos (cider-repl-get-history)))
            (setq msg (format "History item: %d" pos)))
           ((not cider-repl-wrap-history)
            (setq msg (cond ((= pos min-pos) "End of history")
@@ -1604,6 +1606,9 @@ root."
   :type 'string
   :safe #'stringp)
 
+(defvar cider-repl-input-global-history '()
+  "History list of strings read from all REPL buffers.")
+
 (defun cider-repl--history-read-filename ()
   "Ask the user which file to use, defaulting `cider-repl-history-file'."
   (read-file-name "Use CIDER REPL history file: "
@@ -1619,6 +1624,12 @@ It does not yet set the input history."
           (read (current-buffer))))
     '()))
 
+(defun cider-repl-get-history ()
+  "Function to retrieve history from the REPL buffer."
+  (if cider-repl-history-file
+      cider-repl-input-global-history
+    cider-repl-input-local-history))
+
 (defun cider-repl-history-load (&optional filename)
   "Load history from FILENAME into current session.
 FILENAME defaults to the value of `cider-repl-history-file' but user
@@ -1626,7 +1637,7 @@ defined filenames can be used to read special history files.  If
 `cider-repl-history-file' is not set either then the local history file of
 the current project (see `cider-repl-history-file' for more info) is loaded.
 
-The value of `cider-repl-input-history' is set by this function."
+The value of `cider-repl-get-history' is set by this function."
   (interactive (list (cider-repl--history-read-filename)))
   (setq cider-repl--history-local-or-global-file
         (or filename cider-repl-history-file))
@@ -1642,9 +1653,11 @@ The value of `cider-repl-input-history' is set by this function."
           ;; well. In a fresh connection the newest item in the list is
           ;; currently not available.  After sending one input, everything
           ;; seems to work.
-          (setq
-           cider-repl-input-history
-           (cider-repl--history-read cider-repl--history-local-or-global-file))
+          (let ((input-history (cider-repl--history-read
+                                cider-repl--history-local-or-global-file)))
+            (if cider-repl-history-file
+                (setq cider-repl-input-global-history input-history)
+              (setq cider-repl-input-local-history input-history)))
           (add-hook 'kill-buffer-hook #'cider-repl-history-just-save t t)
           (add-hook 'kill-emacs-hook #'cider-repl-history-save-all))
       (error
@@ -1656,7 +1669,7 @@ The value of `cider-repl-input-history' is set by this function."
   "Write history to FILENAME.
 Currently coding system for writing the contents is hardwired to
 utf-8-unix."
-  (let* ((mhist (cider-repl--histories-merge cider-repl-input-history
+  (let* ((mhist (cider-repl--histories-merge (cider-repl-get-history)
                                              cider-repl-input-history-items-added
                                              (cider-repl--history-read filename)))
          ;; newest items are at the beginning of the list, thus 0

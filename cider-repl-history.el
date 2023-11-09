@@ -220,13 +220,14 @@ call `cider-repl-history' again.")
 (defvar cider-repl-history-previous-overlay nil
   "Previous overlay within *cider-repl-history* buffer.")
 
-
 (defun cider-repl-history-get-history ()
   "Function to retrieve history from the REPL buffer."
   (if cider-repl-history-repl-buffer
-      (buffer-local-value
-       'cider-repl-input-history
-       cider-repl-history-repl-buffer)
+      (if cider-repl-history-file
+          cider-repl-input-global-history
+        (buffer-local-value
+         'cider-repl-input-local-history
+         cider-repl-history-repl-buffer))
     (error "Variable `cider-repl-history-repl-buffer' not bound to a buffer")))
 
 (defun cider-repl-history-resize-window ()
