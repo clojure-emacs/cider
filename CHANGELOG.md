@@ -6,6 +6,7 @@
 - [#3754](https://github.com/clojure-emacs/cider/issues/3754): Fix regex in `cider-ns-from-p`.
 - [#3753](https://github.com/clojure-emacs/cider/pull/3753): Add `cider-log-show-frameworks` command to show available log frameworks in a buffer.
 - [#3746](https://github.com/clojure-emacs/cider/issues/3746): Bring back `cider` completion style for activating backend-driven completion.
+- [#3574](https://github.com/clojure-emacs/cider/issues/3574): New value `per-project` for `cider-repl-history-file` to save the history on a per-project basis.
 
 ### Bugs fixed
 
