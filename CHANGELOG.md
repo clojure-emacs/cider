@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### New features
+
+- CIDER [History](https://docs.cider.mx/cider/repl/history.html): if `cider-repl-history-file` is unset, the history is saved on a per-project basis.
+
 ### Changes
 
 - Bump the injected `enrich-classpath` to [1.18.4](https://github.com/clojure-emacs/enrich-classpath/compare/v1.18.2...v1.18.4).
