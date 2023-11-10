@@ -1610,6 +1610,12 @@ It does not yet set the input history."
           (read (current-buffer))))
     '()))
 
+(defun cider-repl--find-dir-for-history ()
+  "Find the first suitable directory to store the project's history."
+  (seq-find
+   (lambda (dir) (and (not (null dir)) (not (tramp-tramp-file-p dir))))
+   (list nrepl-project-dir (clojure-project-dir) default-directory)))
+
 (defun cider-repl-history-load (&optional filename)
   "Load history from FILENAME into current session.
 FILENAME defaults to the value of `cider-repl-history-file' but user
@@ -1621,7 +1627,7 @@ The value of `cider-repl-input-history' is set by this function."
    (filename (setq cider-repl-history-file filename))
    ((equal 'per-project cider-repl-history-file)
     (make-local-variable 'cider-repl-input-history)
-    (when-let ((dir (clojure-project-dir)))
+    (when-let ((dir (cider-repl--find-dir-for-history)))
       (setq-local
        cider-repl-history-file (expand-file-name ".cider-history" dir)))))
   (when cider-repl-history-file
