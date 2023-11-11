@@ -4,6 +4,7 @@
 
 ### Changes
 
+- Bump the injected `cider-nrepl` to [0.43.3](https://github.com/clojure-emacs/cider-nrepl/blob/v0.43.3/CHANGELOG.md#0433-2023-11-11).
 - Bump the injected `enrich-classpath` to [1.18.4](https://github.com/clojure-emacs/enrich-classpath/compare/v1.18.2...v1.18.4).
 
 ## 1.11.0 (2023-11-07)
