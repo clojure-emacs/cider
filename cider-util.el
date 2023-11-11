@@ -515,7 +515,64 @@ Any other value is just returned."
       (mapcar #'cider--deep-vector-to-list x)
     x))
 
+
+;;; Files & Directories
+(defun cider--ensure-executable (file)
+  "Try to make FILE executable if it isn't already.
+Returns FILE on success, nil on failure."
+  (with-demoted-errors "Error while trying to make file executable:\n %s"
+    (when (or (file-executable-p file)
+              (and (set-file-modes file "u+x")
+                   (file-executable-p file)))
+      file)))
 
+(defconst cider--temp-name-prefix ".cider__"
+  "Prefix for marking temporary files created by cider.")
+
+(defun cider--make-temp-name (file)
+  "Generate a randomized name from FILEs basename.
+Tag it with `cider--temp-name-prefix'"
+  (make-temp-name
+   (concat cider--temp-name-prefix (file-name-nondirectory file) "__")))
+
+(defun cider--make-nearby-temp-copy (file)
+  "Create a copy of FILE in the default local or remote tempdir.
+Falls back to `clojure-project-dir' or `default-directory'.
+The copy is marked with `cider--temp-name-prefix'."
+  (let* ((default-directory (or (clojure-project-dir) default-directory))
+         (new-file (file-name-concat (temporary-file-directory)
+                                     (cider--make-temp-name file))))
+    (copy-file file new-file :exists-ok nil nil :keep-permissions)
+    new-file))
+
+(defun cider--inject-self-delete (bash-file)
+  "Make BASH-FILE delete itself on exit.
+Injects the self-delete script after the first line, assuming it is a
+shebang."
+  (let (;; Don't create any temporary files.
+        (remote-file-name-inhibit-locks t)
+        (remote-file-name-inhibit-auto-save-visited t)
+        (make-backup-files nil)
+        (auto-save-default nil)
+        ;; Disable version-control check
+        (vc-handled-backends nil))
+    (with-temp-buffer
+      (insert-file-contents bash-file)
+      ;; inject after the first line, assuming it is the shebang
+      (goto-char (point-min))
+      (skip-chars-forward "^\n")
+      (insert "\n")
+      (insert (format
+               "trap 'ARG=$?
+                 rm -v %s
+                 echo \"cider: Cleaned up temporary script after use.\"
+                 exit $ARG
+               ' EXIT"
+               (file-local-name bash-file)))
+      (write-file bash-file))
+    bash-file))
+
+
 ;;; Help mode
 
 ;; Same as https://github.com/emacs-mirror/emacs/blob/86d083438dba60dc00e9e96414bf7e832720c05a/lisp/help-mode.el#L355

@@ -106,6 +106,37 @@
               :and-return-value '())
       (expect (cider-project-type) :to-equal cider-jack-in-default))))
 
+(describe "cider--enriched-cmd-p"
+  (describe "when cmd does not contain the path to an enrich-classpath script"
+    (it "returns nil"
+      (expect (cider--enriched-cmd-p "/usr/bin/lein")
+              :to-equal nil)
+      (expect (cider--enriched-cmd-p "bash /usr/bin/lein")
+              :to-equal nil)))
+  (describe "for different path + script-name combinations"
+    :var* ((paths `("/simple/path/"
+                    ,(shell-quote-argument "/tmp/path/ with spaces/")
+                    ,(shell-quote-argument "/ssh:!slightly@cra --zy!path #enrich me/")))
+           (simple-names (map-values cider--enrich-classpath-script-names))
+           (tmp-names (mapcar (lambda (s) (cider--make-temp-name s)) simple-names))
+           (all-names (seq-concatenate 'list simple-names tmp-names)))
+    (cl-loop
+     for path in paths do
+     (cl-loop
+      for name in all-names do
+      (describe (format "cider--enriched-cmd-p with script: %s" (concat path name))
+        :var ((script (concat path name)))
+        (it "returns the script path in basic cases "
+          (expect (cider--enriched-cmd-p (concat "bash " script " /usr/bin/lein"))
+                  :to-equal script)
+          (expect (cider--enriched-cmd-p (concat "TEST=1 bash " script " /usr/bin/env lein"))
+                  :to-equal script))
+        (it "handles a fully constructed jack-in-cmd."
+          ;; TODO is it worth generating this?
+          (let ((cmd (concat "bash " script  " /usr/local/bin/lein update-in :dependencies conj \[nrepl/nrepl\ \"1.0.0\"\] -- update-in :plugins conj \[cider/cider-nrepl\ \"0.43.0\"\] -- update-in :plugins conj \[mx.cider/lein-enrich-classpath\ \"1.18.2\"\] -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware -- repl :headless :host localhost")))
+            (expect (cider--enriched-cmd-p cmd)
+                    :to-equal script))))))))
+
 ;;; cider-jack-in tests
 (describe "cider--gradle-dependency-notation"
   (it "returns a GAV when given a two-element list"

@@ -411,40 +411,64 @@ without interfering with classloaders."
   :package-version '(cider . "1.2.0")
   :safe #'booleanp)
 
-(defun cider--get-enrich-classpath-lein-script ()
-  "Returns the location of enrich-classpath's lein.sh wrapper script."
-  (when-let ((cider-location (locate-library "cider.el" t)))
-    (concat (file-name-directory cider-location)
-            "lein.sh")))
+(defvar cider--enrich-classpath-script-names
+  '((lein . "lein.sh")
+    (clojure-cli . "clojure.sh")))
 
-(defun cider--get-enrich-classpath-clojure-cli-script ()
-  "Returns the location of enrich-classpath's clojure.sh wrapper script."
-  (when-let ((cider-location (locate-library "cider.el" t)))
-    (concat (file-name-directory cider-location)
-            "clojure.sh")))
+(defun cider--enriched-cmd-p (cmd)
+  "Test if the shell-quoted CMD contains the name of an enrich-classpath script.
+Returns the local path to the script or nil."
+  (let* ((script-names (map-values cider--enrich-classpath-script-names))
+         (temp-prefix cider--temp-name-prefix)
+         (any-name  (rx-to-string
+                     `(or (: (or bos "/") (or ,@script-names) (or eos space))
+                          (: ,temp-prefix (or ,@script-names)))))
+         (script (thread-last
+                   (split-string-shell-command cmd)
+                   (seq-filter (lambda (part) (string-match any-name part)))
+                   (seq-first))))
+    (when script
+      (shell-quote-argument script))))
+
+(defun cider--get-enrich-classpath-script (project-type)
+  "Get or create an executable enrich-classpath script for PROJECT-TYPE.
+If `default-directory' is remote, create a copy at
+'<remote-tempdir>/.cider__<script-name>__<random>' that deletes itself after
+use.  The search for '<remote-tempdir>' is handled by tramp and falls back to
+`clojure-project-dir' or `default-directory'.  Returns nil if anything goes wrong."
+  (when-let* ((cider-dir (file-name-directory (locate-library "cider.el" t)))
+              (name (map-elt cider--enrich-classpath-script-names project-type))
+              (location (concat cider-dir name))
+              (script (cider--ensure-executable location)))
+    (if (file-remote-p default-directory)
+        (with-demoted-errors
+            "cider: Failed to initialize enrich-classpath on remote."
+          (thread-first
+            (cider--make-nearby-temp-copy script)
+            (cider--ensure-executable)
+            (cider--inject-self-delete)))
+      script)))
+
+(defun cider--jack-in-resolve-command-enrich (project-type)
+  "Conditionally wrap the command for PROJECT-TYPE with an enrich-classpath script.
+Resolves to the non-wrapped `cider-jack-in-command' if `cider-enrich-classpath' is nil or the
+  wrapper-script can't be initialized."
+  (when-let ((command (cider--resolve-command (cider-jack-in-command project-type))))
+    (if-let ((wrapper-script (and cider-enrich-classpath
+                                  (not (eq system-type 'windows-nt))
+                                  (cider--get-enrich-classpath-script project-type))))
+        (concat "bash "
+                (shell-quote-argument (file-local-name wrapper-script)) " "
+                command)
+      command)))
 
 (defun cider-jack-in-resolve-command (project-type)
   "Determine the resolved file path to `cider-jack-in-command'.
 Throws an error if PROJECT-TYPE is unknown."
   (pcase project-type
-    ('lein (let ((r (cider--resolve-command cider-lein-command)))
-             (if (and cider-enrich-classpath
-                      (not (eq system-type 'windows-nt))
-                      (executable-find (cider--get-enrich-classpath-lein-script)))
-                 (concat "bash " ;; don't assume lein.sh is executable - MELPA might change that
-                         (cider--get-enrich-classpath-lein-script)
-                         " "
-                         r)
-               r)))
+    ('lein (cider--jack-in-resolve-command-enrich 'lein))
     ('boot (cider--resolve-command cider-boot-command))
-    ('clojure-cli (if (and cider-enrich-classpath
-                           (not (eq system-type 'windows-nt))
-                           (executable-find (cider--get-enrich-classpath-clojure-cli-script)))
-                      (concat "bash " ;; don't assume clojure.sh is executable - MELPA might change that
-                              (cider--get-enrich-classpath-clojure-cli-script)
-                              " "
-                              (cider--resolve-command cider-clojure-cli-command))
-                    (cider--resolve-command cider-clojure-cli-command)))
+    ('clojure-cli  (cider--jack-in-resolve-command-enrich 'clojure-cli))
     ('babashka (cider--resolve-command cider-babashka-command))
     ;; here we have to account for the possibility that the command is either
     ;; "npx shadow-cljs" or just "shadow-cljs"
@@ -1661,7 +1685,11 @@ PARAMS is a plist with the following keys (non-exhaustive list)
              (command-resolved (cider-jack-in-resolve-command project-type))
              ;; TODO: global-options are deprecated and should be removed in CIDER 2.0
              (command-global-opts (cider-jack-in-global-options project-type))
-             (command-params (cider-jack-in-params project-type)))
+             (command-params (cider-jack-in-params project-type))
+             ;; ignore `cider-enrich-classpath' if the jack-in-command does not include
+             ;; the necessary wrapper script at this point
+             (cider-enrich-classpath (and cider-enrich-classpath
+                                          (cider--enriched-cmd-p command-resolved))))
         (if command-resolved
             (with-current-buffer (or (plist-get params :--context-buffer)
                                      (current-buffer))
@@ -2114,13 +2142,11 @@ M-2 \\[cider-jack-in-universal]."
       (cider-jack-in-clj arg))))
 
 
-;; TODO: Implement a check for command presence over tramp
 (defun cider--resolve-command (command)
-  "Find COMMAND in exec path (see variable `exec-path').
-Return nil if not found.  In case `default-directory' is non-local we
-assume the command is available."
-  (when-let* ((command (or (and (file-remote-p default-directory) command)
-                           (executable-find command)
+  "Test if COMMAND exists, is executable and shell-quote it.
+Return nil otherwise.  When `default-directory' is remote, the check is
+performed by tramp."
+  (when-let* ((command (or (executable-find command :remote)
                            (executable-find (concat command ".bat")))))
     (shell-quote-argument command)))
 
