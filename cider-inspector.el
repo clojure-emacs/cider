@@ -528,6 +528,8 @@ instead of just its \"value\" entry."
                   dict-or-value))
          (fragments (when v2
                       (nrepl-dict-get dict-or-value "doc-fragments")))
+         (block-tags (when v2
+                       (nrepl-dict-get dict-or-value "doc-block-tags-fragments")))
          (font-size (when-let* ((b (get-buffer cider-inspector-buffer))
                                 (variable 'text-scale-mode-amount)
                                 (continue (local-variable-p variable b)))
@@ -536,7 +538,7 @@ instead of just its \"value\" entry."
                       ;; Enabling cider-inspector-mode is the specific step that loses the font size.
                       (buffer-local-value variable b))))
     (cider-make-popup-buffer cider-inspector-buffer 'cider-inspector-mode 'ancillary)
-    (cider-inspector-render cider-inspector-buffer value font-size fragments))
+    (cider-inspector-render cider-inspector-buffer value font-size fragments block-tags))
   (cider-popup-buffer-display cider-inspector-buffer cider-inspector-auto-select-buffer)
   (when cider-inspector-fill-frame (delete-other-windows))
   (ignore-errors (cider-inspector-next-inspectable-object 1))
@@ -555,7 +557,7 @@ instead of just its \"value\" entry."
       (when cider-inspector-page-location-stack
         (goto-char (pop cider-inspector-page-location-stack))))))
 
-(defun cider-inspector-render (buffer str &optional font-size fragments)
+(defun cider-inspector-render (buffer str &optional font-size fragments block-tags)
   "Render STR in BUFFER."
   (with-current-buffer buffer
     (cider-inspector-mode)
@@ -564,20 +566,22 @@ instead of just its \"value\" entry."
     (let ((inhibit-read-only t))
       (condition-case nil
           (cider-inspector-render* (car (read-from-string str))
-                                   fragments)
+                                   fragments
+                                   block-tags)
         (error (insert "\nInspector error for: " str))))
     (goto-char (point-min))))
 
 (defvar cider-inspector-looking-at-java-p nil)
 
-(defun cider-inspector-render* (elements &optional fragments)
+(defun cider-inspector-render* (elements &optional fragments block-tags)
   "Render ELEMENTS, and FRAGMENTS if present."
   (setq cider-inspector-looking-at-java-p nil)
   (dolist (el elements)
     (cider-inspector-render-el* el))
   (when fragments
     (insert "\n\n")
-    (insert (cider--render-docstring (list "doc-fragments" fragments)))))
+    (insert (cider--render-docstring (list "doc-fragments" fragments
+                                           "doc-block-tags-fragments" block-tags)))))
 
 (defconst cider--inspector-java-headers
   ;; NOTE "--- Static fields:" "--- Instance fields:" are for objects,
