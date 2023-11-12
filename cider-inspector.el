@@ -536,9 +536,15 @@ instead of just its \"value\" entry."
                       ;; The font size is lost between inspector 'screens',
                       ;; because on each re-rendering, we wipe everything, including the mode.
                       ;; Enabling cider-inspector-mode is the specific step that loses the font size.
-                      (buffer-local-value variable b))))
+                      (buffer-local-value variable b)))
+         (truncate-lines-variable 'truncate-lines)
+         (truncate-lines-defined (when-let* ((b (get-buffer cider-inspector-buffer)))
+                                   (local-variable-p truncate-lines-variable b)))
+         (truncate-lines-p (when-let* ((b (get-buffer cider-inspector-buffer))
+                                       (continue truncate-lines-defined))
+                             (buffer-local-value truncate-lines-variable b))))
     (cider-make-popup-buffer cider-inspector-buffer 'cider-inspector-mode 'ancillary)
-    (cider-inspector-render cider-inspector-buffer value font-size fragments block-tags))
+    (cider-inspector-render cider-inspector-buffer value font-size truncate-lines-defined truncate-lines-p fragments block-tags))
   (cider-popup-buffer-display cider-inspector-buffer cider-inspector-auto-select-buffer)
   (when cider-inspector-fill-frame (delete-other-windows))
   (ignore-errors (cider-inspector-next-inspectable-object 1))
@@ -557,12 +563,14 @@ instead of just its \"value\" entry."
       (when cider-inspector-page-location-stack
         (goto-char (pop cider-inspector-page-location-stack))))))
 
-(defun cider-inspector-render (buffer str &optional font-size fragments block-tags)
+(defun cider-inspector-render (buffer str &optional font-size truncate-lines-defined truncate-lines-p fragments block-tags)
   "Render STR in BUFFER."
   (with-current-buffer buffer
     (cider-inspector-mode)
     (when font-size
       (text-scale-set font-size))
+    (when truncate-lines-defined
+      (setq-local truncate-lines truncate-lines-p))
     (let ((inhibit-read-only t))
       (condition-case nil
           (cider-inspector-render* (car (read-from-string str))
@@ -574,7 +582,7 @@ instead of just its \"value\" entry."
 (defvar cider-inspector-looking-at-java-p nil)
 
 (defun cider-inspector-render* (elements &optional fragments block-tags)
-  "Render ELEMENTS, and FRAGMENTS if present."
+  "Render ELEMENTS, and FRAGMENTS, BLOCK-TAGS if present."
   (setq cider-inspector-looking-at-java-p nil)
   (dolist (el elements)
     (cider-inspector-render-el* el))
