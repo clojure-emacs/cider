@@ -407,6 +407,11 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
     (and (string-match-p "\\\\n" input-string)
          t)))
 
+(defvar cider-test-var-keymap
+  (let ((map (make-sparse-keymap)))
+    (define-key map [mouse-1] #'cider-test-jump)
+    map))
+
 (defun cider-test-render-assertion (buffer test)
   "Emit into BUFFER report detail for the TEST assertion."
   (with-current-buffer buffer
@@ -428,7 +433,9 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
                 (type-face (cider-test-type-simple-face type))
                 (bg `(:background ,cider-test-items-background-color :extend t)))
             (cider-insert (capitalize type) type-face nil " in ")
-            (cider-insert var 'font-lock-function-name-face t)
+            (cider-propertize-region `(keymap ,cider-test-var-keymap)
+              (cider-insert (propertize var 'mouse-face 'highlight)
+                            'font-lock-function-name-face t))
             (when context  (cider-insert context 'font-lock-doc-face t))
             (when message  (cider-insert message 'font-lock-string-face t))
             (when expected

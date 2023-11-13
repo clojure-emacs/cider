@@ -6,6 +6,8 @@
 
 - [#3576](https://github.com/clojure-emacs/cider/issues/3576): CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html): display Java class/method/field block tags (Returns/Throws/Params info) when available.
 - CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html): retain [`truncate-lines`](https://www.gnu.org/software/emacs/manual/html_node/emacs/Line-Truncation.html) values across screens. 
+- [#3580](https://github.com/clojure-emacs/cider/issues/3580): `cider-test`: make test vars in [test results reports](https://docs.cider.mx/cider/testing/test_reports.html) clickable.
+  - As defined in the newly introduced `cider-test-var-keymap` var.
 
 ## 1.11.1 (2023-11-11)
 
