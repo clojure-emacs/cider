@@ -8,6 +8,8 @@
 - CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html): retain [`truncate-lines`](https://www.gnu.org/software/emacs/manual/html_node/emacs/Line-Truncation.html) values across screens. 
 - [#3580](https://github.com/clojure-emacs/cider/issues/3580): `cider-test`: make test vars in [test results reports](https://docs.cider.mx/cider/testing/test_reports.html) clickable.
   - As defined in the newly introduced `cider-test-var-keymap` var.
+- [#3581](https://github.com/clojure-emacs/cider/issues/3581): Bump the injected `enrich-classpath` to [1.18.5](https://github.com/clojure-emacs/enrich-classpath/compare/v1.18.4...v1.18.5).
+  - Handles Clojure CLI `:paths` directly defined as `:aliases`.
 
 ## 1.11.1 (2023-11-11)
 
