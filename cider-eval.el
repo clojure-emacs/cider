@@ -486,15 +486,18 @@ op/situation that originated this error."
     (let ((error-buffer (cider-new-error-buffer #'cider-stacktrace-mode error-types)))
       (cider-stacktrace-render error-buffer (reverse causes) error-types))))
 
-(defcustom cider-clojure-compilation-error-phases '("read-source"
-                                                    "macro-syntax-check"
-                                                    "macroexpansion"
-                                                    "compile-syntax-check"
-                                                    "compilation"
-                                                    ;; "execution" is certainly not to be included here.
-                                                    ;; "read-eval-result" and "print-eval-result" are not to be included here,
-                                                    ;; because they mean that the code has been successfully executed.
-                                                    )
+(defconst cider-clojure-compilation-error-phases-default-value
+  '("read-source"
+    "macro-syntax-check"
+    "macroexpansion"
+    "compile-syntax-check"
+    "compilation"
+    ;; "execution" is certainly not to be included here.
+    ;; "read-eval-result" and "print-eval-result" are not to be included here,
+    ;; because they mean that the code has been successfully executed.
+    ))
+
+(defcustom cider-clojure-compilation-error-phases cider-clojure-compilation-error-phases-default-value
   "Error phases which will not cause the `*cider-error*' buffer to pop up.
 
 The default value results in no stacktrace being shown for compile-time errors.
@@ -511,6 +514,12 @@ https://clojure.org/reference/repl_and_main#_at_repl"
   :group 'cider
   :package-version '(cider . "0.18.0"))
 
+(defun cider-clojure-compilation-error-phases ()
+  "Get the normalized value of the `cider-clojure-compilation-error-phases' var."
+  (if (equal t cider-clojure-compilation-error-phases)
+      cider-clojure-compilation-error-phases-default-value
+    cider-clojure-compilation-error-phases))
+
 (defun cider--handle-stacktrace-response (response causes ex-phase)
   "Handle stacktrace RESPONSE, aggregate the result into CAUSES, honor EX-PHASE.
 If RESPONSE contains a cause, cons it onto CAUSES and return that.  If
@@ -521,7 +530,7 @@ into a new error buffer."
            (nrepl-notify msg type))
           (class (cons response causes))
           (status
-           (unless (member ex-phase cider-clojure-compilation-error-phases)
+           (unless (member ex-phase (cider-clojure-compilation-error-phases))
              (cider--render-stacktrace-causes causes))))))
 
 (defun cider-default-err-op-handler ()
@@ -832,7 +841,7 @@ REPL buffer.  This is controlled via
 
 (defun cider--error-phase-of-last-exception (buffer)
   "Returns the :phase of the latest exception associated to BUFFER, if any."
-  (when cider-clojure-compilation-error-phases
+  (when (cider-clojure-compilation-error-phases)
     (when-let ((conn (with-current-buffer buffer
                        (cider-current-repl))))
       (when (cider-nrepl-op-supported-p "analyze-last-stacktrace" conn)
@@ -872,7 +881,7 @@ depending on the PHASE."
          (not (cider-connection-has-capability-p 'jvm-compilation-errors))
          ;; if we won't show *cider-error*, because of an ignored phase, the overlay is adequate:
          (and cider-show-error-buffer
-              (member phase cider-clojure-compilation-error-phases)))
+              (member phase (cider-clojure-compilation-error-phases))))
     ;; Display errors as temporary overlays
     (let ((cider-result-use-clojure-font-lock nil)
           (trimmed-err (funcall cider-inline-error-message-function err)))
