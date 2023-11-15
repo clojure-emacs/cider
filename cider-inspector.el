@@ -89,6 +89,12 @@ by clicking or navigating to them by other means."
           "\\|[+-.0-9]+")            ; nor numbers. Note: BigInts, ratios etc. are interesting
   "Regexp of uninteresting and skippable values.")
 
+(defun cider-open-url-at-point ()
+  "Opens the url at point if found, without prompting."
+  (interactive)
+  (when-let ((url (thing-at-point 'url)))
+    (browse-url url)))
+
 (defvar cider-inspector-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map cider-popup-buffer-mode-map)
@@ -96,6 +102,7 @@ by clicking or navigating to them by other means."
     (define-key map [mouse-1] #'cider-inspector-operate-on-click)
     (define-key map "l" #'cider-inspector-pop)
     (define-key map "g" #'cider-inspector-refresh)
+    (define-key map "u" #'cider-open-url-at-point)
     ;; Page-up/down
     (define-key map [next] #'cider-inspector-next-page)
     (define-key map [prior] #'cider-inspector-prev-page)
