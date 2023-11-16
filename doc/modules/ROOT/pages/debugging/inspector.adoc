@@ -88,6 +88,10 @@ You'll have access to additional keybindings in the inspector buffer
 | `cider-open-url-at-point`
 | Opens the url at point if found.
 
+| kbd:[r]
+| `cider-inspect-expr`
+| Prompts for a new value, rendering it in the Inspector.
+
 | kbd:[t]
 | `cider-inspector-tap-current-val`
 | Performs `tap>` using the inspector's current value as it argument.

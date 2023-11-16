@@ -119,6 +119,7 @@ by clicking or navigating to them by other means."
     (define-key map "n" #'cider-inspector-next-inspectable-object)
     (define-key map [(shift tab)] #'cider-inspector-previous-inspectable-object)
     (define-key map "p" #'cider-inspector-previous-inspectable-object)
+    (define-key map "r" #'cider-inspect-expr)
     (define-key map "f" #'forward-char)
     (define-key map "b" #'backward-char)
     (define-key map "9" #'cider-inspector-previous-sibling)
