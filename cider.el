@@ -416,19 +416,13 @@ without interfering with classloaders."
     (clojure-cli . "clojure.sh")))
 
 (defun cider--enriched-cmd-p (cmd)
-  "Test if the shell-quoted CMD contains the name of an enrich-classpath script.
-Returns the local path to the script or nil."
+  "Test if the shell-quoted CMD contains the name of an enrich-classpath script."
   (let* ((script-names (map-values cider--enrich-classpath-script-names))
          (temp-prefix cider--temp-name-prefix)
          (any-name  (rx-to-string
                      `(or (: (or bos "/") (or ,@script-names) (or eos space))
-                          (: ,temp-prefix (or ,@script-names)))))
-         (script (thread-last
-                   (split-string-shell-command cmd)
-                   (seq-filter (lambda (part) (string-match any-name part)))
-                   (seq-first))))
-    (when script
-      (shell-quote-argument script))))
+                          (: ,temp-prefix (or ,@script-names))))))
+    (string-match any-name cmd)))
 
 (defun cider--get-enrich-classpath-script (project-type)
   "Get or create an executable enrich-classpath script for PROJECT-TYPE.

@@ -126,16 +126,16 @@
       for name in all-names do
       (describe (format "cider--enriched-cmd-p with script: %s" (concat path name))
         :var ((script (concat path name)))
-        (it "returns the script path in basic cases "
+        (it "is true in basic cases "
           (expect (cider--enriched-cmd-p (concat "bash " script " /usr/bin/lein"))
-                  :to-equal script)
+                  :to-be-truthy)
           (expect (cider--enriched-cmd-p (concat "TEST=1 bash " script " /usr/bin/env lein"))
-                  :to-equal script))
+                  :to-be-truthy))
         (it "handles a fully constructed jack-in-cmd."
           ;; TODO is it worth generating this?
           (let ((cmd (concat "bash " script  " /usr/local/bin/lein update-in :dependencies conj \[nrepl/nrepl\ \"1.0.0\"\] -- update-in :plugins conj \[cider/cider-nrepl\ \"0.43.0\"\] -- update-in :plugins conj \[mx.cider/lein-enrich-classpath\ \"1.18.2\"\] -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware -- repl :headless :host localhost")))
             (expect (cider--enriched-cmd-p cmd)
-                    :to-equal script))))))))
+                    :to-be-truthy))))))))
 
 ;;; cider-jack-in tests
 (describe "cider--gradle-dependency-notation"
