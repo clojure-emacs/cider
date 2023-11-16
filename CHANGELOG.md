@@ -8,6 +8,7 @@
 
 ### Changes
 
+- [#3567](https://github.com/clojure-emacs/cider/pull/3567): Fix remote `cider-jack-in-clj` breaking with `cider-enrich-classpath` when `clojure.sh|lein.sh` are not available on the remote.
 - CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html): display Java class/method/field info when available.
   - This info is available when [enrich-classpath](https://docs.cider.mx/cider/config/basic_config.html#use-enrich-classpath) is active.
 - [#3495](https://github.com/clojure-emacs/cider/issues/3495): possibly display error overlays on [`cider-load-buffer`](https://docs.cider.mx/cider/usage/code_evaluation.html#basic-evaluation).
