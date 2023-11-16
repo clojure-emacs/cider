@@ -551,7 +551,6 @@ Injects the self-delete script after the first line, assuming it is a
 shebang."
   (let (;; Don't create any temporary files.
         (remote-file-name-inhibit-locks t)
-        (remote-file-name-inhibit-auto-save-visited t)
         (make-backup-files nil)
         (auto-save-default nil)
         ;; Disable version-control check
