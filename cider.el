@@ -442,7 +442,7 @@ use.  The search for '<remote-tempdir>' is handled by tramp and falls back to
               (script (cider--ensure-executable location)))
     (if (file-remote-p default-directory)
         (with-demoted-errors
-            "cider: Failed to initialize enrich-classpath on remote."
+            "cider: Failed to initialize enrich-classpath on remote:\n %s"
           (thread-first
             (cider--make-nearby-temp-copy script)
             (cider--ensure-executable)
