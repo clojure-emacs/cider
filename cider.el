@@ -420,7 +420,7 @@ without interfering with classloaders."
   (let* ((script-names (map-values cider--enrich-classpath-script-names))
          (temp-prefix cider--temp-name-prefix)
          (any-name  (rx-to-string
-                     `(or (: (or bos "/") (or ,@script-names) (or eos space))
+                     `(or (: (or ,@script-names) (or eos space))
                           (: ,temp-prefix (or ,@script-names))))))
     (string-match any-name cmd)))
 

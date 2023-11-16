@@ -115,8 +115,8 @@
               :to-equal nil)))
   (describe "for different path + script-name combinations"
     :var* ((paths `("/simple/path/"
-                    ,(shell-quote-argument "/tmp/path/ with spaces/")
-                    ,(shell-quote-argument "/ssh:!slightly@cra --zy!path #enrich me/")))
+                    ,"/tmp/path/ with spaces/"
+                    ,"/ssh:!slightly@cra --zy!path #enrich me/"))
            (simple-names (map-values cider--enrich-classpath-script-names))
            (tmp-names (mapcar (lambda (s) (cider--make-temp-name s)) simple-names))
            (all-names (seq-concatenate 'list simple-names tmp-names)))
@@ -124,8 +124,8 @@
      for path in paths do
      (cl-loop
       for name in all-names do
-      (describe (format "cider--enriched-cmd-p with script: %s" (concat path name))
-        :var ((script (concat path name)))
+      (describe (format "cider--enriched-cmd-p with script: %s" (shell-quote-argument (concat path name)))
+        :var ((script (shell-quote-argument (concat path name))))
         (it "is true in basic cases "
           (expect (cider--enriched-cmd-p (concat "bash " script " /usr/bin/lein"))
                   :to-be-truthy)
