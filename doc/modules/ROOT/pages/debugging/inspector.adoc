@@ -89,7 +89,7 @@ You'll have access to additional keybindings in the inspector buffer
 | Opens the url or file at point, if found.
 
 | kbd:[:]
-| `cider-inspect-expr`
+| `cider-inspect-expr-from-inspector`
 | Prompts for a new value, rendering it in the Inspector.
 
 | kbd:[t]
