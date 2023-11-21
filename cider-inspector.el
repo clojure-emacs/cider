@@ -89,11 +89,13 @@ by clicking or navigating to them by other means."
           "\\|[+-.0-9]+")            ; nor numbers. Note: BigInts, ratios etc. are interesting
   "Regexp of uninteresting and skippable values.")
 
-(defun cider-open-url-at-point ()
-  "Opens the url at point if found, without prompting."
+(defun cider-inspector-open-thing-at-point ()
+  "Opens the thing at point if found, without prompting."
   (interactive)
-  (when-let ((url (thing-at-point 'url)))
-    (browse-url url)))
+  (if-let ((url (thing-at-point 'url)))
+      (browse-url url)
+    (if-let ((filename (thing-at-point 'filename)))
+        (find-file filename))))
 
 (defvar cider-inspector-mode-map
   (let ((map (make-sparse-keymap)))
@@ -102,7 +104,7 @@ by clicking or navigating to them by other means."
     (define-key map [mouse-1] #'cider-inspector-operate-on-click)
     (define-key map "l" #'cider-inspector-pop)
     (define-key map "g" #'cider-inspector-refresh)
-    (define-key map "u" #'cider-open-url-at-point)
+    (define-key map "o" #'cider-inspector-open-thing-at-point)
     ;; Page-up/down
     (define-key map [next] #'cider-inspector-next-page)
     (define-key map [prior] #'cider-inspector-prev-page)
@@ -119,7 +121,7 @@ by clicking or navigating to them by other means."
     (define-key map "n" #'cider-inspector-next-inspectable-object)
     (define-key map [(shift tab)] #'cider-inspector-previous-inspectable-object)
     (define-key map "p" #'cider-inspector-previous-inspectable-object)
-    (define-key map "r" #'cider-inspect-expr)
+    (define-key map ":" #'cider-inspect-expr)
     (define-key map "f" #'forward-char)
     (define-key map "b" #'backward-char)
     (define-key map "9" #'cider-inspector-previous-sibling)
