@@ -84,12 +84,13 @@ INVERT inverts the semantics of the function `cider--should-prompt-for-symbol'."
 
 (declare-function cider-complete-at-point "cider-completion")
 (declare-function cider-eldoc "cider-eldoc")
-(defun cider-read-from-minibuffer (prompt &optional value)
+(defun cider-read-from-minibuffer (prompt &optional value skip-colon)
   "Read a string from the minibuffer, prompting with PROMPT.
 If VALUE is non-nil, it is inserted into the minibuffer as initial-input.
-PROMPT need not end with \": \". If it doesn't, VALUE is displayed on the
+PROMPT need not end with \": \".  If it doesn't, VALUE is displayed on the
 prompt as a default value (used if the user doesn't type anything) and is
-not used as initial input (input is left empty)."
+not used as initial input (input is left empty).
+If SKIP-COLON is non-nil, no \": \" is forced at the end of the prompt."
   (minibuffer-with-setup-hook
       (lambda ()
         (set-syntax-table clojure-mode-syntax-table)
@@ -100,6 +101,7 @@ not used as initial input (input is left empty)."
     (let* ((has-colon (string-match ": \\'" prompt))
            (input (read-from-minibuffer (cond
                                          (has-colon prompt)
+                                         (skip-colon prompt)
                                          (value (format "%s (default %s): " prompt value))
                                          (t (format "%s: " prompt)))
                                         (when has-colon value) ; initial-input

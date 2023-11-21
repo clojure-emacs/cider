@@ -84,6 +84,14 @@ You'll have access to additional keybindings in the inspector buffer
 | `cider-inspector-next-sibling`
 | Navigates to the next sibling, within a sequential collection.
 
+| kbd:[o]
+| `cider-inspector-open-thing-at-point`
+| Opens the url or file at point, if found.
+
+| kbd:[:]
+| `cider-inspect-expr-from-inspector`
+| Prompts for a new value, rendering it in the Inspector.
+
 | kbd:[t]
 | `cider-inspector-tap-current-val`
 | Performs `tap>` using the inspector's current value as it argument.

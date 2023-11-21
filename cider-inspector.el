@@ -89,6 +89,14 @@ by clicking or navigating to them by other means."
           "\\|[+-.0-9]+")            ; nor numbers. Note: BigInts, ratios etc. are interesting
   "Regexp of uninteresting and skippable values.")
 
+(defun cider-inspector-open-thing-at-point ()
+  "Opens the thing at point if found, without prompting."
+  (interactive)
+  (if-let ((url (thing-at-point 'url)))
+      (browse-url url)
+    (if-let ((filename (thing-at-point 'filename)))
+        (find-file filename))))
+
 (defvar cider-inspector-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map cider-popup-buffer-mode-map)
@@ -96,6 +104,7 @@ by clicking or navigating to them by other means."
     (define-key map [mouse-1] #'cider-inspector-operate-on-click)
     (define-key map "l" #'cider-inspector-pop)
     (define-key map "g" #'cider-inspector-refresh)
+    (define-key map "o" #'cider-inspector-open-thing-at-point)
     ;; Page-up/down
     (define-key map [next] #'cider-inspector-next-page)
     (define-key map [prior] #'cider-inspector-prev-page)
@@ -112,6 +121,7 @@ by clicking or navigating to them by other means."
     (define-key map "n" #'cider-inspector-next-inspectable-object)
     (define-key map [(shift tab)] #'cider-inspector-previous-inspectable-object)
     (define-key map "p" #'cider-inspector-previous-inspectable-object)
+    (define-key map ":" #'cider-inspect-expr-from-inspector)
     (define-key map "f" #'forward-char)
     (define-key map "b" #'backward-char)
     (define-key map "9" #'cider-inspector-previous-sibling)
@@ -216,6 +226,16 @@ current buffer's namespace."
                  'v2)))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result 'v2))))
+
+(defun cider-inspect-expr-from-inspector ()
+  "Performs `cider-inspect-expr' in a way that is suitable from the Inspector itself.
+In particular, it does not read `cider-sexp-at-point'."
+  (interactive)
+  (let* ((ns (cider-current-ns))
+         (prompt (format "Inspect expression in %s"
+                         (substring-no-properties (funcall cider-repl-prompt-function ns)))))
+    (cider-inspect-expr (cider-read-from-minibuffer prompt nil 'skip-colon)
+                        ns)))
 
 (defun cider-inspector-pop ()
   "Pop the last value off the inspector stack and render it.
