@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.12.0 (2023-11-24)
+
 ### Changes
 
 - [#3576](https://github.com/clojure-emacs/cider/issues/3576): CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html): display Java class/method/field block tags (Returns/Throws/Params info) when available.

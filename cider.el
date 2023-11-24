@@ -11,7 +11,7 @@
 ;;         Steve Purcell <steve@sanityinc.com>
 ;; Maintainer: Bozhidar Batsov <bozhidar@batsov.dev>
 ;; URL: https://www.github.com/clojure-emacs/cider
-;; Version: 1.12.0-snapshot
+;; Version: 1.12.0
 ;; Package-Requires: ((emacs "26") (clojure-mode "5.18.1") (parseedn "1.2.0") (queue "0.2") (spinner "1.7") (seq "2.22") (sesman "0.3.2") (transient "0.4.1"))
 ;; Keywords: languages, clojure, cider
 
@@ -93,7 +93,7 @@
 (require 'sesman)
 (require 'package)
 
-(defconst cider-version "1.12.0-snapshot"
+(defconst cider-version "1.12.0"
   "The current version of CIDER.")
 
 (defconst cider-codename "Split"
@@ -602,15 +602,15 @@ returned by this function does not include keyword arguments."
                    (append cider-jack-in-lein-plugins
                            `(("cider/cider-nrepl" ,cider-injected-middleware-version))))))
     (thread-last
-      plugins
-      (seq-filter
-       (lambda (spec)
-         (if-let* ((pred (plist-get (seq-drop spec 2) :predicate)))
-             (funcall pred spec)
-           t)))
-      (mapcar
-       (lambda (spec)
-         (seq-take spec 2))))))
+     plugins
+     (seq-filter
+      (lambda (spec)
+        (if-let* ((pred (plist-get (seq-drop spec 2) :predicate)))
+            (funcall pred spec)
+          t)))
+     (mapcar
+      (lambda (spec)
+        (seq-take spec 2))))))
 
 (defvar cider-jack-in-nrepl-middlewares nil
   "List of Clojure variable names.
@@ -635,18 +635,18 @@ Added to `cider-jack-in-nrepl-middlewares' (which see) when doing
 See `cider-jack-in-nrepl-middlewares' for the format, except that the list
 returned by this function only contains strings."
   (thread-last
-    cider-jack-in-nrepl-middlewares
-    (seq-filter
-     (lambda (spec)
-       (or (not (listp spec))
-           (if-let* ((pred (plist-get (cdr spec) :predicate)))
-               (funcall pred spec)
-             t))))
-    (mapcar
-     (lambda (spec)
-       (if (listp spec)
-           (car spec)
-         spec)))))
+   cider-jack-in-nrepl-middlewares
+   (seq-filter
+    (lambda (spec)
+      (or (not (listp spec))
+          (if-let* ((pred (plist-get (cdr spec) :predicate)))
+              (funcall pred spec)
+            t))))
+   (mapcar
+    (lambda (spec)
+      (if (listp spec)
+          (car spec)
+        spec)))))
 
 (defun cider--list-as-boot-artifact (list)
   "Return a boot artifact string described by the elements of LIST.
@@ -823,21 +823,21 @@ suitable `clojure` invocation and quoting, also accounting for COMMAND if
 provided.  The main is placed in an inline alias :cider/nrepl so that if
 your aliases contain any mains, the cider/nrepl one will be the one used."
   (let* ((all-deps (thread-last
-                     dependencies
-                     (append (cider--jack-in-required-dependencies))
-                     ;; Duplicates are never OK since they would result in
-                     ;; `java.lang.IllegalArgumentException: Duplicate key [...]`:
-                     (cider--dedupe-deps)
-                     (seq-map (lambda (dep)
-                                (if (listp (cadr dep))
-                                    (format "%s {%s}"
-                                            (car dep)
-                                            (seq-reduce
-                                             (lambda (acc v)
-                                               (concat acc (format " :%s \"%s\" " (car v) (cdr v))))
-                                             (cadr dep)
-                                             ""))
-                                  (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep)))))))
+                    dependencies
+                    (append (cider--jack-in-required-dependencies))
+                    ;; Duplicates are never OK since they would result in
+                    ;; `java.lang.IllegalArgumentException: Duplicate key [...]`:
+                    (cider--dedupe-deps)
+                    (seq-map (lambda (dep)
+                               (if (listp (cadr dep))
+                                   (format "%s {%s}"
+                                           (car dep)
+                                           (seq-reduce
+                                            (lambda (acc v)
+                                              (concat acc (format " :%s \"%s\" " (car v) (cdr v))))
+                                            (cadr dep)
+                                            ""))
+                                 (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep)))))))
          (middleware (mapconcat
                       (apply-partially #'format "%s")
                       (cider-jack-in-normalized-nrepl-middlewares)
@@ -1345,10 +1345,10 @@ been determined."
 Updates :project-dir and :jack-in-cmd.
 Also checks whether a matching session already exists."
   (thread-first
-    params
-    (cider--update-project-dir)
-    (cider--check-existing-session)
-    (cider--update-jack-in-cmd)))
+   params
+   (cider--update-project-dir)
+   (cider--check-existing-session)
+   (cider--update-jack-in-cmd)))
 
 ;;;###autoload
 (defun cider-jack-in-clj (params)
@@ -1388,10 +1388,10 @@ these parameters."
         (orig-buffer (current-buffer)))
     ;; cider--update-jack-in-cmd relies indirectly on the above dynamic vars
     (let ((params (thread-first
-                    params
-                    (cider--update-project-dir)
-                    (cider--check-existing-session)
-                    (cider--update-jack-in-cmd))))
+                   params
+                   (cider--update-project-dir)
+                   (cider--check-existing-session)
+                   (cider--update-jack-in-cmd))))
       (nrepl-start-server-process
        (plist-get params :project-dir)
        (plist-get params :jack-in-cmd)
@@ -1418,13 +1418,13 @@ only when the ClojureScript dependencies are met."
         (orig-buffer (current-buffer)))
     ;; cider--update-jack-in-cmd relies indirectly on the above dynamic vars
     (let ((params (thread-first
-                    params
-                    (cider--update-project-dir)
-                    (cider--check-existing-session)
-                    (cider--update-jack-in-cmd)
-                    (cider--update-cljs-type)
-                    ;; already asked, don't ask on sibling connect
-                    (plist-put :do-prompt nil))))
+                   params
+                   (cider--update-project-dir)
+                   (cider--check-existing-session)
+                   (cider--update-jack-in-cmd)
+                   (cider--update-cljs-type)
+                   ;; already asked, don't ask on sibling connect
+                   (plist-put :do-prompt nil))))
       (nrepl-start-server-process
        (plist-get params :project-dir)
        (plist-get params :jack-in-cmd)
@@ -1450,12 +1450,12 @@ server is created."
           (ses-name (unless (nrepl-server-p other-repl)
                       (sesman-session-name-for-object 'CIDER other-repl))))
      (thread-first
-       params
-       (cider--update-do-prompt)
-       (append other-params)
-       (plist-put :repl-init-function nil)
-       (plist-put :repl-type 'clj)
-       (plist-put :session-name ses-name)))))
+      params
+      (cider--update-do-prompt)
+      (append other-params)
+      (plist-put :repl-init-function nil)
+      (plist-put :repl-type 'clj)
+      (plist-put :session-name ses-name)))))
 
 ;;;###autoload
 (defun cider-connect-sibling-cljs (params &optional other-repl)
@@ -1475,13 +1475,13 @@ server buffer, in which case a new session for that server is created."
                      (sesman-session-name-for-object 'CIDER other-repl))))
     (cider-nrepl-connect
      (thread-first
-       params
-       (cider--update-do-prompt)
-       (append other-params)
-       (cider--update-cljs-type)
-       (cider--update-cljs-init-function)
-       (plist-put :session-name ses-name)
-       (plist-put :repl-type 'cljs)))))
+      params
+      (cider--update-do-prompt)
+      (append other-params)
+      (cider--update-cljs-type)
+      (cider--update-cljs-init-function)
+      (plist-put :session-name ses-name)
+      (plist-put :repl-type 'cljs)))))
 
 ;;;###autoload
 (defun cider-connect-clj (&optional params)
@@ -1491,13 +1491,13 @@ prefix argument, prompt for all the parameters."
   (interactive "P")
   (cider-nrepl-connect
    (thread-first
-     params
-     (cider--update-project-dir)
-     (cider--update-host-port)
-     (cider--check-existing-session)
-     (plist-put :repl-init-function nil)
-     (plist-put :session-name nil)
-     (plist-put :repl-type 'clj))))
+    params
+    (cider--update-project-dir)
+    (cider--update-host-port)
+    (cider--check-existing-session)
+    (plist-put :repl-init-function nil)
+    (plist-put :session-name nil)
+    (plist-put :repl-type 'clj))))
 
 ;;;###autoload
 (defun cider-connect-cljs (&optional params)
@@ -1510,14 +1510,14 @@ parameters regardless of their supplied or default values."
   (interactive "P")
   (cider-nrepl-connect
    (thread-first
-     params
-     (cider--update-project-dir)
-     (cider--update-host-port)
-     (cider--check-existing-session)
-     (cider--update-cljs-type)
-     (cider--update-cljs-init-function)
-     (plist-put :session-name nil)
-     (plist-put :repl-type 'cljs))))
+    params
+    (cider--update-project-dir)
+    (cider--update-host-port)
+    (cider--check-existing-session)
+    (cider--update-cljs-type)
+    (cider--update-cljs-init-function)
+    (plist-put :session-name nil)
+    (plist-put :repl-type 'cljs))))
 
 ;;;###autoload
 (defun cider-connect-clj&cljs (params &optional soft-cljs-start)
@@ -1527,15 +1527,15 @@ PARAMS is a plist optionally containing :host, :port, :project-dir and
 non-nil, don't start if ClojureScript requirements are not met."
   (interactive "P")
   (let* ((params (thread-first
-                   params
-                   (cider--update-project-dir)
-                   (cider--update-host-port)
-                   (cider--check-existing-session)
-                   (cider--update-cljs-type)))
+                  params
+                  (cider--update-project-dir)
+                  (cider--update-host-port)
+                  (cider--check-existing-session)
+                  (cider--update-cljs-type)))
          (clj-params (thread-first
-                       params
-                       copy-sequence
-                       (map-delete :cljs-repl-type)))
+                      params
+                      copy-sequence
+                      (map-delete :cljs-repl-type)))
          (clj-repl (cider-connect-clj clj-params)))
     (when (if soft-cljs-start
               (cider--check-cljs (plist-get params :cljs-repl-type) 'no-error)
@@ -1606,9 +1606,9 @@ Params is a plist with the following keys (non-exhaustive)
           (let ((default-directory proj-dir))
             (hack-dir-local-variables-non-file-buffer)
             (thread-first
-              params
-              (plist-put :project-dir proj-dir)
-              (plist-put :--context-buffer (current-buffer)))))))))
+             params
+             (plist-put :project-dir proj-dir)
+             (plist-put :--context-buffer (current-buffer)))))))))
 
 (defun cider--update-cljs-type (params)
   "Update :cljs-repl-type in PARAMS."
@@ -1705,9 +1705,9 @@ PARAMS is a plist with the following keys (non-exhaustive list)
       (if (equal "local-unix-domain-socket" (car endpoint))
           (plist-put params :socket-file (cdr endpoint))
         (thread-first
-          params
-          (plist-put :host (car endpoint))
-          (plist-put :port (cdr endpoint)))))))
+         params
+         (plist-put :host (car endpoint))
+         (plist-put :port (cdr endpoint)))))))
 
 (defun cider--update-cljs-init-function (params)
   "Update repl type and any init PARAMS for cljs connections.
@@ -1729,20 +1729,20 @@ over to cljs.
           (plist-put params :cider-repl-cljs-upgrade-pending nil)
 
         (thread-first
-          params
-          (plist-put :cider-repl-cljs-upgrade-pending t)
-          (plist-put :repl-init-function
-                     (lambda ()
-                       (cider--check-cljs cljs-type)
-                       (cider-nrepl-send-request
-                        (list "op" "eval"
-                              "ns" (cider-current-ns)
-                              "code" repl-init-form)
-                        (cider-repl-handler (current-buffer)))
-                       (when (and (buffer-live-p nrepl-server-buffer)
-                                  cider-offer-to-open-cljs-app-in-browser)
-                         (cider--offer-to-open-app-in-browser nrepl-server-buffer))))
-          (plist-put :repl-init-form repl-init-form))))))
+         params
+         (plist-put :cider-repl-cljs-upgrade-pending t)
+         (plist-put :repl-init-function
+                    (lambda ()
+                      (cider--check-cljs cljs-type)
+                      (cider-nrepl-send-request
+                       (list "op" "eval"
+                             "ns" (cider-current-ns)
+                             "code" repl-init-form)
+                       (cider-repl-handler (current-buffer)))
+                      (when (and (buffer-live-p nrepl-server-buffer)
+                                 cider-offer-to-open-cljs-app-in-browser)
+                        (cider--offer-to-open-app-in-browser nrepl-server-buffer))))
+         (plist-put :repl-init-form repl-init-form))))))
 
 (defun cider--check-existing-session (params)
   "Ask for confirmation if a session with similar PARAMS already exists.
