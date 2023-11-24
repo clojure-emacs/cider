@@ -601,16 +601,15 @@ returned by this function does not include keyword arguments."
                                ("mx.cider/lein-enrich-classpath" "1.18.6")))
                    (append cider-jack-in-lein-plugins
                            `(("cider/cider-nrepl" ,cider-injected-middleware-version))))))
-    (thread-last
-     plugins
-     (seq-filter
-      (lambda (spec)
-        (if-let* ((pred (plist-get (seq-drop spec 2) :predicate)))
-            (funcall pred spec)
-          t)))
-     (mapcar
-      (lambda (spec)
-        (seq-take spec 2))))))
+    (thread-last plugins
+                 (seq-filter
+                  (lambda (spec)
+                    (if-let* ((pred (plist-get (seq-drop spec 2) :predicate)))
+                        (funcall pred spec)
+                      t)))
+                 (mapcar
+                  (lambda (spec)
+                    (seq-take spec 2))))))
 
 (defvar cider-jack-in-nrepl-middlewares nil
   "List of Clojure variable names.
@@ -634,19 +633,18 @@ Added to `cider-jack-in-nrepl-middlewares' (which see) when doing
   "Return a normalized list of middleware variable names.
 See `cider-jack-in-nrepl-middlewares' for the format, except that the list
 returned by this function only contains strings."
-  (thread-last
-   cider-jack-in-nrepl-middlewares
-   (seq-filter
-    (lambda (spec)
-      (or (not (listp spec))
-          (if-let* ((pred (plist-get (cdr spec) :predicate)))
-              (funcall pred spec)
-            t))))
-   (mapcar
-    (lambda (spec)
-      (if (listp spec)
-          (car spec)
-        spec)))))
+  (thread-last cider-jack-in-nrepl-middlewares
+               (seq-filter
+                (lambda (spec)
+                  (or (not (listp spec))
+                      (if-let* ((pred (plist-get (cdr spec) :predicate)))
+                          (funcall pred spec)
+                        t))))
+               (mapcar
+                (lambda (spec)
+                  (if (listp spec)
+                      (car spec)
+                    spec)))))
 
 (defun cider--list-as-boot-artifact (list)
   "Return a boot artifact string described by the elements of LIST.
@@ -822,22 +820,21 @@ Does so by concatenating DEPENDENCIES, PARAMS and GLOBAL-OPTIONS into a
 suitable `clojure` invocation and quoting, also accounting for COMMAND if
 provided.  The main is placed in an inline alias :cider/nrepl so that if
 your aliases contain any mains, the cider/nrepl one will be the one used."
-  (let* ((all-deps (thread-last
-                    dependencies
-                    (append (cider--jack-in-required-dependencies))
-                    ;; Duplicates are never OK since they would result in
-                    ;; `java.lang.IllegalArgumentException: Duplicate key [...]`:
-                    (cider--dedupe-deps)
-                    (seq-map (lambda (dep)
-                               (if (listp (cadr dep))
-                                   (format "%s {%s}"
-                                           (car dep)
-                                           (seq-reduce
-                                            (lambda (acc v)
-                                              (concat acc (format " :%s \"%s\" " (car v) (cdr v))))
-                                            (cadr dep)
-                                            ""))
-                                 (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep)))))))
+  (let* ((all-deps (thread-last dependencies
+                                (append (cider--jack-in-required-dependencies))
+                                ;; Duplicates are never OK since they would result in
+                                ;; `java.lang.IllegalArgumentException: Duplicate key [...]`:
+                                (cider--dedupe-deps)
+                                (seq-map (lambda (dep)
+                                           (if (listp (cadr dep))
+                                               (format "%s {%s}"
+                                                       (car dep)
+                                                       (seq-reduce
+                                                        (lambda (acc v)
+                                                          (concat acc (format " :%s \"%s\" " (car v) (cdr v))))
+                                                        (cadr dep)
+                                                        ""))
+                                             (format "%s {:mvn/version \"%s\"}" (car dep) (cadr dep)))))))
          (middleware (mapconcat
                       (apply-partially #'format "%s")
                       (cider-jack-in-normalized-nrepl-middlewares)
