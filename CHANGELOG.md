@@ -5,6 +5,7 @@
 ### Changes
 
 - [#3576](https://github.com/clojure-emacs/cider/issues/3576): CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html): display Java class/method/field block tags (Returns/Throws/Params info) when available.
+- CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html#usage): introduce `1` keybinding which performs `cider-inspector-tap-at-point`.
 - CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html#usage): introduce `o` keybinding which performs `cider-inspector-open-thing-at-point`.
 - CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html#usage): introduce `:` keybinding which performs `cider-inspect-expr-from-inspector`.
 - CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html): retain [`truncate-lines`](https://www.gnu.org/software/emacs/manual/html_node/emacs/Line-Truncation.html) values across screens. 
