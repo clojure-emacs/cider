@@ -96,6 +96,10 @@ You'll have access to additional keybindings in the inspector buffer
 | `cider-inspector-tap-current-val`
 | Performs `tap>` using the inspector's current value as it argument.
 
+| kbd:[1]
+| `cider-inspector-tap-at-point`
+| Performs `tap>` using the inspector's current sub-value (the one at POINT) as it argument.
+
 |===
 
 == Use `enrich-classpath` for best results

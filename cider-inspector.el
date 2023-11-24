@@ -116,6 +116,7 @@ by clicking or navigating to them by other means."
     (define-key map "c" #'cider-inspector-set-max-coll-size)
     (define-key map "d" #'cider-inspector-def-current-val)
     (define-key map "t" #'cider-inspector-tap-current-val)
+    (define-key map "1" #'cider-inspector-tap-at-point)
     (define-key map [tab] #'cider-inspector-next-inspectable-object)
     (define-key map "\C-i" #'cider-inspector-next-inspectable-object)
     (define-key map "n" #'cider-inspector-next-inspectable-object)
@@ -386,6 +387,24 @@ current-namespace."
             (error "Could not tap the current Inspector value: %s" err))))
     (user-error "No CIDER session found")))
 
+(defun cider-inspector-tap-at-point ()
+  "Sends the current Inspector current sub-value (per POINT) to `tap>'."
+  (interactive)
+  ;; NOTE: we don't set `cider-inspector--current-repl', because we mean to tap the current value of an existing Inspector,
+  ;; so whatever repl was used for it, should be used here.
+  (if cider-inspector--current-repl
+      (seq-let (property value) (cider-inspector-property-at-point)
+        (pcase property
+          (`cider-value-idx
+           (let* ((idx value)
+                  (response (cider-sync-request:inspect-tap-indexed idx)))
+             (nrepl-dbind-response response (value err)
+               (if value
+                   (message "Successfully tapped the Inspector item at point")
+                 (error "Could not tap the Inspector item at point: %s" err)))))
+          (_ (error "No object at point"))))
+    (user-error "No CIDER session found")))
+
 ;; nREPL interactions
 (defun cider-sync-request:inspect-pop (&optional v2)
   "Move one level up in the inspector stack,
@@ -519,6 +538,13 @@ instead of just its \"value\" entry."
 (defun cider-sync-request:inspect-tap-current-val ()
   "Sends current inspector value to tap>."
   (cider-nrepl-send-sync-request '("op" "inspect-tap-current-value") cider-inspector--current-repl))
+
+(defun cider-sync-request:inspect-tap-indexed (idx)
+  "Sends current inspector sub-value to tap>, per IDX."
+  (cl-assert idx)
+  (cider-nrepl-send-sync-request `("op" "inspect-tap-indexed"
+                                   "idx" ,idx)
+                                 cider-inspector--current-repl))
 
 (defun cider-sync-request:inspect-expr (expr ns page-size max-atom-length max-coll-size &optional v2)
   "Evaluate EXPR in context of NS and inspect its result.
@@ -746,11 +772,11 @@ that value.
 3. If point is on a range-button fetch and insert the range."
   (interactive)
   (seq-let (property value) (cider-inspector-property-at-point)
-    (cl-case property
-      (cider-value-idx
+    (pcase property
+      (`cider-value-idx
        (cider-inspector-push value))
       ;; TODO: range and action handlers
-      (t (error "No object at point")))))
+      (_ (error "No object at point")))))
 
 (defun cider-inspector-operate-on-click (event)
   "Move to EVENT's position and operate the part."
