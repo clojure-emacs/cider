@@ -13,6 +13,7 @@
 - [#3582](https://github.com/clojure-emacs/cider/issues/3582): Handle `cider-clojure-compilation-error-phases` values that have been customized to `t`.
 - [#3581](https://github.com/clojure-emacs/cider/issues/3581): Bump the injected `enrich-classpath` to [1.18.5](https://github.com/clojure-emacs/enrich-classpath/compare/v1.18.4...v1.18.5).
   - Handles Clojure CLI `:paths` directly defined as `:aliases`.
+- Bump the `clojure-mode` required version to [5.18.1](https://github.com/clojure-emacs/clojure-mode/blob/v5.18.1/CHANGELOG.md#5181-2023-11-24).
 
 ## 1.11.1 (2023-11-11)
 
