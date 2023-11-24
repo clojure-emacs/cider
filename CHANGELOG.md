@@ -11,7 +11,7 @@
 - [#3580](https://github.com/clojure-emacs/cider/issues/3580): `cider-test`: make test vars in [test results reports](https://docs.cider.mx/cider/testing/test_reports.html) clickable.
   - As defined in the newly introduced `cider-test-var-keymap` var.
 - [#3582](https://github.com/clojure-emacs/cider/issues/3582): Handle `cider-clojure-compilation-error-phases` values that have been customized to `t`.
-- [#3581](https://github.com/clojure-emacs/cider/issues/3581): Bump the injected `enrich-classpath` to [1.18.5](https://github.com/clojure-emacs/enrich-classpath/compare/v1.18.4...v1.18.5).
+- [#3581](https://github.com/clojure-emacs/cider/issues/3581): Bump the injected `enrich-classpath` to [1.18.6](https://github.com/clojure-emacs/enrich-classpath/compare/v1.18.4...v1.18.6).
   - Handles Clojure CLI `:paths` directly defined as `:aliases`.
 - Bump the `clojure-mode` required version to [5.18.1](https://github.com/clojure-emacs/clojure-mode/blob/v5.18.1/CHANGELOG.md#5181-2023-11-24).
 - Bump the injected `cider-nrepl` to [0.44.0](https://github.com/clojure-emacs/cider-nrepl/blob/44da162f51765464192ba04102398c5982f01638/CHANGELOG.md#0440-2023-11-24).
