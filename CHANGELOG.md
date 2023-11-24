@@ -14,6 +14,7 @@
 - [#3581](https://github.com/clojure-emacs/cider/issues/3581): Bump the injected `enrich-classpath` to [1.18.5](https://github.com/clojure-emacs/enrich-classpath/compare/v1.18.4...v1.18.5).
   - Handles Clojure CLI `:paths` directly defined as `:aliases`.
 - Bump the `clojure-mode` required version to [5.18.1](https://github.com/clojure-emacs/clojure-mode/blob/v5.18.1/CHANGELOG.md#5181-2023-11-24).
+- Bump the injected `cider-nrepl` to [0.44.0](https://github.com/clojure-emacs/cider-nrepl/blob/44da162f51765464192ba04102398c5982f01638/CHANGELOG.md#0440-2023-11-24).
 
 ## 1.11.1 (2023-11-11)
 
