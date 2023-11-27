@@ -117,11 +117,6 @@ to work against the correct REPL session.")
   "When theme is changed, update `cider-test-items-background-color'."
   (setq cider-test-items-background-color (cider-scale-background-color)))
 
-(defun cider-test-toggle-fail-fast ()
-  "Toggles `cider-test-fail-fast' t <-> nil for the current buffer."
-  (interactive)
-  (setq-local cider-test-fail-fast (not cider-test-fail-fast)))
-
 ;;; Report mode & key bindings
 ;;
 ;; The primary mode of interacting with test results is the report buffer, which
@@ -368,6 +363,16 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
 
 ;;; Report rendering
 
+(defcustom cider-test-fail-fast t
+  "Controls whether to stop a test run on failure/error."
+  :type 'boolean
+  :package-version '(cider . "1.8.0"))
+
+(defun cider-test-toggle-fail-fast ()
+  "Toggles `cider-test-fail-fast' t <-> nil for the current buffer."
+  (interactive)
+  (setq-local cider-test-fail-fast (not cider-test-fail-fast)))
+
 (defun cider-test-type-face (type)
   "Return the font lock face for the test result TYPE."
   (pcase type
@@ -382,7 +387,9 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
     `(:foreground ,(face-attribute face :background))))
 
 (defun cider-test-render-summary (buffer summary &optional elapsed-time)
-  "Emit into BUFFER the report SUMMARY statistics."
+  "Emit into BUFFER the report SUMMARY statistics.
+
+If ELAPSED-TIME is provided it will be included in the summary."
   (with-current-buffer buffer
     (nrepl-dbind-response summary (ns var test pass fail error)
       (let ((ms (nrepl-dict-get elapsed-time "ms")))
@@ -688,11 +695,6 @@ The selectors can be either keywords or strings."
    (lambda (string) (replace-regexp-in-string "^:+" "" string))
    (split-string
     (cider-read-from-minibuffer message))))
-
-(defcustom cider-test-fail-fast t
-  "Controls whether to stop a test run on failure/error."
-  :type 'boolean
-  :package-version '(cider . "1.8.0"))
 
 (defun cider-test-execute (ns &optional tests silent prompt-for-filters)
   "Run tests for NS, which may be a keyword, optionally specifying TESTS.
