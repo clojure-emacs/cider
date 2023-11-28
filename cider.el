@@ -800,10 +800,14 @@ removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
   (string-equal command "powershell"))
 
 (defun cider--shell-quote-argument (argument &optional command)
-  "Patch to skip the quoting on windows"
+    "Quotes ARGUMENT like `shell-quote-argument', suitable for use with COMMAND.
+
+Uses `shell-quote-argument' to quote the ARGUMENT, unless COMMAND is given
+and refers to PowerShell, in which case it uses (some limited) PowerShell
+rules to quote it."
   (cond ((cider--jack-in-cmd-pwsh-p command) (format "'%s'" argument))
-	((cider--jack-in-cmd-powershell-p command) (format "'%s'" (replace-regexp-in-string "\"" "\"\"" argument)))
-	(t (shell-quote-argument argument))))
+        ((cider--jack-in-cmd-powershell-p command) (format "'%s'" (replace-regexp-in-string "\"" "\"\"" argument)))
+        (t (shell-quote-argument argument))))
 
 (defun cider--powershell-encode-command (cmd-params)
   "Base64 encode the powershell command and jack-in CMD-PARAMS for clojure-cli."
