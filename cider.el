@@ -800,7 +800,7 @@ removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
   (string-equal command "powershell"))
 
 (defun cider--shell-quote-argument (argument &optional command)
-    "Quotes ARGUMENT like `shell-quote-argument', suitable for use with COMMAND.
+  "Quotes ARGUMENT like `shell-quote-argument', suitable for use with COMMAND.
 
 Uses `shell-quote-argument' to quote the ARGUMENT, unless COMMAND is given
 and refers to PowerShell, in which case it uses (some limited) PowerShell
