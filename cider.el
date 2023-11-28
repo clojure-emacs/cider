@@ -791,21 +791,19 @@ removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
   "Removes the duplicates in DEPS."
   (cl-delete-duplicates deps :test 'equal))
 
+(defun cider--jack-in-cmd-pwsh-p (command)
+  "Returns whether COMMAND is pwsh."
+  (string-equal command "pwsh"))
+
 (defun cider--jack-in-cmd-powershell-p (command)
-  "Returns whether COMMAND is PowerShell."
-  (or (string-equal command "powershell")
-      (string-equal command "pwsh")))
+  "Returns whether COMMAND is Powershell."
+  (string-equal command "powershell"))
 
 (defun cider--shell-quote-argument (argument &optional command)
-  "Quotes ARGUMENT like `shell-quote-argument', suitable for use with COMMAND.
-
-Uses `shell-quote-argument' to quote the ARGUMENT, unless COMMAND is given
-and refers to PowerShell, in which case it uses (some limited) PowerShell
-rules to quote it."
-  (if (cider--jack-in-cmd-powershell-p command)
-      ;; please add more PowerShell quoting rules as necessary.
-      (format "'%s'" (replace-regexp-in-string "\"" "\"\"" argument))
-    (shell-quote-argument argument)))
+  "Patch to skip the quoting on windows"
+  (cond ((cider--jack-in-cmd-pwsh-p command) (format "'%s'" argument))
+	((cider--jack-in-cmd-powershell-p command) (format "'%s'" (replace-regexp-in-string "\"" "\"\"" argument)))
+	(t (shell-quote-argument argument))))
 
 (defun cider--powershell-encode-command (cmd-params)
   "Base64 encode the powershell command and jack-in CMD-PARAMS for clojure-cli."
@@ -1625,7 +1623,7 @@ Params is a plist with the following keys (non-exhaustive)
 (defun cider--format-cmd (command-resolved command cmd-params)
   "Format COMMAND-RESOLVED or COMMAND followed by CMD-PARAMS."
   (format "%s %s" command-resolved
-          (if (cider--jack-in-cmd-powershell-p command)
+          (if (or (cider--jack-in-cmd-pwsh-p command) (cider--jack-in-cmd-powershell-p command))
               (cider--powershell-encode-command cmd-params)
             cmd-params)))
 
