@@ -420,12 +420,12 @@
     (expect (cider--powershell-encode-command "cmd-params")
             :to-equal (concat "-encodedCommand "
                               ;; Eval to reproduce reference string below: (base64-encode-string (encode-coding-string "clojure cmd-params" 'utf-16le) t)
-                              "YwBsAG8AagB1AHIAZQAgAGMAbQBkAC0AcABhAHIAYQBtAHMA")))
+                              "JABQAFMATgBhAHQAaQB2AGUAQwBvAG0AbQBhAG4AZABBAHIAZwB1AG0AZQBuAHQAUABhAHMAcwBpAG4AZwAgAD0AIAAnAEwAZQBnAGEAYwB5ACcAOwAgAGMAbABvAGoAdQByAGUAIABjAG0AZAAtAHAAYQByAGEAbQBzAA==")))
   (it "escapes double quotes by repeating them"
     (expect (cider--powershell-encode-command "\"cmd-params\"")
             :to-equal (concat "-encodedCommand "
                               ;; Eval to reproduce reference string below: (base64-encode-string (encode-coding-string "clojure "\"cmd-params\""" 'utf-16le) t)
-                              "YwBsAG8AagB1AHIAZQAgACIAYwBtAGQALQBwAGEAcgBhAG0AcwAiAA=="))))
+                              "JABQAFMATgBhAHQAaQB2AGUAQwBvAG0AbQBhAG4AZABBAHIAZwB1AG0AZQBuAHQAUABhAHMAcwBpAG4AZwAgAD0AIAAnAEwAZQBnAGEAYwB5ACcAOwAgAGMAbABvAGoAdQByAGUAIAAiAGMAbQBkAC0AcABhAHIAYQBtAHMAIgA="))))
 
 (describe "cider--update-jack-in-cmd"
   (describe "when 'clojure-cli project type and \"powershell\" command"
@@ -441,7 +441,7 @@
       (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
               :to-equal (concat "resolved-powershell -encodedCommand "
                                 ;; Eval to reproduce reference string below: (base64-encode-string (encode-coding-string "clojure "\"cmd-params"\"" 'utf-16le) t)
-                                "YwBsAG8AagB1AHIAZQAgACIAYwBtAGQALQBwAGEAcgBhAG0AcwAiAA=="))))
+                                "JABQAFMATgBhAHQAaQB2AGUAQwBvAG0AbQBhAG4AZABBAHIAZwB1AG0AZQBuAHQAUABhAHMAcwBpAG4AZwAgAD0AIAAnAEwAZQBnAGEAYwB5ACcAOwAgAGMAbABvAGoAdQByAGUAIAAiAGMAbQBkAC0AcABhAHIAYQBtAHMAIgA="))))
   (describe "when 'clojure-cli project type"
     (it "uses main opts in an alias to prevent other mains from winning"
       (setq-local cider-jack-in-dependencies nil)

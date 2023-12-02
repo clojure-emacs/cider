@@ -187,7 +187,11 @@ If CLI-COMMAND is nil, then use the default."
     (jack-in-clojure-cli-test nil))
 
   (when (eq system-type 'windows-nt)
-    (it "to clojure tools cli (alternative deps.exe)"
+    (it "to clojure tools cli (alternative pwsh)"
+      (jack-in-clojure-cli-test "pwsh")))
+
+(when (eq system-type 'windows-nt)
+  (it "to clojure tools cli (alternative deps.exe)"
       (jack-in-clojure-cli-test "deps.exe")))
 
   (it "to leiningen"

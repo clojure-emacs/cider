@@ -810,7 +810,10 @@ rules to quote it."
 (defun cider--powershell-encode-command (cmd-params)
   "Base64 encode the powershell command and jack-in CMD-PARAMS for clojure-cli."
   (let* ((quoted-params cmd-params)
-         (command (format "clojure %s" quoted-params))
+         ;; Also ensure compatibility with pwsh 7.3 quoting rules
+         ;;
+         ;; https://stackoverflow.com/a/59036879
+         (command (format "$PSNativeCommandArgumentPassing = 'Legacy'; clojure %s" quoted-params))
          (utf-16le-command (encode-coding-string command 'utf-16le)))
     (format "-encodedCommand %s" (base64-encode-string utf-16le-command t))))
 

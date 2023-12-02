@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+- [#3588](https://github.com/clojure-emacs/cider/issues/3588): Compatibility with pwsh 7.3 quoting rules.
+
 ## 1.12.0 (2023-11-24)
 
 ### Changes
