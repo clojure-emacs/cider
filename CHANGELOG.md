@@ -5,6 +5,7 @@
 ### Changes
 
 - [#3588](https://github.com/clojure-emacs/cider/issues/3588): Compatibility with pwsh 7.3 quoting rules.
+- Bump the `parseedn` required version to 1.2.1.
 
 ## 1.12.0 (2023-11-24)
 
@@ -186,7 +187,7 @@ but without connecting to the started nREPL server.
 - Improve `nrepl-dict` error reporting.
 - Bump the injected `piggieback` to [0.5.3](https://github.com/nrepl/piggieback/blob/0.5.3/CHANGES.md#053-2021-10-26).
 - Bump the `clojure-mode` required version to [5.17.1](https://github.com/clojure-emacs/clojure-mode/blob/v5.17.1/CHANGELOG.md#5171-2023-09-12), and use `clojure-find-ns` more safely, which fixes issues such as #[2849](https://github.com/clojure-emacs/cider/issues/2849).
-- Bump the `parseedn` require version, and wrap its usage with a more informative `user-error`.
+- Bump the `parseedn` required version, and wrap its usage with a more informative `user-error`.
 - Bump the injected `cider-nrepl` to [0.39.1](https://github.com/clojure-emacs/cider-nrepl/blob/v0.39.1/CHANGELOG.md#0391-2023-10-12).
   - Improves indentation, font-locking and other metadata support for ClojureScript.
   - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.16.1/CHANGELOG.md#0161-2023-10-05)
