@@ -598,7 +598,7 @@ returned by this function does not include keyword arguments."
   (let ((plugins (if cider-enrich-classpath
                      (append cider-jack-in-lein-plugins
                              `(("cider/cider-nrepl" ,cider-injected-middleware-version)
-                               ("mx.cider/lein-enrich-classpath" "1.18.6")))
+                               ("mx.cider/lein-enrich-classpath" "1.19.0")))
                    (append cider-jack-in-lein-plugins
                            `(("cider/cider-nrepl" ,cider-injected-middleware-version))))))
     (thread-last plugins
