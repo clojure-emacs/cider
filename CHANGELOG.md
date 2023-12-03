@@ -5,6 +5,7 @@
 ### Changes
 
 - [#3588](https://github.com/clojure-emacs/cider/issues/3588): Compatibility with pwsh 7.3 quoting rules.
+- Bump the injected `enrich-classpath` to [1.19.0](https://github.com/clojure-emacs/enrich-classpath/compare/v1.18.6...v1.19.0).
 - Bump the `parseedn` required version to 1.2.1.
 
 ## 1.12.0 (2023-11-24)
