@@ -39,6 +39,7 @@
   - Fixes JS completions for nested objects.
   - Bundles other fixes and reliability improvements.
 - Fix scittle jack in when using `cider-jack-in-clj` ()
+- [#3600](https://github.com/clojure-emacs/cider/pull/3600) Fix scittle jack in when using `cider-jack-in-clj`
 
 ## 1.12.0 (2023-11-24)
 
