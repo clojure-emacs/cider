@@ -37,7 +37,12 @@
 (require 'transient)
 
 (defcustom cider-log-framework-name nil
-  "The name of the current log framework."
+  "The name of the default log framework.
+
+You may want to set this in .dir-locals.el,
+for a more streamlined setup.
+
+Example value: \"Logback\"."
   :group 'cider
   :package-version '(cider . "1.8.0")
   :safe #'stringp
