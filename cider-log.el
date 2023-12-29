@@ -1154,12 +1154,17 @@ the CIDER Inspector and the CIDER stacktrace mode.
       (let ((inhibit-read-only t))
         (erase-buffer)))))
 
+(defun cider-log-switch-to-buffer* (buffer)
+  "Switch to the Cider log event BUFFER."
+  (when (get-buffer-create buffer)
+    (switch-to-buffer-other-window buffer)
+    (get-buffer buffer)))
+
 (transient-define-suffix cider-log-switch-to-buffer (buffer)
   "Switch to the Cider log event BUFFER."
   :description "Switch to the log event buffer"
   (interactive (list cider-log-buffer))
-  (when (get-buffer-create buffer)
-    (switch-to-buffer-other-window buffer)))
+  (cider-log-switch-to-buffer* buffer))
 
 (transient-define-suffix cider-log--do-search-events (framework appender filters)
   "Search the log events of FRAMEWORK and APPENDER which match FILTERS."
@@ -1384,6 +1389,25 @@ the CIDER Inspector and the CIDER stacktrace mode.
   (interactive (list (cider-log--framework) (cider-log--appender)))
   (cider-log--ensure-initialized framework appender)
   (transient-setup 'cider-log-event))
+
+;;;###autoload
+(defun cider-log-show (framework appender)
+  "Ensures the *cider-log* buffer is visible,
+setting up an appender and consumer if necessary.
+
+Honors the `cider-log-framework-name' customization variable.
+
+This function is offered as an alternative to workflows
+based on `transient-mode'."
+  (interactive (list (cider-log--framework) (cider-log--appender)))
+  (cider-current-repl nil 'ensure)
+  (let ((new-default-directory (buffer-local-value 'default-directory (current-buffer))))
+    (with-current-buffer (cider-log-switch-to-buffer* cider-log-buffer)
+      (setq-local default-directory new-default-directory) ;; for Sesman
+      (cider-log--ensure-initialized framework appender)
+      (unless cider-log-consumer
+        (apply #'cider-log--ensure-initialized (cider-log--consumer-interactive-list))
+        (call-interactively 'cider-log--do-add-consumer)))))
 
 ;; Main Transient Menu
 
