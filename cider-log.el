@@ -568,6 +568,8 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
   (when-let (appender (cider-log-appender-reload framework appender))
     (cider-log-appender-consumer appender consumer)))
 
+(declare-function cider-log-mode "cider-log")
+
 (defun cider-log--consumer-add (framework appender consumer buffer)
   "Add the CONSUMER to the APPENDER of FRAMEWORK and write events to BUFFER."
   (cider-request:log-add-consumer
@@ -1413,7 +1415,7 @@ the CIDER Inspector and the CIDER stacktrace mode.
   (transient-setup 'cider-log-event))
 
 ;;;###autoload
-(defun cider-log-show (framework appender)
+(defun cider-log-show ()
   "Ensures the *cider-log* buffer is visible,
 setting up an appender and consumer if necessary.
 
@@ -1421,9 +1423,11 @@ Honors the `cider-log-framework-name' customization variable.
 
 This function is offered as an alternative to workflows
 based on `transient-mode'."
-  (interactive (list (cider-log--framework) (cider-log--appender)))
+  (interactive)
   (cider-current-repl nil 'ensure)
-  (let ((new-default-directory (buffer-local-value 'default-directory (current-buffer))))
+  (let ((framework (cider-log--framework))
+        (appender (cider-log--appender))
+        (new-default-directory (buffer-local-value 'default-directory (current-buffer))))
     (with-current-buffer (cider-log-switch-to-buffer* cider-log-buffer)
       (setq-local default-directory new-default-directory) ;; for Sesman
       (cider-log--ensure-initialized framework appender)
