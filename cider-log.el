@@ -1417,7 +1417,7 @@ the CIDER Inspector and the CIDER stacktrace mode.
 ;;;###autoload
 (defun cider-log-show ()
   "Ensures the *cider-log* buffer is visible,
-setting up an appender and consumer if necessary.
+setting up a framework, appender and consumer if necessary.
 
 Honors the `cider-log-framework-name' customization variable.
 
