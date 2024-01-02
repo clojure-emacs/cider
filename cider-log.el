@@ -1178,7 +1178,7 @@ the CIDER Inspector and the CIDER stacktrace mode.
       (let ((inhibit-read-only t))
         (erase-buffer)))))
 
-(defun cider-log-switch-to-buffer* (buffer)
+(defun cider-log--switch-to-buffer (buffer)
   "Switch to the Cider log event BUFFER."
   (when (get-buffer-create buffer)
     (switch-to-buffer-other-window buffer)
@@ -1188,7 +1188,7 @@ the CIDER Inspector and the CIDER stacktrace mode.
   "Switch to the Cider log event BUFFER."
   :description "Switch to the log event buffer"
   (interactive (list cider-log-buffer))
-  (cider-log-switch-to-buffer* buffer))
+  (cider-log--switch-to-buffer buffer))
 
 (transient-define-suffix cider-log--do-search-events (framework appender filters)
   "Search the log events of FRAMEWORK and APPENDER which match FILTERS."
@@ -1428,7 +1428,7 @@ based on `transient-mode'."
   (let ((framework (cider-log--framework))
         (appender (cider-log--appender))
         (new-default-directory (buffer-local-value 'default-directory (current-buffer))))
-    (with-current-buffer (cider-log-switch-to-buffer* cider-log-buffer)
+    (with-current-buffer (cider-log--switch-to-buffer cider-log-buffer)
       (setq-local default-directory new-default-directory) ;; for Sesman
       (cider-log--ensure-initialized framework appender)
       (unless cider-log-consumer
