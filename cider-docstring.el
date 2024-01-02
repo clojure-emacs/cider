@@ -1,6 +1,6 @@
 ;;; cider-docstring.el --- Docstring rendering -*- lexical-binding: t -*-
 
-;; Copyright © 2013-2023 Bozhidar Batsov and CIDER contributors
+;; Copyright © 2013-2024 Bozhidar Batsov and CIDER contributors
 ;;
 ;; Author: Bozhidar Batsov <bozhidar@batsov.dev>
 
