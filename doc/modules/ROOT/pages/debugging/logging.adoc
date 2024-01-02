@@ -35,6 +35,16 @@ coloring the log events and it provides other useful features, such as
 syntax highlighting, filtering and more. It is used automatically when
 available, and its use can be customized via `cider-log-use-logview`.
 
+== `transient-mode`
+
+It's worth pointing out that most features and workflows of Cider Log Mode are based on https://github.com/magit/transient[transient-mode].
+
+A transient menu is the following widget:
+
+image::cider-log-transient-mode.png[CIDER Log]
+
+Its usage is mostly self-describing, since each command has its keybinding attached to the description.
+
 == Usage
 
 To use CIDER Log Mode, there are a few ways to get started:
