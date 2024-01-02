@@ -37,7 +37,12 @@
 (require 'transient)
 
 (defcustom cider-log-framework-name nil
-  "The name of the current log framework."
+  "The name of the default log framework.
+
+You may want to set this in .dir-locals.el,
+for a more streamlined setup.
+
+Example value: \"Logback\"."
   :group 'cider
   :package-version '(cider . "1.8.0")
   :safe #'stringp
@@ -85,12 +90,19 @@
   :safe #'integerp
   :type 'integer)
 
-(defcustom cider-log-use-logview (fboundp 'logview-mode)
-  "Whether to use `logview-mode' or not."
+(defcustom cider-log-use-logview t
+  "Whether to use `logview-mode'.
+
+It will not be used if the package hasn't been installed."
   :group 'cider
   :package-version '(cider . "1.8.0")
   :safe #'booleanp
   :type 'boolean)
+
+(defun cider-log-use-logview ()
+  "Whether to use `logview-mode'."
+  (and (fboundp 'logview-mode)
+       cider-log-use-logview))
 
 (defvar logview-mode-map)
 (declare-function logview--guess-submode "logview" () t)
@@ -556,6 +568,8 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
   (when-let (appender (cider-log-appender-reload framework appender))
     (cider-log-appender-consumer appender consumer)))
 
+(declare-function cider-log-mode "cider-log")
+
 (defun cider-log--consumer-add (framework appender consumer buffer)
   "Add the CONSUMER to the APPENDER of FRAMEWORK and write events to BUFFER."
   (cider-request:log-add-consumer
@@ -567,7 +581,14 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
                 (setq-local cider-log-framework framework)
                 (setq-local cider-log-appender appender)
                 (setq cider-log-consumer cider/log-add-consumer)
-                (switch-to-buffer buffer)))
+                (switch-to-buffer buffer)
+                (when (and cider-log-use-logview
+                           (not (fboundp 'logview-mode)))
+                  (message "[CIDER Log Mode] Please install the Logview package for best results.")
+                  (cider--display-interactive-eval-result "Please install the Logview package for best results."
+                                                          'error
+                                                          (point)
+                                                          'cider-error-overlay-face))))
              ((member "cider/log-event" status)
               (let* ((consumer (nrepl-dict "id" cider/log-consumer))
                      (buffers (cider-log-consumer-buffers consumer)))
@@ -580,7 +601,8 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
                 (seq-doseq (buffer buffers)
                   (with-current-buffer buffer
                     (cider-log--insert-events buffer (list cider/log-event))
-                    (when (and cider-log-use-logview (not (logview-initialized-p)))
+                    (when (and (cider-log-use-logview)
+                               (not (logview-initialized-p)))
                       (let ((framework cider-log-framework)
                             (appender cider-log-appender)
                             (consumer cider-log-consumer))
@@ -812,7 +834,9 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
 
 (defvar cider-log-mode-map
   (let ((map (make-sparse-keymap))
-        (parent (if cider-log-use-logview logview-mode-map special-mode-map)))
+        (parent (if (cider-log-use-logview)
+                    logview-mode-map
+                  special-mode-map)))
     (set-keymap-parent map parent)
     (define-key map (kbd "C-c M-l a") #'cider-log-appender)
     (define-key map (kbd "C-c M-l c") #'cider-log-consumer)
@@ -849,7 +873,7 @@ the CIDER Inspector and the CIDER stacktrace mode.
 
 \\{cider-log-mode-map}")
 
-(if cider-log-use-logview
+(if (cider-log-use-logview)
     (define-derived-mode cider-log-mode logview-mode "Cider Log" cider-log--mode-doc
       (cider-log--setup-mode))
   (define-derived-mode cider-log-mode special-mode "Cider Log" cider-log--mode-doc
@@ -1154,12 +1178,17 @@ the CIDER Inspector and the CIDER stacktrace mode.
       (let ((inhibit-read-only t))
         (erase-buffer)))))
 
+(defun cider-log--switch-to-buffer (buffer)
+  "Switch to the Cider log event BUFFER."
+  (when (get-buffer-create buffer)
+    (switch-to-buffer-other-window buffer)
+    (get-buffer buffer)))
+
 (transient-define-suffix cider-log-switch-to-buffer (buffer)
   "Switch to the Cider log event BUFFER."
   :description "Switch to the log event buffer"
   (interactive (list cider-log-buffer))
-  (when (get-buffer-create buffer)
-    (switch-to-buffer-other-window buffer)))
+  (cider-log--switch-to-buffer buffer))
 
 (transient-define-suffix cider-log--do-search-events (framework appender filters)
   "Search the log events of FRAMEWORK and APPENDER which match FILTERS."
@@ -1384,6 +1413,27 @@ the CIDER Inspector and the CIDER stacktrace mode.
   (interactive (list (cider-log--framework) (cider-log--appender)))
   (cider-log--ensure-initialized framework appender)
   (transient-setup 'cider-log-event))
+
+;;;###autoload
+(defun cider-log-show ()
+  "Ensures the *cider-log* buffer is visible,
+setting up a framework, appender and consumer if necessary.
+
+Honors the `cider-log-framework-name' customization variable.
+
+This function is offered as an alternative to workflows
+based on `transient-mode'."
+  (interactive)
+  (cider-current-repl nil 'ensure)
+  (let ((framework (cider-log--framework))
+        (appender (cider-log--appender))
+        (new-default-directory (buffer-local-value 'default-directory (current-buffer))))
+    (with-current-buffer (cider-log--switch-to-buffer cider-log-buffer)
+      (setq-local default-directory new-default-directory) ;; for Sesman
+      (cider-log--ensure-initialized framework appender)
+      (unless cider-log-consumer
+        (apply #'cider-log--ensure-initialized (cider-log--consumer-interactive-list))
+        (call-interactively 'cider-log--do-add-consumer)))))
 
 ;; Main Transient Menu
 
