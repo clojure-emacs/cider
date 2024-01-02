@@ -41,22 +41,20 @@ It's worth pointing out that most features and workflows of Cider Log Mode are b
 
 A transient menu is the following widget:
 
-image::cider-log-transient-mode.png[CIDER Log]
+image::cider-log-transient-mode.png[CIDER Log transient menu]
 
 Its usage is mostly self-describing, since each command has its keybinding attached to the description.
 
-== Usage
+== Getting started
 
-To use CIDER Log Mode, there are a few ways to get started:
+To use CIDER Log Mode, there two main ways to get started:
 
-* Traditionally, `M-x cider-log` has been considered the main entrypoint, although it can be slightly low-level for casual usage.
-* `M-x cider-log-event` improves upon the default experience of `M-x cider-log`. It also uses transient-mode and will not immediately show the logs (you should use transient-mode to show the `*cider-log*` buffer)
+* `M-x cider-log-event`, which uses transient-mode and will not immediately show the logs (you should use transient-mode to show the `+*cider-log*+` buffer)
 * `M-x cider-log-show` is a newer function that intends to be an "all-in-one" command, intended for a streamlined experience, which can be useful to get started, or for casual usage.
-  * It doesn't use transient-mode - it aims to do everything in one step
-  * It immediately shows the `*cider-log*` buffer
-  * You can refine its setup by running `M-x cider-log` afterwards.
+** It doesn't use transient-mode - it aims to do everything in one step
+** It immediately shows the `+*cider-log*+` buffer
 
-NOTE: any of the three commands will only succeed in
+NOTE: any of these commands will only succeed in
 a buffer that has a CIDER repl (https://github.com/vspinu/sesman[Sesman]
 session) attached to it.
 
@@ -65,10 +63,10 @@ session) attached to it.
 By using `M-x cider-log-show`, all setup and rendering will be performed for you in a single step that doesn't pop up a `transient-mode` menu:
 
 * A framework will be set up, automatically
-  * You may be prompted for a framework
-  * You can prevent the prompt by customizing `cider-log-framework-name` (best done in `dir-locals.el`)
+** You may be prompted for a framework
+** You can prevent the prompt by customizing `cider-log-framework-name` (best done in `dir-locals.el`)
 * A log appender and a log consumer will be setup, automatically
-* The `*cider-log*` buffer will be rendered.
+* The `+*cider-log*+` buffer will be rendered.
 
 All these steps are idempotent, so it's safe to run `M-x cider-log-show` more than once.
 
@@ -80,15 +78,28 @@ The intended workflow for this function is as follows:
 
 * Run `M-x cider-log-event`
 * A framework will be set up, automatically
-  * You may be prompted for a framework
-  * You can prevent the prompt by customizing `cider-log-framework-name` (best done in `dir-locals.el`)
+** You may be prompted for a framework
+** You can prevent the prompt by customizing `cider-log-framework-name` (best done in `dir-locals.el`)
 * A log appender and a log consumer will be setup, automatically
-* The `*cider-log*` buffer will _not_ be rendered
-  * For it to be rendered, press `s` (`Search log events`) within the transient-mode menu.
+* The `+*cider-log*+` buffer will _not_ be rendered
+** For it to be rendered, press `s` (`Search log events`) within the transient-mode menu.
 
-=== Via `cider-log`
+NOTE: The `+*cider-log*+` buffer might initially be empty, and you may
+see a `No log events found` message. This is because nothing has been
+logged between adding the appender and searching for events. So, now
+would be a good time to run some code that triggers a log event for
+the selected framework.
 
-type kbd:[C-c M-l l] or kbd:[M-x cider-log]. The first time you run the command, it will
+== Advanced usage
+
+`cider-log` is a function that can serve both to set up logging from scratch,
+or for tweaking an existing setup (e.g. add filtering to a consumer).
+
+It's considered a lower-level approach.
+
+=== Setup via `cider-log`
+
+Type kbd:[C-c M-l l] or kbd:[M-x cider-log]. The first time you run the command, it will
 prompt you to select a log framework to use, and then attach a log
 appender to the root logger of the selected framework. After the log
 appender has been attached, the `cider-log` command will show a
@@ -96,7 +107,7 @@ https://www.gnu.org/software/emacs/manual/html_mono/transient.html[Transient]
 menu, from which you can take further actions, like managing the log
 framework, appenders, consumers and events.
 
-You should add a log appender, and a log consumer, at this point - else no log entries will be possibly shown
+You should add a log appender and a log consumer at this point - else no log entries will be possibly shown
 (which is why `cider-log` is considered a lower-level workflow).
 
 After that, to view log events and stream them to your client, type kbd:[es]
@@ -105,20 +116,17 @@ After that, to view log events and stream them to your client, type kbd:[es]
 also add a log consumer to this buffer, which receives newly-arriving
 log events.
 
-NOTE: The `+*cider-log*+` buffer might initially be empty, and you may
-see a `No log events found` message. This is because nothing has been
-logged between adding the appender and searching for events. So, now
-would be a good time to run some code that triggers a log event for
-the selected framework.
-
 === Keybindings
 
 |===
 | Command | Keyboard shortcut | Description
+| `cider-log-event`
+| kbd:[C-c M-l e]
+| Show the menu to manage log events. This is one of the two main entrypoints to get started.
 
 | `cider-log`
 | kbd:[C-c M-l l]
-| Show the CIDER log menu.
+| Show the CIDER log menu. Please note that this is considered advanced usage.
 
 | `cider-log-framework`
 | kbd:[C-c M-l f]
@@ -131,10 +139,6 @@ the selected framework.
 | `cider-log-consumer`
 | kbd:[C-c M-l c]
 | Show the menu to manage consumers listening to log events.
-
-| `cider-log-event`
-| kbd:[C-c M-l e]
-| Show the menu to manage log events.
 |===
 
 == Log framework
