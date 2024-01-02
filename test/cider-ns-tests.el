@@ -1,6 +1,6 @@
 ;;; cider-ns-tests.el  -*- lexical-binding: t; -*-
 
-;; Copyright © 2019-2023 Bozhidar Batsov
+;; Copyright © 2019-2024 Bozhidar Batsov
 
 ;; Author: Bozhidar Batsov <bozhidar@batsov.dev>
 

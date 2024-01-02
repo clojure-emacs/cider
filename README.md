@@ -262,7 +262,7 @@ site. [[Become a sponsor](https://opencollective.com/cider#sponsor)]
 
 CIDER is distributed under the GNU General Public License, version 3.
 
-Copyright © 2012-2023 Bozhidar Batsov, Artur Malabarba, Tim King, Phil Hagelberg and
+Copyright © 2012-2024 Bozhidar Batsov, Artur Malabarba, Tim King, Phil Hagelberg and
 [contributors](https://github.com/clojure-emacs/cider/contributors).
 
 [badge-license]: https://img.shields.io/badge/license-GPL_3-green.svg
