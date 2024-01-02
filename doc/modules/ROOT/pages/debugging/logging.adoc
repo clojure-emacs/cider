@@ -54,7 +54,7 @@ To use CIDER Log Mode, there two main ways to get started:
 ** It doesn't use transient-mode - it aims to do everything in one step
 ** It immediately shows the `+*cider-log*+` buffer
 
-NOTE: any of these commands will only succeed in
+NOTE: Any of these commands will only succeed in
 a buffer that has a CIDER repl (https://github.com/vspinu/sesman[Sesman]
 session) attached to it.
 
@@ -70,7 +70,7 @@ By using `M-x cider-log-show`, all setup and rendering will be performed for you
 
 All these steps are idempotent, so it's safe to run `M-x cider-log-show` more than once.
 
-You can refine the setup afterwards (e.g. configuring filtering) by running `M-x cider-log`.
+You can refine the setup afterwards (e.g. configuring filtering) by running `M-x cider-log`, `M-x cider-log-consumer`, etc.
 
 === Via `cider-log-event`
 
@@ -168,7 +168,7 @@ Timbre support is WIP as well.
 TIP: If your logging framework of choice is not currently supported by CIDER Log Mode,
 you can opt to use Clojure's official `tools.logging` façade in your project, such that you can locally,
 unobstrusively tell it to use a supported framework (like Logback) instead of your project's default one.
-Note that `tools.logging`'s choice of logging backend implementation can be controlled with the
+Note that its choice of logging backend implementation can be controlled with the
 `-Dclojure.tools.logging.factory` Java system property, which can be cleanly customized locally via Lein profiles,
 or Clojure CLI aliases.
 
