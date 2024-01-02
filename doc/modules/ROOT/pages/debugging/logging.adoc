@@ -122,7 +122,11 @@ log events.
 | Command | Keyboard shortcut | Description
 | `cider-log-event`
 | kbd:[C-c M-l e]
-| Show the menu to manage log events. This is one of the two main entrypoints to get started.
+| Show the menu to manage log events via a transient-mode menu. This is one of the two main entrypoints to get started.
+
+| `cider-log-show`
+| kbd:[C-c M-l s]
+| Immediately shows the logs, without a transient-mode menu. This is one of the two main entrypoints to get started.
 
 | `cider-log`
 | kbd:[C-c M-l l]
