@@ -220,13 +220,14 @@ call `cider-repl-history' again.")
 (defvar cider-repl-history-previous-overlay nil
   "Previous overlay within *cider-repl-history* buffer.")
 
-
 (defun cider-repl-history-get-history ()
   "Function to retrieve history from the REPL buffer."
   (if cider-repl-history-repl-buffer
-      (buffer-local-value
-       'cider-repl-input-history
-       cider-repl-history-repl-buffer)
+      (if cider-repl-history-file
+          cider-repl-input-global-history
+        (buffer-local-value
+         'cider-repl-input-local-history
+         cider-repl-history-repl-buffer))
     (error "Variable `cider-repl-history-repl-buffer' not bound to a buffer")))
 
 (defun cider-repl-history-resize-window ()
@@ -576,6 +577,16 @@ text from the *cider-repl-history* buffer."
   (with-current-buffer cider-repl-history-repl-buffer
     (undo)))
 
+(defun cider-repl-history-delete ()
+  "Delete history item (at point)."
+  (interactive)
+  (let* ((orig (point))
+         (str (cider-repl-history-current-string orig)))
+    (with-current-buffer cider-repl-history-repl-buffer
+      (delete str (cider-repl-get-history)))
+    (cider-repl-history-update)
+    (goto-char orig)))
+
 (defun cider-repl-history-setup (repl-win repl-buf history-buf &optional regexp)
   "Setup.
 REPL-WIN and REPL-BUF are where to insert commands;
@@ -637,16 +648,17 @@ HISTORY-BUF is the history, and optional arg REGEXP is a filter."
                         #'cider-repl-history-update-highlighted-entry
                         nil t))
             (message
-             (let ((entry (if (= 1 (length cider-command-history))
-                              "entry"
-                            "entries")))
+             (let* ((history-length (length cider-command-history))
+                    (entry (if (= 1 history-length)
+                               "entry"
+                             "entries")))
                (concat
                 (if (and (not regexp)
                          cider-repl-history-display-duplicates)
                     (format "%s %s in the command history."
-                            (length cider-command-history) entry)
+                            history-length entry)
                   (format "%s (of %s) %s in the command history shown."
-                          (length items) (length cider-command-history) entry))
+                          (length items) history-length entry))
                 (substitute-command-keys
                  (concat "  Type \\[cider-repl-history-quit] to quit.  "
                          "\\[describe-mode] for help.")))))
@@ -693,6 +705,7 @@ HISTORY-BUF is the history, and optional arg REGEXP is a filter."
     (define-key map (kbd "g")   #'cider-repl-history-update)
     (define-key map (kbd "q")   #'cider-repl-history-quit)
     (define-key map (kbd "U")   #'cider-repl-history-undo-other-window)
+    (define-key map (kbd "D")   #'cider-repl-history-delete)
     (define-key map (kbd "?")   #'describe-mode)
     (define-key map (kbd "h")   #'describe-mode)
     map))
