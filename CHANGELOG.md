@@ -5,8 +5,14 @@
 ### Changes
 
 - [#3588](https://github.com/clojure-emacs/cider/issues/3588): Compatibility with pwsh 7.3 quoting rules.
+- Introduce the `cider-log-show` function.
+  - Please refer to the (slightly revamped) [CIDER Log Mode guide](https://docs.cider.mx/cider/debugging/logging.html).
 - Bump the injected `enrich-classpath` to [1.19.0](https://github.com/clojure-emacs/enrich-classpath/compare/v1.18.6...v1.19.0).
 - Bump the `parseedn` required version to 1.2.1.
+- Bump the injected `cider-nrepl` to [0.45.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.45.0/CHANGELOG.md#0450-2024-01-14).
+  - Introduces Timbre compatibility for [CIDER Log Mode](https://docs.cider.mx/cider/debugging/logging.html).
+  - Fixes JS completions for nested objects.
+  - Bundles other fixes and reliability improvements.
 
 ## 1.12.0 (2023-11-24)
 
