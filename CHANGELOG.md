@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.13.0 (2024-01-14)
+
 ### Changes
 
 - [#3588](https://github.com/clojure-emacs/cider/issues/3588): Compatibility with pwsh 7.3 quoting rules.
