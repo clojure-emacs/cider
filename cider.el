@@ -96,7 +96,7 @@
 (defconst cider-version "1.13.0"
   "The current version of CIDER.")
 
-(defconst cider-codename "Split"
+(defconst cider-codename "Santiago"
   "Codename used to denote stable releases.")
 
 (defcustom cider-lein-command
