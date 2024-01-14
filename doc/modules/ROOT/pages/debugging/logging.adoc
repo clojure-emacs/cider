@@ -155,6 +155,7 @@ At the moment the following log frameworks are supported:
 
 - https://docs.oracle.com/en/java/javase/19/core/java-logging-overview.html[Java Util Logging]
 - https://logback.qos.ch[Logback]
+- https://github.com/taoensso/timbre[Timbre]
 
 There is some https://github.com/clojure-emacs/logjam/issues/2[work in
 progress] to support https://logging.apache.org/log4j/2.x/[Log4j] as
@@ -162,8 +163,6 @@ well, but there are some
 https://stackoverflow.com/a/17842174/12711900[difficulties] with
 configuration changes made at runtime, which are wiped out by the
 Log4j2 reconfiguration mechanism.
-
-Timbre support is WIP as well.
 
 TIP: If your logging framework of choice is not currently supported by CIDER Log Mode,
 you can opt to use Clojure's official `tools.logging` façade in your project, such that you can locally,

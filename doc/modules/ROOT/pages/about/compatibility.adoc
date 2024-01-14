@@ -166,7 +166,7 @@ Below you can find the official compatibility matrix for CIDER.
 | 1.0
 | 0.44
 | 8
-| 1.8
+| 1.9
 
 |===
 

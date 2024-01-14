@@ -42,7 +42,7 @@
 You may want to set this in .dir-locals.el,
 for a more streamlined setup.
 
-Example value: \"Logback\"."
+Example values: \"Logback\", \"Timbre\"."
   :group 'cider
   :package-version '(cider . "1.8.0")
   :safe #'stringp
