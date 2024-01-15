@@ -157,6 +157,8 @@ At the moment the following log frameworks are supported:
 - https://logback.qos.ch[Logback]
 - https://github.com/taoensso/timbre[Timbre]
 
+NOTE: if you choose Timbre, please make sure that your project's version roughly matches https://github.com/clojure-emacs/logjam/blob/master/project.clj[Logjam]'s expected version - otherwise incompatible changes may make Timbre not appear available as a CIDER Log Mode framework option.
+
 There is some https://github.com/clojure-emacs/logjam/issues/2[work in
 progress] to support https://logging.apache.org/log4j/2.x/[Log4j] as
 well, but there are some
