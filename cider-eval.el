@@ -765,7 +765,7 @@ The handler simply inserts the result value in BUFFER."
   (let ((eval-buffer (current-buffer))
         (res "")
         (failed nil)
-        (error-phase-requested nil))
+        (error-phase-requested nil)) ;; avoid requesting the phase more than once - can happen if there are errors during the phase nrepl sync request.
     (nrepl-make-response-handler (or buffer eval-buffer)
                                  ;; value handler:
                                  (lambda (_buffer value)
@@ -914,7 +914,7 @@ when `cider-auto-inspect-after-eval' is non-nil."
          (end (when end (copy-marker end)))
          (fringed nil)
          (res "")
-         (error-phase-requested nil))
+         (error-phase-requested nil)) ;; avoid requesting the phase more than once - can happen if there are errors during the phase nrepl sync request.
     (nrepl-make-response-handler (or buffer eval-buffer)
                                  ;; value handler:
                                  (lambda (_buffer value)
@@ -963,7 +963,7 @@ when `cider-auto-inspect-after-eval' is non-nil."
 Optional argument DONE-HANDLER lambda will be run once load is complete."
   (let ((eval-buffer (current-buffer))
         (res "")
-        (error-phase-requested nil))
+        (error-phase-requested nil)) ;; avoid requesting the phase more than once - can happen if there are errors during the phase nrepl sync request.
     (nrepl-make-response-handler (or buffer eval-buffer)
                                  (lambda (buffer value)
                                    (cider--display-interactive-eval-result value 'value)
@@ -1093,7 +1093,7 @@ This is used by pretty-printing commands."
   ;; NOTE: cider-eval-register behavior is not implemented here for performance reasons.
   ;; See https://github.com/clojure-emacs/cider/pull/3162
   (let ((chosen-buffer (or buffer (current-buffer)))
-        (error-phase-requested nil))
+        (error-phase-requested nil)) ;; avoid requesting the phase more than once - can happen if there are errors during the phase nrepl sync request.
     (nrepl-make-response-handler
      chosen-buffer
      ;; value handler:
