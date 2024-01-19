@@ -459,8 +459,8 @@ But helps us know if this is a nbb repl, or not."
       (nrepl-dict-get nrepl-versions "nbb-nrepl"))))
 
 (defun cider--scittle-nrepl-version ()
-  "Likewise for scittle. See `cider--nbb-nrepl-version'."
-  (with-current-buffer (cider-current-repl)
+  "Retrieve the underlying connection's scittle version."
+    (with-current-buffer (cider-current-repl)
     (when nrepl-versions
       (nrepl-dict-get nrepl-versions "scittle-nrepl"))))
 
