@@ -849,8 +849,7 @@ REPL buffer.  This is controlled via
     (when-let ((conn (with-current-buffer buffer
                        (cider-current-repl))))
       (when (cider-nrepl-op-supported-p "analyze-last-stacktrace" conn)
-        (let ((nrepl-err-handler (lambda (&rest _))) ;; ignore any errors during this request to avoid any recursion
-              (nrepl-sync-request-timeout 4)) ;; ensure that this feature cannot possibly create an overly laggy UX
+        (let ((nrepl-sync-request-timeout 4)) ;; ensure that this feature cannot possibly create an overly laggy UX
           (when-let* ((result (nrepl-send-sync-request (thread-last (map-merge 'list
                                                                                '(("op" "analyze-last-stacktrace"))
                                                                                (cider--nrepl-print-request-map fill-column))
