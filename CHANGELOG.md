@@ -5,6 +5,7 @@
 ### Bugs fixed
 
 - [#3605](https://github.com/clojure-emacs/cider/issues/3605): avoid `cider--error-phase-of-last-exception` recursive loop.  
+- [#3587](https://github.com/clojure-emacs/cider/issues/3587): avoid overlays and `message`s on stderr that is unrelated to exception handling.
 
 ## 1.13.0 (2024-01-14)
 

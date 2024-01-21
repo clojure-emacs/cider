@@ -882,13 +882,14 @@ and the suffix matched by `cider-module-info-regexp'."
 (defun cider--maybe-display-error-as-overlay (phase err end)
   "Possibly display ERR as an overlay honoring END,
 depending on the PHASE."
-  (when (or
-         ;; if we won't show *cider-error*, because of configuration, the overlay is adequate because it compensates for the lack of info in a compact manner:
-         (not cider-show-error-buffer)
-         (not (cider-connection-has-capability-p 'jvm-compilation-errors))
-         ;; if we won't show *cider-error*, because of an ignored phase, the overlay is adequate:
-         (and cider-show-error-buffer
-              (member phase (cider-clojure-compilation-error-phases))))
+  (when (and phase ;; if there's no phase, `err' belongs to stderr, unrelated to exception handling (bug #3587)
+             (or
+              ;; if we won't show *cider-error*, because of configuration, the overlay is adequate because it compensates for the lack of info in a compact manner:
+              (not cider-show-error-buffer)
+              (not (cider-connection-has-capability-p 'jvm-compilation-errors))
+              ;; if we won't show *cider-error*, because of an ignored phase, the overlay is adequate:
+              (and cider-show-error-buffer
+                   (member phase (cider-clojure-compilation-error-phases)))))
     ;; Display errors as temporary overlays
     (let ((cider-result-use-clojure-font-lock nil)
           (trimmed-err (funcall cider-inline-error-message-function err)))
