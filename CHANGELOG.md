@@ -5,6 +5,7 @@
 ### Bugs fixed
 
 - [#3605](https://github.com/clojure-emacs/cider/issues/3605): avoid `cider--error-phase-of-last-exception` recursive loop.  
+- [#3613](https://github.com/clojure-emacs/cider/issues/3613): adapt `cider-completion-context.el` to upstream changes in Compliment.  
 
 ## 1.13.0 (2024-01-14)
 
