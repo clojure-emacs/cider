@@ -1782,15 +1782,21 @@ all ns aliases and var mappings from the namespace before reloading it."
                                        callback)))
           (message "Loading %s..." filename))))))
 
-(defun cider-load-file (filename &optional undef-all)
+(defun cider-load-file (filename &optional undef-all pos total)
   "Load (eval) the Clojure file FILENAME in nREPL.
 If the file is a cljc file, and both a Clojure and ClojureScript REPL
 exists for the project, it is evaluated in both REPLs.  The heavy lifting
 is done by `cider-load-buffer'.
 When UNDEF-ALL is non-nil or called with \\[universal-argument], removes
-all ns aliases and var mappings from the namespace before reloading it."
+all ns aliases and var mappings from the namespace before reloading it.
+POS and TOTAL, when not nil, are formatted as progress helpers in the
+interactive buffer while loading."
   (interactive (list
-                (read-file-name "Load file: " nil nil nil
+                (read-file-name (concat "Load file "
+                                        (when (and pos total)
+                                          (format "[%d/%d]" pos total))
+                                        ": ")
+                                nil nil nil
                                 (when (buffer-file-name)
                                   (file-name-nondirectory
                                    (buffer-file-name))))
@@ -1805,8 +1811,21 @@ Useful when the running nREPL on remote host.
 When UNDEF-ALL is non-nil or called with \\[universal-argument], removes
 all ns aliases and var mappings from the namespaces being reloaded"
   (interactive "DLoad files beneath directory: \nP")
-  (mapcar (lambda (file) (cider-load-file file undef-all))
-          (directory-files-recursively directory "\\.clj[cs]?$")))
+  (let* ((files (directory-files-recursively directory "\\.clj[cs]?$"))
+         (fcount (length files)))
+    (mapcar (lambda (file)
+              (cider-load-file file undef-all
+                               (+ (cl-position file files :test #'equal) 1)
+                               fcount))
+            files)))
+
+(let* ((files (directory-files-recursively "/home/jtm/dev/cider/" "\\.clj[cs]?$"))
+       (fcount (length files)))
+  (mapcar (lambda (file) (print (format "[%d/%d]: %s"
+                                        (cl-position file files :test #'equal)
+                                        fcount
+                                        file)))
+          files))
 
 (defalias 'cider-eval-file #'cider-load-file
   "A convenience alias as some people are confused by the load-* names.")
