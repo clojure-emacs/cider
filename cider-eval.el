@@ -1812,11 +1812,11 @@ When UNDEF-ALL is non-nil or called with \\[universal-argument], removes
 all ns aliases and var mappings from the namespaces being reloaded"
   (interactive "DLoad files beneath directory: \nP")
   (let* ((files (directory-files-recursively directory "\\.clj[cs]?$"))
-         (fcount (length files)))
+         (total (length files)))
     (mapcar (lambda (file)
               (cider-load-file file undef-all
                                (+ (cl-position file files :test #'equal) 1)
-                               fcount))
+                               total))
             files)))
 
 (defalias 'cider-eval-file #'cider-load-file
