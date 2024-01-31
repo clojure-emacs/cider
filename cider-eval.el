@@ -1792,9 +1792,9 @@ all ns aliases and var mappings from the namespace before reloading it.
 POS and TOTAL, when not nil, are formatted as progress helpers in the
 interactive buffer while loading."
   (interactive (list
-                (read-file-name (concat "Load file "
+                (read-file-name (concat "Load file"
                                         (when (and pos total)
-                                          (format "[%d/%d]" pos total))
+                                          (format " [%d/%d]" pos total))
                                         ": ")
                                 nil nil nil
                                 (when (buffer-file-name)
