@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+- Show progress status when loading `all-files` recursively.
+
 ### Bugs fixed
 
 - [#3605](https://github.com/clojure-emacs/cider/issues/3605): avoid `cider--error-phase-of-last-exception` recursive loop.  
