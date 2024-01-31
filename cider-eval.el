@@ -1819,14 +1819,6 @@ all ns aliases and var mappings from the namespaces being reloaded"
                                fcount))
             files)))
 
-(let* ((files (directory-files-recursively "/home/jtm/dev/cider/" "\\.clj[cs]?$"))
-       (fcount (length files)))
-  (mapcar (lambda (file) (print (format "[%d/%d]: %s"
-                                        (cl-position file files :test #'equal)
-                                        fcount
-                                        file)))
-          files))
-
 (defalias 'cider-eval-file #'cider-load-file
   "A convenience alias as some people are confused by the load-* names.")
 
