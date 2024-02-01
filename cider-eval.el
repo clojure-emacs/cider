@@ -615,6 +615,8 @@ It delegates the actual error content to the eval or op handler."
                                   (optional ":" (group-n 4 (one-or-more digit)))
                                   " - "))
 
+;; Please keep this in sync with `cider-clojure-compilation-error-regexp',
+;; which is a subset of these regexes.
 (defconst cider-clojure-compilation-regexp
   (eval
    `(rx bol (or ,cider-clojure-1.9-error
@@ -624,6 +626,21 @@ It delegates the actual error content to the eval or op handler."
    t)
   "A few example values that will match:
 \"Reflection warning, /tmp/foo/src/foo/core.clj:14:1 - \"
+\"CompilerException java.lang.RuntimeException: Unable to resolve symbol: \\
+lol in this context, compiling:(/foo/core.clj:10:1)\"
+\"Syntax error compiling at (src/workspace_service.clj:227:3).\"
+\"Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1).\"")
+
+(defconst cider-clojure-compilation-error-regexp
+  (eval
+   `(rx bol (or ,cider-clojure-1.9-error
+                ,cider-clojure-1.10-error
+                ,cider-clojure-unexpected-error))
+   t)
+  "Like `cider-clojure-compilation-regexp',
+but excluding warnings such as reflection warnings.
+
+A few example values that will match:
 \"CompilerException java.lang.RuntimeException: Unable to resolve symbol: \\
 lol in this context, compiling:(/foo/core.clj:10:1)\"
 \"Syntax error compiling at (src/workspace_service.clj:227:3).\"
@@ -922,7 +939,7 @@ depending on the PHASE."
                    (member phase (cider-clojure-compilation-error-phases))))
              ;; Only show overlays for things that do look like an exception (#3587):
              (or (string-match-p cider-clojure-runtime-error-regexp err)
-                 (string-match-p cider-clojure-compilation-regexp err)))
+                 (string-match-p cider-clojure-compilation-error-regexp err)))
     ;; Display errors as temporary overlays
     (let ((cider-result-use-clojure-font-lock nil)
           (trimmed-err (funcall cider-inline-error-message-function err)))
