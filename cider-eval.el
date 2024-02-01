@@ -64,8 +64,8 @@
 
 (defcustom cider-show-error-buffer t
   "Control the popup behavior of cider stacktraces.
-The following values are possible t or 'always, 'except-in-repl,
-'only-in-repl.  Any other value, including nil, will cause the stacktrace
+The following values are possible t or \='always, \='except-in-repl,
+\='only-in-repl.  Any other value, including nil, will cause the stacktrace
 not to be automatically shown.
 
 Irrespective of the value of this variable, the `cider-error-buffer' is
@@ -88,7 +88,7 @@ in order to void its effect."
 (defcustom cider-auto-jump-to-error t
   "Control the cursor jump behavior in compilation error buffer.
 When non-nil automatically jump to error location during interactive
-compilation.  When set to 'errors-only, don't jump to warnings.
+compilation.  When set to \='errors-only, don\='t jump to warnings.
 When set to nil, don't jump at all."
   :type '(choice (const :tag "always" t)
                  (const errors-only)
@@ -120,7 +120,7 @@ Only applies when the *cider-inspect* buffer is currently visible."
 (defcustom cider-save-file-on-load 'prompt
   "Controls whether to prompt to save the file when loading a buffer.
 If nil, files are not saved.
-If 'prompt, the user is prompted to save the file if it's been modified.
+If \='prompt, the user is prompted to save the file if it\='s been modified.
 If t, save the file without confirmation."
   :type '(choice (const prompt :tag "Prompt to save the file if it's been modified")
                  (const nil :tag "Don't save the file")
@@ -405,13 +405,12 @@ Returns the position at which PROPERTY was found, or nil if not found."
 _ARG and _RESET are ignored, as there is only ever one compilation error.
 They exist for compatibility with `next-error'."
   (interactive)
-  (cl-labels ((goto-next-note-boundary
-               ()
-               (let ((p (or (cider-find-property 'cider-note-p)
-                            (cider-find-property 'cider-note-p t))))
-                 (when p
-                   (goto-char p)
-                   (message "%s" (get-char-property p 'cider-note))))))
+  (cl-labels ((goto-next-note-boundary ()
+                                       (let ((p (or (cider-find-property 'cider-note-p)
+                                                    (cider-find-property 'cider-note-p t))))
+                                         (when p
+                                           (goto-char p)
+                                           (message "%s" (get-char-property p 'cider-note))))))
     ;; if we're already on a compilation error, first jump to the end of
     ;; it, so that we find the next error.
     (when (get-char-property (point) 'cider-note-p)
@@ -538,11 +537,10 @@ into a new error buffer."
   ;; Causes are returned as a series of messages, which we aggregate in `causes'
   (let (causes ex-phase)
     (cider-nrepl-send-request
-     (thread-last
-       (map-merge 'list
-                  '(("op" "analyze-last-stacktrace"))
-                  (cider--nrepl-print-request-map fill-column))
-       (seq-mapcat #'identity))
+     (thread-last (map-merge 'list
+                             '(("op" "analyze-last-stacktrace"))
+                             (cider--nrepl-print-request-map fill-column))
+                  (seq-mapcat #'identity))
      (lambda (response)
        (nrepl-dbind-response response (phase)
          (when phase

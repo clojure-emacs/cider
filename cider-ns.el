@@ -70,7 +70,7 @@
 (defcustom cider-ns-save-files-on-refresh 'prompt
   "Controls whether to prompt to save files before refreshing.
 If nil, files are not saved.
-If 'prompt, the user is prompted to save files if they have been modified.
+If \='prompt, the user is prompted to save files if they have been modified.
 If t, save the files without confirmation."
   :type '(choice (const prompt :tag "Prompt to save files if they have been modified")
                  (const nil :tag "Don't save the files")
@@ -188,7 +188,7 @@ Its behavior is controlled by `cider-ns-save-files-on-refresh' and
 
 ;;;###autoload
 (defun cider-ns-reload (&optional prompt)
-  "Send a (require 'ns :reload) to the REPL.
+  "Send a (require \='ns :reload) to the REPL.
 
 With an argument PROMPT, it prompts for a namespace name.  This is the
 Clojure out of the box reloading experience and does not rely on
@@ -203,7 +203,7 @@ identified libs even if they are already loaded\"."
 
 ;;;###autoload
 (defun cider-ns-reload-all (&optional prompt)
-  "Send a (require 'ns :reload-all) to the REPL.
+  "Send a (require \='ns :reload-all) to the REPL.
 
 With an argument PROMPT, it prompts for a namespace name.  This is the
 Clojure out of the box reloading experience and does not rely on
@@ -256,15 +256,14 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
           (when clear?
             (cider-nrepl-send-sync-request '("op" "refresh-clear") conn))
           (cider-nrepl-send-request
-           (thread-last
-             (map-merge 'list
-                        `(("op" ,(if refresh-all? "refresh-all" "refresh")))
-                        (cider--nrepl-print-request-map fill-column)
-                        (when (and (not inhibit-refresh-fns) cider-ns-refresh-before-fn)
-                          `(("before" ,cider-ns-refresh-before-fn)))
-                        (when (and (not inhibit-refresh-fns) cider-ns-refresh-after-fn)
-                          `(("after" ,cider-ns-refresh-after-fn))))
-             (seq-mapcat #'identity))
+           (thread-last (map-merge 'list
+                                   `(("op" ,(if refresh-all? "refresh-all" "refresh")))
+                                   (cider--nrepl-print-request-map fill-column)
+                                   (when (and (not inhibit-refresh-fns) cider-ns-refresh-before-fn)
+                                     `(("before" ,cider-ns-refresh-before-fn)))
+                                   (when (and (not inhibit-refresh-fns) cider-ns-refresh-after-fn)
+                                     `(("after" ,cider-ns-refresh-after-fn))))
+                        (seq-mapcat #'identity))
            (lambda (response)
              (cider-ns-refresh--handle-response response log-buffer))
            conn))))))

@@ -139,11 +139,10 @@ improving performance (at the possible cost of accuracy)."
 (defun cider-path-to-ns (relpath)
   "Transform RELPATH to Clojure namespace.
 Remove extension and substitute \"/\" with \".\", \"_\" with \"-\"."
-  (thread-last
-    relpath
-    (file-name-sans-extension)
-    (replace-regexp-in-string "/" ".")
-    (replace-regexp-in-string "_" "-")))
+  (thread-last relpath
+               (file-name-sans-extension)
+               (replace-regexp-in-string "/" ".")
+               (replace-regexp-in-string "_" "-")))
 
 (defun cider-expected-ns (&optional path)
   "Return the namespace string matching PATH, or nil if not found.
@@ -152,16 +151,15 @@ command falls back to `clojure-expected-ns' in the absence of an active
 nREPL connection."
   (if (cider-connected-p)
       (let* ((path (file-truename (or path buffer-file-name)))
-             (relpath (thread-last
-                        (cider-classpath-entries)
-                        (seq-filter #'file-directory-p)
-                        (seq-map (lambda (dir)
-                                   (when (file-in-directory-p path dir)
-                                     (file-relative-name path dir))))
-                        (seq-filter #'identity)
-                        (seq-sort (lambda (a b)
-                                    (< (length a) (length b))))
-                        (car))))
+             (relpath (thread-last (cider-classpath-entries)
+                                   (seq-filter #'file-directory-p)
+                                   (seq-map (lambda (dir)
+                                              (when (file-in-directory-p path dir)
+                                                (file-relative-name path dir))))
+                                   (seq-filter #'identity)
+                                   (seq-sort (lambda (a b)
+                                               (< (length a) (length b))))
+                                   (car))))
         (if relpath
             (cider-path-to-ns relpath)
           (clojure-expected-ns path)))
@@ -245,7 +243,7 @@ Assuming this is the Clojure map you want to use as `cljfmt' options:
 
 you need to encode it as the following plist:
 
-  '((\"indents\" ((\"org.me/foo\" ((\"inner\" 0))))) (\"alias-map\" ((\"me\" \"org.me\"))))"
+  \='((\"indents\" ((\"org.me/foo\" ((\"inner\" 0))))) (\"alias-map\" ((\"me\" \"org.me\"))))"
   :type 'list
   :group 'cider
   :package-version '(cider . "1.1.0"))
@@ -256,26 +254,23 @@ If non-nil, FORMAT-OPTIONS specifies the options cljfmt will use to format
 the code.  See `cider-format-code-options` for details."
   (when format-options
     (let* ((indents-dict (when (assoc "indents" format-options)
-                           (thread-last
-                             (cadr (assoc "indents" format-options))
-                             (map-pairs)
-                             (seq-mapcat #'identity)
-                             (apply #'nrepl-dict))))
+                           (thread-last (cadr (assoc "indents" format-options))
+                                        (map-pairs)
+                                        (seq-mapcat #'identity)
+                                        (apply #'nrepl-dict))))
            (alias-map-dict (when (assoc "alias-map" format-options)
-                             (thread-last
-                               (cadr (assoc "alias-map" format-options))
-                               (map-pairs)
-                               (seq-mapcat #'identity)
-                               (apply #'nrepl-dict)))))
-      (thread-last
-        (map-merge 'list
-                   (when indents-dict
-                     `(("indents" ,indents-dict)))
-                   (when alias-map-dict
-                     `(("alias-map" ,alias-map-dict))))
-        (map-pairs)
-        (seq-mapcat #'identity)
-        (apply #'nrepl-dict)))))
+                             (thread-last (cadr (assoc "alias-map" format-options))
+                                          (map-pairs)
+                                          (seq-mapcat #'identity)
+                                          (apply #'nrepl-dict)))))
+      (thread-last (map-merge 'list
+                              (when indents-dict
+                                `(("indents" ,indents-dict)))
+                              (when alias-map-dict
+                                `(("alias-map" ,alias-map-dict))))
+                   (map-pairs)
+                   (seq-mapcat #'identity)
+                   (apply #'nrepl-dict)))))
 
 (defcustom cider-print-fn 'pprint
   "Sets the function to use for printing.
@@ -316,7 +311,7 @@ nil."
   "A map of options that will be passed to `cider-print-fn'.
 Here's an example for `pprint':
 
-  '((\"length\" 50) (\"right-margin\" 70))"
+  \='((\"length\" 50) (\"right-margin\" 70))"
   :type 'list
   :group 'cider
   :package-version '(cider . "0.21.0"))
@@ -378,13 +373,12 @@ The result will be a string."
 RIGHT-MARGIN specifies the maximum column-width of the printed result, and
 is included in the request if non-nil."
   (let* ((width-option (cider--print-option "right-margin" cider-print-fn))
-         (print-options (thread-last
-                          (map-merge 'hash-table
-                                     `((,width-option ,right-margin))
-                                     cider-print-options)
-                          (map-pairs)
-                          (seq-mapcat #'identity)
-                          (apply #'nrepl-dict))))
+         (print-options (thread-last (map-merge 'hash-table
+                                                `((,width-option ,right-margin))
+                                                cider-print-options)
+                                     (map-pairs)
+                                     (seq-mapcat #'identity)
+                                     (apply #'nrepl-dict))))
     (map-merge 'list
                `(("nrepl.middleware.print/stream?" "1"))
                (when cider-print-fn
@@ -398,11 +392,10 @@ is included in the request if non-nil."
 
 (defun cider--nrepl-pr-request-map ()
   "Map to merge into requests that do not require pretty printing."
-  (let ((print-options (thread-last
-                         cider-print-options
-                         (map-pairs)
-                         (seq-mapcat #'identity)
-                         (apply #'nrepl-dict))))
+  (let ((print-options (thread-last cider-print-options
+                                    (map-pairs)
+                                    (seq-mapcat #'identity)
+                                    (apply #'nrepl-dict))))
     (map-merge 'list
                `(("nrepl.middleware.print/print" "cider.nrepl.pprint/pr")
                  ("nrepl.middleware.print/stream?" nil))
@@ -618,10 +611,9 @@ Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
 (defun cider-sync-request:classpath ()
   "Return a list of classpath entries."
   (cider-ensure-op-supported "classpath")
-  (thread-first
-    '("op" "classpath")
-    (cider-nrepl-send-sync-request)
-    (nrepl-dict-get "classpath")))
+  (thread-first '("op" "classpath")
+                (cider-nrepl-send-sync-request)
+                (nrepl-dict-get "classpath")))
 
 (defun cider--get-abs-path (path project)
   "Resolve PATH to an absolute path relative to PROJECT.
@@ -636,11 +628,10 @@ Do nothing if PATH is already absolute."
 Sometimes the classpath contains entries like src/main and we need to
 resolve those to absolute paths."
   (when (cider-runtime-clojure-p)
-    (let ((classpath (thread-first
-                       "(seq (.split (System/getProperty \"java.class.path\") \":\"))"
-                       (cider-sync-tooling-eval)
-                       (nrepl-dict-get "value")
-                       read))
+    (let ((classpath (thread-first "(seq (.split (System/getProperty \"java.class.path\") \":\"))"
+                                   (cider-sync-tooling-eval)
+                                   (nrepl-dict-get "value")
+                                   read))
           (project (clojure-project-dir)))
       (mapcar (lambda (path) (cider--get-abs-path path project)) classpath))))
 
@@ -862,12 +853,11 @@ FORMAT-OPTIONS is an optional configuration map for cljfmt."
 
 (defun cider-sync-request:format-edn (edn right-margin)
   "Perform \"format-edn\" op with EDN and RIGHT-MARGIN."
-  (let* ((request (thread-last
-                    (map-merge 'list
-                               `(("op" "format-edn")
-                                 ("edn" ,edn))
-                               (cider--nrepl-print-request-map right-margin))
-                    (seq-mapcat #'identity)))
+  (let* ((request (thread-last (map-merge 'list
+                                          `(("op" "format-edn")
+                                            ("edn" ,edn))
+                                          (cider--nrepl-print-request-map right-margin))
+                               (seq-mapcat #'identity)))
          (response (cider-nrepl-send-sync-request request))
          (err (nrepl-dict-get response "err")))
     (when err

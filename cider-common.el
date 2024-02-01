@@ -292,7 +292,7 @@ in the container, the alist would be `((\"/src\" \"~/projects/foo/src\"))."
   "Attempt to translate the PATH in the given DIRECTION, optionally RETURN-ALL.
 Looks at `cider-path-translations' for (container . host) alist of path
 prefixes and translates PATH from container to host or vice-versa depending on
-whether DIRECTION is 'from-nrepl or 'to-nrepl."
+whether DIRECTION is \='from-nrepl or \='to-nrepl."
   (seq-let [from-fn to-fn path-fn] (cond ((eq direction 'from-nrepl) '(car cdr identity))
                                          ((eq direction 'to-nrepl) '(cdr car expand-file-name)))
     (let ((f (lambda (translation)

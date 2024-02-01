@@ -34,6 +34,7 @@
 ;; Built-ins
 (require 'ansi-color)
 (require 'color)
+(require 'help-mode)
 (require 'seq)
 (require 'subr-x)
 (require 'thingatpt)
@@ -80,8 +81,8 @@ Setting this to nil removes the fontification restriction."
     (nth 4 (parse-partial-sexp beg (point)))))
 
 (defun cider--tooling-file-p (file-name)
-  "Return t if FILE-NAME is not a 'real' source file.
-Currently, only check if the relative file name starts with 'form-init'
+  "Return t if FILE-NAME is not a \='real\=' source file.
+Currently, only check if the relative file name starts with \='form-init\='
 which nREPL uses for temporary evaluation file names."
   (let ((fname (file-name-nondirectory file-name)))
     (string-match-p "^form-init" fname)))
@@ -142,14 +143,13 @@ keywords."
           (if (member str '("." ".."))
               str
             ;; Remove prefix quotes, and trailing . from constructors like Record.
-            (thread-last
-              str
-              ;; constructors (Foo.)
-              (string-remove-suffix ".")
-              ;; quoted symbols ('sym)
-              (string-remove-prefix "'")
-              ;; var references (#'inc 2)
-              (string-remove-prefix "#'")))))
+            (thread-last str
+                         ;; constructors (Foo.)
+                         (string-remove-suffix ".")
+                         ;; quoted symbols ('sym)
+                         (string-remove-prefix "'")
+                         ;; var references (#'inc 2)
+                         (string-remove-prefix "#'")))))
       (when look-back
         (save-excursion
           (ignore-errors
@@ -418,13 +418,13 @@ objects."
           candidates))
 
 (defun cider-add-to-alist (symbol car cadr)
-  "Add '(CAR CADR) to the alist stored in SYMBOL.
+  "Add \='(CAR CADR) to the alist stored in SYMBOL.
 If CAR already corresponds to an entry in the alist, destructively replace
-the entry's second element with CADR.
+the entry\='s second element with CADR.
 
 This can be used, for instance, to update the version of an injected
 plugin or dependency with:
-  (cider-add-to-alist 'cider-jack-in-lein-plugins
+  (cider-add-to-alist \='cider-jack-in-lein-plugins
                   \"plugin/artifact-name\" \"THE-NEW-VERSION\")"
   (let ((alist (symbol-value symbol)))
     (if-let* ((cons (assoc car alist)))
@@ -438,7 +438,7 @@ plugin or dependency with:
 (defvar cider-version)
 
 (defconst cider-manual-url "https://docs.cider.mx/cider/%s"
-  "The URL to CIDER's manual.")
+  "The URL to CIDER\='s manual.")
 
 (defun cider-version-sans-patch ()
   "Return the version sans that patch."
@@ -451,7 +451,7 @@ plugin or dependency with:
     (concat (cider-version-sans-patch) "/")))
 
 (defun cider-manual-url ()
-  "The CIDER manual's url."
+  "The CIDER manual\='s url."
   (format cider-manual-url (cider--manual-version)))
 
 ;;;###autoload
@@ -474,7 +474,7 @@ to."
     (buffer-string)))
 
 (defconst cider-refcard-url "https://github.com/clojure-emacs/cider/raw/%s/refcard/cider-refcard.pdf"
-  "The URL to CIDER's refcard.")
+  "The URL to CIDER\='s refcard.")
 
 (defun cider--github-version ()
   "Convert the version to a GitHub-friendly version."

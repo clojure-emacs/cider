@@ -85,8 +85,8 @@ see `cider-debug-use-overlays'."
 
 (defcustom cider-result-overlay-position 'at-eol
   "Where to display result overlays for inline evaluation and the debugger.
-If 'at-eol, display at the end of the line.
-If 'at-point, display at the end of the respective sexp."
+If \='at-eol, display at the end of the line.
+If \='at-point, display at the end of the respective sexp."
   :group 'cider
   :type ''(choice (const :tag "End of line" at-eol)
                   (const :tag "End of sexp" at-point))
@@ -120,9 +120,9 @@ Never throws errors, and can be used in an overlay's modification-hooks."
 
 (defun cider--make-overlay (l r type &rest props)
   "Place an overlay between L and R and return it.
-TYPE is a symbol put on the overlay's category property.  It is used to
+TYPE is a symbol put on the overlay\='s category property.  It is used to
 easily remove all overlays from a region with:
-    (remove-overlays start end 'category TYPE)
+    (remove-overlays start end \='category TYPE)
 PROPS is a plist of properties and values to add to the overlay."
   (let ((o (make-overlay l (or r l) (current-buffer))))
     (overlay-put o 'category type)

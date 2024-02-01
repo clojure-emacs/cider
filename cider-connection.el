@@ -264,7 +264,7 @@ We look only at the major and minor components.  When the major
 version is 0, only check that the minor versions match.  When the major version
 is > 0, first check that the major version matches, then that the minor
 version is >= the required minor version.
-VER the 'installed' version,
+VER the `installed' version,
 REQUIRED-VER the version required by cider."
   (let ((ver* (cider--strip-version-patch ver))
         (required-ver* (cider--strip-version-patch required-ver)))
@@ -777,7 +777,7 @@ Session name can be customized with `cider-session-name-template'."
 ;;; REPL Buffer Init
 
 (defvar-local cider-cljs-repl-type nil
-  "The type of the ClojureScript runtime ('browser, 'node, 'figwheel, etc.).")
+  "The type of the ClojureScript runtime (\='browser, \='node, \='figwheel, etc.).")
 
 (defvar-local cider-repl-type nil
   "The type of this REPL buffer, usually either clj or cljs.")

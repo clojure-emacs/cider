@@ -618,10 +618,9 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
         (error "[nREPL] SSH port forwarding failed.  Check the '%s' buffer" tunnel-buf)
       (message "[nREPL] SSH port forwarding established to localhost:%s" port)
       (let ((endpoint (nrepl--direct-connect "localhost" port)))
-        (thread-first
-          endpoint
-          (plist-put :tunnel tunnel)
-          (plist-put :remote-host host))))))
+        (thread-first endpoint
+                      (plist-put :tunnel tunnel)
+                      (plist-put :remote-host host))))))
 
 (defun nrepl--ssh-tunnel-command (ssh dir port)
   "Command string to open SSH tunnel to the host associated with DIR's PORT."
@@ -832,13 +831,13 @@ to the REPL."
                                            truncated-handler)
   "Make a response handler for connection BUFFER.
 A handler is a function that takes one argument - response received from
-the server process.  The response is an alist that contains at least 'id'
-and 'session' keys.  Other standard response keys are 'value', 'out', 'err',
-and 'status'.
+the server process.  The response is an alist that contains at least `id'
+and `session' keys.  Other standard response keys are `value', `out', `err',
+and `status'.
 
 The presence of a particular key determines the type of the response.  For
-example, if 'value' key is present, the response is of type 'value', if
-'out' key is present the response is 'stdout' etc.
+example, if `value' key is present, the response is of type `value', if
+`out' key is present the response is `stdout' etc.
 
 Depending on the type, the handler dispatches the appropriate value to one
 of the supplied handlers: VALUE-HANDLER, STDOUT-HANDLER, STDERR-HANDLER,
@@ -1148,11 +1147,10 @@ match groups:
 (defun cider--process-plist-put (proc prop val)
   "Change value in PROC's plist of PROP to VAL.
 Value is changed using `plist-put`, of which see."
-  (thread-first
-    proc
-    (process-plist)
-    (plist-put prop val)
-    (thread-last (set-process-plist proc))))
+  (thread-first proc
+                (process-plist)
+                (plist-put prop val)
+                (thread-last (set-process-plist proc))))
 
 (defun nrepl-server-filter (process output)
   "Process nREPL server output from PROCESS contained in OUTPUT.
@@ -1209,7 +1207,7 @@ up."
 (defun nrepl-server-sentinel (process event)
   "Handle nREPL server PROCESS EVENT.
 If the nREPL PROCESS failed to initiate and encountered a fatal EVENT
-signal, raise an 'error'.  Additionally, if the EVENT signal is SIGHUP,
+signal, raise an `error'.  Additionally, if the EVENT signal is SIGHUP,
 close any existing client connections."
   ;; only interested on fatal signals.
   (when (not (process-live-p process))
@@ -1392,10 +1390,9 @@ EVENT gives the button position on window."
   "Return the color to use when pretty-printing the nREPL message with ID.
 If ID is nil, return nil."
   (when id
-    (thread-first
-      (string-to-number id)
-      (mod (length nrepl-message-colors))
-      (nth nrepl-message-colors))))
+    (thread-first (string-to-number id)
+                  (mod (length nrepl-message-colors))
+                  (nth nrepl-message-colors))))
 
 (defun nrepl-log--pp-listlike (object &optional foreground button)
   "Pretty print nREPL list like OBJECT.

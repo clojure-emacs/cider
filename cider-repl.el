@@ -307,10 +307,9 @@ Run CALLBACK once the evaluation is complete."
      nil
      (line-number-at-pos (point))
      (cider-column-number-at-pos (point))
-     (thread-last
-       request
-       (map-pairs)
-       (seq-mapcat #'identity)))))
+     (thread-last request
+                  (map-pairs)
+                  (seq-mapcat #'identity)))))
 
 (defun cider-repl-init (buffer &optional callback)
   "Initialize the REPL in BUFFER.
@@ -1138,10 +1137,9 @@ If NEWLINE is true then add a newline at the end of the input."
          (cider-current-ns)
          (line-number-at-pos input-start)
          (cider-column-number-at-pos input-start)
-         (thread-last
-           (cider--repl-request-map fill-column)
-           (map-pairs)
-           (seq-mapcat #'identity)))))))
+         (thread-last (cider--repl-request-map fill-column)
+                      (map-pairs)
+                      (seq-mapcat #'identity)))))))
 
 (defun cider-repl-return (&optional end-of-input)
   "Evaluate the current input string, or insert a newline.
@@ -1365,7 +1363,7 @@ case."
   "Workhorse for getting locref at point.
 REG-LIST is an entry in `cider-locref-regexp-alist'."
   (beginning-of-line)
-  (when (re-search-forward (nth 1 reg-list) (point-at-eol) t)
+  (when (re-search-forward (nth 1 reg-list) (line-end-position) t)
     (let ((ix-highlight (or (nth 2 reg-list) 0))
           (ix-var (nth 3 reg-list))
           (ix-file (nth 4 reg-list))
@@ -1391,7 +1389,7 @@ for locref look up."
     (goto-char (or pos (point)))
     ;; Regexp lookup on long lines can result in significant hangs #2532. We
     ;; assume that lines longer than 300 don't contain source references.
-    (when (< (- (point-at-eol) (point-at-bol)) 300)
+    (when (< (- (line-end-position) (line-beginning-position)) 300)
       (seq-some (lambda (rl) (cider--locref-at-point-1 rl))
                 cider-locref-regexp-alist))))
 
@@ -1503,7 +1501,7 @@ Return -1 resp the length of the history if no item matches."
 
 (defun cider-repl--history-replace (direction &optional regexp)
   "Replace the current input with the next line in DIRECTION.
-DIRECTION is 'forward' or 'backward' (in the history list).
+DIRECTION is `forward' or `backward' (in the history list).
 If REGEXP is non-nil, only lines matching REGEXP are considered."
   (setq cider-repl-history-pattern regexp)
   (let* ((min-pos -1)

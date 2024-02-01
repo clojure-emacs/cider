@@ -35,8 +35,8 @@
 (describe "cider-extract-error-info"
   :var (file-name line-num col-num face)
   (before-all
-   ;; FIXME: Don't mess with such global names, please!
-   ;; Maybe use `cl-flet' instead?
+    ;; FIXME: Don't mess with such global names, please!
+    ;; Maybe use `cl-flet' instead?
     (fset 'file-name (lambda (info) (nth 0 info)))
     (fset 'line-num (lambda (info) (nth 1 info)))
     (fset 'col-num (lambda (info) (nth 2 info)))
@@ -125,19 +125,19 @@
                      (match-string 1 clojure-compiler-warning))
               :to-equal "warning")))
   (dolist (regexp (list cider-clojure-compilation-regexp cider-clojure-compilation-error-regexp))
-    (it "Recognizes a clojure-1.9 error message"
+    (it (format "Recognizes a clojure-1.9 error message - %s" regexp)
       (let ((clojure-1.9-compiler-error "CompilerException java.lang.RuntimeException: Unable to resolve symbol: lol in this context, compiling:(/tmp/foo/src/foo/core.clj:10:1)"))
         (expect clojure-1.9-compiler-error :to-match regexp)
         (expect (progn (string-match regexp clojure-1.9-compiler-error)
                        (match-string 2 clojure-1.9-compiler-error))
                 :to-equal "/tmp/foo/src/foo/core.clj")))
-    (it "Recognizes a clojure-1.10 error message"
+    (it (format "Recognizes a clojure-1.10 error message - %s" regexp)
       (let ((clojure-1.10-compiler-error "Syntax error compiling at (src/ardoq/service/workspace_service.clj:227:3)."))
         (expect clojure-1.10-compiler-error :to-match regexp)
         (expect (progn (string-match regexp clojure-1.10-compiler-error)
                        (match-string 2 clojure-1.10-compiler-error))
                 :to-equal "src/ardoq/service/workspace_service.clj")))
-    (it "Recognizes a clojure 'Unexpected error' message"
+    (it (format "Recognizes a clojure 'Unexpected error' message - %s" regexp)
       (let ((clojure-1.10-compiler-error "Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1)."))
         (expect clojure-1.10-compiler-error :to-match regexp)
         (expect (progn (string-match regexp clojure-1.10-compiler-error)

@@ -308,7 +308,7 @@ command when there is no ambiguity."
 
 (defcustom cider-allow-jack-in-without-project 'warn
   "Controls what happens when doing `cider-jack-in' outside a project.
-When set to 'warn you'd prompted to confirm the command.
+When set to \='warn you\='d prompted to confirm the command.
 When set to t `cider-jack-in' will quietly continue.
 When set to nil `cider-jack-in' will fail."
   :type '(choice (const :tag "always" t)
@@ -377,7 +377,7 @@ The plist supports the following keys
 
 - :cmd a plist of instructions how to invoke the jack in command, with keys
 
-  - :jack-in-type 'clj to start a clj repl and 'cljs for a cljs repl.
+  - :jack-in-type \='clj to start a clj repl and \='cljs for a cljs repl.
 
   - &rest the same set of params supported by the `cider-jack-in-clj' and
     `cider-jack-in-cljs' commands.")
@@ -1374,7 +1374,7 @@ double prefix prompt for all these parameters."
 (defun cider-jack-in-cljs (params)
   "Start an nREPL server for the current project and connect to it.
 PARAMS is a plist optionally containing :project-dir, :jack-in-cmd and
-:cljs-repl-type (e.g. 'shadow, 'node, 'figwheel, etc).
+:cljs-repl-type (e.g. \='shadow, \='node, \='figwheel, etc).
 
 With the prefix argument,
 allow editing of the jack in command; with a double prefix prompt for all
@@ -1401,7 +1401,7 @@ these parameters."
 (defun cider-jack-in-clj&cljs (&optional params soft-cljs-start)
   "Start an nREPL server and connect with clj and cljs REPLs.
 PARAMS is a plist optionally containing :project-dir, :jack-in-cmd and
-:cljs-repl-type (e.g. 'shadow, 'node, 'fighweel, etc).
+:cljs-repl-type (e.g. \='shadow, \='node, \='figwheel, etc).
 
 With the prefix argument, allow for editing of the jack in command;
 with a double prefix prompt for all these parameters.
@@ -1456,8 +1456,8 @@ server is created."
 ;;;###autoload
 (defun cider-connect-sibling-cljs (params &optional other-repl)
   "Create a ClojureScript REPL with the same server as OTHER-REPL.
-PARAMS is a plist optionally containing :cljs-repl-type (e.g. 'node,
-'figwheel, 'shadow, etc).
+PARAMS is a plist optionally containing :cljs-repl-type (e.g. \='node,
+\='figwheel, \='shadow, etc).
 
 All other parameters are inferred from the OTHER-REPL.
 OTHER-REPL defaults to `cider-current-repl' but in programs can also be a
@@ -1497,7 +1497,7 @@ prefix argument, prompt for all the parameters."
 (defun cider-connect-cljs (&optional params)
   "Initialize a ClojureScript connection to an nREPL server.
 PARAMS is a plist optionally containing :host, :port, :project-dir and
-:cljs-repl-type (e.g. 'shadow, 'node, 'figwheel, etc).
+:cljs-repl-type (e.g. \='shadow, \='node, \='figwheel, etc).
 
 On prefix, prompt for all the
 parameters regardless of their supplied or default values."
@@ -1516,8 +1516,8 @@ parameters regardless of their supplied or default values."
 (defun cider-connect-clj&cljs (params &optional soft-cljs-start)
   "Initialize a Clojure and ClojureScript connection to an nREPL server.
 PARAMS is a plist optionally containing :host, :port, :project-dir and
-:cljs-repl-type (e.g. 'shadow, 'node, 'figwheel, etc).  When SOFT-CLJS-START is
-non-nil, don't start if ClojureScript requirements are not met."
+:cljs-repl-type (e.g. \='shadow, \='node, \='figwheel, etc).  When SOFT-CLJS-START is
+non-nil, don\='t start if ClojureScript requirements are not met."
   (interactive "P")
   (let* ((params (thread-first params
                                (cider--update-project-dir)

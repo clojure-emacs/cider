@@ -40,12 +40,12 @@
   "Determines if namespaces are displayed in the macroexpansion buffer.
 Possible values are:
 
-  'qualified ;=> Vars are fully-qualified in the expansion
-  'none      ;=> Vars are displayed without namespace qualification
-  'tidy      ;=> Vars that are :refer-ed or defined in the current namespace are
-                 displayed with their simple name, non-referred vars from other
-                 namespaces are referred using the alias for that namespace (if
-                 defined), other vars are displayed fully qualified."
+  \='qualified ;=> Vars are fully-qualified in the expansion
+  \='none      ;=> Vars are displayed without namespace qualification
+  \='tidy      ;=> Vars that are :refer-ed or defined in the current namespace are
+                   displayed with their simple name, non-referred vars from other
+                   namespaces are referred using the alias for that namespace (if
+                   defined), other vars are displayed fully qualified."
   :type '(choice (const :tag "Suppress namespaces" none)
                  (const :tag "Show fully-qualified namespaces" qualified)
                  (const :tag "Show namespace aliases" tidy))
