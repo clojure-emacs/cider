@@ -567,7 +567,10 @@ It delegates the actual error content to the eval or op handler."
 ;; old and the new format, by utilizing a combination of two different regular
 ;; expressions.
 
-(defconst cider-clojure-1.10--location `("at ("
+(defconst cider-clojure-1.10--location `((or "at ("
+                                             (sequence "at "
+                                                       (minimal-match (one-or-more anything)) ;; the fully-qualified name of the function that triggered the error
+                                                       " ("))
                                          (group-n 2 (minimal-match (zero-or-more anything)))
                                          ":"
                                          (group-n 3 (one-or-more digit))
@@ -625,6 +628,34 @@ It delegates the actual error content to the eval or op handler."
 lol in this context, compiling:(/foo/core.clj:10:1)\"
 \"Syntax error compiling at (src/workspace_service.clj:227:3).\"
 \"Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1).\"")
+
+(defconst cider--clojure-execution-error-regexp
+  (append `(sequence
+            "Execution error "
+            (or (sequence "("
+                          (minimal-match (one-or-more anything))
+                          ")")
+                (minimal-match (zero-or-more anything))))
+          cider-clojure-1.10--location))
+
+(defconst cider--clojure-spec-execution-error-regexp
+  (append `(sequence
+            "Execution error - invalid arguments to "
+            (minimal-match (one-or-more anything))
+            " ")
+          cider-clojure-1.10--location))
+
+(defconst cider-clojure-runtime-error-regexp
+  (eval
+   `(rx bol (or ,cider--clojure-execution-error-regexp
+                ,cider--clojure-spec-execution-error-regexp))
+   t)
+  "Matches runtime errors, as oppsed to compile-time/macroexpansion-time errors.
+
+A few example values that will match:
+
+\"Execution error (ArithmeticException) at foo/foo (src/haystack/parser.cljc:4).\"
+\"Execution error - invalid arguments to foo/bar at (src/haystack/parser.cljc:4).\"")
 
 (defconst cider-module-info-regexp
   (rx " ("

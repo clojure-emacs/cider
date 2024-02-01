@@ -143,6 +143,48 @@
                      (match-string 2 clojure-1.10-compiler-error))
               :to-equal "src/haystack/parser.cljc"))))
 
+(describe "cider-clojure-runtime-error-regexp"
+  (it "Recognizes a clojure-1.10 runtime error message"
+
+    ;; Something like "(ArithmeticException)" will be absent for Exception and RuntimeException in particular
+    (let ((specimen "Execution error at foo/foo (src/haystack/parser.cljc:4)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "src/haystack/parser.cljc"))
+
+    (let ((specimen "Execution error (ArithmeticException) at foo/foo (src/haystack/parser.cljc:4)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "src/haystack/parser.cljc"))
+
+    ;; without foo/foo symbol
+    (let ((specimen "Execution error at (src/haystack/parser.cljc:4)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "src/haystack/parser.cljc"))
+
+    ;; without foo/foo symbol
+    (let ((specimen "Execution error (ArithmeticException) at (src/haystack/parser.cljc:4)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "src/haystack/parser.cljc")))
+
+  (it "Recognizes a clojure-1.10 runtime spec validation error message"
+    (let ((specimen "Execution error - invalid arguments to foo/bar at (src/haystack/parser.cljc:4)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "src/haystack/parser.cljc"))))
+
 (describe "cider-module-info-regexp"
   (it "Matches module info provided by Java"
     (expect " (java.lang.Long is in module java.base of loader 'bootstrap'; clojure.lang.IObj is in unnamed module of loader 'app')"
