@@ -48,7 +48,7 @@ commands:
     steps:
       - run:
           name: Run Elisp-lint
-          command: eldev lint
+          command: eldev lint -c
       - run:
           name: Byte-compile .el files
           command: eldev -dtT compile --warnings-as-errors
