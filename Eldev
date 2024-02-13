@@ -1,6 +1,6 @@
 ; -*- mode: emacs-lisp; lexical-binding: t -*-
 
-(eldev-require-version "0.6")
+(eldev-require-version "1.8.2")
 
 (eldev-use-package-archive 'gnu)
 
