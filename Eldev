@@ -2,8 +2,7 @@
 
 (eldev-require-version "0.6")
 
-(eldev-use-package-archive 'gnu-elpa)
-(eldev-use-package-archive 'nongnu-elpa)
+(eldev-use-package-archive 'gnu)
 
 ;; For compatibility; e.g. with MELPA Stable one test fails.
 (eldev-use-package-archive 'melpa-unstable)
