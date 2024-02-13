@@ -106,7 +106,7 @@ jobs:
       - run:
           name: Install Emacs latest
           command: |
-            choco install emacs
+            choco install emacs -y
       - setup-windows
       - test
 
