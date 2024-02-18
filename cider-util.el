@@ -63,11 +63,11 @@ Setting this to nil removes the fontification restriction."
 
 (defun cider-clojurescript-major-mode-p ()
   "Return non-nil if current buffer is managed by a ClojureScript major mode."
-  (derived-mode-p 'clojurescript-mode 'clojurescript-ts-mode))
+  (derived-mode-p 'clojurescript-mode 'clojure-ts-clojurescript-mode))
 
 (defun cider-clojurec-major-mode-p ()
   "Return non-nil if current buffer is managed by a ClojureC major mode."
-  (derived-mode-p 'clojurec-mode 'clojurec-ts-mode))
+  (derived-mode-p 'clojurec-mode 'clojure-ts-clojurec-mode))
 
 (defun cider-util--clojure-buffers ()
   "Return a list of all existing `clojure-mode' buffers."

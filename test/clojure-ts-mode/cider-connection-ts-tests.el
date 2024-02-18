@@ -49,10 +49,10 @@
       (clojure-ts-mode)
       (expect (cider-repl-type-for-buffer) :to-be 'clj))
     (with-temp-buffer
-      (clojurescript-ts-mode)
+      (clojure-ts-clojurescript-mode)
       (expect (cider-repl-type-for-buffer) :to-be 'cljs))
     (with-temp-buffer
-      (clojurec-ts-mode)
+      (clojure-ts-clojurec-mode)
       (expect (cider-repl-type-for-buffer) :to-be 'multi))))
 
 (provide 'cider-connection-ts-tests)
