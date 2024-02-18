@@ -45,13 +45,13 @@
       (expect (cider-clojure-major-mode-p) :to-be-truthy)
       (expect (cider-clojurescript-major-mode-p) :not :to-be-truthy)
       (expect (cider-clojurec-major-mode-p) :not :to-be-truthy))
-    (it "matches clojurescript-ts-mode"
-      (clojurescript-ts-mode)
+    (it "matches clojure-ts-clojurescript-mode"
+      (clojure-ts-clojurescript-mode)
       (expect (cider-clojure-major-mode-p) :to-be-truthy)
       (expect (cider-clojurescript-major-mode-p) :to-be-truthy)
       (expect (cider-clojurec-major-mode-p) :not :to-be-truthy))
-    (it "matches clojurec-ts-mode"
-      (clojurec-ts-mode)
+    (it "matches clojure-ts-clojurec-mode"
+      (clojure-ts-clojurec-mode)
       (expect (cider-clojure-major-mode-p) :to-be-truthy)
       (expect (cider-clojurescript-major-mode-p) :not :to-be-truthy)
       (expect (cider-clojurec-major-mode-p) :to-be-truthy))))
