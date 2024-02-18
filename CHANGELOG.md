@@ -2,6 +2,11 @@
 
 ## master (unreleased)
 
+- [#3622](https://github.com/clojure-emacs/cider/pull/3461) Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode) 
+  - The clojure-mode dependency is still required for CIDER to function
+  - Some features like `cider-dynamic-indentation` and `cider-font-lock-dynamically` do not work with clojure-ts-mode (yet).
+
+
 ## 1.13.1 (2024-02-01)
 
 ### Bugs fixed
@@ -155,11 +160,6 @@ but without connecting to the started nREPL server.
 - [#3352](https://github.com/clojure-emacs/cider/pull/3496): Introduce [`cider-eval-dwim`](https://docs.cider.mx/cider/usage/cider_mode.html#key-reference).
 - Add new customization variable [`cider-clojurec-eval-destination`](https://docs.cider.mx/cider/cljs/up_and_running.html#working-with-cljc-files) to allow specifying which REPL .cljc evals are sent to.
 - [#3354](https://github.com/clojure-emacs/cider/issues/3354): Add new customization variable [`cider-reuse-dead-repls`](https://docs.cider.mx/cider/usage/managing_connections.html#reusing-dead-repls) to control how dead REPL buffers are reused on new connections.
-- Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode) 
-- [#3461](https://github.com/clojure-emacs/cider/pull/3461) Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode) 
-- [#3461](https://github.com/clojure-emacs/cider/pull/3461) Basic support for using CIDER with [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode)
-  - The clojure-mode dependency is still required for CIDER to function
-  - some features like `cider-dynamic-indentation` and `cider-font-lock-dynamically` do not work with clojure-ts-mode (yet).
 
 ### Bugs fixed
 
