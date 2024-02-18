@@ -11,38 +11,51 @@ Calling test commands again will update the test report.
 TIP: You can also xref:testing/running_tests.adoc#display-test-report-on-success[configure test reports to be displayed on success].
 
 |===
-| Keyboard shortcut | Description
+| Keyboard shortcut | Command name | Description
 
 | kbd:[g]
+| `cider-test-run-test`
 | Run test at point.
 
 | kbd:[n]
+| `cider-test-run-ns-tests`
 | Run tests for current namespace.
 
 | kbd:[s]
+| `cider-test-run-ns-tests-with-filters`
 | Run tests for current namespace with selector filter.
 
 | kbd:[l]
+| `cider-test-run-loaded-tests`
 | Run tests for all loaded namespaces.
 
 | kbd:[p]
+| `cider-test-run-project-tests`
 | Run tests for all project namespaces. This loads the additional namespaces.
 
 | kbd:[f]
+| `cider-test-rerun-failed-tests`
 | Re-run test failures/errors.
 
 | kbd:[M-p]
+| `cider-test-previous-result`
 | Move point to previous test.
 
 | kbd:[M-n]
+| `cider-test-next-result`
 | Move point to next test.
 
-| kbd:[t] or kbd:[M-.]
+| kbd:[t] or kbd:[M-.] or kbd:click
+| `cider-test-jump`
 | Jump to test definition.
 
 | kbd:[d]
+| `cider-test-ediff`
 | Display diff of actual vs expected.
 
 | kbd:[e]
+| `cider-test-stacktrace`
 | Display test error cause and stacktrace info.
 |===
+
+Most key bindings are defined in `cider-test-report-mode-map`, while the `click` behavior is defined in `cider-test-var-keymap`.

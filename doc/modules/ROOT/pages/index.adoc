@@ -68,12 +68,16 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * Code completion
 * Code reloading
 * Definition & documentation lookup
+* Enhanced syntax highlighting and indentation
 * Enhanced error reporting
 * `clojure.test` integration
 * `clojure.spec` integration
 * Interactive debugger
+* Data Inspector
+* Integration with Java logging frameworks
+* Profiling & tracing
 * ClojureScript support
-* Support for xref:platforms/overview.adoc[alternative Clojure platforms](e.g. ClojureCLR, babashka, nbb & lumo)
+* Support for xref:platforms/overview.adoc[alternative Clojure platforms] (e.g. ClojureCLR, babashka, nbb & lumo)
 
 And many many more... The rest of this manual will be exploring CIDER's features in great detail.
 

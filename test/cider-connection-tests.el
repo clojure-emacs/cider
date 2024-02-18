@@ -1,7 +1,7 @@
 ;; -*- lexical-binding: t; -*-
  ;;; cider-connection-tests.el
 
-;; Copyright © 2012-2023 Tim King, Bozhidar Batsov, Vitalie Spinu
+;; Copyright © 2012-2024 Tim King, Bozhidar Batsov, Vitalie Spinu
 
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.dev>

@@ -1,6 +1,6 @@
 ;;; cider-error-parsing-tests.el  -*- lexical-binding: t; -*-
 
-;; Copyright © 2012-2023 Tim King, Bozhidar Batsov
+;; Copyright © 2012-2024 Tim King, Bozhidar Batsov
 
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.dev>
@@ -117,30 +117,73 @@
       (expect (col-num info) :to-equal 43)
       (expect (face info) :to-equal 'cider-warning-highlight-face))))
 
-(describe "The cider compilation regex"
+(describe "The cider compilation regexes"
   (it "Recognizes a clojure warning message"
     (let ((clojure-compiler-warning "Reflection warning, /tmp/foo/src/foo/core.clj:14:1 - call to java.lang.Integer ctor can't be resolved."))
       (expect clojure-compiler-warning :to-match cider-clojure-compilation-regexp)
       (expect (progn (string-match cider-clojure-compilation-regexp clojure-compiler-warning)
                      (match-string 1 clojure-compiler-warning))
               :to-equal "warning")))
-  (it "Recognizes a clojure-1.9 error message"
-    (let ((clojure-1.9-compiler-error "CompilerException java.lang.RuntimeException: Unable to resolve symbol: lol in this context, compiling:(/tmp/foo/src/foo/core.clj:10:1)"))
-      (expect clojure-1.9-compiler-error :to-match cider-clojure-compilation-regexp)
-      (expect (progn (string-match cider-clojure-compilation-regexp clojure-1.9-compiler-error)
-                     (match-string 2 clojure-1.9-compiler-error))
-              :to-equal "/tmp/foo/src/foo/core.clj")))
-  (it "Recognizes a clojure-1.10 error message"
-    (let ((clojure-1.10-compiler-error "Syntax error compiling at (src/ardoq/service/workspace_service.clj:227:3)."))
-      (expect clojure-1.10-compiler-error :to-match cider-clojure-compilation-regexp)
-      (expect (progn (string-match cider-clojure-compilation-regexp clojure-1.10-compiler-error)
-                     (match-string 2 clojure-1.10-compiler-error))
-              :to-equal "src/ardoq/service/workspace_service.clj")))
-  (it "Recognizes a clojure 'Unexpected error' message"
-    (let ((clojure-1.10-compiler-error "Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1)."))
-      (expect clojure-1.10-compiler-error :to-match cider-clojure-compilation-regexp)
-      (expect (progn (string-match cider-clojure-compilation-regexp clojure-1.10-compiler-error)
-                     (match-string 2 clojure-1.10-compiler-error))
+  (dolist (regexp (list cider-clojure-compilation-regexp cider-clojure-compilation-error-regexp))
+    (it "Recognizes a clojure-1.9 error message"
+      (let ((clojure-1.9-compiler-error "CompilerException java.lang.RuntimeException: Unable to resolve symbol: lol in this context, compiling:(/tmp/foo/src/foo/core.clj:10:1)"))
+        (expect clojure-1.9-compiler-error :to-match regexp)
+        (expect (progn (string-match regexp clojure-1.9-compiler-error)
+                       (match-string 2 clojure-1.9-compiler-error))
+                :to-equal "/tmp/foo/src/foo/core.clj")))
+    (it "Recognizes a clojure-1.10 error message"
+      (let ((clojure-1.10-compiler-error "Syntax error compiling at (src/ardoq/service/workspace_service.clj:227:3)."))
+        (expect clojure-1.10-compiler-error :to-match regexp)
+        (expect (progn (string-match regexp clojure-1.10-compiler-error)
+                       (match-string 2 clojure-1.10-compiler-error))
+                :to-equal "src/ardoq/service/workspace_service.clj")))
+    (it "Recognizes a clojure 'Unexpected error' message"
+      (let ((clojure-1.10-compiler-error "Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1)."))
+        (expect clojure-1.10-compiler-error :to-match regexp)
+        (expect (progn (string-match regexp clojure-1.10-compiler-error)
+                       (match-string 2 clojure-1.10-compiler-error))
+                :to-equal "src/haystack/parser.cljc")))))
+
+(describe "cider-clojure-runtime-error-regexp"
+  (it "Recognizes a clojure-1.10 runtime error message"
+
+    ;; Something like "(ArithmeticException)" will be absent for Exception and RuntimeException in particular
+    (let ((specimen "Execution error at foo/foo (src/haystack/parser.cljc:4)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "src/haystack/parser.cljc"))
+
+    (let ((specimen "Execution error (ArithmeticException) at foo/foo (src/haystack/parser.cljc:4)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "src/haystack/parser.cljc"))
+
+    ;; without foo/foo symbol
+    (let ((specimen "Execution error at (src/haystack/parser.cljc:4)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "src/haystack/parser.cljc"))
+
+    ;; without foo/foo symbol
+    (let ((specimen "Execution error (ArithmeticException) at (src/haystack/parser.cljc:4)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "src/haystack/parser.cljc")))
+
+  (it "Recognizes a clojure-1.10 runtime spec validation error message"
+    (let ((specimen "Execution error - invalid arguments to foo/bar at (src/haystack/parser.cljc:4)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
               :to-equal "src/haystack/parser.cljc"))))
 
 (describe "cider-module-info-regexp"

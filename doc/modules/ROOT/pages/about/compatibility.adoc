@@ -10,10 +10,9 @@ and RHEL GNU/Linux distributions.
 
 == nREPL
 
-CIDER supports nREPL 0.6+.
+CIDER supports nREPL 1.0+.
 
-NOTE: We pay special attention to supporting whatever nREPL is bundled with the current stable Leiningen
-and Boot releases.
+NOTE: We pay special attention to supporting whatever nREPL is bundled with the current stable Leiningen release.
 
 == Java
 
@@ -34,8 +33,8 @@ we have to get a bit creative to determine the minimum version to target.
 
 The minimum required Clojure version is currently derived using data
 from the
-https://clojure.org/news/2019/02/04/state-of-clojure-2020[State of
-Clojure] survey. In general we consider a Clojure release eligible for
+most recent https://clojure.org/news/2023/06/30/state-of-clojure-2023[State of Clojure] survey.
+In general we consider a Clojure release eligible for
 dropping once its usage drops below 5%, but we'd not drop support for
 any release just for the sake of doing it. We'd do it only if
 this would lessen the maintenance burden or open up the possibility for
@@ -147,6 +146,34 @@ Below you can find the official compatibility matrix for CIDER.
 | 0.30
 | 8
 | 1.8
+
+| 1.8
+| 26.1
+| 1.0
+| 0.40
+| 8
+| 1.8
+
+| 1.9
+| 26.1
+| 1.0
+| 0.41
+| 8
+| 1.8
+
+| 1.12
+| 26.1
+| 1.0
+| 0.44
+| 8
+| 1.9
+
+| 1.13
+| 26.1
+| 1.0
+| 0.44
+| 8
+| 1.9
 
 |===
 

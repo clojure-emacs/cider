@@ -1,6 +1,6 @@
 ;;; cider-log-tests.el  -*- lexical-binding: t; -*-
 
-;; Copyright © 2023 Bozhidar Batsov and CIDER contributors
+;; Copyright © 2023-2024 Bozhidar Batsov and CIDER contributors
 
 ;; Author: r0man <roman@burningswell.com>
 

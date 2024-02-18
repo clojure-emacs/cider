@@ -4,8 +4,15 @@ The Docker image exposes a SSH server.
 
 This way, for development purposes, we can SSH into it with TRAMP and exercise CIDER's TRAMP-related capabilities.
 
-To get started:
+## Some ways to get started:
 
+### `cider-jack-in` from a tramp buffer
+* `M-:` `(async-shell-command "make run")` to run the Docker image
+* `M-:` `(find-file "/sshx:root@localhost#8022:/usr/src/app/src/foo.clj")`
+* `M-x` `cider-jack-in`
+* Enter password: `cider`
+
+###  Manually create a remote repl and connect to it
 * In one terminal tab, run `make run` to run the Docker image
 * Once it's ready, from another tab, run `make ssh` and start a repl manually from there
   * The password is `cider`

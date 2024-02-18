@@ -1,6 +1,6 @@
 ;;; cider-completion-context.el --- Context parsing -*- lexical-binding: t -*-
 
-;; Copyright © 2013-2023 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2013-2024 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
 ;; Author: Bozhidar Batsov <bozhidar@batsov.dev>
 ;;         Artur Malabarba <bruce.connor.am@gmail.com>
@@ -96,27 +96,21 @@ form, with symbol at point replaced by __prefix__."
                 "__prefix__"
                 (substring context (- pref-end expr-start)))))))
 
-(defvar cider-completion-last-context nil)
-
 (defun cider-completion-get-context (&optional info)
   "Extract context depending (maybe of INFO type).
 
 Output depends on `cider-completion-use-context' and the current major mode."
-  (let ((context (if cider-completion-use-context
-                     ;; We use ignore-errors here since grabbing the context
-                     ;; might fail because of unbalanced parens, or other
-                     ;; technical reasons, yet we don't want to lose all
-                     ;; completions and throw error to user because of that.
-                     (or (ignore-errors
-                           (if info
-                               (cider-completion-get-info-context-at-point)
-                             (cider-completion-get-context-at-point)))
-                         "nil")
-                   "nil")))
-    (if (string= cider-completion-last-context context)
-        ":same"
-      (setq cider-completion-last-context context)
-      context)))
+  (if cider-completion-use-context
+      ;; We use ignore-errors here since grabbing the context
+      ;; might fail because of unbalanced parens, or other
+      ;; technical reasons, yet we don't want to lose all
+      ;; completions and throw error to user because of that.
+      (or (ignore-errors
+            (if info
+                (cider-completion-get-info-context-at-point)
+              (cider-completion-get-context-at-point)))
+          "nil")
+    "nil"))
 
 (provide 'cider-completion-context)
 ;;; cider-completion-context.el ends here

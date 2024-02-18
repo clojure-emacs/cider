@@ -52,6 +52,12 @@ most of the time you'd probably want to have a project-specific setting for it i
   (cider-preferred-build-tool . lein)))
 ----
 
+NOTE: `cider-jack-in` is mainly designed for local development (with files on a
+local machine and the nREPL process running on the same machine). It does support
+various common remote/container scenarios, as documented later in this section. Due
+to the large variation of remote scenarios it cannot support all of them, so in
+some cases a manual nREPL start and usage of `cider-connect` might be a better option.
+
 === Auto-Injecting Dependencies
 
 While CIDER's core functionality requires nothing more than an nREPL server,
@@ -67,7 +73,7 @@ simple - CIDER simply passes the extra dependencies and nREPL configuration to
 your build tool in the command it runs to start the nREPL server. Here's how
 this looks for `tools.deps`:
 
-  $ clojure -Sdeps '{:deps {nrepl {:mvn/version "0.6.0"} cider/cider-nrepl {:mvn/version "0.40.0"}}}' -m nrepl.cmdline --middleware '["cider.nrepl/cider-middleware"]'
+  $ clojure -Sdeps '{:deps {nrepl {:mvn/version "0.6.0"} cider/cider-nrepl {:mvn/version "0.45.0"}}}' -m nrepl.cmdline --middleware '["cider.nrepl/cider-middleware"]'
 
 TIP: If you don't want `cider-jack-in` to inject dependencies automatically, set
 `cider-inject-dependencies-at-jack-in` to `nil`. Note that you'll have to setup
@@ -208,11 +214,20 @@ so we'll examine them tool by tool.
 * `cider-clojure-cli-parameters` - the command-line parameters to start a REPL
 * `cider-clojure-cli-aliases` - a list of aliases to be used at jack-in time
 
-To use `cider-jack-in` with `tools.deps` on Windows set the
-`cider-clojure-cli-command` to `"powershell"`. This happens by default
-if you are on Windows and no `clojure` executable is found. Using
-`"powershell"` will Base64 encode the clojure launch command before
-passing it to PowerShell and avoids shell-escaping issues.
+On MS-Windows, CIDER will employ `PowerShell` to execute Clojure if no
+`clojure` executable is found in the PATH (e.g. like the one supplied
+by https://github.com/borkdude/deps.clj[deps.clj]). The default
+executable used is `powershell` which is available on all Windows
+platforms. Using `PowerShell` will Base64 encode the clojure launch
+command before passing it to PowerShell and avoids shell-escaping
+issues.
+
+The functionality of `cider-clojure-cli-command` has been verified
+with the following alternatives
+
+* `pwsh`: This option proves beneficial when the user has installed the https://github.com/clojure/tools.deps.alpha/wiki/clj-on-Windows[ClojureTools] module on pwsh in a directory not accessible by the system's PowerShell installation.
+* `deps.exe`: This executable is part of the tools provided by
+  https://github.com/borkdude/deps.clj[deps.clj] as an alternative name for `clojure.exe`.
 
 NOTE: Alternatively you can use WSL (e.g. to run nREPL and Emacs there), which
 will likely result in a better overall development experience.
@@ -267,6 +282,17 @@ Here is an example Nbb Jack-In command, providing a custom `:jack-in-cmd`.
   (cider-jack-in-clj '(:jack-in-cmd "nbb nrepl-server")))
 ----
 
+==== Starting nREPL server without trying to connect to it ====
+
+In some situations, it might be useful to only start a nREPL server process, without
+connecting to it. This can support complex setups
+for which CIDER cannot reliably detect to which server/port to connect, and
+would therefore fail.
+This assumes that the user will execute a `cider-connect` command manually afterwards,
+specifying host/port.
+
+For this scenario, the `cider-start-nrepl-server` (kbd:[C-c C-x (C-)j (C-)n])  command is provided, which
+takes the same parameters as `cider-jack-in`.
 
 == Connect to a Running nREPL Server
 
@@ -292,7 +318,7 @@ It is also possible for plain `clj`, although the command is somewhat longer:
 
 [source,sh]
 ----
-$ clj -Sdeps '{:deps {cider/cider-nrepl {:mvn/version "0.40.0"}}}' -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware]"
+$ clj -Sdeps '{:deps {cider/cider-nrepl {:mvn/version "0.45.0"}}}' -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware]"
 ----
 
 Alternatively, you can start nREPL either manually or using the facilities
@@ -360,7 +386,7 @@ By 'containers' we mean Docker containers, or similar technologies, for running 
 The files which we edit may / may not be edited using TRAMP. They could as well be mounted inside the container, so they appear as local.
 
 Because CIDER can't always detect if it's dealing with remote files, it's advisable to not rely on `cider-jack-in`
-and its remote support described above, but to 
+and its remote support described above, but to
 start the nREPL server via command line from inside the container, and `cider-connect` to it.
 
 This requires to first get a shell inside the running container and then start a nREPL server manually,
@@ -372,7 +398,7 @@ There are several solutions for this depending on the concrete scenario.
 
 === Working with Containers running on localhost
 
-The nREPL port should be set to a fixed value as we need to give this during the `docker start` command in order to forward the port from 
+The nREPL port should be set to a fixed value as we need to give this during the `docker start` command in order to forward the port from
 container to host. This requires as well that nREPL server listens to "0.0.0.0" and not only to "localhost".
 
 === Working with Containers running on remote hosts
@@ -389,7 +415,7 @@ https://containers.dev[Development Containers] is a standard to describe contain
 It uses Docker/Podman behind the scenes. So the principles of making sure that the nREPL port becomes available stay the same,
 but there are slightly different ways to configure this (given by the devcontainer standard).
 
-There are several CLI tools to manage devcontainers, as there are several container technologies. The following example uses 
+There are several CLI tools to manage devcontainers, as there are several container technologies. The following example uses
 link:https://github.com/devcontainers/cli[the devcontainers cli], but there are others (devpod, gitpod...).
 
 ==== Example: Working with containers (using `devcontainer`) on a remote server

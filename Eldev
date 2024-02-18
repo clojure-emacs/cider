@@ -1,8 +1,9 @@
-; -*- mode: emacs-lisp; lexical-binding: t; no-byte-compile: t -*-
+; -*- mode: emacs-lisp; lexical-binding: t -*-
 
-(eldev-require-version "0.6")
+(eldev-require-version "1.8.2")
 
 (eldev-use-package-archive 'gnu)
+
 ;; For compatibility; e.g. with MELPA Stable one test fails.
 (eldev-use-package-archive 'melpa-unstable)
 

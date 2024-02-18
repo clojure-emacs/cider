@@ -1,6 +1,6 @@
 ;;; nrepl-client-tests.el  -*- lexical-binding: t; -*-
 
-;; Copyright © 2012-2023 Tim King, Bozhidar Batsov
+;; Copyright © 2012-2024 Tim King, Bozhidar Batsov
 
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.dev>
@@ -157,6 +157,27 @@
                 :not :to-be nil)
         (expect (match-string 1 msg)
                 :to-equal "nrepl.sock"))))
+
+(describe "nrepl--ssh-file-name-matches-host-p"
+  (it "works in the most basic case"
+    (expect (nrepl--ssh-file-name-matches-host-p "/ssh:host:~/test/" "host")
+            :to-be-truthy)
+    (expect (nrepl--ssh-file-name-matches-host-p "/ssh:host:~/test/" "other-host")
+            :to-be nil))
+  (it "understands non-standart ssh ports and distinguishes between them"
+    (expect (nrepl--ssh-file-name-matches-host-p
+             "/ssh:tester@host#8022:~/test/" "host#8022")
+            :to-be-truthy)
+    (expect (nrepl--ssh-file-name-matches-host-p
+             "/ssh:tester@host#8022:~/test/" "host#7777")
+            :to-be nil))
+  (it "works with tramps other ssh methods"
+    (expect (nrepl--ssh-file-name-matches-host-p
+             "/sshx:tester@host:~/test/" "host")
+            :to-be-truthy))
+  (it "can handle nil"
+    (expect (nrepl--ssh-file-name-matches-host-p nil nil)
+            :to-be nil)))
 
 (describe "nrepl-client-lifecycle"
   (it "start and stop nrepl client process"

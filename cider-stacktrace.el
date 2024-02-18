@@ -1,6 +1,6 @@
 ;;; cider-stacktrace.el --- Stacktrace navigator -*- lexical-binding: t -*-
 
-;; Copyright © 2014-2023 Jeff Valk, Bozhidar Batsov and CIDER contributors
+;; Copyright © 2014-2024 Jeff Valk, Bozhidar Batsov and CIDER contributors
 
 ;; Author: Jeff Valk <jv@jeffvalk.com>
 
@@ -643,7 +643,9 @@ others."
   "Emit toggle buttons for each of the ERROR-TYPES leading this stacktrace BUFFER."
   (with-current-buffer buffer
     (when error-types
-      (insert "  This is an unexpected CIDER middleware error.\n  Please submit a bug report via `")
+      (insert "  This is a CIDER middleware error.
+  It may be a due to a bug, or perhaps simply to bad user input.
+  If you believe it's a bug, please submit an issue report via `")
       (insert-text-button "M-x cider-report-bug"
                           'follow-link t
                           'action (lambda (_button) (cider-report-bug))
@@ -797,8 +799,34 @@ the NAME.  The whole group is prefixed by string INDENT."
             (cider-stacktrace--insert-named-group indent2 "extras: \n")
             (cider-stacktrace-emit-indented extra (concat indent2 "  ") nil t)))))))
 
-(defun cider-stacktrace-render-cause (buffer cause num note)
-  "Emit into BUFFER the CAUSE NUM, exception class, message, data, and NOTE."
+(declare-function cider-inspector-inspect-last-exception "cider-inspector")
+
+(defun cider-stacktrace--inspect-class (event)
+  "Mouse handler for EVENT."
+  (interactive "e")
+  (let* ((pos (posn-point (event-end event)))
+         (window (posn-window (event-end event)))
+         (buffer (window-buffer window))
+         (inspect-index (with-current-buffer buffer
+                          (get-text-property pos 'inspect-index))))
+    (cider-inspector-inspect-last-exception inspect-index)))
+
+(defun cider-stacktrace--inspect-class-kbd ()
+  "Keyboard handler."
+  (interactive)
+  (when-let ((inspect-index (get-text-property (point) 'inspect-index)))
+    (cider-inspector-inspect-last-exception inspect-index)))
+
+(defvar cider-stacktrace-exception-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [mouse-1] #'cider-stacktrace--inspect-class)
+    (define-key map (kbd "p") #'cider-stacktrace--inspect-class-kbd)
+    (define-key map (kbd "i") #'cider-stacktrace--inspect-class-kbd)
+    map))
+
+(defun cider-stacktrace-render-cause (buffer cause num note &optional inspect-index)
+  "Emit into BUFFER the CAUSE NUM, exception class, message, data, and NOTE,
+make INSPECT-INDEX actionable if present."
   (with-current-buffer buffer
     (nrepl-dbind-response cause (class message data spec stacktrace)
       (let ((indent "   ")
@@ -806,10 +834,17 @@ the NAME.  The whole group is prefixed by string INDENT."
             (message-face 'cider-stacktrace-error-message-face))
         (cider-propertize-region `(cause ,num)
           ;; Detail level 0: exception class
-          (cider-propertize-region '(detail 0)
+          (cider-propertize-region `(detail
+                                     0
+
+                                     inspect-index
+                                     ,inspect-index
+
+                                     keymap
+                                     ,cider-stacktrace-exception-map)
             (insert (format "%d. " num)
                     (propertize note 'font-lock-face 'font-lock-comment-face) " "
-                    (propertize class 'font-lock-face class-face)
+                    (propertize class 'font-lock-face class-face 'mouse-face 'highlight)
                     "\n"))
           ;; Detail level 1: message + ex-data
           (cider-propertize-region '(detail 1)
@@ -883,10 +918,11 @@ through the `cider-stacktrace-suppressed-errors' variable."
         (cider-stacktrace-render-suppression-toggle buffer error-types)
         (insert "\n\n"))
       ;; Stacktrace exceptions & frames
-      (let ((num (length causes)))
+      (let* ((causes-length (length causes))
+             (num causes-length))
         (dolist (cause causes)
-          (let ((note (if (= num (length causes)) "Unhandled" "Caused by")))
-            (cider-stacktrace-render-cause buffer cause num note)
+          (let ((note (if (= num causes-length) "Unhandled" "Caused by")))
+            (cider-stacktrace-render-cause buffer cause num note (- causes-length num))
             (setq num (1- num))))))
     (cider-stacktrace-initialize causes)
     (font-lock-refresh-defaults)))

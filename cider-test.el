@@ -1,6 +1,6 @@
 ;;; cider-test.el --- Test result viewer -*- lexical-binding: t -*-
 
-;; Copyright © 2014-2023 Jeff Valk, Bozhidar Batsov and CIDER contributors
+;; Copyright © 2014-2024 Jeff Valk, Bozhidar Batsov and CIDER contributors
 
 ;; Author: Jeff Valk <jv@jeffvalk.com>
 
@@ -116,11 +116,6 @@ to work against the correct REPL session.")
 (defun cider--test-adapt-to-theme (&rest _)
   "When theme is changed, update `cider-test-items-background-color'."
   (setq cider-test-items-background-color (cider-scale-background-color)))
-
-(defun cider-test-toggle-fail-fast ()
-  "Toggles `cider-test-fail-fast' t <-> nil for the current buffer."
-  (interactive)
-  (setq-local cider-test-fail-fast (not cider-test-fail-fast)))
 
 ;;; Report mode & key bindings
 ;;
@@ -368,6 +363,16 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
 
 ;;; Report rendering
 
+(defcustom cider-test-fail-fast t
+  "Controls whether to stop a test run on failure/error."
+  :type 'boolean
+  :package-version '(cider . "1.8.0"))
+
+(defun cider-test-toggle-fail-fast ()
+  "Toggles `cider-test-fail-fast' t <-> nil for the current buffer."
+  (interactive)
+  (setq-local cider-test-fail-fast (not cider-test-fail-fast)))
+
 (defun cider-test-type-face (type)
   "Return the font lock face for the test result TYPE."
   (pcase type
@@ -382,7 +387,9 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
     `(:foreground ,(face-attribute face :background))))
 
 (defun cider-test-render-summary (buffer summary &optional elapsed-time)
-  "Emit into BUFFER the report SUMMARY statistics."
+  "Emit into BUFFER the report SUMMARY statistics.
+
+If ELAPSED-TIME is provided it will be included in the summary."
   (with-current-buffer buffer
     (nrepl-dbind-response summary (ns var test pass fail error)
       (let ((ms (nrepl-dict-get elapsed-time "ms")))
@@ -407,6 +414,11 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
     (and (string-match-p "\\\\n" input-string)
          t)))
 
+(defvar cider-test-var-keymap
+  (let ((map (make-sparse-keymap)))
+    (define-key map [mouse-1] #'cider-test-jump)
+    map))
+
 (defun cider-test-render-assertion (buffer test)
   "Emit into BUFFER report detail for the TEST assertion."
   (with-current-buffer buffer
@@ -428,7 +440,9 @@ With the actual value, the outermost '(not ...)' s-expression is removed."
                 (type-face (cider-test-type-simple-face type))
                 (bg `(:background ,cider-test-items-background-color :extend t)))
             (cider-insert (capitalize type) type-face nil " in ")
-            (cider-insert var 'font-lock-function-name-face t)
+            (cider-propertize-region `(keymap ,cider-test-var-keymap)
+              (cider-insert (propertize var 'mouse-face 'highlight)
+                            'font-lock-function-name-face t))
             (when context  (cider-insert context 'font-lock-doc-face t))
             (when message  (cider-insert message 'font-lock-string-face t))
             (when expected
@@ -681,11 +695,6 @@ The selectors can be either keywords or strings."
    (lambda (string) (replace-regexp-in-string "^:+" "" string))
    (split-string
     (cider-read-from-minibuffer message))))
-
-(defcustom cider-test-fail-fast t
-  "Controls whether to stop a test run on failure/error."
-  :type 'boolean
-  :package-version '(cider . "1.8.0"))
 
 (defun cider-test-execute (ns &optional tests silent prompt-for-filters)
   "Run tests for NS, which may be a keyword, optionally specifying TESTS.

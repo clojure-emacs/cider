@@ -7,13 +7,13 @@
 
 # Remove byte-compilation artifacts, which can alter the result of the test suite:
 clean:
-	cd ~/.emacs.d; find . -type f -name "*.elc" -exec rm {} +
+	eldev clean
 
 # You can find a generic `eldev` installation script in https://github.com/emacs-eldev/eldev/blob/master/webinstall/eldev
 # (Don't use the one defined for CircleCI in your local machine)
 
 lint: clean
-	eldev lint
+	eldev lint -c
 
 # Checks for byte-compilation warnings.
 compile: clean

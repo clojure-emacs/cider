@@ -31,7 +31,7 @@ buffers. You can override this behavior, however:
 
 https://github.com/clojure-emacs/enrich-classpath[`enrich-classpath`] is a program/plugin/wrapper that allows CIDER to access to the sources and javadocs of a given project's Java files: your own files, those from your dependencies, and those from the JDK.
 
-With that, CIDER can show better completions, navigation, documentation, and stacktrace integration.
+With that, CIDER can show better completions, navigation, documentation, stacktrace and Inspector integration.
 
 For Lein users, it has the additional benefit of running a single JVM, instead of the two JVMs that Lein programs typically involve.
 
@@ -44,7 +44,7 @@ With it enabled, `cider-jack-in` will activate enrich-classpath, given the follo
 * You are on macOS/Linux
 * You are launching a vanilla JVM repl (and not a cljs repl, or a clj+cljs repl)
 * You are using `cider-jack-in` / `cider-jack-in-clj` (and not `cider-connect`)
- ** For `cider-connect`, please follow enrich-classpath's https://github.com/clojure-emacs/enrich-classpath/tree/v1.18.2#emacs-cider-connect[own instructions].
+ ** For `cider-connect`, please follow enrich-classpath's https://github.com/clojure-emacs/enrich-classpath/tree/v1.19.0#emacs-cider-connect[own instructions].
 
 ...these conditions will be progressively relaxed.
 
