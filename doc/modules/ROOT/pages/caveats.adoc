@@ -84,16 +84,18 @@ the xref:basics/middleware_setup.adoc#setting-up-a-standalone-repl[standalone RE
 * Adjust the value of `cider-injected-nrepl-version` to the same nREPL version as the
 one that's bundled with Leiningen.
 
-== Clojure-ts-mode integration
+== clojure-ts-mode integration
 
-Cider has basic support for working with
+NOTE: `clojure-ts-mode` support was introduced in CIDER 1.14.
+
+CIDER has basic support for working with
 https://github.com/clojure-emacs/clojure-ts-mode[clojure-ts-mode] buffers, but it still depends on
 https://github.com/clojure-emacs/clojure-mode[clojure-mode] for certain functionality, like
-extracting information about clojure code out of the buffer. We hope to make clojure-ts-mode capable
-of providing cider with all the functionality it needs to interact with clojure buffers, but that
+extracting information about Clojure code out of the buffer. We hope to make `clojure-ts-mode` capable
+of providing CIDER with all the functionality it needs to interact with Clojure buffers, but that
 will take some time.
 
 Additionally, some features like
 xref:config/indentation.adoc#dynamic-indentation[`cider-dynamic-indentation`]
 and xref:config/syntax_highlighting.adoc#dynamic-syntax-highlighting[`cider-font-lock-dynamically`]
-are not supported by clojure-ts-mode.
+are not supported by `clojure-ts-mode`.
