@@ -4,9 +4,9 @@
 
 ### New features
 
-- [#3622](https://github.com/clojure-emacs/cider/pull/3461) Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode)
-  - The clojure-mode dependency is still required for CIDER to function
-  - Some features like `cider-dynamic-indentation` and `cider-font-lock-dynamically` do not work with clojure-ts-mode (yet).
+- [#3622](https://github.com/clojure-emacs/cider/pull/3461): Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode)
+  - The `clojure-mode` dependency is still required for CIDER to function
+  - Some features like `cider-dynamic-indentation` and `cider-font-lock-dynamically` do not work with `clojure-ts-mode` (yet).
 
 ### Changes
 
