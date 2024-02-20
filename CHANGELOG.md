@@ -2,17 +2,22 @@
 
 ## master (unreleased)
 
-- [#3622](https://github.com/clojure-emacs/cider/pull/3461) Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode) 
+### New features
+
+- [#3622](https://github.com/clojure-emacs/cider/pull/3461) Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode)
   - The clojure-mode dependency is still required for CIDER to function
   - Some features like `cider-dynamic-indentation` and `cider-font-lock-dynamically` do not work with clojure-ts-mode (yet).
 
+### Changes
+
+- Bump the injected nREPL to 1.1.1.
 
 ## 1.13.1 (2024-02-01)
 
 ### Bugs fixed
 
-- [#3605](https://github.com/clojure-emacs/cider/issues/3605): avoid `cider--error-phase-of-last-exception` recursive loop.  
-- [#3613](https://github.com/clojure-emacs/cider/issues/3613): adapt `cider-completion-context.el` to upstream changes in Compliment.  
+- [#3605](https://github.com/clojure-emacs/cider/issues/3605): avoid `cider--error-phase-of-last-exception` recursive loop.
+- [#3613](https://github.com/clojure-emacs/cider/issues/3613): adapt `cider-completion-context.el` to upstream changes in Compliment.
 - [#3587](https://github.com/clojure-emacs/cider/issues/3587): avoid overlays and `message`s on stderr that is unrelated to exception handling.
 
 ## 1.13.0 (2024-01-14)
@@ -37,7 +42,7 @@
 - CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html#usage): introduce `1` keybinding which performs `cider-inspector-tap-at-point`.
 - CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html#usage): introduce `o` keybinding which performs `cider-inspector-open-thing-at-point`.
 - CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html#usage): introduce `:` keybinding which performs `cider-inspect-expr-from-inspector`.
-- CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html): retain [`truncate-lines`](https://www.gnu.org/software/emacs/manual/html_node/emacs/Line-Truncation.html) values across screens. 
+- CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html): retain [`truncate-lines`](https://www.gnu.org/software/emacs/manual/html_node/emacs/Line-Truncation.html) values across screens.
 - [#3580](https://github.com/clojure-emacs/cider/issues/3580): `cider-test`: make test vars in [test results reports](https://docs.cider.mx/cider/testing/test_reports.html) clickable.
   - As defined in the newly introduced `cider-test-var-keymap` var.
 - [#3582](https://github.com/clojure-emacs/cider/issues/3582): Handle `cider-clojure-compilation-error-phases` values that have been customized to `t`.
@@ -67,7 +72,7 @@
   - This info is available when [enrich-classpath](https://docs.cider.mx/cider/config/basic_config.html#use-enrich-classpath) is active.
 - [#3495](https://github.com/clojure-emacs/cider/issues/3495): possibly display error overlays on [`cider-load-buffer`](https://docs.cider.mx/cider/usage/code_evaluation.html#basic-evaluation).
 - `cider-popup-buffer-display`: honor `special-display-buffer-names` if customized for a given CIDER buffer name (e.g. `*cider-inspect*`), avoiding the double-rendering of the given buffer.
-- [#3572](https://github.com/clojure-emacs/cider/issues/3572): `lein.sh`: honor `XDG_CACHE_HOME`. 
+- [#3572](https://github.com/clojure-emacs/cider/issues/3572): `lein.sh`: honor `XDG_CACHE_HOME`.
 - Bump the injected `cider-nrepl` to [0.43.1](https://github.com/clojure-emacs/cider-nrepl/blob/v0.43.1/CHANGELOG.md#0431-2023-11-07).
   - Improves performance for exception handling and other use cases.
   - Fixes [`cider-inspector-refresh`](https://docs.cider.mx/cider/debugging/inspector.html#usage)
