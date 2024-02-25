@@ -173,6 +173,19 @@ then concatenated into the \"-M[your-aliases]:cider/nrepl\" form."
   :safe #'stringp
   :package-version '(cider . "1.1"))
 
+
+(defcustom cider-clojure-cli-global-aliases
+  nil
+  "A list of global aliases to include when using the clojure cli.
+It's value will be prepended to the value of `cider-clojure-cli-aliases`
+Alias names should be of the form \":foo:bar\".
+Leading \"-A\" \"-M\" \"-T\" or \"-X\" are stripped from aliases
+then concatenated into the \"-M[your-aliases]:cider/nrepl\" form."
+  :type 'string
+  :safe #'stringp
+  :package-version '(cider . "1.1"))
+
+
 (defcustom cider-shadow-cljs-command
   "npx shadow-cljs"
   "The command used to execute shadow-cljs.
@@ -850,14 +863,18 @@ your aliases contain any mains, the cider/nrepl one will be the one used."
             ;; TODO: global-options are deprecated and should be removed in CIDER 2.0
             (if global-options (format "%s " global-options) "")
             deps-quoted
-            (if cider-clojure-cli-aliases
-                ;; remove exec-opts flags -A -M -T or -X from cider-clojure-cli-aliases
-                ;; concatenated with :cider/nrepl to ensure :cider/nrepl comes last
-                (let ((aliases (format "%s" (replace-regexp-in-string "^-\\(A\\|M\\|T\\|X\\)" "" cider-clojure-cli-aliases))))
-                  (if (string-prefix-p ":" aliases)
-                      aliases
-                    (concat ":" aliases)))
-              "")
+            (let ((final-cider-clojure-cli-aliases
+                   (if cider-clojure-cli-global-aliases
+                       (concat cider-clojure-cli-global-aliases ":" cider-clojure-cli-aliases)
+                     cider-clojure-cli-aliases)))
+              (if final-cider-clojure-cli-aliases
+                  ;; remove exec-opts flags -A -M -T or -X from cider-clojure-cli-aliases
+                  ;; concatenated with :cider/nrepl to ensure :cider/nrepl comes last
+                  (let ((aliases (format "%s" (replace-regexp-in-string "^-\\(A\\|M\\|T\\|X\\)" "" final-cider-clojure-cli-aliases))))
+                    (if (string-prefix-p ":" aliases)
+                        aliases
+                      (concat ":" aliases)))
+                ""))
             (if params (format " %s" params) ""))))
 
 (defun cider-shadow-cljs-jack-in-dependencies (global-opts params dependencies)
