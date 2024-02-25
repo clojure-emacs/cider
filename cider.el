@@ -864,9 +864,10 @@ your aliases contain any mains, the cider/nrepl one will be the one used."
             (if global-options (format "%s " global-options) "")
             deps-quoted
             (let ((final-cider-clojure-cli-aliases
-                   (if cider-clojure-cli-global-aliases
-                       (concat cider-clojure-cli-global-aliases ":" cider-clojure-cli-aliases)
-                     cider-clojure-cli-aliases)))
+                   (cond ((and cider-clojure-cli-global-aliases cider-clojure-cli-aliases)
+                          (concat cider-clojure-cli-global-aliases ":" cider-clojure-cli-aliases))
+                         (cider-clojure-cli-global-aliases cider-clojure-cli-global-aliases)
+                         (t cider-clojure-cli-aliases))))
               (if final-cider-clojure-cli-aliases
                   ;; remove exec-opts flags -A -M -T or -X from cider-clojure-cli-aliases
                   ;; concatenated with :cider/nrepl to ensure :cider/nrepl comes last
