@@ -460,9 +460,12 @@ But helps us know if this is a nbb repl, or not."
 
 (defun cider--scittle-nrepl-version ()
   "Retrieve the underlying connection's scittle version."
-    (with-current-buffer (cider-current-repl)
+  (with-current-buffer
+      (cider-current-repl)
     (when nrepl-versions
-      (nrepl-dict-get nrepl-versions "scittle-nrepl"))))
+      (nrepl-dict-get
+       nrepl-versions
+       "scittle-nrepl"))))
 
 (defun cider-runtime ()
   "Return the runtime of the nREPl server."
