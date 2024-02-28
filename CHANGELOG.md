@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+- [#3600](https://github.com/clojure-emacs/cider/pull/3600): Fix scittle jack in when using `cider-jack-in-clj.
+
 ### New features
 
 - [#3622](https://github.com/clojure-emacs/cider/pull/3461): Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode).
@@ -38,8 +40,6 @@
   - Introduces Timbre compatibility for [CIDER Log Mode](https://docs.cider.mx/cider/debugging/logging.html).
   - Fixes JS completions for nested objects.
   - Bundles other fixes and reliability improvements.
-- Fix scittle jack in when using `cider-jack-in-clj` ()
-- [#3600](https://github.com/clojure-emacs/cider/pull/3600): Fix scittle jack in when using `cider-jack-in-clj.
 
 ## 1.12.0 (2023-11-24)
 
