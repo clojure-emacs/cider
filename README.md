@@ -13,13 +13,13 @@ CIDER is the **C**lojure(Script) **I**nteractive **D**evelopment **E**nvironment
 that **R**ocks!
 
 CIDER extends Emacs with support for [interactive
-programming](https://docs.cider.mx/cider/usage/interactive_programming.html)
-in Clojure. The features are centered around `cider-mode`, an Emacs
-minor-mode that complements [clojure-mode][]. While `clojure-mode`
-supports editing Clojure source files, `cider-mode` adds support for
-interacting with a running Clojure process for compilation, code
-completion, debugging, definition and documentation lookup, running
-tests and so on.
+programming](https://docs.cider.mx/cider/usage/interactive_programming.html) in
+Clojure. The features are centered around `cider-mode`, an Emacs minor-mode that
+complements [clojure-mode][] and [clojure-ts-mode][]. While `clojure-mode` and
+`clojure-ts-mode` support editing Clojure source files, `cider-mode` adds
+support for interacting with a running Clojure process for compilation, code
+completion, debugging, definition and documentation lookup, running tests and so
+on.
 
 ----------
 [![OpenCollective](https://opencollective.com/cider/backers/badge.svg)](#open-collective-backers)
@@ -270,4 +270,5 @@ Copyright © 2012-2024 Bozhidar Batsov, Artur Malabarba, Tim King, Phil Hagelber
 [Sly]: https://github.com/joaotavora/sly
 [Geiser]: https://github.com/jaor/geiser
 [clojure-mode]: https://github.com/clojure-emacs/clojure-mode
+[clojure-ts-mode]: https://github.com/clojure-emacs/clojure-ts-mode
 [inf-clojure]: https://github.com/clojure-emacs/inf-clojure

@@ -77,6 +77,7 @@
 (require 'sesman)
 (require 'tramp)
 
+(require 'cider-util)
 
 ;;; Custom
 
@@ -857,7 +858,7 @@ the corresponding type of response."
                                                  value ns out err status id)
       (when (buffer-live-p buffer)
         (with-current-buffer buffer
-          (when (and ns (not (derived-mode-p 'clojure-mode)))
+          (when (and ns (not (cider-clojure-major-mode-p)))
             (cider-set-buffer-ns ns))))
       (cond ((and content-type content-type-handler)
              (funcall content-type-handler buffer

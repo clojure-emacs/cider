@@ -96,7 +96,7 @@
 (defconst cider-version "1.14.0-snapshot"
   "The current version of CIDER.")
 
-(defconst cider-codename "Santiago"
+(defconst cider-codename "Cogne"
   "Codename used to denote stable releases.")
 
 (defcustom cider-lein-command
@@ -498,7 +498,7 @@ Throws an error if PROJECT-TYPE is unknown."
   "List of dependencies where elements are lists of artifact name and version.")
 (put 'cider-jack-in-dependencies 'risky-local-variable t)
 
-(defcustom cider-injected-nrepl-version "1.0.0"
+(defcustom cider-injected-nrepl-version "1.1.1"
   "The version of nREPL injected on jack-in.
 We inject the newest known version of nREPL just in case
 your version of Boot or Leiningen is bundling an older one."
@@ -2136,17 +2136,29 @@ alternative to the default is `cider-random-tip'."
 (add-hook 'cider-connected-hook #'cider--maybe-inspire-on-connect)
 
 ;;;###autoload
-(with-eval-after-load 'clojure-mode
-  (define-key clojure-mode-map (kbd "C-c M-x") #'cider)
-  (define-key clojure-mode-map (kbd "C-c M-j") #'cider-jack-in-clj)
-  (define-key clojure-mode-map (kbd "C-c M-J") #'cider-jack-in-cljs)
-  (define-key clojure-mode-map (kbd "C-c M-c") #'cider-connect-clj)
-  (define-key clojure-mode-map (kbd "C-c M-C") #'cider-connect-cljs)
-  (define-key clojure-mode-map (kbd "C-c C-x") 'cider-start-map)
-  (define-key clojure-mode-map (kbd "C-c C-s") 'sesman-map)
+(defun cider--setup-clojure-major-mode (mode-map mode-hook)
+  "Setup Cider key bindings on a Clojure mode's MODE-MAP and hooks in MODE-HOOK."
+  (define-key mode-map (kbd "C-c M-x") #'cider)
+  (define-key mode-map (kbd "C-c M-j") #'cider-jack-in-clj)
+  (define-key mode-map (kbd "C-c M-J") #'cider-jack-in-cljs)
+  (define-key mode-map (kbd "C-c M-c") #'cider-connect-clj)
+  (define-key mode-map (kbd "C-c M-C") #'cider-connect-cljs)
+  (define-key mode-map (kbd "C-c C-x") 'cider-start-map)
+  (define-key mode-map (kbd "C-c C-s") 'sesman-map)
   (require 'sesman)
-  (sesman-install-menu clojure-mode-map)
-  (add-hook 'clojure-mode-hook (lambda () (setq-local sesman-system 'CIDER))))
+  (sesman-install-menu mode-map)
+  (add-hook mode-hook (lambda () (setq-local sesman-system 'CIDER))))
+
+;;;###autoload
+(with-eval-after-load 'clojure-mode
+  (cider--setup-clojure-major-mode clojure-mode-map 'clojure-mode-hook))
+
+;;;###autoload
+(with-eval-after-load 'clojure-ts-mode
+  (cider--setup-clojure-major-mode
+   (with-suppressed-warnings ((free-vars clojure-ts-mode-map))
+     clojure-ts-mode-map)
+   'clojure-ts-mode-hook))
 
 (provide 'cider)
 

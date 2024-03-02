@@ -18,7 +18,14 @@ it, so you can be productive.
 (add-hook 'clojure-mode-hook #'cider-mode)
 ----
 
-NOTE: There's no need to enable it explicitly for modes derived from `clojure-mode` like `clojurescript-mode`.
+or if you are using `clojure-ts-mode`:
+
+[source,lisp]
+----
+(add-hook 'clojure-ts-mode-hook #'cider-mode)
+----
+
+NOTE: There's no need to enable it explicitly for modes derived from `clojure-mode` or `clojure-ts-mode` like `clojurescript-mode` and `clojure-ts-clojurescript-mode`.
 
 == Disabling cider-mode
 

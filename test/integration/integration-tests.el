@@ -553,5 +553,3 @@ If CLI-COMMAND is nil, then use the default."
                 ;; wait for the REPL to exit
                 (cider-itu-poll-until (not (eq (process-status nrepl-proc) 'run)) 15)
                 (expect (member (process-status nrepl-proc) '(exit signal)))))))))))
-
-;;; integration-tests.el ends here

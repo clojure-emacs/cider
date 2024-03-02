@@ -567,7 +567,10 @@ It delegates the actual error content to the eval or op handler."
 ;; old and the new format, by utilizing a combination of two different regular
 ;; expressions.
 
-(defconst cider-clojure-1.10--location `("at ("
+(defconst cider-clojure-1.10--location `((or "at ("
+                                             (sequence "at "
+                                                       (minimal-match (one-or-more anything)) ;; the fully-qualified name of the function that triggered the error
+                                                       " ("))
                                          (group-n 2 (minimal-match (zero-or-more anything)))
                                          ":"
                                          (group-n 3 (one-or-more digit))
@@ -612,6 +615,8 @@ It delegates the actual error content to the eval or op handler."
                                   (optional ":" (group-n 4 (one-or-more digit)))
                                   " - "))
 
+;; Please keep this in sync with `cider-clojure-compilation-error-regexp',
+;; which is a subset of these regexes.
 (defconst cider-clojure-compilation-regexp
   (eval
    `(rx bol (or ,cider-clojure-1.9-error
@@ -625,6 +630,49 @@ It delegates the actual error content to the eval or op handler."
 lol in this context, compiling:(/foo/core.clj:10:1)\"
 \"Syntax error compiling at (src/workspace_service.clj:227:3).\"
 \"Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1).\"")
+
+(defconst cider-clojure-compilation-error-regexp
+  (eval
+   `(rx bol (or ,cider-clojure-1.9-error
+                ,cider-clojure-1.10-error
+                ,cider-clojure-unexpected-error))
+   t)
+  "Like `cider-clojure-compilation-regexp',
+but excluding warnings such as reflection warnings.
+
+A few example values that will match:
+\"CompilerException java.lang.RuntimeException: Unable to resolve symbol: \\
+lol in this context, compiling:(/foo/core.clj:10:1)\"
+\"Syntax error compiling at (src/workspace_service.clj:227:3).\"
+\"Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1).\"")
+
+(defconst cider--clojure-execution-error-regexp
+  (append `(sequence
+            "Execution error "
+            (or (sequence "("
+                          (minimal-match (one-or-more anything))
+                          ")")
+                (minimal-match (zero-or-more anything))))
+          cider-clojure-1.10--location))
+
+(defconst cider--clojure-spec-execution-error-regexp
+  (append `(sequence
+            "Execution error - invalid arguments to "
+            (minimal-match (one-or-more anything))
+            " ")
+          cider-clojure-1.10--location))
+
+(defconst cider-clojure-runtime-error-regexp
+  (eval
+   `(rx bol (or ,cider--clojure-execution-error-regexp
+                ,cider--clojure-spec-execution-error-regexp))
+   t)
+  "Matches runtime errors, as oppsed to compile-time/macroexpansion-time errors.
+
+A few example values that will match:
+
+\"Execution error (ArithmeticException) at foo/foo (src/haystack/parser.cljc:4).\"
+\"Execution error - invalid arguments to foo/bar at (src/haystack/parser.cljc:4).\"")
 
 (defconst cider-module-info-regexp
   (rx " ("
@@ -882,13 +930,16 @@ and the suffix matched by `cider-module-info-regexp'."
 (defun cider--maybe-display-error-as-overlay (phase err end)
   "Possibly display ERR as an overlay honoring END,
 depending on the PHASE."
-  (when (or
-         ;; if we won't show *cider-error*, because of configuration, the overlay is adequate because it compensates for the lack of info in a compact manner:
-         (not cider-show-error-buffer)
-         (not (cider-connection-has-capability-p 'jvm-compilation-errors))
-         ;; if we won't show *cider-error*, because of an ignored phase, the overlay is adequate:
-         (and cider-show-error-buffer
-              (member phase (cider-clojure-compilation-error-phases))))
+  (when (and (or
+              ;; if we won't show *cider-error*, because of configuration, the overlay is adequate because it compensates for the lack of info in a compact manner:
+              (not cider-show-error-buffer)
+              (not (cider-connection-has-capability-p 'jvm-compilation-errors))
+              ;; if we won't show *cider-error*, because of an ignored phase, the overlay is adequate:
+              (and cider-show-error-buffer
+                   (member phase (cider-clojure-compilation-error-phases))))
+             ;; Only show overlays for things that do look like an exception (#3587):
+             (or (string-match-p cider-clojure-runtime-error-regexp err)
+                 (string-match-p cider-clojure-compilation-error-regexp err)))
     ;; Display errors as temporary overlays
     (let ((cider-result-use-clojure-font-lock nil)
           (trimmed-err (funcall cider-inline-error-message-function err)))
@@ -1521,7 +1572,7 @@ command `cider-debug-defun-at-point'."
   (interactive "P")
   (let ((inline-debug (eq 16 (car-safe debug-it))))
     (when debug-it
-      (when (derived-mode-p 'clojurescript-mode)
+      (when (cider-clojurescript-major-mode-p)
         (when (y-or-n-p (concat "The debugger doesn't support ClojureScript yet, and we need help with that."
                                 "  \nWould you like to read the Feature Request?"))
           (browse-url "https://github.com/clojure-emacs/cider/issues/1416"))
