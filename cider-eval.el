@@ -1876,7 +1876,6 @@ all ns aliases and var mappings from the namespaces being reloaded."
                 (cider-load-file filename undef-all progress)))
             indexed-files)))
 
-;; (cider-load-all-files "/home/jtm/dev/moclojer/moclojer-app/src/components/" t)
 
 (defalias 'cider-eval-file #'cider-load-file
   "A convenience alias as some people are confused by the load-* names.")
