@@ -1853,15 +1853,6 @@ PROGRESS is a formatted progress status that's shown on the loading message."
       (cider-load-buffer buffer nil undef-all)
     (cider-load-buffer (find-file-noselect filename) nil undef-all progress)))
 
-(defun index-files (files)
-  "Index each file in FILES with its formatted progress."
-  (let* ((file-count (length files))
-         (indexes (number-sequence 1 file-count)))
-    (cl-mapcar (lambda (index file)
-                 (list file (format "[%s/%s] " index file-count)))
-               indexes
-               files)))
-
 (defun cider-load-all-files (directory undef-all)
   "Load all files in DIRECTORY (recursively).
 Useful when the running nREPL on remote host.
@@ -1869,12 +1860,13 @@ When UNDEF-ALL is non-nil or called with \\[universal-argument], removes
 all ns aliases and var mappings from the namespaces being reloaded."
   (interactive "DLoad files beneath directory: \nP")
   (let* ((files (directory-files-recursively directory "\\.clj[cs]?$"))
-         (indexed-files (index-files files)))
-    (mapcar (lambda (indexed-file)
-              (let ((filename (car indexed-file))
-                    (progress (car (cdr indexed-file))))
-                (cider-load-file filename undef-all progress)))
-            indexed-files)))
+         (file-count (length files))
+         (i 0))
+    (mapcar (lambda (file)
+              (cider-load-file file undef-all
+                               (format "[%s/%s] " i file-count))
+              (setq i (+ i 1)))
+            files)))
 
 (defalias 'cider-eval-file #'cider-load-file
   "A convenience alias as some people are confused by the load-* names.")
