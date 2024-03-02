@@ -130,6 +130,13 @@ and `cider-ns-reload-all` commands can be used instead. These commands
 invoke Clojure's `+(require ... :reload)+` and `+(require
 ... :reload-all)+` commands at the REPL.
 
+You can also use https://github.com/tonsky/clj-reload[clj-reload] instead:
+
+[source,lisp]
+----
+(setq cider-ns-refresh-tool 'clj-reload)
+----
+
 == CIDER Selector
 
 The `cider-selector` (kbd:[C-c M-s]) command allows you to quickly navigate to
