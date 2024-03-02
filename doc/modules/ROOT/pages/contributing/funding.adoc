@@ -23,5 +23,7 @@ You can support the development of CIDER, https://github.com/clojure-emacs/cloju
 
 === Open Collective
 
+People and companies supporting our collective will be featured on CIDER's README.
+
 * https://opencollective.com/cider#backer[Become a backer] (for individuals)
 * https://opencollective.com/cider#sponsor[Become a sponsor] (for companies)

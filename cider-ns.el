@@ -78,7 +78,7 @@ If t, save the files without confirmation."
   :group 'cider
   :package-version '(cider . "0.15.0"))
 
-(defcustom cider-ns-save-files-on-refresh-modes '(clojure-mode)
+(defcustom cider-ns-save-files-on-refresh-modes '(clojure-mode clojure-ts-mode)
   "Controls which files might be saved before refreshing.
 If a list of modes, any buffers visiting files on the classpath whose major
 mode is derived from any of the modes might be saved.

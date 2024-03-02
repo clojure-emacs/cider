@@ -5,10 +5,9 @@ that **R**ocks!
 
 CIDER extends Emacs with support for xref:usage/interactive_programming.adoc[interactive programming] in Clojure. The
 features are centered around xref:usage/cider_mode.adoc[cider-mode], an Emacs minor-mode that complements
-https://github.com/clojure-emacs/clojure-mode[clojure-mode]. While `clojure-mode` supports editing Clojure source files,
-`cider-mode` adds support for interacting with a running Clojure process for
-compilation, debugging, definition and documentation lookup, running tests and
-so on.
+https://github.com/clojure-emacs/clojure-mode[clojure-mode] and https://github.com/clojure-emacs/clojure-ts-mode[clojure-ts-mode].
+While `clojure-mode` supports editing Clojure source files, `cider-mode` adds support for interacting with a running Clojure process for
+compilation, debugging, definition and documentation lookup, running tests and so on.
 
 .Inspired by SLIME
 ****

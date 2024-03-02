@@ -99,4 +99,8 @@ jobs:
         cd dev; ../clojure.sh clojure -M:gen; cd -
         wc -l test/File.edn
         eldev -p -dtTC test --test-type enrich || eldev -p -dtTC test --test-type enrich
-        
+
+    - name: Test clojure-ts-mode
+      if: startsWith (matrix.emacs_version, '29')
+      run: |
+        eldev -p -dtTC test --test-type clojure-ts-mode || eldev -p -dtTC test --test-type clojure-ts-mode
