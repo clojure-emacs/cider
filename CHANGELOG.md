@@ -10,6 +10,7 @@
 
 ### Changes
 
+- Show progress status when loading `all-files` recursively.
 - Bump the injected nREPL to 1.1.1.
 
 ## 1.13.1 (2024-02-01)
