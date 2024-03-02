@@ -1797,7 +1797,7 @@ for the project, it is evaluated in both REPLs.
 Optional argument CALLBACK will override the default ‘cider-load-file-handler’.
 When UNDEF-ALL is non-nil or called with \\[universal-argument], removes
 all ns aliases and var mappings from the namespace before reloading it.
-PROGRESS is a formatted progress status thats shown on the loading message."
+PROGRESS is a formatted progress status that's shown on the loading message."
   (interactive (list (current-buffer) nil (equal current-prefix-arg '(4))))
   (setq buffer (or buffer (current-buffer)))
   ;; When cider-load-buffer or cider-load-file are called in programs the
@@ -1841,7 +1841,7 @@ exists for the project, it is evaluated in both REPLs.  The heavy lifting
 is done by `cider-load-buffer'.
 When UNDEF-ALL is non-nil or called with \\[universal-argument], removes
 all ns aliases and var mappings from the namespace before reloading it.
-PROGRESS is a formatted progress status thats shown on the loading message."
+PROGRESS is a formatted progress status that's shown on the loading message."
   (interactive (list
                 (read-file-name "Load file:"
                                 nil nil nil
