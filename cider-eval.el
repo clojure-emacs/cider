@@ -1738,14 +1738,15 @@ passing arguments."
       (widen)
       (substring-no-properties (buffer-string)))))
 
-(defun cider-load-buffer (&optional buffer callback undef-all)
+(defun cider-load-buffer (&optional buffer callback undef-all progress)
   "Load (eval) BUFFER's file in nREPL.
 If no buffer is provided the command acts on the current buffer.  If the
 buffer is for a cljc file, and both a Clojure and ClojureScript REPL exists
 for the project, it is evaluated in both REPLs.
 Optional argument CALLBACK will override the default ‘cider-load-file-handler’.
 When UNDEF-ALL is non-nil or called with \\[universal-argument], removes
-all ns aliases and var mappings from the namespace before reloading it."
+all ns aliases and var mappings from the namespace before reloading it.
+PROGRESS is a formatted progress status thats shown on the loading message."
   (interactive (list (current-buffer) nil (equal current-prefix-arg '(4))))
   (setq buffer (or buffer (current-buffer)))
   ;; When cider-load-buffer or cider-load-file are called in programs the
@@ -1780,22 +1781,18 @@ all ns aliases and var mappings from the namespace before reloading it."
                                        (file-name-nondirectory filename)
                                        repl
                                        callback)))
-          (message "Loading %s..." filename))))))
+          (message (concat "Loading " progress "%s...") filename))))))
 
-(defun cider-load-file (filename &optional undef-all pos total)
+(defun cider-load-file (filename &optional undef-all progress)
   "Load (eval) the Clojure file FILENAME in nREPL.
 If the file is a cljc file, and both a Clojure and ClojureScript REPL
 exists for the project, it is evaluated in both REPLs.  The heavy lifting
 is done by `cider-load-buffer'.
 When UNDEF-ALL is non-nil or called with \\[universal-argument], removes
 all ns aliases and var mappings from the namespace before reloading it.
-POS and TOTAL, when not nil, are formatted as progress helpers in the
-interactive buffer while loading."
+PROGRESS is a formatted progress status thats shown on the loading message."
   (interactive (list
-                (read-file-name (concat "Load file"
-                                        (when (and pos total)
-                                          (format " [%d/%d]" pos total))
-                                        ": ")
+                (read-file-name "Load file:"
                                 nil nil nil
                                 (when (buffer-file-name)
                                   (file-name-nondirectory
@@ -1803,21 +1800,32 @@ interactive buffer while loading."
                 (equal current-prefix-arg '(4))))
   (if-let* ((buffer (find-buffer-visiting filename)))
       (cider-load-buffer buffer nil undef-all)
-    (cider-load-buffer (find-file-noselect filename) nil undef-all)))
+    (cider-load-buffer (find-file-noselect filename) nil undef-all progress)))
+
+(defun index-files (files)
+  "Index each file in FILES with its formatted progress."
+  (let* ((file-count (length files))
+         (indexes (number-sequence 1 file-count)))
+    (cl-mapcar (lambda (index file)
+                 (list file (format "[%s/%s] " index file-count)))
+               indexes
+               files)))
 
 (defun cider-load-all-files (directory undef-all)
   "Load all files in DIRECTORY (recursively).
 Useful when the running nREPL on remote host.
 When UNDEF-ALL is non-nil or called with \\[universal-argument], removes
-all ns aliases and var mappings from the namespaces being reloaded"
+all ns aliases and var mappings from the namespaces being reloaded."
   (interactive "DLoad files beneath directory: \nP")
   (let* ((files (directory-files-recursively directory "\\.clj[cs]?$"))
-         (total (length files)))
-    (mapcar (lambda (file)
-              (cider-load-file file undef-all
-                               (+ (cl-position file files :test #'equal) 1)
-                               total))
-            files)))
+         (indexed-files (index-files files)))
+    (mapcar (lambda (indexed-file)
+              (let ((filename (car indexed-file))
+                    (progress (car (cdr indexed-file))))
+                (cider-load-file filename undef-all progress)))
+            indexed-files)))
+
+;; (cider-load-all-files "/home/jtm/dev/moclojer/moclojer-app/src/components/" t)
 
 (defalias 'cider-eval-file #'cider-load-file
   "A convenience alias as some people are confused by the load-* names.")
