@@ -118,6 +118,27 @@ namespace-qualified function of zero arity."
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
+(defun cider-ns--present-error (error)
+  "Render the `ERROR' stacktrace,
+and jump to the adequate file/line location."
+  (let* ((buf)
+         (jump-args (seq-some (lambda (cause-dict) ;; a dict representing an exception cause
+                                (nrepl-dbind-response cause-dict (file-url line column)
+                                  (when (and file-url
+                                             ;; jars are unlikely sources of user errors, so we favor the next `cause-dict':
+                                             (not (string-prefix-p "jar:" file-url))
+                                             line)
+                                    (setq buf (cider--find-buffer-for-file file-url))
+                                    (list buf (cons line column)))))
+                              error)))
+    (when jump-args
+      (apply #'cider-jump-to jump-args))
+    (cider--render-stacktrace-causes error)
+    ;; Select the window displaying the 'culprit' buffer so that the user can immediately fix it,
+    ;; as most times the displayed stacktrace doesn't need much inspection:
+    (when buf
+      (select-window (get-buffer-window buf)))))
+
 (defun cider-ns-refresh--handle-response (response log-buffer)
   "Refresh LOG-BUFFER with RESPONSE."
   (nrepl-dbind-response response (out err reloading status error error-ns after before)
@@ -168,24 +189,9 @@ namespace-qualified function of zero arity."
       (with-current-buffer cider-ns-refresh-log-buffer
         (goto-char (point-max))))
 
-    (when (member "error" status)
-      (let* ((buf)
-             (jump-args (seq-some (lambda (cause-dict) ;; a dict representing an exception cause
-                                    (nrepl-dbind-response cause-dict (file-url line column)
-                                      (when (and file-url
-                                                 ;; jars are unlikely sources of user errors, so we favor the next `cause-dict':
-                                                 (not (string-prefix-p "jar:" file-url))
-                                                 line)
-                                        (setq buf (cider--find-buffer-for-file file-url))
-                                        (list buf (cons line column)))))
-                                  error)))
-        (when jump-args
-          (apply #'cider-jump-to jump-args))
-        (cider--render-stacktrace-causes error)
-        ;; Select the window displaying the 'culprit' buffer so that the user can immediately fix it,
-        ;; as most times the displayed stacktrace doesn't need much inspection:
-        (when buf
-          (select-window (get-buffer-window buf)))))))
+    (when (and (member "error" status)
+               error)
+      (cider-ns--present-error error))))
 
 (defun cider-ns-refresh--save-modified-buffers ()
   "Ensure any relevant modified buffers are saved before refreshing.
