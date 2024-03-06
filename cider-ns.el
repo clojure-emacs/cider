@@ -241,7 +241,7 @@ indirectly load via require\"."
 
 ;;;###autoload
 (defun cider-ns-refresh (&optional mode)
-  "Reload modified and unloaded namespaces, using the Reload Workflow.
+  "Reload modified and unloaded namespaces, using the Reloaded Workflow.
 Uses the configured 'refresh dirs' \(defaults to the classpath dirs).
 
 With a single prefix argument, or if MODE is `refresh-all', reload all
