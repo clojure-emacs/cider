@@ -120,7 +120,8 @@ namespace-qualified function of zero arity."
 
 (defun cider-ns--present-error (error)
   "Render the `ERROR' stacktrace,
-and jump to the adequate file/line location."
+and jump to the adequate file/line location,
+presenting the error message as an overlay."
   (let* ((buf)
          (jump-args (seq-some (lambda (cause-dict) ;; a dict representing an exception cause
                                 (nrepl-dbind-response cause-dict (file-url line column)
@@ -132,7 +133,21 @@ and jump to the adequate file/line location."
                                     (list buf (cons line column)))))
                               error)))
     (when jump-args
-      (apply #'cider-jump-to jump-args))
+      (apply #'cider-jump-to jump-args)
+      (when-let ((message (seq-some (lambda (cause-dict)
+                                      (nrepl-dbind-response cause-dict (message)
+                                        message))
+                                    ;; `reverse' the causes as the first one typically is a CompilerException, which the second one is the actual exception:
+                                    (reverse error))))
+        (with-current-buffer buf
+          (let ((cider-result-use-clojure-font-lock nil)
+                (trimmed-err (funcall cider-inline-error-message-function message)))
+            (cider--display-interactive-eval-result trimmed-err
+                                                    'error
+                                                    (save-excursion
+                                                      (end-of-defun)
+                                                      (point))
+                                                    'cider-error-overlay-face)))))
     (cider--render-stacktrace-causes error)
     ;; Select the window displaying the 'culprit' buffer so that the user can immediately fix it,
     ;; as most times the displayed stacktrace doesn't need much inspection:
