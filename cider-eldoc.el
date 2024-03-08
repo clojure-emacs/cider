@@ -109,20 +109,18 @@ mapping `cider-eldoc-ns-function' on it returns an empty list."
      ((and cider-eldoc-max-class-names-to-display
            (> eldoc-class-names-length cider-eldoc-max-class-names-to-display))
       (format "(%s & %s more)"
-              (thread-first
-                eldoc-class-names
-                (seq-take cider-eldoc-max-class-names-to-display)
-                (string-join " ")
-                (cider-propertize 'ns))
+              (thread-first eldoc-class-names
+                            (seq-take cider-eldoc-max-class-names-to-display)
+                            (string-join " ")
+                            (cider-propertize 'ns))
               (- eldoc-class-names-length cider-eldoc-max-class-names-to-display)))
 
      ;; format the whole list but add surrounding parentheses
      ((> eldoc-class-names-length 1)
       (format "(%s)"
-              (thread-first
-                eldoc-class-names
-                (string-join " ")
-                (cider-propertize 'ns))))
+              (thread-first eldoc-class-names
+                            (string-join " ")
+                            (cider-propertize 'ns))))
 
      ;; don't add the parentheses
      (t (format "%s" (car eldoc-class-names))))))
@@ -479,13 +477,12 @@ Only useful for interop forms.  Clojure forms would be returned unchanged."
                             (cider-sync-request:eldoc-datomic-query query)
                             "inputs")))
         (if query-inputs
-            (thread-first
-              (thread-last arglists
-                           (car)
-                           (remove "&")
-                           (remove "inputs"))
-              (append (car query-inputs))
-              (list))
+            (thread-first (thread-last arglists
+                                       (car)
+                                       (remove "&")
+                                       (remove "inputs"))
+                          (append (car query-inputs))
+                          (list))
           arglists))
     arglists))
 

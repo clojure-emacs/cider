@@ -266,12 +266,11 @@ list of items."
 (defun cider-browse-ns--render-items (items)
   "Render the nrepl-dict ITEMS to the browse-ns buffer."
   (let* ((max-length (cider-browse-ns--column-width items)))
-    (cl-labels
-        ((keys-from-pred
-          (pred items)
-          (nrepl-dict-keys (nrepl-dict-filter (lambda (_ var-meta)
-                                                (funcall pred var-meta))
-                                              items))))
+    (cl-labels ((keys-from-pred
+                 (pred items)
+                 (nrepl-dict-keys (nrepl-dict-filter (lambda (_ var-meta)
+                                                       (funcall pred var-meta))
+                                                     items))))
       (cond
        ((eql cider-browse-ns-group-by 'type)
         (let* ((func-keys (keys-from-pred #'cider-browse-ns--meta-function-p items))
@@ -453,7 +452,7 @@ var-meta map."
 
 (defun cider-browse-ns--thing-at-point ()
   "Get the thing at point.
-Return a list of the type ('ns or 'var) and the value."
+Return a list of the type (\='ns or \='var) and the value."
   (let ((ns-p (get-text-property (point) 'ns))
         (line (car (split-string (string-trim (thing-at-point 'line)) " "))))
     (if (or ns-p (string-match "\\." line))

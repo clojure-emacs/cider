@@ -693,7 +693,7 @@ instead of just its \"value\" entry."
 
 (defun cider-find-inspectable-object (direction limit)
   "Find the next/previous inspectable object.
-DIRECTION can be either 'next or 'prev.
+DIRECTION can be either \='next or \='prev.
 LIMIT is the maximum or minimum position in the current buffer.
 
 Return a list of two values: If an object could be found, the
