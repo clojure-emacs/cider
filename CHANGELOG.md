@@ -2,8 +2,6 @@
 
 ## master (unreleased)
 
-- [#3600](https://github.com/clojure-emacs/cider/pull/3600): Fix scittle jack in when using `cider-jack-in-clj.
-
 ### New features
 
 - [#3622](https://github.com/clojure-emacs/cider/pull/3461): Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode).
@@ -18,6 +16,12 @@
 - Bump the injected `cider-nrepl` to [0.46.0](https://github.com/clojure-emacs/cider-nrepl/blob/1cc9b2/CHANGELOG.md#0460-2024-0305).
   - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.23.0/CHANGELOG.md#0230-2024-03-03).
   - Updates [Logjam](https://github.com/clojure-emacs/logjam/blob/v0.3.0/CHANGELOG.md#030-2024-03-03).
+
+
+### Bugs fixed
+
+- [#3600](https://github.com/clojure-emacs/cider/pull/3600): Fix scittle jack in when using `cider-jack-in-clj`.
+
 
 ## 1.13.1 (2024-02-01)
 
