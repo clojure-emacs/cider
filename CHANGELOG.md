@@ -17,6 +17,12 @@
   - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.23.0/CHANGELOG.md#0230-2024-03-03).
   - Updates [Logjam](https://github.com/clojure-emacs/logjam/blob/v0.3.0/CHANGELOG.md#030-2024-03-03).
 
+
+### Bugs fixed
+
+- [#3600](https://github.com/clojure-emacs/cider/pull/3600): Fix scittle jack in when using `cider-jack-in-clj`.
+
+
 ## 1.13.1 (2024-02-01)
 
 ### Bugs fixed
