@@ -130,12 +130,27 @@ and `cider-ns-reload-all` commands can be used instead. These commands
 invoke Clojure's `+(require ... :reload)+` and `+(require
 ... :reload-all)+` commands at the REPL.
 
-You can also use https://github.com/tonsky/clj-reload[clj-reload] instead:
+You can also use https://github.com/tonsky/clj-reload[clj-reload] instead.
+It provides supports
+https://github.com/tonsky/clj-reload?tab=readme-ov-file#usage-keeping-vars-between-reloads[keeping vars between reloads]
+among some
+https://github.com/tonsky/clj-reload?tab=readme-ov-file#comparison-toolsnamespace[other differences]
+from `tools.namespace`.
 
 [source,lisp]
 ----
-(setq cider-ns-refresh-tool 'clj-reload)
+(setq cider-ns-code-reload-tool 'clj-reload)
 ----
+
+With `clj-reload` you should set the source dirs as described in
+https://github.com/tonsky/clj-reload?tab=readme-ov-file#usage[the usage docs]
+. If you don't set them manually, it will default to the current source dirs in the same
+way `tools.namespace` does.
+
+Another difference is that `cider-ns-refresh-before-fn` and `cider-ns-refresh-after-fn` are
+not used with `clj-reload`, but in turns it supports per-namespace
+https://github.com/tonsky/clj-reload?tab=readme-ov-file#usage-unload-hooks[unload hooks]
+.
 
 == CIDER Selector
 
