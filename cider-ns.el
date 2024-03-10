@@ -137,8 +137,9 @@ presenting the error message as an overlay."
                                              ;; jars are unlikely sources of user errors, so we favor the next `cause-dict':
                                              (not (string-prefix-p "jar:" file-url))
                                              line)
-                                    (setq buf (cider--find-buffer-for-file file-url))
-                                    (list buf (cons line column)))))
+                                    (when-let ((found (cider--find-buffer-for-file file-url)))
+                                      (setq buf found)
+                                      (list buf (cons line column))))))
                               error)))
     (when jump-args
       (apply #'cider-jump-to jump-args)
