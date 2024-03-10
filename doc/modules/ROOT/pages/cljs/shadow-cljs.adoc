@@ -62,7 +62,7 @@ And connect to it with `cider-connect`.
 ...For that to work, `shadow-cljs.edn` contents like the following are assumed:
 
 ```clj
- :dependencies [[cider/cider-nrepl "0.46.0"] ;; mandatory (unless it's inherited from deps.edn or otherwise present in the classpath of shadow-cljs's JVM process)
+ :dependencies [[cider/cider-nrepl "0.47.0"] ;; mandatory (unless it's inherited from deps.edn or otherwise present in the classpath of shadow-cljs's JVM process)
                 [refactor-nrepl/refactor-nrepl "3.9.0"]] ;; refactor-nrepl is optional
 
  :nrepl {:middleware [cider.nrepl/cider-middleware ;; it's advisable to explicitly add this middleware. It's automatically added by shadow-cljs (if available in the classpath), unless `:nrepl {:cider false}`
