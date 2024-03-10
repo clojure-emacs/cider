@@ -15,6 +15,8 @@
 
 - [#3626](https://github.com/clojure-emacs/cider/issues/3626): `cider-ns-refresh`: jump to the relevant file/line on errors.
 - [#3628](https://github.com/clojure-emacs/cider/issues/3628): `cider-ns-refresh`: summarize errors as an overlay.
+- [#3628](https://github.com/clojure-emacs/cider/issues/3628): `cider-ns-refresh`: accept `clear-and-inhibit` mode.
+  - It often makes sense not to run the before/after functions around the `clear`ing.
 - Bump the injected nREPL to [1.1.1](https://github.com/nrepl/nrepl/blob/v1.1.1/CHANGELOG.md#111-2024-02-20).
 - Bump the injected `cider-nrepl` to [0.47.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.47.0/CHANGELOG.md#0470-2024-03-10).
   - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.23.2/CHANGELOG.md#0232-2024-03-10).

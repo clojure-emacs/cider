@@ -286,24 +286,27 @@ Uses the configured 'refresh dirs' \(defaults to the classpath dirs).
 With a single prefix argument, or if MODE is `refresh-all', reload all
 namespaces on the classpath dirs unconditionally.
 
-With a double prefix argument, or if MODE is `clear', clear the state of
-the namespace tracker before reloading.  This is useful for recovering from
+With a double prefix argument, or if MODE is `clear' (or `clear-and-inhibit'),
+clear the state of the namespace tracker before reloading.
+
+This is useful for recovering from
 some classes of error (for example, those caused by circular dependencies)
 that a normal reload would not otherwise recover from.  The trade-off of
 clearing is that stale code from any deleted files may not be completely
 unloaded.
 
-With a negative prefix argument, or if MODE is `inhibit-fns', prevent any
-refresh functions (defined in `cider-ns-refresh-before-fn' and
+With a negative prefix argument,
+or if MODE is `inhibit-fns' (or `clear-and-inhibit'),
+ prevent any refresh functions (defined in `cider-ns-refresh-before-fn' and
 `cider-ns-refresh-after-fn') from being invoked."
   (interactive "p")
   (cider-ensure-connected)
   (cider-ensure-op-supported "refresh")
   (cider-ensure-op-supported "cider.clj-reload/reload")
   (cider-ns-refresh--save-modified-buffers)
-  (let ((clear? (member mode '(clear 16)))
+  (let ((clear? (member mode '(clear clear-and-inhibit 16)))
         (all? (member mode '(refresh-all 4)))
-        (inhibit-refresh-fns (member mode '(inhibit-fns -1))))
+        (inhibit-refresh-fns (member mode '(inhibit-fns clear-and-inhibit -1))))
     (cider-map-repls :clj
       (lambda (conn)
         ;; Inside the lambda, so the buffer is not created if we error out.
