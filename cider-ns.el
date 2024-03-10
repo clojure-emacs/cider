@@ -118,6 +118,14 @@ namespace-qualified function of zero arity."
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
+(defcustom cider-ns-code-reload-tool 'tools.namespace
+  "Which tool to use for ns refresh.
+Current options: tools.namespace and clj-reload."
+  :group 'cider
+  :type '(choice (const :tag "tools.namespace https://github.com/clojure/tools.namespace" tools.namespace)
+                 (const :tag "clj-reload https://github.com/tonsky/clj-reload" clj-reload))
+  :package-version '(cider . "1.14.0"))
+
 (defun cider-ns--present-error (error)
   "Render the `ERROR' stacktrace,
 and jump to the adequate file/line location,
@@ -156,7 +164,7 @@ presenting the error message as an overlay."
 
 (defun cider-ns-refresh--handle-response (response log-buffer)
   "Refresh LOG-BUFFER with RESPONSE."
-  (nrepl-dbind-response response (out err reloading status error error-ns after before)
+  (nrepl-dbind-response response (out err reloading progress status error error-ns after before)
     (cl-flet* ((log (message &optional face)
                     (cider-emit-into-popup-buffer log-buffer message face t))
 
@@ -183,6 +191,9 @@ presenting the error message as an overlay."
 
        (reloading
         (log-echo (format "Reloading %s\n" reloading) 'font-lock-string-face))
+
+       (progress
+        (log-echo progress 'font-lock-string-face))
 
        ((member "reloading" (nrepl-dict-keys response))
         (log-echo "Nothing to reload\n" 'font-lock-string-face))
@@ -222,6 +233,19 @@ Its behavior is controlled by `cider-ns-save-files-on-refresh' and
               (seq-some (lambda (dir)
                           (file-in-directory-p buffer-file-name dir))
                         dirs)))))))
+
+(defun cider-ns--reload-op (op-name)
+  "Return the reload operation to use.
+Based on OP-NAME and the value of cider-ns-code-reload-tool defcustom."
+  (list "op"
+        (if (eq cider-ns-code-reload-tool 'tools.namespace)
+            (cond ((string= op-name "reload")       "refresh")
+                  ((string= op-name "reload-all")   "refresh-all")
+                  ((string= op-name "reload-clear") "refresh-clear"))
+
+          (cond ((string= op-name "reload")       "cider.clj-reload/reload")
+                ((string= op-name "reload-all")   "cider.clj-reload/reload-all")
+                ((string= op-name "reload-clear") "cider.clj-reload/reload-clear")))))
 
 ;;;###autoload
 (defun cider-ns-reload (&optional prompt)
@@ -275,9 +299,10 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
   (interactive "p")
   (cider-ensure-connected)
   (cider-ensure-op-supported "refresh")
+  (cider-ensure-op-supported "cider.clj-reload/reload")
   (cider-ns-refresh--save-modified-buffers)
   (let ((clear? (member mode '(clear 16)))
-        (refresh-all? (member mode '(refresh-all 4)))
+        (all? (member mode '(refresh-all 4)))
         (inhibit-refresh-fns (member mode '(inhibit-fns -1))))
     (cider-map-repls :clj
       (lambda (conn)
@@ -292,11 +317,11 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
                                           nil
                                           t))
           (when clear?
-            (cider-nrepl-send-sync-request '("op" "refresh-clear") conn))
+            (cider-nrepl-send-sync-request (cider-ns--reload-op "reload-clear") conn))
           (cider-nrepl-send-request
            (thread-last
              (map-merge 'list
-                        `(("op" ,(if refresh-all? "refresh-all" "refresh")))
+                        `(,(cider-ns--reload-op (if all? "reload-all" "reload")))
                         (cider--nrepl-print-request-map fill-column)
                         (when (and (not inhibit-refresh-fns) cider-ns-refresh-before-fn)
                           `(("before" ,cider-ns-refresh-before-fn)))
