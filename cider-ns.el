@@ -153,7 +153,7 @@ presenting the error message as an overlay."
             (cider--display-interactive-eval-result trimmed-err
                                                     'error
                                                     (save-excursion
-                                                      (end-of-defun)
+                                                      (end-of-sexp)
                                                       (point))
                                                     'cider-error-overlay-face)))))
     (cider--render-stacktrace-causes error)
