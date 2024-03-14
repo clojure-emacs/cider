@@ -1266,7 +1266,7 @@ arguments and only proceed with evaluation if it returns nil."
   (cider-interactive-eval nil
                           nil
                           (list start end)
-                          (cider--nrepl-pr-request-map)))
+                          (cider--nrepl-interactive-pr-request-map)))
 
 (defun cider-eval-last-sexp (&optional output-to-current-buffer)
   "Evaluate the expression preceding point.
@@ -1276,7 +1276,7 @@ buffer."
   (cider-interactive-eval nil
                           (when output-to-current-buffer (cider-eval-print-handler))
                           (cider-last-sexp 'bounds)
-                          (cider--nrepl-pr-request-map)))
+                          (cider--nrepl-interactive-pr-request-map)))
 
 (defun cider-eval-last-sexp-and-replace ()
   "Evaluate the expression preceding point and replace it with its result."
@@ -1291,7 +1291,7 @@ buffer."
     (cider-interactive-eval last-sexp
                             (cider-eval-print-handler)
                             nil
-                            (cider--nrepl-pr-request-map))))
+                            (cider--nrepl-interactive-pr-request-map))))
 
 (defun cider-eval-list-at-point (&optional output-to-current-buffer)
   "Evaluate the list (eg.  a function call, surrounded by parens) around point.
@@ -1318,7 +1318,7 @@ buffer."
     (cider-interactive-eval tapped-form
                             (when output-to-current-buffer (cider-eval-print-handler))
                             nil
-                            (cider--nrepl-pr-request-map))))
+                            (cider--nrepl-interactive-pr-request-map))))
 
 (defun cider-tap-sexp-at-point (&optional output-to-current-buffer)
   "Evaluate and tap the expression around point.
@@ -1367,7 +1367,7 @@ When GUESS is non-nil, attempt to extract the context from parent let-bindings."
     (cider-interactive-eval code
                             nil
                             bounds
-                            (cider--nrepl-pr-request-map))))
+                            (cider--nrepl-interactive-pr-request-map))))
 
 (defun cider-eval-last-sexp-in-context (guess)
   "Evaluate the preceding sexp in user-supplied context.
@@ -1406,7 +1406,7 @@ With the prefix arg INSERT-BEFORE, insert before the form, otherwise afterwards.
                              (set-marker (make-marker) insertion-point)
                              cider-comment-prefix)
                             bounds
-                            (cider--nrepl-pr-request-map))))
+                            (cider--nrepl-interactive-pr-request-map))))
 
 (defun cider-pprint-form-to-comment (form-fn insert-before)
   "Evaluate the form selected by FORM-FN and insert result as comment.
@@ -1436,7 +1436,7 @@ If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
                              cider-comment-continued-prefix
                              comment-postfix)
                             bounds
-                            (cider--nrepl-print-request-map fill-column))))
+                            (cider--nrepl-interactive-print-request-map fill-column))))
 
 (defun cider-pprint-eval-last-sexp-to-comment (&optional insert-before)
   "Evaluate the last sexp and insert result as comment.
@@ -1490,13 +1490,13 @@ honoring SWITCH-TO-REPL, REQUEST-MAP."
   "Evaluate the expression preceding point and insert its result in the REPL.
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
-  (cider--eval-last-sexp-to-repl prefix (cider--nrepl-pr-request-map)))
+  (cider--eval-last-sexp-to-repl prefix (cider--nrepl-interactive-pr-request-map)))
 
 (defun cider-pprint-eval-last-sexp-to-repl (&optional prefix)
   "Evaluate expr before point and insert its pretty-printed result in the REPL.
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
-  (cider--eval-last-sexp-to-repl prefix (cider--nrepl-print-request-map fill-column)))
+  (cider--eval-last-sexp-to-repl prefix (cider--nrepl-interactive-print-request-map fill-column)))
 
 (defun cider-eval-print-last-sexp (&optional pretty-print)
   "Evaluate the expression preceding point.
@@ -1507,8 +1507,8 @@ With an optional PRETTY-PRINT prefix it pretty-prints the result."
                           (cider-eval-print-handler)
                           (cider-last-sexp 'bounds)
                           (if pretty-print
-                              (cider--nrepl-print-request-map fill-column)
-                            (cider--nrepl-pr-request-map))))
+                              (cider--nrepl-interactive-print-request-map fill-column)
+                            (cider--nrepl-interactive-pr-request-map))))
 
 (defun cider--pprint-eval-form (form)
   "Pretty print FORM in popup buffer."
@@ -1519,7 +1519,7 @@ With an optional PRETTY-PRINT prefix it pretty-prints the result."
       (cider-interactive-eval (when (stringp form) form)
                               handler
                               (when (consp form) form)
-                              (cider--nrepl-print-request-map fill-column)))))
+                              (cider--nrepl-interactive-print-request-map fill-column)))))
 
 (defun cider-pprint-eval-last-sexp (&optional output-to-current-buffer)
   "Evaluate the sexp preceding point and pprint its value.
@@ -1583,7 +1583,7 @@ command `cider-debug-defun-at-point'."
                               (concat "#dbg\n" (cider-defun-at-point)))
                             nil
                             (cider-defun-at-point 'bounds)
-                            (cider--nrepl-pr-request-map))))
+                            (cider--nrepl-interactive-pr-request-map))))
 
 (defun cider--insert-closing-delimiters (code)
   "Closes all open parenthesized or bracketed expressions of CODE."
@@ -1615,7 +1615,7 @@ buffer.  It constructs an expression to eval in the following manner:
                             (when output-to-current-buffer
                               (cider-eval-print-handler))
                             (list beg-of-defun (point))
-                            (cider--nrepl-pr-request-map))))
+                            (cider--nrepl-interactive-pr-request-map))))
 
 (defun cider--matching-delimiter (delimiter)
   "Get the matching (opening/closing) delimiter for DELIMITER."
@@ -1646,7 +1646,7 @@ buffer.  It constructs an expression to eval in the following manner:
                             (when output-to-current-buffer
                               (cider-eval-print-handler))
                             (list beg-of-sexp (point))
-                            (cider--nrepl-pr-request-map))))
+                            (cider--nrepl-interactive-pr-request-map))))
 
 (defun cider-pprint-eval-defun-at-point (&optional output-to-current-buffer)
   "Evaluate the \"top-level\" form at point and pprint its value.
@@ -1685,7 +1685,7 @@ If VALUE is non-nil, it is inserted into the minibuffer as initial input."
         (cider-interactive-eval form
                                 nil
                                 nil
-                                (cider--nrepl-pr-request-map))))))
+                                (cider--nrepl-interactive-pr-request-map))))))
 
 (defun cider-read-and-eval-defun-at-point ()
   "Insert the toplevel form at point in the minibuffer and output its result.
