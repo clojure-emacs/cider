@@ -252,10 +252,13 @@ overlay."
           ;; string, since we want it to be at the first char.
           (put-text-property 0 1 'cursor 0 display-string)
           (when (> (string-width display-string) (* 3 (window-width)))
-            (setq display-string
-                  (concat (substring display-string 0 (* 3 (window-width)))
-                          (substitute-command-keys
-                           "...\nResult truncated. Type `\\[cider-inspect-last-result]' to inspect it."))))
+            (let ((msg (if (cider--get-inspector-window)
+                           (format "...\nResult truncated. It is currently visible in %s" cider-inspector-buffer)
+                         "...\nResult truncated. Type `\\[cider-inspect-last-result]' to inspect it.")))
+              (setq display-string
+                    (concat (substring display-string 0 (* 3 (window-width)))
+                            (substitute-command-keys
+                             msg)))))
           ;; Create the result overlay.
           (setq o (apply #'cider--make-overlay
                          beg end type
