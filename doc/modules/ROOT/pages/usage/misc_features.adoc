@@ -62,16 +62,23 @@ Typing kbd:[C-c M-n r] or kbd:[C-c M-n M-r] will invoke
 `cider-ns-refresh` and reload all modified Clojure files on the
 classpath.
 
-Adding a prefix argument, kbd:[C-u C-c M-n r], will reload all
+Adding a prefix argument, kbd:[C-u C-c M-n r], it will reload all
 the namespaces on the classpath unconditionally, regardless of their
 modification status.
 
-Adding a double prefix argument, kbd:[C-u C-u M-n r], will first
+Adding a double prefix argument, kbd:[C-u C-u M-n r], it will first
 clear the state of the namespace tracker before reloading. This is
-useful for recovering from some classes of error that normal reloads
+useful for recovering from some classes of errosr that normal reloads
 would otherwise not recover from. A good example is circular
 dependencies. The trade-off is that stale code from any deleted files
 may not be completely unloaded.
+
+Adding a negative prefix argument will inhibit
+the `cider-ns-refresh-before-fn` and `cider-ns-refresh-after-fn` functions from being run.
+
+Invoked with a programmatic `clear-and-inhibit` argument,
+it will both clear the namespace tracker before reloading (per the previous paragraph),
+and inhibit the `cider-ns-refresh-before-fn` and `cider-ns-refresh-after-fn` functions from being run.
 
 `cider-ns-refresh` wraps
 https://github.com/clojure/tools.namespace[clojure.tools.namespace], and as
