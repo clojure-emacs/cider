@@ -36,16 +36,16 @@
 
 ;; selector
 
-(describe "cider-seletor-method-c"
+(describe "cider-selector-method-c"
   (it "switches to most recently visited clojure-mode buffer"
     (cider-test-selector-method ?c 'clojure-mode "*testfile*.clj")))
 
-(describe "cider-seletor-method-e"
+(describe "cider-selector-method-e"
   (it "switches to most recently visited emacs-lisp-mode buffer"
     (kill-buffer "*scratch*")
     (cider-test-selector-method ?e 'emacs-lisp-mode "*testfile*.el")))
 
-(describe "cider-seletor-method-r"
+(describe "cider-selector-method-r"
   :var (cider-current-repl)
   (it "switches to current REPL buffer"
     (spy-on 'cider-current-repl :and-return-value "*cider-repl xyz*")
@@ -60,15 +60,15 @@
 ;;         (message "%S" (nrepl-messages-buffer (cider-current-repl)))
 ;;         (cider-test-selector-method ?m nil "*nrepl-messages some-id*")))))
 
-(describe "cider-seletor-method-x"
+(describe "cider-selector-method-x"
   (it "switches to *cider-error* buffer"
     (cider-test-selector-method ?x 'cider-stacktrace-mode "*cider-error*")))
 
-(describe "cider-seletor-method-d"
+(describe "cider-selector-method-d"
   (it "switches to *cider-doc* buffer"
     (cider-test-selector-method ?d 'cider-stacktrace-mode "*cider-doc*")))
 
-(describe "cider-seletor-method-s"
+(describe "cider-selector-method-s"
   :var (cider-scratch-find-or-create-buffer)
   (it "switches to *cider-scratch* buffer"
     (spy-on 'cider-scratch-find-or-create-buffer :and-return-value "*cider-scratch*")

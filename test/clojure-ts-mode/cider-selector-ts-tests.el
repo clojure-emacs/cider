@@ -31,7 +31,7 @@
 (require 'clojure-ts-mode)
 (require 'cider-selector-test-utils "test/cider-selector-tests")
 
-(describe "cider-seletor-method-c"
+(describe "cider-selector-method-c"
   (it "switches to most recently visited clojure-ts-mode buffer"
     (cider-test-selector-method ?c 'clojure-ts-mode "*treesitter-test*.clj")))
 
