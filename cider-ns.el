@@ -153,9 +153,7 @@ presenting the error message as an overlay."
                 (trimmed-err (funcall cider-inline-error-message-function message)))
             (cider--display-interactive-eval-result trimmed-err
                                                     'error
-                                                    (save-excursion
-                                                      (end-of-sexp)
-                                                      (point))
+                                                    (cider--semantic-end-of-line)
                                                     'cider-error-overlay-face)))))
     (cider--render-stacktrace-causes error)
     ;; Select the window displaying the 'culprit' buffer so that the user can immediately fix it,

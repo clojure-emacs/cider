@@ -392,3 +392,68 @@ and some other vars (like clojure.core/filter).
       (expect (cider-clojure-major-mode-p) :to-be-truthy)
       (expect (cider-clojurescript-major-mode-p) :not :to-be-truthy)
       (expect (cider-clojurec-major-mode-p) :to-be-truthy))))
+
+(describe "cider--semantic-end-of-line"
+  (with-clojure-buffer "|(def foo)
+bar
+baz"
+    (expect (cider--semantic-end-of-line) :to-equal 10))
+
+  (with-clojure-buffer "(|def foo)
+bar
+baz"
+    (expect (cider--semantic-end-of-line) :to-equal 10))
+
+  (with-clojure-buffer "(de|f foo)
+bar
+baz"
+    (expect (cider--semantic-end-of-line) :to-equal 10))
+
+  (with-clojure-buffer "(def| foo)
+bar
+baz"
+    (expect (cider--semantic-end-of-line) :to-equal 10))
+
+  (with-clojure-buffer "(def |foo)
+bar
+baz"
+    (expect (cider--semantic-end-of-line) :to-equal 10))
+
+  (with-clojure-buffer "(def fo|o)
+bar
+baz"
+    (expect (cider--semantic-end-of-line) :to-equal 10))
+
+  (with-clojure-buffer "(def foo|)
+bar
+baz"
+    (expect (cider--semantic-end-of-line) :to-equal 10))
+
+  (with-clojure-buffer "(def foo)|
+bar
+baz"
+    (expect (cider--semantic-end-of-line) :to-equal 10))
+
+  (with-clojure-buffer "|(def
+
+foo)
+bar
+baz"
+    (expect (cider--semantic-end-of-line) :to-equal 5))
+
+  (with-clojure-buffer "(def
+|
+foo)
+bar
+baz"
+    (expect (cider--semantic-end-of-line) :to-equal 6))
+
+  (with-clojure-buffer "(def foo)
+bar|
+baz"
+    (expect (cider--semantic-end-of-line) :to-equal 14))
+
+  (with-clojure-buffer "(def foo)
+bar
+baz|"
+    (expect (cider--semantic-end-of-line) :to-equal 18)))
