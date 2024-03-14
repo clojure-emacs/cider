@@ -68,7 +68,7 @@ modification status.
 
 Adding a double prefix argument, kbd:[C-u C-u M-n r], it will first
 clear the state of the namespace tracker before reloading. This is
-useful for recovering from some classes of errosr that normal reloads
+useful for recovering from some classes of errors that normal reloads
 would otherwise not recover from. A good example is circular
 dependencies. The trade-off is that stale code from any deleted files
 may not be completely unloaded.
