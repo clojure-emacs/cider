@@ -17,7 +17,12 @@ Alternatively, after a regular eval command, you can inspect the last
 evaluated value using `cider-inspect-last-result`. When an inspector
 buffer is visible in the background, it is automatically updated with
 the last result. This behavior can be controlled with the variable
-`cider-auto-inspect-after-eval`.
+`cider-auto-inspect-after-eval` (and `cider-inspector-auto-select-buffer`
+for even more fine-grained control over the UX).
+
+TIP: setting `cider-auto-inspect-after-eval` to `t` and `cider-inspector-auto-select-buffer` to nil
+allows you to have the cider-inspector permanently open in a background frame. This way,
+it's always there as you eval forms, while it doesn't interrupt you when it's not needed.`
 
 TIP: The inspector can also be invoked in the middle of a debugging
 session, see xref:debugging/debugger.adoc[here] for more details.

@@ -1001,7 +1001,7 @@ when `cider-auto-inspect-after-eval' is non-nil."
                                      (cider--make-fringe-overlay end))
                                    (when (and cider-auto-inspect-after-eval
                                               (boundp 'cider-inspector-buffer)
-                                              (windowp (get-buffer-window cider-inspector-buffer 'visible)))
+                                              (windowp (cider--get-inspector-window)))
                                      (cider-inspect-last-result)
                                      (select-window (get-buffer-window buffer)))
                                    (when cider-eval-register

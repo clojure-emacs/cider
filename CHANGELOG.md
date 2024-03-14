@@ -13,6 +13,8 @@
 
 ### Changes
 
+- `cider-eval`: support re-rendering the Inspector buffer when `cider-inspector-auto-select-buffer` is set to nil and there's a `*cider-inspect*` buffer shown in a non-visible frame.
+  - This supports the workflow of using the inspector occasionally (less intrusively), but ready to be shown anytime.
 - [#3626](https://github.com/clojure-emacs/cider/issues/3626): `cider-ns-refresh`: jump to the relevant file/line on errors.
 - [#3628](https://github.com/clojure-emacs/cider/issues/3628): `cider-ns-refresh`: summarize errors as an overlay.
 - Bump the injected nREPL to [1.1.1](https://github.com/nrepl/nrepl/blob/v1.1.1/CHANGELOG.md#111-2024-02-20).
