@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+- new configuration variable `cider-clojure-cli-global-aliases`
+
 ### New features
 
 - [#3366](https://github.com/clojure-emacs/cider/pull/3366): Support display of error overlays with #dbg! and #break! reader macros.
