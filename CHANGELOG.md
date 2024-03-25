@@ -4,6 +4,7 @@
 
 ### New features
 
+- [#3366](https://github.com/clojure-emacs/cider/pull/3366): Support display of error overlays with #dbg! and #break! reader macros.
 - [#3622](https://github.com/clojure-emacs/cider/pull/3461): Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode).
   - The `clojure-mode` dependency is still required for CIDER to function.
   - Some features like `cider-dynamic-indentation` and `cider-font-lock-dynamically` do not work with `clojure-ts-mode` (yet).
