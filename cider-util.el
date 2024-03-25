@@ -826,6 +826,28 @@ KIND can be the symbols `ns', `var', `emph', `fn', or a face name."
              (t x)))
           menu-list))
 
+(defun cider--semantic-end-of-line ()
+  "Returns POINT at the closest EOL that we can move to semantically,
+i.e. using sexp-aware navigation."
+  (let ((continue t)
+        (p (point)))
+    (save-excursion
+      (while continue
+        (end-of-line)
+        (condition-case nil
+            (save-excursion
+              ;; If we can't `clojure-backward-logical-sexp',
+              ;; it means that we aren't in a 'semantic' position,
+              ;; so functions like `cider--make-result-overlay' (which use `clojure-backward-logical-sexp' internally) would fail
+              (clojure-backward-logical-sexp))
+          (scan-error (forward-line)))
+        (setq p (point))
+        (setq continue (and (not (eolp)) ;; we're trying to move to the end of the line
+                            (not (eobp)) ;; abort if we reached EOF (infinite loop avoidance)
+                            (not (equal p (point))) ;; abort if we aren't moving (infinite loop avoidance)
+                            )))
+      (point))))
+
 (provide 'cider-util)
 
 ;;; cider-util.el ends here
