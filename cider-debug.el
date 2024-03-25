@@ -125,17 +125,16 @@ configure `cider-debug-prompt' instead."
 
 (defun cider--debug-response-handler (response)
   "Handles RESPONSE from the cider.debug middleware."
-  (nrepl-dbind-response response (status id causes)
+  (nrepl-dbind-response response (status id causes caught-msg)
     (when (member "enlighten" status)
       (cider--handle-enlighten response))
     (when (or (member "eval-error" status)
               (member "stack" status))
       ;; TODO: Make the error buffer a bit friendlier when we're just printing
       ;; the stack.
-      (nrepl-dbind-response response (causes caught-msg)
-        (if cider-show-error-buffer
-            (cider--render-stacktrace-causes causes)
-          (cider--debug-display-result-overlay nil caught-msg))))
+      (if cider-show-error-buffer
+          (cider--render-stacktrace-causes causes)
+        (cider--debug-display-result-overlay nil caught-msg)))
     (when (member "need-debug-input" status)
       (cider--handle-debug response))
     (when (member "done" status)
@@ -158,7 +157,8 @@ configure `cider-debug-prompt' instead."
   "Used as an overlay's before-string prop to place a fringe arrow.")
 
 (defun cider--debug-display-result-overlay (value caught)
-  "Place an overlay at point displaying VALUE."
+  "Place an overlay at point displaying VALUE.
+When CAUGHT is non-nil, display it as an error message overlay."
   (when cider-debug-use-overlays
     ;; This is cosmetic, let's ensure it doesn't break the session no matter what.
     (ignore-errors
