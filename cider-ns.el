@@ -137,8 +137,9 @@ presenting the error message as an overlay."
                                              ;; jars are unlikely sources of user errors, so we favor the next `cause-dict':
                                              (not (string-prefix-p "jar:" file-url))
                                              line)
-                                    (setq buf (cider--find-buffer-for-file file-url))
-                                    (list buf (cons line column)))))
+                                    (when-let ((found (cider--find-buffer-for-file file-url)))
+                                      (setq buf found)
+                                      (list buf (cons line column))))))
                               error)))
     (when jump-args
       (apply #'cider-jump-to jump-args)
@@ -152,9 +153,7 @@ presenting the error message as an overlay."
                 (trimmed-err (funcall cider-inline-error-message-function message)))
             (cider--display-interactive-eval-result trimmed-err
                                                     'error
-                                                    (save-excursion
-                                                      (end-of-defun)
-                                                      (point))
+                                                    (cider--semantic-end-of-line)
                                                     'cider-error-overlay-face)))))
     (cider--render-stacktrace-causes error)
     ;; Select the window displaying the 'culprit' buffer so that the user can immediately fix it,
@@ -286,24 +285,27 @@ Uses the configured 'refresh dirs' \(defaults to the classpath dirs).
 With a single prefix argument, or if MODE is `refresh-all', reload all
 namespaces on the classpath dirs unconditionally.
 
-With a double prefix argument, or if MODE is `clear', clear the state of
-the namespace tracker before reloading.  This is useful for recovering from
+With a double prefix argument, or if MODE is `clear' (or `clear-and-inhibit'),
+clear the state of the namespace tracker before reloading.
+
+This is useful for recovering from
 some classes of error (for example, those caused by circular dependencies)
 that a normal reload would not otherwise recover from.  The trade-off of
 clearing is that stale code from any deleted files may not be completely
 unloaded.
 
-With a negative prefix argument, or if MODE is `inhibit-fns', prevent any
-refresh functions (defined in `cider-ns-refresh-before-fn' and
+With a negative prefix argument,
+or if MODE is `inhibit-fns' (or `clear-and-inhibit'),
+ prevent any refresh functions (defined in `cider-ns-refresh-before-fn' and
 `cider-ns-refresh-after-fn') from being invoked."
   (interactive "p")
   (cider-ensure-connected)
   (cider-ensure-op-supported "refresh")
   (cider-ensure-op-supported "cider.clj-reload/reload")
   (cider-ns-refresh--save-modified-buffers)
-  (let ((clear? (member mode '(clear 16)))
+  (let ((clear? (member mode '(clear clear-and-inhibit 16)))
         (all? (member mode '(refresh-all 4)))
-        (inhibit-refresh-fns (member mode '(inhibit-fns -1))))
+        (inhibit-refresh-fns (member mode '(inhibit-fns clear-and-inhibit -1))))
     (cider-map-repls :clj
       (lambda (conn)
         ;; Inside the lambda, so the buffer is not created if we error out.
