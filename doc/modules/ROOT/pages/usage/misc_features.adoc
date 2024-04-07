@@ -130,6 +130,23 @@ and `cider-ns-reload-all` commands can be used instead. These commands
 invoke Clojure's `+(require ... :reload)+` and `+(require
 ... :reload-all)+` commands at the REPL.
 
+You can also use https://github.com/tonsky/clj-reload[clj-reload] instead.
+It provides support for
+https://github.com/tonsky/clj-reload/blob/469da68/README.md#usage-keeping-vars-between-reloads[keeping vars between reloads]
+among some
+https://github.com/tonsky/clj-reload/blob/469da68/README.md#comparison-toolsnamespace[other differences]
+from `tools.namespace`.
+
+[source,lisp]
+----
+(setq cider-ns-code-reload-tool 'clj-reload)
+----
+
+With `clj-reload` you should set the source dirs as described in
+https://github.com/tonsky/clj-reload/blob/469da68/README.md##usage[the usage docs]
+. If you don't set them manually, it will default to the current project's resource dirs in the same
+way `tools.namespace` does.
+
 == CIDER Selector
 
 The `cider-selector` (kbd:[C-c M-s]) command allows you to quickly navigate to

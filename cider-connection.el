@@ -347,6 +347,7 @@ See `cider-connection-capabilities'."
              ('clojure '(clojure jvm-compilation-errors))
              ('babashka '(babashka jvm-compilation-errors))
              ('nbb '(cljs))
+             ('scittle '(cljs))
              (_ '()))
            (when
                (eq cider-repl-type 'cljs)
@@ -457,12 +458,19 @@ But helps us know if this is a nbb repl, or not."
     (when nrepl-versions
       (nrepl-dict-get nrepl-versions "nbb-nrepl"))))
 
+(defun cider--scittle-nrepl-version ()
+  "Retrieve the underlying connection's scittle version."
+  (with-current-buffer (cider-current-repl)
+    (when nrepl-versions
+      (nrepl-dict-get nrepl-versions "scittle-nrepl"))))
+
 (defun cider-runtime ()
   "Return the runtime of the nREPl server."
   (cond
    ((cider--clojure-version) 'clojure)
    ((cider--babashka-version) 'babashka)
    ((cider--nbb-nrepl-version) 'nbb)
+   ((cider--scittle-nrepl-version) 'scittle)
    (t 'generic)))
 
 (defun cider-runtime-clojure-p ()

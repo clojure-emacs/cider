@@ -95,6 +95,13 @@ https://github.com/jonase/kibit[kibit].
 http://clojure-emacs.github.io/sayid/[sayid] is a powerful alternative of CIDER's
 built-in basic tracing functionality.
 
+=== clay
+
+https://github.com/scicloj/clay.el[clay.el] provides CIDER support for https://scicloj.github.io/clay/[Clay],
+a minimalistic tool for data visualization and literate programming.
+It provides interactive functions for sending a single Clojure form to be visualized in the browser,
+and for rendering a whole namespace as a notebook (or slideshow) in different formats.
+
 == Generic Emacs Extensions
 
 Most packages in the following list are standard Emacs minor modes that work
@@ -207,3 +214,4 @@ forms directly in the REPL.
 
 It's basically a simple alternative of CIDER, which provides a subset of CIDER's
 functionality.
+

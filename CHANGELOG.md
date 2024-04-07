@@ -6,13 +6,28 @@
 
 ### New features
 
-- [#3622](https://github.com/clojure-emacs/cider/pull/3461): Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode)
-  - The `clojure-mode` dependency is still required for CIDER to function
+- [#3366](https://github.com/clojure-emacs/cider/pull/3366): Support display of error overlays with #dbg! and #break! reader macros.
+- [#3622](https://github.com/clojure-emacs/cider/pull/3461): Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode).
+  - The `clojure-mode` dependency is still required for CIDER to function.
   - Some features like `cider-dynamic-indentation` and `cider-font-lock-dynamically` do not work with `clojure-ts-mode` (yet).
+- [#3624](https://github.com/clojure-emacs/cider/pull/3624): Support new `cider.clj-reload/reload` cider-nrepl middleware.
+  - adds `cider-ns-refresh-tool` defcustom, defaulting to `'tools.namespace`.
+  - you can change it to `'clj-reload` to use [clj-reload](https://github.com/tonsky/clj-reload) instead of [tools.namespace](https://github.com/clojure/tools.namespace).
 
 ### Changes
 
-- Bump the injected nREPL to 1.1.1.
+- [#3626](https://github.com/clojure-emacs/cider/issues/3626): `cider-ns-refresh`: jump to the relevant file/line on errors.
+- [#3628](https://github.com/clojure-emacs/cider/issues/3628): `cider-ns-refresh`: summarize errors as an overlay.
+- Bump the injected nREPL to [1.1.1](https://github.com/nrepl/nrepl/blob/v1.1.1/CHANGELOG.md#111-2024-02-20).
+- Bump the injected `cider-nrepl` to [0.47.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.47.0/CHANGELOG.md#0470-2024-03-10).
+  - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.23.2/CHANGELOG.md#0232-2024-03-10).
+  - Updates [Logjam](https://github.com/clojure-emacs/logjam/blob/v0.3.0/CHANGELOG.md#030-2024-03-03).
+  - Updates [Compliment](https://github.com/alexander-yakushev/compliment/blob/951604/CHANGELOG.md#master-unreleased).
+
+### Bugs fixed
+
+- [#3600](https://github.com/clojure-emacs/cider/pull/3600): Fix scittle jack in when using `cider-jack-in-clj`.
+
 
 ## 1.13.1 (2024-02-01)
 

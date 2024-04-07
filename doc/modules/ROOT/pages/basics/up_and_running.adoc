@@ -73,7 +73,7 @@ simple - CIDER simply passes the extra dependencies and nREPL configuration to
 your build tool in the command it runs to start the nREPL server. Here's how
 this looks for `tools.deps`:
 
-  $ clojure -Sdeps '{:deps {nrepl {:mvn/version "0.6.0"} cider/cider-nrepl {:mvn/version "0.45.0"}}}' -m nrepl.cmdline --middleware '["cider.nrepl/cider-middleware"]'
+  $ clojure -Sdeps '{:deps {nrepl {:mvn/version "0.6.0"} cider/cider-nrepl {:mvn/version "0.47.0"}}}' -m nrepl.cmdline --middleware '["cider.nrepl/cider-middleware"]'
 
 TIP: If you don't want `cider-jack-in` to inject dependencies automatically, set
 `cider-inject-dependencies-at-jack-in` to `nil`. Note that you'll have to setup
@@ -318,7 +318,7 @@ It is also possible for plain `clj`, although the command is somewhat longer:
 
 [source,sh]
 ----
-$ clj -Sdeps '{:deps {cider/cider-nrepl {:mvn/version "0.45.0"}}}' -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware]"
+$ clj -Sdeps '{:deps {cider/cider-nrepl {:mvn/version "0.47.0"}}}' -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware]"
 ----
 
 Alternatively, you can start nREPL either manually or using the facilities
