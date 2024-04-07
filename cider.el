@@ -176,14 +176,15 @@ then concatenated into the \"-M[your-aliases]:cider/nrepl\" form."
 
 (defcustom cider-clojure-cli-global-aliases
   nil
-  "A list of global aliases to include when using the clojure cli.
-It's value will be prepended to the value of `cider-clojure-cli-aliases`
+  "Global aliases to include when jacking in with the clojure CLI.
+This value should be a string of the form \":foo:bar\", and
+will be prepended to the value of `cider-clojure-cli-aliases'.
 Alias names should be of the form \":foo:bar\".
 Leading \"-A\" \"-M\" \"-T\" or \"-X\" are stripped from aliases
 then concatenated into the \"-M[your-aliases]:cider/nrepl\" form."
   :type 'string
   :safe #'stringp
-  :package-version '(cider . "1.1"))
+  :package-version '(cider . "1.14"))
 
 
 (defcustom cider-shadow-cljs-command
@@ -830,6 +831,23 @@ rules to quote it."
          (utf-16le-command (encode-coding-string command 'utf-16le)))
     (format "-encodedCommand %s" (base64-encode-string utf-16le-command t))))
 
+
+(defun cider--combined-aliases ()
+  "Creates the combined ailases as stringe seperated by ':'."
+  (let ((final-cider-clojure-cli-aliases
+         (cond ((and cider-clojure-cli-global-aliases cider-clojure-cli-aliases)
+                (concat cider-clojure-cli-global-aliases ":" cider-clojure-cli-aliases))
+               (cider-clojure-cli-global-aliases cider-clojure-cli-global-aliases)
+               (t cider-clojure-cli-aliases))))
+    (if final-cider-clojure-cli-aliases
+        ;; remove exec-opts flags -A -M -T or -X from cider-clojure-cli-aliases
+        ;; concatenated with :cider/nrepl to ensure :cider/nrepl comes last
+        (let ((aliases (format "%s" (replace-regexp-in-string "^-\\(A\\|M\\|T\\|X\\)" "" final-cider-clojure-cli-aliases))))
+          (if (string-prefix-p ":" aliases)
+              aliases
+            (concat ":" aliases)))
+      "")))
+
 (defun cider-clojure-cli-jack-in-dependencies (global-options params dependencies &optional command)
   "Create Clojure tools.deps jack-in dependencies.
 Does so by concatenating DEPENDENCIES, PARAMS and GLOBAL-OPTIONS into a
@@ -863,19 +881,7 @@ your aliases contain any mains, the cider/nrepl one will be the one used."
             ;; TODO: global-options are deprecated and should be removed in CIDER 2.0
             (if global-options (format "%s " global-options) "")
             deps-quoted
-            (let ((final-cider-clojure-cli-aliases
-                   (cond ((and cider-clojure-cli-global-aliases cider-clojure-cli-aliases)
-                          (concat cider-clojure-cli-global-aliases ":" cider-clojure-cli-aliases))
-                         (cider-clojure-cli-global-aliases cider-clojure-cli-global-aliases)
-                         (t cider-clojure-cli-aliases))))
-              (if final-cider-clojure-cli-aliases
-                  ;; remove exec-opts flags -A -M -T or -X from cider-clojure-cli-aliases
-                  ;; concatenated with :cider/nrepl to ensure :cider/nrepl comes last
-                  (let ((aliases (format "%s" (replace-regexp-in-string "^-\\(A\\|M\\|T\\|X\\)" "" final-cider-clojure-cli-aliases))))
-                    (if (string-prefix-p ":" aliases)
-                        aliases
-                      (concat ":" aliases)))
-                ""))
+            (cider--combined-aliases)
             (if params (format " %s" params) ""))))
 
 (defun cider-shadow-cljs-jack-in-dependencies (global-opts params dependencies)
