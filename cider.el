@@ -833,7 +833,7 @@ rules to quote it."
 
 
 (defun cider--combined-aliases ()
-  "Creates the combined ailases as stringe seperated by ':'."
+  "Creates the combined ailases as stringe separated by ':'."
   (let ((final-cider-clojure-cli-aliases
          (cond ((and cider-clojure-cli-global-aliases cider-clojure-cli-aliases)
                 (concat cider-clojure-cli-global-aliases ":" cider-clojure-cli-aliases))
