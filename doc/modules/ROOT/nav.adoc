@@ -20,6 +20,7 @@
 ** xref:usage/cider_mode.adoc[Using cider-mode]
 ** xref:usage/code_evaluation.adoc[Code Evaluation]
 ** xref:usage/code_completion.adoc[Code Completion]
+** xref:usage/code_reloading.adoc[Code Reloading]
 ** xref:usage/pretty_printing.adoc[Pretty Printing]
 ** xref:usage/dealing_with_errors.adoc[Dealing with Errors]
 ** xref:usage/working_with_documentation.adoc[Working with Documentation]
