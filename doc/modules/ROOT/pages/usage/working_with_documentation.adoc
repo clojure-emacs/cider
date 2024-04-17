@@ -11,16 +11,39 @@ press kbd:[C-c C-d C-d] then. This open a documentation buffer
 containing all the relevant information about the thing referenced
 by the symbol (special form, var, Java method, etc).
 
+TIP: You can also use the keybinding kbd:[C-c C-d d]. Most CIDER keymaps
+provide two versions of the same keybinding (with or without the final `Control`),
+as some people prefer to keep holding `Control` and some don't.
+
+Normally the command operates on the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, it will prompt for a symbol.
+
+NOTE: If using `enrich-classpath`, Java doc comments are available and rendered in the same way that Clojure docstrings are.
+They're often much more handy than opening Javadoc in a browser. Starting from CIDER 1.8.0,
+the HTML-like language that they use is nicely rendered into syntax-colored strings, well-aligned tables, etc
+
 == JavaDoc
 
 CIDER provides a quick access to the online Javadoc documentation
-via the command `cider-javadoc`.
+via the command `cider-javadoc` (kbd:[C-c C-d j] or kbd:[C-c C-d C-j]), using your default browser.
 
-This requires `enrich-classpath` to be enabled.
+Normally the command operates on the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, it will prompt for a symbol.
 
-NOTE: if using `enrich-classpath`, Java doc comments are available and rendered in the same way that Clojure docstrings are.
-They're often much more handy than opening Javadoc in a browser. Starting from CIDER 1.8.0,
-the HTML-like language that they use is nicely rendered into syntax-colored strings, well-aligned tables, etc  
+If you don't want CIDER to use an external browser to display the JavaDoc you can use the built-in
+EWW browser instead like this:
+
+[source,lisp]
+----
+(setq browse-url-browser-function 'eww-browse-url)
+----
+
+== Searching in Docstrings
+
+CIDER provides a handy alternative of `clojure.repl/find-doc` - `cider-apropos-documentation` (kbd:[C-c C-d f] or
+kbd:[C-c C-d C-f]). This allows you to search in the docstrings of all loaded vars with the results presented
+in Emacs's `apropos` interface.
+
+Alternatively you can use `cider-apropos-documentation-select` (kbd:[C-c C-d e] or kbd:[C-c C-d C-e]), which presents you the matching
+results as a list in the minibuffer, so you can quickly select what you need (especially if you're using some package like `ido` or `vertico`).
 
 == ClojureDocs
 
