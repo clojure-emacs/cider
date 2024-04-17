@@ -9,7 +9,7 @@
   - The `clojure-mode` dependency is still required for CIDER to function.
   - Some features like `cider-dynamic-indentation` and `cider-font-lock-dynamically` do not work with `clojure-ts-mode` (yet).
 - [#3624](https://github.com/clojure-emacs/cider/pull/3624): Support new `cider.clj-reload/reload` cider-nrepl middleware.
-  - adds `cider-ns-refresh-tool` defcustom, defaulting to `'tools.namespace`.
+  - adds `cider-ns-code-reload-tool` defcustom, defaulting to `'tools.namespace`.
   - you can change it to `'clj-reload` to use [clj-reload](https://github.com/tonsky/clj-reload) instead of [tools.namespace](https://github.com/clojure/tools.namespace).
 
 ### Changes
