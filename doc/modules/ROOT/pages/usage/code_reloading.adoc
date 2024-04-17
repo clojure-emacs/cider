@@ -82,7 +82,9 @@ buffers visiting files on the classpath. You can customize this behavior with
 
 === Using clj-reload
 
-You can also use https://github.com/tonsky/clj-reload[clj-reload] instead.
+NOTE: Support for `clj-reload` was introduced in CIDER 1.14.
+
+You can also use `cider-ns-refresh` with https://github.com/tonsky/clj-reload[clj-reload] instead of `clojure.tools.namespace`.
 It provides support for
 https://github.com/tonsky/clj-reload/blob/469da68/README.md#usage-keeping-vars-between-reloads[keeping vars between reloads]
 among some
@@ -98,6 +100,9 @@ With `clj-reload` you should set the source dirs as described in
 https://github.com/tonsky/clj-reload/blob/469da68/README.md##usage[the usage docs]
 . If you don't set them manually, it will default to the current project's resource dirs in the same
 way `tools.namespace` does.
+
+NOTE: Down the road we may rename `cider-ns-refresh` to something more tool-agnostic (e.g. `cider-ns-smart-reload`) to reflect
+that it supports different code reload tools now.
 
 == Basic Code Reloading
 
