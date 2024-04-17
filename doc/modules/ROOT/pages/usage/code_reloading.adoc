@@ -8,6 +8,10 @@ and there are no temporary definitions hanging around.
 
 == "Reloaded" Workflow
 
+NOTE: The workflow described below was made popular by
+this https://www.cognitect.com/blog/2013/06/04/clojure-workflow-reloaded[blog article],
+which served as the primary inspiration for CIDER's take on it.
+
 Typing kbd:[C-c M-n r] or kbd:[C-c M-n M-r] will invoke
 `cider-ns-refresh` and reload all modified Clojure files on the
 classpath.
