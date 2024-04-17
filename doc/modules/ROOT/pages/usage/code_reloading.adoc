@@ -102,8 +102,8 @@ way `tools.namespace` does.
 == Basic Code Reloading
 
 Sometimes, `cider-ns-refresh` may not work for you. If you're looking
-for a bit more forceful reloading the `cider-ns-reload`
-and `cider-ns-reload-all` commands can be used instead. These commands
+for a bit more forceful reloading the `cider-ns-reload` (kbd:[C-c M-n l])
+and `cider-ns-reload-all` (kbd:[C-c M-n M-l]) commands can be used instead. These commands
 invoke Clojure's `+(require ... :reload)+` and `+(require
 ... :reload-all)+` commands at the REPL.
 
@@ -118,3 +118,12 @@ TIP: Theses commands don't depend on `cider-nrepl`, so they are always available
 | kbd:[C-c M-n r] +
 kbd:[C-c M-n M-r]
 | Reload all modified Clojure files on the classpath. Adding a prefix argument, kbd:[C-u C-c M-n r], will reload all the namespaces on the classpath unconditionally, regardless of their modification status. Adding a double prefix argument, kbd:[C-u C-u M-n r], will first clear the state of the namespace tracker before reloading.
+
+| `cider-ns-reload`
+| kbd:[C-c M-n l]
+| Reload using `(require :reload)`
+
+| `cider-ns-reload-all`
+| kbd:[C-c M-n M-l]
+| Reload using `(require :reload-all)`
+|===
