@@ -622,8 +622,9 @@ re-visited."
 
 (defcustom cider-custom-symbol-categorizer-1
   nil
-  "A function that receives `var-sym' and `metadata-map'.
-Determines is a given symbol should be rendered using
+  "A function that receives `var' (type: string),
+and `metadata-map' (type: nrepl dict).
+Determines if a given symbol should be rendered using
 `cider-custom-face-1'.
 
 See also: `cider-custom-face-1', `cider-font-lock-dynamically'."
@@ -633,8 +634,9 @@ See also: `cider-custom-face-1', `cider-font-lock-dynamically'."
 
 (defcustom cider-custom-symbol-categorizer-2
   nil
-  "A function that receives `var-sym' and `metadata-map'.
-Determines is a given symbol should be rendered using
+  "A function that receives `var' (type: string),
+and `metadata-map' (type: nrepl dict).
+Determines if a given symbol should be rendered using
 `cider-custom-face-2'.
 
 See also: `cider-custom-face-2', `cider-font-lock-dynamically'."
