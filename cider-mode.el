@@ -619,8 +619,47 @@ re-visited."
           (get sym 'clojure-indent-function))))))
 
 
+
+(defcustom cider-custom-symbol-categorizer-1
+  nil
+  "A function that receives `var-sym' and `metadata-map'.
+Determines is a given symbol should be rendered using
+`cider-custom-face-1'.
+
+See also: `cider-custom-face-1', `cider-font-lock-dynamically'."
+  :type 'function
+  :group 'cider
+  :package-version '(cider . "1.14.0"))
+
+(defcustom cider-custom-symbol-categorizer-2
+  nil
+  "A function that receives `var-sym' and `metadata-map'.
+Determines is a given symbol should be rendered using
+`cider-custom-face-2'.
+
+See also: `cider-custom-face-2', `cider-font-lock-dynamically'."
+  :type 'function
+  :group 'cider
+  :package-version '(cider . "1.14.0"))
+
+(defface cider-custom-face-1
+  '()
+  "The face to be used for symbols for which `cider-custom-symbol-categorizer-1', if set, returns t.
+
+See also: `cider-font-lock-dynamically'."
+  :group 'cider
+  :package-version '(cider . "1.14.0"))
+
+(defface cider-custom-face-2
+  '()
+  "The face to be used for symbols for which `cider-custom-symbol-categorizer-2', if set, returns t.
+
+See also: `cider-font-lock-dynamically'."
+  :group 'cider
+  :package-version '(cider . "1.14.0"))
+
 ;;; Dynamic font locking
-(defcustom cider-font-lock-dynamically '(macro core deprecated)
+(defcustom cider-font-lock-dynamically '(macro core deprecated custom-1 custom-2)
   "Specifies how much dynamic font-locking CIDER should use.
 Dynamic font-locking this refers to applying syntax highlighting to vars
 defined in the currently active nREPL connection.  This is done in addition
@@ -637,6 +676,12 @@ that should be font-locked:
    `core' (default): Any symbol from clojure.core/cljs.core.  The selected face will depend on type.
    Note that while rendering `core', all types of vars (`macro', `function', `var', `deprecated')
    will be honored, regardless of the user's customization value.
+   `custom-1': any symbol for which
+     `(funcall cider-custom-symbol-categorizer-1 sym meta)' returns t.
+     `cider-custom-face-1' will be applied.
+   `custom-2': any symbol for which
+     `(funcall cider-custom-symbol-categorizer-2 sym meta)' returns t.
+     `cider-custom-face-2' will be applied.
 
 The value can also be t, which means to font-lock as much as possible."
   :type '(choice (set :tag "Fine-tune font-locking"
@@ -784,16 +829,22 @@ with the given LIMIT."
 (defun cider--compile-font-lock-keywords (symbols-plist core-plist)
   "Return a list of font-lock rules for symbols in SYMBOLS-PLIST, CORE-PLIST."
   (let ((cider-font-lock-dynamically (if (eq cider-font-lock-dynamically t)
-                                         '(function var macro core deprecated)
+                                         '(function var macro core deprecated custom-1 custom-2)
                                        cider-font-lock-dynamically))
         deprecated enlightened
-        macros functions vars instrumented traced)
+        macros functions vars instrumented traced
+        custom-1
+        custom-2)
     (cl-labels ((handle-plist
                  (plist)
                  ;; Note that (memq 'function cider-font-lock-dynamically) and similar statements are evaluated differently
                  ;; for `core' - they're always truthy for `core' (see related core-handling code some lines below):
                  (let ((do-function (memq 'function cider-font-lock-dynamically))
                        (do-var (memq 'var cider-font-lock-dynamically))
+                       (do-custom-1 (and (memq 'custom-1 cider-font-lock-dynamically)
+                                         cider-custom-symbol-categorizer-1))
+                       (do-custom-2 (and (memq 'custom-2 cider-font-lock-dynamically)
+                                         cider-custom-symbol-categorizer-2))
                        (do-macro (memq 'macro cider-font-lock-dynamically))
                        (do-deprecated (memq 'deprecated cider-font-lock-dynamically)))
                    (while plist
@@ -814,15 +865,26 @@ with the given LIMIT."
                          (push sym traced))
                        (when (and do-deprecated (nrepl-dict-get meta "deprecated"))
                          (push sym deprecated))
-                       (let ((is-macro (nrepl-dict-get meta "macro"))
-                             (is-function (or (nrepl-dict-get meta "fn")
-                                              (nrepl-dict-get meta "arglists"))))
+                       (let* ((is-custom-1 (and do-custom-1
+                                                (funcall cider-custom-symbol-categorizer-1 sym meta)))
+                              (is-custom-2 (and do-custom-2
+                                                (funcall cider-custom-symbol-categorizer-2 sym meta)))
+                              (is-any-custom (or is-custom-1 is-custom-2))
+                              (is-macro (and (not is-any-custom)
+                                             (nrepl-dict-get meta "macro")))
+                              (is-function (and (not is-any-custom)
+                                                (or (nrepl-dict-get meta "fn")
+                                                    (nrepl-dict-get meta "arglists")))))
                          (cond ((and do-macro is-macro)
                                 (push sym macros))
                                ((and do-function is-function)
                                 (push sym functions))
                                ((and do-var (not is-function) (not is-macro))
-                                (push sym vars)))))))))
+                                (push sym vars))
+                               (is-custom-1
+                                (push sym custom-1))
+                               (is-custom-2
+                                (push sym custom-2)))))))))
       ;; For core members, we override `cider-font-lock-dynamically', since all core members should get the same treatment:
       (when (memq 'core cider-font-lock-dynamically)
         (let ((cider-font-lock-dynamically '(function var macro core deprecated)))
@@ -848,6 +910,12 @@ with the given LIMIT."
       ,@(when instrumented
           `((,(regexp-opt instrumented 'symbols) 0
              (cider--unless-local-match 'cider-instrumented-face) append)))
+      ,@(when custom-1
+          `((,(regexp-opt custom-1 'symbols) 0
+             (cider--unless-local-match 'cider-custom-face-1))))
+      ,@(when custom-2
+          `((,(regexp-opt custom-2 'symbols) 0
+             (cider--unless-local-match 'cider-custom-face-2))))
       ,@(when traced
           `((,(regexp-opt traced 'symbols) 0
              (cider--unless-local-match 'cider-traced-face) append))))))
