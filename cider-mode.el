@@ -881,7 +881,10 @@ with the given LIMIT."
                                 (push sym macros))
                                ((and do-function is-function)
                                 (push sym functions))
-                               ((and do-var (not is-function) (not is-macro))
+                               ((and do-var
+                                     (not is-any-custom)
+                                     (not is-function)
+                                     (not is-macro))
                                 (push sym vars))
                                (is-custom-1
                                 (push sym custom-1))
