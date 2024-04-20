@@ -112,7 +112,7 @@ and `cider-ns-reload-all` (kbd:[C-c M-n M-l]) commands can be used instead. Thes
 invoke Clojure's `+(require ... :reload)+` and `+(require
 ... :reload-all)+` commands at the REPL.
 
-TIP: Theses commands don't depend on `cider-nrepl`, so they are always available.
+TIP: These commands don't depend on `cider-nrepl`, so they are always available.
 
 == Keybindings
 
