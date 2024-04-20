@@ -125,12 +125,11 @@ inspector buffer using the `s`, `c`, and `a` keybindings.
 If you enable `cider-inspector-fill-frame`, the inspector window fills its
 frame.
 
-Starting from CIDER 1.8.0, when you define a var using kbd:[d],
-a var name can be suggested (default none). You can customize this value
-via the `cider-inspector-preferred-var-names` configuration option.
-Even after setting it, you are free to choose new names on the fly,
-as you type. Most recent names will take priority in subsequent usages.
+When you define a var using kbd:[d], a var name can be suggested (default none).
+You can customize this value via the `cider-inspector-preferred-var-names`
+configuration option. Even after setting it, you are free to choose new names on
+the fly, as you type. Most recent names will take priority in subsequent usages.
 
 == Additional Resources
 
-* https://practicalli.github.io/spacemacs/evaluating-clojure/inspect.html[Using CIDER's Inspector in Spacemacs]
+* https://practicalli.github.io/spacemacs/evaluating-clojure/inspect/[Using CIDER's Inspector in Spacemacs]
