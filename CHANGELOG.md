@@ -2,8 +2,10 @@
 
 ## master (unreleased)
 
-### New features
 
+
+### New features
+- [#3632](https://github.com/clojure-emacs/cider/pull/3623): new configuration variable `cider-clojure-cli-global-aliases`
 - [#3366](https://github.com/clojure-emacs/cider/pull/3366): Support display of error overlays with #dbg! and #break! reader macros.
 - [#3622](https://github.com/clojure-emacs/cider/pull/3461): Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode).
   - The `clojure-mode` dependency is still required for CIDER to function.
