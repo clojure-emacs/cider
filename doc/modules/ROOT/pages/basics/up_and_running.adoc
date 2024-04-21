@@ -212,7 +212,8 @@ so we'll examine them tool by tool.
 
 * `cider-clojure-cli-command` - the name of the `clojure` executable (`clojure` by default)
 * `cider-clojure-cli-parameters` - the command-line parameters to start a REPL
-* `cider-clojure-cli-aliases` - a list of aliases to be used at jack-in time
+* `cider-clojure-cli-aliases` - a list of project-specific aliases to be used at jack-in time (it's meant to be set via `.dir-locals.el`)
+* `cider-clojure-cli-global-aliases` - a list of global aliases that are appended to project-specific `cider-clojure-cli-aliases`
 
 On MS-Windows, CIDER will employ `PowerShell` to execute Clojure if no
 `clojure` executable is found in the PATH (e.g. like the one supplied
