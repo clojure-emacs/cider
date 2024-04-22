@@ -49,6 +49,7 @@
   - Introduces Timbre compatibility for [CIDER Log Mode](https://docs.cider.mx/cider/debugging/logging.html).
   - Fixes JS completions for nested objects.
   - Bundles other fixes and reliability improvements.
+- [#840](https://github.com/clojure-emacs/cider-nrepl/pull/840): Drop support for Clojure 1.8.
 
 ## 1.12.0 (2023-11-24)
 
