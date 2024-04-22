@@ -16,10 +16,10 @@ NOTE: We pay special attention to supporting whatever nREPL is bundled with the 
 
 == Java
 
-CIDER officially targets Java 8, Java 11, Java 17, and the most recent rapid
-release version (e.g. Java 18).  Generally speaking, we aim
+CIDER officially targets Java 8, Java 11, Java 17, Java 21 and the most recent rapid
+release version (e.g. Java 22).  Generally speaking, we aim
 to support all Java releases that are currently officially supported
-by Oracle.
+by Oracle.footnote:[You can find more information about the supported Java releases https://www.oracle.com/java/technologies/java-se-support-roadmap.html[here].]
 
 NOTE: The requirements for Java are pretty much ``cider-nrepl``'s requirements.
 
@@ -28,7 +28,7 @@ You can find example commands in xref:troubleshooting.adoc#navigation-to-jdk-sou
 
 == Clojure
 
-CIDER targets Clojure 1.8+. As Clojure doesn't have the concept of supported releases
+CIDER targets Clojure 1.9+. As Clojure doesn't have the concept of supported releases
 we have to get a bit creative to determine the minimum version to target.
 
 The minimum required Clojure version is currently derived using data
