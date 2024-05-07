@@ -539,7 +539,9 @@ the artifact.")
   "Minimum supported version of Clojure.")
 
 (defconst cider-latest-clojure-version "1.11.3"
-  "Latest supported version of Clojure.")
+  "Latest (newest) version of Clojure.
+
+Used when `cider-jack-in-auto-inject-clojure' is set to `latest'.")
 
 (defconst cider-required-middleware-version "0.47.0"
   "The CIDER nREPL version that's known to work properly with CIDER.")
