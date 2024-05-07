@@ -23,6 +23,7 @@
   - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.23.2/CHANGELOG.md#0232-2024-03-10).
   - Updates [Logjam](https://github.com/clojure-emacs/logjam/blob/v0.3.0/CHANGELOG.md#030-2024-03-03).
   - Updates [Compliment](https://github.com/alexander-yakushev/compliment/blob/951604/CHANGELOG.md#master-unreleased).
+- [orchard#245](https://github.com/clojure-emacs/orchard/pull/245), [cider-nrepl#868](https://github.com/clojure-emacs/cider-nrepl/pull/868): Drop support for Clojure 1.9.
 
 ### Bugs fixed
 
