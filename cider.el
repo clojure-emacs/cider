@@ -1232,7 +1232,7 @@ It's intended to be used in your Emacs config."
 (defcustom cider-default-cljs-repl nil
   "The default ClojureScript REPL to start.
 This affects commands like `cider-jack-in-cljs'.  Generally it's
-intended to be set via .dir-locals.el for individual projects, as its
+intended to be set via .dir-locals.el for individual projects, as it's
 relatively unlikely you'd like to use the same type of REPL in each project
 you're working on."
   :type '(choice (const :tag "Figwheel" figwheel)
