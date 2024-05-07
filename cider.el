@@ -1443,21 +1443,54 @@ server buffer, in which case a new session for that server is created."
                    (plist-put :session-name ses-name)
                    (plist-put :repl-type 'cljs)))))
 
-(defvar-local cider-connect-default-params nil
-  "Default plist of params to pass to `cider-connect'.
-Recognized keys are :host, :port and :project-dir.")
+(defcustom cider-connect-default-params nil
+  "Default plist of params for connecting to an external nREPL server.
+Recognized keys are :host, :port and :project-dir.
+
+These are used as arguments to the commands `cider-connect-clj',
+`cider-connect-cljs' and `cider-connect-clj&cljs', in order to bypass
+the corresponding user prompts.
+
+This defcustom is intended for use with .dir-locals.el on a per-project basis.
+See `cider-connect-default-cljs-params' in order to specify a separate set of params
+for cljs REPL connections.
+
+Note: it is recommended to set the variable `cider-default-cljs-repl'
+instead of specifying the :cljs-repl-type key."
+  :type '(plist :key-type
+                (choice (const :host)
+                        (const :port)
+                        (const :project-dir)))
+  :group 'cider)
+
+(defcustom cider-connect-default-cljs-params nil
+  "Default plist of params for connecting to a ClojureScript REPL.
+Recognized keys are :host, :port and :project-dir.
+
+If non-nil, overrides `cider-connect-default-params' for the commands
+`cider-connect-cljs' and (the latter half of) `cider-connect-clj&cljs'.
+
+Note: it is recommended to set the variable `cider-default-cljs-repl'
+instead of specifying the :cljs-repl-type key."
+  :type '(plist :key-type
+                (choice (const :host)
+                        (const :port)
+                        (const :project-dir)))
+  :group 'cider)
 
 ;;;###autoload
 (defun cider-connect-clj (&optional params)
   "Initialize a Clojure connection to an nREPL server.
 PARAMS is a plist optionally containing :host, :port and :project-dir.
 If nil, use the default parameters in `cider-connect-default-params'.
-When called interactively with a prefix argument, prompt for all the
-parameters."
+
+With the prefix argument, prompt for all the parameters regardless of
+their supplied or default values."
   (interactive "P")
   (cider-nrepl-connect
-   ;; Make sure to copy the list, as the following steps will mutate it
-   (thread-first (or params (copy-sequence cider-connect-default-params))
+   (thread-first (or params cider-connect-default-params)
+                 (copy-sequence) ;; Note: the following steps mutate the list
+                 (map-delete :cljs-repl-type)
                  (cider--update-project-dir)
                  (cider--update-host-port)
                  (cider--check-existing-session)
@@ -1470,12 +1503,17 @@ parameters."
   "Initialize a ClojureScript connection to an nREPL server.
 PARAMS is a plist optionally containing :host, :port, :project-dir and
 :cljs-repl-type (e.g. 'shadow, 'node, 'figwheel, etc).
+If nil, use the default parameters in `cider-connect-default-params' or
+`cider-connect-default-cljs-params'.
 
-On prefix, prompt for all the
-parameters regardless of their supplied or default values."
+With the prefix argument, prompt for all the parameters regardless of
+their supplied or default values."
   (interactive "P")
   (cider-nrepl-connect
-   (thread-first params
+   (thread-first (or params
+                     cider-connect-default-cljs-params
+                     cider-connect-default-params)
+                 (copy-sequence)
                  (cider--update-project-dir)
                  (cider--update-host-port)
                  (cider--check-existing-session)
