@@ -4,8 +4,8 @@
 
 ### New features
 
-- [#3632](https://github.com/clojure-emacs/cider/pull/3623): Add new configuration variable `cider-clojure-cli-global-aliases`
-- [#3366](https://github.com/clojure-emacs/cider/pull/3366): Support display of error overlays with #dbg! and #break! reader macros.
+- [#3632](https://github.com/clojure-emacs/cider/pull/3623): Add new configuration variable `cider-clojure-cli-global-aliases`.
+- [#3366](https://github.com/clojure-emacs/cider/pull/3366): Support display of error overlays with `#dbg!` and `#break!` reader macros.
 - [#3622](https://github.com/clojure-emacs/cider/pull/3461): Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode).
   - The `clojure-mode` dependency is still required for CIDER to function.
   - Some features like `cider-dynamic-indentation` and `cider-font-lock-dynamically` do not work with `clojure-ts-mode` (yet).
@@ -26,16 +26,15 @@
 
 ### Bugs fixed
 
-- [#3600](https://github.com/clojure-emacs/cider/pull/3600): Fix scittle jack in when using `cider-jack-in-clj`.
-
+- [#3600](https://github.com/clojure-emacs/cider/pull/3600): Fix scittle jack-in when using `cider-jack-in-clj`.
 
 ## 1.13.1 (2024-02-01)
 
 ### Bugs fixed
 
-- [#3605](https://github.com/clojure-emacs/cider/issues/3605): avoid `cider--error-phase-of-last-exception` recursive loop.
-- [#3613](https://github.com/clojure-emacs/cider/issues/3613): adapt `cider-completion-context.el` to upstream changes in Compliment.
-- [#3587](https://github.com/clojure-emacs/cider/issues/3587): avoid overlays and `message`s on stderr that is unrelated to exception handling.
+- [#3605](https://github.com/clojure-emacs/cider/issues/3605): Avoid `cider--error-phase-of-last-exception` recursive loop.
+- [#3613](https://github.com/clojure-emacs/cider/issues/3613): Adapt `cider-completion-context.el` to upstream changes in Compliment.
+- [#3587](https://github.com/clojure-emacs/cider/issues/3587): Avoid overlays and `message`s on stderr that is unrelated to exception handling.
 
 ## 1.13.0 (2024-01-14)
 
