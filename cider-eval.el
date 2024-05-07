@@ -698,7 +698,7 @@ See `compilation-error-regexp-alist' for help on their format.")
       (list
        (when file
          (let ((val (match-string-no-properties file message)))
-           (unless (string= val "NO_SOURCE_PATH") val)))
+           (unless (or (string= val "REPL") (string= val "NO_SOURCE_PATH")) val)))
        (when line (string-to-number (match-string-no-properties line message)))
        (when col
          (let ((val (match-string-no-properties col message)))

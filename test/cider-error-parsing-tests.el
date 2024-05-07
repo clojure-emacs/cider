@@ -45,7 +45,7 @@
   (it "extracts correct information from the error message"
 
     ;; test-cider-extract-error-info-14
-    (let* ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(/some/test/file/core.clj:31)")
+    (let* ((message "Syntax error compiling at (/some/test/file/core.clj:31). Unable to resolve symbol: dummy in this context.")
            (info (cider-extract-error-info cider-compilation-regexp message)))
       (expect (file-name info) :to-equal "/some/test/file/core.clj")
       (expect (line-num info) :to-equal 31)
@@ -53,7 +53,7 @@
       (expect (face info) :to-equal 'cider-error-highlight-face))
 
     ;; test-cider-extract-error-info-14-windows
-    (let* ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(c:\\some\\test\\file\\core.clj:31)")
+    (let* ((message "Syntax error compiling at (c:\\some\\test\\file\\core.clj:31). Unable to resolve symbol: dummy in this context.")
            (info (cider-extract-error-info cider-compilation-regexp message)))
       (expect (file-name info) :to-equal "c:\\some\\test\\file\\core.clj")
       (expect (line-num info) :to-equal 31)
@@ -61,7 +61,7 @@
       (expect (face info) :to-equal 'cider-error-highlight-face))
 
     ;; test-cider-extract-error-info-14-no-file
-    (let* ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(NO_SOURCE_PATH:31)")
+    (let* ((message "Syntax error compiling at (REPL:31). Unable to resolve symbol: dummy in this context.")
            (info (cider-extract-error-info cider-compilation-regexp message)))
       (expect (file-name info) :to-equal nil)
       (expect (line-num info) :to-equal 31)
@@ -86,7 +86,7 @@
       (expect (face info) :to-equal 'cider-warning-highlight-face))
 
     ;; test-cider-extract-error-info-15
-    (let* ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(/some/test/file/core.clj:31:3)")
+    (let* ((message "Syntax error compiling at (/some/test/file/core.clj:31:3). Unable to resolve symbol: dummy in this context.")
            (info (cider-extract-error-info cider-compilation-regexp message)))
       (expect (file-name info) :to-equal "/some/test/file/core.clj")
       (expect (line-num info) :to-equal 31)
@@ -94,7 +94,7 @@
       (expect (face info) :to-equal 'cider-error-highlight-face))
 
     ;; test-cider-extract-error-info-15-no-file
-    (let* ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(NO_SOURCE_PATH:31:3)")
+    (let* ((message "Syntax error compiling at (REPL:31:3). Unable to resolve symbol: dummy in this context")
            (info (cider-extract-error-info cider-compilation-regexp message)))
       (expect (file-name info) :to-equal nil)
       (expect (line-num info) :to-equal 31)
