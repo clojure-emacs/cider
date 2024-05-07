@@ -125,12 +125,6 @@
                      (match-string 1 clojure-compiler-warning))
               :to-equal "warning")))
   (dolist (regexp (list cider-clojure-compilation-regexp cider-clojure-compilation-error-regexp))
-    (it "Recognizes a clojure-1.9 error message"
-      (let ((clojure-1.9-compiler-error "CompilerException java.lang.RuntimeException: Unable to resolve symbol: lol in this context, compiling:(/tmp/foo/src/foo/core.clj:10:1)"))
-        (expect clojure-1.9-compiler-error :to-match regexp)
-        (expect (progn (string-match regexp clojure-1.9-compiler-error)
-                       (match-string 2 clojure-1.9-compiler-error))
-                :to-equal "/tmp/foo/src/foo/core.clj")))
     (it "Recognizes a clojure-1.10 error message"
       (let ((clojure-1.10-compiler-error "Syntax error compiling at (src/ardoq/service/workspace_service.clj:227:3)."))
         (expect clojure-1.10-compiler-error :to-match regexp)

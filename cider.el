@@ -141,7 +141,7 @@
            (null (executable-find "clojure")))
       "powershell"
     "clojure")
-  "The command used to execute clojure with tools.deps (requires Clojure 1.9+).
+  "The command used to execute clojure with tools.deps.
 Don't use clj here, as it doesn't work when spawned from Emacs due to it
 using rlwrap.  If on Windows and no \"clojure\" executable is found we
 default to \"powershell\"."
@@ -535,10 +535,10 @@ the artifact.")
 (defconst cider-clojure-artifact-id "org.clojure/clojure"
   "Artifact identifier for Clojure.")
 
-(defconst cider-minimum-clojure-version "1.8.0"
+(defconst cider-minimum-clojure-version "1.10.0"
   "Minimum supported version of Clojure.")
 
-(defconst cider-latest-clojure-version "1.10.1"
+(defconst cider-latest-clojure-version "1.11.3"
   "Latest supported version of Clojure.")
 
 (defconst cider-required-middleware-version "0.47.0"
