@@ -1249,10 +1249,6 @@ you're working on."
   :safe #'symbolp
   :package-version '(cider . "0.17.0"))
 
-(make-obsolete-variable 'cider-cljs-lein-repl 'cider-default-cljs-repl "0.17")
-(make-obsolete-variable 'cider-cljs-boot-repl 'cider-default-cljs-repl "0.17")
-(make-obsolete-variable 'cider-cljs-gradle-repl 'cider-default-cljs-repl "0.17")
-
 (defvar cider--select-cljs-repl-history nil)
 (defun cider-select-cljs-repl (&optional default)
   "Select the ClojureScript REPL to use with `cider-jack-in-cljs'.
