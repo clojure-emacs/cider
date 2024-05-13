@@ -187,12 +187,16 @@ this is a cons cell of (BOUNDS . COMPLETIONS).")
   "Return completions to the symbol at `BOUNDS' with caching.
 If the completion of `bounds' is cached, return the cached completions,
 otherwise, call `cider-complete', set the cache, and return the completions."
-  (cdr-safe
-   (if (and (consp cider--completion-cache)
-            (eq bounds (car cider--completion-cache)))
-       cider--completion-cache
-     (setq cider--completion-cache
-           `(,bounds . ,(cider-complete (buffer-substring (car bounds) (cdr bounds))))))))
+  (let* ((prefix (or (buffer-substring-no-properties (car bounds) (cdr bounds)) ""))
+         (completions nil))
+    (when (and (consp cider--completion-cache)
+               (equal prefix (car cider--completion-cache)))
+      (setq completions (cdr cider--completion-cache)))
+    (when (null completions)
+      (let ((resp (cider-complete prefix)))
+        (setq cider--completion-cache `(,prefix . ,resp)
+              completions resp)))
+    completions))
 
 (defun cider-completion-flush-caches ()
   "Force Compliment to refill its caches.
@@ -202,7 +206,7 @@ has started."
   (interactive)
   (cider-sync-request:complete-flush-caches))
 
-(defun cider--clear-completion-cache (&optional _ _)
+(defun cider--clear-completion-cache (_ _)
   "Clears the completion cache."
   (cider-completion-flush-caches)
   (setq cider--completion-cache nil))
@@ -215,7 +219,7 @@ has started."
     (when (and (cider-connected-p)
                (not (or (cider-in-string-p) (cider-in-comment-p))))
       (list (car bounds) (cdr bounds)
-            (lambda (prefix pred action)
+            (lambda (pattern pred action)
               ;; When the 'action is 'metadata, this lambda returns metadata about this
               ;; capf, when action is (boundaries . suffix), it returns nil. With every
               ;; other value of 'action (t, nil, or lambda), 'action is forwarded to
@@ -225,8 +229,13 @@ has started."
               ;; This api is better described in the section
               ;; '21.6.7 Programmed Completion' of the elisp manual.
               (cond ((eq action 'metadata) `(metadata (category . cider))) ;; defines a completion category named 'cider, used later in our `completion-category-overrides` logic.
-                    ((eq (car-safe action) 'boundaries) nil)
-                    (t (complete-with-action action (cider--complete-with-cache bounds) bounds-string pred))))
+                    ((eq (car-safe action) 'boundaries) nil) ; boundaries
+                    ((eq action 'lambda) ; test-completion
+                     (test-completion pattern (cider--complete-with-cache bounds)))
+                    ((null action)  ; try-completion
+                     (try-completion pattern (cider--complete-with-cache bounds)))
+                    ((eq action t)  ; all-completions
+                     (all-completions "" (cider--complete-with-cache bounds)))))
             :annotation-function #'cider-annotate-symbol
             :company-kind #'cider-company-symbol-kind
             :company-doc-buffer #'cider-create-compact-doc-buffer
