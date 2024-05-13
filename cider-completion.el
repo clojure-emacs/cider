@@ -219,7 +219,7 @@ has started."
     (when (and (cider-connected-p)
                (not (or (cider-in-string-p) (cider-in-comment-p))))
       (list (car bounds) (cdr bounds)
-            (lambda (pattern pred action)
+            (lambda (prefix pred action)
               ;; When the 'action is 'metadata, this lambda returns metadata about this
               ;; capf, when action is (boundaries . suffix), it returns nil. With every
               ;; other value of 'action (t, nil, or lambda), 'action is forwarded to
@@ -231,9 +231,9 @@ has started."
               (cond ((eq action 'metadata) `(metadata (category . cider))) ;; defines a completion category named 'cider, used later in our `completion-category-overrides` logic.
                     ((eq (car-safe action) 'boundaries) nil) ; boundaries
                     ((eq action 'lambda) ; test-completion
-                     (test-completion pattern (cider--complete-with-cache bounds)))
+                     (test-completion prefix (cider--complete-with-cache bounds)))
                     ((null action)  ; try-completion
-                     (try-completion pattern (cider--complete-with-cache bounds)))
+                     (try-completion prefix (cider--complete-with-cache bounds)))
                     ((eq action t)  ; all-completions
                      (all-completions "" (cider--complete-with-cache bounds)))))
             :annotation-function #'cider-annotate-symbol
