@@ -562,11 +562,6 @@ It delegates the actual error content to the eval or op handler."
         (t (cider-default-err-eval-print-handler))))
 
 
-;; The format of the error messages emitted by Clojure's compiler changed in
-;; Clojure 1.10.  That's why we're trying to match error messages to both the
-;; old and the new format, by utilizing a combination of two different regular
-;; expressions.
-
 (defconst cider-clojure-1.10--location `((or "at ("
                                              (sequence "at "
                                                        (minimal-match (one-or-more anything)) ;; the fully-qualified name of the function that triggered the error
@@ -596,15 +591,6 @@ It delegates the actual error content to the eval or op handler."
                                                    (minimal-match (one-or-more anything)))
                                                  cider-clojure-1.10--location))
 
-(defconst cider-clojure-1.9-error `(sequence
-                                    (zero-or-more anything)
-                                    ", compiling:("
-                                    (group-n 2 (minimal-match (zero-or-more anything)))
-                                    ":"
-                                    (group-n 3 (one-or-more digit))
-                                    (optional ":" (group-n 4 (one-or-more digit)))
-                                    ")"))
-
 (defconst cider-clojure-warning `(sequence
                                   (minimal-match (zero-or-more anything))
                                   (group-n 1 "warning")
@@ -619,8 +605,7 @@ It delegates the actual error content to the eval or op handler."
 ;; which is a subset of these regexes.
 (defconst cider-clojure-compilation-regexp
   (eval
-   `(rx bol (or ,cider-clojure-1.9-error
-                ,cider-clojure-warning
+   `(rx bol (or ,cider-clojure-warning
                 ,cider-clojure-1.10-error
                 ,cider-clojure-unexpected-error))
    t)
@@ -633,8 +618,7 @@ lol in this context, compiling:(/foo/core.clj:10:1)\"
 
 (defconst cider-clojure-compilation-error-regexp
   (eval
-   `(rx bol (or ,cider-clojure-1.9-error
-                ,cider-clojure-1.10-error
+   `(rx bol (or ,cider-clojure-1.10-error
                 ,cider-clojure-unexpected-error))
    t)
   "Like `cider-clojure-compilation-regexp',
@@ -714,7 +698,7 @@ See `compilation-error-regexp-alist' for help on their format.")
       (list
        (when file
          (let ((val (match-string-no-properties file message)))
-           (unless (string= val "NO_SOURCE_PATH") val)))
+           (unless (or (string= val "REPL") (string= val "NO_SOURCE_PATH")) val)))
        (when line (string-to-number (match-string-no-properties line message)))
        (when col
          (let ((val (match-string-no-properties col message)))

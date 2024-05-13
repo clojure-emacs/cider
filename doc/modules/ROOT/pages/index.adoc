@@ -20,7 +20,7 @@ if you'd like to know more about CIDER's early history.
 ****
 
 *Please consider
-xref:contributing/funding.adoc[supporting financially its ongoing development].*
+xref:contributing/funding.adoc[supporting financially CIDER's ongoing development].*
 
 == Overview
 

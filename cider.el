@@ -141,7 +141,7 @@
            (null (executable-find "clojure")))
       "powershell"
     "clojure")
-  "The command used to execute clojure with tools.deps (requires Clojure 1.9+).
+  "The command used to execute clojure with tools.deps.
 Don't use clj here, as it doesn't work when spawned from Emacs due to it
 using rlwrap.  If on Windows and no \"clojure\" executable is found we
 default to \"powershell\"."
@@ -535,11 +535,13 @@ the artifact.")
 (defconst cider-clojure-artifact-id "org.clojure/clojure"
   "Artifact identifier for Clojure.")
 
-(defconst cider-minimum-clojure-version "1.8.0"
+(defconst cider-minimum-clojure-version "1.10.0"
   "Minimum supported version of Clojure.")
 
-(defconst cider-latest-clojure-version "1.10.1"
-  "Latest supported version of Clojure.")
+(defconst cider-latest-clojure-version "1.11.3"
+  "Latest (newest) version of Clojure.
+
+Used when `cider-jack-in-auto-inject-clojure' is set to `latest'.")
 
 (defconst cider-required-middleware-version "0.47.0"
   "The CIDER nREPL version that's known to work properly with CIDER.")
@@ -1230,7 +1232,7 @@ It's intended to be used in your Emacs config."
 (defcustom cider-default-cljs-repl nil
   "The default ClojureScript REPL to start.
 This affects commands like `cider-jack-in-cljs'.  Generally it's
-intended to be set via .dir-locals.el for individual projects, as its
+intended to be set via .dir-locals.el for individual projects, as it's
 relatively unlikely you'd like to use the same type of REPL in each project
 you're working on."
   :type '(choice (const :tag "Figwheel" figwheel)
@@ -1246,10 +1248,6 @@ you're working on."
                  (const :tag "Custom"   custom))
   :safe #'symbolp
   :package-version '(cider . "0.17.0"))
-
-(make-obsolete-variable 'cider-cljs-lein-repl 'cider-default-cljs-repl "0.17")
-(make-obsolete-variable 'cider-cljs-boot-repl 'cider-default-cljs-repl "0.17")
-(make-obsolete-variable 'cider-cljs-gradle-repl 'cider-default-cljs-repl "0.17")
 
 (defvar cider--select-cljs-repl-history nil)
 (defun cider-select-cljs-repl (&optional default)

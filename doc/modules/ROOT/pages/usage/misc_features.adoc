@@ -196,8 +196,6 @@ There are a bunch of useful keybindings that are defined in browser buffers.
 
 == Browsing the Clojure Spec Registry
 
-If you are using Clojure 1.9 or newer you can browse the Clojure spec registry.
-
 If you already know which spec you're looking for, you can type
 kbd:[M-x] `cider-browse-spec` and CIDER will prompt you for a
 spec name and then drop you into the spec browser.
