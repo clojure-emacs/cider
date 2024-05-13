@@ -179,9 +179,39 @@ performed by `cider-annotate-completion-function'."
            (ns (cider-completion--get-candidate-ns symbol)))
       (funcall cider-annotate-completion-function type ns))))
 
+(defvar cider--completion-cache nil
+  "Cache used by `cider--complete-with-cache'.
+this is a cons cell of (BOUNDS . COMPLETIONS).")
+
+(defun cider--complete-with-cache (bounds)
+  "Return completions to the symbol at `BOUNDS' with caching.
+If the completion of `bounds' is cached, return the cached completions,
+otherwise, call `cider-complete', set the cache, and return the completions."
+  (cdr-safe
+   (if (and (consp cider--completion-cache)
+            (eq bounds (car cider--completion-cache)))
+       cider--completion-cache
+     (setq cider--completion-cache
+           `(,bounds . ,(cider-complete (buffer-substring (car bounds) (cdr bounds))))))))
+
+(defun cider-completion-flush-caches ()
+  "Force Compliment to refill its caches.
+This command should be used if Compliment fails to pick up new classnames
+and methods from dependencies that were loaded dynamically after the REPL
+has started."
+  (interactive)
+  (cider-sync-request:complete-flush-caches))
+
+(defun cider--clear-completion-cache (&optional _ _)
+  "Clears the completion cache."
+  (cider-completion-flush-caches)
+  (setq cider--completion-cache nil))
+
 (defun cider-complete-at-point ()
   "Complete the symbol at point."
-  (when-let* ((bounds (bounds-of-thing-at-point 'symbol)))
+  (when-let* ((bounds (or (bounds-of-thing-at-point 'symbol)
+                          (cons (point) (point))))
+              (bounds-string (buffer-substring (car bounds) (cdr bounds))))
     (when (and (cider-connected-p)
                (not (or (cider-in-string-p) (cider-in-comment-p))))
       (list (car bounds) (cdr bounds)
@@ -196,22 +226,13 @@ performed by `cider-annotate-completion-function'."
               ;; '21.6.7 Programmed Completion' of the elisp manual.
               (cond ((eq action 'metadata) `(metadata (category . cider))) ;; defines a completion category named 'cider, used later in our `completion-category-overrides` logic.
                     ((eq (car-safe action) 'boundaries) nil)
-                    (t (with-current-buffer (current-buffer)
-                         (complete-with-action action
-                                               (cider-complete prefix) prefix pred)))))
+                    (t (complete-with-action action (cider--complete-with-cache bounds) bounds-string pred))))
             :annotation-function #'cider-annotate-symbol
             :company-kind #'cider-company-symbol-kind
             :company-doc-buffer #'cider-create-compact-doc-buffer
             :company-location #'cider-company-location
-            :company-docsig #'cider-company-docsig))))
-
-(defun cider-completion-flush-caches ()
-  "Force Compliment to refill its caches.
-This command should be used if Compliment fails to pick up new classnames
-and methods from dependencies that were loaded dynamically after the REPL
-has started."
-  (interactive)
-  (cider-sync-request:complete-flush-caches))
+            :company-docsig #'cider-company-docsig
+            :exit-function #'cider--clear-completion-cache))))
 
 (defun cider-company-location (var)
   "Open VAR's definition in a buffer.
@@ -255,12 +276,6 @@ in the buffer."
                cider-company-unfiltered-candidates
                cider-company-unfiltered-candidates
                "CIDER backend-driven completion style."))
-
-;; Currently CIDER completions only work for `basic`, and not `initials`, `partial-completion`, `orderless`, etc.
-;; So we ensure that those other styles aren't used with CIDER, otherwise one would see bad or no completions at all.
-;; This `add-to-list` call can be removed once we implement the other completion styles.
-;; (When doing that, please refactor `cider-enable-flex-completion' as well)
-(add-to-list 'completion-category-overrides '(cider (styles basic)))
 
 (defun cider-company-enable-fuzzy-completion ()
   "Enable backend-driven fuzzy completion in the current buffer.
