@@ -299,6 +299,8 @@ Only affects the `cider' completion category.`"
     (setq completion-category-overrides (seq-remove (lambda (x)
                                                       (equal 'cider (car x)))
                                                     completion-category-overrides))
+    (unless found-styles
+      (setq found-styles '(styles)))
     (unless (member 'flex found-styles)
       (setq found-styles (append found-styles '(flex))))
     (add-to-list 'completion-category-overrides (apply #'list 'cider found-styles (when found-cycle
