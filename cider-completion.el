@@ -190,7 +190,7 @@ otherwise, call `cider-complete', set the cache, and return the completions."
   (let* ((prefix (or (buffer-substring-no-properties (car bounds) (cdr bounds)) ""))
          (completions nil))
     (when (and (consp cider--completion-cache)
-               (equal prefix (car cider--completion-cache)))
+               (string= prefix (car cider--completion-cache)))
       (setq completions (cdr cider--completion-cache)))
     (unless completions
       (let ((resp (cider-complete prefix)))
