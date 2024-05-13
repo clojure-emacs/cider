@@ -192,7 +192,7 @@ otherwise, call `cider-complete', set the cache, and return the completions."
     (when (and (consp cider--completion-cache)
                (equal prefix (car cider--completion-cache)))
       (setq completions (cdr cider--completion-cache)))
-    (when (null completions)
+    (unless completions
       (let ((resp (cider-complete prefix)))
         (setq cider--completion-cache `(,prefix . ,resp)
               completions resp)))
