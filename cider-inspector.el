@@ -369,10 +369,9 @@ current-namespace."
                  (list (cider-inspector--read-var-name-from-user ns)
                        ns)))
   (setq cider-inspector--current-repl (cider-current-repl))
-  (when-let* ((result (cider-sync-request:inspect-def-current-val ns var-name 'v2))
-              (value (nrepl-dict-get result "value")))
+  (when-let* ((result (cider-sync-request:inspect-def-current-val ns var-name 'v2)))
     (cider-inspector--render-value result 'v2)
-    (message "%s#'%s/%s = %s" cider-eval-result-prefix ns var-name value)))
+    (message "Defined current inspector value as #'%s/%s" ns var-name)))
 
 (defun cider-inspector-tap-current-val ()
   "Sends the current Inspector current value to `tap>'."
