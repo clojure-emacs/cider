@@ -565,6 +565,8 @@ instead of just its \"value\" entry."
         result
       (nrepl-dict-get result "value"))))
 
+(declare-function cider-set-buffer-ns "cider-mode")
+
 ;; Render Inspector from Structured Values
 (defun cider-inspector--render-value (dict-or-value &optional v2)
   "Render DICT-OR-VALUE, depending on V2."
@@ -575,6 +577,7 @@ instead of just its \"value\" entry."
                       (nrepl-dict-get dict-or-value "doc-fragments")))
          (block-tags (when v2
                        (nrepl-dict-get dict-or-value "doc-block-tags-fragments")))
+         (ns (cider-current-ns))
          (font-size (when-let* ((b (get-buffer cider-inspector-buffer))
                                 (variable 'text-scale-mode-amount)
                                 (continue (local-variable-p variable b)))
@@ -593,24 +596,25 @@ instead of just its \"value\" entry."
                             :truncate-lines-defined truncate-lines-defined
                             :truncate-lines-p truncate-lines-p
                             :fragments fragments
-                            :block-tags block-tags))
-  (cider-popup-buffer-display cider-inspector-buffer cider-inspector-auto-select-buffer)
-  (when cider-inspector-fill-frame (delete-other-windows))
-  (ignore-errors (cider-inspector-next-inspectable-object 1))
-  (with-current-buffer cider-inspector-buffer
-    (when (eq cider-inspector-last-command 'cider-inspector-pop)
-      (setq cider-inspector-last-command nil)
-      ;; Prevents error message being displayed when we try to pop
-      ;; from the top-level of a data structure
-      (when cider-inspector-location-stack
-        (goto-char (pop cider-inspector-location-stack))))
+                            :block-tags block-tags)
+    (cider-popup-buffer-display cider-inspector-buffer cider-inspector-auto-select-buffer)
+    (when cider-inspector-fill-frame (delete-other-windows))
+    (ignore-errors (cider-inspector-next-inspectable-object 1))
+    (with-current-buffer cider-inspector-buffer
+      (cider-set-buffer-ns ns)
+      (when (eq cider-inspector-last-command 'cider-inspector-pop)
+        (setq cider-inspector-last-command nil)
+        ;; Prevents error message being displayed when we try to pop
+        ;; from the top-level of a data structure
+        (when cider-inspector-location-stack
+          (goto-char (pop cider-inspector-location-stack))))
 
-    (when (eq cider-inspector-last-command 'cider-inspector-prev-page)
-      (setq cider-inspector-last-command nil)
-      ;; Prevents error message being displayed when we try to
-      ;; go to a prev-page from the first page
-      (when cider-inspector-page-location-stack
-        (goto-char (pop cider-inspector-page-location-stack))))))
+      (when (eq cider-inspector-last-command 'cider-inspector-prev-page)
+        (setq cider-inspector-last-command nil)
+        ;; Prevents error message being displayed when we try to
+        ;; go to a prev-page from the first page
+        (when cider-inspector-page-location-stack
+          (goto-char (pop cider-inspector-page-location-stack)))))))
 
 (cl-defun cider-inspector-render (buffer str &key font-size truncate-lines-defined truncate-lines-p fragments block-tags)
   "Render STR in BUFFER."
