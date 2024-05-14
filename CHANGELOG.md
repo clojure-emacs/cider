@@ -30,6 +30,7 @@
 ### Bugs fixed
 
 - [#3600](https://github.com/clojure-emacs/cider/pull/3600): Fix scittle jack-in when using `cider-jack-in-clj`.
+- [#3663](https://github.com/clojure-emacs/cider/issues/3663): Fix `cider-interactive-eval-override` invocation.
 
 ## 1.13.1 (2024-02-01)
 

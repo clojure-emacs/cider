@@ -1229,7 +1229,11 @@ arguments and only proceed with evaluation if it returns nil."
           (delete-overlay ov))))
     (unless (and cider-interactive-eval-override
                  (functionp cider-interactive-eval-override)
-                 (funcall cider-interactive-eval-override form callback bounds))
+                 (condition-case _
+                     (funcall cider-interactive-eval-override form callback bounds additional-params)
+                   (wrong-number-of-arguments
+                    ;; fallback for backward compatibility
+                    (funcall cider-interactive-eval-override form callback bounds))))
       (cider-map-repls :auto
         (lambda (connection)
           (cider--prep-interactive-eval form connection)
