@@ -196,7 +196,7 @@ performed by `cider-annotate-completion-function'."
                 ;; defined by the bounds of the symbol at point.
                 ;;
                 ;; Caching just within the function is sufficient. Keeping it local ensures
-                ;; that it will not extend across diferent CIDER sessions.
+                ;; that it will not extend across different CIDER sessions.
                 (unless (string= bounds-string last-bounds-string)
                   (setq last-bounds-string bounds-string)
                   (setq last-result (cider-complete bounds-string)))
