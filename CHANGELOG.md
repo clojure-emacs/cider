@@ -19,12 +19,18 @@
 - [#3628](https://github.com/clojure-emacs/cider/issues/3628): `cider-ns-refresh`: summarize errors as an overlay.
 - [#3660](https://github.com/clojure-emacs/cider/issues/3660): Fix `cider-inspector-def-current-val` always defining in `user` namespace.
 - [#3661](https://github.com/clojure-emacs/cider/issues/3661): Truncate echo area output ahead of time.
+- [#3664](https://github.com/clojure-emacs/cider/issues/3664): Add customization inspector op to change max nested collection depth.
 - Bump the injected `enrich-classpath` to [1.19.3](https://github.com/clojure-emacs/enrich-classpath/compare/v1.19.0...v1.19.3).
 - Bump the injected nREPL to [1.1.1](https://github.com/nrepl/nrepl/blob/v1.1.1/CHANGELOG.md#111-2024-02-20).
 - Bump the injected `cider-nrepl` to [0.48.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.48.0/CHANGELOG.md#0480-2024-05-13).
   - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.23.2/CHANGELOG.md#0232-2024-03-10).
+- Bump the injected `cider-nrepl` to [0.48.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0480-2024-05-13).
+  - Updates [clj-reload](https://github.com/tonsky/clj-reload/blob/0.6.0/CHANGELOG.md#060---may-3-2024).
+  - Updates [tools.reader](https://github.com/clojure/tools.reader/blob/master/CHANGELOG.md).
+  - Updates [nREPL](https://github.com/nrepl/nrepl/blob/master/CHANGELOG.md#111-2024-02-20).
+  - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/master/CHANGELOG.md#0250-2024-05-03).
   - Updates [Logjam](https://github.com/clojure-emacs/logjam/blob/v0.3.0/CHANGELOG.md#030-2024-03-03).
-  - Updates [Compliment](https://github.com/alexander-yakushev/compliment/blob/951604/CHANGELOG.md#master-unreleased).
+  - Updates [Compliment](https://github.com/alexander-yakushev/compliment/blob/master/CHANGELOG.md#055-2024-05-06).
 - [orchard#245](https://github.com/clojure-emacs/orchard/pull/245), [cider-nrepl#868](https://github.com/clojure-emacs/cider-nrepl/pull/868): Drop support for Clojure 1.9.
 
 ### Bugs fixed
