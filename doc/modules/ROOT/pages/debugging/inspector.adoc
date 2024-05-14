@@ -68,6 +68,10 @@ You'll have access to additional keybindings in the inspector buffer
 | `cider-inspector-set-max-coll-size`
 | Set a new maximum size above which nested collections are truncated
 
+| kbd:[C]
+| `cider-inspector-set-max-nested-depth
+| Set a new maximum nesting level above which the collections are truncated
+
 | kbd:[a]
 | `cider-inspector-set-max-atom-length`
 | Set a new maximum length above which nested atoms (non-collections) are truncated
@@ -118,9 +122,10 @@ can disable the auto selection with the variable
 `cider-inspector-auto-select-buffer`.
 
 You can set the amount of data shown by default with the variables
-`cider-inspector-page-size`, `cider-inspector-max-coll-size`, and
-`cider-inspector-max-atom-length`. The values can be adjusted for the current
-inspector buffer using the `s`, `c`, and `a` keybindings.
+`cider-inspector-page-size`, `cider-inspector-max-coll-size`,
+`cider-inspector-max-nested-depth`, and `cider-inspector-max-atom-length`. The
+values can be adjusted for the current inspector buffer using the keybidings
+listed in the table above.
 
 If you enable `cider-inspector-fill-frame`, the inspector window fills its
 frame.
