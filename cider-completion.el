@@ -179,24 +179,46 @@ performed by `cider-annotate-completion-function'."
            (ns (cider-completion--get-candidate-ns symbol)))
       (funcall cider-annotate-completion-function type ns))))
 
-(defvar cider--completion-cache nil
-  "Cache used by `cider--complete-with-cache'.
-this is a cons cell of (BOUNDS . COMPLETIONS).")
-
-(defun cider--complete-with-cache (bounds)
-  "Return completions to the symbol at `BOUNDS' with caching.
-If the completion of `bounds' is cached, return the cached completions,
-otherwise, call `cider-complete', set the cache, and return the completions."
-  (let* ((prefix (or (buffer-substring-no-properties (car bounds) (cdr bounds)) ""))
-         (completions nil))
-    (when (and (consp cider--completion-cache)
-               (string= prefix (car cider--completion-cache)))
-      (setq completions (cdr cider--completion-cache)))
-    (unless completions
-      (let ((resp (cider-complete prefix)))
-        (setq cider--completion-cache `(,prefix . ,resp)
-              completions resp)))
-    completions))
+(defun cider-complete-at-point ()
+  "Complete the symbol at point."
+  (when-let* ((bounds (or (bounds-of-thing-at-point 'symbol)
+                          (cons (point) (point))))
+              (bounds-string (buffer-substring (car bounds) (cdr bounds))))
+    (when (and (cider-connected-p)
+               (not (or (cider-in-string-p) (cider-in-comment-p))))
+      (let* (last-bounds-string
+             last-result
+             (complete
+              (lambda ()
+                ;; Not using the prefix extracted within the (prefix pred action) lambda.
+                ;; In certain completion styles, the prefix might be an empty string,
+                ;; which is unreliable. A more dependable method is to use the string
+                ;; defined by the bounds of the symbol at point.
+                ;;
+                ;; Caching just within the function is sufficient. Keeping it local ensures
+                ;; that it will not extend across diferent CIDER sessions.
+                (unless (string= bounds-string last-bounds-string)
+                  (setq last-bounds-string bounds-string)
+                  (setq last-result (cider-complete bounds-string)))
+                last-result)))
+        (list (car bounds) (cdr bounds)
+              (lambda (prefix pred action)
+                ;; When the 'action is 'metadata, this lambda returns metadata about this
+                ;; capf, when action is (boundaries . suffix), it returns nil. With every
+                ;; other value of 'action (t, nil, or lambda), 'action is forwarded to
+                ;; (complete-with-action), together with (cider-complete), prefix and pred.
+                ;; And that function performs the completion based on those arguments.
+                ;;
+                ;; This api is better described in the section
+                ;; '21.6.7 Programmed Completion' of the elisp manual.
+                (cond ((eq action 'metadata) `(metadata (category . cider))) ;; defines a completion category named 'cider, used later in our `completion-category-overrides` logic.
+                      ((eq (car-safe action) 'boundaries) nil) ; boundaries
+                      (t (complete-with-action action (funcall complete) prefix pred))))
+              :annotation-function #'cider-annotate-symbol
+              :company-kind #'cider-company-symbol-kind
+              :company-doc-buffer #'cider-create-compact-doc-buffer
+              :company-location #'cider-company-location
+              :company-docsig #'cider-company-docsig)))))
 
 (defun cider-completion-flush-caches ()
   "Force Compliment to refill its caches.
@@ -205,43 +227,6 @@ and methods from dependencies that were loaded dynamically after the REPL
 has started."
   (interactive)
   (cider-sync-request:complete-flush-caches))
-
-(defun cider--clear-completion-cache (_ _)
-  "Clears the completion cache."
-  (cider-completion-flush-caches)
-  (setq cider--completion-cache nil))
-
-(defun cider-complete-at-point ()
-  "Complete the symbol at point."
-  (when-let* ((bounds (or (bounds-of-thing-at-point 'symbol)
-                          (cons (point) (point))))
-              (bounds-string (buffer-substring (car bounds) (cdr bounds))))
-    (when (and (cider-connected-p)
-               (not (or (cider-in-string-p) (cider-in-comment-p))))
-      (list (car bounds) (cdr bounds)
-            (lambda (prefix pred action)
-              ;; When the 'action is 'metadata, this lambda returns metadata about this
-              ;; capf, when action is (boundaries . suffix), it returns nil. With every
-              ;; other value of 'action (t, nil, or lambda), 'action is forwarded to
-              ;; (complete-with-action), together with (cider-complete), prefix and pred.
-              ;; And that function performs the completion based on those arguments.
-              ;;
-              ;; This api is better described in the section
-              ;; '21.6.7 Programmed Completion' of the elisp manual.
-              (cond ((eq action 'metadata) `(metadata (category . cider))) ;; defines a completion category named 'cider, used later in our `completion-category-overrides` logic.
-                    ((eq (car-safe action) 'boundaries) nil) ; boundaries
-                    ((eq action 'lambda) ; test-completion
-                     (test-completion prefix (cider--complete-with-cache bounds)))
-                    ((null action)  ; try-completion
-                     (try-completion prefix (cider--complete-with-cache bounds)))
-                    ((eq action t)  ; all-completions
-                     (all-completions "" (cider--complete-with-cache bounds)))))
-            :annotation-function #'cider-annotate-symbol
-            :company-kind #'cider-company-symbol-kind
-            :company-doc-buffer #'cider-create-compact-doc-buffer
-            :company-location #'cider-company-location
-            :company-docsig #'cider-company-docsig
-            :exit-function #'cider--clear-completion-cache))))
 
 (defun cider-company-location (var)
   "Open VAR's definition in a buffer.
