@@ -213,7 +213,8 @@ performed by `cider-annotate-completion-function'."
                 ;; '21.6.7 Programmed Completion' of the elisp manual.
                 (cond ((eq action 'metadata) `(metadata (category . cider))) ;; defines a completion category named 'cider, used later in our `completion-category-overrides` logic.
                       ((eq (car-safe action) 'boundaries) nil)
-                      (t (complete-with-action action (funcall complete) prefix pred))))
+                      (t (with-current-buffer (current-buffer)
+                           (complete-with-action action (funcall complete) prefix pred)))))
               :annotation-function #'cider-annotate-symbol
               :company-kind #'cider-company-symbol-kind
               :company-doc-buffer #'cider-create-compact-doc-buffer
