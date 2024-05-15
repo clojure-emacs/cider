@@ -190,13 +190,13 @@ performed by `cider-annotate-completion-function'."
              last-result
              (complete
               (lambda ()
-                ;; Not using the prefix extracted within the (prefix pred action) lambda.
-                ;; In certain completion styles, the prefix might be an empty string,
-                ;; which is unreliable. A more dependable method is to use the string
-                ;; defined by the bounds of the symbol at point.
+                ;; We are Not using the prefix extracted within the (prefix pred action)
+                ;; lambda.  In certain completion styles, the prefix might be an empty
+                ;; string, which is unreliable. A more dependable method is to use the
+                ;; string defined by the bounds of the symbol at point.
                 ;;
-                ;; Caching just within the function is sufficient. Keeping it local ensures
-                ;; that it will not extend across different CIDER sessions.
+                ;; Caching just within the function is sufficient. Keeping it local
+                ;; ensures that it will not extend across different CIDER sessions.
                 (unless (string= bounds-string last-bounds-string)
                   (setq last-bounds-string bounds-string)
                   (setq last-result (cider-complete bounds-string)))
@@ -212,7 +212,7 @@ performed by `cider-annotate-completion-function'."
                 ;; This api is better described in the section
                 ;; '21.6.7 Programmed Completion' of the elisp manual.
                 (cond ((eq action 'metadata) `(metadata (category . cider))) ;; defines a completion category named 'cider, used later in our `completion-category-overrides` logic.
-                      ((eq (car-safe action) 'boundaries) nil) ; boundaries
+                      ((eq (car-safe action) 'boundaries) nil)
                       (t (complete-with-action action (funcall complete) prefix pred))))
               :annotation-function #'cider-annotate-symbol
               :company-kind #'cider-company-symbol-kind
