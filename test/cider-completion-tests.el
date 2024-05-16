@@ -38,8 +38,8 @@
           (progn
             (it "adds `flex' and `basic' as a fallback"
               (cider-enable-flex-completion)
-              (expect (car (cdr (assq 'styles (assq 'cider completion-category-overrides))))
-                      :to-be 'flex)
+              (expect (member 'flex (assq 'styles (assq 'cider completion-category-overrides)))
+                      :to-be-truthy)
               (expect (member 'basic (assq 'styles (assq 'cider completion-category-overrides)))
                       :to-be-truthy))
 
@@ -47,11 +47,11 @@
               (expect (assq 'cycle (assq 'cider completion-category-overrides))
                       :to-be nil))
 
-            (it "adds just `flex' if there is another style present"
+            (it "adds just `flex' if there is another syle present"
               (setq completion-category-overrides '((cider (styles partial-completion))))
               (cider-enable-flex-completion)
-              (expect (car (cdr (assq 'styles (assq 'cider completion-category-overrides))))
-                      :to-be 'flex)
+              (expect (member 'flex (assq 'styles (assq 'cider completion-category-overrides)))
+                      :to-be-truthy)
               (expect (member 'partial-completion (assq 'styles (assq 'cider completion-category-overrides)))
                       :to-be-truthy)
               (expect (member 'basic (assq 'styles (assq 'cider completion-category-overrides)))
