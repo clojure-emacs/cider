@@ -55,44 +55,49 @@ If SELECT is non-nil, select the buffer.
 
 You can customize how the window will be chosen/created
 by adding BUFFER-NAME to the `special-display-buffer-names' list."
-  (let ((buffer-name (if (bufferp buffer-name) ;; ensure buffer-name is a string
-                         (buffer-name buffer-name)
-                       buffer-name)))
-    ;; if `buffer-name' belongs to `special-display-buffer-names',
-    ;; delegate to that mechanism the displaying of the buffer,
-    ;; otherwise the displaying would happen twice (ance through `special-display-buffer-names',
-    ;; another time through `cider-popup-buffer-display'):
-    (if (and (boundp 'special-display-buffer-names)
-             (seq-find (lambda (entry)
-                         (equal (car entry) buffer-name))
-                       special-display-buffer-names))
-        (progn
-          (display-buffer buffer-name)
-          (when select
-            (when-let ((window (get-buffer-window buffer-name)))
-              (select-window window))))
-      (let ((window (get-buffer-window buffer-name 'visible)))
-        (when window
-          (with-current-buffer buffer-name
-            (set-window-point window (point))))
-        ;; If the buffer we are popping up is already displayed in the selected
-        ;; window, the below `inhibit-same-window' logic will cause it to be
-        ;; displayed twice - so we early out in this case. Note that we must check
-        ;; `selected-window', as async request handlers are executed in the context
-        ;; of the current connection buffer (i.e. `current-buffer' is dynamically
-        ;; bound to that).
-        (unless (eq window (selected-window))
-          ;; Non nil `inhibit-same-window' ensures that current window is not covered
-          ;; Non nil `inhibit-switch-frame' ensures that the other frame is not selected
-          ;; if that's where the buffer is being shown.
-          (funcall (if select #'pop-to-buffer #'display-buffer)
-                   buffer-name `(nil . ((inhibit-same-window .
-                                                             ;; A non-nil value prevents the same window from being used for display:
-                                                             ,pop-up-windows)
-                                        (reusable-frames .
-                                                         ;; choose any visible frame
-                                                         visible)))))))
-    (get-buffer buffer-name)))
+  (if (and (not select)
+           (get-buffer-window buffer-name t))
+      ;; if the buffer is visible on some frame and the user didn't intend `select', we're done.
+      ;; This supports e.g. rendering contents to frames that the user might want to remain in the background (e.g. cider-log, cider-auto-inspect-after-eval)
+      nil
+    (let ((buffer-name (if (bufferp buffer-name) ;; ensure buffer-name is a string
+                           (buffer-name buffer-name)
+                         buffer-name)))
+      ;; if `buffer-name' belongs to `special-display-buffer-names',
+      ;; delegate to that mechanism the displaying of the buffer,
+      ;; otherwise the displaying would happen twice (ance through `special-display-buffer-names',
+      ;; another time through `cider-popup-buffer-display'):
+      (if (and (boundp 'special-display-buffer-names)
+               (seq-find (lambda (entry)
+                           (equal (car entry) buffer-name))
+                         special-display-buffer-names))
+          (progn
+            (display-buffer buffer-name)
+            (when select
+              (when-let ((window (get-buffer-window buffer-name)))
+                (select-window window))))
+        (let ((window (get-buffer-window buffer-name 'visible)))
+          (when window
+            (with-current-buffer buffer-name
+              (set-window-point window (point))))
+          ;; If the buffer we are popping up is already displayed in the selected
+          ;; window, the below `inhibit-same-window' logic will cause it to be
+          ;; displayed twice - so we early out in this case. Note that we must check
+          ;; `selected-window', as async request handlers are executed in the context
+          ;; of the current connection buffer (i.e. `current-buffer' is dynamically
+          ;; bound to that).
+          (unless (eq window (selected-window))
+            ;; Non nil `inhibit-same-window' ensures that current window is not covered
+            ;; Non nil `inhibit-switch-frame' ensures that the other frame is not selected
+            ;; if that's where the buffer is being shown.
+            (funcall (if select #'pop-to-buffer #'display-buffer)
+                     buffer-name `(nil . ((inhibit-same-window .
+                                                               ;; A non-nil value prevents the same window from being used for display:
+                                                               ,pop-up-windows)
+                                          (reusable-frames .
+                                                           ;; choose any visible frame
+                                                           visible)))))))
+      (get-buffer buffer-name))))
 
 (defun cider-popup-buffer-quit (&optional kill)
   "Quit the current (temp) window.

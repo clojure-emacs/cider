@@ -826,6 +826,24 @@ KIND can be the symbols `ns', `var', `emph', `fn', or a face name."
              (t x)))
           menu-list))
 
+;; Defined here to avoid circular dependencies
+(defconst cider-inspector-buffer "*cider-inspect*")
+
+(defun cider--get-inspector-window ()
+  "Returns a window showing the *cider-inspect* buffer,
+honoring the `cider-inspector-auto-select-buffer' preference.
+
+May return nil."
+  (get-buffer-window cider-inspector-buffer
+                     ;; pass arguments that work well with the existing
+                     ;; `(cider-popup-buffer-display cider-inspector-buffer cider-inspector-auto-select-buffer)'
+                     ;; usage in cider-inspector.el,
+                     ;; namely: for `cider-inspector-auto-select-buffer' t, only consider windows that can be selected,
+                     ;; for `cider-inspector-auto-select-buffer' nil, consider windows in all frames.
+                     (if cider-inspector-auto-select-buffer
+                         'visible
+                       t)))
+
 (provide 'cider-util)
 
 ;;; cider-util.el ends here
