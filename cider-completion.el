@@ -288,18 +288,20 @@ Only affects the `cider' completion category.`"
   (when (< emacs-major-version 27)
     (user-error "`cider-enable-flex-completion' requires Emacs 27 or later"))
   (let ((found-styles (when-let ((cider (assq 'cider completion-category-overrides)))
-                        (assq 'styles cider)))
+                        (cdr (assq 'styles cider))))
         (found-cycle (when-let ((cider (assq 'cider completion-category-overrides)))
                        (assq 'cycle cider))))
     (setq completion-category-overrides (seq-remove (lambda (x)
                                                       (equal 'cider (car x)))
                                                     completion-category-overrides))
     (unless found-styles
-      (setq found-styles '(styles basic)))
+      (setq found-styles '(basic)))
     (unless (member 'flex found-styles)
-      (setq found-styles (append found-styles '(flex))))
-    (add-to-list 'completion-category-overrides (apply #'list 'cider found-styles (when found-cycle
-                                                                                    (list found-cycle))))))
+      (add-to-list 'found-styles 'flex))
+    (add-to-list 'completion-category-overrides (apply #'list 'cider
+                                                       (apply #'list 'styles found-styles)
+                                                       (when found-cycle
+                                                         (list found-cycle))))))
 
 (provide 'cider-completion)
 ;;; cider-completion.el ends here
