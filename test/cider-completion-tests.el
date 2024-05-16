@@ -47,7 +47,7 @@
               (expect (assq 'cycle (assq 'cider completion-category-overrides))
                       :to-be nil))
 
-            (it "adds just `flex' if there is another syle present"
+            (it "adds just `flex' if there is another style present"
               (setq completion-category-overrides '((cider (styles partial-completion))))
               (cider-enable-flex-completion)
               (expect (member 'flex (assq 'styles (assq 'cider completion-category-overrides)))
