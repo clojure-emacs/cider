@@ -296,8 +296,7 @@ Only affects the `cider' completion category.`"
                                                     completion-category-overrides))
     (unless found-styles
       (setq found-styles '(basic)))
-    (unless (member 'flex found-styles)
-      (add-to-list 'found-styles 'flex))
+    (cl-pushnew 'flex found-styles)
     (add-to-list 'completion-category-overrides (apply #'list 'cider
                                                        (apply #'list 'styles found-styles)
                                                        (when found-cycle
