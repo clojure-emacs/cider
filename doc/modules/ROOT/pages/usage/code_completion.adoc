@@ -47,7 +47,7 @@ The CIDER completion at point function supports most completion styles, includin
 
 Sometimes the user may want to use a different completion style just for the CIDER
 complete at point function. That can be achieved by setting
-`completion-category-overrides`, overriting the completion style of the CIDER
+`completion-category-overrides`, overwriting the completion style of the CIDER
 complete at point function. The following snippet accomplishes that:
 
 [source,lisp]
