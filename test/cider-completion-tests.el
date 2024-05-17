@@ -37,11 +37,13 @@
       (unwind-protect
           (progn
             (it "adds `flex' and `basic' as a fallback"
-              (cider-enable-flex-completion)
-              (expect (member 'flex (assq 'styles (assq 'cider completion-category-overrides)))
-                      :to-be-truthy)
-              (expect (member 'basic (assq 'styles (assq 'cider completion-category-overrides)))
-                      :to-be-truthy))
+              (let ((expected-category-overrides '((cider (styles basic flex)))))
+                (cider-enable-flex-completion)
+                (expect (member 'flex (assq 'styles (assq 'cider completion-category-overrides)))
+                        :to-be-truthy)
+                (expect (member 'basic (assq 'styles (assq 'cider completion-category-overrides)))
+                        :to-be-truthy)
+                (expect completion-category-overrides :to-equal expected-category-overrides)))
 
             (it "doesn't add `cycle'"
               (expect (assq 'cycle (assq 'cider completion-category-overrides))
