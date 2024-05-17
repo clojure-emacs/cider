@@ -27,6 +27,7 @@
 
 ### Bugs fixed
 
+- [#3659](https://github.com/clojure-emacs/cider/pull/3659): Fixes completions when using `flex`-like completion styles.
 - [#3600](https://github.com/clojure-emacs/cider/pull/3600): Fix scittle jack-in when using `cider-jack-in-clj`.
 
 ## 1.13.1 (2024-02-01)
