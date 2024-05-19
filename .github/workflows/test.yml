@@ -32,6 +32,12 @@ jobs:
           - os: macos-latest
             emacs_version: '28.2'
             java_version: '11'
+          - os: macos-latest
+            emacs_version: '29.3'
+            java_version: '17'
+          - os: macos-latest
+            emacs_version: '28.2'
+            java_version: '17'
 
     steps:
     - name: Set up Emacs
