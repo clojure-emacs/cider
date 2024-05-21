@@ -64,6 +64,9 @@ by adding BUFFER-NAME to the `special-display-buffer-names' list."
     ;; another time through `cider-popup-buffer-display'):
     (if (and (boundp 'special-display-buffer-names)
              (seq-find (lambda (entry)
+                         ;; Fix issue #3672 Phil Hudson 2024-05-21
+                         ;; entry can be either a list or a string
+                         ;; Previous code falsely assumed entry is always a list
                          (equal (if (listp entry) (car entry) entry) buffer-name))
                        special-display-buffer-names))
         (progn
