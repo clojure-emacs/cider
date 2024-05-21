@@ -37,17 +37,26 @@ is already properly indented.
 
 == Completion styles
 
-CIDER defines (via the `completion-styles-alist` Elisp variable) a completion category named `cider`.
+CIDER defines a specialized completion category through the `cider-complete-at-point` function,
+added to `completion-at-point-functions`, establishing a dedicated completion category named
+`cider`.
 
-The `cider` completion category currently only supports `basic` completion styles (and not `partial-completion`, `orderless`, etc),
-and `flex`, optionally (read more below).
+The CIDER completion at point function supports most completion styles, including
+`partial-completion`, `orderless` and `flex` (read more below).
 
-CIDER declares so in this fashion:
+
+Sometimes the user may want to use a different completion style just for the CIDER
+complete at point function. That can be achieved by setting
+`completion-category-overrides`, overwriting the completion style of the CIDER
+complete at point function. The following snippet accomplishes that:
 
 [source,lisp]
 ----
 (add-to-list 'completion-category-overrides '(cider (styles basic)))
 ----
+
+This specifies that the `cider` completion category should employ the basic completion style by
+default.
 
 You can also enable the `flex` completion style by activating xref:usage/code_completion.adoc#fuzzy-candidate-matching[fuzzy candidate matching].
 
@@ -131,13 +140,14 @@ without needing to hit an extra key, please customize:
 
 === Fuzzy candidate matching
 
-By default, CIDER will provide completion candidates with the
-assumption that whatever you've typed so far is a prefix of what
-you're really trying to type. For example, if you type `map-` then
-you'll only get completion candidates that have `map-` as the
-beginning of their names.  Sometimes, you don't know the exact prefix
-for the item you want to type. In this case, you can get
-CIDER-specific "fuzzy completion" by setting up in your Emacs init file:
+By default, CIDER will use the completion styles defined in
+`completion-styles`, the defaults being `(basic partial-completion
+emacs22)` since Emacs 23. For a better description of how those
+completion styles operates, refer to the official Emacs manual on
+https://www.gnu.org/software/emacs/manual/html_node/emacs/Completion-Styles.html[how completion alternatives are chosen].
+
+CIDER provides a function to enable the `flex` completion style for CIDER-specific
+completions. If you wish to enable that, you can add this to your config:
 
 [source,lisp]
 ----
@@ -146,11 +156,11 @@ CIDER-specific "fuzzy completion" by setting up in your Emacs init file:
 
 This adds the `flex` completion style, as introduced in Emacs 27.
 
-Now, `company-mode` will accept certain fuzziness when matching
-candidates against the prefix. For example, typing `mi` will show you
-`map-indexed` as one of the possible completion candidates and `cji`
-will complete to `clojure.java.io`. Different completion examples are
-shown
+Now, `company-mode` (and other completion packages like `corfu`) will
+accept certain fuzziness when matching candidates against the
+prefix. For example, typing `mi` will show you `map-indexed` as one of
+the possible completion candidates and `cji` will complete to
+`clojure.java.io`. Different completion examples are shown
 https://github.com/alexander-yakushev/compliment/wiki/Examples[here].
 
 NOTE: `cider-company-enable-fuzzy-completion` (now deprecated) should be used for Emacs < 27. 
@@ -187,18 +197,6 @@ keys to cancel the prompt by customizing:
             (lambda (f a b)
               (cider--with-temporary-ido-keys "<up>" "<down>"
                 (funcall f a b))))
-----
-
-=== Changing the completion style
-
-Sometimes the user may want to use a different completion style just for the CIDER
-complete at point function. That can be achieved by setting
-`completion-category-defaults`, overriting the completion style of the CIDER
-complete at point function. The following snippet accomplishes that:
-
-[source,lisp]
-----
-(add-to-list 'completion-category-defaults '(cider (styles basic)))
 ----
 
 === Updating stale classes and methods cache
