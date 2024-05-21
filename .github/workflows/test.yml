@@ -21,9 +21,23 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-        emacs_version: ['26.3', '27.2', '28.2', '29.1']
+        os: [macos-13, ubuntu-latest, windows-latest]
+        emacs_version: ['26.3', '27.2', '28.2', '29.3']
         java_version: ['11', '17']
+        include:
+          # aarch64 (macos-13 is Intel)
+          - os: macos-latest
+            emacs_version: '29.3'
+            java_version: '11'
+          - os: macos-latest
+            emacs_version: '28.2'
+            java_version: '11'
+          - os: macos-latest
+            emacs_version: '29.3'
+            java_version: '17'
+          - os: macos-latest
+            emacs_version: '28.2'
+            java_version: '17'
 
     steps:
     - name: Set up Emacs
