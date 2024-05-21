@@ -181,16 +181,25 @@ performed by `cider-annotate-completion-function'."
 
 (defun cider-complete-at-point ()
   "Complete the symbol at point."
-  (when-let* ((bounds (bounds-of-thing-at-point 'symbol)))
+  (when-let* ((bounds (or (bounds-of-thing-at-point 'symbol)
+                          (cons (point) (point))))
+              (bounds-string (buffer-substring (car bounds) (cdr bounds))))
     (when (and (cider-connected-p)
                (not (or (cider-in-string-p) (cider-in-comment-p))))
-      (let* (last-prefix
+      (let* (last-bounds-string
              last-result
              (complete
-              (lambda (prefix)
-                (unless (string-equal last-prefix prefix)
-                  (setq last-prefix prefix)
-                  (setq last-result (cider-complete prefix)))
+              (lambda ()
+                ;; We are Not using the prefix extracted within the (prefix pred action)
+                ;; lambda.  In certain completion styles, the prefix might be an empty
+                ;; string, which is unreliable. A more dependable method is to use the
+                ;; string defined by the bounds of the symbol at point.
+                ;;
+                ;; Caching just within the function is sufficient. Keeping it local
+                ;; ensures that it will not extend across different CIDER sessions.
+                (unless (string= bounds-string last-bounds-string)
+                  (setq last-bounds-string bounds-string)
+                  (setq last-result (cider-complete bounds-string)))
                 last-result)))
         (list (car bounds) (cdr bounds)
               (lambda (prefix pred action)
@@ -205,8 +214,7 @@ performed by `cider-annotate-completion-function'."
                 (cond ((eq action 'metadata) `(metadata (category . cider))) ;; defines a completion category named 'cider, used later in our `completion-category-overrides` logic.
                       ((eq (car-safe action) 'boundaries) nil)
                       (t (with-current-buffer (current-buffer)
-                           (complete-with-action action
-                                                 (funcall complete prefix) prefix pred)))))
+                           (complete-with-action action (funcall complete) prefix pred)))))
               :annotation-function #'cider-annotate-symbol
               :company-kind #'cider-company-symbol-kind
               :company-doc-buffer #'cider-create-compact-doc-buffer
@@ -264,12 +272,6 @@ in the buffer."
                cider-company-unfiltered-candidates
                "CIDER backend-driven completion style."))
 
-;; Currently CIDER completions only work for `basic`, and not `initials`, `partial-completion`, `orderless`, etc.
-;; So we ensure that those other styles aren't used with CIDER, otherwise one would see bad or no completions at all.
-;; This `add-to-list` call can be removed once we implement the other completion styles.
-;; (When doing that, please refactor `cider-enable-flex-completion' as well)
-(add-to-list 'completion-category-overrides '(cider (styles basic)))
-
 (defun cider-company-enable-fuzzy-completion ()
   "Enable backend-driven fuzzy completion in the current buffer.
 
@@ -292,6 +294,8 @@ Only affects the `cider' completion category.`"
     (setq completion-category-overrides (seq-remove (lambda (x)
                                                       (equal 'cider (car x)))
                                                     completion-category-overrides))
+    (unless found-styles
+      (setq found-styles '(styles basic)))
     (unless (member 'flex found-styles)
       (setq found-styles (append found-styles '(flex))))
     (add-to-list 'completion-category-overrides (apply #'list 'cider found-styles (when found-cycle
