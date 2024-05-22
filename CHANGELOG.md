@@ -21,7 +21,7 @@
 - [#3661](https://github.com/clojure-emacs/cider/issues/3661): Truncate echo area output ahead of time.
 - [#3664](https://github.com/clojure-emacs/cider/issues/3664): Add customization inspector op to change max nested collection depth.
 - Bump the injected `enrich-classpath` to [1.19.3](https://github.com/clojure-emacs/enrich-classpath/compare/v1.19.0...v1.19.3).
-- Bump the injected nREPL to [1.1.1](https://github.com/nrepl/nrepl/blob/v1.1.1/CHANGELOG.md#111-2024-02-20).
+- Bump the injected nREPL to [1.1.2](https://github.com/nrepl/nrepl/releases/tag/v1.1.2).
 - Bump the injected `cider-nrepl` to [0.48.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.48.0/CHANGELOG.md#0480-2024-05-13).
   - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.23.2/CHANGELOG.md#0232-2024-03-10).
 - Bump the injected `cider-nrepl` to [0.48.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0480-2024-05-13).
