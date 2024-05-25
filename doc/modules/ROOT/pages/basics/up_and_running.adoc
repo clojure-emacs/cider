@@ -152,6 +152,7 @@ The following Clojure build tools are supported so far
 - kbd:[M-2 C-c C-x j u] jack-in using leiningen.
 - kbd:[M-3 C-c C-x j u] jack-in using babashka.
 - kbd:[M-4 C-c C-x j u] jack-in using nbb.
+- kbd:[M-5 C-c C-x j u] jack-in using basilisp.
 
 Here is an example of how to bind kbd:[F12] for quickly bringing up a
 babashka REPL:

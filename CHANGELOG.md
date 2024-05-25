@@ -13,6 +13,8 @@
   - adds `cider-ns-code-reload-tool` defcustom, defaulting to `'tools.namespace`.
   - you can change it to `'clj-reload` to use [clj-reload](https://github.com/tonsky/clj-reload) instead of [tools.namespace](https://github.com/clojure/tools.namespace).
 
+- [#3682](https://github.com/clojure-emacs/cider/issues/3682): Add `cider-jack-in` support for [Basilisp](https://github.com/basilisp-lang/basilisp) (Python)
+
 ### Changes
 
 - [#3626](https://github.com/clojure-emacs/cider/issues/3626): `cider-ns-refresh`: jump to the relevant file/line on errors.

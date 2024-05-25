@@ -12,7 +12,7 @@
 ;; Maintainer: Bozhidar Batsov <bozhidar@batsov.dev>
 ;; URL: https://www.github.com/clojure-emacs/cider
 ;; Version: 1.14.0-snapshot
-;; Package-Requires: ((emacs "26") (clojure-mode "5.18.1") (parseedn "1.2.1") (queue "0.2") (spinner "1.7") (seq "2.22") (sesman "0.3.2") (transient "0.4.1"))
+;; Package-Requires: ((emacs "26") (clojure-mode "5.19") (parseedn "1.2.1") (queue "0.2") (spinner "1.7") (seq "2.22") (sesman "0.3.2") (transient "0.4.1"))
 ;; Keywords: languages, clojure, cider
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -273,6 +273,30 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :safe #'stringp
   :package-version '(cider . "1.6.0"))
 
+(defcustom cider-basilisp-command
+  "basilisp"
+  "The command used to execute Basilisp.
+
+   If Basilisp is installed in a virtual environment, update this to the
+   full path of the Basilisp executable within that virtual environment."
+  :type 'string
+  :safe #'stringp
+  :package-version '(cider . "1.14.0"))
+
+(defcustom cider-basilisp-global-options
+  nil
+  "Command line options used to execute Basilisp."
+  :type 'string
+  :safe #'stringp
+  :package-version '(cider . "1.14.0"))
+
+(defcustom cider-basilisp-parameters
+  "nrepl-server"
+  "Params passed to Basilisp to start an nREPL server via `cider-jack-in'."
+  :type 'string
+  :safe #'stringp
+  :package-version '(cider . "1.14.0"))
+
 (make-obsolete-variable 'cider-lein-global-options 'cider-lein-parameters "1.8.0")
 (make-obsolete-variable 'cider-boot-global-options 'cider-boot-parameters "1.8.0")
 (make-obsolete-variable 'cider-clojure-cli-global-options 'cider-clojure-cli-parameters "1.8.0")
@@ -280,6 +304,7 @@ By default we favor the project-specific shadow-cljs over the system-wide."
 (make-obsolete-variable 'cider-gradle-global-options 'cider-gradle-parameters "1.8.0")
 (make-obsolete-variable 'cider-babashka-global-options 'cider-babashka-parameters "1.8.0")
 (make-obsolete-variable 'cider-nbb-global-options 'cider-nbb-parameters "1.8.0")
+(make-obsolete-variable 'cider-basilip-global-options 'cider-basilisp-parameters "1.8.0")
 
 (defcustom cider-jack-in-default
   (if (executable-find "clojure") 'clojure-cli 'lein)
@@ -296,7 +321,8 @@ to Leiningen."
                  (const shadow-cljs)
                  (const gradle)
                  (const babashka)
-                 (const nbb))
+                 (const nbb)
+                 (const basilisp))
   :safe #'symbolp
   :package-version '(cider . "0.9.0"))
 
@@ -316,6 +342,7 @@ command when there is no ambiguity."
                  (const gradle)
                  (const babashka)
                  (const nbb)
+                 (const basilisp)
                  (const :tag "Always ask" nil))
   :safe #'symbolp
   :package-version '(cider . "0.13.0"))
@@ -380,7 +407,8 @@ Sub-match 1 must be the project path.")
   '((clojure-cli (:prefix-arg 1 :cmd (:jack-in-type clj  :project-type clojure-cli :edit-project-dir t)))
     (lein        (:prefix-arg 2 :cmd (:jack-in-type clj  :project-type lein :edit-project-dir t)))
     (babashka    (:prefix-arg 3 :cmd (:jack-in-type clj  :project-type babashka :edit-project-dir t)))
-    (nbb         (:prefix-arg 4 :cmd (:jack-in-type cljs :project-type nbb :cljs-repl-type nbb :edit-project-dir t))))
+    (nbb         (:prefix-arg 4 :cmd (:jack-in-type cljs :project-type nbb :cljs-repl-type nbb :edit-project-dir t)))
+    (basilisp    (:prefix-arg 5 :cmd (:jack-in-type clj  :project-type basilisp :edit-project-dir t))))
   "The list of project tools that are supported by the universal jack in command.
 
 Each item in the list consists of the tool name and its plist options.
@@ -412,6 +440,7 @@ The plist supports the following keys
     ('shadow-cljs cider-shadow-cljs-command)
     ('gradle      cider-gradle-command)
     ('nbb         cider-nbb-command)
+    ('basilisp    cider-basilisp-command)
     (_            (user-error "Unsupported project type `%S'" project-type))))
 
 (defcustom cider-enrich-classpath nil
@@ -476,6 +505,7 @@ Throws an error if PROJECT-TYPE is unknown."
     ;; relative path like "./gradlew" use locate file instead of checking
     ;; the exec-path
     ('gradle (cider--resolve-project-command cider-gradle-command))
+    ('basilisp (cider--resolve-command cider-basilisp-command))
     (_ (user-error "Unsupported project type `%S'" project-type))))
 
 (defun cider-jack-in-global-options (project-type)
@@ -488,6 +518,7 @@ Throws an error if PROJECT-TYPE is unknown."
     ('shadow-cljs cider-shadow-cljs-global-options)
     ('gradle      cider-gradle-global-options)
     ('nbb         cider-nbb-global-options)
+    ('basilisp    cider-basilisp-global-options)
     (_            (user-error "Unsupported project type `%S'" project-type))))
 
 (defun cider-jack-in-params (project-type)
@@ -504,6 +535,7 @@ Throws an error if PROJECT-TYPE is unknown."
     ('shadow-cljs cider-shadow-cljs-parameters)
     ('gradle      cider-gradle-parameters)
     ('nbb         cider-nbb-parameters)
+    ('basilisp    cider-basilisp-parameters)
     (_            (user-error "Unsupported project type `%S'" project-type))))
 
 
@@ -963,6 +995,10 @@ middleware and dependencies."
            global-opts
            (unless (seq-empty-p global-opts) " ")
            params))
+    ('basilisp (concat
+                global-opts
+                (unless (seq-empty-p global-opts) " ")
+                params))
     (_ (error "Unsupported project type `%S'" project-type))))
 
 
@@ -1245,6 +1281,7 @@ you're working on."
                  (const :tag "Shadow w/o Server" shadow-select)
                  (const :tag "Krell"    krell)
                  (const :tag "Nbb"      nbb)
+                 (const :tag "Basilisp" basilisp)
                  (const :tag "Custom"   custom))
   :safe #'symbolp
   :package-version '(cider . "0.17.0"))
@@ -2038,7 +2075,8 @@ PROJECT-DIR defaults to current project."
                         (shadow-cljs . "shadow-cljs.edn")
                         (gradle      . "build.gradle")
                         (gradle      . "build.gradle.kts")
-                        (nbb         . "nbb.edn"))))
+                        (nbb         . "nbb.edn")
+                        (basilisp    . "basilisp.edn"))))
     (delq nil
           (mapcar (lambda (candidate)
                     (when (file-exists-p (cdr candidate))
