@@ -551,10 +551,7 @@ This list is supposed to have the following format:
   "Expand the symbols in VAR-LIST to fully-qualified var names.
 
 The list can hold one or more lists inside - one per each namespace."
-  (let ((namespaced-vars (seq-mapcat #'cider-cheatsheet--expand-vars
-                                     (seq-remove (lambda (list)
-                                                   (eq (car list) :url))
-                                                 var-list))))
+  (let ((namespaced-vars (seq-mapcat #'cider-cheatsheet--expand-vars var-list)))
     (cider-doc-lookup (completing-read "Select var: " namespaced-vars))))
 
 ;;;###autoload
