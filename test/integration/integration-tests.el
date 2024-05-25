@@ -183,6 +183,73 @@ If CLI-COMMAND is nil, then use the default."
                 (cider-itu-poll-until (not (eq (process-status nrepl-proc) 'run)) 5)
                 (expect (member (process-status nrepl-proc) '(exit signal))))))))))
 
+  (it "to Basilisp"
+    ;; temporarily suspended on MS-Windows until the following is released on PyPi
+    ;;
+    ;; https://github.com/basilisp-lang/basilisp/pull/866
+    (assume (not (eq system-type 'windows-nt)) "temporarily skipping on MS-Windows ...")
+    (with-cider-test-sandbox
+      (with-temp-dir temp-dir
+        ;; Create a project in temp dir
+        (let* ((project-dir temp-dir)
+               (basilisp-edn (expand-file-name "basilisp.edn" project-dir)))
+          (write-region "" nil basilisp-edn)
+
+          (with-temp-buffer
+            ;; set default directory to temp project
+            (setq-local default-directory project-dir)
+
+            (let* (;; Get a gv reference so as to poll if the client has
+                   ;; connected to the nREPL server.
+                   (client-is-connected* (cider-itu-nrepl-client-connected-ref-make!))
+
+                   ;; jack in and get repl buffer
+                   (nrepl-proc (cider-jack-in-clj '()))
+                   (nrepl-buf (process-buffer nrepl-proc)))
+
+              ;; wait until the client successfully connects to the nREPL
+              ;; server. A high timeout is set because Basilisp usually needs to
+              ;; be compiled the first time it is run.
+              (cider-itu-poll-until (eq (gv-deref client-is-connected*) 'connected) 60)
+
+              ;; give it some time to setup the clj REPL
+              (cider-itu-poll-until (cider-repls 'clj nil) 5)
+
+              ;; send command to the REPL, and push stdout/stderr to
+              ;; corresponding eval-xxx variables.
+              (let ((repl-buffer (cider-current-repl))
+                    (eval-err '())
+                    (eval-out '()))
+                (expect repl-buffer :not :to-be nil)
+
+                ;; send command to the REPL
+                (cider-interactive-eval
+                 ;; ask REPL to return a string that uniquely identifies it.
+                 "(print :basilisp? (some? sys/version))"
+                 (lambda (return)
+                   (nrepl-dbind-response
+                       return
+                       (out err)
+                     (when err (push err eval-err))
+                     (when out (push out eval-out)))) )
+
+                ;; wait for a response to come back.
+                (cider-itu-poll-until (or eval-err eval-out) 5)
+
+                ;; ensure there are no errors and response is as expected.
+                (expect eval-err :to-equal '())
+                ;; The Basilisp nREPL server sends the message in three separate
+                ;; pieces, which is likely an area for improvement on the
+                ;; Basilisp side.
+                (expect eval-out :to-equal '("true" " " ":basilisp?"))
+
+                ;; exit the REPL.
+                (cider-quit repl-buffer)
+
+                ;; wait for the REPL to exit
+                (cider-itu-poll-until (not (eq (process-status nrepl-proc) 'run)) 5)
+                (expect (member (process-status nrepl-proc) '(exit signal))))))))))
+
   (it "to clojure tools cli (default)"
     (jack-in-clojure-cli-test nil))
 
@@ -190,9 +257,9 @@ If CLI-COMMAND is nil, then use the default."
     (it "to clojure tools cli (alternative pwsh)"
       (jack-in-clojure-cli-test "pwsh")))
 
-(when (eq system-type 'windows-nt)
-  (it "to clojure tools cli (alternative deps.exe)"
-      (jack-in-clojure-cli-test "deps.exe")))
+  (when (eq system-type 'windows-nt)
+    (it "to clojure tools cli (alternative deps.exe)"
+        (jack-in-clojure-cli-test "deps.exe")))
 
   (it "to leiningen"
     (with-cider-test-sandbox
