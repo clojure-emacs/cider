@@ -556,7 +556,7 @@ The list can hold one or more lists inside - one per each namespace."
     (cider-doc-lookup (completing-read "Select var: " namespaced-vars))))
 
 ;;;###autoload
-(defun cider-cheatsheet ()
+(defun cider-cheatsheet-select ()
   "Navigate `cider-cheatsheet-hierarchy' with `completing-read'.
 
 When you make it to a Clojure var its doc buffer gets displayed."
@@ -592,7 +592,7 @@ When you make it to a Clojure var its doc buffer gets displayed."
     (buffer-string)))
 
 ;;;###autoload
-(defun cider-cheatsheet-buffer ()
+(defun cider-cheatsheet ()
   "Display cheatsheet in a popup buffer."
   (interactive)
   (with-current-buffer (cider-popup-buffer "*cider-cheatsheet*")
