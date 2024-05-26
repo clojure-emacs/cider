@@ -570,7 +570,7 @@ When you make it to a Clojure var its doc buffer gets displayed."
     (cider-cheatsheet--select-var cheatsheet-data)))
 
 (cl-defun cider-cheatsheet--insert-hierarchy (hierarchy &optional (level 0))
-  "Insert the cheatsheet hierarchy with visual indentation for each level."
+  "Insert HIERARCHY with visual indentation for LEVEL."
   (dolist (node hierarchy)
     (if (stringp (car node))
         (progn
