@@ -29,6 +29,7 @@
 ;;; Code:
 
 (require 'cider-doc)
+(require 'cl-lib)
 (require 'seq)
 
 (defconst cider-cheatsheet-hierarchy
@@ -567,6 +568,38 @@ When you make it to a Clojure var its doc buffer gets displayed."
              (section-data (seq-find (lambda (elem) (equal (car elem) sel-section)) cheatsheet-data)))
         (setq cheatsheet-data (cdr section-data))))
     (cider-cheatsheet--select-var cheatsheet-data)))
+
+(cl-defun cider-cheatsheet--insert-hierarchy (hierarchy &optional (level 0))
+  "Insert the cheatsheet hierarchy with visual indentation for each level."
+  (dolist (node hierarchy)
+    (if (stringp (car node))
+        (progn
+          (insert (make-string (* level 2) ?\s) (car node) "\n")
+          (cider-cheatsheet--insert-hierarchy (cdr node) (1+ level)))
+      (dolist (var (cider-cheatsheet--expand-vars node))
+        (insert (make-string (* level 2) ?\s))
+        (insert-text-button var
+                            'var var
+                            'action (lambda (btn)
+                                      (cider-doc-lookup (button-get btn 'var)))
+                            'help-echo (format "Show documentation for %s" var))
+        (insert "\n")))))
+
+(defun cider-cheatsheet--buffer-contents ()
+  "Generate cheatsheet buffer contents based on the cheatsheet hierarchy."
+  (with-temp-buffer
+    (cider-cheatsheet--insert-hierarchy cider-cheatsheet-hierarchy)
+    (buffer-string)))
+
+;;;###autoload
+(defun cider-cheatsheet-buffer ()
+  "Display cheatsheet in a popup buffer."
+  (interactive)
+  (with-current-buffer (cider-popup-buffer "*cider-cheatsheet*")
+    (read-only-mode -1)
+    (insert (cider-cheatsheet--buffer-contents))
+    (read-only-mode 1)
+    (goto-char (point-min))))
 
 (provide 'cider-cheatsheet)
 
