@@ -1,6 +1,8 @@
 = Basilisp Integration with CIDER
 https://github.com/basilisp-lang/basilisp[basilisp]
 
+since CIDER 1.14
+
 == Overview
 
 Basilisp aims to enable writing Clojure programs on Python with full Python interoperability. It is highly compatible with Clojure.
