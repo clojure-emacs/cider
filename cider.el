@@ -283,13 +283,6 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :safe #'stringp
   :package-version '(cider . "1.14.0"))
 
-(defcustom cider-basilisp-global-options
-  nil
-  "Command line options used to execute Basilisp."
-  :type 'string
-  :safe #'stringp
-  :package-version '(cider . "1.14.0"))
-
 (defcustom cider-basilisp-parameters
   "nrepl-server"
   "Params passed to Basilisp to start an nREPL server via `cider-jack-in'."
@@ -304,7 +297,6 @@ By default we favor the project-specific shadow-cljs over the system-wide."
 (make-obsolete-variable 'cider-gradle-global-options 'cider-gradle-parameters "1.8.0")
 (make-obsolete-variable 'cider-babashka-global-options 'cider-babashka-parameters "1.8.0")
 (make-obsolete-variable 'cider-nbb-global-options 'cider-nbb-parameters "1.8.0")
-(make-obsolete-variable 'cider-basilip-global-options 'cider-basilisp-parameters "1.8.0")
 
 (defcustom cider-jack-in-default
   (if (executable-find "clojure") 'clojure-cli 'lein)
@@ -518,7 +510,7 @@ Throws an error if PROJECT-TYPE is unknown."
     ('shadow-cljs cider-shadow-cljs-global-options)
     ('gradle      cider-gradle-global-options)
     ('nbb         cider-nbb-global-options)
-    ('basilisp    cider-basilisp-global-options)
+    ('basilisp    nil)
     (_            (user-error "Unsupported project type `%S'" project-type))))
 
 (defun cider-jack-in-params (project-type)
@@ -995,10 +987,7 @@ middleware and dependencies."
            global-opts
            (unless (seq-empty-p global-opts) " ")
            params))
-    ('basilisp (concat
-                global-opts
-                (unless (seq-empty-p global-opts) " ")
-                params))
+    ('basilisp params)
     (_ (error "Unsupported project type `%S'" project-type))))
 
 
