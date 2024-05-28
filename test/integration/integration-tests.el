@@ -184,10 +184,6 @@ If CLI-COMMAND is nil, then use the default."
                 (expect (member (process-status nrepl-proc) '(exit signal))))))))))
 
   (it "to Basilisp"
-    ;; temporarily suspended on MS-Windows until the following is released on PyPi
-    ;;
-    ;; https://github.com/basilisp-lang/basilisp/pull/866
-    (assume (not (eq system-type 'windows-nt)) "temporarily skipping on MS-Windows ...")
     (with-cider-test-sandbox
       (with-temp-dir temp-dir
         ;; Create a project in temp dir
