@@ -1526,22 +1526,27 @@ their supplied or default values."
 (defun cider-connect-clj&cljs (params &optional soft-cljs-start)
   "Initialize a Clojure and ClojureScript connection to an nREPL server.
 PARAMS is a plist optionally containing :host, :port, :project-dir and
-:cljs-repl-type (e.g. 'shadow, 'node, 'figwheel, etc).  When SOFT-CLJS-START is
-non-nil, don't start if ClojureScript requirements are not met."
+:cljs-repl-type (e.g. 'shadow, 'node, 'figwheel, etc).
+If nil, use the default parameters in `cider-connect-default-params' and
+`cider-connect-default-cljs-params'.
+
+When SOFT-CLJS-START is non-nil, don't start if ClojureScript requirements are
+not met.
+
+With the prefix argument, prompt for all the parameters regardless of
+their supplied or default values."
   (interactive "P")
-  (let* ((params (thread-first params
-                               (cider--update-project-dir)
-                               (cider--update-host-port)
-                               (cider--check-existing-session)
-                               (cider--update-cljs-type)))
-         (clj-params (thread-first params
-                                   copy-sequence
-                                   (map-delete :cljs-repl-type)))
-         (clj-repl (cider-connect-clj clj-params)))
+  (let* ((clj-repl (cider-connect-clj params))
+         (cljs-params
+          (thread-first (or params cider-connect-default-cljs-params)
+                        (copy-sequence)
+                        (cider--update-cljs-type)
+                        ;; already asked, don't ask on sibling connect
+                        (plist-put :do-prompt nil))))
     (when (if soft-cljs-start
-              (cider--check-cljs (plist-get params :cljs-repl-type) 'no-error)
+              (cider--check-cljs (plist-get cljs-params :cljs-repl-type) 'no-error)
             t)
-      (cider-connect-sibling-cljs params clj-repl))))
+      (cider-connect-sibling-cljs cljs-params clj-repl))))
 
 (defvar cider-connection-init-commands
   '(cider-jack-in-clj
