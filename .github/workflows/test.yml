@@ -104,7 +104,7 @@ jobs:
       with:
         python-version: '3.12'
     - run: |
-        pip install basilisp==0.1.0b1
+        pip install basilisp==0.1.0b2
 
     - name: Test integration
       run: |
