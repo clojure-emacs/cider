@@ -557,9 +557,7 @@ The list can hold one or more lists inside - one per each namespace."
 
 ;;;###autoload
 (defun cider-cheatsheet-select ()
-  "Navigate `cider-cheatsheet-hierarchy' with `completing-read'.
-
-When you make it to a Clojure var its doc buffer gets displayed."
+  "Navigate cheatsheet sections and show documentation for selected var."
   (interactive)
   (let ((cheatsheet-data cider-cheatsheet-hierarchy))
     (while (stringp (caar cheatsheet-data))
