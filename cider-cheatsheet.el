@@ -30,6 +30,7 @@
 
 (require 'cider-doc)
 (require 'cl-lib)
+(require 'map)
 (require 'seq)
 
 (defconst cider-cheatsheet-hierarchy
@@ -548,24 +549,18 @@ This list is supposed to have the following format:
         (mapcar #'symbol-name vars)
       (mapcar (lambda (var) (format "%s/%s" ns var)) vars))))
 
-(defun cider-cheatsheet--select-var (var-list)
-  "Expand the symbols in VAR-LIST to fully-qualified var names.
-
-The list can hold one or more lists inside - one per each namespace."
-  (let ((namespaced-vars (seq-mapcat #'cider-cheatsheet--expand-vars var-list)))
-    (cider-doc-lookup (completing-read "Select var: " namespaced-vars))))
-
 ;;;###autoload
 (defun cider-cheatsheet-select ()
   "Navigate cheatsheet sections and show documentation for selected var."
   (interactive)
-  (let ((cheatsheet-data cider-cheatsheet-hierarchy))
-    (while (stringp (caar cheatsheet-data))
-      (let* ((sections (mapcar #'car cheatsheet-data))
-             (sel-section (completing-read "Select cheatsheet section: " sections))
-             (section-data (seq-find (lambda (elem) (equal (car elem) sel-section)) cheatsheet-data)))
-        (setq cheatsheet-data (cdr section-data))))
-    (cider-cheatsheet--select-var cheatsheet-data)))
+  (let ((hierarchy cider-cheatsheet-hierarchy))
+    (while (stringp (caar hierarchy))
+      (let* ((sections (mapcar #'car hierarchy))
+             (section (completing-read "Select section: " sections)))
+        (setq hierarchy (map-elt hierarchy section))))
+    (let* ((vars (seq-mapcat #'cider-cheatsheet--expand-vars hierarchy))
+           (var (completing-read "Select var: " vars)))
+      (cider-doc-lookup var))))
 
 (cl-defun cider-cheatsheet--insert-hierarchy (hierarchy &optional (level 0))
   "Insert HIERARCHY with visual indentation for LEVEL."
