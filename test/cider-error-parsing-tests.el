@@ -178,7 +178,16 @@
       (expect (progn
                 (string-match cider-clojure-runtime-error-regexp specimen)
                 (match-string 2 specimen))
-              :to-equal "src/haystack/parser.cljc"))))
+              :to-equal "src/haystack/parser.cljc")))
+
+  ;; Java source locations may be negative (#3687)
+  (it "Recognizes an error thrown from a java source file"
+    (let ((specimen "Execution error (FileNotFoundException) at java.io.FileInputStream/open0 (FileInputStream.java:-2)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "FileInputStream.java"))))
 
 (describe "cider-module-info-regexp"
   (it "Matches module info provided by Java"
