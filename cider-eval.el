@@ -562,53 +562,55 @@ It delegates the actual error content to the eval or op handler."
         (t (cider-default-err-eval-print-handler))))
 
 
-(defconst cider-clojure-1.10--location `((or "at ("
-                                             (sequence "at "
-                                                       (minimal-match (one-or-more anything)) ;; the fully-qualified name of the function that triggered the error
-                                                       " ("))
-                                         (group-n 2 (minimal-match (zero-or-more anything)))
-                                         ":"
-                                         (group-n 3 (one-or-more (any "-" digit))) ;; line numbers may be negative (#3687)
-                                         (optional ":" (group-n 4 (one-or-more (any "-" digit))))
-                                         ")."))
+(defconst cider-clojure-1.10--location
+  '(sequence
+    (or "at ("
+        (sequence "at "
+                  (minimal-match (one-or-more anything)) ;; the fully-qualified name of the function that triggered the error
+                  " ("))
+    (group-n 2 (minimal-match (zero-or-more anything))) ; source file
+    ":" (group-n 3 (one-or-more (any "-" digit))) ; line number, may be negative (#3687)
+    (optional
+     ":" (group-n 4 (one-or-more (any "-" digit)))) ; column number
+    ")."))
 
-(defconst cider-clojure-1.10-error (append `(sequence
-                                             "Syntax error "
-                                             (minimal-match (zero-or-more anything))
-                                             (or "compiling "
-                                                 "macroexpanding "
-                                                 "reading source ")
-                                             (minimal-match (zero-or-more anything)))
-                                           cider-clojure-1.10--location))
+(defconst cider-clojure-1.10-error
+  `(sequence
+    "Syntax error "
+    (minimal-match (zero-or-more anything))
+    (or "compiling "
+        "macroexpanding "
+        "reading source ")
+    (minimal-match (zero-or-more anything))
+    ,cider-clojure-1.10--location))
 
-(defconst cider-clojure-unexpected-error (append `(sequence
-                                                   "Unexpected error ("
-                                                   (minimal-match (one-or-more anything))
-                                                   ") "
-                                                   (or "compiling "
-                                                       "macroexpanding "
-                                                       "reading source ")
-                                                   (minimal-match (one-or-more anything)))
-                                                 cider-clojure-1.10--location))
+(defconst cider-clojure-unexpected-error
+  `(sequence
+    "Unexpected error (" (minimal-match (one-or-more anything)) ") "
+    (or "compiling "
+        "macroexpanding "
+        "reading source ")
+    (minimal-match (one-or-more anything))
+    ,cider-clojure-1.10--location))
 
-(defconst cider-clojure-warning `(sequence
-                                  (minimal-match (zero-or-more anything))
-                                  (group-n 1 "warning")
-                                  ", "
-                                  (group-n 2 (minimal-match (zero-or-more anything)))
-                                  ":"
-                                  (group-n 3 (one-or-more (any "-" digit)))
-                                  (optional ":" (group-n 4 (one-or-more (any "-" digit))))
-                                  " - "))
+(defconst cider-clojure-warning
+  `(sequence
+    (minimal-match (zero-or-more anything))
+    (group-n 1 "warning")
+    ", " (group-n 2 (minimal-match (zero-or-more anything)))
+    ":" (group-n 3 (one-or-more (any "-" digit)))
+    (optional
+     ":" (group-n 4 (one-or-more (any "-" digit))))
+    " - "))
 
 ;; Please keep this in sync with `cider-clojure-compilation-error-regexp',
 ;; which is a subset of these regexes.
 (defconst cider-clojure-compilation-regexp
-  (eval
-   `(rx bol (or ,cider-clojure-warning
-                ,cider-clojure-1.10-error
-                ,cider-clojure-unexpected-error))
-   t)
+  (rx-to-string
+   `(seq bol (or ,cider-clojure-warning
+                 ,cider-clojure-1.10-error
+                 ,cider-clojure-unexpected-error))
+   'nogroup)
   "A few example values that will match:
 \"Reflection warning, /tmp/foo/src/foo/core.clj:14:1 - \"
 \"CompilerException java.lang.RuntimeException: Unable to resolve symbol: \\
@@ -617,10 +619,10 @@ lol in this context, compiling:(/foo/core.clj:10:1)\"
 \"Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1).\"")
 
 (defconst cider-clojure-compilation-error-regexp
-  (eval
-   `(rx bol (or ,cider-clojure-1.10-error
-                ,cider-clojure-unexpected-error))
-   t)
+  (rx-to-string
+   `(seq bol (or ,cider-clojure-1.10-error
+                 ,cider-clojure-unexpected-error))
+   'nogroup)
   "Like `cider-clojure-compilation-regexp',
 but excluding warnings such as reflection warnings.
 
@@ -631,26 +633,26 @@ lol in this context, compiling:(/foo/core.clj:10:1)\"
 \"Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1).\"")
 
 (defconst cider--clojure-execution-error-regexp
-  (append `(sequence
-            "Execution error "
-            (or (sequence "("
-                          (minimal-match (one-or-more anything))
-                          ")")
-                (minimal-match (zero-or-more anything))))
-          cider-clojure-1.10--location))
+  `(sequence
+    "Execution error "
+    (or (sequence "("
+                  (minimal-match (one-or-more anything))
+                  ")")
+        (minimal-match (zero-or-more anything)))
+    ,cider-clojure-1.10--location))
 
 (defconst cider--clojure-spec-execution-error-regexp
-  (append `(sequence
-            "Execution error - invalid arguments to "
-            (minimal-match (one-or-more anything))
-            " ")
-          cider-clojure-1.10--location))
+  `(sequence
+    "Execution error - invalid arguments to "
+    (minimal-match (one-or-more anything))
+    " "
+    ,cider-clojure-1.10--location))
 
 (defconst cider-clojure-runtime-error-regexp
-  (eval
-   `(rx bol (or ,cider--clojure-execution-error-regexp
-                ,cider--clojure-spec-execution-error-regexp))
-   t)
+  (rx-to-string
+   `(seq bol (or ,cider--clojure-execution-error-regexp
+                 ,cider--clojure-spec-execution-error-regexp))
+   'nogroup)
   "Matches runtime errors, as oppsed to compile-time/macroexpansion-time errors.
 
 A few example values that will match:
