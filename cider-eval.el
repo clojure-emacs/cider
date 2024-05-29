@@ -561,6 +561,8 @@ It delegates the actual error content to the eval or op handler."
          (cider-default-err-eval-handler))
         (t (cider-default-err-eval-print-handler))))
 
+;; Reference:
+;; https://github.com/clojure/clojure/blob/clojure-1.10.0/src/clj/clojure/main.clj#L251
 ;; See `cider-compilation-regexp' for interpretation of match groups.
 (defconst cider-clojure-1.10--location
   '(sequence
