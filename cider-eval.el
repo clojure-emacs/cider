@@ -561,7 +561,7 @@ It delegates the actual error content to the eval or op handler."
          (cider-default-err-eval-handler))
         (t (cider-default-err-eval-print-handler))))
 
-
+;; See `cider-compilation-regexp' for interpretation of match groups.
 (defconst cider-clojure-1.10--location
   '(sequence
     (or "at ("
@@ -676,7 +676,11 @@ A few example values that will match:
       ")"))
 
 (defvar cider-compilation-regexp
-  (list cider-clojure-compilation-regexp  2 3 4 '(1))
+  (list cider-clojure-compilation-regexp
+        2     ; FILE
+        3     ; LINE
+        4     ; COLUMN
+        '(1)) ; TYPE = (WARNING . INFO)
   "Specifications for matching errors and warnings in Clojure stacktraces.
 See `compilation-error-regexp-alist' for help on their format.")
 
