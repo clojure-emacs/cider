@@ -564,10 +564,8 @@ It delegates the actual error content to the eval or op handler."
 ;; See `cider-compilation-regexp' for interpretation of match groups.
 (defconst cider-clojure-1.10--location
   '(sequence
-    (or "at ("
-        (sequence "at "
-                  (minimal-match (one-or-more anything)) ;; the fully-qualified name of the function that triggered the error
-                  " ("))
+    "at " (minimal-match (zero-or-more anything)) ;; the fully-qualified name of the function that triggered the error
+    "("
     (group-n 2 (minimal-match (zero-or-more anything))) ; source file
     ":" (group-n 3 (one-or-more (any "-" digit))) ; line number, may be negative (#3687)
     (optional
