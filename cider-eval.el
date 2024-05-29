@@ -633,10 +633,7 @@ lol in this context, compiling:(/foo/core.clj:10:1)\"
 (defconst cider--clojure-execution-error-regexp
   `(sequence
     "Execution error "
-    (or (sequence "("
-                  (minimal-match (one-or-more anything))
-                  ")")
-        (minimal-match (zero-or-more anything)))
+    (minimal-match (zero-or-more anything))
     ,cider-clojure-1.10--location))
 
 (defconst cider--clojure-spec-execution-error-regexp
