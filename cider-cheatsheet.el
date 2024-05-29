@@ -32,6 +32,7 @@
 (require 'cl-lib)
 (require 'map)
 (require 'seq)
+(require 'subr-x)
 
 (defconst cider-cheatsheet-hierarchy
   '(("Documentation"
@@ -549,18 +550,35 @@ This list is supposed to have the following format:
         (mapcar #'symbol-name vars)
       (mapcar (lambda (var) (format "%s/%s" ns var)) vars))))
 
+(defun cider-cheatsheet--flatten-hierarchy (hierarchy &optional sections)
+  "Transform HIERARCHY to lists each representing a path with SECTIONS before var."
+  (seq-mapcat (lambda (node)
+                (if (stringp (car node))
+                    (cider-cheatsheet--flatten-hierarchy (cdr node) (cons (car node) sections))
+                  (mapcar (lambda (var) (reverse (cons var sections)))
+                          (cider-cheatsheet--expand-vars node))))
+              hierarchy))
+
 ;;;###autoload
-(defun cider-cheatsheet-select ()
-  "Navigate cheatsheet sections and show documentation for selected var."
-  (interactive)
-  (let ((hierarchy cider-cheatsheet-hierarchy))
-    (while (stringp (caar hierarchy))
-      (let* ((sections (mapcar #'car hierarchy))
-             (section (completing-read "Select section: " sections)))
-        (setq hierarchy (map-elt hierarchy section))))
-    (let* ((vars (seq-mapcat #'cider-cheatsheet--expand-vars hierarchy))
-           (var (completing-read "Select var: " vars)))
-      (cider-doc-lookup var))))
+(defun cider-cheatsheet-select (&optional flat)
+  "Navigate cheatsheet sections and show documentation for selected var.
+
+With a prefix argument FLAT, represent each candidate as a full path to var."
+  (interactive "P")
+  (if flat
+      (let* ((hierarchy (cider-cheatsheet--flatten-hierarchy cider-cheatsheet-hierarchy))
+             (paths (mapcar (lambda (sections) (string-join sections " > ")) hierarchy))
+             (path (completing-read "Select path: " paths))
+             (var (car (last (split-string path " > ")))))
+        (cider-doc-lookup var))
+    (let ((hierarchy cider-cheatsheet-hierarchy))
+      (while (stringp (caar hierarchy))
+        (let* ((sections (mapcar #'car hierarchy))
+               (section (completing-read "Select section: " sections)))
+          (setq hierarchy (map-elt hierarchy section))))
+      (let* ((vars (seq-mapcat #'cider-cheatsheet--expand-vars hierarchy))
+             (var (completing-read "Select var: " vars)))
+        (cider-doc-lookup var)))))
 
 (cl-defun cider-cheatsheet--insert-hierarchy (hierarchy &optional (level 0))
   "Insert HIERARCHY with visual indentation for LEVEL."
