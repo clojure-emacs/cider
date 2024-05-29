@@ -568,8 +568,8 @@ It delegates the actual error content to the eval or op handler."
                                                        " ("))
                                          (group-n 2 (minimal-match (zero-or-more anything)))
                                          ":"
-                                         (group-n 3 (one-or-more digit))
-                                         (optional ":" (group-n 4 (one-or-more digit)))
+                                         (group-n 3 (one-or-more (any "-" digit))) ;; line numbers may be negative (#3687)
+                                         (optional ":" (group-n 4 (one-or-more (any "-" digit))))
                                          ")."))
 
 (defconst cider-clojure-1.10-error (append `(sequence
@@ -597,8 +597,8 @@ It delegates the actual error content to the eval or op handler."
                                   ", "
                                   (group-n 2 (minimal-match (zero-or-more anything)))
                                   ":"
-                                  (group-n 3 (one-or-more digit))
-                                  (optional ":" (group-n 4 (one-or-more digit)))
+                                  (group-n 3 (one-or-more (any "-" digit)))
+                                  (optional ":" (group-n 4 (one-or-more (any "-" digit))))
                                   " - "))
 
 ;; Please keep this in sync with `cider-clojure-compilation-error-regexp',
