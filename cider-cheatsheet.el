@@ -34,6 +34,8 @@
 (require 'seq)
 (require 'subr-x)
 
+(defconst cider-cheatsheet-buffer "*cider-cheatsheet*")
+
 (defconst cider-cheatsheet-hierarchy
   '(("Documentation"
      ("REPL"
@@ -606,7 +608,7 @@ With a prefix argument FLAT, represent each candidate as a full path to var."
 (defun cider-cheatsheet ()
   "Display cheatsheet in a popup buffer."
   (interactive)
-  (with-current-buffer (cider-popup-buffer "*cider-cheatsheet*")
+  (with-current-buffer (cider-popup-buffer cider-cheatsheet-buffer)
     (read-only-mode -1)
     (insert (cider-cheatsheet--buffer-contents))
     (read-only-mode 1)
