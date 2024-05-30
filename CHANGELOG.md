@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.14.0 (2024-05-30)
+
 ### New features
 
 - [#3681](https://github.com/clojure-emacs/cider/pull/3681): Add an alternative way to display cheatsheet in a buffer and make it the default.
