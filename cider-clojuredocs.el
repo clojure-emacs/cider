@@ -144,14 +144,16 @@ opposite of what that option dictates."
 
 (defun cider-clojuredocs-lookup (sym)
   "Look up the ClojureDocs documentation for SYM."
-  (let ((docs (cider-sync-request:clojuredocs-lookup (cider-current-ns) sym)))
-    (pop-to-buffer (cider-create-clojuredocs-buffer (cider-clojuredocs--content docs)))
-    ;; highlight the symbol in question in the docs buffer
-    (highlight-regexp
-     (regexp-quote
-      (or (cadr (split-string sym "/"))
-          sym))
-     'bold)))
+  (if-let ((docs (cider-sync-request:clojuredocs-lookup (cider-current-ns) sym)))
+      (progn
+        (pop-to-buffer (cider-create-clojuredocs-buffer (cider-clojuredocs--content docs)))
+        ;; highlight the symbol in question in the docs buffer
+        (highlight-regexp
+         (regexp-quote
+          (or (cadr (split-string sym "/"))
+              sym))
+         'bold))
+    (user-error "ClojureDocs documentation for %s is not found" sym)))
 
 ;;;###autoload
 (defun cider-clojuredocs (&optional arg)
