@@ -34,6 +34,11 @@
 (require 'seq)
 (require 'subr-x)
 
+(defgroup cider-cheatsheet nil
+  "Clojure cheatsheet in CIDER."
+  :prefix "cider-cheatsheet-"
+  :group 'cider)
+
 (defconst cider-cheatsheet-buffer "*cider-cheatsheet*")
 
 (defconst cider-cheatsheet-hierarchy
