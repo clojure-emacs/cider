@@ -41,6 +41,11 @@
 
 (defconst cider-cheatsheet-buffer "*cider-cheatsheet*")
 
+(defcustom cider-cheatsheet-auto-select-buffer t
+  "Whether to auto-select the cheatsheet popup buffer."
+  :type 'boolean
+  :package-version '(cider . "1.15.0"))
+
 (defconst cider-cheatsheet-hierarchy
   '(("Documentation"
      ("REPL"
@@ -613,7 +618,8 @@ With a prefix argument FLAT, represent each candidate as a full path to var."
 (defun cider-cheatsheet ()
   "Display cheatsheet in a popup buffer."
   (interactive)
-  (with-current-buffer (cider-popup-buffer cider-cheatsheet-buffer)
+  (with-current-buffer (cider-popup-buffer cider-cheatsheet-buffer
+                                           cider-cheatsheet-auto-select-buffer)
     (read-only-mode -1)
     (insert (cider-cheatsheet--buffer-contents))
     (read-only-mode 1)
