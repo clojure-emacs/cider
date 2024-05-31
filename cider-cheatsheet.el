@@ -46,6 +46,17 @@
   :type 'boolean
   :package-version '(cider . "1.15.0"))
 
+(defcustom cider-cheatsheet-default-action-function #'cider-doc-lookup
+  "Function to use on a var when it is selected.
+
+By default, documentation for a var is displayed using `cider-doc-lookup`,
+but it can also be set to `cider-clojuredocs-lookup` to show documentation
+from ClojureDocs or any other function accepting a var as an argument."
+  :type '(choice (const cider-doc-lookup)
+                 (const cider-clojuredocs-lookup)
+                 function)
+  :package-version '(cider . "1.15.0"))
+
 (defconst cider-cheatsheet-hierarchy
   '(("Documentation"
      ("REPL"
@@ -582,7 +593,7 @@ With a prefix argument FLAT, represent each candidate as a full path to var."
              (paths (mapcar (lambda (sections) (string-join sections " > ")) hierarchy))
              (path (completing-read "Select path: " paths))
              (var (car (last (split-string path " > ")))))
-        (cider-doc-lookup var))
+        (funcall cider-cheatsheet-default-action-function var))
     (let ((hierarchy cider-cheatsheet-hierarchy))
       (while (stringp (caar hierarchy))
         (let* ((sections (mapcar #'car hierarchy))
@@ -590,7 +601,7 @@ With a prefix argument FLAT, represent each candidate as a full path to var."
           (setq hierarchy (map-elt hierarchy section))))
       (let* ((vars (seq-mapcat #'cider-cheatsheet--expand-vars hierarchy))
              (var (completing-read "Select var: " vars)))
-        (cider-doc-lookup var)))))
+        (funcall cider-cheatsheet-default-action-function var)))))
 
 (cl-defun cider-cheatsheet--insert-hierarchy (hierarchy &optional (level 0))
   "Insert HIERARCHY with visual indentation for LEVEL."
@@ -604,7 +615,8 @@ With a prefix argument FLAT, represent each candidate as a full path to var."
         (insert-text-button var
                             'var var
                             'action (lambda (btn)
-                                      (cider-doc-lookup (button-get btn 'var)))
+                                      (funcall cider-cheatsheet-default-action-function
+                                               (button-get btn 'var)))
                             'help-echo (format "Show documentation for %s" var))
         (insert "\n")))))
 
