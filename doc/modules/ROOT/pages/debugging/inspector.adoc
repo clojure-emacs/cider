@@ -76,6 +76,10 @@ You'll have access to additional keybindings in the inspector buffer
 | `cider-inspector-set-max-atom-length`
 | Set a new maximum length above which nested atoms (non-collections) are truncated
 
+| kbd:[v]
+| `cider-inspector-toggle-view-mode`
+| Switch the rendering of the current value between `:normal` and `:object` view mode. In `:object` mode, any value is rendered as a plain Java object (by displaying its fields) instead of custom rendering rules that the Inspector applies in `:normal` mode.
+
 | kbd:[d]
 | `cider-inspector-def-current-val`
 | Defines a var in the REPL namespace with current inspector value. If you tend to always choose the same name(s), you may want to set the `cider-inspector-preferred-var-names` customization option.

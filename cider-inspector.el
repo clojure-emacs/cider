@@ -124,6 +124,7 @@ by clicking or navigating to them by other means."
     (define-key map "a" #'cider-inspector-set-max-atom-length)
     (define-key map "c" #'cider-inspector-set-max-coll-size)
     (define-key map "C" #'cider-inspector-set-max-nested-depth)
+    (define-key map "v" #'cider-inspector-toggle-view-mode)
     (define-key map "d" #'cider-inspector-def-current-val)
     (define-key map "t" #'cider-inspector-tap-current-val)
     (define-key map "1" #'cider-inspector-tap-at-point)
@@ -350,6 +351,14 @@ MAX-SIZE is the new value."
 MAX-NESTED-DEPTH is the new value."
   (interactive (list (read-number "Max nested depth: " cider-inspector-max-nested-depth)))
   (let ((result (cider-sync-request:inspect-set-max-nested-depth max-nested-depth 'v2)))
+    (when (nrepl-dict-get result "value")
+      (cider-inspector--render-value result 'v2))))
+
+(defun cider-inspector-toggle-view-mode ()
+  "Toggle the view mode of the inspector between normal and object view mode."
+  (interactive)
+  (let ((result (cider-nrepl-send-sync-request `("op" "inspect-toggle-view-mode")
+                                               cider-inspector--current-repl)))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result 'v2))))
 

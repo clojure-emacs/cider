@@ -4,6 +4,8 @@
 
 ### New features
 
+- [#3692](https://github.com/clojure-emacs/cider/pull/3692): Add ability to switch view modes in the ispector (bound to `v`).
+
 ### Changes
 
 - Bump the injected `cider-nrepl` to [0.49.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0490-2024-06-02).
