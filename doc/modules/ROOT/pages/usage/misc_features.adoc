@@ -329,3 +329,23 @@ If you would prefer for it to have a lower precedence, you can change `cider-xre
 ----
 
 TIP: See https://www.gnu.org/software/emacs/manual/html_node/elisp/Setting-Hooks.html[Setting Hooks] for more information about depth.
+
+== Cheatsheet
+
+There are two ways to access https://clojure.org/api/cheatsheet[Clojure cheatsheet] in CIDER.
+
+The first one is available through `cider-cheatsheet` command and displays the cheatsheet in a popup buffer. This is how it looks with two windows displaying the cheatsheet buffer side by side:
+
+image::cider-cheatsheet.png[Displaying cheatsheet in buffer]
+
+The second way is available through `cider-cheatsheet-select` command, which uses completions in the minibuffer to find a var in the cheatsheet. By default, it provides a multi-step selection process where you need to go section by section until you find a var. This is how it looks in the minibuffer:
+
+image::cider-cheatsheet-select-1.png[Selecting section in cheatsheet]
+
+image::cider-cheatsheet-select-2.png[Selecting var in cheatsheet]
+
+By using a prefix argument when calling `cider-cheatsheet-select`, we can change the behavior of `cider-cheatsheet-select` so each candidate is represented as a full path to a var. This can be useful with fuzzy completion style and vertical candidates display, as in that case, we can search in any element of the path, possibly getting matches from multiple categories at the same time. This is how it looks with such a workflow:
+
+image::cider-cheatsheet-select-3.png[Selecting path in cheatsheet]
+
+It is possible to control which function is used on a var when it is selected by customizing `cider-cheatsheet-default-action-function`. By default, documentation for a var is displayed using `cider-doc-lookup`, but it can also be set to `cider-clojuredocs-lookup` to show documentation from ClojureDocs or any other function accepting a var as an argument.
