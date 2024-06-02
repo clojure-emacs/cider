@@ -13,6 +13,7 @@
 ### Bugs fixed
 
 - [#3696](https://github.com/clojure-emacs/cider/pull/3696): Don't eagerly complete a candidate if there are other candidates matching `flex` style.
+- [#3698](https://github.com/clojure-emacs/cider/pull/3698): Fix error messages in non-JVM runtimes being suppressed when `cider-show-error-buffer` is set to `nil`.
 
 ## 1.14.0 (2024-05-30)
 
