@@ -5,6 +5,7 @@
 ### New features
 
 - [#3692](https://github.com/clojure-emacs/cider/pull/3692): Add ability to switch view modes in the ispector (bound to `v`).
+- [#3693](https://github.com/clojure-emacs/cider/pull/3693): Add `cider-enable-nrepl-jvmti-agent` defcustom to enable loading native nREPL JVMTI agent which restores thread stop ability on Java 21+.
 
 ### Changes
 
