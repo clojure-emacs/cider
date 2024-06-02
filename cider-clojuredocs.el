@@ -116,9 +116,12 @@ opposite of what that option dictates."
     (let ((arglists (nrepl-dict-get dict "arglists")))
       (dolist (arglist arglists)
         (insert (format " [%s]\n" arglist)))
-      (insert "\n")
-      (insert (nrepl-dict-get dict "doc"))
-      (insert "\n"))
+      (when-let* ((doc (nrepl-dict-get dict "doc"))
+                  ;; As this is a literal docstring from the source code and
+                  ;; there are two spaces at the beginning of lines in docstrings,
+                  ;; we remove them to make it align nicely in ClojureDocs buffer.
+                  (doc (replace-regexp-in-string "\n  " "\n" doc)))
+        (insert "\n" doc "\n")))
     (insert "\n== See Also\n\n")
     (if-let ((see-alsos (nrepl-dict-get dict "see-alsos")))
         (dolist (see-also see-alsos)
