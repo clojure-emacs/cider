@@ -594,7 +594,8 @@ It delegates the actual error content to the eval or op handler."
     ":" (group-n 3 (one-or-more (any "-" digit)))
     (optional
      ":" (group-n 4 (one-or-more (any "-" digit))))
-    " - "))
+    " - ")
+  "Regexp matching various non-error messages, e.g. reflection warnings.")
 
 ;; Please keep this in sync with `cider-clojure-compilation-error-regexp',
 ;; which is a subset of these regexes.
@@ -605,8 +606,6 @@ It delegates the actual error content to the eval or op handler."
    'nogroup)
   "A few example values that will match:
 \"Reflection warning, /tmp/foo/src/foo/core.clj:14:1 - \"
-\"CompilerException java.lang.RuntimeException: Unable to resolve symbol: \\
-lol in this context, compiling:(/foo/core.clj:10:1)\"
 \"Syntax error compiling at (src/workspace_service.clj:227:3).\"
 \"Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1).\"")
 
@@ -618,8 +617,6 @@ lol in this context, compiling:(/foo/core.clj:10:1)\"
 but excluding warnings such as reflection warnings.
 
 A few example values that will match:
-\"CompilerException java.lang.RuntimeException: Unable to resolve symbol: \\
-lol in this context, compiling:(/foo/core.clj:10:1)\"
 \"Syntax error compiling at (src/workspace_service.clj:227:3).\"
 \"Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1).\"")
 
