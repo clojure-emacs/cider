@@ -576,22 +576,15 @@ It delegates the actual error content to the eval or op handler."
 
 (defconst cider-clojure-1.10-error
   `(sequence
-    "Syntax error "
-    (minimal-match (zero-or-more anything))
-    (or "compiling "
-        "macroexpanding "
-        "reading source ")
-    (minimal-match (zero-or-more anything))
-    ,cider-clojure-1.10--location))
-
-(defconst cider-clojure-unexpected-error
-  `(sequence
-    "Unexpected error (" (minimal-match (one-or-more anything)) ") "
-    (or "compiling "
-        "macroexpanding "
-        "reading source ")
-    (minimal-match (one-or-more anything))
-    ,cider-clojure-1.10--location))
+    (or "Syntax error reading source " ; phase = :read-source
+        (sequence
+         (or "Syntax error " "Unexpected error ")
+         (minimal-match (zero-or-more anything)) ; optional class, eg. (ClassCastException)
+         (or "macroexpanding " ; phase = :macro-syntax-check / :macroexpansion
+             "compiling ")     ; phase = :compile-syntax-check / :compilation
+         (minimal-match (zero-or-more anything)))) ; optional symbol, eg. foo/bar
+    ,cider-clojure-1.10--location)
+  "Regexp matching error messages triggered in compilation / read / print phases.")
 
 (defconst cider-clojure-warning
   `(sequence
@@ -608,8 +601,7 @@ It delegates the actual error content to the eval or op handler."
 (defconst cider-clojure-compilation-regexp
   (rx-to-string
    `(seq bol (or ,cider-clojure-warning
-                 ,cider-clojure-1.10-error
-                 ,cider-clojure-unexpected-error))
+                 ,cider-clojure-1.10-error))
    'nogroup)
   "A few example values that will match:
 \"Reflection warning, /tmp/foo/src/foo/core.clj:14:1 - \"
@@ -620,8 +612,7 @@ lol in this context, compiling:(/foo/core.clj:10:1)\"
 
 (defconst cider-clojure-compilation-error-regexp
   (rx-to-string
-   `(seq bol (or ,cider-clojure-1.10-error
-                 ,cider-clojure-unexpected-error))
+   `(seq bol ,cider-clojure-1.10-error)
    'nogroup)
   "Like `cider-clojure-compilation-regexp',
 but excluding warnings such as reflection warnings.
@@ -634,8 +625,10 @@ lol in this context, compiling:(/foo/core.clj:10:1)\"
 
 (defconst cider--clojure-execution-error-regexp
   `(sequence
-    "Execution error "
-    (minimal-match (zero-or-more anything))
+    (or "Error reading eval result "   ; phase = :read-eval-result
+        "Error printing return value " ; phase = :print-eval-result
+        "Execution error ")            ; phase = :execution
+    (minimal-match (zero-or-more anything)) ; optional class, eg. (ArithmeticException)
     ,cider-clojure-1.10--location))
 
 (defconst cider--clojure-spec-execution-error-regexp
