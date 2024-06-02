@@ -8,6 +8,8 @@
 
 ### Bugs fixed
 
+- [#3696](https://github.com/clojure-emacs/cider/pull/3696): Don't eagerly complete a candidate if there are other candidates matching `flex` style.
+
 ## 1.14.0 (2024-05-30)
 
 ### New features
