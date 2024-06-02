@@ -564,7 +564,7 @@ It delegates the actual error content to the eval or op handler."
 ;; Reference:
 ;; https://github.com/clojure/clojure/blob/clojure-1.10.0/src/clj/clojure/main.clj#L251
 ;; See `cider-compilation-regexp' for interpretation of match groups.
-(defconst cider-clojure-1.10--location
+(defconst cider--clojure-1.10-location
   '(sequence
     "at " (minimal-match (zero-or-more anything)) ;; the fully-qualified name of the function that triggered the error
     "("
@@ -574,7 +574,7 @@ It delegates the actual error content to the eval or op handler."
      ":" (group-n 4 (one-or-more (any "-" digit)))) ; column number
     ")."))
 
-(defconst cider-clojure-1.10-error
+(defconst cider--clojure-1.10-error
   `(sequence
     (or "Syntax error reading source " ; phase = :read-source
         (sequence
@@ -583,10 +583,10 @@ It delegates the actual error content to the eval or op handler."
          (or "macroexpanding " ; phase = :macro-syntax-check / :macroexpansion
              "compiling ")     ; phase = :compile-syntax-check / :compilation
          (minimal-match (zero-or-more anything)))) ; optional symbol, eg. foo/bar
-    ,cider-clojure-1.10--location)
+    ,cider--clojure-1.10-location)
   "Regexp matching error messages triggered in compilation / read / print phases.")
 
-(defconst cider-clojure-warning
+(defconst cider--clojure-warning
   `(sequence
     (minimal-match (zero-or-more anything))
     (group-n 1 "warning")
@@ -601,8 +601,8 @@ It delegates the actual error content to the eval or op handler."
 ;; which is a subset of these regexes.
 (defconst cider-clojure-compilation-regexp
   (rx-to-string
-   `(seq bol (or ,cider-clojure-warning
-                 ,cider-clojure-1.10-error))
+   `(seq bol (or ,cider--clojure-warning
+                 ,cider--clojure-1.10-error))
    'nogroup)
   "A few example values that will match:
 \"Reflection warning, /tmp/foo/src/foo/core.clj:14:1 - \"
@@ -611,7 +611,7 @@ It delegates the actual error content to the eval or op handler."
 
 (defconst cider-clojure-compilation-error-regexp
   (rx-to-string
-   `(seq bol ,cider-clojure-1.10-error)
+   `(seq bol ,cider--clojure-1.10-error)
    'nogroup)
   "Like `cider-clojure-compilation-regexp',
 but excluding warnings such as reflection warnings.
@@ -620,25 +620,25 @@ A few example values that will match:
 \"Syntax error compiling at (src/workspace_service.clj:227:3).\"
 \"Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1).\"")
 
-(defconst cider--clojure-execution-error-regexp
+(defconst cider--clojure-execution-error
   `(sequence
     (or "Error reading eval result "   ; phase = :read-eval-result
         "Error printing return value " ; phase = :print-eval-result
         "Execution error ")            ; phase = :execution
     (minimal-match (zero-or-more anything)) ; optional class, eg. (ArithmeticException)
-    ,cider-clojure-1.10--location))
+    ,cider--clojure-1.10-location))
 
-(defconst cider--clojure-spec-execution-error-regexp
+(defconst cider--clojure-spec-execution-error
   `(sequence
     "Execution error - invalid arguments to "
     (minimal-match (one-or-more anything))
     " "
-    ,cider-clojure-1.10--location))
+    ,cider--clojure-1.10-location))
 
 (defconst cider-clojure-runtime-error-regexp
   (rx-to-string
-   `(seq bol (or ,cider--clojure-execution-error-regexp
-                 ,cider--clojure-spec-execution-error-regexp))
+   `(seq bol (or ,cider--clojure-execution-error
+                 ,cider--clojure-spec-execution-error))
    'nogroup)
   "Matches runtime errors, as oppsed to compile-time/macroexpansion-time errors.
 
