@@ -124,6 +124,7 @@
       (expect (progn (string-match cider-clojure-compilation-regexp clojure-compiler-warning)
                      (match-string 1 clojure-compiler-warning))
               :to-equal "warning")))
+  ;; FIXME: duplicate spec names
   (dolist (regexp (list cider-clojure-compilation-regexp cider-clojure-compilation-error-regexp))
     (it "Recognizes a clojure-1.10 error message"
       (let ((clojure-1.10-compiler-error "Syntax error compiling at (src/ardoq/service/workspace_service.clj:227:3)."))
@@ -156,7 +157,7 @@
                 (match-string 2 specimen))
               :to-equal "src/haystack/parser.cljc"))
 
-    ;; without foo/foo symbol
+    ;; without exception class cause-type
     (let ((specimen "Execution error at (src/haystack/parser.cljc:4)."))
       (expect specimen :to-match cider-clojure-runtime-error-regexp)
       (expect (progn
@@ -187,7 +188,15 @@
       (expect (progn
                 (string-match cider-clojure-runtime-error-regexp specimen)
                 (match-string 2 specimen))
-              :to-equal "FileInputStream.java"))))
+              :to-equal "FileInputStream.java")))
+
+  (it "Recognizes errors thrown during the result printing phase"
+    (let ((specimen "Error printing return value (ClassCastException) at clojure.core/file-seq$fn (core.clj:4997)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "core.clj"))))
 
 (describe "cider-module-info-regexp"
   (it "Matches module info provided by Java"
