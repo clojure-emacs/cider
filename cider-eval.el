@@ -925,8 +925,11 @@ depending on the PHASE."
               (and cider-show-error-buffer
                    (member phase (cider-clojure-compilation-error-phases))))
              ;; Only show overlays for things that do look like an exception (#3587):
-             (or (string-match-p cider-clojure-runtime-error-regexp err)
-                 (string-match-p cider-clojure-compilation-error-regexp err)))
+             ;; Note: only applicable to JVM Clojure error messages (#3687)
+             (if (cider-runtime-clojure-p)
+                 (or (string-match-p cider-clojure-runtime-error-regexp err)
+                     (string-match-p cider-clojure-compilation-error-regexp err))
+               t))
     ;; Display errors as temporary overlays
     (let ((cider-result-use-clojure-font-lock nil)
           (trimmed-err (funcall cider-inline-error-message-function err)))
