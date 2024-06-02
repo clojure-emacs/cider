@@ -161,6 +161,12 @@ NOTE: CIDER internally increases the timeout to 30 seconds for the first sync ev
 
 == Configuration
 
+=== Enable evaluation interrupts on Java 21 and newer
+
+The configuration variable `cider-enable-nrepl-jvmti-agent` has to be enabled
+for interrupts to work properly on Java 21+. See
+xref:basics/up_and_running.adoc#enabling-nrepl-jvmti-agent[JVMTI agent] section.
+
 === Display Spinner During Evaluation
 
 Some evaluation operations take a while to complete, so CIDER will display a

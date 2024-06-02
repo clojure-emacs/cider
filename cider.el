@@ -173,7 +173,6 @@ then concatenated into the \"-M[your-aliases]:cider/nrepl\" form."
   :safe #'stringp
   :package-version '(cider . "1.1"))
 
-
 (defcustom cider-clojure-cli-global-aliases
   nil
   "Global aliases to include when jacking in with the clojure CLI.
@@ -185,7 +184,6 @@ then concatenated into the \"-M[your-aliases]:cider/nrepl\" form."
   :type 'string
   :safe #'stringp
   :package-version '(cider . "1.14"))
-
 
 (defcustom cider-shadow-cljs-command
   "npx shadow-cljs"
@@ -376,6 +374,14 @@ The repl dependendcies are most likely to be nREPL middlewares."
   :safe #'booleanp
   :version '(cider . "0.11.0"))
 
+(defcustom cider-enable-nrepl-jvmti-agent nil
+  "When t, add `-Djdk.attach.allowAttachSelf' to the command line arguments.
+This allows nREPL JVMTI agent to be loaded.  It is needed for evaluation
+interruption to properly work on Java 21 and above."
+  :type 'boolean
+  :safe #'booleanp
+  :version '(cider . "1.15.0"))
+
 (defcustom cider-offer-to-open-cljs-app-in-browser t
   "When nil, do not offer to open ClojureScript apps in a browser on connect."
   :type 'boolean
@@ -536,7 +542,7 @@ Throws an error if PROJECT-TYPE is unknown."
   "List of dependencies where elements are lists of artifact name and version.")
 (put 'cider-jack-in-dependencies 'risky-local-variable t)
 
-(defcustom cider-injected-nrepl-version "1.1.2"
+(defcustom cider-injected-nrepl-version "1.2.0-beta2"
   "The version of nREPL injected on jack-in.
 We inject the newest known version of nREPL just in case
 your version of Boot or Leiningen is bundling an older one."
@@ -762,6 +768,8 @@ group:artifact:version notation and MIDDLEWARES are
 prepared as arguments to Clojurephant's ClojureNRepl task."
   (concat global-opts
           (unless (seq-empty-p global-opts) " ")
+          (when cider-enable-nrepl-jvmti-agent
+            "-Pjdk.attach.allowAttachSelf ")
           (cider--gradle-jack-in-property (append (cider--jack-in-required-dependencies) dependencies))
           " "
           params
@@ -813,7 +821,9 @@ removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
                       (seq-map (lambda (middleware)
                                  (concat "update-in :middleware conj "
                                          middleware))
-                               lein-middlewares))
+                               lein-middlewares)
+                      (when cider-enable-nrepl-jvmti-agent
+                        `(,(concat "update-in :jvm-opts conj -Djdk.attach.allowAttachSelf"))))
               " -- ")
    " -- "
    (if (not cider-enrich-classpath)
@@ -903,9 +913,10 @@ your aliases contain any mains, the cider/nrepl one will be the one used."
          (deps (format "{:deps {%s} :aliases {:cider/nrepl {:main-opts [%s]}}}"
                        (string-join all-deps " ") main-opts))
          (deps-quoted (cider--shell-quote-argument deps command)))
-    (format "%s-Sdeps %s -M%s:cider/nrepl%s"
+    (format "%s%s-Sdeps %s -M%s:cider/nrepl%s"
             ;; TODO: global-options are deprecated and should be removed in CIDER 2.0
             (if global-options (format "%s " global-options) "")
+            (if cider-enable-nrepl-jvmti-agent "-J-Djdk.attach.allowAttachSelf " "")
             deps-quoted
             (cider--combined-aliases)
             (if params (format " %s" params) ""))))

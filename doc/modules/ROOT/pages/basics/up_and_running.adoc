@@ -204,6 +204,14 @@ You can further customize the command line CIDER uses for `cider-jack-in` by
 modifying the some options. Those differ a bit between the various tools,
 so we'll examine them tool by tool.
 
+==== Enabling nREPL JVMTI agent
+
+Since version 1.2.0, nREPL ships together with a native JVMTI agent, so that the
+eval interrupts properly work on Java 21 and later. To enable the agent, the
+Java process should be launched with `-Djdk.attach.allowAttachSelf`. CIDER will
+do it automatically during jack-in if `cider-enable-nrepl-jvmti-agent` is set to
+`t`.
+
 ==== Leiningen Options
 
 * `cider-lein-command` - the name of the Leiningen executable (`lein` by default)
