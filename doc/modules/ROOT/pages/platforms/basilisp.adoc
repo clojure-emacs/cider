@@ -5,7 +5,7 @@ since CIDER 1.14
 
 == Overview
 
-Basilisp aims to enable writing Clojure programs on Python with full Python interoperability. It is highly compatible with Clojure.
+Basilisp aims to enable writing Clojure programs on Python with full interoperability. It is highly compatible with Clojure.
 
 To install Basilisp, run:
 
@@ -15,16 +15,18 @@ To install Basilisp, run:
 
 There are several ways to connect to Basilisp.
 
-* kbd:[M-x cider-jack-in] and kbd:[M-5 M-x cider-jack-in-universal]
+=== jack-in
 
-If you have created a `basilisp.edn` project file at your root of your project tree, you can jack in to the project `M-x cider-jack-in`. The `basilisp.edn` is similar to `deps.edn` for clojure-cli projects. It can be left empty just to mark the root of your project.
+kbd:[M-x cider-jack-in] and kbd:[M-5 M-x cider-jack-in-universal]
+
+If you have created a `basilisp.edn` project file at your root of your project tree, you can jack in to the project with `M-x cider-jack-in`. The `basilisp.edn` is similar to `deps.edn` for clojure-cli projects. It can be left empty just to mark the root of your project.
 
 If you don't have or want a basilisp project file, you can use universal jack in with a numerical argument of 5:
 
 - kbd:[M-5 M-x cider-jack-in-universal], or
-- kbd:[M-5 C-c C-x j u], from within file in clojure-mode
+- kbd:[M-5 C-c C-x j u], from within a file in clojure-mode
 
-(Note: an alternative to kbd:[M-5] is kbd:[C-u 5])
+NOTE: an alternative to kbd:[M-5] is kbd:[C-u 5]
 
 You can also bind the universal jack-in to Basilisp to a function to use as a shortcut, for example
 
@@ -35,7 +37,9 @@ You can also bind the universal jack-in to Basilisp to a function to use as a sh
                                 (cider-jack-in-universal 5)))
 ----
 
-* kbd:[M-x cider-connect]
+=== connect
+
+kbd:[M-x cider-connect]
 
 You can start its bundled nREPL server:
 
@@ -47,31 +51,37 @@ To see available options, type `basilisp nrepl-server -h` in a shell prompt.
 
 == Configuration
 
-The jack-in command can be configured via several defcustoms:
+The jack-in command can be configured with the following defcustoms
 
-* `cider-basilisp-command` (default is `basilisp`).
+=== `cider-basilisp-command`
+
+(default is `basilisp`)
 
 If Basilisp is installed in a virtual environment, update this to the full path of the `basilisp` executable within that virtual environment.
 
-* `cider-basilisp-parameters` (default is `nrepl-server`).
+=== `cider-basilisp-parameters`
+
+(default is `nrepl-server`)
+
+=== Customization
 
 There at few ways to setup (custom) variables in Emacs
 
-- https://www.gnu.org/software/emacs/manual/html_node/emacs/Easy-Customization.html[Examining and Setting Variables]
+==== 1. https://www.gnu.org/software/emacs/manual/html_node/emacs/Easy-Customization.html[Examining and Setting Variables]
 
-kbd:[C-h v cider-basilisp-command], and
-kbd:[C-h v cider-basilisp-parameters]
+- kbd:[C-h v cider-basilisp-command], and
+- kbd:[C-h v cider-basilisp-parameters]
 
-- https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html[Per-Diretory Local Variables]
+==== 2. https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html[Per-Diretory Local Variables]
 
 Uses `.dir-locals.el` to setup per mode variables. This file is typically stored at the root of the project.
 
 For example, to set the path to the basilisp executable within a virtual environment
 
-kbd:[M-x add-dir-local-variable]
-Mode or subdirectory: `clojure-mode`
-Add directory-local variable: `cider-basilisp-command`
-Add cider-basilisp-command with value: `"c:/dev/venvs/312/Scripts/basilisp"`
+- kbd:[M-x add-dir-local-variable]
+- Mode or subdirectory: `clojure-mode`
+- Add directory-local variable: `cider-basilisp-command`
+- Add cider-basilisp-command with value: `"c:/dev/venvs/312/Scripts/basilisp"`
 
 This should result to updating or creating a `.dir-local.el` file like below
 
@@ -83,15 +93,15 @@ This should result to updating or creating a `.dir-local.el` file like below
 ((clojure-mode . ((cider-basilisp-command . "c:/dev/venvs/312/Scripts/basilisp"))))
 ----
 
-- https://www.gnu.org/software/emacs/manual/html_node/emacs/Specifying-File-Variables.html[Specifying File Variables]
+==== 3. https://www.gnu.org/software/emacs/manual/html_node/emacs/Specifying-File-Variables.html[Specifying File Variables]
 
-It is best to put this in the top of your project's `basilisp.edn` file, and always jack-in from there
+It is best to put this in the top of your project's `basilisp.edn` file, and always jack-in from there.
 
-For example, setting `cider-basilisp-command` to start basilisp from within a virtual environment
+For example, setting `cider-basilisp-command` to start basilisp from within a virtual environment:
 
-kbd:[M-x add-dir-local-variable]
-Add file-local variable: `cider-basilisp-command`
-Add cider-basilisp-command with value: `"c:/dev/venvs/312/Scripts/basilisp"`
+- kbd:[M-x add-dir-local-variable]
+- Add file-local variable: `cider-basilisp-command`
+- Add cider-basilisp-command with value: `"c:/dev/venvs/312/Scripts/basilisp"`
 
 This will result in the following in `basilisp.edn`
 

@@ -14,6 +14,7 @@
 ** xref:platforms/overview.adoc[Overview]
 ** xref:platforms/babashka.adoc[Babashka]
 ** xref:platforms/nbb.adoc[Nbb]
+** xref:platforms/basilisp.adoc[Basilisp]
 ** xref:platforms/other_platforms.adoc[Other Platforms]
 * Using CIDER
 ** xref:usage/interactive_programming.adoc[Interactive Programming]
