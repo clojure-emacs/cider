@@ -206,11 +206,33 @@ so we'll examine them tool by tool.
 
 ==== Enabling nREPL JVMTI agent
 
-Since version 1.2.0, nREPL ships together with a native JVMTI agent, so that the
-eval interrupts properly work on Java 21 and later. To enable the agent, the
-Java process should be launched with `-Djdk.attach.allowAttachSelf`. CIDER will
-do it automatically during jack-in if `cider-enable-nrepl-jvmti-agent` is set to
-`t`.
+Since version 1.2.0, nREPL includes a native JVMTI agent which makes the eval
+interrupts work properly on Java 21 and later. To enable the agent, the Java
+process should be launched with `-Djdk.attach.allowAttachSelf`. CIDER will do it
+automatically during jack-in if `cider-enable-nrepl-jvmti-agent` variable is set
+to `t`.
+
+[IMPORTANT]
+====
+`cider-enable-nrepl-jvmti-agent` has no effect if you start a REPL
+process outside of Emacs and connect to it with `cider-connect`. In that
+scenario, you have to add `-Djdk.attach.allowAttachSelf` Java property manually
+through the means of the build tool. In Leiningen, add this to `project.clj`:
+
+[source,lisp]
+----
+:jvm-opts ["-Djdk.attach.allowAttachSelf"]
+----
+
+In tools.deps, add this to one of the aliases that you enable with the REPL:
+
+[source,lisp]
+----
+:aliases {:dev
+          {:jvm-opts ["-Djdk.attach.allowAttachSelf"]
+           ...}}
+----
+====
 
 ==== Leiningen Options
 
