@@ -910,13 +910,16 @@ your aliases contain any mains, the cider/nrepl one will be the one used."
                       (cider-jack-in-normalized-nrepl-middlewares)
                       ","))
          (main-opts (format "\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[%s]\"" middleware))
-         (deps (format "{:deps {%s} :aliases {:cider/nrepl {:main-opts [%s]}}}"
-                       (string-join all-deps " ") main-opts))
+         (deps (format "{:deps {%s} :aliases {:cider/nrepl {%s:main-opts [%s]}}}"
+                       (string-join all-deps " ")
+                       (if cider-enable-nrepl-jvmti-agent
+                           ":jvm-opts [\"-Djdk.attach.allowAttachSelf\"], "
+                         "")
+                       main-opts))
          (deps-quoted (cider--shell-quote-argument deps command)))
-    (format "%s%s-Sdeps %s -M%s:cider/nrepl%s"
+    (format "%s-Sdeps %s -M%s:cider/nrepl%s"
             ;; TODO: global-options are deprecated and should be removed in CIDER 2.0
             (if global-options (format "%s " global-options) "")
-            (if cider-enable-nrepl-jvmti-agent "-J-Djdk.attach.allowAttachSelf " "")
             deps-quoted
             (cider--combined-aliases)
             (if params (format " %s" params) ""))))

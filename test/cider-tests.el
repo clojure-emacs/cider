@@ -455,8 +455,8 @@
     (it "uses main opts in an alias to prevent other mains from winning"
       (setq-local cider-jack-in-dependencies nil)
       (setq-local cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware"))
-      (let ((expected (string-join `("clojure -J-Djdk.attach.allowAttachSelf -Sdeps "
-                                     ,(shell-quote-argument "{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} cider/cider-nrepl {:mvn/version \"0.49.0\"}} :aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
+      (let ((expected (string-join `("clojure -Sdeps "
+                                     ,(shell-quote-argument "{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} cider/cider-nrepl {:mvn/version \"0.49.0\"}} :aliases {:cider/nrepl {:jvm-opts [\"-Djdk.attach.allowAttachSelf\"], :main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
                                      " -M:cider/nrepl")
                                    "")))
         (setq-local cider-allow-jack-in-without-project t)
@@ -470,8 +470,8 @@
                 :to-equal expected)))
 
     (it "allows specifying custom aliases with `cider-clojure-cli-aliases`"
-      (let ((expected (string-join `("clojure -J-Djdk.attach.allowAttachSelf -Sdeps "
-                                     ,(shell-quote-argument "{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} cider/cider-nrepl {:mvn/version \"0.49.0\"}} :aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
+      (let ((expected (string-join `("clojure -Sdeps "
+                                     ,(shell-quote-argument "{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} cider/cider-nrepl {:mvn/version \"0.49.0\"}} :aliases {:cider/nrepl {:jvm-opts [\"-Djdk.attach.allowAttachSelf\"], :main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
                                      " -M:dev:test:cider/nrepl")
                                    "")))
         (setq-local cider-jack-in-dependencies nil)
@@ -488,9 +488,8 @@
     (dolist (command '("clojure" "powershell"))
       (it (format "should remove duplicates, yielding the same result (for %S command invocation)" command)
         ;; repeat the same test for PowerShell too
-        (let ((expected (string-join `("-J-Djdk.attach.allowAttachSelf "
-                                       "-Sdeps "
-                                       ,(cider--shell-quote-argument "{:deps {cider/cider-nrepl {:mvn/version \"0.49.0\"} nrepl/nrepl {:mvn/version \"0.9.0\"}} :aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}"
+        (let ((expected (string-join `("-Sdeps "
+                                       ,(cider--shell-quote-argument "{:deps {cider/cider-nrepl {:mvn/version \"0.49.0\"} nrepl/nrepl {:mvn/version \"0.9.0\"}} :aliases {:cider/nrepl {:jvm-opts [\"-Djdk.attach.allowAttachSelf\"], :main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}"
                                                                      command)
                                        " -M:dev:test:cider/nrepl")
                                      "")))
@@ -499,9 +498,8 @@
                                                           command)
                   :to-equal expected))))
     (it "handles aliases correctly"
-      (let ((expected (string-join `("-J-Djdk.attach.allowAttachSelf "
-                                     "-Sdeps "
-                                     ,(shell-quote-argument "{:deps {cider/cider-nrepl {:mvn/version \"0.49.0\"} nrepl/nrepl {:mvn/version \"0.9.0\"}} :aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
+      (let ((expected (string-join `("-Sdeps "
+                                     ,(shell-quote-argument "{:deps {cider/cider-nrepl {:mvn/version \"0.49.0\"} nrepl/nrepl {:mvn/version \"0.9.0\"}} :aliases {:cider/nrepl {:jvm-opts [\"-Djdk.attach.allowAttachSelf\"], :main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
                                      " -M:test:cider/nrepl")
                                    ""))
             (deps '(("nrepl/nrepl" "0.9.0"))))
@@ -528,8 +526,8 @@
             (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
                     :to-equal expected)))))
     (it "allows for global options"
-        (let ((expected (string-join `("-J-Xverify:none -J-Djdk.attach.allowAttachSelf -Sdeps "
-                                     ,(shell-quote-argument "{:deps {cider/cider-nrepl {:mvn/version \"0.49.0\"} nrepl/nrepl {:mvn/version \"0.9.0\"}} :aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
+        (let ((expected (string-join `("-J-Xverify:none -Sdeps "
+                                       ,(shell-quote-argument "{:deps {cider/cider-nrepl {:mvn/version \"0.49.0\"} nrepl/nrepl {:mvn/version \"0.9.0\"}} :aliases {:cider/nrepl {:jvm-opts [\"-Djdk.attach.allowAttachSelf\"], :main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
                                      " -M:test:cider/nrepl")
                                    ""))
             (deps '(("nrepl/nrepl" "0.9.0"))))
@@ -539,8 +537,8 @@
     (it "allows to specify git coordinate as cider-jack-in-dependency"
       (setq-local cider-jack-in-dependencies '(("org.clojure/tools.deps" (("git/sha" . "6ae2b6f71773de7549d7f22759e8b09fec27f0d9")
                                                                           ("git/url" . "https://github.com/clojure/tools.deps/")))))
-      (let ((expected (string-join `("clojure -J-Djdk.attach.allowAttachSelf -Sdeps "
-                                     ,(shell-quote-argument "{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} cider/cider-nrepl {:mvn/version \"0.49.0\"} org.clojure/tools.deps { :git/sha \"6ae2b6f71773de7549d7f22759e8b09fec27f0d9\"  :git/url \"https://github.com/clojure/tools.deps/\" }} :aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
+      (let ((expected (string-join `("clojure -Sdeps "
+                                     ,(shell-quote-argument "{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} cider/cider-nrepl {:mvn/version \"0.49.0\"} org.clojure/tools.deps { :git/sha \"6ae2b6f71773de7549d7f22759e8b09fec27f0d9\"  :git/url \"https://github.com/clojure/tools.deps/\" }} :aliases {:cider/nrepl {:jvm-opts [\"-Djdk.attach.allowAttachSelf\"], :main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
                                      " -M:cider/nrepl")
                                    "")))
         (setq-local cider-allow-jack-in-without-project t)
