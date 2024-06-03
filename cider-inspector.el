@@ -294,13 +294,19 @@ See `cider-sync-request:inspect-next-sibling' and `cider-inspector--render-value
       (cider-inspector--render-value result 'v2)
       (cider-inspector-next-inspectable-object 1))))
 
+(defun cider-inspector--refresh-with-opts (&rest opts)
+  "Invokes `inspect-refresh' op with supplied extra OPTS.
+Re-renders the currently inspected value."
+  (let ((result (cider-nrepl-send-sync-request `("op" "inspect-refresh" ,@opts)
+                                               cider-inspector--current-repl)))
+    (when (nrepl-dict-get result "value")
+      (cider-inspector--render-value result 'v2))))
+
 (defun cider-inspector-refresh ()
   "Re-render the currently inspected value.
 See `cider-sync-request:inspect-refresh' and `cider-inspector--render-value'"
   (interactive)
-  (let ((result (cider-sync-request:inspect-refresh 'v2)))
-    (when (nrepl-dict-get result "value")
-      (cider-inspector--render-value result 'v2))))
+  (cider-inspector--refresh-with-opts))
 
 (defun cider-inspector-next-page ()
   "Jump to the next page when inspecting a paginated sequence/map.
@@ -327,32 +333,24 @@ Does nothing if already on the first page."
 
 Current page will be reset to zero."
   (interactive (list (read-number "Page size: " cider-inspector-page-size)))
-  (let ((result (cider-sync-request:inspect-set-page-size page-size 'v2)))
-    (when (nrepl-dict-get result "value")
-      (cider-inspector--render-value result 'v2))))
+  (cider-inspector--refresh-with-opts "page-size" page-size))
 
 (defun cider-inspector-set-max-atom-length (max-length)
   "Set the max length of nested atoms to MAX-LENGTH."
   (interactive (list (read-number "Max atom length: " cider-inspector-max-atom-length)))
-  (let ((result (cider-sync-request:inspect-set-max-atom-length max-length 'v2)))
-    (when (nrepl-dict-get result "value")
-      (cider-inspector--render-value result 'v2))))
+  (cider-inspector--refresh-with-opts "max-atom-length" max-length))
 
 (defun cider-inspector-set-max-coll-size (max-size)
   "Set the number of nested collection members to display before truncating.
 MAX-SIZE is the new value."
   (interactive (list (read-number "Max collection size: " cider-inspector-max-coll-size)))
-  (let ((result (cider-sync-request:inspect-set-max-coll-size max-size 'v2)))
-    (when (nrepl-dict-get result "value")
-      (cider-inspector--render-value result 'v2))))
+  (cider-inspector--refresh-with-opts "max-coll-size" max-size))
 
 (defun cider-inspector-set-max-nested-depth (max-nested-depth)
   "Set the level of nesting for collections to display beflore truncating.
 MAX-NESTED-DEPTH is the new value."
   (interactive (list (read-number "Max nested depth: " cider-inspector-max-nested-depth)))
-  (let ((result (cider-sync-request:inspect-set-max-nested-depth max-nested-depth 'v2)))
-    (when (nrepl-dict-get result "value")
-      (cider-inspector--render-value result 'v2))))
+  (cider-inspector--refresh-with-opts "max-nested-depth" max-nested-depth))
 
 (defun cider-inspector-toggle-view-mode ()
   "Toggle the view mode of the inspector between normal and object view mode."
@@ -515,6 +513,7 @@ instead of just its \"value\" entry."
   "Set the page size in paginated view to PAGE-SIZE,
 V2 indicates if the entire response should be returned
 instead of just its \"value\" entry."
+  (declare (obsolete "use `inspect-refresh' op instead." "1.15.0"))
   (let ((result (thread-first `("op" "inspect-set-page-size"
                                 "page-size" ,page-size)
                               (cider-nrepl-send-sync-request cider-inspector--current-repl))))
@@ -526,6 +525,7 @@ instead of just its \"value\" entry."
   "Set the max length of nested atoms to MAX-LENGTH,
 V2 indicates if the entire response should be returned
 instead of just its \"value\" entry."
+  (declare (obsolete "use `inspect-refresh' op instead." "1.15.0"))
   (let ((result (thread-first `("op" "inspect-set-max-atom-length"
                                 "max-atom-length" ,max-length)
                               (cider-nrepl-send-sync-request cider-inspector--current-repl))))
@@ -537,6 +537,7 @@ instead of just its \"value\" entry."
   "Set the number of nested collection members to display before truncating.
 MAX-SIZE is the new value, V2 indicates if the entire response should be returned
 instead of just its \"value\" entry."
+  (declare (obsolete "use `inspect-refresh' op instead." "1.15.0"))
   (let ((result (thread-first `("op" "inspect-set-max-coll-size"
                                 "max-coll-size" ,max-size)
                               (cider-nrepl-send-sync-request cider-inspector--current-repl))))
@@ -548,6 +549,7 @@ instead of just its \"value\" entry."
   "Set the level of nesting for collections to display before truncating.
 MAX-NESTED-DEPTH is the new value, V2 indicates if the entire response should be returned
 instead of just its \"value\" entry."
+  (declare (obsolete "use `inspect-refresh' op instead." "1.15.0"))
   (let ((result (thread-first `("op" "inspect-set-max-nested-depth"
                                 "max-nested-depth" ,max-nested-depth)
                               (cider-nrepl-send-sync-request cider-inspector--current-repl))))
