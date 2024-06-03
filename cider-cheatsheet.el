@@ -3,6 +3,7 @@
 ;; Copyright © 2019-2024 Kris Jenkins, Bozhidar Batsov and CIDER contributors
 ;;
 ;; Author: Kris Jenkins <krisajenkins@gmail.com>
+;;         Kato Muso <m@katomuso.io>
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -22,9 +23,6 @@
 ;;; Commentary:
 
 ;; A quick reference system for Clojure.  Fast, searchable & available offline.
-
-;; Mostly taken from Kris Jenkins' `clojure-cheatsheet'
-;; See: https://github.com/clojure-emacs/clojure-cheatsheet
 
 ;;; Code:
 
