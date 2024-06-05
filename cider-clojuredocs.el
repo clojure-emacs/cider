@@ -111,13 +111,13 @@ opposite of what that option dictates."
 
 (defun cider-clojuredocs--insert-overview (dict)
   "Insert \"Overview\" section based on data from DICT."
-  (insert (format "= %s/%s\n"
+  (insert (format "%s/%s\n"
                   (nrepl-dict-get dict "ns")
                   (nrepl-dict-get dict "name")))
   (newline)
   (when-let ((arglists (nrepl-dict-get dict "arglists")))
     (dolist (arglist arglists)
-      (insert (format " [%s]\n" arglist)))
+      (insert (format "[%s]\n" arglist)))
     (newline))
   (when-let* ((doc (nrepl-dict-get dict "doc"))
               ;; As this is a literal docstring from the source code and
@@ -129,11 +129,11 @@ opposite of what that option dictates."
 
 (defun cider-clojuredocs--insert-see-also (dict)
   "Insert \"See Also\" section based on data from DICT."
-  (insert "== See Also\n")
+  (insert "See Also\n")
   (newline)
   (if-let ((see-alsos (nrepl-dict-get dict "see-alsos")))
       (dolist (see-also see-alsos)
-        (insert "* ")
+        (insert "- ")
         (insert-text-button see-also
                             'sym see-also
                             'action (lambda (btn)
@@ -145,7 +145,7 @@ opposite of what that option dictates."
 
 (defun cider-clojuredocs--insert-examples (dict)
   "Insert \"Examples\" section based on data from DICT."
-  (insert "== Examples\n")
+  (insert "Examples\n")
   (newline)
   (if-let ((examples (nrepl-dict-get dict "examples")))
       (dolist (example examples)
@@ -156,7 +156,7 @@ opposite of what that option dictates."
 
 (defun cider-clojuredocs--insert-notes (dict)
   "Insert \"Notes\" section based on data from DICT."
-  (insert "== Notes\n")
+  (insert "Notes\n")
   (newline)
   (if-let ((notes (nrepl-dict-get dict "notes")))
       (dolist (note notes)
