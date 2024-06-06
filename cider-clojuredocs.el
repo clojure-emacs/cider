@@ -109,61 +109,82 @@ opposite of what that option dictates."
     (goto-char (point-min))
     (current-buffer)))
 
+(defmacro cider-clojuredocs--with-visual-prefix (prefix &rest body)
+  "Add visual PREFIX before lines inserted by forms in BODY."
+  (declare (indent 1))
+  `(let ((start (line-beginning-position)))
+     ,@body
+     (add-text-properties start
+                          (line-end-position)
+                          (list 'line-prefix ,prefix
+                                'wrap-prefix ,prefix))))
+
+(defconst cider-clojuredocs--indentation-prefix "  "
+  "Prefix used for visual indentation of sections.")
+
 (defun cider-clojuredocs--insert-overview (dict)
   "Insert \"Overview\" section based on data from DICT."
   (insert (format "%s/%s\n"
                   (nrepl-dict-get dict "ns")
                   (nrepl-dict-get dict "name")))
-  (newline)
-  (when-let ((arglists (nrepl-dict-get dict "arglists")))
-    (dolist (arglist arglists)
-      (insert (format "[%s]\n" arglist)))
-    (newline))
-  (when-let* ((doc (nrepl-dict-get dict "doc"))
-              ;; As this is a literal docstring from the source code and
-              ;; there are two spaces at the beginning of lines in docstrings,
-              ;; we remove them to make it align nicely in ClojureDocs buffer.
-              (doc (replace-regexp-in-string "\n  " "\n" doc)))
-    (insert doc "\n")
-    (newline)))
+  (cider-clojuredocs--with-visual-prefix
+      cider-clojuredocs--indentation-prefix
+    (newline)
+    (when-let ((arglists (nrepl-dict-get dict "arglists")))
+      (dolist (arglist arglists)
+        (insert (format "[%s]\n" arglist)))
+      (newline))
+    (when-let* ((doc (nrepl-dict-get dict "doc"))
+                ;; As this is a literal docstring from the source code and
+                ;; there are two spaces at the beginning of lines in docstrings,
+                ;; we remove them to make it align nicely in ClojureDocs buffer.
+                (doc (replace-regexp-in-string "\n  " "\n" doc)))
+      (insert doc "\n")
+      (newline))))
 
 (defun cider-clojuredocs--insert-see-also (dict)
   "Insert \"See Also\" section based on data from DICT."
   (insert "See Also\n")
-  (newline)
-  (if-let ((see-alsos (nrepl-dict-get dict "see-alsos")))
-      (dolist (see-also see-alsos)
-        (insert "- ")
-        (insert-text-button see-also
-                            'sym see-also
-                            'action (lambda (btn)
-                                      (cider-clojuredocs-lookup (button-get btn 'sym)))
-                            'help-echo (format "Press Enter or middle click to jump to %s" see-also))
-        (insert "\n"))
-    (insert "Not available\n"))
-  (newline))
+  (cider-clojuredocs--with-visual-prefix
+      cider-clojuredocs--indentation-prefix
+    (newline)
+    (if-let ((see-alsos (nrepl-dict-get dict "see-alsos")))
+        (dolist (see-also see-alsos)
+          (insert "- ")
+          (insert-text-button see-also
+                              'sym see-also
+                              'action (lambda (btn)
+                                        (cider-clojuredocs-lookup (button-get btn 'sym)))
+                              'help-echo (format "Press Enter or middle click to jump to %s" see-also))
+          (insert "\n"))
+      (insert "Not available\n"))
+    (newline)))
 
 (defun cider-clojuredocs--insert-examples (dict)
   "Insert \"Examples\" section based on data from DICT."
   (insert "Examples\n")
-  (newline)
-  (if-let ((examples (nrepl-dict-get dict "examples")))
-      (dolist (example examples)
-        (insert (cider-font-lock-as-clojure example) "\n")
-        (insert "-------------------------------------------------\n"))
-    (insert "Not available\n"))
-  (newline))
+  (cider-clojuredocs--with-visual-prefix
+      cider-clojuredocs--indentation-prefix
+    (newline)
+    (if-let ((examples (nrepl-dict-get dict "examples")))
+        (dolist (example examples)
+          (insert (cider-font-lock-as-clojure example) "\n")
+          (insert "-------------------------------------------------\n"))
+      (insert "Not available\n"))
+    (newline)))
 
 (defun cider-clojuredocs--insert-notes (dict)
   "Insert \"Notes\" section based on data from DICT."
   (insert "Notes\n")
-  (newline)
-  (if-let ((notes (nrepl-dict-get dict "notes")))
-      (dolist (note notes)
-        (insert note "\n")
-        (insert "-------------------------------------------------\n"))
-    (insert "Not available\n"))
-  (newline))
+  (cider-clojuredocs--with-visual-prefix
+      cider-clojuredocs--indentation-prefix
+    (newline)
+    (if-let ((notes (nrepl-dict-get dict "notes")))
+        (dolist (note notes)
+          (insert note "\n")
+          (insert "-------------------------------------------------\n"))
+      (insert "Not available\n"))
+    (newline)))
 
 (defun cider-clojuredocs--content (dict)
   "Generate a nice string from DICT."
