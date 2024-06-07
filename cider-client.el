@@ -548,7 +548,7 @@ Used only when the info nREPL middleware is not available."
     var-info))
 
 (defun cider-var-info (var &optional all)
-  "Return VAR's info as an alist with list cdrs.
+  "Return info for VAR as an nREPL dict.
 When multiple matching vars are returned you'll be prompted to select one,
 unless ALL is truthy."
   (when (and var (not (string= var "")))
@@ -559,7 +559,7 @@ unless ALL is truthy."
       (if all var-info (cider--var-choice var-info)))))
 
 (defun cider-member-info (class member)
-  "Return the CLASS MEMBER's info as an alist with list cdrs."
+  "Return info for MEMBER of CLASS as an nREPL dict."
   (when (and class member)
     (cider-sync-request:info nil class member (cider-completion-get-context t))))
 
