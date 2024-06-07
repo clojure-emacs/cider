@@ -40,7 +40,7 @@
 (defconst cider-clojuredocs-buffer "*cider-clojuredocs*")
 
 (defun cider-sync-request:clojuredocs-lookup (ns sym)
-  "Perform nREPL \"resource\" op with NS and SYM."
+  "Perform nREPL \"clojuredocs-lookup\" op with NS and SYM."
   (thread-first `("op" "clojuredocs-lookup"
                   "ns" ,ns
                   "sym" ,sym)
