@@ -428,9 +428,8 @@ in a COMPACT format is specified, FOR-TOOLTIP if specified."
                                                             "doc-first-sentence-fragments" (nrepl-dict-get info "doc-first-sentence-fragments"))))
          (fetched-doc (nrepl-dict-get info "doc"))
          (doc     (or rendered-fragments
-                      (if compact
-                          (cider-docstring--dumb-trim fetched-doc)
-                        fetched-doc)
+                      (cider-docstring--format
+                       (if compact (cider-docstring--trim fetched-doc) fetched-doc))
                       (unless compact
                         "Not documented.")))
          (url     (nrepl-dict-get info "url"))
@@ -487,9 +486,7 @@ in a COMPACT format is specified, FOR-TOOLTIP if specified."
         (if (and doc class (not rendered-fragments))
             (cider-docview-render-java-doc (current-buffer) doc)
           (when doc
-            (emit (if rendered-fragments
-                      doc
-                    (concat "  " doc)))))
+            (emit doc)))
         (when url
           (insert "\n  Please see ")
           (insert-text-button url
