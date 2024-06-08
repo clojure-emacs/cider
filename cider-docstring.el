@@ -27,7 +27,9 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'seq)
 (require 'shr)
+(require 'subr-x)
 
 (defsubst cider--render-pre* (dom)
   "Render DOM nodes, formatting them them as Java if they are strings."
@@ -139,27 +141,19 @@ Prioritize rendering as much as possible while staying within `cider-docstring-m
         second-attempt
         first-attempt)))
 
-(defun cider-docstring--dumb-trim (s &optional n)
-  "Returns up to the first N lines of string S,
-adding \"...\" if trimming was necessary.
+(cl-defun cider-docstring--trim (string &optional (max-lines cider-docstring-max-lines))
+  "Return MAX-LINES of STRING, adding \"…\" at the end if trimming was necessary."
+  (let* ((lines (split-string string "\n"))
+         (lines (seq-take lines max-lines))
+         (string (string-join lines "\n")))
+    (concat string (when (> (length lines) max-lines) "…"))))
 
-N defaults to `cider-docstring-max-lines'.
-
-Also performs some bare-bones formatting, cleaning up some common whitespace issues."
-  (when s
-    (let* ((s (replace-regexp-in-string "\\.  " ".\n\n" s)) ;; improve the formatting of e.g. clojure.core/reduce
-           (n (or n cider-docstring-max-lines))
-           (lines (split-string s "\n"))
-           (lines-length (length lines))
-           (selected-lines (cl-subseq lines 0 (min n lines-length)))
-           (result (mapconcat (lambda (f)
-                                ;; Remove spaces at the beginning of each line, as it is common in many clojure.core defns:
-                                (replace-regexp-in-string "\\`[ ]+" "" f))
-                              selected-lines
-                              "\n")))
-      (if (> lines-length n)
-          (concat result "...")
-        result))))
+(defun cider-docstring--format (string)
+  "Return a nicely formatted STRING to be displayed to the user."
+  ;; As this is a literal docstring from the source code and
+  ;; there are two spaces at the beginning of lines in docstrings,
+  ;; we remove them to make it align nicely when docstring is displayed.
+  (replace-regexp-in-string "\n  " "\n" string))
 
 (provide 'cider-docstring)
 ;;; cider-docstring.el ends here
