@@ -142,10 +142,7 @@ Prioritize rendering as much as possible while staying within `cider-docstring-m
         first-attempt)))
 
 (cl-defun cider-docstring--trim (string &optional (max-lines cider-docstring-max-lines))
-  "Returns up to the first MAX-LINES lines of string STRING,
-adding \"...\" if trimming was necessary.
-
-MAX-LINES defaults to `cider-docstring-max-lines'."
+  "Return MAX-LINES of STRING, adding \"...\" if trimming was necessary."
   (let* ((lines (split-string string "\n"))
          (string (string-join (seq-take lines max-lines) "\n")))
     (concat string (when (> (length lines) max-lines) "..."))))
