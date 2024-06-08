@@ -148,7 +148,7 @@ Prioritize rendering as much as possible while staying within `cider-docstring-m
     (concat string (when (> (length lines) max-lines) "..."))))
 
 (defun cider-docstring--format (string)
-  "Performs formatting of STRING, cleaning up some common whitespace issues."
+  "Return a nicely formatted STRING to be displayed to the user."
   (let* ((string (replace-regexp-in-string "\\.  " ".\n\n" string)) ;; improve the formatting of e.g. clojure.core/reduce
          (string (mapconcat (lambda (line)
                               ;; Remove spaces at the beginning of each line, as it is common in many clojure.core defns:
