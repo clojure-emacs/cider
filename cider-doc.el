@@ -429,7 +429,8 @@ in a COMPACT format is specified, FOR-TOOLTIP if specified."
          (fetched-doc (nrepl-dict-get info "doc"))
          (doc     (or rendered-fragments
                       (if compact
-                          (cider-docstring--dumb-trim fetched-doc)
+                          (cider-docstring--trim
+                           (cider-docstring--format fetched-doc))
                         fetched-doc)
                       (unless compact
                         "Not documented.")))
