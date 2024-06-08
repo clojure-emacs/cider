@@ -27,6 +27,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'seq)
 (require 'shr)
 (require 'subr-x)
 
@@ -140,20 +141,14 @@ Prioritize rendering as much as possible while staying within `cider-docstring-m
         second-attempt
         first-attempt)))
 
-(defun cider-docstring--trim (s &optional n)
-  "Returns up to the first N lines of string S,
+(cl-defun cider-docstring--trim (string &optional (max-lines cider-docstring-max-lines))
+  "Returns up to the first MAX-LINES lines of string STRING,
 adding \"...\" if trimming was necessary.
 
-N defaults to `cider-docstring-max-lines'."
-  (when s
-    (let* ((n (or n cider-docstring-max-lines))
-           (lines (split-string s "\n"))
-           (lines-length (length lines))
-           (selected-lines (cl-subseq lines 0 (min n lines-length)))
-           (result (string-join selected-lines "\n")))
-      (if (> lines-length n)
-          (concat result "...")
-        result))))
+MAX-LINES defaults to `cider-docstring-max-lines'."
+  (let* ((lines (split-string string "\n"))
+         (string (string-join (seq-take lines max-lines) "\n")))
+    (concat string (when (> (length lines) max-lines) "..."))))
 
 (defun cider-docstring--format (s)
   "Performs formatting of S, cleaning up some common whitespace issues."
