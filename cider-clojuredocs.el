@@ -25,15 +25,15 @@
 
 ;;; Code:
 
+(require 'subr-x)
+(require 'url-vars)
+
 (require 'cider-client)
 (require 'cider-common)
-(require 'subr-x)
+(require 'cider-docstring)
 (require 'cider-popup)
 (require 'cider-util)
-
 (require 'nrepl-dict)
-
-(require 'url-vars)
 
 (defconst cider-clojuredocs-url "https://clojuredocs.org/")
 
@@ -120,10 +120,7 @@ opposite of what that option dictates."
       (insert (format " [%s]\n" arglist)))
     (newline))
   (when-let* ((doc (nrepl-dict-get dict "doc"))
-              ;; As this is a literal docstring from the source code and
-              ;; there are two spaces at the beginning of lines in docstrings,
-              ;; we remove them to make it align nicely in ClojureDocs buffer.
-              (doc (replace-regexp-in-string "\n  " "\n" doc)))
+              (doc (cider-docstring--format doc)))
     (insert doc "\n")
     (newline)))
 
