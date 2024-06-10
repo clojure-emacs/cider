@@ -66,9 +66,12 @@ If dict is nil, return nil.  If DEFAULT not provided, and KEY not in DICT,
 return nil.  If DICT is not an nREPL dict object, an error is thrown."
   (when dict
     (if (nrepl-dict-p dict)
-        (if (nrepl-dict-contains dict key)
-            (lax-plist-get (cdr dict) key)
-          default)
+        ;; Note: The structure of the following expression avoids the
+        ;; expensive containment check in nearly all cases, see #3717
+        (or (lax-plist-get (cdr dict) key)
+            (when default
+              (and (not (nrepl-dict-contains dict key))
+                   default)))
       (error "Not an nREPL dict object: %s" dict))))
 
 (defun nrepl-dict-put (dict key value)
