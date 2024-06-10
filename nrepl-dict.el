@@ -61,14 +61,20 @@ whose car is KEY.  Comparison is done with `equal'."
   (member key (nrepl-dict-keys dict)))
 
 (defun nrepl-dict-get (dict key &optional default)
-  "Get from DICT value associated with KEY, optional DEFAULT if KEY not in DICT.
-If dict is nil, return nil.  If DEFAULT not provided, and KEY not in DICT,
-return nil.  If DICT is not an nREPL dict object, an error is thrown."
+  "Get from DICT value associated with KEY.
+If DICT is nil, return nil.
+If DICT is not an nREPL dict object, an error is thrown.
+
+If KEY is not in DICT, return DEFAULT (if provided).
+Note that the use of DEFAULT is deprecated and will be
+removed in a future release."
+  (declare (advertised-calling-convention (dict key) "1.16"))
   (when dict
     (if (nrepl-dict-p dict)
         ;; Note: The structure of the following expression avoids the
         ;; expensive containment check in nearly all cases, see #3717
         (or (lax-plist-get (cdr dict) key)
+            ;; TODO: remove DEFAULT argument and the following clause
             (when default
               (and (not (nrepl-dict-contains dict key))
                    default)))
