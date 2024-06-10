@@ -2,6 +2,12 @@
 
 ## master (unreleased)
 
+### New features
+
+### Changes
+
+### Bugs fixed
+
 ## 1.15.0 (2024-06-10)
 
 ### New features
