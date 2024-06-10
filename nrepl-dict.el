@@ -45,12 +45,11 @@
     (maphash (lambda (k v) (nrepl-dict-put dict k v)) hash)
     dict))
 
-(defun nrepl-dict-p (object)
+(defsubst nrepl-dict-p (object)
   "Return t if OBJECT is an nREPL dict."
-  (and (listp object)
-       (eq (car object) 'dict)))
+  (eq (car-safe object) 'dict))
 
-(defun nrepl-dict-empty-p (dict)
+(defsubst nrepl-dict-empty-p (dict)
   "Return t if nREPL dict DICT is empty."
   (null (cdr dict)))
 
