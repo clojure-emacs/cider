@@ -28,7 +28,8 @@
 ;;; Commentary:
 ;;
 ;; Provides functions to interact with and create `nrepl-dict's.  These are
-;; simply plists with an extra element at the head.
+;; simply plists with an extra element at the head, and using `equal' for
+;; comparison of string keys.
 
 ;;; Code:
 (require 'cl-lib)
@@ -199,7 +200,7 @@ If NO-JOIN is given, return the first non nil dict."
           (t `(,dict1 ,dict2)))))
 
 
-;;; Dbind
+;;; Destructuring-bind of string keys
 (defmacro nrepl-dbind-response (response keys &rest body)
   "Destructure an nREPL RESPONSE dict.
 Bind the value of the provided KEYS and execute BODY."
