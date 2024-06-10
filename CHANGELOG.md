@@ -13,6 +13,7 @@
 
 - [#3691](https://github.com/clojure-emacs/cider/pull/3691): Deprecate `cider-sync-request:inspect-set-*` functions in favor of generic `inspect-refresh` op.
 - Bump the injected `cider-nrepl` to [0.49.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0490-2024-06-02).
+- Bump the injected nREPL version to 1.2.0.
 
 ### Bugs fixed
 
