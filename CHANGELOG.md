@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.15.0 (2024-06-10)
+
 ### New features
 
 - [#3692](https://github.com/clojure-emacs/cider/pull/3692): Add ability to switch view modes in the ispector (bound to `v`).
