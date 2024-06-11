@@ -1839,9 +1839,15 @@ all ns aliases and var mappings from the namespace before reloading it."
 Useful when the running nREPL on remote host.
 When UNDEF-ALL is non-nil or called with \\[universal-argument], removes
 all ns aliases and var mappings from the namespaces being reloaded"
-  (interactive "DLoad files beneath directory: \nP")
-  (mapcar (lambda (file) (cider-load-file file undef-all))
-          (directory-files-recursively directory "\\.clj[cs]?$")))
+  (interactive "DRecursively load files in directory: \nP")
+  (let* ((files (directory-files-recursively directory "\\.clj[cs]?$"))
+         (reporter (make-progress-reporter "Loading files" 0 (length files))))
+    (seq-do-indexed (lambda (file idx)
+                      (let ((inhibit-message t))
+                        (cider-load-file file undef-all))
+                      (progress-reporter-update reporter (1+ idx) file))
+                    files)
+    (progress-reporter-done reporter)))
 
 (defalias 'cider-eval-file #'cider-load-file
   "A convenience alias as some people are confused by the load-* names.")
