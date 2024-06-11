@@ -7,6 +7,7 @@
 ### Changes
 
 - [#3714](https://github.com/clojure-emacs/cider/pull/3714): Show progress when evaluating files using `cider-load-all-files`.
+- [#3713](https://github.com/clojure-emacs/cider/pull/3713): Optimize `nrepl-dict-get` and deprecate its 3-argument arity.
 
 ### Bugs fixed
 
