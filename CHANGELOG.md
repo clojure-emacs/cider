@@ -6,6 +6,8 @@
 
 ### Changes
 
+- [#3714](https://github.com/clojure-emacs/cider/pull/3714): Show progress when evaluating files using `cider-load-all-files`.
+
 ### Bugs fixed
 
 ## 1.15.0 (2024-06-10)
