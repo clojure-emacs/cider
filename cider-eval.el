@@ -1839,7 +1839,7 @@ all ns aliases and var mappings from the namespace before reloading it."
 Useful when the running nREPL on remote host.
 When UNDEF-ALL is non-nil or called with \\[universal-argument], removes
 all ns aliases and var mappings from the namespaces being reloaded"
-  (interactive "DLoad files beneath directory: \nP")
+  (interactive "DRecursively load files in directory: \nP")
   (let* ((files (directory-files-recursively directory "\\.clj[cs]?$"))
          (reporter (make-progress-reporter "Loading files" 0 (length files))))
     (seq-do-indexed (lambda (file idx)
