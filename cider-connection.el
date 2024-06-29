@@ -631,7 +631,6 @@ REPL defaults to the current REPL."
     (define-key map (kbd "j d") #'cider-describe-connection)
     (define-key map (kbd "j i") #'cider-describe-connection)
     (define-key map (kbd "C-c C-q") #'cider-quit)
-    (define-key map (kbd "C-c C-q") #'cider-quit)
     (define-key map (kbd "C-c C-r") #'cider-restart)
     (define-key map (kbd "C-c M-r") #'cider-restart)
     (define-key map (kbd "C-c C-d") #'cider-describe-connection)
