@@ -6,9 +6,15 @@
 
 ### Changes
 
+### Bugs fixed
+
+## 1.15.1 (2024-07-01)
+
+### Changes
+
 - [#3714](https://github.com/clojure-emacs/cider/pull/3714): Show progress when evaluating files using `cider-load-all-files`.
 - [#3713](https://github.com/clojure-emacs/cider/pull/3713): Optimize `nrepl-dict-get` and deprecate its 3-argument arity.
-- [#3719](https://github.com/clojure-emacs/cider/pull/3719): Clean duplicate define-key
+- [#3719](https://github.com/clojure-emacs/cider/pull/3719): Remove duplicated keybinding.
 - Bump the injected `cider-nrepl` to [0.49.1](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0491-2024-06-30).
   - Reduces the minimal supported Clojure version to 1.10.0 (from 1.10.3).
 
