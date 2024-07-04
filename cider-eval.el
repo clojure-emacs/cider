@@ -406,12 +406,12 @@ _ARG and _RESET are ignored, as there is only ever one compilation error.
 They exist for compatibility with `next-error'."
   (interactive)
   (cl-labels ((goto-next-note-boundary
-               ()
-               (let ((p (or (cider-find-property 'cider-note-p)
-                            (cider-find-property 'cider-note-p t))))
-                 (when p
-                   (goto-char p)
-                   (message "%s" (get-char-property p 'cider-note))))))
+                ()
+                (let ((p (or (cider-find-property 'cider-note-p)
+                             (cider-find-property 'cider-note-p t))))
+                  (when p
+                    (goto-char p)
+                    (message "%s" (get-char-property p 'cider-note))))))
     ;; if we're already on a compilation error, first jump to the end of
     ;; it, so that we find the next error.
     (when (get-char-property (point) 'cider-note-p)

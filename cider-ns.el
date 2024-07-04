@@ -166,13 +166,13 @@ presenting the error message as an overlay."
   "Refresh LOG-BUFFER with RESPONSE."
   (nrepl-dbind-response response (out err reloading progress status error error-ns after before)
     (cl-flet* ((log (message &optional face)
-                    (cider-emit-into-popup-buffer log-buffer message face t))
+                 (cider-emit-into-popup-buffer log-buffer message face t))
 
                (log-echo (message &optional face)
-                         (log message face)
-                         (unless cider-ns-refresh-show-log-buffer
-                           (let ((message-truncate-lines t))
-                             (message "cider-ns-refresh: %s" message)))))
+                 (log message face)
+                 (unless cider-ns-refresh-show-log-buffer
+                   (let ((message-truncate-lines t))
+                     (message "cider-ns-refresh: %s" message)))))
       (cond
        (out
         (log out))

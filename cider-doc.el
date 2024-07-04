@@ -447,10 +447,10 @@ in a COMPACT format is specified, FOR-TOOLTIP if specified."
     (cider--help-setup-xref (list #'cider-doc-lookup (format "%s/%s" ns name)) nil buffer)
     (with-current-buffer buffer
       (cl-flet ((emit (text &optional face sep)
-                      (insert (if face
-                                  (propertize text 'font-lock-face face)
-                                text)
-                              (or sep "\n"))))
+                  (insert (if face
+                              (propertize text 'font-lock-face face)
+                            text)
+                          (or sep "\n"))))
         (emit (if class java-name clj-name) 'font-lock-function-name-face)
         (when super
           (emit (concat "Extends: " (cider-font-lock-as 'java-mode super))))

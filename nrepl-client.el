@@ -1402,9 +1402,9 @@ If ID is nil, return nil."
   "Pretty print nREPL list like OBJECT.
 FOREGROUND and BUTTON are as in `nrepl-log-pp-object'."
   (cl-flet ((color (str)
-                   (propertize str 'face
-                               (append '(:weight ultra-bold)
-                                       (when foreground `(:foreground ,foreground))))))
+              (propertize str 'face
+                          (append '(:weight ultra-bold)
+                                  (when foreground `(:foreground ,foreground))))))
     (let ((head (format "(%s" (car object))))
       (insert (color head))
       (if (null (cdr object))

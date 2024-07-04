@@ -346,9 +346,9 @@ filters for the resulting machinery."
     (save-excursion
       (goto-char (point-min))
       (cl-flet ((next-detail (end)
-                             (when-let* ((pos (next-single-property-change (point) 'detail)))
-                               (when (< pos end)
-                                 (goto-char pos)))))
+                  (when-let* ((pos (next-single-property-change (point) 'detail)))
+                    (when (< pos end)
+                      (goto-char pos)))))
         (let ((inhibit-read-only t))
           ;; For each cause...
           (while (cider-stacktrace-next-cause)

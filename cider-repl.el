@@ -354,11 +354,11 @@ description transform) where transform is called with the param-value if
 present."
   (cl-labels
       ((emit-comment
-        (contents)
-        (insert-before-markers
-         (propertize
-          (if (string-blank-p contents) ";;\n" (concat ";; " contents "\n"))
-          'font-lock-face 'font-lock-comment-face))))
+         (contents)
+         (insert-before-markers
+          (propertize
+           (if (string-blank-p contents) ";;\n" (concat ";; " contents "\n"))
+           'font-lock-face 'font-lock-comment-face))))
     (let ((jack-in-command (plist-get cider-launch-params :jack-in-cmd))
           (cljs-repl-type (plist-get cider-launch-params :cljs-repl-type))
           (cljs-init-form (plist-get cider-launch-params :repl-init-form)))

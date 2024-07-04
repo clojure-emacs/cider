@@ -789,40 +789,40 @@ with the given LIMIT."
         deprecated enlightened
         macros functions vars instrumented traced)
     (cl-labels ((handle-plist
-                 (plist)
-                 ;; Note that (memq 'function cider-font-lock-dynamically) and similar statements are evaluated differently
-                 ;; for `core' - they're always truthy for `core' (see related core-handling code some lines below):
-                 (let ((do-function (memq 'function cider-font-lock-dynamically))
-                       (do-var (memq 'var cider-font-lock-dynamically))
-                       (do-macro (memq 'macro cider-font-lock-dynamically))
-                       (do-deprecated (memq 'deprecated cider-font-lock-dynamically)))
-                   (while plist
-                     (let ((sym (pop plist))
-                           (meta (pop plist)))
-                       (pcase (nrepl-dict-get meta "cider/instrumented")
-                         (`nil nil)
-                         (`"\"breakpoint-if-interesting\""
-                          (push sym instrumented))
-                         (`"\"light-form\""
-                          (push sym enlightened)))
-                       ;; The ::traced keywords can be inlined by MrAnderson, so
-                       ;; we catch that case too.
-                       ;; FIXME: This matches values too, not just keys.
-                       (when (seq-find (lambda (k) (and (stringp k)
-                                                        (string-match (rx "clojure.tools.trace/traced" eos) k)))
-                                       meta)
-                         (push sym traced))
-                       (when (and do-deprecated (nrepl-dict-get meta "deprecated"))
-                         (push sym deprecated))
-                       (let ((is-macro (nrepl-dict-get meta "macro"))
-                             (is-function (or (nrepl-dict-get meta "fn")
-                                              (nrepl-dict-get meta "arglists"))))
-                         (cond ((and do-macro is-macro)
-                                (push sym macros))
-                               ((and do-function is-function)
-                                (push sym functions))
-                               ((and do-var (not is-function) (not is-macro))
-                                (push sym vars)))))))))
+                  (plist)
+                  ;; Note that (memq 'function cider-font-lock-dynamically) and similar statements are evaluated differently
+                  ;; for `core' - they're always truthy for `core' (see related core-handling code some lines below):
+                  (let ((do-function (memq 'function cider-font-lock-dynamically))
+                        (do-var (memq 'var cider-font-lock-dynamically))
+                        (do-macro (memq 'macro cider-font-lock-dynamically))
+                        (do-deprecated (memq 'deprecated cider-font-lock-dynamically)))
+                    (while plist
+                      (let ((sym (pop plist))
+                            (meta (pop plist)))
+                        (pcase (nrepl-dict-get meta "cider/instrumented")
+                          (`nil nil)
+                          (`"\"breakpoint-if-interesting\""
+                           (push sym instrumented))
+                          (`"\"light-form\""
+                           (push sym enlightened)))
+                        ;; The ::traced keywords can be inlined by MrAnderson, so
+                        ;; we catch that case too.
+                        ;; FIXME: This matches values too, not just keys.
+                        (when (seq-find (lambda (k) (and (stringp k)
+                                                         (string-match (rx "clojure.tools.trace/traced" eos) k)))
+                                        meta)
+                          (push sym traced))
+                        (when (and do-deprecated (nrepl-dict-get meta "deprecated"))
+                          (push sym deprecated))
+                        (let ((is-macro (nrepl-dict-get meta "macro"))
+                              (is-function (or (nrepl-dict-get meta "fn")
+                                               (nrepl-dict-get meta "arglists"))))
+                          (cond ((and do-macro is-macro)
+                                 (push sym macros))
+                                ((and do-function is-function)
+                                 (push sym functions))
+                                ((and do-var (not is-function) (not is-macro))
+                                 (push sym vars)))))))))
       ;; For core members, we override `cider-font-lock-dynamically', since all core members should get the same treatment:
       (when (memq 'core cider-font-lock-dynamically)
         (let ((cider-font-lock-dynamically '(function var macro core deprecated)))

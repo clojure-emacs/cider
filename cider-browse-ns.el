@@ -268,10 +268,10 @@ list of items."
   (let* ((max-length (cider-browse-ns--column-width items)))
     (cl-labels
         ((keys-from-pred
-          (pred items)
-          (nrepl-dict-keys (nrepl-dict-filter (lambda (_ var-meta)
-                                                (funcall pred var-meta))
-                                              items))))
+           (pred items)
+           (nrepl-dict-keys (nrepl-dict-filter (lambda (_ var-meta)
+                                                 (funcall pred var-meta))
+                                               items))))
       (cond
        ((eql cider-browse-ns-group-by 'type)
         (let* ((func-keys (keys-from-pred #'cider-browse-ns--meta-function-p items))

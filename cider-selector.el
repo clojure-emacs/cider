@@ -121,56 +121,56 @@ is chosen.  The returned buffer is selected with
                     #'< :key #'car))))
 
 (def-cider-selector-method ?? "Selector help buffer."
-  (ignore-errors (kill-buffer cider-selector-help-buffer))
-  (with-current-buffer (get-buffer-create cider-selector-help-buffer)
-    (insert "CIDER Selector Methods:\n\n")
-    (cl-loop for (key line nil) in cider-selector-methods
-             do (insert (format "%c:\t%s\n" key line)))
-    (goto-char (point-min))
-    (help-mode)
-    (display-buffer (current-buffer) t))
-  (cider-selector)
-  (current-buffer))
+                           (ignore-errors (kill-buffer cider-selector-help-buffer))
+                           (with-current-buffer (get-buffer-create cider-selector-help-buffer)
+                             (insert "CIDER Selector Methods:\n\n")
+                             (cl-loop for (key line nil) in cider-selector-methods
+                                      do (insert (format "%c:\t%s\n" key line)))
+                             (goto-char (point-min))
+                             (help-mode)
+                             (display-buffer (current-buffer) t))
+                           (cider-selector)
+                           (current-buffer))
 
 (cl-pushnew (list ?4 "Select in other window" (lambda () (cider-selector t)))
             cider-selector-methods :key #'car)
 
 (def-cider-selector-method ?c
-  "Most recently visited clojure-mode buffer."
-  (cider-selector--recently-visited-buffer '(clojure-mode clojure-ts-mode)))
+                           "Most recently visited clojure-mode buffer."
+                           (cider-selector--recently-visited-buffer '(clojure-mode clojure-ts-mode)))
 
 (def-cider-selector-method ?e
-  "Most recently visited emacs-lisp-mode buffer."
-  (cider-selector--recently-visited-buffer 'emacs-lisp-mode))
+                           "Most recently visited emacs-lisp-mode buffer."
+                           (cider-selector--recently-visited-buffer 'emacs-lisp-mode))
 
 (def-cider-selector-method ?q "Abort."
-  (top-level))
+                           (top-level))
 
 (def-cider-selector-method ?r
-  "Current REPL buffer or as a fallback, the most recently
+                           "Current REPL buffer or as a fallback, the most recently
 visited cider-repl-mode buffer."
-  (or (cider-current-repl)
-      (cider-selector--recently-visited-buffer 'cider-repl-mode)))
+                           (or (cider-current-repl)
+                               (cider-selector--recently-visited-buffer 'cider-repl-mode)))
 
 (def-cider-selector-method ?m
-  "Current connection's *nrepl-messages* buffer."
-  (nrepl-messages-buffer (cider-current-repl)))
+                           "Current connection's *nrepl-messages* buffer."
+                           (nrepl-messages-buffer (cider-current-repl)))
 
 (def-cider-selector-method ?x
-  "*cider-error* buffer."
-  cider-error-buffer)
+                           "*cider-error* buffer."
+                           cider-error-buffer)
 
 (def-cider-selector-method ?p
-  "*cider-profile* buffer."
-  cider-profile-buffer)
+                           "*cider-profile* buffer."
+                           cider-profile-buffer)
 
 (def-cider-selector-method ?d
-  "*cider-doc* buffer."
-  cider-doc-buffer)
+                           "*cider-doc* buffer."
+                           cider-doc-buffer)
 
 (def-cider-selector-method ?s
-  "*cider-scratch* buffer."
-  (cider-scratch-find-or-create-buffer))
+                           "*cider-scratch* buffer."
+                           (cider-scratch-find-or-create-buffer))
 
 (provide 'cider-selector)
 
