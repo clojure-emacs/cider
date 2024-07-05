@@ -8,7 +8,7 @@
 
 ### Bugs fixed
 
-- [#3722](https://github.com/clojure-emacs/cider/pull/3722): Call `cider-docstring--format` after checking argument.
+- [#3722](https://github.com/clojure-emacs/cider/pull/3722): Call `cider-docstring--format` after checking argument is not nil.
 
 ## 1.15.1 (2024-07-01)
 
