@@ -8,6 +8,8 @@
 
 ### Bugs fixed
 
+- [#3722](https://github.com/clojure-emacs/cider/pull/3722): Call `cider-docstring--format` after checking argument.
+
 ## 1.15.1 (2024-07-01)
 
 ### Changes
@@ -17,9 +19,6 @@
 - [#3719](https://github.com/clojure-emacs/cider/pull/3719): Remove duplicated keybinding.
 - Bump the injected `cider-nrepl` to [0.49.1](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0491-2024-06-30).
   - Reduces the minimal supported Clojure version to 1.10.0 (from 1.10.3).
-- [#3722](https://github.com/clojure-emacs/cider/pull/3722): Call `cider-docstring--format` after checking argument
-
-### Bugs fixed
 
 ## 1.15.0 (2024-06-10)
 
