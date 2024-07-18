@@ -411,6 +411,34 @@ is included in the request if non-nil."
                (when cider-print-quota
                  `(("nrepl.middleware.print/quota" ,cider-print-quota))))))
 
+(defun cider--make-interactive-quota ()
+  "Returns a value `nrepl.middleware.print/quota',
+that is suitable for interactive evaluation.
+
+These should be lower than `cider-print-quota',
+which is a good default for other use cases
+\(repls, logs, stacktraces, tests, etc),
+because by definition large values don't fit in the screen
+and can slow down performance."
+  (min (max (round (* (frame-width) (frame-height) 1.5))
+            10000)
+       30000))
+
+(defun cider--nrepl-interactive-pr-request-map ()
+  "Map to merge into requests that do not require pretty printing.
+
+Like `cider--nrepl-pr-request-map', but has a more apt
+`nrepl.middleware.print/quota' for interactive evaluation."
+  (let ((cider-print-quota (cider--make-interactive-quota)))
+    (cider--nrepl-pr-request-map)))
+
+(defun cider--nrepl-interactive-print-request-map (&optional right-margin)
+  "Map to merge into requests that require pretty-printing.
+RIGHT-MARGIN specifies the maximum column-width of the printed result, and
+is included in the request if non-nil."
+  (let ((cider-print-quota (cider--make-interactive-quota)))
+    (cider--nrepl-print-request-map right-margin)))
+
 (defun cider--nrepl-content-type-map ()
   "Map to be merged into an eval request to make it use content-types."
   '(("content-type" "true")))
