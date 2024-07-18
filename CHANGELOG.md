@@ -6,6 +6,8 @@
 
 ### Changes
 
+- Bump the injected nREPL version to 1.3.
+
 ### Bugs fixed
 
 - [#3722](https://github.com/clojure-emacs/cider/pull/3722): Call `cider-docstring--format` after checking argument is not nil.
