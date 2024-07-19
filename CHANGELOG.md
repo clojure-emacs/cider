@@ -7,6 +7,7 @@
 ### Changes
 
 - Bump the injected nREPL version to 1.3.
+- Bump the injected `cider-nrepl` to [0.49.2](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0492-2024-07-19).
 
 ### Bugs fixed
 
