@@ -61,7 +61,7 @@ or in `build.gradle`:
 ----
 dependencies {
   devImplementation 'nrepl:nrepl:1.2.0'
-  devImplementation 'cider:cider-nrepl:0.49.2'
+  devImplementation 'cider:cider-nrepl:0.49.3'
   devImplementation 'cider:cider-piggieback:0.5.3'
 }
 
