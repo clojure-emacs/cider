@@ -809,7 +809,7 @@ with the given LIMIT."
                        ;; we catch that case too.
                        ;; FIXME: This matches values too, not just keys.
                        (when (seq-find (lambda (k) (and (stringp k)
-                                                        (string-match (rx "clojure.tools.trace/traced" eos) k)))
+                                                        (string-match (rx "orchard.trace/traced" eos) k)))
                                        meta)
                          (push sym traced))
                        (when (and do-deprecated (nrepl-dict-get meta "deprecated"))

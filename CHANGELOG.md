@@ -7,7 +7,9 @@
 ### Changes
 
 - Bump the injected nREPL version to 1.3.
-- Bump the injected `cider-nrepl` to [0.49.3](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0493-2024-08-13).
+- Bump the injected `cider-nrepl` to [0.50.1](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0501-2024-08-28).
+  * Introduce new backend for CIDER tracing functionality.
+  * Remove special handling of Boot classpath.
 - [#3733](https://github.com/clojure-emacs/cider/issues/3733): Remove support for sideloading. (this experimental feature was removed from nREPL 1.3)
 
 ### Bugs fixed
