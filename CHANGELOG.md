@@ -15,6 +15,7 @@
 ### Bugs fixed
 
 - [#3722](https://github.com/clojure-emacs/cider/pull/3722): Call `cider-docstring--format` after checking argument is not nil.
+- [#3739](https://github.com/clojure-emacs/cider/pull/3739): Leiningen jack in fails when `cider-enable-nrepl-jvmti-agent` is enabled.
 
 ## 1.15.1 (2024-07-01)
 

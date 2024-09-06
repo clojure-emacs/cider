@@ -158,7 +158,7 @@
                                 (shell-quote-argument "[cider/cider-nrepl \"0.50.2\"]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
-                                " -- update-in :jvm-opts conj -Djdk.attach.allowAttachSelf"
+                                " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
 
@@ -172,7 +172,7 @@
                          (shell-quote-argument "[cider/cider-nrepl \"0.50.2\"]")
                          " -- update-in :plugins conj "
                          (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
-                         " -- update-in :jvm-opts conj -Djdk.attach.allowAttachSelf"
+                         " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
                          " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                          " -- repl :headless")))
 
@@ -185,7 +185,7 @@
                                 (shell-quote-argument "[cider/cider-nrepl \"0.50.2\"]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
-                                " -- update-in :jvm-opts conj -Djdk.attach.allowAttachSelf"
+                                " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
 
@@ -226,7 +226,7 @@
                                 (shell-quote-argument "[cider/cider-nrepl \"0.50.2\"]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
-                                " -- update-in :jvm-opts conj -Djdk.attach.allowAttachSelf"
+                                " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
 
@@ -262,7 +262,7 @@
                                 (shell-quote-argument "[cider/cider-nrepl \"0.50.2\"]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
-                                " -- update-in :jvm-opts conj -Djdk.attach.allowAttachSelf"
+                                " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
     (it "can concat in a boot project"
@@ -345,7 +345,7 @@
                                 (shell-quote-argument "[cider/cider-nrepl \"0.50.2\"]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
-                                " -- update-in :jvm-opts conj -Djdk.attach.allowAttachSelf"
+                                " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless"))))
 
