@@ -823,7 +823,7 @@ removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
                                          middleware))
                                lein-middlewares)
                       (when cider-enable-nrepl-jvmti-agent
-                        `(,(concat "update-in :jvm-opts conj -Djdk.attach.allowAttachSelf"))))
+                        `(,(concat "update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"))))
               " -- ")
    " -- "
    (if (not cider-enrich-classpath)
