@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Bugs fixed
+
+- [#3742](https://github.com/clojure-emacs/cider/issues/3742): Restore syntax highlighting in result minibuffer.
+
 ## 1.16.0 (2024-09-24)
 
 ### Changes
