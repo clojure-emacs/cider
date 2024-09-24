@@ -317,7 +317,7 @@ focused."
                            :where point
                            :duration cider-eval-result-duration
                            :prepend-face (or overlay-face 'cider-result-overlay-face))))
-         (msg (format "%s%s" cider-eval-result-prefix value))
+         (msg (format "%s%s" cider-eval-result-prefix font-value))
          (max-msg-length (* (floor (* (frame-height) max-mini-window-height))
                             (frame-width)))
          (msg (if (> (string-width msg) max-msg-length)
