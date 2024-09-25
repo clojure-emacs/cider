@@ -70,6 +70,8 @@
 
 ### Changes
 
+- [#3633](https://github.com/clojure-emacs/cider/issues/3633): Use lower nREPL [print quotas](https://nrepl.org/nrepl/1.1/design/middleware.html#pretty-printing) for interactive evaluation.
+  - This can improve responsiveness for large outputs, with no tradeoffs.
 - [#3626](https://github.com/clojure-emacs/cider/issues/3626): `cider-ns-refresh`: jump to the relevant file/line on errors.
 - [#3628](https://github.com/clojure-emacs/cider/issues/3628): `cider-ns-refresh`: summarize errors as an overlay.
 - [#3660](https://github.com/clojure-emacs/cider/issues/3660): Fix `cider-inspector-def-current-val` always defining in `user` namespace.
