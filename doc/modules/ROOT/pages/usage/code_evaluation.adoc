@@ -183,6 +183,16 @@ Set this variable to `nil` to disable it.
 
 NOTE: CIDER uses internally the excellent package https://github.com/Malabarba/spinner.el[spinner.el].
 
+=== Syntax Highlighting of Results
+
+By default the results of interactive evaluation (both those displayed in the minibuffer and in overlays) are font-locked as Clojure code.
+You can disable this by tweaking the configuration option `cider-result-use-clojure-font-lock`:
+
+[source,lisp]
+----
+(setq cider-result-use-clojure-font-lock nil)
+----
+
 === Overlays
 
 When you evaluate code in Clojure files, the result is displayed in the buffer
