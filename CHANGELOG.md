@@ -5,6 +5,7 @@
 ### Bugs fixed
 
 - [#3742](https://github.com/clojure-emacs/cider/issues/3742): Restore syntax highlighting in result minibuffer.
+- [#3747](https://github.com/clojure-emacs/cider/issues/3747): Fix errors when docstring is nil.
 
 ## 1.16.0 (2024-09-24)
 

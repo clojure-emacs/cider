@@ -143,9 +143,10 @@ Prioritize rendering as much as possible while staying within `cider-docstring-m
 
 (cl-defun cider-docstring--trim (string &optional (max-lines cider-docstring-max-lines))
   "Return MAX-LINES of STRING, adding \"...\" if trimming was necessary."
-  (let* ((lines (split-string string "\n"))
-         (string (string-join (seq-take lines max-lines) "\n")))
-    (concat string (when (> (length lines) max-lines) "..."))))
+  (when string
+    (let* ((lines (split-string string "\n"))
+           (string (string-join (seq-take lines max-lines) "\n")))
+      (concat string (when (> (length lines) max-lines) "...")))))
 
 (defun cider-docstring--format (string)
   "Return a nicely formatted STRING to be displayed to the user.
