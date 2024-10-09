@@ -41,9 +41,12 @@ CIDER defines a specialized completion category through the `cider-complete-at-p
 added to `completion-at-point-functions`, establishing a dedicated completion category named
 `cider`.
 
-The CIDER completion at point function supports most completion styles, including
-`partial-completion`, `orderless` and `flex` (read more below).
-
+The CIDER completion at point function supports most completion styles,
+including `partial-completion`, `orderless` and `flex`. It also supports a
+custom completion style that is confusingly named `cider` too. Activating it
+provides a richer set of completion candidates (see
+xref:usage/code_completion.adoc#fuzzy-candidate-matching[fuzzy candidate
+matching]).
 
 Sometimes the user may want to use a different completion style just for the CIDER
 complete at point function. That can be achieved by setting
@@ -57,8 +60,6 @@ complete at point function. The following snippet accomplishes that:
 
 This specifies that the `cider` completion category should employ the basic completion style by
 default.
-
-You can also enable the `flex` completion style by activating xref:usage/code_completion.adoc#fuzzy-candidate-matching[fuzzy candidate matching].
 
 == Auto-completion
 
@@ -146,15 +147,15 @@ emacs22)` since Emacs 23. For a better description of how those
 completion styles operates, refer to the official Emacs manual on
 https://www.gnu.org/software/emacs/manual/html_node/emacs/Completion-Styles.html[how completion alternatives are chosen].
 
-CIDER provides a function to enable the `flex` completion style for CIDER-specific
+CIDER provides a function to enable the `cider` completion style for CIDER-specific
 completions. If you wish to enable that, you can add this to your config:
 
 [source,lisp]
 ----
-(cider-enable-flex-completion)
+(cider-enable-cider-completion-style)
 ----
 
-This adds the `flex` completion style, as introduced in Emacs 27.
+This adds the `cider` completion style for CIDER buffers.
 
 Now, `company-mode` (and other completion packages like `corfu`) will
 accept certain fuzziness when matching candidates against the
@@ -162,8 +163,6 @@ prefix. For example, typing `mi` will show you `map-indexed` as one of
 the possible completion candidates and `cji` will complete to
 `clojure.java.io`. Different completion examples are shown
 https://github.com/alexander-yakushev/compliment/wiki/Examples[here].
-
-NOTE: `cider-company-enable-fuzzy-completion` (now deprecated) should be used for Emacs < 27. 
 
 === Completion annotations
 
