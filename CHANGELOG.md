@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+- [#3746](https://github.com/clojure-emacs/cider/issues/3746): Bring back `cider` completion style for activating backend-driven completion.
+
 ### Bugs fixed
 
 - [#3742](https://github.com/clojure-emacs/cider/issues/3742): Restore syntax highlighting in result minibuffer.
