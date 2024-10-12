@@ -256,6 +256,14 @@ in the buffer."
 
 ;; Fuzzy completion for company-mode
 
+(defun cider-completion-try-completion (string collection pred _)
+  "Return longest common substring of all completions of STRING in COLLECTION,
+also pass PRED to `try-completion'.
+
+This function is only needed to be a correct citizen in
+`completion-styles-alist'."
+  (try-completion string collection pred))
+
 (defun cider-company-unfiltered-candidates (string &rest _)
   "Return CIDER completion candidates for STRING as is, unfiltered."
   (cider-complete string))
@@ -268,17 +276,40 @@ in the buffer."
 ;;  which introduced `cider-company-enable-fuzzy-completion')
 (add-to-list 'completion-styles-alist
              '(cider
-               cider-company-unfiltered-candidates
+               cider-completion-try-completion
                cider-company-unfiltered-candidates
                "CIDER backend-driven completion style."))
 
 (defun cider-company-enable-fuzzy-completion ()
-  "Enable backend-driven fuzzy completion in the current buffer.
+  "Enables `cider' completion style for CIDER in all buffers.
 
-DEPRECATED: please use `cider-enable-flex-completion' instead."
-  (setq-local completion-styles '(cider)))
+DEPRECATED: please use `cider-enable-cider-completion-style' instead."
+  (interactive)
+  (cider-enable-cider-completion-style))
 
-(make-obsolete 'cider-company-enable-fuzzy-completion 'cider-enable-flex-completion "1.8.0")
+(defun cider-enable-cider-completion-style ()
+  "Enables `cider' completion style for CIDER in all buffers.
+
+This style supports non-prefix completion candidates returned by the
+completion backend.  Only affects the `cider' completion category."
+  (interactive)
+  (let* ((cider (assq 'cider completion-category-overrides))
+         (found-styles (assq 'styles cider))
+         (new-styles (if found-styles
+                         (cons 'styles (cons 'cider (cdr found-styles)))
+                       '(styles cider basic)))
+         (new-cider (if cider
+                        (cons 'cider
+                              (cons new-styles
+                                    (seq-remove (lambda (x) (equal 'styles (car x)))
+                                                (cdr cider))))
+                      (list 'cider new-styles)))
+         (new-overrides (cons new-cider
+                              (seq-remove (lambda (x) (equal 'cider (car x)))
+                                          completion-category-overrides))))
+    (setq completion-category-overrides new-overrides)))
+
+(make-obsolete 'cider-company-enable-fuzzy-completion 'cider-enable-cider-completion-style "1.17.0")
 
 (defun cider-enable-flex-completion ()
   "Enables `flex' (fuzzy) completion for CIDER in all buffers.
