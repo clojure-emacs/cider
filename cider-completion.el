@@ -256,14 +256,6 @@ in the buffer."
 
 ;; Fuzzy completion for company-mode
 
-(defun cider-completion-try-completion (string collection pred _)
-  "Return longest common substring of all completions of STRING in COLLECTION,
-also pass PRED to `try-completion'.
-
-This function is only needed to be a correct citizen in
-`completion-styles-alist'."
-  (try-completion string collection pred))
-
 (defun cider-company-unfiltered-candidates (string &rest _)
   "Return CIDER completion candidates for STRING as is, unfiltered."
   (cider-complete string))
@@ -276,7 +268,8 @@ This function is only needed to be a correct citizen in
 ;;  which introduced `cider-company-enable-fuzzy-completion')
 (add-to-list 'completion-styles-alist
              '(cider
-               cider-completion-try-completion
+               ;; Use `ignore' in place of "try-competion function".
+               ignore
                cider-company-unfiltered-candidates
                "CIDER backend-driven completion style."))
 
