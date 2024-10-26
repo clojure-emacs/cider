@@ -1,6 +1,6 @@
 ;;; cider-error-parsing-tests.el  -*- lexical-binding: t; -*-
 
-;; Copyright © 2012-2023 Tim King, Bozhidar Batsov
+;; Copyright © 2012-2024 Tim King, Bozhidar Batsov
 
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.dev>
@@ -45,7 +45,7 @@
   (it "extracts correct information from the error message"
 
     ;; test-cider-extract-error-info-14
-    (let* ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(/some/test/file/core.clj:31)")
+    (let* ((message "Syntax error compiling at (/some/test/file/core.clj:31). Unable to resolve symbol: dummy in this context.")
            (info (cider-extract-error-info cider-compilation-regexp message)))
       (expect (file-name info) :to-equal "/some/test/file/core.clj")
       (expect (line-num info) :to-equal 31)
@@ -53,7 +53,7 @@
       (expect (face info) :to-equal 'cider-error-highlight-face))
 
     ;; test-cider-extract-error-info-14-windows
-    (let* ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(c:\\some\\test\\file\\core.clj:31)")
+    (let* ((message "Syntax error compiling at (c:\\some\\test\\file\\core.clj:31). Unable to resolve symbol: dummy in this context.")
            (info (cider-extract-error-info cider-compilation-regexp message)))
       (expect (file-name info) :to-equal "c:\\some\\test\\file\\core.clj")
       (expect (line-num info) :to-equal 31)
@@ -61,7 +61,7 @@
       (expect (face info) :to-equal 'cider-error-highlight-face))
 
     ;; test-cider-extract-error-info-14-no-file
-    (let* ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(NO_SOURCE_PATH:31)")
+    (let* ((message "Syntax error compiling at (REPL:31). Unable to resolve symbol: dummy in this context.")
            (info (cider-extract-error-info cider-compilation-regexp message)))
       (expect (file-name info) :to-equal nil)
       (expect (line-num info) :to-equal 31)
@@ -86,7 +86,7 @@
       (expect (face info) :to-equal 'cider-warning-highlight-face))
 
     ;; test-cider-extract-error-info-15
-    (let* ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(/some/test/file/core.clj:31:3)")
+    (let* ((message "Syntax error compiling at (/some/test/file/core.clj:31:3). Unable to resolve symbol: dummy in this context.")
            (info (cider-extract-error-info cider-compilation-regexp message)))
       (expect (file-name info) :to-equal "/some/test/file/core.clj")
       (expect (line-num info) :to-equal 31)
@@ -94,7 +94,7 @@
       (expect (face info) :to-equal 'cider-error-highlight-face))
 
     ;; test-cider-extract-error-info-15-no-file
-    (let* ((message "CompilerException java.lang.RuntimeException: Unable to resolve symbol: dummy in this context, compiling:(NO_SOURCE_PATH:31:3)")
+    (let* ((message "Syntax error compiling at (REPL:31:3). Unable to resolve symbol: dummy in this context")
            (info (cider-extract-error-info cider-compilation-regexp message)))
       (expect (file-name info) :to-equal nil)
       (expect (line-num info) :to-equal 31)
@@ -117,31 +117,86 @@
       (expect (col-num info) :to-equal 43)
       (expect (face info) :to-equal 'cider-warning-highlight-face))))
 
-(describe "The cider compilation regex"
+(describe "The cider compilation regexes"
   (it "Recognizes a clojure warning message"
     (let ((clojure-compiler-warning "Reflection warning, /tmp/foo/src/foo/core.clj:14:1 - call to java.lang.Integer ctor can't be resolved."))
       (expect clojure-compiler-warning :to-match cider-clojure-compilation-regexp)
       (expect (progn (string-match cider-clojure-compilation-regexp clojure-compiler-warning)
                      (match-string 1 clojure-compiler-warning))
               :to-equal "warning")))
-  (it "Recognizes a clojure-1.9 error message"
-    (let ((clojure-1.9-compiler-error "CompilerException java.lang.RuntimeException: Unable to resolve symbol: lol in this context, compiling:(/tmp/foo/src/foo/core.clj:10:1)"))
-      (expect clojure-1.9-compiler-error :to-match cider-clojure-compilation-regexp)
-      (expect (progn (string-match cider-clojure-compilation-regexp clojure-1.9-compiler-error)
-                     (match-string 2 clojure-1.9-compiler-error))
-              :to-equal "/tmp/foo/src/foo/core.clj")))
-  (it "Recognizes a clojure-1.10 error message"
-    (let ((clojure-1.10-compiler-error "Syntax error compiling at (src/ardoq/service/workspace_service.clj:227:3)."))
-      (expect clojure-1.10-compiler-error :to-match cider-clojure-compilation-regexp)
-      (expect (progn (string-match cider-clojure-compilation-regexp clojure-1.10-compiler-error)
-                     (match-string 2 clojure-1.10-compiler-error))
-              :to-equal "src/ardoq/service/workspace_service.clj")))
-  (it "Recognizes a clojure 'Unexpected error' message"
-    (let ((clojure-1.10-compiler-error "Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1)."))
-      (expect clojure-1.10-compiler-error :to-match cider-clojure-compilation-regexp)
-      (expect (progn (string-match cider-clojure-compilation-regexp clojure-1.10-compiler-error)
-                     (match-string 2 clojure-1.10-compiler-error))
-              :to-equal "src/haystack/parser.cljc"))))
+  ;; FIXME: duplicate spec names
+  (dolist (regexp (list cider-clojure-compilation-regexp cider-clojure-compilation-error-regexp))
+    (it "Recognizes a clojure-1.10 error message"
+      (let ((clojure-1.10-compiler-error "Syntax error compiling at (src/ardoq/service/workspace_service.clj:227:3)."))
+        (expect clojure-1.10-compiler-error :to-match regexp)
+        (expect (progn (string-match regexp clojure-1.10-compiler-error)
+                       (match-string 2 clojure-1.10-compiler-error))
+                :to-equal "src/ardoq/service/workspace_service.clj")))
+    (it "Recognizes a clojure 'Unexpected error' message"
+      (let ((clojure-1.10-compiler-error "Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1)."))
+        (expect clojure-1.10-compiler-error :to-match regexp)
+        (expect (progn (string-match regexp clojure-1.10-compiler-error)
+                       (match-string 2 clojure-1.10-compiler-error))
+                :to-equal "src/haystack/parser.cljc")))))
+
+(describe "cider-clojure-runtime-error-regexp"
+  (it "Recognizes a clojure-1.10 runtime error message"
+
+    ;; Something like "(ArithmeticException)" will be absent for Exception and RuntimeException in particular
+    (let ((specimen "Execution error at foo/foo (src/haystack/parser.cljc:4)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "src/haystack/parser.cljc"))
+
+    (let ((specimen "Execution error (ArithmeticException) at foo/foo (src/haystack/parser.cljc:4)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "src/haystack/parser.cljc"))
+
+    ;; without exception class cause-type
+    (let ((specimen "Execution error at (src/haystack/parser.cljc:4)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "src/haystack/parser.cljc"))
+
+    ;; without foo/foo symbol
+    (let ((specimen "Execution error (ArithmeticException) at (src/haystack/parser.cljc:4)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "src/haystack/parser.cljc")))
+
+  (it "Recognizes a clojure-1.10 runtime spec validation error message"
+    (let ((specimen "Execution error - invalid arguments to foo/bar at (src/haystack/parser.cljc:4)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "src/haystack/parser.cljc")))
+
+  ;; Java source locations may be negative (#3687)
+  (it "Recognizes an error thrown from a java source file"
+    (let ((specimen "Execution error (FileNotFoundException) at java.io.FileInputStream/open0 (FileInputStream.java:-2)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "FileInputStream.java")))
+
+  (it "Recognizes errors thrown during the result printing phase"
+    (let ((specimen "Error printing return value (ClassCastException) at clojure.core/file-seq$fn (core.clj:4997)."))
+      (expect specimen :to-match cider-clojure-runtime-error-regexp)
+      (expect (progn
+                (string-match cider-clojure-runtime-error-regexp specimen)
+                (match-string 2 specimen))
+              :to-equal "core.clj"))))
 
 (describe "cider-module-info-regexp"
   (it "Matches module info provided by Java"

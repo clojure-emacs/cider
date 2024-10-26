@@ -44,7 +44,7 @@ With it enabled, `cider-jack-in` will activate enrich-classpath, given the follo
 * You are on macOS/Linux
 * You are launching a vanilla JVM repl (and not a cljs repl, or a clj+cljs repl)
 * You are using `cider-jack-in` / `cider-jack-in-clj` (and not `cider-connect`)
- ** For `cider-connect`, please follow enrich-classpath's https://github.com/clojure-emacs/enrich-classpath/tree/v1.18.2#emacs-cider-connect[own instructions].
+ ** For `cider-connect`, please follow enrich-classpath's https://github.com/clojure-emacs/enrich-classpath/tree/v1.19.3#emacs-cider-connect[own instructions].
 
 ...these conditions will be progressively relaxed.
 

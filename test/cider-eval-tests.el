@@ -1,6 +1,6 @@
 ;;; cider-eval-tests.el  -*- lexical-binding: t; -*-
 
-;; Copyright © 2012-2023 Arne Brasseur
+;; Copyright © 2012-2024 Arne Brasseur
 
 ;; Author: Arne Brasseur
 
@@ -29,26 +29,6 @@
 (require 'cider-eval)
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
-
-(describe "cider-provide-file"
-  (let ((tmp-dir (temporary-file-directory)))
-    (it "returns an empty string when the file is not found"
-        (expect (cider-provide-file "abc.clj") :to-equal ""))
-    (it "base64 encodes without newlines"
-        (let ((cider-sideloader-path (list tmp-dir))
-              (default-directory tmp-dir)
-              (filename (make-temp-file "abc.clj")))
-          (with-temp-file filename
-            (dotimes (_ 60) (insert "x")))
-          (expect (cider-provide-file filename) :not :to-match "\n")))
-    (it "can handle multibyte characters"
-        (let ((cider-sideloader-path (list tmp-dir))
-              (default-directory tmp-dir)
-              (filename (make-temp-file "abc.clj"))
-              (coding-system-for-write 'utf-8-unix))
-          (with-temp-file filename
-            (insert "🍻"))
-          (expect (cider-provide-file filename) :to-equal "8J+Nuw==")))))
 
 (describe "cider-extract-error-info"
   (it "Matches Clojure compilation exceptions"

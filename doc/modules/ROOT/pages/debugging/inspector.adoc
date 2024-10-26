@@ -68,9 +68,17 @@ You'll have access to additional keybindings in the inspector buffer
 | `cider-inspector-set-max-coll-size`
 | Set a new maximum size above which nested collections are truncated
 
+| kbd:[C]
+| `cider-inspector-set-max-nested-depth
+| Set a new maximum nesting level above which the collections are truncated
+
 | kbd:[a]
 | `cider-inspector-set-max-atom-length`
 | Set a new maximum length above which nested atoms (non-collections) are truncated
+
+| kbd:[v]
+| `cider-inspector-toggle-view-mode`
+| Switch the rendering of the current value between `:normal` and `:object` view mode. In `:object` mode, any value is rendered as a plain Java object (by displaying its fields) instead of custom rendering rules that the Inspector applies in `:normal` mode.
 
 | kbd:[d]
 | `cider-inspector-def-current-val`
@@ -84,9 +92,21 @@ You'll have access to additional keybindings in the inspector buffer
 | `cider-inspector-next-sibling`
 | Navigates to the next sibling, within a sequential collection.
 
+| kbd:[o]
+| `cider-inspector-open-thing-at-point`
+| Opens the url or file at point, if found.
+
+| kbd:[:]
+| `cider-inspect-expr-from-inspector`
+| Prompts for a new value, rendering it in the Inspector.
+
 | kbd:[t]
 | `cider-inspector-tap-current-val`
 | Performs `tap>` using the inspector's current value as it argument.
+
+| kbd:[1]
+| `cider-inspector-tap-at-point`
+| Performs `tap>` using the inspector's current sub-value (the one at POINT) as it argument.
 
 |===
 
@@ -106,19 +126,19 @@ can disable the auto selection with the variable
 `cider-inspector-auto-select-buffer`.
 
 You can set the amount of data shown by default with the variables
-`cider-inspector-page-size`, `cider-inspector-max-coll-size`, and
-`cider-inspector-max-atom-length`. The values can be adjusted for the current
-inspector buffer using the `s`, `c`, and `a` keybindings.
+`cider-inspector-page-size`, `cider-inspector-max-coll-size`,
+`cider-inspector-max-nested-depth`, and `cider-inspector-max-atom-length`. The
+values can be adjusted for the current inspector buffer using the keybidings
+listed in the table above.
 
 If you enable `cider-inspector-fill-frame`, the inspector window fills its
 frame.
 
-Starting from CIDER 1.8.0, when you define a var using kbd:[d],
-a var name can be suggested (default none). You can customize this value
-via the `cider-inspector-preferred-var-names` configuration option.
-Even after setting it, you are free to choose new names on the fly,
-as you type. Most recent names will take priority in subsequent usages.
+When you define a var using kbd:[d], a var name can be suggested (default none).
+You can customize this value via the `cider-inspector-preferred-var-names`
+configuration option. Even after setting it, you are free to choose new names on
+the fly, as you type. Most recent names will take priority in subsequent usages.
 
 == Additional Resources
 
-* https://practicalli.github.io/spacemacs/evaluating-clojure/inspect.html[Using CIDER's Inspector in Spacemacs]
+* https://practicalli.github.io/spacemacs/evaluating-clojure/inspect/[Using CIDER's Inspector in Spacemacs]

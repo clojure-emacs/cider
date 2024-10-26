@@ -1,6 +1,6 @@
 ;;; cider-completion-context-tests.el  -*- lexical-binding: t; -*-
 
-;; Copyright © 2012-2023 Bozhidar Batsov
+;; Copyright © 2012-2024 Bozhidar Batsov
 
 ;; Author: Bozhidar Batsov <bozhidar@batsov.dev>
 
@@ -45,4 +45,11 @@
       (it "Returns different things depending on the :info param"
         (with-clojure-buffer "user> (.foo|bar \"\")"
           (expect (cider-completion-get-context) :to-equal "(__prefix__bar \"\")")
-          (expect (cider-completion-get-info-context-at-point) :to-equal "(__prefix__ \"\")"))))))
+          (expect (cider-completion-get-info-context-at-point) :to-equal "(__prefix__ \"\")")))))
+
+  (it "Returns the same context when invoked twice at the same place"
+    (with-clojure-buffer "(ns foo)
+
+(.foo| \"\")"
+      (expect (cider-completion-get-context) :to-equal "(__prefix__ \"\")")
+      (expect (cider-completion-get-context) :to-equal "(__prefix__ \"\")"))))

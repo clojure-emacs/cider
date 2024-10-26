@@ -2,7 +2,7 @@
 
 There are many additional Emacs packages that can enhance your Clojure programming
 experience. The majority of the minor modes listed here should be enabled for both
-`cider-repl-mode` and `clojure-mode` for optimal effects.
+`cider-repl-mode`, `clojure-mode`, and `clojure-ts-mode` for optimal effects.
 
 The packages listed here belong to three categories:
 
@@ -94,6 +94,13 @@ https://github.com/jonase/kibit[kibit].
 
 http://clojure-emacs.github.io/sayid/[sayid] is a powerful alternative of CIDER's
 built-in basic tracing functionality.
+
+=== clay
+
+https://github.com/scicloj/clay.el[clay.el] provides CIDER support for https://scicloj.github.io/clay/[Clay],
+a minimalistic tool for data visualization and literate programming.
+It provides interactive functions for sending a single Clojure form to be visualized in the browser,
+and for rendering a whole namespace as a notebook (or slideshow) in different formats.
 
 == Generic Emacs Extensions
 
@@ -207,3 +214,4 @@ forms directly in the REPL.
 
 It's basically a simple alternative of CIDER, which provides a subset of CIDER's
 functionality.
+

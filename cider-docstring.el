@@ -1,6 +1,6 @@
 ;;; cider-docstring.el --- Docstring rendering -*- lexical-binding: t -*-
 
-;; Copyright © 2013-2023 Bozhidar Batsov and CIDER contributors
+;; Copyright © 2013-2024 Bozhidar Batsov and CIDER contributors
 ;;
 ;; Author: Bozhidar Batsov <bozhidar@batsov.dev>
 
@@ -27,7 +27,9 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'seq)
 (require 'shr)
+(require 'subr-x)
 
 (defsubst cider--render-pre* (dom)
   "Render DOM nodes, formatting them them as Java if they are strings."
@@ -139,27 +141,23 @@ Prioritize rendering as much as possible while staying within `cider-docstring-m
         second-attempt
         first-attempt)))
 
-(defun cider-docstring--dumb-trim (s &optional n)
-  "Returns up to the first N lines of string S,
-adding \"...\" if trimming was necessary.
+(cl-defun cider-docstring--trim (string &optional (max-lines cider-docstring-max-lines))
+  "Return MAX-LINES of STRING, adding \"...\" if trimming was necessary."
+  (when string
+    (let* ((lines (split-string string "\n"))
+           (string (string-join (seq-take lines max-lines) "\n")))
+      (concat string (when (> (length lines) max-lines) "...")))))
 
-N defaults to `cider-docstring-max-lines'.
+(defun cider-docstring--format (string)
+  "Return a nicely formatted STRING to be displayed to the user.
 
-Also performs some bare-bones formatting, cleaning up some common whitespace issues."
-  (when s
-    (let* ((s (replace-regexp-in-string "\\.  " ".\n\n" s)) ;; improve the formatting of e.g. clojure.core/reduce
-           (n (or n cider-docstring-max-lines))
-           (lines (split-string s "\n"))
-           (lines-length (length lines))
-           (selected-lines (cl-subseq lines 0 (min n lines-length)))
-           (result (mapconcat (lambda (f)
-                                ;; Remove spaces at the beginning of each line, as it is common in many clojure.core defns:
-                                (replace-regexp-in-string "\\`[ ]+" "" f))
-                              selected-lines
-                              "\n")))
-      (if (> lines-length n)
-          (concat result "...")
-        result))))
+We need to format the docstring before displaying it to the user
+because it is obtained from the source code.  For example, this means
+that it usually has two spaces before each line used for indentation
+\(see https://guide.clojure.style/#docstring-indentation).  While displaying
+the docstring to the user, we usually want to control indentation and
+other aspects of the presentation, so we format it before displaying."
+  (replace-regexp-in-string "\n  " "\n" string))
 
 (provide 'cider-docstring)
 ;;; cider-docstring.el ends here

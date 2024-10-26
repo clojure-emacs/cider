@@ -1,7 +1,7 @@
 ;; cider-util.el --- Common utility functions that don't belong anywhere else -*- lexical-binding: t -*-
 
-;; Copyright © 2012-2013 Tim King, Phil Hagelberg, Bozhidar Batsov
-;; Copyright © 2013-2023 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2012-2024 Tim King, Phil Hagelberg, Bozhidar Batsov
+;; Copyright © 2013-2024 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
@@ -57,10 +57,24 @@ Setting this to nil removes the fontification restriction."
     (maphash (lambda (k _v) (setq keys (cons k keys))) hashtable)
     keys))
 
+(defun cider-clojure-major-mode-p ()
+  "Return non-nil if current buffer is managed by a Clojure major mode."
+  (derived-mode-p 'clojure-mode 'clojure-ts-mode))
+
+(defun cider-clojurescript-major-mode-p ()
+  "Return non-nil if current buffer is managed by a ClojureScript major mode."
+  (derived-mode-p 'clojurescript-mode 'clojure-ts-clojurescript-mode))
+
+(defun cider-clojurec-major-mode-p ()
+  "Return non-nil if current buffer is managed by a ClojureC major mode."
+  (derived-mode-p 'clojurec-mode 'clojure-ts-clojurec-mode))
+
 (defun cider-util--clojure-buffers ()
   "Return a list of all existing `clojure-mode' buffers."
   (seq-filter
-   (lambda (buffer) (with-current-buffer buffer (derived-mode-p 'clojure-mode)))
+   (lambda (buffer)
+     (with-current-buffer buffer
+       (cider-clojure-major-mode-p)))
    (buffer-list)))
 
 (defun cider-current-dir ()
@@ -91,7 +105,7 @@ which nREPL uses for temporary evaluation file names."
 
 If BUFFER is provided act on that buffer instead."
   (with-current-buffer (or buffer (current-buffer))
-    (or (derived-mode-p 'clojurec-mode))))
+    (or (cider-clojurec-major-mode-p))))
 
 
 ;;; Thing at point

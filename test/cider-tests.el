@@ -1,6 +1,6 @@
 ;;; cider-tests.el  -*- lexical-binding: t; -*-
 
-;; Copyright © 2012-2023 Tim King, Bozhidar Batsov
+;; Copyright © 2012-2024 Tim King, Bozhidar Batsov
 
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.dev>
@@ -175,19 +175,21 @@
   (describe "when there is a single dependency"
     (before-each
       (setq-local cider-injected-nrepl-version "0.9.0")
-      (setq-local cider-injected-middleware-version "0.43.0")
+      (setq-local cider-injected-middleware-version "0.50.2")
       (setq-local cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware"))
       (setq-local cider-jack-in-dependencies-exclusions '())
-      (setq-local cider-enrich-classpath t))
+      (setq-local cider-enrich-classpath t)
+      (setq-local cider-enable-nrepl-jvmti-agent t))
 
     (it "can inject dependencies in a lein project"
       (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
               :to-equal (concat "update-in :dependencies conj "
                                 (shell-quote-argument "[nrepl/nrepl \"0.9.0\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[cider/cider-nrepl \"0.43.0\"]")
+                                (shell-quote-argument "[cider/cider-nrepl \"0.50.2\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.2\"]")
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
+                                " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
 
@@ -198,9 +200,10 @@
                          "update-in :dependencies conj "
                          (shell-quote-argument "[nrepl/nrepl \"0.9.0\" :exclusions [org.clojure/clojure]]")
                          " -- update-in :plugins conj "
-                         (shell-quote-argument "[cider/cider-nrepl \"0.43.0\"]")
+                         (shell-quote-argument "[cider/cider-nrepl \"0.50.2\"]")
                          " -- update-in :plugins conj "
-                         (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.2\"]")
+                         (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
+                         " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
                          " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                          " -- repl :headless")))
 
@@ -210,9 +213,10 @@
               :to-equal (concat "update-in :dependencies conj "
                                 (shell-quote-argument "[nrepl/nrepl \"0.9.0\" :exclusions [org.clojure/clojure foo.bar/baz]]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[cider/cider-nrepl \"0.43.0\"]")
+                                (shell-quote-argument "[cider/cider-nrepl \"0.50.2\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.2\"]")
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
+                                " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
 
@@ -223,7 +227,7 @@
                          " -d "
                          (shell-quote-argument "nrepl/nrepl:0.9.0")
                          " -d "
-                         (shell-quote-argument "cider/cider-nrepl:0.43.0")
+                         (shell-quote-argument "cider/cider-nrepl:0.50.2")
                          " cider.tasks/add-middleware"
                          " -m "
                          (shell-quote-argument "cider.nrepl/cider-middleware")
@@ -232,7 +236,8 @@
     (it "can inject dependencies in a gradle project"
       (expect (cider-inject-jack-in-dependencies "--no-daemon" ":clojureRepl" 'gradle)
               :to-equal (concat "--no-daemon "
-                                (shell-quote-argument "-Pdev.clojurephant.jack-in.nrepl=nrepl:nrepl:0.9.0,cider:cider-nrepl:0.43.0")
+                                "-Pjdk.attach.allowAttachSelf "
+                                (shell-quote-argument "-Pdev.clojurephant.jack-in.nrepl=nrepl:nrepl:0.9.0,cider:cider-nrepl:0.50.2")
                                 " :clojureRepl "
                                 (shell-quote-argument "--middleware=cider.nrepl/cider-middleware")))))
 
@@ -249,9 +254,10 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[refactor-nrepl \"2.0.0\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[cider/cider-nrepl \"0.43.0\"]")
+                                (shell-quote-argument "[cider/cider-nrepl \"0.50.2\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.2\"]")
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
+                                " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
 
@@ -262,7 +268,7 @@
                                 " -d "
                                 (shell-quote-argument "nrepl/nrepl:0.9.0")
                                 " -d "
-                                (shell-quote-argument "cider/cider-nrepl:0.43.0")
+                                (shell-quote-argument "cider/cider-nrepl:0.50.2")
                                 " -d "
                                 (shell-quote-argument "refactor-nrepl:2.0.0")
                                 " cider.tasks/add-middleware"
@@ -284,9 +290,10 @@
               :to-equal (concat "-o -U update-in :dependencies conj "
                                 (shell-quote-argument "[nrepl/nrepl \"0.9.0\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[cider/cider-nrepl \"0.43.0\"]")
+                                (shell-quote-argument "[cider/cider-nrepl \"0.50.2\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.2\"]")
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
+                                " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
     (it "can concat in a boot project"
@@ -295,7 +302,7 @@
                                 " -d "
                                 (shell-quote-argument "nrepl/nrepl:0.9.0")
                                 " -d "
-                                (shell-quote-argument "cider/cider-nrepl:0.43.0")
+                                (shell-quote-argument "cider/cider-nrepl:0.50.2")
                                 " cider.tasks/add-middleware"
                                 " -m "
                                 (shell-quote-argument "cider.nrepl/cider-middleware")
@@ -303,7 +310,8 @@
     (it "can concat in a gradle project"
       (expect (cider-inject-jack-in-dependencies "--no-daemon" ":clojureRepl" 'gradle)
               :to-equal (concat "--no-daemon "
-                                (shell-quote-argument "-Pdev.clojurephant.jack-in.nrepl=nrepl:nrepl:0.9.0,cider:cider-nrepl:0.43.0")
+                                "-Pjdk.attach.allowAttachSelf "
+                                (shell-quote-argument "-Pdev.clojurephant.jack-in.nrepl=nrepl:nrepl:0.9.0,cider:cider-nrepl:0.50.2")
                                 " :clojureRepl "
                                 (shell-quote-argument "--middleware=cider.nrepl/cider-middleware")))))
 
@@ -318,14 +326,14 @@
       (setq-local cider-jack-in-nrepl-middlewares '(("refactor-nrepl.middleware/wrap-refactor" :predicate middlewares-predicate) "cider.nrepl/cider-middleware" ("another/middleware"))))
     (it "includes plugins whose predicates return true"
       (expect (cider-jack-in-normalized-lein-plugins)
-              :to-equal '(("refactor-nrepl" "2.0.0") ("cider/cider-nrepl" "0.43.0"))))
+              :to-equal '(("refactor-nrepl" "2.0.0") ("cider/cider-nrepl" "0.50.2"))))
     (it "includes middlewares whose predicates return true"
       (expect (cider-jack-in-normalized-nrepl-middlewares)
               :to-equal '("refactor-nrepl.middleware/wrap-refactor" "cider.nrepl/cider-middleware" "another/middleware")))
     (it "ignores plugins whose predicates return false"
       (spy-on 'plugins-predicate :and-return-value nil)
       (expect (cider-jack-in-normalized-lein-plugins)
-              :to-equal '(("cider/cider-nrepl" "0.43.0")))
+              :to-equal '(("cider/cider-nrepl" "0.50.2")))
       (spy-on 'middlewares-predicate :and-return-value nil)
       (expect (cider-jack-in-normalized-nrepl-middlewares)
               :to-equal '("cider.nrepl/cider-middleware" "another/middleware")))
@@ -354,8 +362,8 @@
               :and-return-value '("refactor-nrepl.middleware/wrap-refactor" "cider.nrepl/cider-middleware"))
       (spy-on 'cider-jack-in-normalized-lein-plugins
               :and-return-value '(("refactor-nrepl" "2.0.0")
-                                  ("cider/cider-nrepl" "0.43.0")
-                                  ("mx.cider/lein-enrich-classpath" "1.18.2")))
+                                  ("cider/cider-nrepl" "0.50.2")
+                                  ("mx.cider/lein-enrich-classpath" "1.19.3")))
       (setq-local cider-jack-in-dependencies-exclusions '())
       (setq-local cider-enrich-classpath t))
     (it "uses them in a lein project"
@@ -365,9 +373,10 @@
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[refactor-nrepl \"2.0.0\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[cider/cider-nrepl \"0.43.0\"]")
+                                (shell-quote-argument "[cider/cider-nrepl \"0.50.2\"]")
                                 " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.18.2\"]")
+                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
+                                " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
                                 " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless"))))
 
@@ -383,7 +392,7 @@
                                 " -d "
                                 (shell-quote-argument "nrepl/nrepl:0.9.0")
                                 " -d "
-                                (shell-quote-argument "cider/cider-nrepl:0.43.0")
+                                (shell-quote-argument "cider/cider-nrepl:0.50.2")
                                 " -d "
                                 (shell-quote-argument "refactor-nrepl:2.0.0")
                                 " cider.tasks/add-middleware"
@@ -451,12 +460,12 @@
     (expect (cider--powershell-encode-command "cmd-params")
             :to-equal (concat "-encodedCommand "
                               ;; Eval to reproduce reference string below: (base64-encode-string (encode-coding-string "clojure cmd-params" 'utf-16le) t)
-                              "YwBsAG8AagB1AHIAZQAgAGMAbQBkAC0AcABhAHIAYQBtAHMA")))
+                              "JABQAFMATgBhAHQAaQB2AGUAQwBvAG0AbQBhAG4AZABBAHIAZwB1AG0AZQBuAHQAUABhAHMAcwBpAG4AZwAgAD0AIAAnAEwAZQBnAGEAYwB5ACcAOwAgAGMAbABvAGoAdQByAGUAIABjAG0AZAAtAHAAYQByAGEAbQBzAA==")))
   (it "escapes double quotes by repeating them"
     (expect (cider--powershell-encode-command "\"cmd-params\"")
             :to-equal (concat "-encodedCommand "
                               ;; Eval to reproduce reference string below: (base64-encode-string (encode-coding-string "clojure "\"cmd-params\""" 'utf-16le) t)
-                              "YwBsAG8AagB1AHIAZQAgACIAYwBtAGQALQBwAGEAcgBhAG0AcwAiAA=="))))
+                              "JABQAFMATgBhAHQAaQB2AGUAQwBvAG0AbQBhAG4AZABBAHIAZwB1AG0AZQBuAHQAUABhAHMAcwBpAG4AZwAgAD0AIAAnAEwAZQBnAGEAYwB5ACcAOwAgAGMAbABvAGoAdQByAGUAIAAiAGMAbQBkAC0AcABhAHIAYQBtAHMAIgA="))))
 
 (describe "cider--update-jack-in-cmd"
   (describe "when 'clojure-cli project type and \"powershell\" command"
@@ -472,19 +481,20 @@
       (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
               :to-equal (concat "resolved-powershell -encodedCommand "
                                 ;; Eval to reproduce reference string below: (base64-encode-string (encode-coding-string "clojure "\"cmd-params"\"" 'utf-16le) t)
-                                "YwBsAG8AagB1AHIAZQAgACIAYwBtAGQALQBwAGEAcgBhAG0AcwAiAA=="))))
+                                "JABQAFMATgBhAHQAaQB2AGUAQwBvAG0AbQBhAG4AZABBAHIAZwB1AG0AZQBuAHQAUABhAHMAcwBpAG4AZwAgAD0AIAAnAEwAZQBnAGEAYwB5ACcAOwAgAGMAbABvAGoAdQByAGUAIAAiAGMAbQBkAC0AcABhAHIAYQBtAHMAIgA="))))
   (describe "when 'clojure-cli project type"
     (it "uses main opts in an alias to prevent other mains from winning"
       (setq-local cider-jack-in-dependencies nil)
       (setq-local cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware"))
       (let ((expected (string-join `("clojure -Sdeps "
-                                     ,(shell-quote-argument "{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} cider/cider-nrepl {:mvn/version \"0.43.0\"}} :aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
+                                     ,(shell-quote-argument "{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} cider/cider-nrepl {:mvn/version \"0.50.2\"}} :aliases {:cider/nrepl {:jvm-opts [\"-Djdk.attach.allowAttachSelf\"], :main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
                                      " -M:cider/nrepl")
                                    "")))
         (setq-local cider-allow-jack-in-without-project t)
         (setq-local cider-clojure-cli-command "clojure")
         (setq-local cider-inject-dependencies-at-jack-in t)
         (setq-local cider-clojure-cli-aliases nil)
+        (setq-local cider-enable-nrepl-jvmti-agent t)
         (spy-on 'cider-project-type :and-return-value 'clojure-cli)
         (spy-on 'cider-jack-in-resolve-command :and-return-value "clojure")
         (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
@@ -492,7 +502,7 @@
 
     (it "allows specifying custom aliases with `cider-clojure-cli-aliases`"
       (let ((expected (string-join `("clojure -Sdeps "
-                                     ,(shell-quote-argument "{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} cider/cider-nrepl {:mvn/version \"0.43.0\"}} :aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
+                                     ,(shell-quote-argument "{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} cider/cider-nrepl {:mvn/version \"0.50.2\"}} :aliases {:cider/nrepl {:jvm-opts [\"-Djdk.attach.allowAttachSelf\"], :main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
                                      " -M:dev:test:cider/nrepl")
                                    "")))
         (setq-local cider-jack-in-dependencies nil)
@@ -500,6 +510,7 @@
         (setq-local cider-allow-jack-in-without-project t)
         (setq-local cider-clojure-cli-command "clojure")
         (setq-local cider-inject-dependencies-at-jack-in t)
+        (setq-local cider-enable-nrepl-jvmti-agent t)
         (spy-on 'cider-project-type :and-return-value 'clojure-cli)
         (spy-on 'cider-jack-in-resolve-command :and-return-value "clojure")
         (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
@@ -509,7 +520,7 @@
       (it (format "should remove duplicates, yielding the same result (for %S command invocation)" command)
         ;; repeat the same test for PowerShell too
         (let ((expected (string-join `("-Sdeps "
-                                       ,(cider--shell-quote-argument "{:deps {cider/cider-nrepl {:mvn/version \"0.43.0\"} nrepl/nrepl {:mvn/version \"0.9.0\"}} :aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}"
+                                       ,(cider--shell-quote-argument "{:deps {cider/cider-nrepl {:mvn/version \"0.50.2\"} nrepl/nrepl {:mvn/version \"0.9.0\"}} :aliases {:cider/nrepl {:jvm-opts [\"-Djdk.attach.allowAttachSelf\"], :main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}"
                                                                      command)
                                        " -M:dev:test:cider/nrepl")
                                      "")))
@@ -519,7 +530,7 @@
                   :to-equal expected))))
     (it "handles aliases correctly"
       (let ((expected (string-join `("-Sdeps "
-                                     ,(shell-quote-argument "{:deps {cider/cider-nrepl {:mvn/version \"0.43.0\"} nrepl/nrepl {:mvn/version \"0.9.0\"}} :aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
+                                     ,(shell-quote-argument "{:deps {cider/cider-nrepl {:mvn/version \"0.50.2\"} nrepl/nrepl {:mvn/version \"0.9.0\"}} :aliases {:cider/nrepl {:jvm-opts [\"-Djdk.attach.allowAttachSelf\"], :main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
                                      " -M:test:cider/nrepl")
                                    ""))
             (deps '(("nrepl/nrepl" "0.9.0"))))
@@ -546,25 +557,26 @@
             (expect (cider-clojure-cli-jack-in-dependencies nil nil deps)
                     :to-equal expected)))))
     (it "allows for global options"
-      (let ((expected (string-join `("-J-Djdk.attach.allowAttachSelf -Sdeps "
-                                     ,(shell-quote-argument "{:deps {cider/cider-nrepl {:mvn/version \"0.43.0\"} nrepl/nrepl {:mvn/version \"0.9.0\"}} :aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
+        (let ((expected (string-join `("-J-Xverify:none -Sdeps "
+                                       ,(shell-quote-argument "{:deps {cider/cider-nrepl {:mvn/version \"0.50.2\"} nrepl/nrepl {:mvn/version \"0.9.0\"}} :aliases {:cider/nrepl {:jvm-opts [\"-Djdk.attach.allowAttachSelf\"], :main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
                                      " -M:test:cider/nrepl")
                                    ""))
             (deps '(("nrepl/nrepl" "0.9.0"))))
         (let ((cider-clojure-cli-aliases ":test"))
-          (expect (cider-clojure-cli-jack-in-dependencies "-J-Djdk.attach.allowAttachSelf" nil deps)
+          (expect (cider-clojure-cli-jack-in-dependencies "-J-Xverify:none" nil deps)
                   :to-equal expected))))
     (it "allows to specify git coordinate as cider-jack-in-dependency"
       (setq-local cider-jack-in-dependencies '(("org.clojure/tools.deps" (("git/sha" . "6ae2b6f71773de7549d7f22759e8b09fec27f0d9")
                                                                           ("git/url" . "https://github.com/clojure/tools.deps/")))))
       (let ((expected (string-join `("clojure -Sdeps "
-                                     ,(shell-quote-argument "{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} cider/cider-nrepl {:mvn/version \"0.43.0\"} org.clojure/tools.deps { :git/sha \"6ae2b6f71773de7549d7f22759e8b09fec27f0d9\"  :git/url \"https://github.com/clojure/tools.deps/\" }} :aliases {:cider/nrepl {:main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
+                                     ,(shell-quote-argument "{:deps {nrepl/nrepl {:mvn/version \"0.9.0\"} cider/cider-nrepl {:mvn/version \"0.50.2\"} org.clojure/tools.deps { :git/sha \"6ae2b6f71773de7549d7f22759e8b09fec27f0d9\"  :git/url \"https://github.com/clojure/tools.deps/\" }} :aliases {:cider/nrepl {:jvm-opts [\"-Djdk.attach.allowAttachSelf\"], :main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
                                      " -M:cider/nrepl")
                                    "")))
         (setq-local cider-allow-jack-in-without-project t)
         (setq-local cider-clojure-cli-command "clojure")
         (setq-local cider-inject-dependencies-at-jack-in t)
         (setq-local cider-clojure-cli-aliases nil)
+        (setq-local cider-enable-nrepl-jvmti-agent t)
         (spy-on 'cider-project-type :and-return-value 'clojure-cli)
         (spy-on 'cider-jack-in-resolve-command :and-return-value "clojure")
         (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)

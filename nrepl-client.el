@@ -1,7 +1,7 @@
 ;;; nrepl-client.el --- Client for Clojure nREPL -*- lexical-binding: t -*-
 
-;; Copyright © 2012-2013 Tim King, Phil Hagelberg, Bozhidar Batsov
-;; Copyright © 2013-2023 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2012-2024 Tim King, Phil Hagelberg, Bozhidar Batsov
+;; Copyright © 2013-2024 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
@@ -77,6 +77,7 @@
 (require 'sesman)
 (require 'tramp)
 
+(require 'cider-util)
 
 ;;; Custom
 
@@ -857,7 +858,7 @@ the corresponding type of response."
                                                  value ns out err status id)
       (when (buffer-live-p buffer)
         (with-current-buffer buffer
-          (when (and ns (not (derived-mode-p 'clojure-mode)))
+          (when (and ns (not (cider-clojure-major-mode-p)))
             (cider-set-buffer-ns ns))))
       (cond ((and content-type content-type-handler)
              (funcall content-type-handler buffer

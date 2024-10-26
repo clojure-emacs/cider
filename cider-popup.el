@@ -1,6 +1,6 @@
 ;;; cider-popup.el --- Creating and quitting popup buffers  -*- lexical-binding: t; -*-
 
-;; Copyright © 2015-2023  Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2015-2024  Bozhidar Batsov, Artur Malabarba and CIDER contributors
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 
@@ -64,7 +64,8 @@ by adding BUFFER-NAME to the `special-display-buffer-names' list."
     ;; another time through `cider-popup-buffer-display'):
     (if (and (boundp 'special-display-buffer-names)
              (seq-find (lambda (entry)
-                         (equal (car entry) buffer-name))
+                         ;; entry can be either a list or a string
+                         (equal (if (listp entry) (car entry) entry) buffer-name))
                        special-display-buffer-names))
         (progn
           (display-buffer buffer-name)

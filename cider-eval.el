@@ -1,7 +1,7 @@
 ;;; cider-eval.el --- Interactive evaluation (compilation) functionality -*- lexical-binding: t -*-
 
-;; Copyright © 2012-2013 Tim King, Phil Hagelberg, Bozhidar Batsov
-;; Copyright © 2013-2023 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2012-2024 Tim King, Phil Hagelberg, Bozhidar Batsov
+;; Copyright © 2013-2024 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
@@ -205,190 +205,6 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
       (quit-window nil error-win))))
 
 
-;;; Sideloader
-;;
-;; nREPL includes sideloader middleware which provides a Java classloader that
-;; is able to dynamically load classes and resources at runtime by interacting
-;; with the nREPL client (as opposed to using the classpath of the JVM hosting
-;; nREPL server).
-;;
-;; This performs a similar functionality as the load-file
-;; operation, where we can load Clojure namespaces (as source files) or Java
-;; classes (as bytecode) by simply requiring or importing them.
-;;
-;; See https://nrepl.org/nrepl/design/middleware.html#sideloading
-
-(defcustom cider-sideloader-path nil
-  "List of directories and jar files to scan for sideloader resources.
-When not set the cider-nrepl jar will be added automatically when upgrading
-an nREPL connection."
-  :type 'list
-  :group 'cider
-  :package-version '(cider . "1.2.0"))
-
-(defcustom cider-dynload-cider-nrepl-version nil
-  "Version of the cider-nrepl jar used for dynamically upgrading a connection.
-Defaults to `cider-required-middleware-version'."
-  :type 'string
-  :group 'cider
-  :package-version '(cider . "1.2.0"))
-
-(defun cider-read-bytes (path)
-  "Read binary data from PATH.
-Return the binary data as unibyte string."
-  ;; based on f-read-bytes
-  (with-temp-buffer
-    (set-buffer-multibyte nil)
-    (setq buffer-file-coding-system 'binary)
-    (insert-file-contents-literally path nil)
-    (buffer-substring-no-properties (point-min) (point-max))))
-
-(defun cider-retrieve-resource (dirs name)
-  "Find a resource NAME in a list DIRS of directories or jar files.
-Similar to a classpath lookup.  Returns the file contents as a string."
-  (seq-some
-   (lambda (path)
-     (cond
-      ((file-directory-p path)
-       (let ((expanded (expand-file-name name path)))
-         (when (file-exists-p expanded)
-           (cider-read-bytes expanded))))
-      ((and (file-exists-p path) (string-suffix-p ".jar" path))
-       (cider-jar-retrieve-resource path name))))
-   dirs))
-
-(defun cider-provide-file (file)
-  "Provide FILE in a format suitable for sideloading."
-  (let ((contents (cider-retrieve-resource cider-sideloader-path file)))
-    (if contents
-        (base64-encode-string contents 'no-line-breaks)
-      ;; if we can't find the file we should return an empty string
-      (base64-encode-string ""))))
-
-(defun cider-sideloader-lookup-handler ()
-  "Make a sideloader-lookup handler."
-  (lambda (response)
-    (nrepl-dbind-response response (id status type name)
-      (if status
-          (when (member "sideloader-lookup" status)
-            (cider-request:sideloader-provide id type name))))))
-
-(defun cider-add-middleware-handler (continue)
-  "Make a add-middleware handler.
-CONTINUE is an optional continuation function."
-  (lambda (response)
-    (nrepl-dbind-response response (status unresolved-middleware) ;; id middleware
-      (when unresolved-middleware
-        (seq-do
-         (lambda (mw)
-           (cider-repl-emit-interactive-stderr
-            (concat "WARNING: middleware " mw " was not found or failed to load.\n")))
-         unresolved-middleware))
-      (when (and status (member "done" status) continue)
-        (funcall continue)))))
-
-(defun cider-request:sideloader-start (&optional connection tooling)
-  "Perform the nREPL \"sideloader-start\" op.
-If CONNECTION is nil, use `cider-current-repl'.
-If TOOLING is truthy then the operation is performed over the tooling
-session, rather than the regular session."
-  (cider-ensure-op-supported "sideloader-start")
-  (cider-nrepl-send-request `("op" "sideloader-start")
-                            (cider-sideloader-lookup-handler)
-                            connection
-                            tooling))
-
-(defun cider-request:sideloader-provide (id type file &optional connection)
-  "Perform the nREPL \"sideloader-provide\" op for ID, TYPE and FILE.
-If CONNECTION is nil, use `cider-current-repl'."
-  (cider-nrepl-send-request `("id" ,id
-                              "op" "sideloader-provide"
-                              "type" ,type
-                              "name" ,file
-                              "content" ,(cider-provide-file file))
-                            (cider-sideloader-lookup-handler)
-                            connection))
-
-(defun cider-sideloader-start (&optional connection)
-  "Start nREPL's sideloader.
-If CONNECTION is nil, use `cider-current-repl'."
-  (interactive)
-  (message "Starting nREPL's sideloader")
-  (cider-request:sideloader-start connection)
-  (cider-request:sideloader-start connection 'tooling))
-
-(defvar cider-nrepl-middlewares
-  '("cider.nrepl/wrap-apropos"
-    "cider.nrepl/wrap-classpath"
-    "cider.nrepl/wrap-clojuredocs"
-    "cider.nrepl/wrap-complete"
-    "cider.nrepl/wrap-content-type"
-    "cider.nrepl/wrap-debug"
-    "cider.nrepl/wrap-enlighten"
-    "cider.nrepl/wrap-format"
-    "cider.nrepl/wrap-info"
-    "cider.nrepl/wrap-inspect"
-    "cider.nrepl/wrap-log"
-    "cider.nrepl/wrap-macroexpand"
-    "cider.nrepl/wrap-ns"
-    "cider.nrepl/wrap-out"
-    "cider.nrepl/wrap-slurp"
-    "cider.nrepl/wrap-profile"
-    "cider.nrepl/wrap-refresh"
-    "cider.nrepl/wrap-resource"
-    "cider.nrepl/wrap-spec"
-    "cider.nrepl/wrap-stacktrace"
-    "cider.nrepl/wrap-test"
-    "cider.nrepl/wrap-trace"
-    "cider.nrepl/wrap-tracker"
-    "cider.nrepl/wrap-undef"
-    "cider.nrepl/wrap-version"
-    "cider.nrepl/wrap-xref"))
-
-(defun cider-request:add-middleware (middlewares
-                                     &optional connection tooling continue)
-  "Use the nREPL dynamic loader to add MIDDLEWARES to the nREPL session.
-
-- If CONNECTION is nil, use `cider-current-repl'.
-- If TOOLING it truthy, use the tooling session instead of the main session.
-- CONTINUE is an optional continuation function, which will be called when the
-add-middleware op has finished successfully."
-  (cider-nrepl-send-request `("op" "add-middleware"
-                              "middleware" ,middlewares)
-                            (cider-add-middleware-handler continue)
-                            connection
-                            tooling))
-
-(defun cider-add-cider-nrepl-middlewares (&optional connection)
-  "Use dynamic loading to add the cider-nrepl middlewares to nREPL.
-If CONNECTION is nil, use `cider-current-repl'."
-  (cider-request:add-middleware
-   cider-nrepl-middlewares connection nil
-   (lambda ()
-     ;; When the main session is done adding middleware, then do the tooling
-     ;; session. At this point all the namespaces have been sideloaded so this
-     ;; is faster, we don't want these to race to sideload resources.
-     (cider-request:add-middleware
-      cider-nrepl-middlewares connection 'tooling
-      (lambda ()
-        ;; Ask nREPL again what its capabilities are, so we know which new
-        ;; operations are supported.
-        (nrepl--init-capabilities (or connection (cider-current-repl))))))))
-
-(defvar cider-required-middleware-version)
-(defun cider-upgrade-nrepl-connection (&optional connection)
-  "Sideload cider-nrepl middleware.
-If CONNECTION is nil, use `cider-current-repl'."
-  (interactive)
-  (when (not cider-sideloader-path)
-    (setq cider-sideloader-path (list (cider-jar-find-or-fetch
-                                       "cider" "cider-nrepl"
-                                       (or cider-dynload-cider-nrepl-version
-                                           cider-required-middleware-version)))))
-  (cider-sideloader-start connection)
-  (cider-add-cider-nrepl-middlewares connection))
-
-
 ;;; Dealing with compilation (evaluation) errors and warnings
 (defun cider-find-property (property &optional backward)
   "Find the next text region which has the specified PROPERTY.
@@ -486,15 +302,18 @@ op/situation that originated this error."
     (let ((error-buffer (cider-new-error-buffer #'cider-stacktrace-mode error-types)))
       (cider-stacktrace-render error-buffer (reverse causes) error-types))))
 
-(defcustom cider-clojure-compilation-error-phases '("read-source"
-                                                    "macro-syntax-check"
-                                                    "macroexpansion"
-                                                    "compile-syntax-check"
-                                                    "compilation"
-                                                    ;; "execution" is certainly not to be included here.
-                                                    ;; "read-eval-result" and "print-eval-result" are not to be included here,
-                                                    ;; because they mean that the code has been successfully executed.
-                                                    )
+(defconst cider-clojure-compilation-error-phases-default-value
+  '("read-source"
+    "macro-syntax-check"
+    "macroexpansion"
+    "compile-syntax-check"
+    "compilation"
+    ;; "execution" is certainly not to be included here.
+    ;; "read-eval-result" and "print-eval-result" are not to be included here,
+    ;; because they mean that the code has been successfully executed.
+    ))
+
+(defcustom cider-clojure-compilation-error-phases cider-clojure-compilation-error-phases-default-value
   "Error phases which will not cause the `*cider-error*' buffer to pop up.
 
 The default value results in no stacktrace being shown for compile-time errors.
@@ -511,6 +330,12 @@ https://clojure.org/reference/repl_and_main#_at_repl"
   :group 'cider
   :package-version '(cider . "0.18.0"))
 
+(defun cider-clojure-compilation-error-phases ()
+  "Get the normalized value of the `cider-clojure-compilation-error-phases' var."
+  (if (equal t cider-clojure-compilation-error-phases)
+      cider-clojure-compilation-error-phases-default-value
+    cider-clojure-compilation-error-phases))
+
 (defun cider--handle-stacktrace-response (response causes ex-phase)
   "Handle stacktrace RESPONSE, aggregate the result into CAUSES, honor EX-PHASE.
 If RESPONSE contains a cause, cons it onto CAUSES and return that.  If
@@ -521,7 +346,7 @@ into a new error buffer."
            (nrepl-notify msg type))
           (class (cons response causes))
           (status
-           (unless (member ex-phase cider-clojure-compilation-error-phases)
+           (unless (member ex-phase (cider-clojure-compilation-error-phases))
              (cider--render-stacktrace-causes causes))))))
 
 (defun cider-default-err-op-handler ()
@@ -552,70 +377,91 @@ It delegates the actual error content to the eval or op handler."
          (cider-default-err-eval-handler))
         (t (cider-default-err-eval-print-handler))))
 
+;; Reference:
+;; https://github.com/clojure/clojure/blob/clojure-1.10.0/src/clj/clojure/main.clj#L251
+;; See `cider-compilation-regexp' for interpretation of match groups.
+(defconst cider--clojure-1.10-location
+  '(sequence
+    "at " (minimal-match (zero-or-more anything)) ;; the fully-qualified name of the function that triggered the error
+    "("
+    (group-n 2 (minimal-match (zero-or-more anything))) ; source file
+    ":" (group-n 3 (one-or-more (any "-" digit))) ; line number, may be negative (#3687)
+    (optional
+     ":" (group-n 4 (one-or-more (any "-" digit)))) ; column number
+    ")."))
 
-;; The format of the error messages emitted by Clojure's compiler changed in
-;; Clojure 1.10.  That's why we're trying to match error messages to both the
-;; old and the new format, by utilizing a combination of two different regular
-;; expressions.
+(defconst cider--clojure-1.10-error
+  `(sequence
+    (or "Syntax error reading source " ; phase = :read-source
+        (sequence
+         (or "Syntax error " "Unexpected error ")
+         (minimal-match (zero-or-more anything)) ; optional class, eg. (ClassCastException)
+         (or "macroexpanding " ; phase = :macro-syntax-check / :macroexpansion
+             "compiling ")     ; phase = :compile-syntax-check / :compilation
+         (minimal-match (zero-or-more anything)))) ; optional symbol, eg. foo/bar
+    ,cider--clojure-1.10-location)
+  "Regexp matching error messages triggered in compilation / read / print phases.")
 
-(defconst cider-clojure-1.10--location `("at ("
-                                         (group-n 2 (minimal-match (zero-or-more anything)))
-                                         ":"
-                                         (group-n 3 (one-or-more digit))
-                                         (optional ":" (group-n 4 (one-or-more digit)))
-                                         ")."))
+(defconst cider--clojure-warning
+  `(sequence
+    (minimal-match (zero-or-more anything))
+    (group-n 1 "warning")
+    ", " (group-n 2 (minimal-match (zero-or-more anything)))
+    ":" (group-n 3 (one-or-more (any "-" digit)))
+    (optional
+     ":" (group-n 4 (one-or-more (any "-" digit))))
+    " - ")
+  "Regexp matching various non-error messages, e.g. reflection warnings.")
 
-(defconst cider-clojure-1.10-error (append `(sequence
-                                             "Syntax error "
-                                             (minimal-match (zero-or-more anything))
-                                             (or "compiling "
-                                                 "macroexpanding "
-                                                 "reading source ")
-                                             (minimal-match (zero-or-more anything)))
-                                           cider-clojure-1.10--location))
-
-(defconst cider-clojure-unexpected-error (append `(sequence
-                                                   "Unexpected error ("
-                                                   (minimal-match (one-or-more anything))
-                                                   ") "
-                                                   (or "compiling "
-                                                       "macroexpanding "
-                                                       "reading source ")
-                                                   (minimal-match (one-or-more anything)))
-                                                 cider-clojure-1.10--location))
-
-(defconst cider-clojure-1.9-error `(sequence
-                                    (zero-or-more anything)
-                                    ", compiling:("
-                                    (group-n 2 (minimal-match (zero-or-more anything)))
-                                    ":"
-                                    (group-n 3 (one-or-more digit))
-                                    (optional ":" (group-n 4 (one-or-more digit)))
-                                    ")"))
-
-(defconst cider-clojure-warning `(sequence
-                                  (minimal-match (zero-or-more anything))
-                                  (group-n 1 "warning")
-                                  ", "
-                                  (group-n 2 (minimal-match (zero-or-more anything)))
-                                  ":"
-                                  (group-n 3 (one-or-more digit))
-                                  (optional ":" (group-n 4 (one-or-more digit)))
-                                  " - "))
-
+;; Please keep this in sync with `cider-clojure-compilation-error-regexp',
+;; which is a subset of these regexes.
 (defconst cider-clojure-compilation-regexp
-  (eval
-   `(rx bol (or ,cider-clojure-1.9-error
-                ,cider-clojure-warning
-                ,cider-clojure-1.10-error
-                ,cider-clojure-unexpected-error))
-   t)
+  (rx-to-string
+   `(seq bol (or ,cider--clojure-warning
+                 ,cider--clojure-1.10-error))
+   'nogroup)
   "A few example values that will match:
 \"Reflection warning, /tmp/foo/src/foo/core.clj:14:1 - \"
-\"CompilerException java.lang.RuntimeException: Unable to resolve symbol: \\
-lol in this context, compiling:(/foo/core.clj:10:1)\"
 \"Syntax error compiling at (src/workspace_service.clj:227:3).\"
 \"Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1).\"")
+
+(defconst cider-clojure-compilation-error-regexp
+  (rx-to-string
+   `(seq bol ,cider--clojure-1.10-error)
+   'nogroup)
+  "Like `cider-clojure-compilation-regexp',
+but excluding warnings such as reflection warnings.
+
+A few example values that will match:
+\"Syntax error compiling at (src/workspace_service.clj:227:3).\"
+\"Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1).\"")
+
+(defconst cider--clojure-execution-error
+  `(sequence
+    (or "Error reading eval result "   ; phase = :read-eval-result
+        "Error printing return value " ; phase = :print-eval-result
+        "Execution error ")            ; phase = :execution
+    (minimal-match (zero-or-more anything)) ; optional class, eg. (ArithmeticException)
+    ,cider--clojure-1.10-location))
+
+(defconst cider--clojure-spec-execution-error
+  `(sequence
+    "Execution error - invalid arguments to "
+    (minimal-match (one-or-more anything))
+    " "
+    ,cider--clojure-1.10-location))
+
+(defconst cider-clojure-runtime-error-regexp
+  (rx-to-string
+   `(seq bol (or ,cider--clojure-execution-error
+                 ,cider--clojure-spec-execution-error))
+   'nogroup)
+  "Matches runtime errors, as oppsed to compile-time/macroexpansion-time errors.
+
+A few example values that will match:
+
+\"Execution error (ArithmeticException) at foo/foo (src/haystack/parser.cljc:4).\"
+\"Execution error - invalid arguments to foo/bar at (src/haystack/parser.cljc:4).\"")
 
 (defconst cider-module-info-regexp
   (rx " ("
@@ -633,7 +479,11 @@ lol in this context, compiling:(/foo/core.clj:10:1)\"
       ")"))
 
 (defvar cider-compilation-regexp
-  (list cider-clojure-compilation-regexp  2 3 4 '(1))
+  (list cider-clojure-compilation-regexp
+        2     ; FILE
+        3     ; LINE
+        4     ; COLUMN
+        '(1)) ; TYPE = (WARNING . INFO)
   "Specifications for matching errors and warnings in Clojure stacktraces.
 See `compilation-error-regexp-alist' for help on their format.")
 
@@ -657,7 +507,7 @@ See `compilation-error-regexp-alist' for help on their format.")
       (list
        (when file
          (let ((val (match-string-no-properties file message)))
-           (unless (string= val "NO_SOURCE_PATH") val)))
+           (unless (or (string= val "REPL") (string= val "NO_SOURCE_PATH")) val)))
        (when line (string-to-number (match-string-no-properties line message)))
        (when col
          (let ((val (match-string-no-properties col message)))
@@ -755,7 +605,8 @@ and ON-SUCCESS-CALLBACK an optional callback.
 The handler simply inserts the result value in BUFFER."
   (let ((eval-buffer (current-buffer))
         (res "")
-        (failed nil))
+        (failed nil)
+        (error-phase-requested nil)) ;; avoid requesting the phase more than once - can happen if there are errors during the phase nrepl sync request.
     (nrepl-make-response-handler (or buffer eval-buffer)
                                  ;; value handler:
                                  (lambda (_buffer value)
@@ -772,7 +623,10 @@ The handler simply inserts the result value in BUFFER."
                                    (when (and source-buffer
                                               (listp bounds)) ;; if it's a list, it represents bounds, otherwise it's a string (code) and we can't display the overlay
                                      (with-current-buffer source-buffer
-                                       (let* ((phase (cider--error-phase-of-last-exception buffer))
+                                       (let* ((phase (if error-phase-requested
+                                                         nil
+                                                       (setq error-phase-requested t)
+                                                       (cider--error-phase-of-last-exception buffer)))
                                               (end (or (car-safe (cdr-safe bounds)) bounds))
                                               (end (when end
                                                      (copy-marker end))))
@@ -832,16 +686,19 @@ REPL buffer.  This is controlled via
 
 (defun cider--error-phase-of-last-exception (buffer)
   "Returns the :phase of the latest exception associated to BUFFER, if any."
-  (when cider-clojure-compilation-error-phases
+  (when (cider-clojure-compilation-error-phases)
     (when-let ((conn (with-current-buffer buffer
                        (cider-current-repl))))
       (when (cider-nrepl-op-supported-p "analyze-last-stacktrace" conn)
-        (when-let* ((result (nrepl-send-sync-request (thread-last (map-merge 'list
-                                                                             '(("op" "analyze-last-stacktrace"))
-                                                                             (cider--nrepl-print-request-map fill-column))
-                                                                  (seq-mapcat #'identity))
-                                                     conn)))
-          (nrepl-dict-get result "phase"))))))
+        (let ((nrepl-sync-request-timeout 4)) ;; ensure that this feature cannot possibly create an overly laggy UX
+          (when-let* ((result (nrepl-send-sync-request (thread-last (map-merge 'list
+                                                                               '(("op" "analyze-last-stacktrace"))
+                                                                               (cider--nrepl-print-request-map fill-column))
+                                                                    (seq-mapcat #'identity))
+                                                       conn
+                                                       'abort-on-input ;; favor responsiveness over this feature, in case something went wrong.
+                                                       )))
+            (nrepl-dict-get result "phase")))))))
 
 (defcustom cider-inline-error-message-function #'cider--shorten-error-message
   "A function that will shorten a given error message,
@@ -866,13 +723,19 @@ and the suffix matched by `cider-module-info-regexp'."
 (defun cider--maybe-display-error-as-overlay (phase err end)
   "Possibly display ERR as an overlay honoring END,
 depending on the PHASE."
-  (when (or
-         ;; if we won't show *cider-error*, because of configuration, the overlay is adequate because it compensates for the lack of info in a compact manner:
-         (not cider-show-error-buffer)
-         (not (cider-connection-has-capability-p 'jvm-compilation-errors))
-         ;; if we won't show *cider-error*, because of an ignored phase, the overlay is adequate:
-         (and cider-show-error-buffer
-              (member phase cider-clojure-compilation-error-phases)))
+  (when (and (or
+              ;; if we won't show *cider-error*, because of configuration, the overlay is adequate because it compensates for the lack of info in a compact manner:
+              (not cider-show-error-buffer)
+              (not (cider-connection-has-capability-p 'jvm-compilation-errors))
+              ;; if we won't show *cider-error*, because of an ignored phase, the overlay is adequate:
+              (and cider-show-error-buffer
+                   (member phase (cider-clojure-compilation-error-phases))))
+             ;; Only show overlays for things that do look like an exception (#3587):
+             ;; Note: only applicable to JVM Clojure error messages (#3687)
+             (if (cider-runtime-clojure-p)
+                 (or (string-match-p cider-clojure-runtime-error-regexp err)
+                     (string-match-p cider-clojure-compilation-error-regexp err))
+               t))
     ;; Display errors as temporary overlays
     (let ((cider-result-use-clojure-font-lock nil)
           (trimmed-err (funcall cider-inline-error-message-function err)))
@@ -896,17 +759,24 @@ when `cider-auto-inspect-after-eval' is non-nil."
          (beg (when beg (copy-marker beg)))
          (end (when end (copy-marker end)))
          (fringed nil)
-         (res ""))
+         (res "")
+         (error-phase-requested nil)) ;; avoid requesting the phase more than once - can happen if there are errors during the phase nrepl sync request.
     (nrepl-make-response-handler (or buffer eval-buffer)
+                                 ;; value handler:
                                  (lambda (_buffer value)
                                    (setq res (concat res value))
                                    (cider--display-interactive-eval-result res 'value end))
+                                 ;; stdout handler:
                                  (lambda (_buffer out)
                                    (cider-emit-interactive-eval-output out))
+                                 ;; stderr handler:
                                  (lambda (buffer err)
                                    (cider-emit-interactive-eval-err-output err)
 
-                                   (let ((phase (cider--error-phase-of-last-exception buffer)))
+                                   (let ((phase (if error-phase-requested
+                                                    nil
+                                                  (setq error-phase-requested t)
+                                                  (cider--error-phase-of-last-exception buffer))))
 
                                      (cider--maybe-display-error-as-overlay phase err end)
 
@@ -918,6 +788,7 @@ when `cider-auto-inspect-after-eval' is non-nil."
                                                                       ;; the error is 'right there' in the current line
                                                                       ;; and needs no jumping:
                                                                       phase)))
+                                 ;; done handler:
                                  (lambda (buffer)
                                    (if beg
                                        (unless fringed
@@ -937,7 +808,8 @@ when `cider-auto-inspect-after-eval' is non-nil."
   "Make a load file handler for BUFFER.
 Optional argument DONE-HANDLER lambda will be run once load is complete."
   (let ((eval-buffer (current-buffer))
-        (res ""))
+        (res "")
+        (error-phase-requested nil)) ;; avoid requesting the phase more than once - can happen if there are errors during the phase nrepl sync request.
     (nrepl-make-response-handler (or buffer eval-buffer)
                                  (lambda (buffer value)
                                    (cider--display-interactive-eval-result value 'value)
@@ -954,7 +826,10 @@ Optional argument DONE-HANDLER lambda will be run once load is complete."
                                    ;; 1.- Jump to the error line:
                                    (cider-handle-compilation-errors err eval-buffer)
                                    (with-current-buffer eval-buffer
-                                     (let* ((phase (cider--error-phase-of-last-exception buffer))
+                                     (let* ((phase (if error-phase-requested
+                                                       nil
+                                                     (setq error-phase-requested t)
+                                                     (cider--error-phase-of-last-exception buffer)))
                                             ;; 2.- Calculate the overlay position, which is the point (per the previous jump),
                                             ;;     and then end-of-line (for ensuring the overlay will be rendered properly):
                                             (end (save-excursion
@@ -1063,7 +938,8 @@ and SOURCE-BUFFER the original buffer
 This is used by pretty-printing commands."
   ;; NOTE: cider-eval-register behavior is not implemented here for performance reasons.
   ;; See https://github.com/clojure-emacs/cider/pull/3162
-  (let ((chosen-buffer (or buffer (current-buffer))))
+  (let ((chosen-buffer (or buffer (current-buffer)))
+        (error-phase-requested nil)) ;; avoid requesting the phase more than once - can happen if there are errors during the phase nrepl sync request.
     (nrepl-make-response-handler
      chosen-buffer
      ;; value handler:
@@ -1078,7 +954,10 @@ This is used by pretty-printing commands."
        (when (and source-buffer
                   (listp bounds)) ;; if it's a list, it represents bounds, otherwise it's a string (code) and we can't display the overlay
          (with-current-buffer source-buffer
-           (let* ((phase (cider--error-phase-of-last-exception buffer))
+           (let* ((phase (if error-phase-requested
+                             nil
+                           (setq error-phase-requested t)
+                           (cider--error-phase-of-last-exception buffer)))
                   (end (or (car-safe (cdr-safe bounds)) bounds))
                   (end (when end
                          (copy-marker end))))
@@ -1162,7 +1041,11 @@ arguments and only proceed with evaluation if it returns nil."
           (delete-overlay ov))))
     (unless (and cider-interactive-eval-override
                  (functionp cider-interactive-eval-override)
-                 (funcall cider-interactive-eval-override form callback bounds))
+                 (condition-case _
+                     (funcall cider-interactive-eval-override form callback bounds additional-params)
+                   (wrong-number-of-arguments
+                    ;; fallback for backward compatibility
+                    (funcall cider-interactive-eval-override form callback bounds))))
       (cider-map-repls :auto
         (lambda (connection)
           (cider--prep-interactive-eval form connection)
@@ -1489,7 +1372,7 @@ command `cider-debug-defun-at-point'."
   (interactive "P")
   (let ((inline-debug (eq 16 (car-safe debug-it))))
     (when debug-it
-      (when (derived-mode-p 'clojurescript-mode)
+      (when (cider-clojurescript-major-mode-p)
         (when (y-or-n-p (concat "The debugger doesn't support ClojureScript yet, and we need help with that."
                                 "  \nWould you like to read the Feature Request?"))
           (browse-url "https://github.com/clojure-emacs/cider/issues/1416"))
@@ -1772,9 +1655,15 @@ all ns aliases and var mappings from the namespace before reloading it."
 Useful when the running nREPL on remote host.
 When UNDEF-ALL is non-nil or called with \\[universal-argument], removes
 all ns aliases and var mappings from the namespaces being reloaded"
-  (interactive "DLoad files beneath directory: \nP")
-  (mapcar (lambda (file) (cider-load-file file undef-all))
-          (directory-files-recursively directory "\\.clj[cs]?$")))
+  (interactive "DRecursively load files in directory: \nP")
+  (let* ((files (directory-files-recursively directory "\\.clj[cs]?$"))
+         (reporter (make-progress-reporter "Loading files" 0 (length files))))
+    (seq-do-indexed (lambda (file idx)
+                      (let ((inhibit-message t))
+                        (cider-load-file file undef-all))
+                      (progress-reporter-update reporter (1+ idx) file))
+                    files)
+    (progress-reporter-done reporter)))
 
 (defalias 'cider-eval-file #'cider-load-file
   "A convenience alias as some people are confused by the load-* names.")

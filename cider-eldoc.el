@@ -1,7 +1,7 @@
 ;;; cider-eldoc.el --- eldoc support for Clojure -*- lexical-binding: t -*-
 
-;; Copyright © 2012-2013 Tim King, Phil Hagelberg, Bozhidar Batsov
-;; Copyright © 2013-2023 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2012-2024 Tim King, Phil Hagelberg, Bozhidar Batsov
+;; Copyright © 2013-2024 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
@@ -218,7 +218,9 @@ information."
          (symbol (lax-plist-get eldoc-info "symbol"))
          (docstring (or (cider--render-docstring-first-sentence eldoc-info)
                         (cider--render-docstring eldoc-info)
-                        (cider-docstring--dumb-trim (lax-plist-get eldoc-info "docstring"))))
+                        (when-let (docstring (lax-plist-get eldoc-info "docstring"))
+                          (cider-docstring--trim
+                           (cider-docstring--format docstring)))))
          ;; if it's a single class (and not multiple class candidates), that's it
          (maybe-class (car (lax-plist-get eldoc-info "class")))
          (formatted-var (or (when maybe-class

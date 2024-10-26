@@ -1,6 +1,6 @@
 ;;; cider-ns.el --- Namespace manipulation functionality -*- lexical-binding: t -*-
 
-;; Copyright © 2013-2023 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2013-2024 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
 ;; Author: Bozhidar Batsov <bozhidar@batsov.dev>
 ;;         Artur Malabarba <bruce.connor.am@gmail.com>
@@ -78,7 +78,7 @@ If t, save the files without confirmation."
   :group 'cider
   :package-version '(cider . "0.15.0"))
 
-(defcustom cider-ns-save-files-on-refresh-modes '(clojure-mode)
+(defcustom cider-ns-save-files-on-refresh-modes '(clojure-mode clojure-ts-mode)
   "Controls which files might be saved before refreshing.
 If a list of modes, any buffers visiting files on the classpath whose major
 mode is derived from any of the modes might be saved.
@@ -118,9 +118,53 @@ namespace-qualified function of zero arity."
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
+(defcustom cider-ns-code-reload-tool 'tools.namespace
+  "Which tool to use for ns refresh.
+Current options: tools.namespace and clj-reload."
+  :group 'cider
+  :type '(choice (const :tag "tools.namespace https://github.com/clojure/tools.namespace" tools.namespace)
+                 (const :tag "clj-reload https://github.com/tonsky/clj-reload" clj-reload))
+  :package-version '(cider . "1.14.0"))
+
+(defun cider-ns--present-error (error)
+  "Render the `ERROR' stacktrace,
+and jump to the adequate file/line location,
+presenting the error message as an overlay."
+  (let* ((buf)
+         (jump-args (seq-some (lambda (cause-dict) ;; a dict representing an exception cause
+                                (nrepl-dbind-response cause-dict (file-url line column)
+                                  (when (and file-url
+                                             ;; jars are unlikely sources of user errors, so we favor the next `cause-dict':
+                                             (not (string-prefix-p "jar:" file-url))
+                                             line)
+                                    (setq buf (cider--find-buffer-for-file file-url))
+                                    (list buf (cons line column)))))
+                              error)))
+    (when jump-args
+      (apply #'cider-jump-to jump-args)
+      (when-let ((message (seq-some (lambda (cause-dict)
+                                      (nrepl-dbind-response cause-dict (message)
+                                        message))
+                                    ;; `reverse' the causes as the first one typically is a CompilerException, which the second one is the actual exception:
+                                    (reverse error))))
+        (with-current-buffer buf
+          (let ((cider-result-use-clojure-font-lock nil)
+                (trimmed-err (funcall cider-inline-error-message-function message)))
+            (cider--display-interactive-eval-result trimmed-err
+                                                    'error
+                                                    (save-excursion
+                                                      (end-of-defun)
+                                                      (point))
+                                                    'cider-error-overlay-face)))))
+    (cider--render-stacktrace-causes error)
+    ;; Select the window displaying the 'culprit' buffer so that the user can immediately fix it,
+    ;; as most times the displayed stacktrace doesn't need much inspection:
+    (when buf
+      (select-window (get-buffer-window buf)))))
+
 (defun cider-ns-refresh--handle-response (response log-buffer)
   "Refresh LOG-BUFFER with RESPONSE."
-  (nrepl-dbind-response response (out err reloading status error error-ns after before)
+  (nrepl-dbind-response response (out err reloading progress status error error-ns after before)
     (cl-flet* ((log (message &optional face)
                     (cider-emit-into-popup-buffer log-buffer message face t))
 
@@ -148,6 +192,9 @@ namespace-qualified function of zero arity."
        (reloading
         (log-echo (format "Reloading %s\n" reloading) 'font-lock-string-face))
 
+       (progress
+        (log-echo progress 'font-lock-string-face))
+
        ((member "reloading" (nrepl-dict-keys response))
         (log-echo "Nothing to reload\n" 'font-lock-string-face))
 
@@ -168,8 +215,9 @@ namespace-qualified function of zero arity."
       (with-current-buffer cider-ns-refresh-log-buffer
         (goto-char (point-max))))
 
-    (when (member "error" status)
-      (cider--render-stacktrace-causes error))))
+    (when (and (member "error" status)
+               error)
+      (cider-ns--present-error error))))
 
 (defun cider-ns-refresh--save-modified-buffers ()
   "Ensure any relevant modified buffers are saved before refreshing.
@@ -185,6 +233,19 @@ Its behavior is controlled by `cider-ns-save-files-on-refresh' and
               (seq-some (lambda (dir)
                           (file-in-directory-p buffer-file-name dir))
                         dirs)))))))
+
+(defun cider-ns--reload-op (op-name)
+  "Return the reload operation to use.
+Based on OP-NAME and the value of cider-ns-code-reload-tool defcustom."
+  (list "op"
+        (if (eq cider-ns-code-reload-tool 'tools.namespace)
+            (cond ((string= op-name "reload")       "refresh")
+                  ((string= op-name "reload-all")   "refresh-all")
+                  ((string= op-name "reload-clear") "refresh-clear"))
+
+          (cond ((string= op-name "reload")       "cider.clj-reload/reload")
+                ((string= op-name "reload-all")   "cider.clj-reload/reload-all")
+                ((string= op-name "reload-clear") "cider.clj-reload/reload-clear")))))
 
 ;;;###autoload
 (defun cider-ns-reload (&optional prompt)
@@ -219,10 +280,11 @@ indirectly load via require\"."
 
 ;;;###autoload
 (defun cider-ns-refresh (&optional mode)
-  "Reload modified and unloaded namespaces on the classpath.
+  "Reload modified and unloaded namespaces, using the Reloaded Workflow.
+Uses the configured 'refresh dirs' \(defaults to the classpath dirs).
 
 With a single prefix argument, or if MODE is `refresh-all', reload all
-namespaces on the classpath unconditionally.
+namespaces on the classpath dirs unconditionally.
 
 With a double prefix argument, or if MODE is `clear', clear the state of
 the namespace tracker before reloading.  This is useful for recovering from
@@ -237,9 +299,10 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
   (interactive "p")
   (cider-ensure-connected)
   (cider-ensure-op-supported "refresh")
+  (cider-ensure-op-supported "cider.clj-reload/reload")
   (cider-ns-refresh--save-modified-buffers)
   (let ((clear? (member mode '(clear 16)))
-        (refresh-all? (member mode '(refresh-all 4)))
+        (all? (member mode '(refresh-all 4)))
         (inhibit-refresh-fns (member mode '(inhibit-fns -1))))
     (cider-map-repls :clj
       (lambda (conn)
@@ -254,11 +317,11 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
                                           nil
                                           t))
           (when clear?
-            (cider-nrepl-send-sync-request '("op" "refresh-clear") conn))
+            (cider-nrepl-send-sync-request (cider-ns--reload-op "reload-clear") conn))
           (cider-nrepl-send-request
            (thread-last
              (map-merge 'list
-                        `(("op" ,(if refresh-all? "refresh-all" "refresh")))
+                        `(,(cider-ns--reload-op (if all? "reload-all" "reload")))
                         (cider--nrepl-print-request-map fill-column)
                         (when (and (not inhibit-refresh-fns) cider-ns-refresh-before-fn)
                           `(("before" ,cider-ns-refresh-before-fn)))

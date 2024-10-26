@@ -30,6 +30,7 @@ Right now CIDER the supports to some extent the following:
 * xref:platforms/clojureclr.adoc[ClojureCLR]
 * Lumo (via https://github.com/djblue/nrepl-cljs)
 * xref:platforms/other_platforms.adoc[scittle, joyride & friends]
+* xref:platforms/basilisp.adoc[Basilisp]
 
 All of them are derived from Clojure, so supporting them didn't really require much work.
 

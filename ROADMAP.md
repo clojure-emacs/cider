@@ -49,7 +49,6 @@ There's a bit of info on the subject [here](https://github.com/clojure-emacs/cid
 
 ## Implement new nREPL features
 
-* sideloading (there's some experimental support for this)
 * dynamic middleware loading
 * ~~completion~~
 * ~~lookup~~

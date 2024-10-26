@@ -1,7 +1,7 @@
 ;;; cider-mode.el --- Minor mode for REPL interactions -*- lexical-binding: t -*-
 
-;; Copyright © 2012-2013 Tim King, Phil Hagelberg, Bozhidar Batsov
-;; Copyright © 2013-2023 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2012-2024 Tim King, Phil Hagelberg, Bozhidar Batsov
+;; Copyright © 2013-2024 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
@@ -537,6 +537,7 @@ higher precedence."
     (define-key map (kbd "C-c M-l a") #'cider-log-appender)
     (define-key map (kbd "C-c M-l c") #'cider-log-consumer)
     (define-key map (kbd "C-c M-l e") #'cider-log-event)
+    (define-key map (kbd "C-c M-l s") #'cider-log-show)
     (define-key map (kbd "C-c M-l f") #'cider-log-framework)
     (define-key map (kbd "C-c M-l i") #'cider-log-info)
     (define-key map (kbd "C-c M-l l") #'cider-log)
@@ -549,14 +550,16 @@ higher precedence."
                            (cider--menu-add-help-strings (symbol-value variable))))
     map))
 
-;; This menu works as an easy entry-point into CIDER.  Even if cider.el isn't
-;; loaded yet, this will be shown in Clojure buffers next to the "Clojure"
-;; menu.
 ;;;###autoload
-(with-eval-after-load 'clojure-mode
-  (easy-menu-define cider-clojure-mode-menu-open clojure-mode-map
+(defun cider--setup-menu-for-clojure-major-mode (mode-map)
+  "Setup a Cider menu for a Clojure major mode's MODE-MAP.
+
+This menu works as an easy entry-point into CIDER.  Even if cider.el isn't
+loaded yet, this will be shown in Clojure buffers next to the Clojure menu."
+  (easy-menu-define cider-clojure-mode-menu-open mode-map
     "Menu for Clojure mode.
-  This is displayed in `clojure-mode' buffers, if `cider-mode' is not active."
+  This is displayed in `clojure-mode' and `clojure-ts-mode' buffers,
+  if `cider-mode' is not active."
     `("CIDER" :visible (not cider-mode)
       ["Start a Clojure REPL" cider-jack-in-clj
        :help "Starts an nREPL server and connects a Clojure REPL to it."]
@@ -570,6 +573,16 @@ higher precedence."
        :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL."]
       "--"
       ["View user manual" cider-view-manual])))
+
+;;;###autoload
+(with-eval-after-load 'clojure-mode
+  (cider--setup-menu-for-clojure-major-mode clojure-mode-map))
+
+;;;###autoload
+(with-eval-after-load 'clojure-ts-mode
+  (cider--setup-menu-for-clojure-major-mode
+   (with-suppressed-warnings ((free-vars clojure-ts-mode-map))
+     clojure-ts-mode-map)))
 
 ;;; Dynamic indentation
 (defcustom cider-dynamic-indentation t
@@ -796,7 +809,7 @@ with the given LIMIT."
                        ;; we catch that case too.
                        ;; FIXME: This matches values too, not just keys.
                        (when (seq-find (lambda (k) (and (stringp k)
-                                                        (string-match (rx "clojure.tools.trace/traced" eos) k)))
+                                                        (string-match (rx "orchard.trace/traced" eos) k)))
                                        meta)
                          (push sym traced))
                        (when (and do-deprecated (nrepl-dict-get meta "deprecated"))
@@ -1049,7 +1062,12 @@ property."
 
 
 ;;; Minor-mode definition
-(defvar x-gtk-use-system-tooltips)
+
+(if (and (> emacs-major-version 28)
+         (not (boundp 'x-gtk-use-system-tooltips)))
+    ;; The x-gtk prefix has been dropped in Emacs 29
+    (defvaralias 'x-gtk-use-system-tooltips 'use-system-tooltips)
+  (defvar x-gtk-use-system-tooltips))
 
 ;;;###autoload
 (define-minor-mode cider-mode

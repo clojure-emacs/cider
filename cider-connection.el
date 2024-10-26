@@ -1,6 +1,6 @@
 ;;; cider-connection.el --- Connection and session life-cycle management for CIDER -*- lexical-binding: t -*-
 ;;
-;; Copyright © 2019-2023 Artur Malabarba, Bozhidar Batsov, Vitalie Spinu and CIDER contributors
+;; Copyright © 2019-2024 Artur Malabarba, Bozhidar Batsov, Vitalie Spinu and CIDER contributors
 ;;
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.dev>
@@ -306,6 +306,7 @@ message in the REPL area."
 See command `cider-mode'."
   (interactive)
   (add-hook 'clojure-mode-hook #'cider-mode)
+  (add-hook 'clojure-ts-mode-hook #'cider-mode)
   (dolist (buffer (cider-util--clojure-buffers))
     (with-current-buffer buffer
       (unless cider-mode
@@ -346,6 +347,7 @@ See `cider-connection-capabilities'."
              ('clojure '(clojure jvm-compilation-errors))
              ('babashka '(babashka jvm-compilation-errors))
              ('nbb '(cljs))
+             ('scittle '(cljs))
              (_ '()))
            (when
                (eq cider-repl-type 'cljs)
@@ -456,12 +458,19 @@ But helps us know if this is a nbb repl, or not."
     (when nrepl-versions
       (nrepl-dict-get nrepl-versions "nbb-nrepl"))))
 
+(defun cider--scittle-nrepl-version ()
+  "Retrieve the underlying connection's scittle version."
+  (with-current-buffer (cider-current-repl)
+    (when nrepl-versions
+      (nrepl-dict-get nrepl-versions "scittle-nrepl"))))
+
 (defun cider-runtime ()
   "Return the runtime of the nREPl server."
   (cond
    ((cider--clojure-version) 'clojure)
    ((cider--babashka-version) 'babashka)
    ((cider--nbb-nrepl-version) 'nbb)
+   ((cider--scittle-nrepl-version) 'scittle)
    (t 'generic)))
 
 (defun cider-runtime-clojure-p ()
@@ -621,7 +630,6 @@ REPL defaults to the current REPL."
     (define-key map (kbd "j r") #'cider-restart)
     (define-key map (kbd "j d") #'cider-describe-connection)
     (define-key map (kbd "j i") #'cider-describe-connection)
-    (define-key map (kbd "C-c C-q") #'cider-quit)
     (define-key map (kbd "C-c C-q") #'cider-quit)
     (define-key map (kbd "C-c C-r") #'cider-restart)
     (define-key map (kbd "C-c M-r") #'cider-restart)
@@ -800,9 +808,9 @@ multi.  This function infers connection type based on the major mode.
 For the REPL type use the function `cider-repl-type'."
   (with-current-buffer (or buffer (current-buffer))
     (cond
-     ((derived-mode-p 'clojurescript-mode) 'cljs)
-     ((derived-mode-p 'clojurec-mode) cider-clojurec-eval-destination)
-     ((derived-mode-p 'clojure-mode) 'clj)
+     ((cider-clojurescript-major-mode-p) 'cljs)
+     ((cider-clojurec-major-mode-p) cider-clojurec-eval-destination)
+     ((cider-clojure-major-mode-p) 'clj)
      (cider-repl-type))))
 
 (defun cider-set-repl-type (&optional type)

@@ -5,6 +5,7 @@
 -----------
 [![License GPL 3][badge-license]](http://www.gnu.org/licenses/gpl-3.0.txt)
 [![CircleCI](https://circleci.com/gh/clojure-emacs/cider.svg?style=svg)](https://circleci.com/gh/clojure-emacs/cider)
+[![Integration tests](https://github.com/clojure-emacs/cider/actions/workflows/test.yml/badge.svg)](https://github.com/clojure-emacs/cider/actions/workflows/test.yml)
 [![Spell-check Status](https://github.com/clojure-emacs/cider/actions/workflows/spell_checking.yml/badge.svg)](https://github.com/clojure-emacs/cider/actions/workflows/spell_checking.yml)
 [![Discord](https://img.shields.io/badge/chat-on%20discord-7289da.svg?sanitize=true)](https://discord.com/invite/nFPpynQPME)
 [![Slack](https://img.shields.io/badge/chat-%23cider-green.svg?style=flat)](http://clojurians.net)
@@ -13,13 +14,13 @@ CIDER is the **C**lojure(Script) **I**nteractive **D**evelopment **E**nvironment
 that **R**ocks!
 
 CIDER extends Emacs with support for [interactive
-programming](https://docs.cider.mx/cider/usage/interactive_programming.html)
-in Clojure. The features are centered around `cider-mode`, an Emacs
-minor-mode that complements [clojure-mode][]. While `clojure-mode`
-supports editing Clojure source files, `cider-mode` adds support for
-interacting with a running Clojure process for compilation, code
-completion, debugging, definition and documentation lookup, running
-tests and so on.
+programming](https://docs.cider.mx/cider/usage/interactive_programming.html) in
+Clojure. The features are centered around `cider-mode`, an Emacs minor-mode that
+complements [clojure-mode][] and [clojure-ts-mode][]. While `clojure-mode` and
+`clojure-ts-mode` support editing Clojure source files, `cider-mode` adds
+support for interacting with a running Clojure process for compilation, code
+completion, debugging, definition and documentation lookup, running tests and so
+on.
 
 ----------
 [![OpenCollective](https://opencollective.com/cider/backers/badge.svg)](#open-collective-backers)
@@ -262,7 +263,7 @@ site. [[Become a sponsor](https://opencollective.com/cider#sponsor)]
 
 CIDER is distributed under the GNU General Public License, version 3.
 
-Copyright © 2012-2023 Bozhidar Batsov, Artur Malabarba, Tim King, Phil Hagelberg and
+Copyright © 2012-2024 Bozhidar Batsov, Artur Malabarba, Tim King, Phil Hagelberg and
 [contributors](https://github.com/clojure-emacs/cider/contributors).
 
 [badge-license]: https://img.shields.io/badge/license-GPL_3-green.svg
@@ -270,4 +271,5 @@ Copyright © 2012-2023 Bozhidar Batsov, Artur Malabarba, Tim King, Phil Hagelber
 [Sly]: https://github.com/joaotavora/sly
 [Geiser]: https://github.com/jaor/geiser
 [clojure-mode]: https://github.com/clojure-emacs/clojure-mode
+[clojure-ts-mode]: https://github.com/clojure-emacs/clojure-ts-mode
 [inf-clojure]: https://github.com/clojure-emacs/inf-clojure

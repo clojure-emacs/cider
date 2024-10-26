@@ -1,6 +1,6 @@
 ;;; cider-overlays.el --- Managing CIDER overlays  -*- lexical-binding: t; -*-
 
-;; Copyright © 2015-2023 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2015-2024 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 
@@ -304,10 +304,10 @@ Note that, while POINT can be a number, it's preferable to be a marker, as
 that will better handle some corner cases where the original buffer is not
 focused."
   (cl-assert (symbolp value-type)) ;; We assert because for avoiding confusion with the optional args.
-  (let* ((font-value (if cider-result-use-clojure-font-lock
+  (let* ((value (string-trim-right value))
+         (font-value (if cider-result-use-clojure-font-lock
                          (cider-font-lock-as-clojure value)
                        value))
-         (font-value (string-trim-right font-value))
          (used-overlay (when (and point
                                   cider-use-overlays
                                   (if (equal 'error value-type)
@@ -316,10 +316,16 @@ focused."
                          (cider--make-result-overlay font-value
                            :where point
                            :duration cider-eval-result-duration
-                           :prepend-face (or overlay-face 'cider-result-overlay-face)))))
+                           :prepend-face (or overlay-face 'cider-result-overlay-face))))
+         (msg (format "%s%s" cider-eval-result-prefix font-value))
+         (max-msg-length (* (floor (* (frame-height) max-mini-window-height))
+                            (frame-width)))
+         (msg (if (> (string-width msg) max-msg-length)
+                  (format "%s..." (substring msg 0 (- max-msg-length 3)))
+                msg)))
     (message
      "%s"
-     (propertize (format "%s%s" cider-eval-result-prefix font-value)
+     (propertize msg
                  ;; The following hides the message from the echo-area, but
                  ;; displays it in the Messages buffer. We only hide the message
                  ;; if the user wants to AND if the overlay succeeded.

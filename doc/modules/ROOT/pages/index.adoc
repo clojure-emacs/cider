@@ -5,10 +5,9 @@ that **R**ocks!
 
 CIDER extends Emacs with support for xref:usage/interactive_programming.adoc[interactive programming] in Clojure. The
 features are centered around xref:usage/cider_mode.adoc[cider-mode], an Emacs minor-mode that complements
-https://github.com/clojure-emacs/clojure-mode[clojure-mode]. While `clojure-mode` supports editing Clojure source files,
-`cider-mode` adds support for interacting with a running Clojure process for
-compilation, debugging, definition and documentation lookup, running tests and
-so on.
+https://github.com/clojure-emacs/clojure-mode[clojure-mode] and https://github.com/clojure-emacs/clojure-ts-mode[clojure-ts-mode].
+While `clojure-mode` supports editing Clojure source files, `cider-mode` adds support for interacting with a running Clojure process for
+compilation, debugging, definition and documentation lookup, running tests and so on.
 
 .Inspired by SLIME
 ****
@@ -21,7 +20,7 @@ if you'd like to know more about CIDER's early history.
 ****
 
 *Please consider
-xref:contributing/funding.adoc[supporting financially its ongoing development].*
+xref:contributing/funding.adoc[supporting financially CIDER's ongoing development].*
 
 == Overview
 
@@ -69,12 +68,16 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * Code completion
 * Code reloading
 * Definition & documentation lookup
+* Enhanced syntax highlighting and indentation
 * Enhanced error reporting
 * `clojure.test` integration
 * `clojure.spec` integration
 * Interactive debugger
+* Data Inspector
+* Integration with Java logging frameworks
+* Profiling & tracing
 * ClojureScript support
-* Support for xref:platforms/overview.adoc[alternative Clojure platforms](e.g. ClojureCLR, babashka, nbb & lumo)
+* Support for xref:platforms/overview.adoc[alternative Clojure platforms] (e.g. ClojureCLR, babashka, nbb & lumo)
 
 And many many more... The rest of this manual will be exploring CIDER's features in great detail.
 

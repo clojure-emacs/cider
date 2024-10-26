@@ -52,6 +52,12 @@ most of the time you'd probably want to have a project-specific setting for it i
   (cider-preferred-build-tool . lein)))
 ----
 
+NOTE: `cider-jack-in` is mainly designed for local development (with files on a
+local machine and the nREPL process running on the same machine). It does support
+various common remote/container scenarios, as documented later in this section. Due
+to the large variation of remote scenarios it cannot support all of them, so in
+some cases a manual nREPL start and usage of `cider-connect` might be a better option.
+
 === Auto-Injecting Dependencies
 
 While CIDER's core functionality requires nothing more than an nREPL server,
@@ -67,7 +73,7 @@ simple - CIDER simply passes the extra dependencies and nREPL configuration to
 your build tool in the command it runs to start the nREPL server. Here's how
 this looks for `tools.deps`:
 
-  $ clojure -Sdeps '{:deps {nrepl {:mvn/version "0.6.0"} cider/cider-nrepl {:mvn/version "0.43.0"}}}' -m nrepl.cmdline --middleware '["cider.nrepl/cider-middleware"]'
+  $ clojure -Sdeps '{:deps {nrepl {:mvn/version "1.3.0"} cider/cider-nrepl {:mvn/version "0.50.2"}}}' -m nrepl.cmdline --middleware '["cider.nrepl/cider-middleware"]'
 
 TIP: If you don't want `cider-jack-in` to inject dependencies automatically, set
 `cider-inject-dependencies-at-jack-in` to `nil`. Note that you'll have to setup
@@ -146,6 +152,7 @@ The following Clojure build tools are supported so far
 - kbd:[M-2 C-c C-x j u] jack-in using leiningen.
 - kbd:[M-3 C-c C-x j u] jack-in using babashka.
 - kbd:[M-4 C-c C-x j u] jack-in using nbb.
+- kbd:[M-5 C-c C-x j u] jack-in using basilisp.
 
 Here is an example of how to bind kbd:[F12] for quickly bringing up a
 babashka REPL:
@@ -197,6 +204,36 @@ You can further customize the command line CIDER uses for `cider-jack-in` by
 modifying the some options. Those differ a bit between the various tools,
 so we'll examine them tool by tool.
 
+==== Enabling nREPL JVMTI agent
+
+Since version 1.2.0, nREPL includes a native JVMTI agent which makes the eval
+interrupts work properly on Java 21 and later. To enable the agent, the Java
+process should be launched with `-Djdk.attach.allowAttachSelf`. CIDER will do it
+automatically during jack-in if `cider-enable-nrepl-jvmti-agent` variable is set
+to `t`.
+
+[IMPORTANT]
+====
+`cider-enable-nrepl-jvmti-agent` has no effect if you start a REPL
+process outside of Emacs and connect to it with `cider-connect`. In that
+scenario, you have to add `-Djdk.attach.allowAttachSelf` Java property manually
+through the means of the build tool. In Leiningen, add this to `project.clj`:
+
+[source,lisp]
+----
+:jvm-opts ["-Djdk.attach.allowAttachSelf"]
+----
+
+In tools.deps, add this to one of the aliases that you enable with the REPL:
+
+[source,lisp]
+----
+:aliases {:dev
+          {:jvm-opts ["-Djdk.attach.allowAttachSelf"]
+           ...}}
+----
+====
+
 ==== Leiningen Options
 
 * `cider-lein-command` - the name of the Leiningen executable (`lein` by default)
@@ -206,13 +243,23 @@ so we'll examine them tool by tool.
 
 * `cider-clojure-cli-command` - the name of the `clojure` executable (`clojure` by default)
 * `cider-clojure-cli-parameters` - the command-line parameters to start a REPL
-* `cider-clojure-cli-aliases` - a list of aliases to be used at jack-in time
+* `cider-clojure-cli-aliases` - a list of project-specific aliases to be used at jack-in time (it's meant to be set via `.dir-locals.el`)
+* `cider-clojure-cli-global-aliases` - a list of global aliases that are appended to project-specific `cider-clojure-cli-aliases`
 
-To use `cider-jack-in` with `tools.deps` on Windows set the
-`cider-clojure-cli-command` to `"powershell"`. This happens by default
-if you are on Windows and no `clojure` executable is found. Using
-`"powershell"` will Base64 encode the clojure launch command before
-passing it to PowerShell and avoids shell-escaping issues.
+On MS-Windows, CIDER will employ `PowerShell` to execute Clojure if no
+`clojure` executable is found in the PATH (e.g. like the one supplied
+by https://github.com/borkdude/deps.clj[deps.clj]). The default
+executable used is `powershell` which is available on all Windows
+platforms. Using `PowerShell` will Base64 encode the clojure launch
+command before passing it to PowerShell and avoids shell-escaping
+issues.
+
+The functionality of `cider-clojure-cli-command` has been verified
+with the following alternatives
+
+* `pwsh`: This option proves beneficial when the user has installed the https://github.com/clojure/tools.deps.alpha/wiki/clj-on-Windows[ClojureTools] module on pwsh in a directory not accessible by the system's PowerShell installation.
+* `deps.exe`: This executable is part of the tools provided by
+  https://github.com/borkdude/deps.clj[deps.clj] as an alternative name for `clojure.exe`.
 
 NOTE: Alternatively you can use WSL (e.g. to run nREPL and Emacs there), which
 will likely result in a better overall development experience.
@@ -303,7 +350,7 @@ It is also possible for plain `clj`, although the command is somewhat longer:
 
 [source,sh]
 ----
-$ clj -Sdeps '{:deps {cider/cider-nrepl {:mvn/version "0.43.0"}}}' -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware]"
+$ clj -Sdeps '{:deps {cider/cider-nrepl {:mvn/version "0.50.2"}}}' -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware]"
 ----
 
 Alternatively, you can start nREPL either manually or using the facilities

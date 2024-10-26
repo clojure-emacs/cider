@@ -1,6 +1,6 @@
 ;;; cider-doc.el --- CIDER documentation functionality -*- lexical-binding: t -*-
 
-;; Copyright © 2014-2023 Bozhidar Batsov, Jeff Valk and CIDER contributors
+;; Copyright © 2014-2024 Bozhidar Batsov, Jeff Valk and CIDER contributors
 
 ;; Author: Jeff Valk <jv@jeffvalk.com>
 
@@ -429,7 +429,8 @@ in a COMPACT format is specified, FOR-TOOLTIP if specified."
          (fetched-doc (nrepl-dict-get info "doc"))
          (doc     (or rendered-fragments
                       (if compact
-                          (cider-docstring--dumb-trim fetched-doc)
+                          (cider-docstring--trim
+                           (cider-docstring--format fetched-doc))
                         fetched-doc)
                       (unless compact
                         "Not documented.")))

@@ -21,9 +21,23 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-        emacs_version: ['26.3', '27.2', '28.2', '29.1']
+        os: [macos-13, ubuntu-latest, windows-latest]
+        emacs_version: ['26.3', '27.2', '28.2', '29.3']
         java_version: ['11', '17']
+        include:
+          # aarch64 (macos-13 is Intel)
+          - os: macos-latest
+            emacs_version: '29.3'
+            java_version: '11'
+          - os: macos-latest
+            emacs_version: '28.2'
+            java_version: '11'
+          - os: macos-latest
+            emacs_version: '29.3'
+            java_version: '17'
+          - os: macos-latest
+            emacs_version: '28.2'
+            java_version: '17'
 
     steps:
     - name: Set up Emacs
@@ -86,17 +100,27 @@ jobs:
     - run: npm install shadow-cljs@2.20.13 -g
     - run: npm install nbb@1.1.152 -g
 
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - run: |
+        pip install basilisp==0.1.0b2
+
     - name: Test integration
       run: |
         # The tests occasionally fail on macos&win in what is seems to
         # be GH connectivity runner issues. We attempt to address this
         # problem by rerunning the tests more than once.
         eldev -p -dtTC test --test-type integration || eldev -p -dtTC test --test-type integration
-        
+
     - name: Run tests that need enrich-classpath
-      if: "!startsWith(matrix.os, 'windows')"
+      if: "!startsWith(matrix.os, 'windows') && (matrix.java_version != '11')"
       run: |
         cd dev; ../clojure.sh clojure -M:gen; cd -
         wc -l test/File.edn
         eldev -p -dtTC test --test-type enrich || eldev -p -dtTC test --test-type enrich
-        
+
+    - name: Test clojure-ts-mode
+      if: startsWith (matrix.emacs_version, '29')
+      run: |
+        eldev -p -dtTC test --test-type clojure-ts-mode || eldev -p -dtTC test --test-type clojure-ts-mode

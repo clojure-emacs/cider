@@ -2,6 +2,153 @@
 
 ## master (unreleased)
 
+### Changes
+
+- [#3746](https://github.com/clojure-emacs/cider/issues/3746): Bring back `cider` completion style for activating backend-driven completion.
+
+### Bugs fixed
+
+- [#3742](https://github.com/clojure-emacs/cider/issues/3742): Restore syntax highlighting in result minibuffer.
+- [#3747](https://github.com/clojure-emacs/cider/issues/3747): Fix errors when docstring is nil.
+
+## 1.16.0 (2024-09-24)
+
+### Changes
+
+- Bump the injected nREPL version to [1.3](https://github.com/nrepl/nrepl/releases/tag/v1.3.0).
+- [#3733](https://github.com/clojure-emacs/cider/issues/3733): Remove support for sideloading. (this experimental feature was removed from nREPL 1.3)
+- Bump the injected `cider-nrepl` to [0.50.2](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0502-2024-09-03).
+  * Introduce new backend for CIDER tracing functionality (replacing `tools.trace`).
+  * Remove special handling of Boot classpath.
+
+### Bugs fixed
+
+- [#3722](https://github.com/clojure-emacs/cider/pull/3722): Call `cider-docstring--format` after checking argument is not `nil`.
+- [#3739](https://github.com/clojure-emacs/cider/pull/3739): Leiningen jack-in fails when `cider-enable-nrepl-jvmti-agent` is enabled.
+
+## 1.15.1 (2024-07-01)
+
+### Changes
+
+- [#3714](https://github.com/clojure-emacs/cider/pull/3714): Show progress when evaluating files using `cider-load-all-files`.
+- [#3713](https://github.com/clojure-emacs/cider/pull/3713): Optimize `nrepl-dict-get` and deprecate its 3-argument arity.
+- [#3719](https://github.com/clojure-emacs/cider/pull/3719): Remove duplicated keybinding.
+- Bump the injected `cider-nrepl` to [0.49.1](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0491-2024-06-30).
+  - Reduces the minimal supported Clojure version to 1.10.0 (from 1.10.3).
+
+## 1.15.0 (2024-06-10)
+
+### New features
+
+- [#3692](https://github.com/clojure-emacs/cider/pull/3692): Add ability to switch view modes in the inspector (bound to `v`).
+- [#3693](https://github.com/clojure-emacs/cider/pull/3693): Add `cider-enable-nrepl-jvmti-agent` defcustom to enable loading native nREPL JVMTI agent which restores thread stop ability on Java 21+.
+
+### Changes
+
+- [#3691](https://github.com/clojure-emacs/cider/pull/3691): Deprecate `cider-sync-request:inspect-set-*` functions in favor of generic `inspect-refresh` op.
+- Bump the injected `cider-nrepl` to [0.49.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0490-2024-06-02).
+- Bump the injected nREPL version to 1.2.0.
+
+### Bugs fixed
+
+- [#3696](https://github.com/clojure-emacs/cider/pull/3696): Don't eagerly complete a candidate if there are other candidates matching `flex` style.
+- [#3698](https://github.com/clojure-emacs/cider/pull/3698): Fix error messages in non-JVM runtimes being suppressed when `cider-show-error-buffer` is set to `nil`.
+
+## 1.14.0 (2024-05-30)
+
+### New features
+
+- [#3681](https://github.com/clojure-emacs/cider/pull/3681): Add an alternative way to display cheatsheet in a buffer and make it the default.
+  - Current `cider-cheatsheet` command is renamed to `cider-cheatsheet-select`.
+  - New way to display cheatsheet in a buffer is available with `cider-cheatsheet` command.
+- [#3686](https://github.com/clojure-emacs/cider/pull/3686): Add an alternative way to display `cider-cheatsheet-select` when called with a prefix argument.
+- [#3632](https://github.com/clojure-emacs/cider/pull/3623): Add new configuration variable `cider-clojure-cli-global-aliases`.
+- [#3366](https://github.com/clojure-emacs/cider/pull/3366): Support display of error overlays with `#dbg!` and `#break!` reader macros.
+- [#3622](https://github.com/clojure-emacs/cider/pull/3461): Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode).
+  - The `clojure-mode` dependency is still required for CIDER to function.
+  - Some features like `cider-dynamic-indentation` and `cider-font-lock-dynamically` do not work with `clojure-ts-mode` (yet).
+- [#3624](https://github.com/clojure-emacs/cider/pull/3624): Support new `cider.clj-reload/reload` cider-nrepl middleware.
+  - adds `cider-ns-code-reload-tool` defcustom, defaulting to `'tools.namespace`.
+  - you can change it to `'clj-reload` to use [clj-reload](https://github.com/tonsky/clj-reload) instead of [tools.namespace](https://github.com/clojure/tools.namespace).
+- [#3682](https://github.com/clojure-emacs/cider/issues/3682): Add `cider-jack-in` support for [Basilisp](https://github.com/basilisp-lang/basilisp) (Python).
+- [#3664](https://github.com/clojure-emacs/cider/issues/3664): Add customization inspector op to change max nested collection depth.
+
+### Changes
+
+- [#3626](https://github.com/clojure-emacs/cider/issues/3626): `cider-ns-refresh`: jump to the relevant file/line on errors.
+- [#3628](https://github.com/clojure-emacs/cider/issues/3628): `cider-ns-refresh`: summarize errors as an overlay.
+- [#3660](https://github.com/clojure-emacs/cider/issues/3660): Fix `cider-inspector-def-current-val` always defining in `user` namespace.
+- [#3661](https://github.com/clojure-emacs/cider/issues/3661): Truncate echo area output ahead of time.
+- Bump the injected `enrich-classpath` to [1.19.3](https://github.com/clojure-emacs/enrich-classpath/compare/v1.19.0...v1.19.3).
+- Bump the injected nREPL to [1.1.2](https://github.com/nrepl/nrepl/releases/tag/v1.1.2).
+- Bump the injected `cider-nrepl` to [0.48.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0480-2024-05-13).
+  - Updates [clj-reload](https://github.com/tonsky/clj-reload/blob/0.6.0/CHANGELOG.md#060---may-3-2024).
+  - Updates [tools.reader](https://github.com/clojure/tools.reader/blob/master/CHANGELOG.md).
+  - Updates [nREPL](https://github.com/nrepl/nrepl/blob/master/CHANGELOG.md#111-2024-02-20).
+  - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/master/CHANGELOG.md#0250-2024-05-03).
+  - Updates [Logjam](https://github.com/clojure-emacs/logjam/blob/v0.3.0/CHANGELOG.md#030-2024-03-03).
+  - Updates [Compliment](https://github.com/alexander-yakushev/compliment/blob/master/CHANGELOG.md#055-2024-05-06).
+- [orchard#245](https://github.com/clojure-emacs/orchard/pull/245), [cider-nrepl#868](https://github.com/clojure-emacs/cider-nrepl/pull/868): Drop support for Clojure 1.9.
+
+### Bugs fixed
+
+- [#3689](https://github.com/clojure-emacs/cider/pull/3689): Fix `cider-clojuredocs-lookup` to show friendly error message if symbol is not found on ClojureDocs.
+- [#3673](https://github.com/clojure-emacs/cider/pull/3673): Fix buggy `special-display-buffer-names` check.
+- [#3659](https://github.com/clojure-emacs/cider/pull/3659): Fixes completions when using `flex`-like completion styles.
+- [#3600](https://github.com/clojure-emacs/cider/pull/3600): Fix scittle jack-in when using `cider-jack-in-clj`.
+- [#3663](https://github.com/clojure-emacs/cider/issues/3663): Fix `cider-interactive-eval-override` invocation.
+
+## 1.13.1 (2024-02-01)
+
+### Bugs fixed
+
+- [#3605](https://github.com/clojure-emacs/cider/issues/3605): Avoid `cider--error-phase-of-last-exception` recursive loop.
+- [#3613](https://github.com/clojure-emacs/cider/issues/3613): Adapt `cider-completion-context.el` to upstream changes in Compliment.
+- [#3587](https://github.com/clojure-emacs/cider/issues/3587): Avoid overlays and `message`s on stderr that is unrelated to exception handling.
+
+## 1.13.0 (2024-01-14)
+
+### Changes
+
+- [#3588](https://github.com/clojure-emacs/cider/issues/3588): Compatibility with pwsh 7.3 quoting rules.
+- Introduce the `cider-log-show` function.
+  - Please refer to the (slightly revamped) [CIDER Log Mode guide](https://docs.cider.mx/cider/debugging/logging.html).
+- Bump the injected `enrich-classpath` to [1.19.0](https://github.com/clojure-emacs/enrich-classpath/compare/v1.18.6...v1.19.0).
+- Bump the `parseedn` required version to 1.2.1.
+- Bump the injected `cider-nrepl` to [0.45.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.45.0/CHANGELOG.md#0450-2024-01-14).
+  - Introduces Timbre compatibility for [CIDER Log Mode](https://docs.cider.mx/cider/debugging/logging.html).
+  - Fixes JS completions for nested objects.
+  - Bundles other fixes and reliability improvements.
+- [cider-nrepl#840](https://github.com/clojure-emacs/cider-nrepl/pull/840): Drop support for Clojure 1.8.
+
+## 1.12.0 (2023-11-24)
+
+### Changes
+
+- [#3576](https://github.com/clojure-emacs/cider/issues/3576): CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html): display Java class/method/field block tags (Returns/Throws/Params info) when available.
+- CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html#usage): introduce `1` keybinding which performs `cider-inspector-tap-at-point`.
+- CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html#usage): introduce `o` keybinding which performs `cider-inspector-open-thing-at-point`.
+- CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html#usage): introduce `:` keybinding which performs `cider-inspect-expr-from-inspector`.
+- CIDER [Inspector](https://docs.cider.mx/cider/debugging/inspector.html): retain [`truncate-lines`](https://www.gnu.org/software/emacs/manual/html_node/emacs/Line-Truncation.html) values across screens.
+- [#3580](https://github.com/clojure-emacs/cider/issues/3580): `cider-test`: make test vars in [test results reports](https://docs.cider.mx/cider/testing/test_reports.html) clickable.
+  - As defined in the newly introduced `cider-test-var-keymap` var.
+- [#3582](https://github.com/clojure-emacs/cider/issues/3582): Handle `cider-clojure-compilation-error-phases` values that have been customized to `t`.
+- [#3581](https://github.com/clojure-emacs/cider/issues/3581): Bump the injected `enrich-classpath` to [1.18.6](https://github.com/clojure-emacs/enrich-classpath/compare/v1.18.4...v1.18.6).
+  - Handles Clojure CLI `:paths` directly defined as `:aliases`.
+- Bump the `clojure-mode` required version to [5.18.1](https://github.com/clojure-emacs/clojure-mode/blob/v5.18.1/CHANGELOG.md#5181-2023-11-24).
+- Bump the injected `cider-nrepl` to [0.44.0](https://github.com/clojure-emacs/cider-nrepl/blob/44da162f51765464192ba04102398c5982f01638/CHANGELOG.md#0440-2023-11-24).
+
+## 1.11.1 (2023-11-11)
+
+### Changes
+
+- Bump the injected `cider-nrepl` to [0.43.3](https://github.com/clojure-emacs/cider-nrepl/blob/v0.43.3/CHANGELOG.md#0433-2023-11-11).
+  - Improves performance for error-handling functionality.
+- Bump the injected `enrich-classpath` to [1.18.4](https://github.com/clojure-emacs/enrich-classpath/compare/v1.18.2...v1.18.4).
+  - Handles a Clojure CLI edge case.
+
+## 1.11.0 (2023-11-07)
+
 ### New features
 
 - [#3565](https://github.com/clojure-emacs/cider/issues/3565): [`*cider-error*`](https://docs.cider.mx/cider/usage/dealing_with_errors.html#inspector-integration): open a given Exception in the [Inspector](https://docs.cider.mx/cider/debugging/inspector.html) by clicking it, or hitting <kbd>p</kbd>.
@@ -13,9 +160,11 @@
   - This info is available when [enrich-classpath](https://docs.cider.mx/cider/config/basic_config.html#use-enrich-classpath) is active.
 - [#3495](https://github.com/clojure-emacs/cider/issues/3495): possibly display error overlays on [`cider-load-buffer`](https://docs.cider.mx/cider/usage/code_evaluation.html#basic-evaluation).
 - `cider-popup-buffer-display`: honor `special-display-buffer-names` if customized for a given CIDER buffer name (e.g. `*cider-inspect*`), avoiding the double-rendering of the given buffer.
-- [#3572](https://github.com/clojure-emacs/cider/issues/3572): `lein.sh`: honor `XDG_CACHE_HOME`. 
-- Bump the injected `cider-nrepl` to [0.43.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.43.0/CHANGELOG.md#0430-2023-11-04).
+- [#3572](https://github.com/clojure-emacs/cider/issues/3572): `lein.sh`: honor `XDG_CACHE_HOME`.
+- Bump the injected `cider-nrepl` to [0.43.1](https://github.com/clojure-emacs/cider-nrepl/blob/v0.43.1/CHANGELOG.md#0431-2023-11-07).
   - Improves performance for exception handling and other use cases.
+  - Fixes [`cider-inspector-refresh`](https://docs.cider.mx/cider/debugging/inspector.html#usage)
+  - Offers better completions related to `:as-alias` under ClojureScript.
 
 ## 1.10.0 (2023-10-31)
 
@@ -153,7 +302,7 @@ but without connecting to the started nREPL server.
 - Improve `nrepl-dict` error reporting.
 - Bump the injected `piggieback` to [0.5.3](https://github.com/nrepl/piggieback/blob/0.5.3/CHANGES.md#053-2021-10-26).
 - Bump the `clojure-mode` required version to [5.17.1](https://github.com/clojure-emacs/clojure-mode/blob/v5.17.1/CHANGELOG.md#5171-2023-09-12), and use `clojure-find-ns` more safely, which fixes issues such as #[2849](https://github.com/clojure-emacs/cider/issues/2849).
-- Bump the `parseedn` require version, and wrap its usage with a more informative `user-error`.
+- Bump the `parseedn` required version, and wrap its usage with a more informative `user-error`.
 - Bump the injected `cider-nrepl` to [0.39.1](https://github.com/clojure-emacs/cider-nrepl/blob/v0.39.1/CHANGELOG.md#0391-2023-10-12).
   - Improves indentation, font-locking and other metadata support for ClojureScript.
   - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.16.1/CHANGELOG.md#0161-2023-10-05)

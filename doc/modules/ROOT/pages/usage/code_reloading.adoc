@@ -1,0 +1,134 @@
+= Code Reloading
+
+While Clojure's and CIDER's interactive programming style means you'll
+restart your application far less often than with other languages and
+development environments, sometimes you'll want to clean everything up
+and reload one or more namespaces to ensure that they are up to date
+and there are no temporary definitions hanging around.
+
+== "Reloaded" Workflow
+
+NOTE: The workflow described below was made popular by
+this https://www.cognitect.com/blog/2013/06/04/clojure-workflow-reloaded[blog article],
+which served as the primary inspiration for CIDER's take on it.
+
+Typing kbd:[C-c M-n r] or kbd:[C-c M-n M-r] will invoke
+`cider-ns-refresh` and reload all modified Clojure files on the
+classpath.
+
+Adding a prefix argument, kbd:[C-u C-c M-n r], will reload all
+the namespaces on the classpath unconditionally, regardless of their
+modification status.
+
+Adding a double prefix argument, kbd:[C-u C-u M-n r], will first
+clear the state of the namespace tracker before reloading. This is
+useful for recovering from some classes of error that normal reloads
+would otherwise not recover from. A good example is circular
+dependencies. The trade-off is that stale code from any deleted files
+may not be completely unloaded.
+
+`cider-ns-refresh` wraps
+https://github.com/clojure/tools.namespace[clojure.tools.namespace], and as
+such the same
+https://github.com/clojure/tools.namespace#reloading-code-motivation[benefits]
+and
+https://github.com/clojure/tools.namespace#reloading-code-preparing-your-application[caveats]
+regarding writing reloadable code also apply.
+
+The above three operations are analogous to
+http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/refresh[`clojure.tools.namespace.repl/refresh`],
+http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/refresh-all[`clojure.tools.namespace.repl/refresh-all`]
+and
+http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/clear[`clojure.tools.namespace.repl/clear`]
+(followed by a normal refresh), respectively.
+
+=== Configuration
+
+You can define Clojure functions to be called before reloading, and after a
+successful reload, when using `cider-ns-refresh`:
+
+[source,lisp]
+----
+(setq cider-ns-refresh-before-fn "user/stop-system!"
+      cider-ns-refresh-after-fn "user/start-system!")
+----
+
+These must be set to the namespace-qualified names of vars bound to
+functions of no arguments. The functions must be synchronous
+(blocking), and are expected to be side-effecting - they will always
+be executed serially, without retries.
+
+By default, messages regarding the status of the in-progress reload
+will be displayed in the echo area after you call
+`cider-ns-refresh`. The same information will also be recorded in the
+`+*cider-ns-refresh-log*+` buffer, along with anything printed to
+`+*out*+` or `+*err*+` by `cider-ns-refresh-before-fn` and
+`cider-ns-refresh-start-fn`.
+
+You can make the `+*cider-ns-refresh-log*+` buffer display automatically
+after you call `cider-ns-refresh` by setting the
+`cider-ns-refresh-show-log-buffer` variable to a non-nil value. This
+will also prevent any related messages from also being displayed in
+the echo area.
+
+[source,lisp]
+----
+(setq cider-ns-refresh-show-log-buffer t)
+----
+
+By default, CIDER will prompt for whether to save all modified `clojure-mode`
+buffers visiting files on the classpath. You can customize this behavior with
+`cider-ns-save-files-on-refresh` and `cider-ns-save-files-on-refresh-modes`.
+
+=== Using clj-reload
+
+NOTE: Support for `clj-reload` was introduced in CIDER 1.14.
+
+You can also use `cider-ns-refresh` with https://github.com/tonsky/clj-reload[clj-reload] instead of `clojure.tools.namespace`.
+It provides support for
+https://github.com/tonsky/clj-reload/blob/469da68/README.md#usage-keeping-vars-between-reloads[keeping vars between reloads]
+among some
+https://github.com/tonsky/clj-reload/blob/469da68/README.md#comparison-toolsnamespace[other differences]
+from `tools.namespace`.
+
+[source,lisp]
+----
+(setq cider-ns-code-reload-tool 'clj-reload)
+----
+
+With `clj-reload` you should set the source dirs as described in
+https://github.com/tonsky/clj-reload/blob/469da68/README.md##usage[the usage docs]
+. If you don't set them manually, it will default to the current project's resource dirs in the same
+way `tools.namespace` does.
+
+NOTE: Down the road we may rename `cider-ns-refresh` to something more tool-agnostic (e.g. `cider-ns-smart-reload`) to reflect
+that it supports different code reload tools now.
+
+== Basic Code Reloading
+
+Sometimes, `cider-ns-refresh` may not work for you. If you're looking
+for a bit more forceful reloading the `cider-ns-reload` (kbd:[C-c M-n l])
+and `cider-ns-reload-all` (kbd:[C-c M-n M-l]) commands can be used instead. These commands
+invoke Clojure's `+(require ... :reload)+` and `+(require
+... :reload-all)+` commands at the REPL.
+
+TIP: These commands don't depend on `cider-nrepl`, so they are always available.
+
+== Keybindings
+
+|===
+| Command | Keyboard shortcut | Description
+
+| `cider-ns-refresh`
+| kbd:[C-c M-n r] +
+kbd:[C-c M-n M-r]
+| Reload all modified Clojure files on the classpath. Adding a prefix argument, kbd:[C-u C-c M-n r], will reload all the namespaces on the classpath unconditionally, regardless of their modification status. Adding a double prefix argument, kbd:[C-u C-u M-n r], will first clear the state of the namespace tracker before reloading.
+
+| `cider-ns-reload`
+| kbd:[C-c M-n l]
+| Reload using `(require :reload)`
+
+| `cider-ns-reload-all`
+| kbd:[C-c M-n M-l]
+| Reload using `(require :reload-all)`
+|===

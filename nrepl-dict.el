@@ -1,7 +1,7 @@
 ;;; nrepl-dict.el --- Dictionary functions for Clojure nREPL -*- lexical-binding: t -*-
 
-;; Copyright © 2012-2013 Tim King, Phil Hagelberg, Bozhidar Batsov
-;; Copyright © 2013-2023 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2012-2024 Tim King, Phil Hagelberg, Bozhidar Batsov
+;; Copyright © 2013-2024 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
@@ -28,7 +28,8 @@
 ;;; Commentary:
 ;;
 ;; Provides functions to interact with and create `nrepl-dict's.  These are
-;; simply plists with an extra element at the head.
+;; simply plists with an extra element at the head, and using `equal' for
+;; comparison of string keys.
 
 ;;; Code:
 (require 'cl-lib)
@@ -44,12 +45,11 @@
     (maphash (lambda (k v) (nrepl-dict-put dict k v)) hash)
     dict))
 
-(defun nrepl-dict-p (object)
+(defsubst nrepl-dict-p (object)
   "Return t if OBJECT is an nREPL dict."
-  (and (listp object)
-       (eq (car object) 'dict)))
+  (eq (car-safe object) 'dict))
 
-(defun nrepl-dict-empty-p (dict)
+(defsubst nrepl-dict-empty-p (dict)
   "Return t if nREPL dict DICT is empty."
   (null (cdr dict)))
 
@@ -61,14 +61,23 @@ whose car is KEY.  Comparison is done with `equal'."
   (member key (nrepl-dict-keys dict)))
 
 (defun nrepl-dict-get (dict key &optional default)
-  "Get from DICT value associated with KEY, optional DEFAULT if KEY not in DICT.
-If dict is nil, return nil.  If DEFAULT not provided, and KEY not in DICT,
-return nil.  If DICT is not an nREPL dict object, an error is thrown."
+  "Get from DICT value associated with KEY.
+If DICT is nil, return nil.
+If DICT is not an nREPL dict object, an error is thrown.
+
+If KEY is not in DICT, return DEFAULT (if provided).
+Note that the use of DEFAULT is deprecated and will be
+removed in a future release."
+  (declare (advertised-calling-convention (dict key) "1.16"))
   (when dict
     (if (nrepl-dict-p dict)
-        (if (nrepl-dict-contains dict key)
-            (lax-plist-get (cdr dict) key)
-          default)
+        ;; Note: The structure of the following expression avoids the
+        ;; expensive containment check in nearly all cases, see #3717
+        (or (lax-plist-get (cdr dict) key)
+            ;; TODO: remove DEFAULT argument and the following clause
+            (when default
+              (and (not (nrepl-dict-contains dict key))
+                   default)))
       (error "Not an nREPL dict object: %s" dict))))
 
 (defun nrepl-dict-put (dict key value)
@@ -190,7 +199,7 @@ If NO-JOIN is given, return the first non nil dict."
           (t `(,dict1 ,dict2)))))
 
 
-;;; Dbind
+;;; Destructuring-bind of string keys
 (defmacro nrepl-dbind-response (response keys &rest body)
   "Destructure an nREPL RESPONSE dict.
 Bind the value of the provided KEYS and execute BODY."

@@ -1,7 +1,7 @@
 ;;; cider-selector.el --- Buffer selection command inspired by SLIME's selector -*- lexical-binding: t -*-
 
-;; Copyright © 2012-2013 Tim King, Phil Hagelberg, Bozhidar Batsov
-;; Copyright © 2013-2023 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2012-2024 Tim King, Phil Hagelberg, Bozhidar Batsov
+;; Copyright © 2013-2024 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
@@ -49,23 +49,26 @@ DESCRIPTION is a one-line description of what the key selects.")
 Not meant to be set by users.  It's used internally
 by `cider-selector'.")
 
-(defun cider-selector--recently-visited-buffer (mode &optional consider-visible-p)
-  "Return the most recently visited buffer, deriving its `major-mode' from MODE.
+(defun cider-selector--recently-visited-buffer (modes &optional consider-visible-p)
+  "Return the most recently visited buffer, deriving its `major-mode' from MODES.
+MODES may be a symbol for a single mode, or a list of mode symbols.
 CONSIDER-VISIBLE-P will allow handling of visible windows as well.
 First pass only considers buffers that are not already visible.
 Second pass will attempt one of visible ones for scenarios where the window
 is visible, but not focused."
   (cl-loop for buffer in (buffer-list)
            when (and (with-current-buffer buffer
-                       (derived-mode-p mode))
+                       (apply #'derived-mode-p (if (listp modes)
+                                                   modes
+                                                 (list modes))))
                      ;; names starting with space are considered hidden by Emacs
                      (not (string-match-p "^ " (buffer-name buffer)))
                      (or consider-visible-p
                          (null (get-buffer-window buffer 'visible))))
            return buffer
            finally (if consider-visible-p
-                       (error "Can't find unshown buffer in %S" mode)
-                     (cider-selector--recently-visited-buffer mode t))))
+                       (error "Can't find unshown buffer in %S" modes)
+                     (cider-selector--recently-visited-buffer modes t))))
 
 ;;;###autoload
 (defun cider-selector (&optional other-window)
@@ -134,7 +137,7 @@ is chosen.  The returned buffer is selected with
 
 (def-cider-selector-method ?c
   "Most recently visited clojure-mode buffer."
-  (cider-selector--recently-visited-buffer 'clojure-mode))
+  (cider-selector--recently-visited-buffer '(clojure-mode clojure-ts-mode)))
 
 (def-cider-selector-method ?e
   "Most recently visited emacs-lisp-mode buffer."

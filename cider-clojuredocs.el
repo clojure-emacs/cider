@@ -1,6 +1,6 @@
 ;;; cider-clojuredocs.el --- ClojureDocs integration -*- lexical-binding: t -*-
 
-;; Copyright © 2014-2023 Bozhidar Batsov and CIDER contributors
+;; Copyright © 2014-2024 Bozhidar Batsov and CIDER contributors
 ;;
 ;; Author: Bozhidar Batsov <bozhidar@batsov.dev>
 
@@ -25,21 +25,22 @@
 
 ;;; Code:
 
+(require 'subr-x)
+(require 'url-vars)
+
 (require 'cider-client)
 (require 'cider-common)
-(require 'subr-x)
+(require 'cider-docstring)
 (require 'cider-popup)
-
+(require 'cider-util)
 (require 'nrepl-dict)
-
-(require 'url-vars)
 
 (defconst cider-clojuredocs-url "https://clojuredocs.org/")
 
 (defconst cider-clojuredocs-buffer "*cider-clojuredocs*")
 
 (defun cider-sync-request:clojuredocs-lookup (ns sym)
-  "Perform nREPL \"resource\" op with NS and SYM."
+  "Perform nREPL \"clojuredocs-lookup\" op with NS and SYM."
   (thread-first `("op" "clojuredocs-lookup"
                   "ns" ,ns
                   "sym" ,sym)
@@ -108,49 +109,80 @@ opposite of what that option dictates."
     (goto-char (point-min))
     (current-buffer)))
 
+(defun cider-clojuredocs--insert-overview (dict)
+  "Insert \"Overview\" section based on data from DICT."
+  (insert (format "= %s/%s\n"
+                  (nrepl-dict-get dict "ns")
+                  (nrepl-dict-get dict "name")))
+  (newline)
+  (when-let ((arglists (nrepl-dict-get dict "arglists")))
+    (dolist (arglist arglists)
+      (insert (format " [%s]\n" arglist)))
+    (newline))
+  (when-let* ((doc (nrepl-dict-get dict "doc"))
+              (doc (cider-docstring--format doc)))
+    (insert doc "\n")
+    (newline)))
+
+(defun cider-clojuredocs--insert-see-also (dict)
+  "Insert \"See Also\" section based on data from DICT."
+  (insert "== See Also\n")
+  (newline)
+  (if-let ((see-alsos (nrepl-dict-get dict "see-alsos")))
+      (dolist (see-also see-alsos)
+        (insert "* ")
+        (insert-text-button see-also
+                            'sym see-also
+                            'action (lambda (btn)
+                                      (cider-clojuredocs-lookup (button-get btn 'sym)))
+                            'help-echo (format "Press Enter or middle click to jump to %s" see-also))
+        (insert "\n"))
+    (insert "Not available\n"))
+  (newline))
+
+(defun cider-clojuredocs--insert-examples (dict)
+  "Insert \"Examples\" section based on data from DICT."
+  (insert "== Examples\n")
+  (newline)
+  (if-let ((examples (nrepl-dict-get dict "examples")))
+      (dolist (example examples)
+        (insert (cider-font-lock-as-clojure example) "\n")
+        (insert "-------------------------------------------------\n"))
+    (insert "Not available\n"))
+  (newline))
+
+(defun cider-clojuredocs--insert-notes (dict)
+  "Insert \"Notes\" section based on data from DICT."
+  (insert "== Notes\n")
+  (newline)
+  (if-let ((notes (nrepl-dict-get dict "notes")))
+      (dolist (note notes)
+        (insert note "\n")
+        (insert "-------------------------------------------------\n"))
+    (insert "Not available\n"))
+  (newline))
+
 (defun cider-clojuredocs--content (dict)
   "Generate a nice string from DICT."
   (with-temp-buffer
-    (insert "= " (nrepl-dict-get dict "ns") "/" (nrepl-dict-get dict "name") "\n\n")
-    (let ((arglists (nrepl-dict-get dict "arglists")))
-      (dolist (arglist arglists)
-        (insert (format " [%s]\n" arglist)))
-      (insert "\n")
-      (insert (nrepl-dict-get dict "doc"))
-      (insert "\n"))
-    (insert "\n== See Also\n\n")
-    (if-let ((see-alsos (nrepl-dict-get dict "see-alsos")))
-        (dolist (see-also see-alsos)
-          (insert-text-button (format "* %s\n" see-also)
-                              'sym see-also
-                              'action (lambda (btn)
-                                        (cider-clojuredocs-lookup (button-get btn 'sym)))
-                              'help-echo (format "Press Enter or middle click to jump to %s" see-also)))
-      (insert "Not available\n"))
-    (insert "\n== Examples\n\n")
-    (if-let ((examples (nrepl-dict-get dict "examples")))
-        (dolist (example examples)
-          (insert (cider-font-lock-as-clojure example))
-          (insert "\n-------------------------------------------------\n"))
-      (insert "Not available\n"))
-    (insert "\n== Notes\n\n")
-    (if-let ((notes (nrepl-dict-get dict "notes")))
-        (dolist (note notes)
-          (insert note)
-          (insert "\n-------------------------------------------------\n"))
-      (insert "Not available\n"))
+    (cider-clojuredocs--insert-overview dict)
+    (cider-clojuredocs--insert-see-also dict)
+    (cider-clojuredocs--insert-examples dict)
+    (cider-clojuredocs--insert-notes dict)
     (buffer-string)))
 
 (defun cider-clojuredocs-lookup (sym)
   "Look up the ClojureDocs documentation for SYM."
-  (let ((docs (cider-sync-request:clojuredocs-lookup (cider-current-ns) sym)))
-    (pop-to-buffer (cider-create-clojuredocs-buffer (cider-clojuredocs--content docs)))
-    ;; highlight the symbol in question in the docs buffer
-    (highlight-regexp
-     (regexp-quote
-      (or (cadr (split-string sym "/"))
-          sym))
-     'bold)))
+  (if-let ((docs (cider-sync-request:clojuredocs-lookup (cider-current-ns) sym)))
+      (progn
+        (pop-to-buffer (cider-create-clojuredocs-buffer (cider-clojuredocs--content docs)))
+        ;; highlight the symbol in question in the docs buffer
+        (highlight-regexp
+         (regexp-quote
+          (or (cadr (split-string sym "/"))
+              sym))
+         'bold))
+    (user-error "ClojureDocs documentation for %s is not found" sym)))
 
 ;;;###autoload
 (defun cider-clojuredocs (&optional arg)
@@ -160,7 +192,7 @@ Prompts for the symbol to use, or uses the symbol at point, depending on
 the value of `cider-prompt-for-symbol'.  With prefix arg ARG, does the
 opposite of what that option dictates."
   (interactive "P")
-  (when (derived-mode-p 'clojurescript-mode)
+  (when (cider-clojurescript-major-mode-p)
     (user-error "`cider-clojuredocs' doesn't support ClojureScript"))
   (funcall (cider-prompt-for-symbol-function arg)
            "ClojureDocs doc for"

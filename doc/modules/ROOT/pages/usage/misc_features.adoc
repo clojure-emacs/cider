@@ -50,86 +50,6 @@ Don't forget you also have a couple of third-party alternative:
 - The much more sophisticated AST-powered "find usages" provided by `clj-refactor.el`
 - https://github.com/bbatsov/projectile[Projectile's] "grep in project" (`projectile-grep`, typically bound to kbd:[C-c p g])
 
-== Reloading Code
-
-While Clojure's and CIDER's interactive programming style means you'll
-restart your application far less often than with other languages and
-development environments, sometimes you'll want to clean everything up
-and reload one or more namespaces to ensure that they are up to date
-and there are no temporary definitions hanging around.
-
-Typing kbd:[C-c M-n r] or kbd:[C-c M-n M-r] will invoke
-`cider-ns-refresh` and reload all modified Clojure files on the
-classpath.
-
-Adding a prefix argument, kbd:[C-u C-c M-n r], will reload all
-the namespaces on the classpath unconditionally, regardless of their
-modification status.
-
-Adding a double prefix argument, kbd:[C-u C-u M-n r], will first
-clear the state of the namespace tracker before reloading. This is
-useful for recovering from some classes of error that normal reloads
-would otherwise not recover from. A good example is circular
-dependencies. The trade-off is that stale code from any deleted files
-may not be completely unloaded.
-
-`cider-ns-refresh` wraps
-https://github.com/clojure/tools.namespace[clojure.tools.namespace], and as
-such the same
-https://github.com/clojure/tools.namespace#reloading-code-motivation[benefits]
-and
-https://github.com/clojure/tools.namespace#reloading-code-preparing-your-application[caveats]
-regarding writing reloadable code also apply.
-
-The above three operations are analogous to
-http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/refresh[`clojure.tools.namespace.repl/refresh`],
-http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/refresh-all[`clojure.tools.namespace.repl/refresh-all`]
-and
-http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/clear[`clojure.tools.namespace.repl/clear`]
-(followed by a normal refresh), respectively.
-
-You can define Clojure functions to be called before reloading, and after a
-successful reload, when using `cider-ns-refresh`:
-
-[source,lisp]
-----
-(setq cider-ns-refresh-before-fn "user/stop-system!"
-      cider-ns-refresh-after-fn "user/start-system!")
-----
-
-These must be set to the namespace-qualified names of vars bound to
-functions of no arguments. The functions must be synchronous
-(blocking), and are expected to be side-effecting - they will always
-be executed serially, without retries.
-
-By default, messages regarding the status of the in-progress reload
-will be displayed in the echo area after you call
-`cider-ns-refresh`. The same information will also be recorded in the
-`+*cider-ns-refresh-log*+` buffer, along with anything printed to
-`+*out*+` or `+*err*+` by `cider-ns-refresh-before-fn` and
-`cider-ns-refresh-start-fn`.
-
-You can make the `+*cider-ns-refresh-log*+` buffer display automatically
-after you call `cider-ns-refresh` by setting the
-`cider-ns-refresh-show-log-buffer` variable to a non-nil value. This
-will also prevent any related messages from also being displayed in
-the echo area.
-
-[source,lisp]
-----
-(setq cider-ns-refresh-show-log-buffer t)
-----
-
-By default, CIDER will prompt for whether to save all modified `clojure-mode`
-buffers visiting files on the classpath. You can customize this behavior with
-`cider-ns-save-files-on-refresh` and `cider-ns-save-files-on-refresh-modes`.
-
-Sometimes, `cider-ns-refresh` may not work for you. If you're looking
-for a bit more forceful reloading the `cider-ns-reload`
-and `cider-ns-reload-all` commands can be used instead. These commands
-invoke Clojure's `+(require ... :reload)+` and `+(require
-... :reload-all)+` commands at the REPL.
-
 == CIDER Selector
 
 The `cider-selector` (kbd:[C-c M-s]) command allows you to quickly navigate to
@@ -276,8 +196,6 @@ There are a bunch of useful keybindings that are defined in browser buffers.
 
 == Browsing the Clojure Spec Registry
 
-If you are using Clojure 1.9 or newer you can browse the Clojure spec registry.
-
 If you already know which spec you're looking for, you can type
 kbd:[M-x] `cider-browse-spec` and CIDER will prompt you for a
 spec name and then drop you into the spec browser.
@@ -411,3 +329,23 @@ If you would prefer for it to have a lower precedence, you can change `cider-xre
 ----
 
 TIP: See https://www.gnu.org/software/emacs/manual/html_node/elisp/Setting-Hooks.html[Setting Hooks] for more information about depth.
+
+== Cheatsheet
+
+There are two ways to access https://clojure.org/api/cheatsheet[Clojure cheatsheet] in CIDER.
+
+The first one is available through `cider-cheatsheet` command and displays the cheatsheet in a popup buffer. This is how it looks with two windows displaying the cheatsheet buffer side by side:
+
+image::cider-cheatsheet.png[Displaying cheatsheet in buffer]
+
+The second way is available through `cider-cheatsheet-select` command, which uses completions in the minibuffer to find a var in the cheatsheet. By default, it provides a multi-step selection process where you need to go section by section until you find a var. This is how it looks in the minibuffer:
+
+image::cider-cheatsheet-select-1.png[Selecting section in cheatsheet]
+
+image::cider-cheatsheet-select-2.png[Selecting var in cheatsheet]
+
+By using a prefix argument when calling `cider-cheatsheet-select`, we can change the behavior of `cider-cheatsheet-select` so each candidate is represented as a full path to a var. This can be useful with fuzzy completion style and vertical candidates display, as in that case, we can search in any element of the path, possibly getting matches from multiple categories at the same time. This is how it looks with such a workflow:
+
+image::cider-cheatsheet-select-3.png[Selecting path in cheatsheet]
+
+It is possible to control which function is used on a var when it is selected by customizing `cider-cheatsheet-default-action-function`. By default, documentation for a var is displayed using `cider-doc-lookup`, but it can also be set to `cider-clojuredocs-lookup` to show documentation from ClojureDocs or any other function accepting a var as an argument.
