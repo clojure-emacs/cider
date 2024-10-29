@@ -3,7 +3,7 @@
 ## master (unreleased)
 
 ### Changes
-
+- [#3753](https://github.com/clojure-emacs/cider/pull/3753) Add `cider-log-show-frameworks` command to show available log frameworks in a buffer.
 - [#3746](https://github.com/clojure-emacs/cider/issues/3746): Bring back `cider` completion style for activating backend-driven completion.
 
 ### Bugs fixed
