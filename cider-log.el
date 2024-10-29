@@ -48,6 +48,20 @@ Example values: \"Logback\", \"Timbre\"."
   :safe #'stringp
   :type 'string)
 
+(defcustom cider-log-frameworks-buffer "*cider-log-frameworks*"
+  "The name of the log frameworks popup buffer."
+  :group 'cider
+  :package-version '(cider . "1.17")
+  :safe #'stringp
+  :type 'string)
+
+(defcustom cider-log-auto-select-frameworks-buffer t
+  "Whether to auto-select the log frameworks popup buffer."
+  :group 'cider
+  :package-version '(cider . "1.17")
+  :safe #'booleanp
+  :type 'boolean)
+
 (defcustom cider-log-appender-id "cider-log"
   "The name of the default log appender."
   :group 'cider
@@ -1032,6 +1046,26 @@ the CIDER Inspector and the CIDER stacktrace mode.
 
 ;; Framework actions
 
+(transient-define-suffix cider-log-show-frameworks ()
+  "Show the available log frameworks in a buffer."
+  :description "Show frameworks in a buffer"
+  (interactive)
+  (let ((frameworks (cider-sync-request:log-frameworks)))
+    (with-current-buffer (cider-popup-buffer cider-log-frameworks-buffer
+                                             cider-log-auto-select-frameworks-buffer)
+      (read-only-mode -1)
+      (insert (with-temp-buffer
+                (insert (propertize (cider-propertize "Cider Log Frameworks" 'ns) 'ns t) "\n\n")
+                (dolist (framework frameworks)
+                  (insert (propertize (cider-propertize (cider-log-framework-name framework) 'ns) 'ns t) "\n\n")
+                  (insert (format "  Website ......... %s\n" (cider-log-framework-website-url framework)))
+                  (insert (format "  Javadocs ........ %s\n" (cider-log-framework-javadoc-url framework)))
+                  (insert (format "  Levels .......... %s\n" (string-join (cider-log-framework-level-names framework) ", ")))
+                  (newline))
+                (buffer-string)))
+      (read-only-mode 1)
+      (goto-char (point-min)))))
+
 (transient-define-suffix cider-log-browse-javadocs (framework)
   "Browse the Javadoc of the log FRAMEWORK."
   :description "Browse Java documentation"
@@ -1220,6 +1254,7 @@ the CIDER Inspector and the CIDER stacktrace mode.
 (transient-define-prefix cider-log-framework (framework)
   "Show the Cider log framework menu."
   [["Cider Log Framework\n\nActions:"
+    ("a" cider-log-show-frameworks)
     ("b" cider-log-set-buffer)
     ("j" cider-log-browse-javadocs)
     ("s" cider-log-set-framework)
@@ -1441,6 +1476,7 @@ based on `transient-mode'."
 (transient-define-prefix cider-log (framework appender)
   "Show the Cider log menu."
   [["Framework Actions"
+    ("fa" cider-log-show-frameworks)
     ("fs" cider-log-set-framework)
     ("fb" cider-log-set-buffer)
     ("fj" cider-log-browse-javadocs)

@@ -49,6 +49,7 @@ Its usage is mostly self-describing, since each command has its keybinding attac
 
 To use CIDER Log Mode, there two main ways to get started:
 
+* `M-x cider-log-show-frameworks`, to see the available logging frameworks. If your logging framework is supported but not shown, see the troubleshooting section.
 * `M-x cider-log-event`, which uses transient-mode and will not immediately show the logs (you should use transient-mode to show the `+*cider-log*+` buffer)
 * `M-x cider-log-show` is a newer function that intends to be an "all-in-one" command, intended for a streamlined experience, which can be useful to get started, or for casual usage.
 ** It doesn't use transient-mode - it aims to do everything in one step
@@ -177,6 +178,10 @@ or Clojure CLI aliases.
 
 |===
 | Command | Keyboard shortcut | Description
+
+| `cider-log-show-frameworks`
+| kbd:[C-c M-l f a]
+| Show all available log frameworks in a buffer.
 
 | `cider-log-set-framework`
 | kbd:[C-c M-l f s]
@@ -351,3 +356,9 @@ using logical AND condition. The following filters are available:
 | kbd:[-t]
 | Only include log events that were emitted by a thread in the list of `threads`.
 |===
+
+== Troubleshooting
+
+- Make sure the logging library is actually supported by CIDER Log Mode and that it is on your classpath.
+- Try requiring the https://github.com/clojure-emacs/logjam/tree/master/src/logjam/framework[Logjam] namespace of the logging library, e.g. `(require 'logjam.framework.<jul|logback|timbre|> :reload)` and make sure it can be loaded without errors.
+- Timbre and Encore often have to be upgraded in concert, they use "break versioning". It's often useful to have Timbre + Encore at the latest stable version.
