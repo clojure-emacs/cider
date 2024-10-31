@@ -3,13 +3,14 @@
 ## master (unreleased)
 
 ### Changes
-- [#3753](https://github.com/clojure-emacs/cider/pull/3753) Add `cider-log-show-frameworks` command to show available log frameworks in a buffer.
+
+- [#3753](https://github.com/clojure-emacs/cider/pull/3753): Add `cider-log-show-frameworks` command to show available log frameworks in a buffer.
 - [#3746](https://github.com/clojure-emacs/cider/issues/3746): Bring back `cider` completion style for activating backend-driven completion.
 
 ### Bugs fixed
 
-- [#3742](https://github.com/clojure-emacs/cider/issues/3742): Restore syntax highlighting in result minibuffer.
-- [#3747](https://github.com/clojure-emacs/cider/issues/3747): Fix errors when docstring is nil.
+- [#3742](https://github.com/clojure-emacs/cider/issues/3742): Restore syntax highlighting of result in the minibuffer.
+- [#3747](https://github.com/clojure-emacs/cider/issues/3747): Fix errors when docstring is `nil`.
 
 ## 1.16.0 (2024-09-24)
 
