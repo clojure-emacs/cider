@@ -388,7 +388,6 @@ current-namespace."
   (interactive (let ((ns (cider-current-ns)))
                  (list (cider-inspector--read-var-name-from-user ns)
                        ns)))
-  (setq cider-inspector--current-repl (cider-current-repl))
   (when-let* ((result (cider-sync-request:inspect-def-current-val ns var-name 'v2)))
     (cider-inspector--render-value result 'v2)
     (message "Defined current inspector value as #'%s/%s" ns var-name)))
