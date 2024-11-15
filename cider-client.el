@@ -108,7 +108,7 @@ EVAL-BUFFER is the buffer where the spinner was started."
 ;;; Evaluation helpers
 (defun cider-ns-form-p (form)
   "Check if FORM is an ns form."
-  (string-match-p "^[[:space:]]*\(ns\\([[:space:]]*$\\|[[:space:]]+\\)" form))
+  (string-match-p "\\`[[:space:]]*\(ns\\([[:space:]]*$\\|[[:space:]]+\\)" form))
 
 (defun cider-ns-from-form (ns-form)
   "Get ns substring from NS-FORM."
