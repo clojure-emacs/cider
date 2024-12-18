@@ -428,10 +428,11 @@ in a COMPACT format is specified, FOR-TOOLTIP if specified."
                                                             "doc-first-sentence-fragments" (nrepl-dict-get info "doc-first-sentence-fragments"))))
          (fetched-doc (nrepl-dict-get info "doc"))
          (doc     (or rendered-fragments
-                      (if compact
-                          (cider-docstring--trim
-                           (cider-docstring--format fetched-doc))
-                        fetched-doc)
+                      (when fetched-doc
+                        (if compact
+                            (cider-docstring--trim
+                             (cider-docstring--format fetched-doc))
+                          fetched-doc))
                       (unless compact
                         "Not documented.")))
          (url     (nrepl-dict-get info "url"))
