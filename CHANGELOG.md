@@ -2,14 +2,20 @@
 
 ## master (unreleased)
 
+## 1.16.1 (2024-12-03)
+
 ### Changes
 
+- Bump the injected `cider-nrepl` to [0.50.3](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0503-2024-12-02).
+- [#3753](https://github.com/clojure-emacs/cider/pull/3753): Add `cider-log-show-frameworks` command to show available log frameworks in a buffer.
 - [#3746](https://github.com/clojure-emacs/cider/issues/3746): Bring back `cider` completion style for activating backend-driven completion.
 
 ### Bugs fixed
 
-- [#3742](https://github.com/clojure-emacs/cider/issues/3742): Restore syntax highlighting in result minibuffer.
-- [#3747](https://github.com/clojure-emacs/cider/issues/3747): Fix errors when docstring is nil.
+- [#3742](https://github.com/clojure-emacs/cider/issues/3742): Restore syntax highlighting of result in the minibuffer.
+- [#3747](https://github.com/clojure-emacs/cider/issues/3747): Fix errors when docstring is `nil`.
+- [#3757](https://github.com/clojure-emacs/cider/issues/3757): Fix inspector's `def-current-value` selecting wrong REPL when multiple are connected.
+- [#3754](https://github.com/clojure-emacs/cider/issues/3754): Fix regex in `cider-ns-from-p`.
 
 ## 1.16.0 (2024-09-24)
 

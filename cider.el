@@ -11,7 +11,7 @@
 ;;         Steve Purcell <steve@sanityinc.com>
 ;; Maintainer: Bozhidar Batsov <bozhidar@batsov.dev>
 ;; URL: https://www.github.com/clojure-emacs/cider
-;; Version: 1.16.0
+;; Version: 1.16.1
 ;; Package-Requires: ((emacs "26") (clojure-mode "5.19") (parseedn "1.2.1") (queue "0.2") (spinner "1.7") (seq "2.22") (sesman "0.3.2") (transient "0.4.1"))
 ;; Keywords: languages, clojure, cider
 
@@ -93,7 +93,7 @@
 (require 'sesman)
 (require 'package)
 
-(defconst cider-version "1.16.0"
+(defconst cider-version "1.16.1"
   "The current version of CIDER.")
 
 (defconst cider-codename "Kherson"
@@ -591,7 +591,7 @@ the artifact.")
 
 Used when `cider-jack-in-auto-inject-clojure' is set to `latest'.")
 
-(defconst cider-required-middleware-version "0.50.2"
+(defconst cider-required-middleware-version "0.50.3"
   "The CIDER nREPL version that's known to work properly with CIDER.")
 
 (defcustom cider-injected-middleware-version cider-required-middleware-version

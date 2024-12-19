@@ -132,6 +132,17 @@
     (expect (cider-ensure-op-supported "foo")
             :to-throw 'user-error)))
 
+(describe "cider-ns-form-p"
+  (it "doesn't match ns in a string"
+      (let ((ns-in-string "\"\n(ns bar)\n\""))
+        (expect (cider-ns-form-p ns-in-string) :to-equal nil)))
+  (it "matches ns"
+      (let ((ns "(ns bar)\n"))
+        (expect (cider-ns-form-p ns) :to-equal 0)))
+  (it "matches ns with leading spaces"
+      (let ((ns "  (ns bar)\n"))
+        (expect (cider-ns-form-p ns) :to-equal 0))))
+
 (describe "cider-expected-ns"
   (before-each
     (spy-on 'cider-connected-p :and-return-value t)
