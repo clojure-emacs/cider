@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Bugs fixed
+
+- [#3763](https://github.com/clojure-emacs/cider/issues/3763): Fix `cider-docview-render` completion popup error when symbol being completed does not have a docstring.
+
 ## 1.16.1 (2024-12-03)
 
 ### Changes
