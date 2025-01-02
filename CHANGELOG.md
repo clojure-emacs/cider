@@ -2,6 +2,19 @@
 
 ## master (unreleased)
 
+### New features
+- CIDER [History](https://docs.cider.mx/cider/repl/history.html): Add a command to delete history item at point.
+
+### Changes
+
+- Bump the injected nREPL version to [1.3.1](https://github.com/nrepl/nrepl/blob/master/CHANGELOG.md#131-2025-01-01).
+- Bump the injected `cider-nrepl` to [0.51.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0510-2025-01-01).
+- [#3574](https://github.com/clojure-emacs/cider/issues/3574): New value `per-project` for `cider-repl-history-file` to save the history on a per-project basis.
+
+### Bugs fixed
+
+- [#3763](https://github.com/clojure-emacs/cider/issues/3763): Fix `cider-docview-render` completion popup error when symbol being completed does not have a docstring.
+
 ## 1.16.1 (2024-12-03)
 
 ### Changes

@@ -194,12 +194,6 @@ CIDER 1.7."
 This property value must be unique to avoid having adjacent inputs be
 joined together.")
 
-(defvar-local cider-repl-input-history '()
-  "History list of strings read from the REPL buffer.")
-
-(defvar-local cider-repl-input-history-items-added 0
-  "Variable counting the items added in the current session.")
-
 (defvar-local cider-repl-output-start nil
   "Marker for the start of output.
 Currently its only purpose is to facilitate `cider-repl-clear-buffer'.")
@@ -1468,13 +1462,15 @@ WIN, BUFFER and POS are the window, buffer and point under mouse position."
 (defvar cider-repl-history-pattern nil
   "The regexp most recently used for finding input history.")
 
+(defvar cider-repl-input-history '()
+  "History list of strings read from the REPL buffer.")
+
 (defun cider-repl--add-to-input-history (string)
   "Add STRING to the input history.
 Empty strings and duplicates are ignored."
   (unless (or (equal string "")
               (equal string (car cider-repl-input-history)))
-    (push string cider-repl-input-history)
-    (cl-incf cider-repl-input-history-items-added)))
+    (push string cider-repl-input-history)))
 
 (defun cider-repl-delete-current-input ()
   "Delete all text after the prompt."
@@ -1593,9 +1589,11 @@ If USE-CURRENT-INPUT is non-nil, use the current input."
   :safe #'integerp)
 
 (defcustom cider-repl-history-file nil
-  "File to save the persistent REPL history to."
-  :type 'string
-  :safe #'stringp)
+  "File to save the persistent REPL history to.
+If this is set to a path the history will be global to all projects.  If this is
+set to `per-project', the history will be stored in a file (.cider-history) at
+the root of each project."
+  :type '(choice string symbol))
 
 (defun cider-repl--history-read-filename ()
   "Ask the user which file to use, defaulting `cider-repl-history-file'."
@@ -1612,6 +1610,12 @@ It does not yet set the input history."
           (read (current-buffer))))
     '()))
 
+(defun cider-repl--find-dir-for-history ()
+  "Find the first suitable directory to store the project's history."
+  (seq-find
+   (lambda (dir) (and (not (null dir)) (not (tramp-tramp-file-p dir))))
+   (list nrepl-project-dir (clojure-project-dir) default-directory)))
+
 (defun cider-repl-history-load (&optional filename)
   "Load history from FILENAME into current session.
 FILENAME defaults to the value of `cider-repl-history-file' but user
@@ -1619,21 +1623,35 @@ defined filenames can be used to read special history files.
 
 The value of `cider-repl-input-history' is set by this function."
   (interactive (list (cider-repl--history-read-filename)))
-  (let ((f (or filename cider-repl-history-file)))
-    ;; TODO: probably need to set cider-repl-input-history-position as well.
-    ;; in a fresh connection the newest item in the list is currently
-    ;; not available.  After sending one input, everything seems to work.
-    (setq cider-repl-input-history (cider-repl--history-read f))))
+  (cond
+   (filename (setq cider-repl-history-file filename))
+   ((equal 'per-project cider-repl-history-file)
+    (make-local-variable 'cider-repl-input-history)
+    (when-let ((dir (cider-repl--find-dir-for-history)))
+      (setq-local
+       cider-repl-history-file (expand-file-name ".cider-history" dir)))))
+  (when cider-repl-history-file
+    (condition-case nil
+        ;; TODO: probably need to set cider-repl-input-history-position as
+        ;; well. In a fresh connection the newest item in the list is
+        ;; currently not available.  After sending one input, everything
+        ;; seems to work.
+        (setq
+         cider-repl-input-history
+         (cider-repl--history-read cider-repl-history-file))
+      (error
+       (message
+        "Malformed cider-repl-history-file: %s" cider-repl-history-file)))
+    (add-hook 'kill-buffer-hook #'cider-repl-history-just-save t t)
+    (add-hook 'kill-emacs-hook #'cider-repl-history-save-all)))
 
 (defun cider-repl--history-write (filename)
   "Write history to FILENAME.
 Currently coding system for writing the contents is hardwired to
 utf-8-unix."
-  (let* ((mhist (cider-repl--histories-merge cider-repl-input-history
-                                             cider-repl-input-history-items-added
-                                             (cider-repl--history-read filename)))
+  (let* ((end (min (length cider-repl-input-history) cider-repl-history-size))
          ;; newest items are at the beginning of the list, thus 0
-         (hist (cl-subseq mhist 0 (min (length mhist) cider-repl-history-size))))
+         (hist (cl-subseq cider-repl-input-history 0 end)))
     (unless (file-writable-p filename)
       (error (format "History file not writable: %s" filename)))
     (let ((print-length nil) (print-level nil))
@@ -1658,15 +1676,12 @@ This function is meant to be used in hooks to avoid lambda
 constructs."
   (cider-repl-history-save cider-repl-history-file))
 
-;; SLIME has different semantics and will not save any duplicates.
-;; we keep track of how many items were added to the history in the
-;; current session in `cider-repl--add-to-input-history' and merge only the
-;; new items with the current history found in the file, which may
-;; have been changed in the meantime by another session.
-(defun cider-repl--histories-merge (session-hist n-added-items file-hist)
-  "Merge histories from SESSION-HIST adding N-ADDED-ITEMS into FILE-HIST."
-  (append (cl-subseq session-hist 0 n-added-items)
-          file-hist))
+(defun cider-repl-history-save-all ()
+  "Save all histories."
+  (dolist (buffer (buffer-list))
+    (with-current-buffer buffer
+      (when (equal major-mode 'cider-repl-mode)
+        (cider-repl-history-just-save)))))
 
 
 ;;; REPL shortcuts
@@ -2051,13 +2066,7 @@ in an unexpected place."
   (setq-local prettify-symbols-alist clojure--prettify-symbols-alist)
   ;; apply dir-local variables to REPL buffers
   (hack-dir-local-variables-non-file-buffer)
-  (when cider-repl-history-file
-    (condition-case nil
-        (cider-repl-history-load cider-repl-history-file)
-      (error
-       (message "Malformed cider-repl-history-file: %s" cider-repl-history-file)))
-    (add-hook 'kill-buffer-hook #'cider-repl-history-just-save t t)
-    (add-hook 'kill-emacs-hook #'cider-repl-history-just-save))
+  (cider-repl-history-load)
   (add-hook 'completion-at-point-functions #'cider-complete-at-point nil t)
   (add-hook 'paredit-mode-hook (lambda () (clojure-paredit-setup cider-repl-mode-map)))
   (cider-repl-setup-paredit))
