@@ -157,7 +157,8 @@ that it usually has two spaces before each line used for indentation
 \(see https://guide.clojure.style/#docstring-indentation).  While displaying
 the docstring to the user, we usually want to control indentation and
 other aspects of the presentation, so we format it before displaying."
-  (replace-regexp-in-string "\n  " "\n" string))
+  (when string
+    (replace-regexp-in-string "\n  " "\n" string)))
 
 (provide 'cider-docstring)
 ;;; cider-docstring.el ends here
