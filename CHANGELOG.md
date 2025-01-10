@@ -4,6 +4,7 @@
 
 ### New features
 
+- Automatic downloading of third-party Java sources for better Java documentation and jump-to-definition functionality. See [Obtaining source JARs](https://docs.cider.mx/cider/usage/working_with_documentation.html#obtaining-source-jars).
 - CIDER [History](https://docs.cider.mx/cider/repl/history.html): Add a command to delete history item at point.
 
 ### Changes
