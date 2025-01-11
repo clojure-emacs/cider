@@ -1,7 +1,7 @@
 ;; -*- lexical-binding: t; -*-
  ;;; cider-docstring-tests.el
 
-;; Copyright © 2012-2024 Bozhidar Batsov
+;; Copyright © 2012-2025 Bozhidar Batsov
 
 ;; Author: Bozhidar Batsov <bozhidar@batsov.dev>
 

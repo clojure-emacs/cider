@@ -1,6 +1,6 @@
 ;;; cider-classpath-tests.el  -*- lexical-binding: t; -*-
 
-;; Copyright © 2012-2024 Tim King, Bozhidar Batsov
+;; Copyright © 2012-2025 Tim King, Bozhidar Batsov
 
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.dev>

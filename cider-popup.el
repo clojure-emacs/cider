@@ -1,6 +1,6 @@
 ;;; cider-popup.el --- Creating and quitting popup buffers  -*- lexical-binding: t; -*-
 
-;; Copyright © 2015-2024  Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2015-2025  Bozhidar Batsov, Artur Malabarba and CIDER contributors
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 

@@ -1,6 +1,6 @@
 ;;; cider-browse-ns.el --- CIDER namespace browser  -*- lexical-binding: t; -*-
 
-;; Copyright © 2014-2024 John Andrews, Bozhidar Batsov and CIDER contributors
+;; Copyright © 2014-2025 John Andrews, Bozhidar Batsov and CIDER contributors
 
 ;; Author: John Andrews <john.m.andrews@gmail.com>
 
