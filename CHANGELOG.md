@@ -3,6 +3,7 @@
 ## master (unreleased)
 
 ### New features
+
 - CIDER [History](https://docs.cider.mx/cider/repl/history.html): Add a command to delete history item at point.
 
 ### Changes
