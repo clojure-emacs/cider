@@ -4,31 +4,19 @@
 NOTE: You can skip this section if you don't plan to use `cider-connect` or don't care
 about the advanced functionality that requires `cider-nrepl`.
 
-Much of CIDER's functionality depends on its own https://github.com/clojure-emacs/cider-nrepl[nREPL
-middleware]. Starting
-with version 0.11, `cider-jack-in` (kbd:[C-c C-x (C-)j (C-)j])
-automatically injects this middleware and other dependencies as required.
-
-NOTE: In the past, if you were setting up CIDER, you might have had to
-modify `profiles.clj` or `profile.boot`. CIDER now handles
-everything automatically and you don't need to add anything
-special to these files. The same is true of your `deps.edn` file and
-your `build.gradle` (as of Clojurephant 0.7.0-alpha.6).
-
-If you prefer a standalone REPL, you will need to invoke
-`cider-connect` instead of `cider-jack-in` and manually add the
-dependencies to your Clojure project (explained in the following
-sections).
+Much of CIDER's functionality depends on its own
+https://github.com/clojure-emacs/cider-nrepl[nREPL middleware]. `cider-jack-in`
+(kbd:[C-c C-x (C-)j (C-)j]) automatically injects this middleware and other
+dependencies as required. But if you prefer a standalone REPL, you will need to
+invoke `cider-connect` instead of `cider-jack-in` and manually add the
+dependencies to your Clojure project (explained in the following sections).
 
 == Setting Up a Standalone REPL
 
 === Using Leiningen
 
-NOTE: Make sure you're using Leiningen 2.9.0 or newer, as 2.9.0 is the first
-release to ship with nREPL 0.6.
-
 Use the convenient plugin for defaults, either in your project's
-`project.clj` file or in the :repl profile in `~/.lein/profiles.clj`.
+`project.clj` file or in the `:repl` profile in `~/.lein/profiles.clj`.
 
 [source,clojure]
 ----
@@ -46,27 +34,6 @@ WARNING: Be careful not to place this in the `:user` profile, as this way CIDER'
 middleware will always get loaded, causing `lein` to start slower.  You really
 need it just for `lein repl` and this is what the `:repl` profile is for.
 
-=== Using Boot
-
-NOTE: Make sure you're using Boot 2.8.3 or newer, as 2.8.3 is the first
-release to ship with nREPL 0.6.
-
-Boot users can configure the tool to include the middleware automatically in
-all of their projects using a `~/.boot/profile.boot` file like so:
-
-[source,clojure]
-----
-(require 'boot.repl)
-
-(swap! boot.repl/*default-dependencies*
-       concat '[[cider/cider-nrepl "0.52.0"]])
-
-(swap! boot.repl/*default-middleware*
-       conj 'cider.nrepl/cider-middleware)
-----
-
-For more information visit https://github.com/boot-clj/boot/wiki/Cider-REPL[boot-clj wiki].
-
 === Using tools.deps
 
 You can add the following aliases to your deps.edn in order to launch
@@ -81,7 +48,7 @@ run `cider-connect` or `cider-connect-cljs`.
 
   :cider-cljs {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.339"}
                             cider/cider-nrepl {:mvn/version "0.52.0"}
-                            cider/piggieback {:mvn/version "0.5.3"}}
+                            cider/piggieback {:mvn/version "0.6.0"}}
                :main-opts ["-m" "nrepl.cmdline" "--middleware"
                            "[cider.nrepl/cider-middleware,cider.piggieback/wrap-cljs-repl]"]}
 ----
@@ -133,11 +100,10 @@ server with CIDER's own nREPL handler.
 
 It goes without saying that your project should depend on `cider-nrepl`.
 
-NOTE: Prior to CIDER 0.18, CIDER and cider-nrepl were always released together
-and their versions had to match for things to work (e.g. CIDER 0.15 required
-cider-nrepl 0.15). But as the prominence of cider-nrepl grew and many other
-tools started using it, the two projects evolved separately and are no longer in
-tight lock-step. Usually, any recent version of cider-nrepl should be (mostly)
-compatible with a recent version of CIDER. You can check the required version of
-cider-nrepl for your version of CIDER by looking at
-`cider-required-middleware-version`.
+NOTE: CIDER and cider-nrepl projects are co-developed, but are not released in a
+lock-step — they have differing versions. Usually, any recent version of
+cider-nrepl should be (mostly) compatible with a recent version of CIDER. You
+can check the required version of cider-nrepl for your version of CIDER by
+looking at `cider-required-middleware-version`. See also the
+xref:about/compatibility.adoc#compatibility-matrix[compatibility
+matrix].
