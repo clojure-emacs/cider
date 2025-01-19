@@ -1,7 +1,7 @@
 ;;; nrepl-client.el --- Client for Clojure nREPL -*- lexical-binding: t -*-
 
-;; Copyright © 2012-2024 Tim King, Phil Hagelberg, Bozhidar Batsov
-;; Copyright © 2013-2024 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2012-2025 Tim King, Phil Hagelberg, Bozhidar Batsov
+;; Copyright © 2013-2025 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
@@ -939,21 +939,30 @@ the standard session."
 (declare-function cider-repl-emit-interactive-stderr "cider-repl")
 (declare-function cider--render-stacktrace-causes "cider-eval")
 
-(defun nrepl-send-sync-request (request connection &optional abort-on-input tooling)
+(defun nrepl-send-sync-request (request connection &optional abort-on-input
+                                        tooling callback)
   "Send REQUEST to the nREPL server synchronously using CONNECTION.
 Hold till final \"done\" message has arrived and join all response messages
 of the same \"op\" that came along.
 If ABORT-ON-INPUT is non-nil, the function will return nil at the first
 sign of user input, so as not to hang the interface.
-If TOOLING, use the tooling session rather than the standard session."
+If TOOLING, use the tooling session rather than the standard session.
+
+If CALLBACK is non-nil, it will additionally be called on all received
+messages. This shouldn't be used this for any control logic — use the
+asynchronous `nrepl-send-request' directly for that. CALLBACK here should
+be used to react to some intermediate events in an otherwise synchronous
+command and e.g. notify the user about them."
   (let* ((time0 (current-time))
          (response (cons 'dict nil))
          (nrepl-ongoing-sync-request t)
+         (cb (lambda (resp)
+               ;; If caller has provided `callback', call it on the response.
+               (when callback
+                 (funcall callback resp))
+               (nrepl--merge response resp)))
          status)
-    (nrepl-send-request request
-                        (lambda (resp) (nrepl--merge response resp))
-                        connection
-                        tooling)
+    (nrepl-send-request request cb connection tooling)
     (while (and (not (member "done" status))
                 (not (and abort-on-input
                           (input-pending-p))))
@@ -962,7 +971,7 @@ If TOOLING, use the tooling session rather than the standard session."
       ;; anywhere, and we'll just timeout. So we forward it to the user.
       (if (member "need-input" status)
           (progn (cider-need-input (current-buffer))
-                 ;; If the used took a few seconds to respond, we might
+                 ;; If the user took a few seconds to respond, we might
                  ;; unnecessarily timeout, so let's reset the timer.
                  (setq time0 (current-time)))
         ;; break out in case we don't receive a response for a while

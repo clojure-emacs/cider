@@ -73,7 +73,7 @@ CIDER packs plenty of features. Here are some of them (in no particular order):
 * `clojure.test` integration
 * `clojure.spec` integration
 * Interactive debugger
-* Data Inspector
+* Data inspector
 * Integration with Java logging frameworks
 * Profiling & tracing
 * ClojureScript support

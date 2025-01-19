@@ -1,6 +1,6 @@
 ;;; cider-connection.el --- Connection and session life-cycle management for CIDER -*- lexical-binding: t -*-
 ;;
-;; Copyright © 2019-2024 Artur Malabarba, Bozhidar Batsov, Vitalie Spinu and CIDER contributors
+;; Copyright © 2019-2025 Artur Malabarba, Bozhidar Batsov, Vitalie Spinu and CIDER contributors
 ;;
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.dev>

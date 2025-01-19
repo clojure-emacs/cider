@@ -1,7 +1,7 @@
 ;;; cider.el --- Clojure Interactive Development Environment that Rocks -*- lexical-binding: t -*-
 
-;; Copyright © 2012-2024 Tim King, Phil Hagelberg, Bozhidar Batsov
-;; Copyright © 2013-2024 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2012-2025 Tim King, Phil Hagelberg, Bozhidar Batsov
+;; Copyright © 2013-2025 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
 ;; Author: Tim King <kingtim@gmail.com>
 ;;         Phil Hagelberg <technomancy@gmail.com>
@@ -11,7 +11,7 @@
 ;;         Steve Purcell <steve@sanityinc.com>
 ;; Maintainer: Bozhidar Batsov <bozhidar@batsov.dev>
 ;; URL: https://www.github.com/clojure-emacs/cider
-;; Version: 1.16.1
+;; Version: 1.17.0-snapshot
 ;; Package-Requires: ((emacs "26") (clojure-mode "5.19") (parseedn "1.2.1") (queue "0.2") (spinner "1.7") (seq "2.22") (sesman "0.3.2") (transient "0.4.1"))
 ;; Keywords: languages, clojure, cider
 
@@ -93,7 +93,7 @@
 (require 'sesman)
 (require 'package)
 
-(defconst cider-version "1.16.1"
+(defconst cider-version "1.17.0-snapshot"
   "The current version of CIDER.")
 
 (defconst cider-codename "Kherson"
@@ -591,7 +591,7 @@ the artifact.")
 
 Used when `cider-jack-in-auto-inject-clojure' is set to `latest'.")
 
-(defconst cider-required-middleware-version "0.51.0"
+(defconst cider-required-middleware-version "0.52.0"
   "The CIDER nREPL version that's known to work properly with CIDER.")
 
 (defcustom cider-injected-middleware-version cider-required-middleware-version

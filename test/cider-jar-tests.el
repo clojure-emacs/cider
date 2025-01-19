@@ -1,6 +1,6 @@
 ;;; cider-jar-tests.el  -*- lexical-binding: t; -*-
 
-;; Copyright © 2012-2024 Arne Brasseur
+;; Copyright © 2012-2025 Arne Brasseur
 
 ;; Author: Arne Brasseur <arne@arnebrasseur.net>
 

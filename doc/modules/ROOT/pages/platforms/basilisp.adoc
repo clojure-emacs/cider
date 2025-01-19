@@ -1,7 +1,7 @@
 = Basilisp Integration with CIDER
 https://github.com/basilisp-lang/basilisp[basilisp]
 
-since CIDER 1.14
+NOTE: Basilisp support was added in CIDER 1.14.
 
 == Overview
 
@@ -28,7 +28,7 @@ If you don't have or want a basilisp project file, you can use universal jack in
 
 NOTE: an alternative to kbd:[M-5] is kbd:[C-u 5]
 
-You can also bind the universal jack-in to Basilisp to a function to use as a shortcut, for example
+You can also bind the universal jack-in to Basilisp to a function to use as a shortcut, for example:
 
 [source,lisp]
 ----
@@ -51,7 +51,7 @@ To see available options, type `basilisp nrepl-server -h` in a shell prompt.
 
 == Configuration
 
-The jack-in command can be configured with the following defcustoms
+The jack-in command can be configured with the following defcustoms:
 
 === `cider-basilisp-command`
 
@@ -81,7 +81,7 @@ For example, to set the path to the basilisp executable within a virtual environ
 - kbd:[M-x add-dir-local-variable]
 - Mode or subdirectory: `clojure-mode`
 - Add directory-local variable: `cider-basilisp-command`
-- Add cider-basilisp-command with value: `"c:/dev/venvs/312/Scripts/basilisp"`
+- Add `cider-basilisp-command` with value: `"c:/dev/venvs/312/Scripts/basilisp"`
 
 This should result to updating or creating a `.dir-local.el` file like below
 

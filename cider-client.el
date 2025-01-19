@@ -1,6 +1,6 @@
 ;;; cider-client.el --- A layer of abstraction above low-level nREPL client code. -*- lexical-binding: t -*-
 
-;; Copyright © 2013-2024 Bozhidar Batsov
+;; Copyright © 2013-2025 Bozhidar Batsov
 ;;
 ;; Author: Bozhidar Batsov <bozhidar@batsov.dev>
 
@@ -189,16 +189,20 @@ the current connection.  Return the id of the sent message.
 If TOOLING is truthy then the tooling session is used."
   (nrepl-send-request request callback (or connection (cider-current-repl 'any 'ensure)) tooling))
 
-(defun cider-nrepl-send-sync-request (request &optional connection abort-on-input)
+(defun cider-nrepl-send-sync-request (request &optional connection
+                                              abort-on-input callback)
   "Send REQUEST to the nREPL server synchronously using CONNECTION.
 Hold till final \"done\" message has arrived and join all response messages
 of the same \"op\" that came along and return the accumulated response.
 If ABORT-ON-INPUT is non-nil, the function will return nil
 at the first sign of user input, so as not to hang the
-interface."
+interface.
+if CALLBACK is non-nil, it will additionally be called on all received messages."
   (nrepl-send-sync-request request
                            (or connection (cider-current-repl 'any 'ensure))
-                           abort-on-input))
+                           abort-on-input
+                           nil
+                           callback))
 
 (defun cider-nrepl-send-unhandled-request (request &optional connection)
   "Send REQUEST to the nREPL CONNECTION and ignore any responses.
@@ -341,6 +345,17 @@ The default value in nREPL is 1024."
   :type 'integer
   :group 'cider
   :package-version '(cider . "0.25.0"))
+
+(defcustom cider-download-java-sources nil
+  "Whether to automatically download source artifacts for 3rd-party Java classes.
+
+When enabled, CIDER will attempt to download source JARs from Maven for
+Java classes if the source file is not found locally.  This downloading only
+happens once per artifact, and only when the user jumps to definition or
+requests `cider-doc' on a Java class or a member of the class."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "1.17.0"))
 
 (defun cider--print-fn ()
   "Return the value to send in the nrepl.middleware.print/print slot."
@@ -681,13 +696,25 @@ CONTEXT represents a completion context for compliment."
 
 (defun cider-sync-request:info (symbol &optional class member context)
   "Send \"info\" op with parameters SYMBOL or CLASS and MEMBER, honor CONTEXT."
-  (let ((var-info (thread-first `("op" "info"
-                                  "ns" ,(cider-current-ns)
-                                  ,@(when symbol `("sym" ,symbol))
-                                  ,@(when class `("class" ,class))
-                                  ,@(when member `("member" ,member))
-                                  ,@(when context `("context" ,context)))
-                                (cider-nrepl-send-sync-request (cider-current-repl)))))
+  (let* ((req
+          `("op" "info"
+            "ns" ,(cider-current-ns)
+            ,@(when symbol `("sym" ,symbol))
+            ,@(when class `("class" ,class))
+            ,@(when member `("member" ,member))
+            ,@(when context `("context" ,context))
+            ,@(when cider-download-java-sources `("download-sources-jar" "1"))))
+         (callback
+          (lambda (resp)
+            (let ((status (nrepl-dict-get resp "status"))
+                  (coords (nrepl-dict-get resp "coords")))
+              (when (member "download-sources-jar" status)
+                (message "Local source not found, downloading Java sources for artifact %s/%s %s..."
+                         (nrepl-dict-get coords "group")
+                         (nrepl-dict-get coords "artifact")
+                         (nrepl-dict-get coords "version"))))))
+         (var-info
+          (cider-nrepl-send-sync-request req (cider-current-repl) nil callback)))
     (if (member "no-info" (nrepl-dict-get var-info "status"))
         nil
       var-info)))

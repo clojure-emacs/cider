@@ -17,11 +17,21 @@ as some people prefer to keep holding `Control` and some don't.
 
 Normally the command operates on the symbol at point.  If invoked with a prefix argument, or no symbol is found at point, it will prompt for a symbol.
 
-NOTE: If using `enrich-classpath`, Java doc comments are available and rendered in the same way that Clojure docstrings are.
-They're often much more handy than opening Javadoc in a browser. Starting from CIDER 1.8.0,
-the HTML-like language that they use is nicely rendered into syntax-colored strings, well-aligned tables, etc
+== Local JavaDoc
 
-== JavaDoc
+Most JDK distributions ship with a `src.zip` file (an archive with all base Java source files). If you have such archive present in your JDK, CIDER will automatically parse the source file when you query the documentation for a Java class (e.g. `java.lang.Thread`) or a method (e.g. `java.lang.Thread/currentThread`) and will display the properly formatted JavaDoc in the documentation buffer. You will also see better Eldoc documentation (minibuffer hints) for Java methods. If the source file are present, you are able to jump to class or method definition by pressing kbd:[M-.] on the class name or method name.
+
+Furthermore, CIDER is able to parse JavaDoc source files and jump to definitions for third-party Java libraries if you have downloaded the special `-sources.jar` file for that library. See the next section on how to download source JARs.
+
+== Obtaining source JARs
+
+Since version 1.17, CIDER is able to download the necessary source JAR file automatically when you either request the documentation for a Java class/method or when you jump to the definition of a Java class/method. In order for the sources to be downloaded, you need to enable custom variable `cider-download-java-sources`. When the download triggers, CIDER displays a minibuffer message about that. Fetching a single source JAR usually takes a few seconds. CIDER will make only one attempt to download the source JAR for a particular dependency per process — if it failed to download (usually, because the dependency doesn't have a source JAR published to Maven), CIDER will not retry that until the next restart.
+
+NOTE: While Eldoc functionality benefits from having Java sources, the eldoc itself will not trigger the downloading of Java source JARs. You will have to lookup the documentation once manually or jump to the definition in order for the JAR is downloaded. After that, Eldoc will pick up the Java sources and display better hints.
+
+Alternatively, you can use https://github.com/clojure-emacs/enrich-classpath[`enrich-classpath`] to download all source JARs used by your current project at once. This will incur longer startup time, but will not trigger individual JARs fetching at the runtime.
+
+== Online JavaDoc
 
 CIDER provides a quick access to the online Javadoc documentation
 via the command `cider-javadoc` (kbd:[C-c C-d j] or kbd:[C-c C-d C-j]), using your default browser.

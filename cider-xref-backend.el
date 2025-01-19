@@ -1,6 +1,6 @@
 ;;; cider-xref-backend.el --- CIDER's backend for Emacs' xref functionality -*- lexical-binding: t -*-
 
-;; Copyright © 2013-2024 Bozhidar Batsov, Artur Malabarba and CIDER contributors
+;; Copyright © 2013-2025 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 ;;
 ;; Author: Bozhidar Batsov <bozhidar@batsov.dev>
 ;;         Artur Malabarba <bruce.connor.am@gmail.com>

@@ -1,6 +1,6 @@
 ;;; cider-clojuredocs.el --- ClojureDocs integration -*- lexical-binding: t -*-
 
-;; Copyright © 2014-2024 Bozhidar Batsov and CIDER contributors
+;; Copyright © 2014-2025 Bozhidar Batsov and CIDER contributors
 ;;
 ;; Author: Bozhidar Batsov <bozhidar@batsov.dev>
 

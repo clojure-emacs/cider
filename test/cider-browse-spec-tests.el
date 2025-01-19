@@ -1,6 +1,6 @@
 ;;; cider-browse-spec-tests.el  -*- lexical-binding: t; -*-
 
-;; Copyright © 2012-2024 r0man, Bozhidar Batsov
+;; Copyright © 2012-2025 r0man, Bozhidar Batsov
 
 ;; Author: r0man <roman@burningswell.com>
 ;;         Bozhidar Batsov <bozhidar@batsov.dev>

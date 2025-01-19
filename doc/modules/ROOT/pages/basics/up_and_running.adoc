@@ -3,13 +3,13 @@
 
 To use CIDER, you'll need to connect it to a running nREPL server that
 is associated with your program. Most Clojure developers use standard
-build tooling such as Leiningen, Boot, or Gradle, and CIDER can
+build tooling such as tools.deps, Leiningen, or Gradle, and CIDER can
 automatically work with those tools to get you up and running
 quickly. But those tools are not required; CIDER can connect to an
 nREPL server that is already started and is managed separately.
 
-NOTE: CIDER will automatically work with Leiningen 2.9.0+ or Boot
-2.8.3+. Older versions are not supported.
+NOTE: CIDER will automatically work with Leiningen 2.9.0+ or a recent
+tools.deps. Older versions are not supported.
 
 There are two ways to connect CIDER to an nREPL server:
 
@@ -56,29 +56,27 @@ NOTE: `cider-jack-in` is mainly designed for local development (with files on a
 local machine and the nREPL process running on the same machine). It does support
 various common remote/container scenarios, as documented later in this section. Due
 to the large variation of remote scenarios it cannot support all of them, so in
-some cases a manual nREPL start and usage of `cider-connect` might be a better option.
+some cases, a better option would be to start nREPL manually and connect to it with `cider-connect`.
 
 === Auto-Injecting Dependencies
 
 While CIDER's core functionality requires nothing more than an nREPL server,
-there are many advanced features that depend on the presence of additional
-nREPL middleware. In the early versions of CIDER (up to CIDER 0.11) users had
-to add those dependencies themselves, which was a painful and error-prone process.
-Fortunately today that's handled auto-magically when you're using `cider-jack-in`.
+there are many advanced features that depend on the presence of additional nREPL
+middleware. Fortunately, if you're using `cider-jack-in`, that's handled
+auto-magically.
 
-If your project uses `lein`, `boot` or `tools.deps` (`deps.edn`), CIDER will
+If your project uses `lein` or `tools.deps` (`deps.edn`), CIDER will
 automatically inject all the necessary nREPL dependencies (e.g. `cider-nrepl` or
 `piggieback`) when it starts the server.  The injection process is extremely
-simple - CIDER simply passes the extra dependencies and nREPL configuration to
+simple - CIDER passes the extra dependencies and nREPL configuration to
 your build tool in the command it runs to start the nREPL server. Here's how
 this looks for `tools.deps`:
 
-  $ clojure -Sdeps '{:deps {nrepl {:mvn/version "1.3.1"} cider/cider-nrepl {:mvn/version "0.51.0"}}}' -m nrepl.cmdline --middleware '["cider.nrepl/cider-middleware"]'
+  $ clojure -Sdeps '{:deps {nrepl {:mvn/version "1.3.1"} cider/cider-nrepl {:mvn/version "0.52.0"}}}' -m nrepl.cmdline --middleware '["cider.nrepl/cider-middleware"]'
 
 TIP: If you don't want `cider-jack-in` to inject dependencies automatically, set
 `cider-inject-dependencies-at-jack-in` to `nil`. Note that you'll have to setup
-the dependencies yourself (see xref:basics/middleware_setup.adoc[nREPL Middleware Setup]),
-just as in CIDER 0.10 and older.
+the dependencies yourself (see xref:basics/middleware_setup.adoc[nREPL Middleware Setup]).
 
 Normally `cider-jack-in` would inject only `cider-nrepl` and `cider-jack-in-cljs` would
 add `piggieback` as well. The injection mechanism is configurable and
@@ -119,14 +117,43 @@ for example, if your project defaults to an older version of Clojure than that
 supported by the CIDER middleware. Set `cider-jack-in-auto-inject-clojure`
 appropriately to enable this.
 
+=== Enabling nREPL JVMTI agent
+
+Since version 1.2.0, nREPL includes a native JVMTI agent which makes the eval
+interrupts work properly on Java 21 and later. To enable the agent, the Java
+process should be launched with `-Djdk.attach.allowAttachSelf`. CIDER will do it
+automatically during jack-in if `cider-enable-nrepl-jvmti-agent` variable is set
+to `t`.
+
+[IMPORTANT]
+====
+`cider-enable-nrepl-jvmti-agent` has no effect if you start a REPL
+process outside of Emacs and connect to it with `cider-connect`. In that
+scenario, you have to add `-Djdk.attach.allowAttachSelf` Java property manually
+through the means of the build tool. In Leiningen, add this to `project.clj`:
+
+[source,lisp]
+----
+:jvm-opts ["-Djdk.attach.allowAttachSelf"]
+----
+
+In tools.deps, add this to one of the aliases that you enable with the REPL:
+
+[source,lisp]
+----
+:aliases {:dev
+          {:jvm-opts ["-Djdk.attach.allowAttachSelf"]
+           ...}}
+----
+====
+
 === Jacking-in without a Project
 
 If you try to run `cider-jack-in` outside a project
 directory, CIDER will warn you and ask you to confirm whether you
 really want to do this; more often than not, this is an accident.  If
 you decide to proceed, CIDER will invoke the command configured in
-`cider-jack-in-default`. Prior to CIDER 0.17, this defaulted to `lein`
-but was subsequently switched to `clj`, Clojure's basic startup command.
+`cider-jack-in-default` (defaults to `clj`, Clojure's basic startup command).
 
 TIP: You can set `cider-allow-jack-in-without-project` to `t` if you'd like to
 disable the warning displayed when jacking-in outside a project.
@@ -185,17 +212,16 @@ with
 
 === Customizing the Jack-in Command Behavior
 
-You can use kbd:[C-u M-x] `cider-jack-in` kbd:[RET] to
-specify the exact command that `cider-jack-in` would run.
-This option is very useful is you want to specify a something like a `lein`
-or `deps.edn` profile.
+You can use kbd:[C-u M-x] `cider-jack-in` kbd:[RET] to specify the exact command
+that `cider-jack-in` would run. This option is very useful is you want to e.g.
+specify extra Leiningen profiles or `deps.edn` aliases.
 
 Alternatively you can kbd:[C-u C-u M-x] `cider-jack-in` kbd:[RET], which is a
 variation of the previous command. This command will first prompt you for the
 project you want to launch `cider-jack-in` in, which is pretty handy if you're
 in some other directory currently. This option is also useful if your project
-contains some combination of project.clj, build.boot and deps.edn and you want
-to launch a REPL for one or the other.
+contains some combination of `project.clj` and `deps.edn` and you want to launch
+a REPL for one or the other.
 
 NOTE: The examples use only `cider-jack-in`, but this behavior is consistent
 for all `cider-jack-in-\*` commands.
@@ -203,36 +229,6 @@ for all `cider-jack-in-\*` commands.
 You can further customize the command line CIDER uses for `cider-jack-in` by
 modifying the some options. Those differ a bit between the various tools,
 so we'll examine them tool by tool.
-
-==== Enabling nREPL JVMTI agent
-
-Since version 1.2.0, nREPL includes a native JVMTI agent which makes the eval
-interrupts work properly on Java 21 and later. To enable the agent, the Java
-process should be launched with `-Djdk.attach.allowAttachSelf`. CIDER will do it
-automatically during jack-in if `cider-enable-nrepl-jvmti-agent` variable is set
-to `t`.
-
-[IMPORTANT]
-====
-`cider-enable-nrepl-jvmti-agent` has no effect if you start a REPL
-process outside of Emacs and connect to it with `cider-connect`. In that
-scenario, you have to add `-Djdk.attach.allowAttachSelf` Java property manually
-through the means of the build tool. In Leiningen, add this to `project.clj`:
-
-[source,lisp]
-----
-:jvm-opts ["-Djdk.attach.allowAttachSelf"]
-----
-
-In tools.deps, add this to one of the aliases that you enable with the REPL:
-
-[source,lisp]
-----
-:aliases {:dev
-          {:jvm-opts ["-Djdk.attach.allowAttachSelf"]
-           ...}}
-----
-====
 
 ==== Leiningen Options
 
@@ -264,13 +260,6 @@ with the following alternatives
 NOTE: Alternatively you can use WSL (e.g. to run nREPL and Emacs there), which
 will likely result in a better overall development experience.
 
-==== Boot Options
-
-* `cider-boot-command` - the name of the Boot executable (`boot` by default)
-* `cider-boot-parameters` - these are usually task names and their parameters
-(e.g., `dev` for launching boot's dev task instead of the standard `repl -s
-wait`)
-
 ==== Gradle Options
 
 * `cider-gradle-command` - the name of the Gradle executable (`./gradlew` by default)
@@ -287,9 +276,9 @@ Which Jack-In Command is used is based on the project type. You can override the
 This allows for fine-grained control over how cider starts the nrepl-server.
 
 The precedence order for determining the Jack-In Command is:
-1) :jack-in-cmd if provided as a parameter,
-2) `cider-jack-in-command` if set as a directory local variable, and
-3) inferred from the project type (the default).
+1. `:jack-in-cmd` if provided as a parameter,
+2. `cider-jack-in-command` if set as a directory local variable, and
+3. Inferred from the project type (the default).
 
 ==== Setting a project-wide command
 
@@ -339,18 +328,11 @@ $ lein repl :headless
 
 This will start the project's nREPL server.
 
-If your project uses `boot`, do this instead:
-
-[source,sh]
-----
-$ boot repl -s wait (or whatever task launches a repl)
-----
-
 It is also possible for plain `clj`, although the command is somewhat longer:
 
 [source,sh]
 ----
-$ clj -Sdeps '{:deps {cider/cider-nrepl {:mvn/version "0.51.0"}}}' -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware]"
+$ clj -Sdeps '{:deps {cider/cider-nrepl {:mvn/version "0.52.0"}}}' -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware]"
 ----
 
 Alternatively, you can start nREPL either manually or using the facilities
@@ -390,7 +372,7 @@ connect via ssh to remote hosts when unable to connect directly. It's
 There's also `nrepl-force-ssh-for-remote-hosts` which will force the use
 of ssh for remote connection unconditionally.
 
-WARNING: As nREPL connections are insecure by default you're encouraged to use only SSH
+WARNING: As nREPL connections are insecure by default, you're encouraged to use only SSH
 tunneling when connecting to servers running outside of your network.
 
 There's a another case in which CIDER may optionally leverage the `ssh` command - when

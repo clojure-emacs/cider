@@ -3,12 +3,14 @@
 ## master (unreleased)
 
 ### New features
+
+- Automatic downloading of third-party Java sources for better Java documentation and jump-to-definition functionality. See [Obtaining source JARs](https://docs.cider.mx/cider/usage/working_with_documentation.html#obtaining-source-jars).
 - CIDER [History](https://docs.cider.mx/cider/repl/history.html): Add a command to delete history item at point.
 
 ### Changes
 
 - Bump the injected nREPL version to [1.3.1](https://github.com/nrepl/nrepl/blob/master/CHANGELOG.md#131-2025-01-01).
-- Bump the injected `cider-nrepl` to [0.51.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0510-2025-01-01).
+- Bump the injected `cider-nrepl` to [0.52.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0520-2025-01-10).
 - [#3574](https://github.com/clojure-emacs/cider/issues/3574): New value `per-project` for `cider-repl-history-file` to save the history on a per-project basis.
 
 ### Bugs fixed
