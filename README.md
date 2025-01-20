@@ -69,8 +69,9 @@ connect to it.
 Alternatively you can use <kbd>C-u M-x</kbd> `cider-jack-in` to specify the path to
 a Clojure project, without having to visit any file in it.
 
-**Tip:** In Clojure(Script) buffers the command `cider-jack-in` is bound to
-<kbd>C-c C-x (C-)j</kbd>.
+> [!TIP]
+>
+> In Clojure(Script) buffers the command `cider-jack-in` is bound to <kbd>C-c C-x (C-)j</kbd>.
 
 ### Connect to a running nREPL server
 
@@ -93,9 +94,11 @@ by your project's build tool (`tools.deps`, Gradle, Maven, etc).
 After you get your nREPL server running go back to Emacs.  Typing there <kbd>M-x</kbd>
 `cider-connect` will allow you to connect to the running nREPL server.
 
-**Tip:** In Clojure(Script) buffers the command `cider-connect` is bound to
-<kbd>C-c C-x (C-)c (C-)j</kbd> and the command `cider-connect-cljs` is bound to
-<kbd>C-c C-x (C-)c (C-)s</kbd>.
+> [!TIP]
+>
+> In Clojure(Script) buffers the command `cider-connect` is bound to
+> <kbd>C-c C-x (C-)c (C-)j</kbd> and the command `cider-connect-cljs` is bound to
+> <kbd>C-c C-x (C-)c (C-)s</kbd>.
 
 ## Diving Deeper
 
