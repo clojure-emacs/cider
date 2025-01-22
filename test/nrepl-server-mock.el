@@ -1,4 +1,4 @@
-;; nrepl-server-mock.el  -*- lexical-binding: t; -*-
+;; nrepl-server-mock.el --- Mock nREPL server -*- lexical-binding: t; -*-
 
 ;; Copyright © 2021-2025 Ioannis Kappas
 
@@ -24,7 +24,7 @@
 ;; A mock nREPL server that sends dummy replies back to clients with just enough
 ;; information onboard to accommodate testing requirements.
 ;;
-;; Meant to be invoked as the top-level fn of an emacs subprocess.
+;; Meant to be invoked as the top-level fn of an Emacs subprocess.
 
 ;;; Code:
 
@@ -34,8 +34,8 @@
 (require 'cl)
 
 (defun nrepl-server-mock-filter (proc output)
-  "Handle the nREPL message found in OUTPUT sent by the client
-PROC. Minimal implementation, just enough for fulfilling clients' testing
+  "Handle the nREPL message found in OUTPUT sent by the client PROC.
+Minimal implementation, just enough for fulfilling clients' testing
 requirements."
   ;; (mock/log! ":mock.filter/output %s :msg %s" proc output)
 
@@ -47,21 +47,21 @@ requirements."
                           `(dict "id" ,id
                                  "session" "a-session"
                                  "status" ("done")
-			         "new-session" "a-new-session"))
+                                 "new-session" "a-new-session"))
 
                          (`(dict "op" "describe" "session" ,session "id" ,id)
                           `(dict "id" ,id "session" ,session "status"
-			         ("done")))
+                                 ("done")))
                          ;; Eval op can include other fields in addition to the
                          ;; code, we only need the signature and the session and
                          ;; id fields at the end.
                          (`(dict "op" "eval" "code" ,_code . ,rest)
                           (cl-destructuring-bind (_ session _ id) (seq-drop rest (- (seq-length rest) 4))
                             `(dict "id" ,id "session" ,session "status"
-			           ("done"))))
+                                   ("done"))))
                          (`(dict "op" "close" "session" ,session "id" ,id)
                           `(dict "id" ,id "session" ,session "status"
-			         ("done"))))))
+                                 ("done"))))))
 
         (mock/log! ":mock.filter/msg :out %S" response)
         (if (not response)
@@ -82,25 +82,26 @@ requirements."
     ))
 
 (defun nrepl-server-mock-start ()
-  "Start a mock nREPL server process. Prints out nREPL welcome message of
-the port and host it is started on. Exits after a 10 secs"
+  "Start a mock nREPL server process.
+Prints out nREPL welcome message of the port and host it is started
+on.  Exits after a 10 secs"
 
   ;; change first argument to non-nil to enable logging to file
   (nrepl-tests-log/init! nil mock "./nrepl-server-mock.log" 'new)
   (mock/log! ":mock/starting...")
 
   (let* ((server-process (make-network-process
-			  :name "server-mock/process"
-			  :server 't
-			  :host 'local
+                          :name "server-mock/process"
+                          :server 't
+                          :host 'local
                           ;; listen to an unoccupied port
-			  :service 't
-			  :buffer "server-mock/buffer"
-			  :filter #'nrepl-server-mock-filter
-			  :sentinel
-			  (lambda (_proc status-change-descr)
-			    (mock/log! ":mock/process-status %s" status-change-descr))))
-	 (contact (process-contact server-process 't))
+                          :service 't
+                          :buffer "server-mock/buffer"
+                          :filter #'nrepl-server-mock-filter
+                          :sentinel
+                          (lambda (_proc status-change-descr)
+                            (mock/log! ":mock/process-status %s" status-change-descr))))
+         (contact (process-contact server-process 't))
          (mock-message (format "nREPL server started on port %d on host %s"
                                (plist-get contact :service)
                                (plist-get contact :host))))
@@ -115,3 +116,5 @@ the port and host it is started on. Exits after a 10 secs"
                (make-string (- 4096 (length mock-message)) ?*)))
     (sleep-for 10)
     (mock/log! ":mock/exiting...")))
+
+;;; nrepl-server-mock.el ends here
