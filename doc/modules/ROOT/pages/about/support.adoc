@@ -17,14 +17,6 @@ https://github.com/clojure-emacs/cider/discussions[here].
 It's a great place to share ideas, help other CIDER users and just be up-to-date
 with interesting developments.
 
-== Discord
-
-CIDER has its own Discord chat server, created by CIDER's
-author Bozhidar. You can join the Discord server
-https://discord.com/invite/nFPpynQPME[here].
-
-NOTE: As of 2021, Discord is Bozhidar's preferred chat for CIDER.
-
 == Slack
 
 We've got an official https://clojurians.slack.com/[Clojurians
@@ -43,14 +35,3 @@ We're also encouraging users to ask CIDER-related questions on StackOverflow.
 When doing so you should use the
 http://stackoverflow.com/questions/tagged/cider[cider] tag (ideally combined
 with the tags `emacs` and `clojure`).
-
-== Mailing list
-
-The https://groups.google.com/forum/#!forum/cider-emacs[official mailing list] is
-hosted at Google Groups. It's a low-traffic list, so don't be too hesitant to subscribe.
-
-== Freenode
-
-We've got an unofficial Freenode channel - `#clojure-emacs`. It's not actively
-monitored by the CIDER maintainers themselves, but still you can get support
-from other CIDER users there.
