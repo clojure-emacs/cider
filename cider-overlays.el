@@ -232,6 +232,8 @@ overlay."
                ;; Specify `default' face, otherwise unformatted text will
                ;; inherit the face of the following text.
                (display-string (format (propertize format 'face 'default) value))
+               ;; Maximum value width at which we truncate it.
+               (truncation-threshold (* 3 (window-width)))
                (o nil))
           ;; Remove any overlay at the position we're creating a new one, if it
           ;; exists.
@@ -245,17 +247,22 @@ overlay."
           ;; If the display spans multiple lines or is very long, display it at
           ;; the beginning of the next line.
           (when (or (string-match "\n." display-string)
+                    ;; string-width can be very slow on large results, so check
+                    ;; with a cheaper predicate first. Conservatively limit to
+                    ;; truncation threshold.
+                    (> (length display-string) truncation-threshold)
                     (> (string-width display-string)
                        (- (window-width) (current-column))))
             (setq display-string (concat " \n" display-string)))
+          (when (or (> (length display-string) truncation-threshold)
+                    (> (string-width display-string) truncation-threshold))
+            (setq display-string
+                  (concat (substring display-string 0 truncation-threshold)
+                          (substitute-command-keys
+                           "...\nResult truncated. Type `\\[cider-inspect-last-result]' to inspect it."))))
           ;; Put the cursor property only once we're done manipulating the
           ;; string, since we want it to be at the first char.
           (put-text-property 0 1 'cursor 0 display-string)
-          (when (> (string-width display-string) (* 3 (window-width)))
-            (setq display-string
-                  (concat (substring display-string 0 (* 3 (window-width)))
-                          (substitute-command-keys
-                           "...\nResult truncated. Type `\\[cider-inspect-last-result]' to inspect it."))))
           ;; Create the result overlay.
           (setq o (apply #'cider--make-overlay
                          beg end type
@@ -285,7 +292,7 @@ overlay."
             (when (and (<= (window-start win) (point) (window-end win))
                        ;; Right edge is visible. This is a little conservative
                        ;; if the overlay contains line breaks.
-                       (or (< (+ (current-column) (string-width value))
+                       (or (< (+ (current-column) (string-width display-string))
                               (window-width win))
                            (not truncate-lines)))
               o)))))))
