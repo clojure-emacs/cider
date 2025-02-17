@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.17.0 (2025-02-17)
+
 ### New features
 
 - Automatic downloading of third-party Java sources for better Java documentation and jump-to-definition functionality. See [Obtaining source JARs](https://docs.cider.mx/cider/usage/working_with_documentation.html#obtaining-source-jars).
