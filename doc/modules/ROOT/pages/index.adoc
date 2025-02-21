@@ -92,7 +92,7 @@ and then jumped to a REPL buffer to try out something there.
 
 Here's also a video demo of CIDER's essential functionality:
 
-video::aYA4AAjLfT0[youtube]
+video::aYA4AAjLfT0[youtube,width=100%]
 
 You can find several other demo videos on the xref:additional_resources.adoc[Additional Resources] page.
 
