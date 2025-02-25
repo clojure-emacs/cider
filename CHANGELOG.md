@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+- Bump the injected `cider-nrepl` to [0.52.1](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0521-2025-02-24).
+
 ## 1.17.0 (2025-02-17)
 
 ### New features
