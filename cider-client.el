@@ -355,7 +355,7 @@ happens once per artifact, and only when the user jumps to definition or
 requests `cider-doc' on a Java class or a member of the class."
   :type 'boolean
   :group 'cider
-  :package-version '(cider . "1.17.0"))
+  :package-version '(cider . "1.17.1"))
 
 (defun cider--print-fn ()
   "Return the value to send in the nrepl.middleware.print/print slot."
