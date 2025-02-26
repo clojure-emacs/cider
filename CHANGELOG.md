@@ -2,9 +2,19 @@
 
 ## master (unreleased)
 
+### Changes
+
+- [#3777](https://github.com/clojure-emacs/cider/issues/3777): Inspector no longer displays parsed Javadoc for Java classes and members.
+
 ## 1.17.1 (2025-02-25)
 
+### Changes
+
 - Bump the injected `cider-nrepl` to [0.52.1](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0521-2025-02-24).
+
+### Bugs fixed
+
+- [#3775](https://github.com/clojure-emacs/cider/issues/3775): Code completion throws MalformedURLException on Windows.
 
 ## 1.17.0 (2025-02-17)
 
