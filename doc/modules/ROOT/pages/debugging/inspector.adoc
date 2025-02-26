@@ -110,11 +110,6 @@ You'll have access to additional keybindings in the inspector buffer
 
 |===
 
-== Use `enrich-classpath` for best results
-
-If xref:config/basic_config.adoc#use-enrich-classpath[enrich-classpath] is activated, inspecting a Java class, method or field
-will richly display its Java doc comment documentation at the bottom of the inspector.  
-
 == Configuration
 
 By default, navigation skips over values like nils, numbers and
