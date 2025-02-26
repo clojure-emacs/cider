@@ -21,23 +21,21 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-13, ubuntu-latest, windows-latest]
+        # Test all Emacs versions on Ubuntu.
+        os: [ubuntu-latest]
         emacs_version: ['26.3', '27.2', '28.2', '29.3', 'snapshot']
-        java_version: ['11', '17']
+        java_version: ['21']
         include:
-          # aarch64 (macos-13 is Intel)
-          - os: macos-latest
+          # For other OSes, test only the latest stable Emacs version.
+          - os: macos-latest # aarch64
             emacs_version: '29.3'
-            java_version: '11'
-          - os: macos-latest
-            emacs_version: '28.2'
-            java_version: '11'
-          - os: macos-latest
+            java_version: '21'
+          - os: macos-13 # x64
             emacs_version: '29.3'
-            java_version: '17'
-          - os: macos-latest
-            emacs_version: '28.2'
-            java_version: '17'
+            java_version: '21'
+          - os: windows-latest
+            emacs_version: '29.3'
+            java_version: '21'
 
     steps:
     - name: Set up Emacs
@@ -114,7 +112,7 @@ jobs:
         eldev -p -dtTC test --test-type integration || eldev -p -dtTC test --test-type integration
 
     - name: Run tests that need enrich-classpath
-      if: "!startsWith(matrix.os, 'windows') && (matrix.java_version != '11')"
+      if: "!startsWith(matrix.os, 'windows')"
       run: |
         cd dev; ../clojure.sh clojure -M:gen; cd -
         wc -l test/File.edn

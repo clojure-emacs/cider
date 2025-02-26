@@ -157,4 +157,5 @@ workflows:
             - test-shellcheck
       - test-macos-emacs-latest:
           requires:
-            - test-ubuntu-emacs-28
+            - test-lint
+            - test-shellcheck
