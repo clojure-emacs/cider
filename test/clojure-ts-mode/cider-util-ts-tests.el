@@ -32,6 +32,24 @@
 (require 'clojure-ts-mode)
 (require 'cider-util)
 
+(defun with-clojure-ts-buffer--go-to-point ()
+  (when (search-forward "|" nil 'noerror)
+    (delete-char -1)))
+
+(defmacro with-clojure-ts-buffer (contents &rest body)
+  "Execute BODY in a clojure-ts-mode buffer with CONTENTS
+
+CONTENTS is a string containing an optional character `|' indicating the
+cursor position. If not present, the cursor is placed at the end of the
+buffer."
+  (declare (indent 1))
+  `(with-temp-buffer
+     (delay-mode-hooks (clojure-ts-mode))
+     (insert ,contents)
+     (goto-char (point-min))
+     (with-clojure-ts-buffer--go-to-point)
+     ,@body))
+
 (describe "clojure-ts-mode activation"
   (it "test suite installs the tree-sitter-clojure grammar"
     (with-temp-buffer
@@ -55,5 +73,21 @@
       (expect (cider-clojure-major-mode-p) :to-be-truthy)
       (expect (cider-clojurescript-major-mode-p) :not :to-be-truthy)
       (expect (cider-clojurec-major-mode-p) :to-be-truthy))))
+
+(describe "cider-keyword-at-p"
+  (it "returns `t' if in keyword"
+    (with-clojure-ts-buffer ":he|llo"
+      (expect (cider-keyword-at-point-p) :to-be-truthy)
+      (expect (cider-keyword-at-point-p (point)) :to-be-truthy))
+    (with-clojure-ts-buffer "::he|llo"
+      (expect (cider-keyword-at-point-p) :to-be-truthy)
+      (expect (cider-keyword-at-point-p (point)) :to-be-truthy))
+    (with-clojure-ts-buffer ":some.names|pace/hello"
+      (expect (cider-keyword-at-point-p) :to-be-truthy)
+      (expect (cider-keyword-at-point-p (point)) :to-be-truthy)))
+  (it "returns `nil' if not in keyword"
+    (with-clojure-ts-buffer ":hello \"|World\""
+      (expect (cider-keyword-at-point-p) :not :to-be-truthy)
+      (expect (cider-keyword-at-point-p (point)) :not :to-be-truthy))))
 
 (provide 'cider-ts-util-tests)

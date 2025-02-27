@@ -30,6 +30,10 @@
 
 - [#3784](https://github.com/clojure-emacs/cider/issues/3784): Inspector: make point less erratic when navigating between inspector screens.
 
+### Bugs fixed
+
+- `cider-find-keyword` doesn't work with `clojure-ts-mode`.
+
 ## 1.17.1 (2025-02-25)
 
 ### Changes
