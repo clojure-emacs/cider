@@ -69,6 +69,10 @@ Setting this to nil removes the fontification restriction."
   "Return non-nil if current buffer is managed by a ClojureC major mode."
   (derived-mode-p 'clojurec-mode 'clojure-ts-clojurec-mode))
 
+(defun cider-clojure-ts-mode-p ()
+  "Return non-nil if current buffer is managed by a Clojure[TS] major mode."
+  (derived-mode-p 'clojure-ts-mode))
+
 (defun cider-util--clojure-buffers ()
   "Return a list of all existing `clojure-mode' buffers."
   (seq-filter
@@ -106,6 +110,18 @@ which nREPL uses for temporary evaluation file names."
 If BUFFER is provided act on that buffer instead."
   (with-current-buffer (or buffer (current-buffer))
     (or (cider-clojurec-major-mode-p))))
+
+(defun cider-keyword-at-point-p (&optional point)
+  "Return non-nil if POINT is in a Clojure keyword.
+
+Take into consideration current major mode."
+  (let ((pos (or point (point))))
+    (if (and (cider-clojure-ts-mode-p)
+             (fboundp 'clojure-ts--keyword-node-p)
+             (fboundp 'treesit-node-parent)
+             (fboundp 'treesit-node-at))
+        (clojure-ts--keyword-node-p (treesit-node-parent (treesit-node-at pos)))
+      (member 'clojure-keyword-face (text-properties-at pos)))))
 
 
 ;;; Thing at point

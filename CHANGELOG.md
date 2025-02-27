@@ -20,6 +20,10 @@
 - [#3789](https://github.com/clojure-emacs/cider/issues/3796): Completion: disable client-side sorting (defer to backend-provided candidate order).
 - [#3797](https://github.com/clojure-emacs/cider/issues/3797): Completion: enable `cider-completion-style` by default (this enables richer completion suggestions where candidates don't have to strictly match the prefix).
 
+### Bugs fixed
+
+- `cider-find-keyword` doesn't work with `clojure-ts-mode`.
+
 ## 1.17.1 (2025-02-25)
 
 ### Changes
