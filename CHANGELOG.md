@@ -6,6 +6,10 @@
 
 - [#3777](https://github.com/clojure-emacs/cider/issues/3777): Inspector no longer displays parsed Javadoc for Java classes and members.
 
+### Bugs fixed
+
+- `cider-find-keyword` doesn't work with `clojure-ts-mode`.
+
 ## 1.17.1 (2025-02-25)
 
 ### Changes
