@@ -4,6 +4,7 @@
 
 ### Changes
 
+- [#3782](https://github.com/clojure-emacs/cider/issues/3782): **(Breaking)** Drop official support for Emacs 26.
 - [#3777](https://github.com/clojure-emacs/cider/issues/3777): Inspector no longer displays parsed Javadoc for Java classes and members.
 
 ## 1.17.1 (2025-02-25)
