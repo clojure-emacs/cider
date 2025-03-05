@@ -23,18 +23,18 @@ jobs:
       matrix:
         # Test all Emacs versions on Ubuntu.
         os: [ubuntu-latest]
-        emacs_version: ['26.3', '27.2', '28.2', '29.3', 'snapshot']
+        emacs_version: ['27.2', '28.2', '29.3', '30.1', 'snapshot']
         java_version: ['21']
         include:
           # For other OSes, test only the latest stable Emacs version.
           - os: macos-latest # aarch64
-            emacs_version: '29.3'
+            emacs_version: '30.1'
             java_version: '21'
           - os: macos-13 # x64
-            emacs_version: '29.3'
+            emacs_version: '30.1'
             java_version: '21'
           - os: windows-latest
-            emacs_version: '29.3'
+            emacs_version: '30.1'
             java_version: '21'
 
     steps:

@@ -104,6 +104,7 @@ selects a buffer.
 BODY is a series of forms which are evaluated when the selector
 is chosen.  The returned buffer is selected with
 `switch-to-buffer'."
+  (declare (indent 1))
   (let ((method `(lambda ()
                    (let ((buffer (progn ,@body)))
                      (cond ((not (and buffer (get-buffer buffer)))
@@ -143,7 +144,8 @@ is chosen.  The returned buffer is selected with
   "Most recently visited emacs-lisp-mode buffer."
   (cider-selector--recently-visited-buffer 'emacs-lisp-mode))
 
-(def-cider-selector-method ?q "Abort."
+(def-cider-selector-method ?q
+  "Abort."
   (top-level))
 
 (def-cider-selector-method ?r

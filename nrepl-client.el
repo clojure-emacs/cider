@@ -833,13 +833,13 @@ to the REPL."
                                            truncated-handler)
   "Make a response handler for connection BUFFER.
 A handler is a function that takes one argument - response received from
-the server process.  The response is an alist that contains at least 'id'
-and 'session' keys.  Other standard response keys are 'value', 'out', 'err',
-and 'status'.
+the server process.  The response is an alist that contains at least `id'
+and `session' keys.  Other standard response keys are `value', `out', `err',
+and `status'.
 
 The presence of a particular key determines the type of the response.  For
-example, if 'value' key is present, the response is of type 'value', if
-'out' key is present the response is 'stdout' etc.
+example, if `value' key is present, the response is of type `value', if
+`out' key is present the response is `stdout' etc.
 
 Depending on the type, the handler dispatches the appropriate value to one
 of the supplied handlers: VALUE-HANDLER, STDOUT-HANDLER, STDERR-HANDLER,
@@ -1219,7 +1219,7 @@ up."
 (defun nrepl-server-sentinel (process event)
   "Handle nREPL server PROCESS EVENT.
 If the nREPL PROCESS failed to initiate and encountered a fatal EVENT
-signal, raise an 'error'.  Additionally, if the EVENT signal is SIGHUP,
+signal, raise an `error'.  Additionally, if the EVENT signal is SIGHUP,
 close any existing client connections."
   ;; only interested on fatal signals.
   (when (not (process-live-p process))

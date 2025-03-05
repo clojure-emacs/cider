@@ -249,7 +249,7 @@ Assuming this is the Clojure map you want to use as `cljfmt' options:
 
 you need to encode it as the following plist:
 
-  '((\"indents\" ((\"org.me/foo\" ((\"inner\" 0))))) (\"alias-map\" ((\"me\" \"org.me\"))))"
+  \\='((\"indents\" ((\"org.me/foo\" ((\"inner\" 0))))) (\"alias-map\" ((\"me\" \"org.me\"))))"
   :type 'list
   :group 'cider
   :package-version '(cider . "1.1.0"))
@@ -257,7 +257,7 @@ you need to encode it as the following plist:
 (defun cider--nrepl-format-code-request-map (&optional format-options)
   "Map to merge into requests that require code formatting.
 If non-nil, FORMAT-OPTIONS specifies the options cljfmt will use to format
-the code.  See `cider-format-code-options` for details."
+the code.  See `cider-format-code-options' for details."
   (when format-options
     (let* ((indents-dict (when (assoc "indents" format-options)
                            (thread-last
@@ -320,7 +320,7 @@ nil."
   "A map of options that will be passed to `cider-print-fn'.
 Here's an example for `pprint':
 
-  '((\"length\" 50) (\"right-margin\" 70))"
+  \\='((\"length\" 50) (\"right-margin\" 70))"
   :type 'list
   :group 'cider
   :package-version '(cider . "0.21.0"))
