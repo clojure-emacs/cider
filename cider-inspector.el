@@ -530,9 +530,13 @@ MAX-COLL-SIZE if non nil."
 (declare-function cider-set-buffer-ns "cider-mode")
 
 ;; Render Inspector from Structured Values
-(defun cider-inspector--render-value (response-dict)
-  "Render value in RESPONSE-DICT."
-  (let* ((value (nrepl-dict-get response-dict "value"))
+(defun cider-inspector--render-value (dict-or-value)
+  "Render DICT-OR-VALUE.
+It can either be a value directly or a inspector response that contains
+`value' field."
+  (let* ((value (if (nrepl-dict-p dict-or-value)
+                    (nrepl-dict-get dict-or-value "value")
+                  dict-or-value))
          (ns (cider-current-ns))
          (font-size (when-let* ((b (get-buffer cider-inspector-buffer))
                                 (variable 'text-scale-mode-amount)
