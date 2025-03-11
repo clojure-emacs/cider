@@ -5,6 +5,7 @@
 ### Changes
 
 - [#3777](https://github.com/clojure-emacs/cider/issues/3777): Inspector no longer displays parsed Javadoc for Java classes and members.
+- [#3784](https://github.com/clojure-emacs/cider/issues/3784): Inspector: make point less erratic when navigating between inspector screens.
 
 ## 1.17.1 (2025-02-25)
 
