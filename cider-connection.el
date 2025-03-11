@@ -938,6 +938,12 @@ function with the repl buffer set as current."
     (user-error "No %s REPLs in current session \"%s\""
                 type (car (sesman-current-session 'CIDER)))))
 
+(defvar-local cider--ancillary-buffer-repl nil
+  "Special buffer-local variable that contains reference to the REPL connection.
+This should be set in ancillary CIDER buffers that originate from some
+event (e.g. *cider-inspector*, *cider-error*) and which never change the
+REPL (connection) which produced them.")
+
 (defun cider-current-repl (&optional type ensure)
   "Get the most recent REPL of TYPE from the current session.
 TYPE is either clj, cljs, multi or any.
@@ -951,17 +957,18 @@ no linked session or there is no REPL of TYPE within the current session."
                  (eq cider-repl-type type)))
         ;; shortcut when in REPL buffer
         (current-buffer)
-      (let* ((type (or type (cider-repl-type-for-buffer)))
-             (repls (cider-repls type ensure))
-             (repl (if (<= (length repls) 1)
-                       (car repls)
-                     ;; pick the most recent one
-                     (seq-find (lambda (b)
-                                 (member b repls))
-                               (buffer-list)))))
-        (if (and ensure (null repl))
-            (cider--no-repls-user-error type)
-          repl)))))
+      (or cider--ancillary-buffer-repl
+          (let* ((type (or type (cider-repl-type-for-buffer)))
+                 (repls (cider-repls type ensure))
+                 (repl (if (<= (length repls) 1)
+                           (car repls)
+                         ;; pick the most recent one
+                         (seq-find (lambda (b)
+                                     (member b repls))
+                                   (buffer-list)))))
+            (if (and ensure (null repl))
+                (cider--no-repls-user-error type)
+              repl))))))
 
 (defun cider--match-repl-type (type buffer)
   "Return non-nil if TYPE matches BUFFER's REPL type."
