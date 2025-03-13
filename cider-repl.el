@@ -290,9 +290,8 @@ Run CALLBACK once the evaluation is complete."
   "Evaluate `cider-repl-init-code' in the current REPL.
 Run CALLBACK once the evaluation is complete."
   (interactive)
-  (let* ((request (map-merge 'hash-table
-                             (cider--repl-request-map fill-column)
-                             '(("inhibit-cider-middleware" "true")))))
+  (let* ((request `(,@(cider--repl-request-plist)
+                    "inhibit-cider-middleware" "true")))
     (cider-nrepl-request:eval
      ;; Ensure we evaluate _something_ so the initial namespace is correctly set
      (thread-first (or cider-repl-init-code '("nil"))
@@ -301,10 +300,7 @@ Run CALLBACK once the evaluation is complete."
      nil
      (line-number-at-pos (point))
      (cider-column-number-at-pos (point))
-     (thread-last
-       request
-       (map-pairs)
-       (seq-mapcat #'identity)))))
+     request)))
 
 (defun cider-repl-init (buffer &optional callback)
   "Initialize the REPL in BUFFER.
@@ -1083,15 +1079,13 @@ and responding to them.")
      (lambda (buffer warning)
        (cider-repl-emit-stderr buffer warning)))))
 
-(defun cider--repl-request-map (right-margin)
-  "Map to be merged into REPL eval requests.
-RIGHT-MARGIN is as in `cider--nrepl-print-request-map'."
-  (map-merge 'hash-table
-             (cider--nrepl-print-request-map right-margin)
-             (unless cider-repl-use-pretty-printing
-               '(("nrepl.middleware.print/print" "cider.nrepl.pprint/pr")))
-             (when cider-repl-use-content-types
-               (cider--nrepl-content-type-map))))
+(defun cider--repl-request-plist ()
+  "Plist to be merged into REPL eval requests."
+  `(,@(cider--nrepl-print-request-plist fill-column)
+    ,@(unless cider-repl-use-pretty-printing
+        `("nrepl.middleware.print/print" "cider.nrepl.pprint/pr"))
+    ,@(when cider-repl-use-content-types
+        `("content-type" "true"))))
 
 (defun cider-repl--send-input (&optional newline)
   "Go to the end of the input and send the current input.
@@ -1132,10 +1126,7 @@ If NEWLINE is true then add a newline at the end of the input."
          (cider-current-ns)
          (line-number-at-pos input-start)
          (cider-column-number-at-pos input-start)
-         (thread-last
-           (cider--repl-request-map fill-column)
-           (map-pairs)
-           (seq-mapcat #'identity)))))))
+         (cider--repl-request-plist))))))
 
 (defun cider-repl-return (&optional end-of-input)
   "Evaluate the current input string, or insert a newline.

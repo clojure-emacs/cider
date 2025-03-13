@@ -174,6 +174,16 @@ FUNCTION should be a function taking two arguments, key and value."
             (cons obj (car stack)))
           (cdr stack))))
 
+(defun nrepl--alist-to-plist (maybe-alist)
+  "Transform MAYBE-ALIST into a plist if it is an alist.
+Compatibility function for functions that used to accepts nrepl request
+options as alists.  A warning will be printed if alist is received."
+  (let ((first-arg (car-safe maybe-alist)))
+    (if (or (null first-arg) (not (listp first-arg)))
+        maybe-alist ;; It is a plist - don't have to convert
+      (warn "Received alist where it should have been plist: %s" maybe-alist)
+      (seq-mapcat #'identity maybe-alist))))
+
 (defun nrepl--merge (dict1 dict2 &optional no-join)
   "Join nREPL dicts DICT1 and DICT2 in a meaningful way.
 String values for non \"id\" and \"session\" keys are concatenated. Lists

@@ -272,14 +272,11 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
   "Display stacktrace for the erring NS VAR test with the assertion INDEX."
   (let (causes)
     (cider-nrepl-send-request
-     (thread-last
-       (map-merge 'list
-                  `(("op" "test-stacktrace")
-                    ("ns" ,ns)
-                    ("var" ,var)
-                    ("index" ,index))
-                  (cider--nrepl-print-request-map fill-column))
-       (seq-mapcat #'identity))
+     `("op" "test-stacktrace"
+       "ns" ,ns
+       "var" ,var
+       "index" ,index
+       ,@(cider--nrepl-print-request-plist fill-column))
      (lambda (response)
        (nrepl-dbind-response response (class status)
          (cond (class  (setq causes (cons response causes)))

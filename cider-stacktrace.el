@@ -931,14 +931,6 @@ through the `cider-stacktrace-suppressed-errors' variable."
   "Return the Cider NREPL op to analyze STACKTRACE."
   (list "op" "analyze-stacktrace" "stacktrace" stacktrace))
 
-(defun cider-stacktrace--stacktrace-request (stacktrace)
-  "Return the Cider NREPL request to analyze STACKTRACE."
-  (thread-last
-    (map-merge 'list
-               (list (cider-stacktrace--analyze-stacktrace-op stacktrace))
-               (cider--nrepl-print-request-map fill-column))
-    (seq-mapcat #'identity)))
-
 (defun cider-stacktrace--analyze-render (causes)
   "Render the CAUSES of the stacktrace analysis result."
   (let ((buffer (get-buffer-create cider-error-buffer)))
@@ -953,7 +945,9 @@ through the `cider-stacktrace-suppressed-errors' variable."
     (set-text-properties 0 (length stacktrace) nil stacktrace))
   (let (causes)
     (cider-nrepl-send-request
-     (cider-stacktrace--stacktrace-request stacktrace)
+     `("op" "analyze-stacktrace"
+       "stacktrace" ,stacktrace
+       ,@(cider--nrepl-print-request-plist fill-column))
      (lambda (response)
        (setq causes (nrepl-dbind-response response (class status)
                       (cond (class (cons response causes))

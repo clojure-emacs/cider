@@ -282,13 +282,11 @@ It will not be used if the package hasn't been installed."
   "Format the log EVENT from the APPENDER of the log FRAMEWORK."
   (cider-ensure-op-supported "cider/log-format-event")
   (thread-first
-    (seq-mapcat #'identity
-                (map-merge 'list
-                           (cider--nrepl-print-request-map fill-column)
-                           `(("op" "cider/log-format-event")
-                             ("framework" ,(cider-log-framework-id framework))
-                             ("appender" ,(cider-log-appender-id appender))
-                             ("event" ,(cider-log-event-id event)))))
+    `("op" "cider/log-format-event"
+      "framework" ,(cider-log-framework-id framework)
+      "appender" ,(cider-log-appender-id appender)
+      "event" ,(cider-log-event-id event)
+      ,@(cider--nrepl-print-request-plist fill-column))
     (cider-nrepl-send-sync-request)
     (nrepl-dict-get "cider/log-format-event")))
 
