@@ -237,15 +237,14 @@ Its behavior is controlled by `cider-ns-save-files-on-refresh' and
 (defun cider-ns--reload-op (op-name)
   "Return the reload operation to use.
 Based on OP-NAME and the value of cider-ns-code-reload-tool defcustom."
-  (list "op"
-        (if (eq cider-ns-code-reload-tool 'tools.namespace)
-            (cond ((string= op-name "reload")       "refresh")
-                  ((string= op-name "reload-all")   "refresh-all")
-                  ((string= op-name "reload-clear") "refresh-clear"))
+  (if (eq cider-ns-code-reload-tool 'tools.namespace)
+      (cond ((string= op-name "reload")       "refresh")
+            ((string= op-name "reload-all")   "refresh-all")
+            ((string= op-name "reload-clear") "refresh-clear"))
 
-          (cond ((string= op-name "reload")       "cider.clj-reload/reload")
-                ((string= op-name "reload-all")   "cider.clj-reload/reload-all")
-                ((string= op-name "reload-clear") "cider.clj-reload/reload-clear")))))
+    (cond ((string= op-name "reload")       "cider.clj-reload/reload")
+          ((string= op-name "reload-all")   "cider.clj-reload/reload-all")
+          ((string= op-name "reload-clear") "cider.clj-reload/reload-clear"))))
 
 ;;;###autoload
 (defun cider-ns-reload (&optional prompt)
@@ -317,17 +316,14 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
                                           nil
                                           t))
           (when clear?
-            (cider-nrepl-send-sync-request (cider-ns--reload-op "reload-clear") conn))
+            (cider-nrepl-send-sync-request `("op" ,(cider-ns--reload-op "reload-clear")) conn))
           (cider-nrepl-send-request
-           (thread-last
-             (map-merge 'list
-                        `(,(cider-ns--reload-op (if all? "reload-all" "reload")))
-                        (cider--nrepl-print-request-map fill-column)
-                        (when (and (not inhibit-refresh-fns) cider-ns-refresh-before-fn)
-                          `(("before" ,cider-ns-refresh-before-fn)))
-                        (when (and (not inhibit-refresh-fns) cider-ns-refresh-after-fn)
-                          `(("after" ,cider-ns-refresh-after-fn))))
-             (seq-mapcat #'identity))
+           `("op" ,(cider-ns--reload-op (if all? "reload-all" "reload"))
+             ,@(cider--nrepl-print-request-plist fill-column)
+             ,@(when (and (not inhibit-refresh-fns) cider-ns-refresh-before-fn)
+                 `("before" ,cider-ns-refresh-before-fn))
+             ,@(when (and (not inhibit-refresh-fns) cider-ns-refresh-after-fn)
+                 `("after" ,cider-ns-refresh-after-fn)))
            (lambda (response)
              (cider-ns-refresh--handle-response response log-buffer))
            conn))))))

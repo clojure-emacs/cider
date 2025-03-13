@@ -143,11 +143,8 @@ configure `cider-debug-prompt' instead."
 (defun cider--debug-init-connection ()
   "Initialize a connection with the cider.debug middleware."
   (cider-nrepl-send-request
-   (thread-last
-     (map-merge 'list
-                '(("op" "init-debugger"))
-                (cider--nrepl-print-request-map fill-column))
-     (seq-mapcat #'identity))
+   `("op" "init-debugger"
+     ,@(cider--nrepl-print-request-plist fill-column))
    #'cider--debug-response-handler))
 
 

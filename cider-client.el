@@ -254,7 +254,7 @@ you need to encode it as the following plist:
   :group 'cider
   :package-version '(cider . "1.1.0"))
 
-(defun cider--nrepl-format-code-request-map (&optional format-options)
+(defun cider--nrepl-format-code-request-options (&optional format-options)
   "Map to merge into requests that require code formatting.
 If non-nil, FORMAT-OPTIONS specifies the options cljfmt will use to format
 the code.  See `cider-format-code-options' for details."
@@ -271,15 +271,11 @@ the code.  See `cider-format-code-options' for details."
                                (map-pairs)
                                (seq-mapcat #'identity)
                                (apply #'nrepl-dict)))))
-      (thread-last
-        (map-merge 'list
-                   (when indents-dict
-                     `(("indents" ,indents-dict)))
-                   (when alias-map-dict
-                     `(("alias-map" ,alias-map-dict))))
-        (map-pairs)
-        (seq-mapcat #'identity)
-        (apply #'nrepl-dict)))))
+      (nrepl-dict
+       `(,@(when indents-dict
+             `("indents" ,indents-dict))
+         ,@(when alias-map-dict
+             `("alias-map" ,alias-map-dict)))))))
 
 (defcustom cider-print-fn 'pprint
   "Sets the function to use for printing.
@@ -388,7 +384,7 @@ The result will be a string."
          (result (cdr (assoc printer (cadr (assoc name cider--print-options-mapping))))))
     (symbol-name (or result name))))
 
-(defun cider--nrepl-print-request-map (&optional right-margin)
+(defun cider--nrepl-print-request-plist (&optional right-margin)
   "Map to merge into requests that require pretty-printing.
 RIGHT-MARGIN specifies the maximum column-width of the printed result, and
 is included in the request if non-nil."
@@ -400,35 +396,29 @@ is included in the request if non-nil."
                           (map-pairs)
                           (seq-mapcat #'identity)
                           (apply #'nrepl-dict))))
-    (map-merge 'list
-               `(("nrepl.middleware.print/stream?" "1"))
-               (when cider-print-fn
-                 `(("nrepl.middleware.print/print" ,(cider--print-fn))))
-               (when cider-print-quota
-                 `(("nrepl.middleware.print/quota" ,cider-print-quota)))
-               (when cider-print-buffer-size
-                 `(("nrepl.middleware.print/buffer-size" ,cider-print-buffer-size)))
-               (unless (nrepl-dict-empty-p print-options)
-                 `(("nrepl.middleware.print/options" ,print-options))))))
+    `("nrepl.middleware.print/stream?" "1"
+      ,@(when cider-print-fn
+          `("nrepl.middleware.print/print" ,(cider--print-fn)))
+      ,@(when cider-print-quota
+          `("nrepl.middleware.print/quota" ,cider-print-quota))
+      ,@(when cider-print-buffer-size
+          `("nrepl.middleware.print/buffer-size" ,cider-print-buffer-size))
+      ,@(unless (nrepl-dict-empty-p print-options)
+          `("nrepl.middleware.print/options" ,print-options)))))
 
-(defun cider--nrepl-pr-request-map ()
+(defun cider--nrepl-pr-request-plist ()
   "Map to merge into requests that do not require pretty printing."
   (let ((print-options (thread-last
                          cider-print-options
                          (map-pairs)
                          (seq-mapcat #'identity)
                          (apply #'nrepl-dict))))
-    (map-merge 'list
-               `(("nrepl.middleware.print/print" "cider.nrepl.pprint/pr")
-                 ("nrepl.middleware.print/stream?" nil))
-               (unless (nrepl-dict-empty-p print-options)
-                 `(("nrepl.middleware.print/options" ,print-options)))
-               (when cider-print-quota
-                 `(("nrepl.middleware.print/quota" ,cider-print-quota))))))
-
-(defun cider--nrepl-content-type-map ()
-  "Map to be merged into an eval request to make it use content-types."
-  '(("content-type" "true")))
+    `("nrepl.middleware.print/print" "cider.nrepl.pprint/pr"
+      "nrepl.middleware.print/stream?" nil
+      ,@(unless (nrepl-dict-empty-p print-options)
+          `("nrepl.middleware.print/options" ,print-options))
+      ,@(when cider-print-quota
+          `("nrepl.middleware.print/quota" ,cider-print-quota)))))
 
 (defun cider-tooling-eval (input callback &optional ns connection)
   "Send the request INPUT to CONNECTION and register the CALLBACK.
@@ -877,7 +867,7 @@ The result entries are relative to the classpath."
   "Perform nREPL \"format-code\" op with CODE.
 FORMAT-OPTIONS is an optional configuration map for cljfmt."
   (let* ((request `("op" "format-code"
-                    "options" ,(cider--nrepl-format-code-request-map format-options)
+                    "options" ,(cider--nrepl-format-code-request-options format-options)
                     "code" ,code))
          (response (cider-nrepl-send-sync-request request))
          (err (nrepl-dict-get response "err")))
@@ -889,12 +879,9 @@ FORMAT-OPTIONS is an optional configuration map for cljfmt."
 
 (defun cider-sync-request:format-edn (edn right-margin)
   "Perform \"format-edn\" op with EDN and RIGHT-MARGIN."
-  (let* ((request (thread-last
-                    (map-merge 'list
-                               `(("op" "format-edn")
-                                 ("edn" ,edn))
-                               (cider--nrepl-print-request-map right-margin))
-                    (seq-mapcat #'identity)))
+  (let* ((request `("op" "format-edn"
+                    "edn" ,edn
+                    ,@(cider--nrepl-print-request-plist right-margin)))
          (response (cider-nrepl-send-sync-request request))
          (err (nrepl-dict-get response "err")))
     (when err
