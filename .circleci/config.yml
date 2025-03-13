@@ -54,13 +54,15 @@ commands:
           command: eldev -dtT compile --warnings-as-errors
 
 jobs:
-  test-ubuntu-emacs-27:
-    docker:
-      - image: silex/emacs:27-ci
-        entrypoint: bash
-    steps:
-      - setup
-      - test
+  # NB: commented until https://github.com/magit/transient/issues/368 or
+  # whatever is causing it is fixed.
+  # test-ubuntu-emacs-27:
+  #   docker:
+  #     - image: silex/emacs:27-ci
+  #       entrypoint: bash
+  #   steps:
+  #     - setup
+  #     - test
 
   test-ubuntu-emacs-28:
     docker:
@@ -132,10 +134,10 @@ workflows:
     jobs:
       - test-shellcheck
       - test-lint
-      - test-ubuntu-emacs-27:
-          requires:
-            - test-lint
-            - test-shellcheck
+      # - test-ubuntu-emacs-27:
+      #     requires:
+      #       - test-lint
+      #       - test-shellcheck
       - test-ubuntu-emacs-28:
           requires:
             - test-lint
