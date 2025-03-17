@@ -245,17 +245,18 @@ currently selected buffer."
               '(t always only-in-repl)
             '(t always except-in-repl)))))
 
-(defun cider-new-error-buffer (&optional mode error-types)
+(defun cider-new-error-buffer (&optional mode error-types dont-show)
   "Return an empty error buffer using MODE.
 
 When deciding whether to display the buffer, takes into account not only
 the value of `cider-show-error-buffer' and the currently selected buffer
 but also the ERROR-TYPES of the error, which is checked against the
-`cider-stacktrace-suppressed-errors' set.
+`cider-stacktrace-suppressed-errors' set, and the value of DONT-SHOW.
 
 When deciding whether to select the buffer, takes into account the value of
 `cider-auto-select-error-buffer'."
   (if (and (cider--show-error-buffer-p)
+           (not dont-show)
            (not (cider-stacktrace-some-suppressed-errors-p error-types)))
       (cider-popup-buffer cider-error-buffer cider-auto-select-error-buffer mode 'ancillary)
     (cider-make-popup-buffer cider-error-buffer mode 'ancillary)))
@@ -294,13 +295,16 @@ When clojure.stracktrace is not present."
    (cider-nrepl-sync-request:eval
     "(println (ex-data *e))")))
 
-(defun cider--render-stacktrace-causes (causes &optional error-types)
+(defun cider--render-stacktrace-causes (causes &optional error-types is-compilation)
   "If CAUSES is non-nil, render its contents into a new error buffer.
 Optional argument ERROR-TYPES contains a list which should determine the
-op/situation that originated this error."
+op/situation that originated this error.
+If IS-COMPILATION is true, render the stacktrace into the error buffer but
+don't bring it forward."
   (when causes
-    (let ((error-buffer (cider-new-error-buffer #'cider-stacktrace-mode error-types)))
-      (cider-stacktrace-render error-buffer (reverse causes) error-types))))
+    (let ((error-buffer (cider-new-error-buffer #'cider-stacktrace-mode
+                                                error-types is-compilation)))
+      (cider-stacktrace-render error-buffer causes error-types))))
 
 (defconst cider-clojure-compilation-error-phases-default-value
   '("read-source"
@@ -336,40 +340,79 @@ https://clojure.org/reference/repl_and_main#_at_repl"
       cider-clojure-compilation-error-phases-default-value
     cider-clojure-compilation-error-phases))
 
-(defun cider--handle-stacktrace-response (response causes ex-phase)
-  "Handle stacktrace RESPONSE, aggregate the result into CAUSES, honor EX-PHASE.
-If RESPONSE contains a cause, cons it onto CAUSES and return that.  If
-RESPONSE is the final message (i.e. it contains a status), render CAUSES
-into a new error buffer."
-  (nrepl-dbind-response response (class msg status type)
-    (cond ((and (member "notification" status) causes)
-           (nrepl-notify msg type))
-          (class (cons response causes))
-          (status
-           (unless (member ex-phase (cider-clojure-compilation-error-phases))
-             (cider--render-stacktrace-causes causes))))))
+(defun cider--display-error-unobtrusively (buffer err)
+  "Display ERR as a minibuffer message and/or as a temporary overlay in BUFFER."
+  (let ((cider-result-use-clojure-font-lock nil)
+        (trimmed-err (funcall cider-inline-error-message-function err)))
+    (with-current-buffer buffer
+      (cider--display-interactive-eval-result trimmed-err
+                                              'error
+                                              (save-excursion (end-of-line) (point))
+                                              'cider-error-overlay-face))))
 
-(defun cider-default-err-op-handler ()
-  "Display the last exception, with middleware support."
+(defun cider--handle-stacktrace-response (causes ex-phase source-buffer)
+  "Handle stacktrace response provided as aggregated CAUSES.
+For EX-PHASE that represents compilation errors, don't show *cider-error*
+buffer but render an error overlay instead in the SOURCE-BUFFER.
+For others, pop up *cider-error* buffer."
+  ;; Handle special "notification" server messages.
+  (dolist (cause causes)
+    (nrepl-dbind-response cause (msg status type)
+      (when (member "notification" status)
+        (nrepl-notify msg type))))
+  ;; Render stacktrace in *cider-error* buffer if it is a runtime error.
+  (cider--render-stacktrace-causes
+   causes nil (member ex-phase (cider-clojure-compilation-error-phases)))
+  ;; If the error is a compilation error (which we normally don't show
+  ;; *cider-error* buffer for), or the error buffer is disabled, compensate for
+  ;; the lack of info with a overlay error. Verify that the provided buffer is
+  ;; not a REPL buffer but either visits a Clojure source file or is
+  ;; e.g. cider-scratch.
+  (when (and source-buffer
+             (with-current-buffer source-buffer
+               (or (cider-clojure-major-mode-p)
+                   (cider-clojurec-major-mode-p)
+                   (cider-clojurescript-major-mode-p)))
+             (or (member ex-phase (cider-clojure-compilation-error-phases))
+                 (not (cider--show-error-buffer-p))
+                 (not (cider-connection-has-capability-p 'jvm-compilation-errors))))
+    ;; Search if any of the received causes contains a "triage" field. Append it
+    ;; to the inline error message if found.
+    (let* ((triage (seq-some (lambda (cause) (nrepl-dict-get cause "triage")) causes))
+           (err-message (mapconcat (lambda (cause) (nrepl-dict-get cause "message"))
+                                   causes "\n"))
+           (err-message (if triage
+                            (concat err-message "\n" triage)
+                          err-message)))
+      (cider--display-error-unobtrusively source-buffer err-message))))
+
+(defun cider--analyze-last-stacktrace (callback)
+  "Send `analyze-last-stacktrace' to server and invoke CALLBACK on the result.
+Accumulates a list of causes and then calls CALLBACK on causes and phase."
   ;; Causes are returned as a series of messages, which we aggregate in `causes'
   (let (causes ex-phase)
     (cider-nrepl-send-request
-     `("op" "analyze-last-stacktrace"
-       ,@(cider--nrepl-print-request-plist fill-column))
+     `("op" "analyze-last-stacktrace")
      (lambda (response)
-       (nrepl-dbind-response response (phase)
-         (when phase
-           (setq ex-phase phase)))
-       ;; While the return value of `cider--handle-stacktrace-response' is not
-       ;; meaningful for the last message, we do not need the value of `causes'
-       ;; after it has been handled, so it's fine to set it unconditionally here
-       (setq causes (cider--handle-stacktrace-response response causes ex-phase))))))
+       (nrepl-dbind-response response (status phase)
+         (if (member "done" status)
+             (funcall callback causes ex-phase)
+           (when phase
+             (setq ex-phase phase))
+           (setq causes (append causes (list response)))))))))
 
-(defun cider-default-err-handler ()
+(defun cider-default-err-op-handler (buffer)
+  "Display the last exception, with middleware support.
+Show error overlay in BUFFER if needed."
+  (cider--analyze-last-stacktrace
+   (lambda (causes phase) (cider--handle-stacktrace-response causes phase buffer))))
+
+(defun cider-default-err-handler (&optional buffer)
   "This function determines how the error buffer is shown.
-It delegates the actual error content to the eval or op handler."
+It delegates the actual error content to the eval or op handler.
+Show error overlay in BUFFER if needed."
   (cond ((cider-nrepl-op-supported-p "analyze-last-stacktrace")
-         (cider-default-err-op-handler))
+         (cider-default-err-op-handler buffer))
         ((cider-library-present-p "clojure.stacktrace")
          (cider-default-err-eval-handler))
         (t (cider-default-err-eval-print-handler))))
@@ -410,8 +453,6 @@ It delegates the actual error content to the eval or op handler."
     " - ")
   "Regexp matching various non-error messages, e.g. reflection warnings.")
 
-;; Please keep this in sync with `cider-clojure-compilation-error-regexp',
-;; which is a subset of these regexes.
 (defconst cider-clojure-compilation-regexp
   (rx-to-string
    `(seq bol (or ,cider--clojure-warning
@@ -419,17 +460,6 @@ It delegates the actual error content to the eval or op handler."
    'nogroup)
   "A few example values that will match:
 \"Reflection warning, /tmp/foo/src/foo/core.clj:14:1 - \"
-\"Syntax error compiling at (src/workspace_service.clj:227:3).\"
-\"Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1).\"")
-
-(defconst cider-clojure-compilation-error-regexp
-  (rx-to-string
-   `(seq bol ,cider--clojure-1.10-error)
-   'nogroup)
-  "Like `cider-clojure-compilation-regexp',
-but excluding warnings such as reflection warnings.
-
-A few example values that will match:
 \"Syntax error compiling at (src/workspace_service.clj:227:3).\"
 \"Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1).\"")
 
@@ -447,18 +477,6 @@ A few example values that will match:
     (minimal-match (one-or-more anything))
     " "
     ,cider--clojure-1.10-location))
-
-(defconst cider-clojure-runtime-error-regexp
-  (rx-to-string
-   `(seq bol (or ,cider--clojure-execution-error
-                 ,cider--clojure-spec-execution-error))
-   'nogroup)
-  "Matches runtime errors, as oppsed to compile-time/macroexpansion-time errors.
-
-A few example values that will match:
-
-\"Execution error (ArithmeticException) at foo/foo (src/haystack/parser.cljc:4).\"
-\"Execution error - invalid arguments to foo/bar at (src/haystack/parser.cljc:4).\"")
 
 (defconst cider-module-info-regexp
   (rx " ("
@@ -526,45 +544,47 @@ until we find a delimiters that's not inside a string."
                (nth 3 (syntax-ppss)))
       (backward-char))))
 
-(defun cider--find-last-error-location (message)
-  "Return the location (begin end buffer) from the Clojure error MESSAGE.
+(defun cider--find-last-error-location (error-info)
+  "Return the location (begin end buffer) from the parsed ERROR-INFO.
 If location could not be found, return nil."
   (save-excursion
-    (let ((info (cider-extract-error-info cider-compilation-regexp message)))
-      (when info
-        (let ((file (nth 0 info))
-              (line (nth 1 info))
-              (col (nth 2 info)))
-          (unless (or (not (stringp file))
-                      (cider--tooling-file-p file))
-            (when-let* ((buffer (cider-find-file file)))
-              (with-current-buffer buffer
-                (save-excursion
-                  (save-restriction
-                    (widen)
-                    (goto-char (point-min))
-                    (forward-line (1- line))
-                    (move-to-column (or col 0))
-                    ;; if this condition is false, it means that `col` was a spuriously large value,
-                    ;; therefore the whole calculation should be discarded:
-                    (when (or (not col) ;; if there's no col info, we cannot judge if it's spurious/not
-                              ;; (current-column) never goes past the last column in the actual line,
-                              ;; so if it's <, then the message had spurious info:
-                              (>= (1+ (current-column))
-                                  col))
-                      (let ((begin (progn (if col (cider--goto-expression-start) (back-to-indentation))
-                                          (point)))
-                            (end (progn (if col (forward-list) (move-end-of-line nil))
-                                        (point))))
-                        (list begin end buffer)))))))))))))
+    (when error-info
+      (let ((file (nth 0 error-info))
+            (line (nth 1 error-info))
+            (col (nth 2 error-info)))
+        (unless (or (not (stringp file))
+                    (cider--tooling-file-p file))
+          (when-let* ((buffer (cider-find-file file)))
+            (with-current-buffer buffer
+              (save-excursion
+                (save-restriction
+                  (widen)
+                  (goto-char (point-min))
+                  (forward-line (1- line))
+                  (move-to-column (or col 0))
+                  ;; if this condition is false, it means that `col` was a spuriously large value,
+                  ;; therefore the whole calculation should be discarded:
+                  (when (or (not col) ;; if there's no col info, we cannot judge if it's spurious/not
+                            ;; (current-column) never goes past the last column in the actual line,
+                            ;; so if it's <, then the message had spurious info:
+                            (>= (1+ (current-column))
+                                col))
+                    (let ((begin (progn (if col (cider--goto-expression-start) (back-to-indentation))
+                                        (point)))
+                          (end (progn (if col (forward-list) (move-end-of-line nil))
+                                      (point))))
+                      (list begin end buffer))))))))))))
 
 (defun cider-handle-compilation-errors (message eval-buffer &optional no-jump)
-  "Highlight and jump to compilation error extracted from MESSAGE, honor NO-JUMP.
-EVAL-BUFFER is the buffer that was current during user's interactive
-evaluation command.  Honor `cider-auto-jump-to-error'."
-  (when-let* ((loc (cider--find-last-error-location message))
-              (overlay (make-overlay (nth 0 loc) (nth 1 loc) (nth 2 loc)))
-              (info (cider-extract-error-info cider-compilation-regexp message)))
+  "Parse a possible compiler error MESSAGE and highlight it in EVAL-BUFFER.
+If MESSAGE is an error or warning from the compiler, parse the location
+data from the message and put an overlay on the given location in the code
+buffer.
+If `cider-auto-jump-to-error' is enabled and not NO-JUMP, jump to the
+parsed location."
+  (when-let* ((info (cider-extract-error-info cider-compilation-regexp message))
+              (loc (cider--find-last-error-location info))
+              (overlay (make-overlay (nth 0 loc) (nth 1 loc) (nth 2 loc))))
     (let* ((face (nth 3 info))
            (note (nth 4 info))
            (auto-jump (unless no-jump
@@ -593,17 +613,16 @@ evaluation command.  Honor `cider-auto-jump-to-error'."
 
 
 ;;; Interactive evaluation handlers
-(defun cider-insert-eval-handler (&optional buffer bounds source-buffer on-success-callback)
+(defun cider-insert-eval-handler (&optional buffer _bounds source-buffer on-success-callback)
   "Make an nREPL evaluation handler for the BUFFER,
-BOUNDS representing the buffer bounds of the evaled input,
+_BOUNDS representing the buffer bounds of the evaled input,
 SOURCE-BUFFER the original buffer,
 and ON-SUCCESS-CALLBACK an optional callback.
 
 The handler simply inserts the result value in BUFFER."
   (let ((eval-buffer (current-buffer))
         (res "")
-        (failed nil)
-        (error-phase-requested nil)) ;; avoid requesting the phase more than once - can happen if there are errors during the phase nrepl sync request.
+        (failed nil))
     (nrepl-make-response-handler (or buffer eval-buffer)
                                  ;; value handler:
                                  (lambda (_buffer value)
@@ -616,27 +635,20 @@ The handler simply inserts the result value in BUFFER."
                                    (cider-repl-emit-interactive-stdout out))
                                  ;; stderr handler:
                                  (lambda (_buffer err)
-                                   (setq failed t)
-                                   (when (and source-buffer
-                                              (listp bounds)) ;; if it's a list, it represents bounds, otherwise it's a string (code) and we can't display the overlay
-                                     (with-current-buffer source-buffer
-                                       (let* ((phase (if error-phase-requested
-                                                         nil
-                                                       (setq error-phase-requested t)
-                                                       (cider--error-phase-of-last-exception buffer)))
-                                              (end (or (car-safe (cdr-safe bounds)) bounds))
-                                              (end (when end
-                                                     (copy-marker end))))
-                                         (cider--maybe-display-error-as-overlay phase err end))))
-
-                                   (cider-handle-compilation-errors err eval-buffer))
+                                   (cider-repl-emit-interactive-stderr err)
+                                   ;; Don't jump
+                                   (cider-handle-compilation-errors err eval-buffer t))
                                  ;; done handler:
                                  (lambda (_buffer)
                                    (when cider-eval-register
                                      (set-register cider-eval-register res))
                                    (when (and (not failed)
                                               on-success-callback)
-                                     (funcall on-success-callback))))))
+                                     (funcall on-success-callback)))
+                                 ;; eval-error handler
+                                 (lambda (_buffer)
+                                   (setq failed t)
+                                   (funcall nrepl-err-handler source-buffer)))))
 
 (defun cider--emit-interactive-eval-output (output repl-emit-function)
   "Emit output resulting from interactive code evaluation.
@@ -681,21 +693,6 @@ REPL buffer.  This is controlled via
             (cider--make-fringe-overlay (point)))
         (scan-error nil)))))
 
-(defun cider--error-phase-of-last-exception (buffer)
-  "Returns the :phase of the latest exception associated to BUFFER, if any."
-  (when (cider-clojure-compilation-error-phases)
-    (when-let ((conn (with-current-buffer buffer
-                       (cider-current-repl))))
-      (when (cider-nrepl-op-supported-p "analyze-last-stacktrace" conn)
-        (let ((nrepl-sync-request-timeout 4)) ;; ensure that this feature cannot possibly create an overly laggy UX
-          (when-let* ((result (nrepl-send-sync-request
-                               `("op" "analyze-last-stacktrace"
-                                 ,@(cider--nrepl-print-request-plist fill-column))
-                               conn
-                               'abort-on-input ;; favor responsiveness over this feature, in case something went wrong.
-                               )))
-            (nrepl-dict-get result "phase")))))))
-
 (defcustom cider-inline-error-message-function #'cider--shorten-error-message
   "A function that will shorten a given error message,
 as shown in overlays / the minibuffer (per `cider-use-overlays').
@@ -716,30 +713,6 @@ and the suffix matched by `cider-module-info-regexp'."
                                          "")
                (string-trim)))
 
-(defun cider--maybe-display-error-as-overlay (phase err end)
-  "Possibly display ERR as an overlay honoring END,
-depending on the PHASE."
-  (when (and (or
-              ;; if we won't show *cider-error*, because of configuration, the overlay is adequate because it compensates for the lack of info in a compact manner:
-              (not cider-show-error-buffer)
-              (not (cider-connection-has-capability-p 'jvm-compilation-errors))
-              ;; if we won't show *cider-error*, because of an ignored phase, the overlay is adequate:
-              (and cider-show-error-buffer
-                   (member phase (cider-clojure-compilation-error-phases))))
-             ;; Only show overlays for things that do look like an exception (#3587):
-             ;; Note: only applicable to JVM Clojure error messages (#3687)
-             (if (cider-runtime-clojure-p)
-                 (or (string-match-p cider-clojure-runtime-error-regexp err)
-                     (string-match-p cider-clojure-compilation-error-regexp err))
-               t))
-    ;; Display errors as temporary overlays
-    (let ((cider-result-use-clojure-font-lock nil)
-          (trimmed-err (funcall cider-inline-error-message-function err)))
-      (cider--display-interactive-eval-result trimmed-err
-                                              'error
-                                              end
-                                              'cider-error-overlay-face))))
-
 (declare-function cider-inspect-last-result "cider-inspector")
 (defun cider-interactive-eval-handler (&optional buffer place)
   "Make an interactive eval handler for BUFFER.
@@ -755,58 +728,48 @@ when `cider-auto-inspect-after-eval' is non-nil."
          (beg (when beg (copy-marker beg)))
          (end (when end (copy-marker end)))
          (fringed nil)
-         (res "")
-         (error-phase-requested nil)) ;; avoid requesting the phase more than once - can happen if there are errors during the phase nrepl sync request.
-    (nrepl-make-response-handler (or buffer eval-buffer)
-                                 ;; value handler:
-                                 (lambda (_buffer value)
-                                   (setq res (concat res value))
-                                   (cider--display-interactive-eval-result res 'value end))
-                                 ;; stdout handler:
-                                 (lambda (_buffer out)
-                                   (cider-emit-interactive-eval-output out))
-                                 ;; stderr handler:
-                                 (lambda (buffer err)
-                                   (cider-emit-interactive-eval-err-output err)
-
-                                   (let ((phase (if error-phase-requested
-                                                    nil
-                                                  (setq error-phase-requested t)
-                                                  (cider--error-phase-of-last-exception buffer))))
-
-                                     (cider--maybe-display-error-as-overlay phase err end)
-
-                                     (cider-handle-compilation-errors err
-                                                                      eval-buffer
-                                                                      ;; we prevent jumping behavior on compilation errors,
-                                                                      ;; because lines tend to be spurious (e.g. 0:0)
-                                                                      ;; and because on compilation errors, normally
-                                                                      ;; the error is 'right there' in the current line
-                                                                      ;; and needs no jumping:
-                                                                      phase)))
-                                 ;; done handler:
-                                 (lambda (buffer)
-                                   (if beg
-                                       (unless fringed
-                                         (cider--make-fringe-overlays-for-region beg end)
-                                         (setq fringed t))
-                                     (cider--make-fringe-overlay end))
-                                   (when (and cider-auto-inspect-after-eval
-                                              (boundp 'cider-inspector-buffer)
-                                              (windowp (get-buffer-window cider-inspector-buffer 'visible)))
-                                     (cider-inspect-last-result)
-                                     (select-window (get-buffer-window buffer)))
-                                   (when cider-eval-register
-                                     (set-register cider-eval-register res))))))
+         (res ""))
+    (nrepl-make-response-handler
+     (or buffer eval-buffer)
+     ;; value handler:
+     (lambda (_buffer value)
+       (setq res (concat res value))
+       (cider--display-interactive-eval-result res 'value end))
+     ;; stdout handler:
+     (lambda (_buffer out)
+       (cider-emit-interactive-eval-output out))
+     ;; stderr handler:
+     (lambda (_buffer err)
+       (cider-emit-interactive-eval-err-output err)
+       (cider-handle-compilation-errors
+        err eval-buffer
+        ;; Disable jumping behavior when compiling a single form because
+        ;; lines tend to be spurious (e.g. 0:0) and the jump brings us to
+        ;; the beginning of the same form anyway.
+        t))
+     ;; done handler:
+     (lambda (buffer)
+       (if beg
+           (unless fringed
+             (cider--make-fringe-overlays-for-region beg end)
+             (setq fringed t))
+         (cider--make-fringe-overlay end))
+       (when (and cider-auto-inspect-after-eval
+                  (boundp 'cider-inspector-buffer)
+                  (windowp (get-buffer-window cider-inspector-buffer 'visible)))
+         (cider-inspect-last-result)
+         (select-window (get-buffer-window buffer)))
+       (when cider-eval-register
+         (set-register cider-eval-register res))))))
 
 
 (defun cider-load-file-handler (&optional buffer done-handler)
   "Make a load file handler for BUFFER.
 Optional argument DONE-HANDLER lambda will be run once load is complete."
   (let ((eval-buffer (current-buffer))
-        (res "")
-        (error-phase-requested nil)) ;; avoid requesting the phase more than once - can happen if there are errors during the phase nrepl sync request.
+        (res ""))
     (nrepl-make-response-handler (or buffer eval-buffer)
+                                 ;; value
                                  (lambda (buffer value)
                                    (cider--display-interactive-eval-result value 'value)
                                    (when cider-eval-register
@@ -815,31 +778,19 @@ Optional argument DONE-HANDLER lambda will be run once load is complete."
                                      (with-current-buffer buffer
                                        (cider--make-fringe-overlays-for-region (point-min) (point-max))
                                        (run-hooks 'cider-file-loaded-hook))))
+                                 ;; stdout
                                  (lambda (_buffer value)
                                    (cider-emit-interactive-eval-output value))
+                                 ;; stderr
                                  (lambda (_buffer err)
                                    (cider-emit-interactive-eval-err-output err)
-                                   ;; 1.- Jump to the error line:
-                                   (cider-handle-compilation-errors err eval-buffer)
-                                   (with-current-buffer eval-buffer
-                                     (let* ((phase (if error-phase-requested
-                                                       nil
-                                                     (setq error-phase-requested t)
-                                                     (cider--error-phase-of-last-exception buffer)))
-                                            ;; 2.- Calculate the overlay position, which is the point (per the previous jump),
-                                            ;;     and then end-of-line (for ensuring the overlay will be rendered properly):
-                                            (end (save-excursion
-                                                   (when (equal cider-result-overlay-position 'at-eol)
-                                                     (end-of-line))
-                                                   (point))))
-                                       (cider--maybe-display-error-as-overlay phase err end))))
+                                   (cider-handle-compilation-errors err eval-buffer))
+                                 ;; done
                                  (lambda (buffer)
                                    (when cider-eval-register
                                      (set-register cider-eval-register res))
                                    (when done-handler
-                                     (funcall done-handler buffer)))
-                                 (lambda ()
-                                   (funcall nrepl-err-handler)))))
+                                     (funcall done-handler buffer))))))
 
 (defun cider-eval-print-handler (&optional buffer)
   "Make a handler for evaluating and printing result in BUFFER."
@@ -926,16 +877,15 @@ COMMENT-POSTFIX is the text to output after the last line."
      (lambda (_buffer warning)
        (setq res (concat res warning))))))
 
-(defun cider-popup-eval-handler (&optional buffer bounds source-buffer)
+(defun cider-popup-eval-handler (&optional buffer _bounds _source-buffer)
   "Make a handler for printing evaluation results in popup BUFFER,
-BOUNDS representing the buffer bounds of the evaled input,
-and SOURCE-BUFFER the original buffer
+_BOUNDS representing the buffer bounds of the evaled input,
+and _SOURCE-BUFFER the original buffer
 
 This is used by pretty-printing commands."
   ;; NOTE: cider-eval-register behavior is not implemented here for performance reasons.
   ;; See https://github.com/clojure-emacs/cider/pull/3162
-  (let ((chosen-buffer (or buffer (current-buffer)))
-        (error-phase-requested nil)) ;; avoid requesting the phase more than once - can happen if there are errors during the phase nrepl sync request.
+  (let ((chosen-buffer (or buffer (current-buffer))))
     (nrepl-make-response-handler
      chosen-buffer
      ;; value handler:
@@ -945,23 +895,12 @@ This is used by pretty-printing commands."
      (lambda (_buffer out)
        (cider-emit-interactive-eval-output out))
      ;; stderr handler:
-     (lambda (buffer err)
-       (cider-emit-interactive-eval-err-output err)
-       (when (and source-buffer
-                  (listp bounds)) ;; if it's a list, it represents bounds, otherwise it's a string (code) and we can't display the overlay
-         (with-current-buffer source-buffer
-           (let* ((phase (if error-phase-requested
-                             nil
-                           (setq error-phase-requested t)
-                           (cider--error-phase-of-last-exception buffer)))
-                  (end (or (car-safe (cdr-safe bounds)) bounds))
-                  (end (when end
-                         (copy-marker end))))
-             (cider--maybe-display-error-as-overlay phase err end)))))
+     (lambda (_buffer err)
+       (cider-emit-interactive-eval-err-output err))
      ;; done handler:
      nil
      ;; eval-error handler:
-     (lambda ()
+     (lambda (buffer)
        (when (and (buffer-live-p chosen-buffer)
                   (member (buffer-name chosen-buffer)
                           cider-ancillary-buffers))
@@ -969,7 +908,7 @@ This is used by pretty-printing commands."
            (cider-popup-buffer-quit-function t)))
        ;; also call the default nrepl-err-handler, so that our custom behavior doesn't void the base behavior:
        (when nrepl-err-handler
-         (funcall nrepl-err-handler)))
+         (funcall nrepl-err-handler buffer)))
      ;; content type handler:
      nil
      ;; truncated handler:

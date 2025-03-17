@@ -886,7 +886,7 @@ the corresponding type of response."
              (when (member "interrupted" status)
                (message "Evaluation interrupted."))
              (when (member "eval-error" status)
-               (funcall (or eval-error-handler nrepl-err-handler)))
+               (funcall (or eval-error-handler nrepl-err-handler) buffer))
              (when (member "namespace-not-found" status)
                (message "Namespace `%s' not found." ns))
              (when (member "need-input" status)

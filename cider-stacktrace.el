@@ -829,7 +829,7 @@ the NAME.  The whole group is prefixed by string INDENT."
   "Emit into BUFFER the CAUSE NUM, exception class, message, data, and NOTE,
 make INSPECT-INDEX actionable if present."
   (with-current-buffer buffer
-    (nrepl-dbind-response cause (class message data spec stacktrace)
+    (nrepl-dbind-response cause (class message data spec triage stacktrace)
       (let ((indent "   ")
             (class-face 'cider-stacktrace-error-class-face)
             (message-face 'cider-stacktrace-error-message-face))
@@ -855,6 +855,11 @@ make INSPECT-INDEX actionable if present."
                (propertize (or message "(No message)")
                            'font-lock-face  message-face)
                indent t))
+            (when triage
+              (insert "\n")
+              (cider-stacktrace-emit-indented
+               (propertize (string-trim triage) 'font-lock-face  message-face)
+               indent nil))
             (when spec
               (insert "\n")
               (cider-stacktrace--emit-spec-problems spec (concat indent "  ")))
