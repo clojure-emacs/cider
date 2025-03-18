@@ -209,7 +209,9 @@ The error types are represented as strings."
   (setq-local electric-indent-chars nil)
   (setq-local cider-stacktrace-hidden-frame-count 0)
   (setq-local cider-stacktrace-filters cider-stacktrace-default-filters)
-  (setq-local cider-stacktrace-cause-visibility (make-vector 10 0))
+  ;; Expand all exception causes to "detail level 1" by default, meaning they
+  ;; will show the message and the data (but not the stacktrace).
+  (setq-local cider-stacktrace-cause-visibility (make-vector 10 1))
   (buffer-disable-undo))
 
 
@@ -707,8 +709,7 @@ This associates text properties to enable filtering and source navigation."
                 (put-text-property p1 p4 'font-lock-face 'cider-stacktrace-ns-face)
                 (put-text-property p2 p3 'font-lock-face 'cider-stacktrace-fn-face)
                 (put-text-property (line-beginning-position) (line-end-position)
-                                   'cider-stacktrace-frame t)))
-            (insert "\n")))))))
+                                   'cider-stacktrace-frame t)))))))))
 
 (defun cider-stacktrace-render-compile-error (buffer cause)
   "Emit into BUFFER the compile error CAUSE, and enable jumping to it."
@@ -844,41 +845,38 @@ make INSPECT-INDEX actionable if present."
                                      ,cider-stacktrace-exception-map)
             (insert (format "%d. " num)
                     (propertize note 'font-lock-face 'font-lock-comment-face) " "
-                    (propertize class 'font-lock-face class-face 'mouse-face 'highlight)
-                    "\n"))
+                    (propertize class 'font-lock-face class-face 'mouse-face 'highlight)))
           ;; Detail level 1: message + ex-data
           (cider-propertize-region '(detail 1)
+            (insert "\n")
             (if (equal class "clojure.lang.Compiler$CompilerException")
                 (cider-stacktrace-render-compile-error buffer cause)
               (cider-stacktrace-emit-indented
                (propertize (or message "(No message)")
                            'font-lock-face  message-face)
                indent t))
-            (insert "\n")
             (when spec
+              (insert "\n")
               (cider-stacktrace--emit-spec-problems spec (concat indent "  ")))
             (when data
+              (insert "\n")
               (cider-stacktrace-emit-indented data indent nil t)))
           ;; Detail level 2: stacktrace
           (cider-propertize-region '(detail 2)
-            (insert "\n")
             (let ((beg (point))
                   (bg `(:background ,cider-stacktrace-frames-background-color :extend t)))
               (dolist (frame stacktrace)
+                (insert "\n")
                 (cider-stacktrace-render-frame buffer frame))
               (overlay-put (make-overlay beg (point)) 'font-lock-face bg)))
           ;; Add line break between causes, even when collapsed.
           (cider-propertize-region '(detail 0)
-            (insert "\n")))))))
+            (insert "\n\n")))))))
 
 (defun cider-stacktrace-initialize (causes)
   "Set and apply CAUSES initial visibility, filters, and cursor position."
   (nrepl-dbind-response (car causes) (class)
     (let ((compile-error-p (equal class "clojure.lang.Compiler$CompilerException")))
-      ;; Partially display outermost cause if it's a compiler exception (the
-      ;; description reports reader location of the error).
-      (when compile-error-p
-        (cider-stacktrace-cycle-cause (length causes) 1))
       ;; Fully display innermost cause. This also applies visibility/filters.
       (cider-stacktrace-cycle-cause 1 cider-stacktrace-detail-max)
       ;; Move point (DWIM) to the compile error location if present, or to the
