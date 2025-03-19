@@ -5,6 +5,10 @@
 ### Changes
 
 - [#3782](https://github.com/clojure-emacs/cider/issues/3782): **(Breaking)** Drop official support for Emacs 26.
+- Bump the injected `cider-nrepl` to [0.53.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0530-2025-03-19).
+  - Info: recognize printed Java classes/methods and munged Clojure functions in stacktrace outputs.
+  - Inspector: add dedicated view for Exceptions.
+  - Stop vendoring Haystack dependency.
 - [#3777](https://github.com/clojure-emacs/cider/issues/3777): Inspector no longer displays parsed Javadoc for Java classes and members.
 - [#3784](https://github.com/clojure-emacs/cider/issues/3784): Inspector: make point less erratic when navigating between inspector screens.
 - [#3790](https://github.com/clojure-emacs/cider/issues/3790): Stacktrace: show messages and data for all exception causes by default.
