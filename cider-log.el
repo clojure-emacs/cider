@@ -215,15 +215,6 @@ It will not be used if the package hasn't been installed."
                   "filters" ,(cider-log-consumer-filters consumer))
                 (cider-nrepl-send-request callback)))
 
-(defun cider-request:log-analyze-stacktrace (framework appender event &optional callback)
-  "Analyze the EVENT stacktrace of the APPENDER of FRAMEWORK and call CALLBACK."
-  (cider-ensure-op-supported "cider/log-analyze-stacktrace")
-  (thread-first `("op" "cider/log-analyze-stacktrace"
-                  "framework" ,(cider-log-framework-id framework)
-                  "appender" ,(cider-log-appender-id appender)
-                  "event" ,(cider-log-event-id event))
-                (cider-nrepl-send-request callback)))
-
 (defun cider-sync-request:log-update-consumer (framework appender consumer)
   "Add CONSUMER to the APPENDER of FRAMEWORK and call CALLBACK on log events."
   (cider-ensure-op-supported "cider/log-update-consumer")
@@ -690,24 +681,6 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
       (seq-doseq (window windows)
         (set-window-point window (point-max))))))
 
-(defun cider-log-event--show-stacktrace (framework appender event)
-  "Show the stacktrace of the log EVENT of FRAMEWORK and APPENDER."
-  (when (and framework appender event (cider-log-event-exception event))
-    (let ((auto-select-buffer cider-auto-select-error-buffer)
-          (causes nil))
-      (cider-request:log-analyze-stacktrace
-       framework appender event
-       (lambda (response)
-         (nrepl-dbind-response response (class status)
-           (cond (class  (setq causes (cons response causes)))
-                 (status (when causes
-                           (cider-stacktrace-render
-                            (cider-popup-buffer cider-error-buffer
-                                                auto-select-buffer
-                                                #'cider-stacktrace-mode
-                                                'ancillary)
-                            (reverse causes)))))))))))
-
 (defun cider-log-event-next-line (&optional n)
   "Move N lines forward."
   (interactive "p")
@@ -719,8 +692,6 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
                (event (cider-log-event-at-point)))
       (let ((cider-auto-select-error-buffer nil))
         (save-window-excursion
-          (when (get-buffer-window cider-error-buffer)
-            (cider-log-event--show-stacktrace framework appender event))
           (when (get-buffer-window cider-inspector-buffer)
             (cider-log-event--inspect framework appender event))
           (when (get-buffer-window cider-log-event-buffer)
@@ -856,7 +827,6 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
     (define-key map (kbd "C-c M-l f") #'cider-log-framework)
     (define-key map (kbd "C-c M-l i") #'cider-log-info)
     (define-key map (kbd "C-c M-l l") #'cider-log)
-    (define-key map (kbd "E") 'cider-log-show-stacktrace)
     (define-key map (kbd "F") 'cider-log-print-event)
     (define-key map (kbd "I") 'cider-log-inspect-event)
     (define-key map (kbd "RET") 'cider-log-inspect-event)
@@ -1173,16 +1143,12 @@ the CIDER Inspector and the CIDER stacktrace mode.
            (cider-log-appender-display-name appender)))
 
 ;; Event actions
-
-(transient-define-suffix cider-log-show-stacktrace (framework appender event)
-  "Show the stacktrace of the log EVENT of FRAMEWORK and APPENDER."
-  :description "Show log event stacktrace"
-  :if #'cider-log-event-at-point
-  :inapt-if-not (lambda ()
-                  (when-let (event (cider-log-event-at-point))
-                    (cider-log-event-exception event)))
-  (interactive (list (cider-log--framework) (cider-log--appender) (cider-log-event-at-point)))
-  (cider-log-event--show-stacktrace framework appender event))
+(defun cider-log-show-stacktrace (&rest _)
+  "Removed."
+  (interactive)
+  (message "This function has been removed.
+You can jump to functions and methods directly from the printed stacktrace now."))
+(make-obsolete 'cider-log-show-stacktrace nil "1.18")
 
 (transient-define-suffix cider-log-print-event (framework appender event)
   "Format the log EVENT of FRAMEWORK and APPENDER."
@@ -1439,7 +1405,6 @@ the CIDER Inspector and the CIDER stacktrace mode.
    (cider-log--threads-option)]
   ["Actions"
    ("c" cider-log-clear-event-buffer)
-   ("e" cider-log-show-stacktrace)
    ("i" cider-log-inspect-event)
    ("p" cider-log-print-event)
    ("s" cider-log--do-search-events)]
@@ -1497,7 +1462,6 @@ based on `transient-mode'."
    ["Event Actions"
     ("eb" cider-log-switch-to-buffer)
     ("ec" cider-log-clear-event-buffer)
-    ("ee" cider-log-show-stacktrace)
     ("ei" cider-log-inspect-event)
     ("ep" cider-log-print-event)
     ("es" "Search log events" cider-log-event-search

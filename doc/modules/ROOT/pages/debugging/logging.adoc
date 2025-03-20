@@ -4,19 +4,15 @@
 CIDER Log Mode allows you to capture, debug, inspect and view log
 events emitted by Java logging frameworks. The captured log events can
 be searched, streamed to the client, pretty-printed, and are integrated
-with the CIDER link:inspector.html[Inspector] and
-link:../usage/dealing_with_errors.html[Stacktrace Mode]. Here is a
+with the CIDER link:inspector.html[Inspector]. Here is a
 screenshot of CIDER Log Mode in action.
 
 image::cider-log.png[CIDER Log]
 
-NOTE: The screenshot displays the list of log events in the
-`+*cider-log*+` buffer on the left. To the right, a log event is
-visible in the `+*cider-inspect*+` buffer, where the exception of the
-event is also displayed in the CIDER Stacktrace Mode. From the
-Stacktrace Mode buffer you can jump to the source of each frame. At
-the bottom the CIDER log menu is shown from which you can perform
-logging related actions.
+NOTE: The screenshot displays the list of log events in the `+*cider-log*+`
+buffer on the left. To the right, a log event is visible in the
+`+*cider-inspect*+` buffer. At the bottom the CIDER log menu is shown from which
+you can perform logging related actions.
 
 == Features
 
@@ -24,7 +20,6 @@ logging related actions.
 - Search log events and show them in buffers.
 - link:../usage/pretty_printing.html[Pretty-print] log events.
 - Show log events in the CIDER link:inspector.html[Inspector].
-- Show log event exceptions in the CIDER link:../usage/dealing_with_errors.html[Stacktrace Mode].
 - Integration with https://github.com/doublep/logview[logview].
 
 == Dependencies
@@ -278,7 +273,7 @@ The following keybindings can be used to interact with log consumers.
 == Log Event
 
 Log events can be searched, streamed to a client or viewed in CIDER's
-Inspector and Stacktrace Mode. When searching log events the user can
+Inspector Mode. When searching log events the user can
 specify a set of filters. Events that match the filters are shown in
 the `+*cider-log*+` buffer. Additionally a log consumer will be
 attached to the appender to receive log events matching the search
@@ -300,10 +295,6 @@ The following keybindings can be used to interact with log events.
 | `cider-log-clear-event-buffer`
 | kbd:[C-c M-l e c]
 | Clear all events from the log event buffer.
-
-| `cider-log-show-stacktrace`
-| kbd:[C-c M-l e e]
-| Show the stacktrace of the log event at point in the CIDER Stacktrace Mode.
 
 | `cider-log-inspect-event`
 | kbd:[C-c M-l e i]

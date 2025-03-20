@@ -930,47 +930,19 @@ through the `cider-stacktrace-suppressed-errors' variable."
     (cider-stacktrace-initialize causes)
     (font-lock-refresh-defaults)))
 
-(defun cider-stacktrace--analyze-stacktrace-op (stacktrace)
-  "Return the Cider NREPL op to analyze STACKTRACE."
-  (list "op" "analyze-stacktrace" "stacktrace" stacktrace))
-
-(defun cider-stacktrace--analyze-render (causes)
-  "Render the CAUSES of the stacktrace analysis result."
-  (let ((buffer (get-buffer-create cider-error-buffer)))
-    (with-current-buffer buffer
-      (cider-stacktrace-mode)
-      (cider-stacktrace-render buffer (reverse causes))
-      (display-buffer buffer cider-jump-to-pop-to-buffer-actions))))
-
-(defun cider-stacktrace-analyze-string (stacktrace)
-  "Analyze the STACKTRACE string and show the result."
-  (when (stringp stacktrace)
-    (set-text-properties 0 (length stacktrace) nil stacktrace))
-  (let (causes)
-    (cider-nrepl-send-request
-     `("op" "analyze-stacktrace"
-       "stacktrace" ,stacktrace
-       ,@(cider--nrepl-print-request-plist fill-column))
-     (lambda (response)
-       (setq causes (nrepl-dbind-response response (class status)
-                      (cond (class (cons response causes))
-                            ((and (member "done" status) causes)
-                             (cider-stacktrace--analyze-render causes)))))))))
-
 (defun cider-stacktrace-analyze-at-point ()
-  "Analyze the stacktrace at point."
+  "Removed."
   (interactive)
-  (cond ((thing-at-point 'sentence)
-         (cider-stacktrace-analyze-string (thing-at-point 'sentence)))
-        ((thing-at-point 'paragraph)
-         (cider-stacktrace-analyze-string (thing-at-point 'paragraph)))
-        (t (cider-stacktrace-analyze-in-region (region-beginning) (region-end)))))
+  (message "This function has been removed.
+You can jump to functions and methods directly from the printed stacktrace now."))
+(make-obsolete 'cider-stacktrace-analyze-at-point nil "1.18")
 
-(defun cider-stacktrace-analyze-in-region (beg end)
-  "Analyze the stacktrace in the region between BEG and END."
-  (interactive (list (region-beginning) (region-end)))
-  (let ((stacktrace (buffer-substring beg end)))
-    (cider-stacktrace-analyze-string stacktrace)))
+(defun cider-stacktrace-analyze-in-region (&rest _)
+  "Removed."
+  (interactive)
+  (message "This function has been removed.
+You can jump to functions and methods directly from the printed stacktrace now."))
+(make-obsolete 'cider-stacktrace-analyze-in-region nil "1.18")
 
 (provide 'cider-stacktrace)
 

@@ -5,6 +5,9 @@
 ### Changes
 
 - [#3782](https://github.com/clojure-emacs/cider/issues/3782): **(Breaking)** Drop official support for Emacs 26.
+- [#3793](https://github.com/clojure-emacs/cider/issues/3793): **(Breaking)** Remove features that relied on printed exception parsing:
+  - `cider-stacktrace-analyze-string` and `cider-stacktrace-analyze-at-point` functions.
+  - Automatic stacktrace parsing in log viewer.
 - Bump the injected `cider-nrepl` to [0.53.1](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0531-2025-03-26).
   - Info: recognize printed Java classes/methods and munged Clojure functions in stacktrace outputs.
   - Inspector: add dedicated view for Exceptions.
