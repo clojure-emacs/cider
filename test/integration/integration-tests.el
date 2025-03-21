@@ -616,3 +616,27 @@ If CLI-COMMAND is nil, then use the default."
                 ;; wait for the REPL to exit
                 (cider-itu-poll-until (not (eq (process-status nrepl-proc) 'run)) 15)
                 (expect (member (process-status nrepl-proc) '(exit signal)))))))))))
+
+(describe "cider-connect-default-params"
+  (it "bypasses cider-connect user prompts"
+    (let (host-prompt port-prompt)
+      (spy-on 'cider--completing-read-host
+              :and-call-fake (lambda (_) (setq host-prompt t)))
+      (spy-on 'cider--completing-read-host
+              :and-call-fake (lambda (_) (setq port-prompt t)))
+      (with-temp-buffer
+        (setq-local cider-connect-default-params '(:host "localhost"))
+        (ignore-errors (call-interactively 'cider-connect))
+        (expect host-prompt :to-equal nil)
+        (expect port-prompt :to-equal t))
+      (with-temp-buffer
+        (setq host-prompt nil port-prompt nil)
+        (setq-local cider-connect-default-params
+                    '(:host "localhost" :port 65536))
+        (condition-case e
+            (call-interactively 'cider-connect)
+          (error
+           (expect e :to-equal
+                   '(error "[nREPL] Direct connection to localhost:65536 failed"))))
+        (expect host-prompt :to-equal nil)
+        (expect port-prompt :to-equal nil)))))
