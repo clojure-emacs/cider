@@ -206,7 +206,7 @@ are disregarded."
             (current-point (point)))
         (while continue
           (setq found (and (search-forward-regexp kw nil 'noerror)
-                           (member 'clojure-keyword-face (text-properties-at (1- (point))))))
+                           (cider-keyword-at-point-p (1- (point)))))
           (setq continue (and (not found)
                               ;; if we haven't moved, there's nothing left to search:
                               (not (equal current-point (point)))))
