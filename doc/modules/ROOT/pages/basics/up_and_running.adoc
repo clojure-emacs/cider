@@ -358,6 +358,22 @@ reads for the host and port prompts when you invoke
     ("host-b" "7888")))
 ----
 
+If you wish to bypass the prompts entirely, you can configure the variables
+`cider-connect-default-params` and `cider-connect-default-cljs-params`
+on a per-project basis using https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html[.dir-locals.el].
+
+The following configuration allows you to type kbd:[M-x] `cider-connect-clj&cljs` kbd:[RET] and instantly connect to both JVM and shadow-cljs REPLs without answering any prompts – useful when the project always uses the same fixed endpoints for its nREPL servers.
+
+[source,lisp]
+---
+((clojure-mode
+  . ((cider-connect-default-params . (:host "localhost" :port 1234))
+     (cider-connect-default-cljs-params . (:host "localhost" :port 5678))
+     (cider-default-cljs-repl . shadow))))
+---
+
+Note that the universal argument kbd:[C-u] can be used before a command to override these settings and force the prompts to be displayed.
+
 == Working with Remote Hosts
 
 While most of the time you'd be connecting to a locally running nREPL
