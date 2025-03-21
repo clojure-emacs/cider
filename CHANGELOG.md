@@ -4,6 +4,8 @@
 
 ### New features
 
+- [#3359](https://github.com/clojure-emacs/cider/pull/3359): Add customizable default connection params
+
 ### Changes
 
 - Bump the injected `cider-nrepl` to [0.56.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0560-2025-05-29).
