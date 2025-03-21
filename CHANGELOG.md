@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### New features
+
+- [#3359](https://github.com/clojure-emacs/cider/pull/3359): Add customizable default connection params
+
 ## 1.18.0 (2025-04-30)
 
 ### New features
