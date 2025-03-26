@@ -20,14 +20,14 @@ Use the convenient plugin for defaults, either in your project's
 
 [source,clojure]
 ----
-:plugins [[cider/cider-nrepl "0.53.0"]]
+:plugins [[cider/cider-nrepl "0.53.1"]]
 ----
 
 A minimal `profiles.clj` for CIDER would be:
 
 [source,clojure]
 ----
-{:repl {:plugins [[cider/cider-nrepl "0.53.0"]]}}
+{:repl {:plugins [[cider/cider-nrepl "0.53.1"]]}}
 ----
 
 WARNING: Be careful not to place this in the `:user` profile, as this way CIDER's
@@ -43,11 +43,11 @@ run `cider-connect` or `cider-connect-cljs`.
 
 [source,clojure]
 ----
-  :cider-clj {:extra-deps {cider/cider-nrepl {:mvn/version "0.53.0"}}
+  :cider-clj {:extra-deps {cider/cider-nrepl {:mvn/version "0.53.1"}}
               :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"]}
 
   :cider-cljs {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.339"}
-                            cider/cider-nrepl {:mvn/version "0.53.0"}
+                            cider/cider-nrepl {:mvn/version "0.53.1"}
                             cider/piggieback {:mvn/version "0.6.0"}}
                :main-opts ["-m" "nrepl.cmdline" "--middleware"
                            "[cider.nrepl/cider-middleware,cider.piggieback/wrap-cljs-repl]"]}
@@ -66,7 +66,7 @@ NOTE: Make sure you're using https://github.com/clojurephant/clojurephant[Clojur
 ----
 dependencies {
   devImplementation 'nrepl:nrepl:0.9.0'
-  devImplementation 'cider:cider-nrepl:0.53.0'
+  devImplementation 'cider:cider-nrepl:0.53.1'
 }
 
 tasks.named('clojureRepl') {
