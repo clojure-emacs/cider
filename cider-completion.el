@@ -211,7 +211,10 @@ performed by `cider-annotate-completion-function'."
                 ;;
                 ;; This api is better described in the section
                 ;; '21.6.7 Programmed Completion' of the elisp manual.
-                (cond ((eq action 'metadata) `(metadata (category . cider))) ;; defines a completion category named 'cider, used later in our `completion-category-overrides` logic.
+                (cond ((eq action 'metadata)
+                       `(metadata
+                         (category . cider) ;; defines a completion category named 'cider, used later in our `completion-category-overrides` logic.
+                         (display-sort-function . identity))) ;; don't override sorting done by backend
                       ((eq (car-safe action) 'boundaries) nil)
                       (t (with-current-buffer (current-buffer)
                            (complete-with-action action (funcall complete) prefix pred)))))
