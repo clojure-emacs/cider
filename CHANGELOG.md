@@ -17,6 +17,7 @@
 - [#3784](https://github.com/clojure-emacs/cider/issues/3784): Inspector: make point less erratic when navigating between inspector screens.
 - [#3790](https://github.com/clojure-emacs/cider/issues/3790): Stacktrace: show messages and data for all exception causes by default.
 - [#3789](https://github.com/clojure-emacs/cider/issues/3789): Refactor and simplify exception handling.
+- [#3789](https://github.com/clojure-emacs/cider/issues/3796): Completion: disable client-side sorting (defer to backend-provided candidate order).
 
 ## 1.17.1 (2025-02-25)
 
