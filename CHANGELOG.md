@@ -9,6 +9,7 @@
   - `cider-stacktrace-analyze-string` and `cider-stacktrace-analyze-at-point` functions.
   - Automatic stacktrace parsing in log viewer.
 - Bump the injected `cider-nrepl` to [0.53.1](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0531-2025-03-26).
+- Bump the injected `cider-nrepl` to [0.53.2](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0532-2025-03-26).
   - Info: recognize printed Java classes/methods and munged Clojure functions in stacktrace outputs.
   - Inspector: add dedicated view for Exceptions.
   - Stop vendoring Haystack dependency.
