@@ -283,27 +283,31 @@ DEPRECATED: please use `cider-enable-cider-completion-style' instead."
   (interactive)
   (cider-enable-cider-completion-style))
 
-(defun cider-enable-cider-completion-style ()
-  "Enables `cider' completion style for CIDER in all buffers.
+(defun cider-enable-cider-completion-style (&optional arg)
+  "Enables or disables `cider' completion style for CIDER in all buffers.
 
 This style supports non-prefix completion candidates returned by the
-completion backend.  Only affects the `cider' completion category."
+completion backend.  Only affects the `cider' completion category.  If ARG
+is `1' or nil, enables the custom completion style; if `-1', disables it."
   (interactive)
-  (let* ((cider (assq 'cider completion-category-overrides))
-         (found-styles (assq 'styles cider))
-         (new-styles (if found-styles
-                         (cons 'styles (cons 'cider (cdr found-styles)))
-                       '(styles cider basic)))
-         (new-cider (if cider
-                        (cons 'cider
-                              (cons new-styles
-                                    (seq-remove (lambda (x) (equal 'styles (car x)))
-                                                (cdr cider))))
-                      (list 'cider new-styles)))
-         (new-overrides (cons new-cider
-                              (seq-remove (lambda (x) (equal 'cider (car x)))
-                                          completion-category-overrides))))
-    (setq completion-category-overrides new-overrides)))
+  (if (= arg -1)
+      (setq completion-category-overrides
+            (assq-delete-all 'cider completion-category-overrides))
+    (let* ((cider (assq 'cider completion-category-overrides))
+           (found-styles (assq 'styles cider))
+           (new-styles (if found-styles
+                           (cons 'styles (cons 'cider (cdr found-styles)))
+                         '(styles cider basic)))
+           (new-cider (if cider
+                          (cons 'cider
+                                (cons new-styles
+                                      (seq-remove (lambda (x) (equal 'styles (car x)))
+                                                  (cdr cider))))
+                        (list 'cider new-styles)))
+           (new-overrides (cons new-cider
+                                (seq-remove (lambda (x) (equal 'cider (car x)))
+                                            completion-category-overrides))))
+      (setq completion-category-overrides new-overrides))))
 
 (make-obsolete 'cider-company-enable-fuzzy-completion 'cider-enable-cider-completion-style "1.17.0")
 
@@ -312,8 +316,6 @@ completion backend.  Only affects the `cider' completion category."
 
 Only affects the `cider' completion category.`"
   (interactive)
-  (when (< emacs-major-version 27)
-    (user-error "`cider-enable-flex-completion' requires Emacs 27 or later"))
   (let ((found-styles (when-let ((cider (assq 'cider completion-category-overrides)))
                         (assq 'styles cider)))
         (found-cycle (when-let ((cider (assq 'cider completion-category-overrides)))
