@@ -1098,6 +1098,7 @@ property."
         (setq-local clojure-expected-ns-function #'cider-expected-ns)
         (when cider-use-xref
           (add-hook 'xref-backend-functions #'cider--xref-backend cider-xref-fn-depth 'local))
+        (cider-enable-cider-completion-style 1)
         (setq next-error-function #'cider-jump-to-compilation-error))
     ;; Mode cleanup
     (mapc #'kill-local-variable '(next-error-function
