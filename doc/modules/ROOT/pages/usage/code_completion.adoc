@@ -35,32 +35,6 @@ Normally kbd:[TAB] only indents, but now it will also do completion if the code
 is already properly indented.
 ====
 
-== Completion styles
-
-CIDER defines a specialized completion category through the `cider-complete-at-point` function,
-added to `completion-at-point-functions`, establishing a dedicated completion category named
-`cider`.
-
-The CIDER completion at point function supports most completion styles,
-including `partial-completion`, `orderless` and `flex`. It also supports a
-custom completion style that is confusingly named `cider` too. Activating it
-provides a richer set of completion candidates (see
-xref:usage/code_completion.adoc#fuzzy-candidate-matching[fuzzy candidate
-matching]).
-
-Sometimes the user may want to use a different completion style just for the CIDER
-complete at point function. That can be achieved by setting
-`completion-category-overrides`, overwriting the completion style of the CIDER
-complete at point function. The following snippet accomplishes that:
-
-[source,lisp]
-----
-(add-to-list 'completion-category-overrides '(cider (styles basic)))
-----
-
-This specifies that the `cider` completion category should employ the basic completion style by
-default.
-
 == Auto-completion
 
 While the standard Emacs tooling works just fine, we suggest that
@@ -139,30 +113,29 @@ without needing to hit an extra key, please customize:
 (custom-set-variables '(company-auto-update-doc t))
 ----
 
-=== Fuzzy candidate matching
+=== Rich candidate matching
 
-By default, CIDER will use the completion styles defined in
-`completion-styles`, the defaults being `(basic partial-completion
-emacs22)` since Emacs 23. For a better description of how those
-completion styles operates, refer to the official Emacs manual on
-https://www.gnu.org/software/emacs/manual/html_node/emacs/Completion-Styles.html[how completion alternatives are chosen].
+Starting with version 1.18, CIDER by default enables a custom completion style
+that provides richer and more useful candidate matching, for example:
 
-CIDER provides a function to enable the `cider` completion style for CIDER-specific
-completions. If you wish to enable that, you can add this to your config:
+- Long vars that contain dashes by first characters of individual parts, e.g.
+  `mi` or `mai` complete to `map-indexed`.
+- Namespaces by first characters of parts, e.g. `cji` completes to
+  `clojure.java.io`.
+- Not imported classnames by their short name prefixes, e.g. `BiFun` completes
+  to `java.util.function.BiFunction`.
+
+You can learn all completion scenarios and features
+https://github.com/alexander-yakushev/compliment/wiki/Examples[here].
+
+If you only want to receive standard prefix-restricted completions (where the
+candidate must contain the prefix at the beginning verbatim), you can disable
+this feature by adding this to your config:
 
 [source,lisp]
 ----
-(cider-enable-cider-completion-style)
+(cider-enable-cider-completion-style -1)
 ----
-
-This adds the `cider` completion style for CIDER buffers.
-
-Now, `company-mode` (and other completion packages like `corfu`) will
-accept certain fuzziness when matching candidates against the
-prefix. For example, typing `mi` will show you `map-indexed` as one of
-the possible completion candidates and `cji` will complete to
-`clojure.java.io`. Different completion examples are shown
-https://github.com/alexander-yakushev/compliment/wiki/Examples[here].
 
 === Completion annotations
 
@@ -177,6 +150,29 @@ image::completion-annotations.png[Completion Annotations]
 
 TIP: Completion annotations can be disabled by setting
 `cider-annotate-completion-candidates` to `nil`.
+
+=== Completion styles
+
+The CIDER completion at point function supports most completion styles,
+including `partial-completion`, `orderless`, `flex`, and its own custom
+completion style named `cider`. The latter is enabled by default. Sometimes the
+user may want to use a different completion style for the CIDER complete at
+point function. That can be achieved by setting `completion-category-overrides`,
+overwriting the completion style of the CIDER complete at point function. The
+following snippet accomplishes that:
+
+[source,lisp]
+----
+(add-to-list 'completion-category-overrides '(cider (styles basic)))
+----
+
+For a better description of how those completion styles operates, refer to the
+official Emacs manual on
+https://www.gnu.org/software/emacs/manual/html_node/emacs/Completion-Styles.html[how
+completion alternatives are chosen].
+
+This specifies that the `cider` completion category should employ the basic completion style by
+default.
 
 === Notes on class disambiguation
 
@@ -212,6 +208,6 @@ NOTE: You don't really need to know any of this if you're using only `cider-jack
 
 The bulk of the code completion logic resides in `cider-nrepl` https://github.com/clojure-emacs/cider-nrepl/blob/master/src/cider/nrepl/middleware/complete.clj[completion middleware]. Internally it delegates to `compliment` for the Clojure completion and `clj-suitable` for the ClojureScript completion.
 
-Starting with nREPL 0.8, there's also a built-in `completions` nREPL op that CIDER will fallback to, in the absence of `cider-nrepl`. Its API is similar to that of the `complete` op in `cider-nrepl` and it can be configured to use different completion functions. The built-in op currently supports only Clojure. See the https://nrepl.org/nrepl/usage/misc.html#code-completion[nREPL docs] for more details.
+nREPL also has a built-in `completions` op that CIDER will fallback to, in the absence of `cider-nrepl`. Its API is similar to that of the `complete` op in `cider-nrepl` and it can be configured to use different completion functions. The built-in op currently supports only Clojure. See the https://nrepl.org/nrepl/usage/misc.html#code-completion[nREPL docs] for more details.
 
 Basically, you'll get great code completion in the presence of `cider-nrepl` and basic completion otherwise.
