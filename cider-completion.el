@@ -290,7 +290,7 @@ This style supports non-prefix completion candidates returned by the
 completion backend.  Only affects the `cider' completion category.  If ARG
 is `1' or nil, enables the custom completion style; if `-1', disables it."
   (interactive)
-  (if (= arg -1)
+  (if (eq arg -1)
       (setq completion-category-overrides
             (assq-delete-all 'cider completion-category-overrides))
     (let* ((cider (assq 'cider completion-category-overrides))
