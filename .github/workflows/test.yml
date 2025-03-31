@@ -39,14 +39,7 @@ jobs:
 
     steps:
     - name: Set up Emacs
-      if: "!startsWith (matrix.os, 'windows')"
-      uses: purcell/setup-emacs@master
-      with:
-        version: ${{matrix.emacs_version}}
-
-    - name: Set up Emacs on Windows
-      if: startsWith (matrix.os, 'windows')
-      uses: jcs090218/setup-emacs-windows@master
+      uses: jcs090218/setup-emacs@master
       with:
         version: ${{matrix.emacs_version}}
 
