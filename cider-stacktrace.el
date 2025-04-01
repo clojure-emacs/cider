@@ -62,10 +62,6 @@ Pick nil if you prefer the same window as *cider-error*."
   :type 'boolean
   :package-version '(cider . "1.8.0"))
 
-(make-obsolete 'cider-stacktrace-print-length 'cider-stacktrace-print-options "0.20")
-(make-obsolete 'cider-stacktrace-print-level 'cider-stacktrace-print-options "0.20")
-(make-obsolete-variable 'cider-stacktrace-print-options 'cider-print-options "0.21")
-
 (defvar cider-stacktrace-detail-max 2
   "The maximum detail level for causes.")
 
@@ -75,8 +71,6 @@ Pick nil if you prefer the same window as *cider-error*."
 (defvar-local cider-stacktrace-positive-filters nil)
 
 (defconst cider-error-buffer "*cider-error*")
-
-(make-obsolete 'cider-visit-error-buffer 'cider-selector "0.18")
 
 (defcustom cider-stacktrace-suppressed-errors '()
   "Errors that won't make the stacktrace buffer 'pop-over' your active window.

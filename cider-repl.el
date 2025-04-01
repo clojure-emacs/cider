@@ -95,16 +95,12 @@ focused.  Otherwise the buffer is displayed and focused."
   "Controls whether the REPL buffer is displayed in the current window."
   :type 'boolean)
 
-(make-obsolete-variable 'cider-repl-scroll-on-output 'scroll-conservatively "0.21")
-
 (defcustom cider-repl-use-pretty-printing t
   "Control whether results in the REPL are pretty-printed or not.
 The REPL will use the printer specified in `cider-print-fn'.
 The `cider-toggle-pretty-printing' command can be used to interactively
 change the setting's value."
   :type 'boolean)
-
-(make-obsolete-variable 'cider-repl-pretty-print-width 'cider-print-options "0.21")
 
 (defcustom cider-repl-use-content-types nil
   "Control whether REPL results are presented using content-type information.
@@ -148,9 +144,6 @@ The default option is `cider-repl-indent-and-complete-symbol'.  If
 you'd like to use the default Emacs behavior use
 `indent-for-tab-command'."
   :type 'symbol)
-
-(make-obsolete-variable 'cider-repl-print-length 'cider-print-options "0.21")
-(make-obsolete-variable 'cider-repl-print-level 'cider-print-options "0.21")
 
 (defvar cider-repl-require-repl-utils-code
   '((clj . "(when-let [requires (resolve 'clojure.main/repl-requires)]

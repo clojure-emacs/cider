@@ -321,9 +321,6 @@ Here's an example for `pprint':
   :group 'cider
   :package-version '(cider . "0.21.0"))
 
-(make-obsolete-variable 'cider-pprint-fn 'cider-print-fn "0.21")
-(make-obsolete-variable 'cider-pprint-options 'cider-print-options "0.21")
-
 (defcustom cider-print-quota (* 1024 1024)
   "A hard limit on the number of bytes to return from any printing operation.
 Set to nil for no limit."
