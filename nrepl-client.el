@@ -86,19 +86,6 @@
   :prefix "nrepl-"
   :group 'applications)
 
-;; (defcustom nrepl-buffer-name-separator " "
-;;   "Used in constructing the REPL buffer name.
-;; The `nrepl-buffer-name-separator' separates cider-repl from the project name."
-;;   :type '(string)
-;;   :group 'nrepl)
-(make-obsolete-variable 'nrepl-buffer-name-separator 'cider-session-name-template "0.18")
-
-;; (defcustom nrepl-buffer-name-show-port nil
-;;   "Show the connection port in the nrepl REPL buffer name, if set to t."
-;;   :type 'boolean
-;;   :group 'nrepl)
-(make-obsolete-variable 'nrepl-buffer-name-show-port 'cider-session-name-template "0.18")
-
 (defcustom nrepl-connected-hook nil
   "List of functions to call when connecting to the nREPL server."
   :type 'hook)
@@ -1510,8 +1497,6 @@ The default buffer name is *nrepl-error*."
     (when-let* ((win (get-buffer-window)))
       (set-window-point win (point-max)))
     (setq buffer-read-only t)))
-
-(make-obsolete 'nrepl-default-client-buffer-builder nil "0.18")
 
 (provide 'nrepl-client)
 

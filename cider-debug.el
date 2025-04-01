@@ -97,10 +97,6 @@ configure `cider-debug-prompt' instead."
                  (const :tag "Both" both))
   :package-version '(cider . "0.9.1"))
 
-(make-obsolete 'cider-debug-print-length 'cider-debug-print-options "0.20")
-(make-obsolete 'cider-debug-print-level 'cider-debug-print-options "0.20")
-(make-obsolete-variable 'cider-debug-print-options 'cider-print-options "0.21")
-
 
 ;;; Implementation
 (declare-function cider-browse-ns--combined-vars-with-meta "cider-browse-ns")
