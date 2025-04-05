@@ -8,11 +8,11 @@
 - [#3793](https://github.com/clojure-emacs/cider/issues/3793): **(Breaking)** Remove features that relied on printed exception parsing:
   - `cider-stacktrace-analyze-string` and `cider-stacktrace-analyze-at-point` functions.
   - Automatic stacktrace parsing in log viewer.
-- Bump the injected `cider-nrepl` to [0.53.1](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0531-2025-03-26).
-- Bump the injected `cider-nrepl` to [0.53.2](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0532-2025-03-26).
+- Bump the injected `cider-nrepl` to [0.54.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0540-2025-04-05).
   - Info: recognize printed Java classes/methods and munged Clojure functions in stacktrace outputs.
   - Inspector: add dedicated view for Exceptions.
   - Stop vendoring Haystack dependency.
+  - Stop vendoring Puget dependency. You can still user `puget` pretty-printing for CIDER, but you need to depend on Puget explicitly. If Puget is not found on the classpath, CIDER will revert to `clojure.pprint/pprint` for pretty-printing.
 - [#3777](https://github.com/clojure-emacs/cider/issues/3777): Inspector no longer displays parsed Javadoc for Java classes and members.
 - [#3784](https://github.com/clojure-emacs/cider/issues/3784): Inspector: make point less erratic when navigating between inspector screens.
 - [#3790](https://github.com/clojure-emacs/cider/issues/3790): Stacktrace: show messages and data for all exception causes by default.
