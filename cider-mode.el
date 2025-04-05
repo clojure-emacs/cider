@@ -1094,7 +1094,10 @@ property."
         ;; `tooltip' has variable-width by default, which looks terrible.
         (set-face-attribute 'tooltip nil :inherit 'unspecified)
         (when cider-dynamic-indentation
-          (setq-local clojure-get-indent-function #'cider--get-symbol-indent))
+          (setq-local clojure-get-indent-function #'cider--get-symbol-indent)
+          (with-suppressed-warnings ((free-vars clojure-ts-get-indent-function))
+            (setq-local clojure-ts-get-indent-function
+                        #'cider--get-symbol-indent)))
         (setq-local clojure-expected-ns-function #'cider-expected-ns)
         (when cider-use-xref
           (add-hook 'xref-backend-functions #'cider--xref-backend cider-xref-fn-depth 'local))
@@ -1104,7 +1107,8 @@ property."
     (mapc #'kill-local-variable '(next-error-function
                                   x-gtk-use-system-tooltips
                                   font-lock-fontify-region-function
-                                  clojure-get-indent-function))
+                                  clojure-get-indent-function
+                                  clojure-ts-get-indent-function))
     (remove-hook 'completion-at-point-functions #'cider-complete-at-point t)
     (when cider-use-xref
       (remove-hook 'xref-backend-functions #'cider--xref-backend 'local))
