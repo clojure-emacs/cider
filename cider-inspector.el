@@ -91,6 +91,12 @@ by clicking or navigating to them by other means."
   :type 'boolean
   :package-version '(cider . "0.27.0"))
 
+(defcustom cider-inspector-display-analytics-hint t
+  "When true, display hint about analytics feature for eligible objects.
+Can be turned to nil once the user sees and acknowledges the feature."
+  :type 'boolean
+  :package-version '(cider . "1.18.0"))
+
 (defvar cider-inspector-uninteresting-regexp
   (concat "nil"                      ; nils are not interesting
           "\\|:" clojure--sym-regexp ; nor keywords
@@ -125,6 +131,7 @@ by clicking or navigating to them by other means."
     (define-key map "c" #'cider-inspector-set-max-coll-size)
     (define-key map "C" #'cider-inspector-set-max-nested-depth)
     (define-key map "v" #'cider-inspector-toggle-view-mode)
+    (define-key map "y" #'cider-inspector-display-analytics)
     (define-key map "d" #'cider-inspector-def-current-val)
     (define-key map "t" #'cider-inspector-tap-current-val)
     (define-key map "1" #'cider-inspector-tap-at-point)
@@ -325,6 +332,17 @@ MAX-NESTED-DEPTH is the new value."
   (interactive (list (read-number "Max nested depth: " cider-inspector-max-nested-depth)))
   (cider-inspector--refresh-with-opts "max-nested-depth" max-nested-depth))
 
+(defun cider-inspector-display-analytics ()
+  "Toggle the display of analytics for the inspected object."
+  (interactive)
+  ;; Disable hint about analytics feature so that it is never displayed again.
+  (when cider-inspector-display-analytics-hint
+    (customize-set-variable 'cider-inspector-display-analytics-hint nil))
+  (let ((result (cider-nrepl-send-sync-request `("op" "inspect-display-analytics")
+                                               (cider-current-repl))))
+    (when (nrepl-dict-get result "value")
+      (cider-inspector--render-value result :next-inspectable))))
+
 (defun cider-inspector-toggle-view-mode ()
   "Toggle the view mode of the inspector between normal and object view mode."
   (interactive)
@@ -490,7 +508,9 @@ MAX-COLL-SIZE if non nil."
               ,@(when cider-inspector-max-coll-size
                   `("max-coll-size" ,cider-inspector-max-coll-size))
               ,@(when cider-inspector-max-nested-depth
-                  `("max-nested-depth" ,cider-inspector-max-nested-depth))))
+                  `("max-nested-depth" ,cider-inspector-max-nested-depth))
+              ,@(when cider-inspector-display-analytics-hint
+                  `("display-analytics-hint" "true"))))
     (cider-nrepl-send-sync-request (cider-current-repl))))
 
 (declare-function cider-set-buffer-ns "cider-mode")
