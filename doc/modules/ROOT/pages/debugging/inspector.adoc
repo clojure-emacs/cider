@@ -36,10 +36,6 @@ You'll have access to additional keybindings in the inspector buffer
 | `cider-inspector-next-inspectable-object`
 | Navigate inspectable sub-objects
 
-| kbd:[f] and kbd:[b]
-| `forward-char`, `backward-char`
-| Navigate across characters on a line
-
 | kbd:[Return]
 | `cider-inspector-operate-on-point`
 | Inspect sub-objects
@@ -52,13 +48,17 @@ You'll have access to additional keybindings in the inspector buffer
 | `cider-inspector-refresh`
 | Refresh the inspector (e.g. if viewing an atom/ref/agent)
 
-| kbd:[SPC] or kbd:[Next] 
+| kbd:[SPC] or kbd:[Next]
 | `cider-inspector-next-page`
 | Jump to next page in paginated view
 
 | kbd:[M-SPC] or kbd:[Prev]
 | `cider-inspector-prev-page`
 | Jump to previous page in paginated view
+
+| kbd:[y]
+| `cider-inspector-display-analytics`
+| Calculate and display analytics for the inspected object. Analytics is supported for lists of numbers, strings, tuples, maps; for large key-value maps.
 
 | kbd:[s]
 | `cider-inspector-set-page-size`
@@ -78,7 +78,8 @@ You'll have access to additional keybindings in the inspector buffer
 
 | kbd:[v]
 | `cider-inspector-toggle-view-mode`
-| Switch the rendering of the current value between `:normal` and `:object` view mode. In `:object` mode, any value is rendered as a plain Java object (by displaying its fields) instead of custom rendering rules that the Inspector applies in `:normal` mode.
+| Switch the rendering of the current value between `:normal`, `:table`, and
+  `:object` view modes. In `:table` mode, render the value as a table  (only supported for sequences of maps or tuples). In `:object` mode, any value is rendered as a plain Java object (by displaying its fields) instead of custom rendering rules that the Inspector applies in `:normal` mode.
 
 | kbd:[d]
 | `cider-inspector-def-current-val`
