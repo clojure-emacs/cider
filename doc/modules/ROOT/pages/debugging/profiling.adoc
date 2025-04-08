@@ -1,47 +1,57 @@
 = Profiling
 
-CIDER has a built-in profiler that can help you identify hot-spots in your
-application code. It's built on top of the https://github.com/thunknyc/profile[thunknyc/profile] library.
+CIDER has a simple built-in profiler that can you to quickly measure the running
+time of individual functions. It is similar to wrapping your functions with
+`time` macro, except it records every timing and displays a the summarized
+result.
+
+NOTE: Profiling is different from benchmarking. Benchmarking more accurately
+tells you how long the code executes. If you need accurate timing results, use a
+serious benchmarking library like
+https://github.com/hugoduncan/criterium[Criterium]. If you need to understand
+where most of the time is spent, use a serious profiler like
+https://github.com/clojure-goes-fast/clj-async-profiler[clj-async-profiler].
 
 NOTE: The profiler doesn't support ClojureScript.
 
 == Usage
 
-Using CIDER's profiler is super easy. You'd just identify
-the vars you'd want to profile and invoke
-`M-x cider-profile-toggle` (kbd:[C-c C-= t]). By defaults it operates on the symbol
-at point, but will prompt for a var if there's nothing under the point.
+To start using CIDER profiler, choose the vars you want to profile and invoke
+`M-x cider-profile-toggle` (kbd:[C-c C-= t]). By defaults it operates on the
+symbol at point, but will prompt for a var if there's nothing under the point.
+You can also mark all functions in the namespace for profiling via
+`cider-profile-ns-toggle` (kbd:[C-c C-= n]).
 
-TIP: There's also `cider-profile-ns-toggle` (kbd:[C-c C-= n]) that will profiles all vars in a
-namespace.
+Then, evaluate some code making use of those vars and their invocations will be
+automatically profiled.
 
-Afterwards you can evaluate some code making use of those vars and their
-invocations will be automatically profiled.
-
-You can display a report of the collected profiling data with `M-x cider-profile-summary` (kbd:[C-c C-= S]). If you'd like to limit the displayed data to a particular var you should try
-`M-x cider-profile-var-summary` (kbd:[C-c C-= s]).
+You can display a report of the collected profiling data with `M-x
+cider-profile-summary` (kbd:[C-c C-= s]).
 
 == Understanding the Report Format
 
-A typical profiling report looks something like this:
+Profiling reports are rendered by xref:debugging/inspector.adoc[CIDER
+inspector]. A typical profiling report looks like this:
 
 ....
-|          :name | :n | :sum | :q1 | :med | :q3 | :sd | :mad |
-|----------------+----+------+-----+------+-----+-----+------|
-|  #'user/my-add |  1 |  2µs | 2µs |  2µs | 2µs | 0µs |  0µs |
-| #'user/my-mult |  2 | 11µs | 3µs |  8µs | 3µs | 3µs |  5µs |
+| # |           :name |   :n |  :mean |    :std |   :sum |   :min |   :max |   :med |   :samples |
+|---+-----------------+------+--------+---------+--------+--------+--------+--------+------------|
+| 0 | #'sample-ns/bar | 1000 |   3 us |  ±14 us |   3 ms | 791 ns | 384 us |   2 us |  [791 ...] |
+| 1 | #'sample-ns/baz | 1000 | 307 ns | ±710 ns | 307 us |  84 ns |  22 us | 250 ns |   [84 ...] |
+| 2 | #'sample-ns/foo | 1000 |   7 us |  ±18 us |   7 ms |   3 us | 495 us |   5 us | [2584 ...] |
+| 3 | #'sample-ns/qux | 1000 |   8 us |  ±20 us |   8 ms |   3 us | 543 us |   5 us | [3125 ...] |
 ....
 
 Let's demystify all the column names:
 
 * `:n`: Number of samples.
+* `:mean`: Average time spent in fn.
+* `:std`: Standard deviation.
 * `:sum`: Aggregate time spent in fn.
-* `:q1`: First quartile i.e. twenty-fifth percentile.
+* `:min`: Minimal recorded time for fn.
+* `:min`: Maximal recorded time for fn.
 * `:med`: Median i.e. fiftieth percentile.
-* `:q3`: Third quartile i.e. seventy-fifth percentile.
-* `:sd`: Standard deviation i.e. the square root of the sum of squares
-  of differences from the mean.
-* `:mad`: Mean absolute deviation. See https://en.wikipedia.org/wiki/Average_absolute_deviation[this article] for more details.
+* `:samples`: A list of all timing samples. You can click it to see the full list in the inspector.
 
 == Keybindings
 
@@ -56,21 +66,9 @@ Let's demystify all the column names:
 | kbd:[C-c C-= n]
 | Toggle profiling for the current ns.
 
-| `cider-profile-var-profiled-p`
-| kbd:[C-c C-= v]
-| Show whether some var has profiling enabled or not.
-
-| `cider-profile-var-summary`
-| kbd:[C-c C-= s]
-| Display the profiling summary for some var.
-
 | `cider-profile-summary`
-| kbd:[C-c C-= S]
+| kbd:[C-c C-= s]
 | Display the profiling summary for all vars.
-
-| `cider-profile-samples`
-| kbd:[C-c C-= +]
-| Display or update `max-sample-count`.
 
 | `cider-profile-clear`
 | kbd:[C-c C-= c]

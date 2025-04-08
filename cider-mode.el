@@ -673,7 +673,7 @@ The result depends on the buffer CIDER connection type."
 (defface cider-traced-face
   '((((type graphic)) :box (:color "cyan" :line-width -1))
     (t :underline t :background "#066"))
-  "Face used to mark code being traced."
+  "Face used to mark functions being traced or profiled."
   :group 'cider
   :package-version '(cider . "0.11.0"))
 
@@ -805,11 +805,11 @@ with the given LIMIT."
                           (push sym instrumented))
                          (`"\"light-form\""
                           (push sym enlightened)))
-                       ;; The ::traced keywords can be inlined by MrAnderson, so
-                       ;; we catch that case too.
                        ;; FIXME: This matches values too, not just keys.
-                       (when (seq-find (lambda (k) (and (stringp k)
-                                                        (string-match (rx "orchard.trace/traced" eos) k)))
+                       (when (seq-find (lambda (k)
+                                         (and (stringp k)
+                                              (or (string= "orchard.trace/traced" k)
+                                                  (string= "orchard.profile/profiled" k))))
                                        meta)
                          (push sym traced))
                        (when (and do-deprecated (nrepl-dict-get meta "deprecated"))
