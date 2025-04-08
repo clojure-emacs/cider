@@ -30,8 +30,6 @@
 (require 'cider-eval)
 (require 'cider-inspector)
 
-(defconst cider-profile-buffer "*cider-profile*")
-
 (defvar cider-profile-map
   (let ((map (define-prefix-command 'cider-profile-map)))
     (define-key map (kbd "t") #'cider-profile-toggle)
