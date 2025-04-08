@@ -56,5 +56,5 @@ should take care of them):
 
 * `cider-deprecated-face` - used for syntax highlighting deprecated vars
 * `cider-instrumented-face` - used for syntax highlighting instrumented for debugging vars
-* `cider-traced-face` - used for syntax highlighting traced vars
+* `cider-traced-face` - used for syntax highlighting traced and profiled vars
 * `cider-reader-conditional-face` - used for syntax highlighting inactive reader conditional branches
