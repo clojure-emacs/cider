@@ -212,18 +212,21 @@ for instance:
 
 == Inspector integration
 
-Within `*cider-error*`, when clicking directly a top-level exception (any of them in the cause chain),
-that specific exception will be inspected with the CIDER xref:debugging/inspector.adoc[Inspector].
+Within `*cider-error*`, when clicking directly a top-level exception (any of
+them in the cause chain), that specific exception will be inspected with the
+CIDER xref:debugging/inspector.adoc[Inspector]. You can also click on the
+rendered exception data to inspect it directly.
 
-This allows you to better understand intrincate `ex-data`.
+This clicking is defined and customizable in `cider-stacktrace-exception-map`
+and `cider-stacktrace-ex-data-map`.
 
-This clicking is defined and customizable in `cider-stacktrace-exception-map`, which has the following defaults:
+image::cider-stacktrace-inspect.gif[Inspect the exceptions and ex-data]
 
 === Keybindings
 
 |===
 | Action | Description
 
-| kbd:[click] or kbd:[i] or kbd:[p] 
-| Open the given exception in the Inspector.
+| kbd:[click] or kbd:[i] or kbd:[p] or kbd:[Return]
+| Open the given exception or ex-data in the Inspector.
 |===

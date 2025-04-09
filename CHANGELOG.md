@@ -21,6 +21,7 @@
   - Stop vendoring Puget dependency. You can still use `puget` pretty-printer in CIDER, but you need to depend on Puget explicitly. If Puget is not found on the classpath, CIDER will revert to `clojure.pprint/pprint` for pretty-printing.
 - [#3777](https://github.com/clojure-emacs/cider/issues/3777): Inspector no longer displays parsed Javadoc for Java classes and members.
 - [#3790](https://github.com/clojure-emacs/cider/issues/3790): Stacktrace: show messages and data for all exception causes by default.
+- [#3807](https://github.com/clojure-emacs/cider/issues/3807): Stacktrace: make exception data individually inspectable.
 - [#3789](https://github.com/clojure-emacs/cider/issues/3789): Refactor and simplify exception handling.
 - [#3789](https://github.com/clojure-emacs/cider/issues/3796): Completion: disable client-side sorting (defer to backend-provided candidate order).
 - [#3797](https://github.com/clojure-emacs/cider/issues/3797): Completion: enable `cider-completion-style` by default (this enables richer completion suggestions where candidates don't have to strictly match the prefix).
