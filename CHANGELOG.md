@@ -25,6 +25,7 @@
 - [#3789](https://github.com/clojure-emacs/cider/issues/3796): Completion: disable client-side sorting (defer to backend-provided candidate order).
 - [#3797](https://github.com/clojure-emacs/cider/issues/3797): Completion: enable `cider-completion-style` by default (this enables richer completion suggestions where candidates don't have to strictly match the prefix).
 - [#3803](https://github.com/clojure-emacs/cider/pull/3803): Enable dynamic indentation for `clojure-ts-mode`.
+- [#3806](https://github.com/clojure-emacs/cider/pull/3806): Add client info to `clone` op request.
 
 ### Bugs fixed
 
