@@ -252,11 +252,17 @@ See `cider-sync-request:inspect-push' and `cider-inspector--render-value'"
       (push (point) cider-inspector-location-stack)
       (cider-inspector--render-value result :next-inspectable))))
 
-(defun cider-inspector-inspect-last-exception (index)
-  "Inspects the exception in the cause stack identified by INDEX."
+(defun cider-inspector-inspect-last-exception (index &optional ex-data)
+  "Inspects the exception in the cause stack identified by INDEX.
+If EX-DATA is true, inspect ex-data of the exception instead."
   (interactive)
   (cl-assert (numberp index))
-  (let ((result (cider-sync-request:inspect-last-exception index)))
+  (let ((result (cider-nrepl-send-sync-request
+                 `("op" "inspect-last-exception"
+                   "index" ,index
+                   ,@(when ex-data
+                       `("ex-data" "true")))
+                 (cider-current-repl))))
     (when (nrepl-dict-get result "value")
       (setq cider-inspector-location-stack nil)
       (cider-inspector--render-value result :next-inspectable))))
@@ -421,14 +427,6 @@ current-namespace."
 (defun cider-sync-request:inspect-previous-sibling ()
   "Inspect the previous sibling value within a sequential parent."
   (cider-nrepl-send-sync-request `("op" "inspect-previous-sibling")
-                                 (cider-current-repl)))
-
-;;;###autoload
-(defun cider-sync-request:inspect-last-exception (index)
-  "Inspects the exception in the cause stack identified by INDEX."
-  (cl-assert (numberp index))
-  (cider-nrepl-send-sync-request `("op" "inspect-last-exception"
-                                   "index" ,index)
                                  (cider-current-repl)))
 
 (defun cider-sync-request:inspect-next-sibling ()

@@ -796,27 +796,48 @@ the NAME.  The whole group is prefixed by string INDENT."
 
 (declare-function cider-inspector-inspect-last-exception "cider-inspector")
 
-(defun cider-stacktrace--inspect-class (event)
-  "Mouse handler for EVENT."
+(defun cider-stacktrace--inspect-mouse (event &optional ex-data)
+  "Mouse handler for EVENT.
+If EX-DATA is true, inspect ex-data of the exception instead."
   (interactive "e")
   (let* ((pos (posn-point (event-end event)))
          (window (posn-window (event-end event)))
          (buffer (window-buffer window))
          (inspect-index (with-current-buffer buffer
                           (get-text-property pos 'inspect-index))))
-    (cider-inspector-inspect-last-exception inspect-index)))
+    (cider-inspector-inspect-last-exception inspect-index ex-data)))
 
-(defun cider-stacktrace--inspect-class-kbd ()
-  "Keyboard handler."
+(defun cider-stacktrace--inspect-kbd (&optional ex-data)
+  "Keyboard handler.
+If EX-DATA is true, inspect ex-data of the exception instead."
   (interactive)
   (when-let ((inspect-index (get-text-property (point) 'inspect-index)))
-    (cider-inspector-inspect-last-exception inspect-index)))
+    (cider-inspector-inspect-last-exception inspect-index ex-data)))
+
+(defun cider-stacktrace--inspect-ex-data-mouse (event)
+  "Mouse handler for EVENT."
+  (interactive "e")
+  (cider-stacktrace--inspect-mouse event t))
+
+(defun cider-stacktrace--inspect-ex-data-kbd ()
+  "Keyboard handler."
+  (interactive)
+  (cider-stacktrace--inspect-kbd t))
 
 (defvar cider-stacktrace-exception-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-1] #'cider-stacktrace--inspect-class)
-    (define-key map (kbd "p") #'cider-stacktrace--inspect-class-kbd)
-    (define-key map (kbd "i") #'cider-stacktrace--inspect-class-kbd)
+    (define-key map [mouse-1] #'cider-stacktrace--inspect-mouse)
+    (define-key map (kbd "p") #'cider-stacktrace--inspect-kbd)
+    (define-key map (kbd "i") #'cider-stacktrace--inspect-kbd)
+    (define-key map (kbd "RET") #'cider-stacktrace--inspect-kbd)
+    map))
+
+(defvar cider-stacktrace-ex-data-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [mouse-1] #'cider-stacktrace--inspect-ex-data-mouse)
+    (define-key map (kbd "p") #'cider-stacktrace--inspect-ex-data-kbd)
+    (define-key map (kbd "i") #'cider-stacktrace--inspect-ex-data-kbd)
+    (define-key map (kbd "RET") #'cider-stacktrace--inspect-ex-data-kbd)
     map))
 
 (defun cider-stacktrace-render-cause (buffer cause num note &optional inspect-index)
@@ -839,10 +860,10 @@ make INSPECT-INDEX actionable if present."
                                      ,cider-stacktrace-exception-map)
             (insert (format "%d. " num)
                     (propertize note 'font-lock-face 'font-lock-comment-face) " "
-                    (propertize class 'font-lock-face class-face 'mouse-face 'highlight)))
+                    (propertize class 'font-lock-face class-face 'mouse-face 'highlight)
+                    "\n"))
           ;; Detail level 1: message + ex-data
           (cider-propertize-region '(detail 1)
-            (insert "\n")
             (if (equal class "clojure.lang.Compiler$CompilerException")
                 (cider-stacktrace-render-compile-error buffer cause)
               (cider-stacktrace-emit-indented
@@ -859,18 +880,25 @@ make INSPECT-INDEX actionable if present."
               (cider-stacktrace--emit-spec-problems spec (concat indent "  ")))
             (when data
               (insert "\n")
-              (cider-stacktrace-emit-indented data indent nil t)))
+              (cider-propertize-region `(inspect-index
+                                         ,inspect-index
+                                         keymap
+                                         ,cider-stacktrace-ex-data-map
+                                         mouse-face
+                                         highlight)
+                (cider-stacktrace-emit-indented data indent nil t)))
+            (insert "\n"))
           ;; Detail level 2: stacktrace
           (cider-propertize-region '(detail 2)
             (let ((beg (point))
                   (bg `(:background ,cider-stacktrace-frames-background-color :extend t)))
               (dolist (frame stacktrace)
-                (insert "\n")
-                (cider-stacktrace-render-frame buffer frame))
+                (cider-stacktrace-render-frame buffer frame)
+                (insert "\n"))
               (overlay-put (make-overlay beg (point)) 'font-lock-face bg)))
           ;; Add line break between causes, even when collapsed.
           (cider-propertize-region '(detail 0)
-            (insert "\n\n")))))))
+            (insert "\n")))))))
 
 (defun cider-stacktrace-initialize (causes)
   "Set and apply CAUSES initial visibility, filters, and cursor position."
