@@ -1032,12 +1032,16 @@ ADDITIONAL-PARAMS is a plist to be appended to the request message."
                       connection
                       tooling))
 
+(defvar cider-version)
+
 (defun nrepl-sync-request:clone (connection &optional tooling)
   "Sent a :clone request to create a new client session.
 The request is dispatched via CONNECTION.
 Optional argument TOOLING Tooling is set to t if wanting the tooling session
 from CONNECTION."
-  (nrepl-send-sync-request '("op" "clone")
+  (nrepl-send-sync-request `("op" "clone"
+                             "client-name" "CIDER"
+                             "client-version" ,cider-version)
                            connection
                            nil tooling))
 
