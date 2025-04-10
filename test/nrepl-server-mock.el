@@ -43,7 +43,10 @@ requirements."
       (let* ((msg (queue-dequeue (cdr (nrepl-bdecode output))))
              (_ (mock/log! ":mock.filter/msg :in %S" msg))
              (response (pcase msg
-                         (`(dict "op" "clone" "id" ,id)
+                         (`(dict "op" "clone"
+                                 "client-name" "CIDER"
+                                 "client-version" ,cider-version
+                                 "id" ,id)
                           `(dict "id" ,id
                                  "session" "a-session"
                                  "status" ("done")
