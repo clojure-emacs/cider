@@ -150,10 +150,11 @@ workflows:
           requires:
             - test-lint
             - test-shellcheck
-      - test-ubuntu-emacs-master:
-          requires:
-            - test-lint
-            - test-shellcheck
+      # TODO: reenable once this issue is fixed https://app.circleci.com/pipelines/github/clojure-emacs/cider/2931/workflows/b7284759-c6d1-44dd-bbfc-e71709e3f62f/jobs/17699
+      # - test-ubuntu-emacs-master:
+      #     requires:
+      #       - test-lint
+      #       - test-shellcheck
       - test-windows-emacs-latest:
           requires:
             - test-lint
