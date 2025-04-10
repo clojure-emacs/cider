@@ -14,17 +14,19 @@
 - [#3793](https://github.com/clojure-emacs/cider/issues/3793): **(Breaking)** Remove features that relied on printed exception parsing:
   - `cider-stacktrace-analyze-string` and `cider-stacktrace-analyze-at-point` functions.
   - Automatic stacktrace parsing in log viewer.
-- Bump the injected `cider-nrepl` to [0.54.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0540-2025-04-05).
+- Bump the injected `cider-nrepl` to [0.55.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0550-2025-04-10).
   - [compliment#122](https://github.com/alexander-yakushev/compliment/pull/122): Completion: sort candidates by priority.
   - Inspector: add dedicated view for Exceptions.
   - Stop vendoring Haystack dependency.
   - Stop vendoring Puget dependency. You can still use `puget` pretty-printer in CIDER, but you need to depend on Puget explicitly. If Puget is not found on the classpath, CIDER will revert to `clojure.pprint/pprint` for pretty-printing.
 - [#3777](https://github.com/clojure-emacs/cider/issues/3777): Inspector no longer displays parsed Javadoc for Java classes and members.
 - [#3790](https://github.com/clojure-emacs/cider/issues/3790): Stacktrace: show messages and data for all exception causes by default.
+- [#3807](https://github.com/clojure-emacs/cider/issues/3807): Stacktrace: make exception data individually inspectable.
 - [#3789](https://github.com/clojure-emacs/cider/issues/3789): Refactor and simplify exception handling.
 - [#3789](https://github.com/clojure-emacs/cider/issues/3796): Completion: disable client-side sorting (defer to backend-provided candidate order).
 - [#3797](https://github.com/clojure-emacs/cider/issues/3797): Completion: enable `cider-completion-style` by default (this enables richer completion suggestions where candidates don't have to strictly match the prefix).
 - [#3803](https://github.com/clojure-emacs/cider/pull/3803): Enable dynamic indentation for `clojure-ts-mode`.
+- [#3805](https://github.com/clojure-emacs/cider/pull/3805): Profiler: update to latest profiling middleware.
 - [#3806](https://github.com/clojure-emacs/cider/pull/3806): Add client info to `clone` op request.
 
 ### Bugs fixed

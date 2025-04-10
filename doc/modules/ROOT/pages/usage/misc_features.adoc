@@ -94,9 +94,6 @@ Here's a list of all of ``cider-selector``'s keybindings:
 | kbd:[d]
 | `+*cider-doc*+` buffer.
 
-| kbd:[p]
-| `+*cider-profile*+` buffer.
-
 | kbd:[s]
 | `+*cider-scratch*+` buffer.
 
