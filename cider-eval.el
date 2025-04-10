@@ -295,15 +295,21 @@ When clojure.stracktrace is not present."
    (cider-nrepl-sync-request:eval
     "(println (ex-data *e))")))
 
-(defun cider--render-stacktrace-causes (causes &optional error-types is-compilation)
+(defun cider--render-stacktrace-causes (causes &optional error-types
+                                               is-compilation repl)
   "If CAUSES is non-nil, render its contents into a new error buffer.
 Optional argument ERROR-TYPES contains a list which should determine the
 op/situation that originated this error.
 If IS-COMPILATION is true, render the stacktrace into the error buffer but
-don't bring it forward."
+don't bring it forward.
+REPL connection can be provided to set it as the connection for the created
+*cider-error* buffer."
   (when causes
-    (let ((error-buffer (cider-new-error-buffer #'cider-stacktrace-mode
-                                                error-types is-compilation)))
+    (let* ((repl (or repl (cider-current-repl)))
+           (error-buffer (cider-new-error-buffer #'cider-stacktrace-mode
+                                                 error-types is-compilation)))
+      (with-current-buffer error-buffer
+        (setq cider--ancillary-buffer-repl repl))
       (cider-stacktrace-render error-buffer causes error-types))))
 
 (defconst cider-clojure-compilation-error-phases-default-value
@@ -362,7 +368,8 @@ For others, pop up *cider-error* buffer."
         (nrepl-notify msg type))))
   ;; Render stacktrace in *cider-error* buffer if it is a runtime error.
   (cider--render-stacktrace-causes
-   causes nil (member ex-phase (cider-clojure-compilation-error-phases)))
+   causes nil (member ex-phase (cider-clojure-compilation-error-phases))
+   (with-current-buffer source-buffer (cider-current-repl)))
   ;; If the error is a compilation error (which we normally don't show
   ;; *cider-error* buffer for), or the error buffer is disabled, compensate for
   ;; the lack of info with a overlay error. Verify that the provided buffer is
