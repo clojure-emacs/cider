@@ -982,7 +982,12 @@ before point."
                       (not (eq (char-after) ?\()))
                   (condition-case nil
                       (progn (backward-up-list) t)
-                    (scan-error nil))))
+                    (scan-error nil)
+                    ;; In `clojure-ts-mode', when `backward-up-list' is used,
+                    ;; `user-error' is signaled instead of `scan-error' because
+                    ;; the operation is delegated to the `treesit-up-list'
+                    ;; function.
+                    (user-error nil))))
       (setq beg (min beg (point)))
       ;; If there are locals above the current sexp, reapply them to the
       ;; current sexp.

@@ -35,7 +35,9 @@
 
 ### Bugs fixed
 
-- `cider-find-keyword` doesn't work with `clojure-ts-mode`.
+- [#3779](https://github.com/clojure-emacs/cider/pull/3779): `cider-find-keyword` doesn't work with `clojure-ts-mode`.
+- [#3791](https://github.com/clojure-emacs/cider/issues/3791): Missing font lock when `cider-font-lock-dynamically` is enabled
+  for `clojure-ts-mode`.
 
 ## 1.17.1 (2025-02-25)
 
