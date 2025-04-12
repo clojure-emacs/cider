@@ -4,6 +4,7 @@
 
 ### New features
 
+- [#3810](https://github.com/clojure-emacs/cider/pull/3810): Add the `cider-inspector-print-current-value` command to print the current value of the inspector.
 - [#3813](https://github.com/clojure-emacs/cider/pull/3813) Add support for pretty printing values in the inspector.
 - [#3802](https://github.com/clojure-emacs/cider/issues/3802): Inspector analytics.
 - [#3802](https://github.com/clojure-emacs/cider/issues/3802): Inspector table view-mode.
