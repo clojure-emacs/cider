@@ -30,6 +30,7 @@
 (require 'cl-lib)
 (require 'easymenu)
 (require 'seq)
+(require 'cider-client)
 (require 'cider-eval)
 
 ;; ===================================
@@ -146,6 +147,7 @@ Can be turned to nil once the user sees and acknowledges the feature."
     (define-key map [(shift tab)] #'cider-inspector-previous-inspectable-object)
     (define-key map "p" #'cider-inspector-previous-inspectable-object)
     (define-key map "P" #'cider-inspector-toggle-pretty-print)
+    (define-key map (kbd "C-c C-p") #'cider-inspector-print-current-value)
     (define-key map ":" #'cider-inspect-expr-from-inspector)
     (define-key map "f" #'forward-char)
     (define-key map "b" #'backward-char)
@@ -404,6 +406,18 @@ current-namespace."
     (cider-inspector--render-value result)
     (message "Defined current inspector value as #'%s/%s" ns var-name)))
 
+(defun cider-inspector-print-current-value ()
+  "Print the current value of the inspector."
+  (interactive)
+  (cider-ensure-connected)
+  (cider-ensure-op-supported "inspect-print-current-value")
+  (let ((buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode 'ancillary)))
+    (cider-nrepl-send-request
+     `("op" "inspect-print-current-value"
+       ,@(cider--nrepl-print-request-plist fill-column))
+     (cider-popup-eval-handler buffer)
+     (cider-current-repl))))
+
 (defun cider-inspector-tap-current-val ()
   "Sends the current Inspector current value to `tap>'."
   (interactive)
@@ -428,6 +442,7 @@ current-namespace."
       (_ (error "No object at point")))))
 
 ;; nREPL interactions
+
 (defun cider-sync-request:inspect-pop ()
   "Move one level up in the inspector stack."
   (cider-nrepl-send-sync-request `("op" "inspect-pop")
