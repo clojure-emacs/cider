@@ -2,8 +2,7 @@
 
 CIDER has a simple built-in profiler that can you to quickly measure the running
 time of individual functions. It is similar to wrapping your functions with
-`time` macro, except it records every timing and displays a the summarized
-result.
+`time` macro, except it records every timing and displays a summarized result.
 
 NOTE: Profiling is different from benchmarking. Benchmarking more accurately
 tells you how long the code executes. If you need accurate timing results, use a
