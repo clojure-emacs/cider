@@ -61,7 +61,7 @@ install CIDER with the following command:
 
 ### Launch an nREPL server and client from Emacs
 
-Simply open in Emacs a file belonging to your `lein`, `tools.deps` or `boot` project (like
+Simply open in Emacs a file belonging to your `lein` or `tools.deps` project (like
 `foo.clj`) and type <kbd>M-x</kbd> `cider-jack-in`. This will start an nREPL
 server with all the project dependencies loaded in and CIDER will automatically
 connect to it.
@@ -80,12 +80,6 @@ You can go to your project's directory in a terminal and type there
 
 ```
 $ lein repl
-```
-
-Or with Boot:
-
-```
-$ boot repl -s wait
 ```
 
 Alternatively you can start nREPL either manually or by the facilities provided

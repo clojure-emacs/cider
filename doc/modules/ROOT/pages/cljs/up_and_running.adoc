@@ -19,14 +19,13 @@ to connect to an already running nREPL server using
 === Manual Piggieback Setup
 
 To setup piggieback, add the following dependencies to your project
-(`project.clj` in a Leiningen based project or `build.boot` in a Boot
-project or `deps.edn`):
+(`project.clj` or `deps.edn`):
 
 [source,clojure]
 ----
 ;; use whatever are the most recent versions here
-[cider/piggieback "0.5.3"]
-[org.clojure/clojure "1.11.1"]
+[cider/piggieback "0.6.0"]
+[org.clojure/clojure "1.12.0"]
 ----
 
 as well as `piggieback` nREPL middleware:
@@ -36,14 +35,6 @@ in `project.clj`:
 [source,clojure]
 ----
 :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
-----
-
-or in `build.boot`:
-
-[source,clojure]
-----
-(task-options!
-  repl {:middleware '[cider.piggieback/wrap-cljs-repl]})
 ----
 
 or in `deps.edn`:

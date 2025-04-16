@@ -289,7 +289,9 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :package-version '(cider . "1.14.0"))
 
 (make-obsolete-variable 'cider-lein-global-options 'cider-lein-parameters "1.8.0")
-(make-obsolete-variable 'cider-boot-global-options 'cider-boot-parameters "1.8.0")
+(make-obsolete-variable 'cider-boot-command nil "1.8.0")
+(make-obsolete-variable 'cider-boot-parameters nil "1.8.0")
+(make-obsolete-variable 'cider-boot-global-options nil "1.8.0")
 (make-obsolete-variable 'cider-clojure-cli-global-options 'cider-clojure-cli-parameters "1.8.0")
 (make-obsolete-variable 'cider-shadow-cljs-global-options 'cider-shadow-cljs-parameters "1.8.0")
 (make-obsolete-variable 'cider-gradle-global-options 'cider-gradle-parameters "1.8.0")
@@ -300,7 +302,7 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   (if (executable-find "clojure") 'clojure-cli 'lein)
   "The default tool to use when doing `cider-jack-in' outside a project.
 This value will only be consulted when no identifying file types, i.e.
-project.clj for leiningen or build.boot for boot, could be found.
+project.clj for leiningen or deps.edn for clojure-cli, could be found.
 
 As the Clojure CLI is bundled with Clojure itself, it's the default.
 In the absence of the Clojure CLI (e.g. on Windows), we fallback
@@ -320,7 +322,7 @@ to Leiningen."
   nil
   "Allow choosing a build system when there are many.
 When there are project markers from multiple build systems (e.g. lein and
-boot) the user is prompted to select one of them.  When non-nil, this
+clojure-cli) the user is prompted to select one of them.  When non-nil, this
 variable will suppress this behavior and will select whatever build system
 is indicated by the variable if present.  Note, this is only when CIDER
 cannot decide which of many build systems to use and will never override a
@@ -432,7 +434,6 @@ The plist supports the following keys
   "Determine the command `cider-jack-in' needs to invoke for the PROJECT-TYPE."
   (pcase project-type
     ('lein        cider-lein-command)
-    ('boot        cider-boot-command)
     ('clojure-cli cider-clojure-cli-command)
     ('babashka    cider-babashka-command)
     ('shadow-cljs cider-shadow-cljs-command)
@@ -477,7 +478,6 @@ Throws an error if PROJECT-TYPE is unknown."
                          " "
                          r)
                r)))
-    ('boot (cider--resolve-command cider-boot-command))
     ('clojure-cli (if (and cider-enrich-classpath
                            (not (eq system-type 'windows-nt))
                            (executable-find (cider--get-enrich-classpath-clojure-cli-script)))
@@ -510,7 +510,6 @@ Throws an error if PROJECT-TYPE is unknown."
   "Determine the command line options for `cider-jack-in' for the PROJECT-TYPE."
   (pcase project-type
     ('lein        cider-lein-global-options)
-    ('boot        cider-boot-global-options)
     ('clojure-cli cider-clojure-cli-global-options)
     ('babashka    cider-babashka-global-options)
     ('shadow-cljs cider-shadow-cljs-global-options)
@@ -527,7 +526,6 @@ Throws an error if PROJECT-TYPE is unknown."
   ;; Please be careful when changing them.
   (pcase project-type
     ('lein        cider-lein-parameters)
-    ('boot        cider-boot-parameters)
     ('clojure-cli cider-clojure-cli-parameters)
     ('babashka    cider-babashka-parameters)
     ('shadow-cljs cider-shadow-cljs-parameters)
@@ -545,7 +543,7 @@ Throws an error if PROJECT-TYPE is unknown."
 (defcustom cider-injected-nrepl-version "1.3.1"
   "The version of nREPL injected on jack-in.
 We inject the newest known version of nREPL just in case
-your version of Boot or Leiningen is bundling an older one."
+your version of Leiningen is bundling an older one."
   :type 'string
   :package-version '(cider . "1.2.0")
   :safe #'stringp)
@@ -692,44 +690,12 @@ returned by this function only contains strings."
                       (car spec)
                     spec)))))
 
-(defun cider--list-as-boot-artifact (list)
-  "Return a boot artifact string described by the elements of LIST.
-LIST should have the form (ARTIFACT-NAME ARTIFACT-VERSION).  The returned
-string is quoted for passing as argument to an inferior shell."
-  (concat "-d " (shell-quote-argument (format "%s:%s" (car list) (cadr list)))))
-
 (defun cider--jack-in-required-dependencies ()
   "Returns the required CIDER deps.
 They are normally added to `cider-jack-in-dependencies',
 unless it's a Lein project."
   `(("nrepl/nrepl" ,cider-injected-nrepl-version)
     ("cider/cider-nrepl" ,cider-injected-middleware-version)))
-
-(defun cider-boot-dependencies (dependencies)
-  "Return a list of boot artifact strings created from DEPENDENCIES."
-  (concat (mapconcat #'cider--list-as-boot-artifact dependencies " ")
-          (unless (seq-empty-p dependencies) " ")))
-
-(defun cider-boot-middleware-task (params middlewares)
-  "Create a command to add MIDDLEWARES with corresponding PARAMS."
-  (concat "cider.tasks/add-middleware "
-          (mapconcat (lambda (middleware)
-                       (format "-m %s" (shell-quote-argument middleware)))
-                     middlewares
-                     " ")
-          " " params))
-
-(defun cider-boot-jack-in-dependencies (global-opts params dependencies middlewares)
-  "Create boot jack-in dependencies.
-Does so by concatenating GLOBAL-OPTS, DEPENDENCIES,
-and MIDDLEWARES.  PARAMS and MIDDLEWARES are passed on to
-`cider-boot-middleware-task` before concatenating and DEPENDENCIES
- are passed on to `cider-boot-dependencies`."
-  (concat global-opts
-          (unless (seq-empty-p global-opts) " ")
-          "-i \"(require 'cider.tasks)\" " ;; Note the space at the end here
-          (cider-boot-dependencies (append (cider--jack-in-required-dependencies) dependencies))
-          (cider-boot-middleware-task params middlewares)))
 
 (defun cider--gradle-dependency-notation (dependency)
   "Returns Gradle's GAV dependency syntax.
@@ -959,8 +925,8 @@ See also `cider-jack-in-auto-inject-clojure'."
 These are set in `cider-jack-in-dependencies', `cider-jack-in-lein-plugins'
 and `cider-jack-in-nrepl-middlewares' are injected from the CLI according
 to the used PROJECT-TYPE, and COMMAND if provided.  Eliminates the need for
-hacking profiles.clj or the boot script for supporting CIDER with its nREPL
-middleware and dependencies."
+hacking profiles.clj for supporting CIDER with its nREPL middleware and
+dependencies."
   (pcase project-type
     ('lein (cider-lein-jack-in-dependencies
             global-opts
@@ -970,12 +936,6 @@ middleware and dependencies."
             cider-jack-in-dependencies-exclusions
             (cider-jack-in-normalized-lein-plugins)
             cider-jack-in-lein-middlewares))
-    ('boot (cider-boot-jack-in-dependencies
-            global-opts
-            params
-            (cider-add-clojure-dependencies-maybe
-             cider-jack-in-dependencies)
-            (cider-jack-in-normalized-nrepl-middlewares)))
     ('clojure-cli (cider-clojure-cli-jack-in-dependencies
                    global-opts
                    params
@@ -1056,12 +1016,6 @@ Generally you should not disable this unless you run into some faulty check."
   (cider-verify-piggieback-is-present)
   (unless (cider-library-present-p "weasel.repl.server")
     (user-error "Weasel in not available.  Please check https://docs.cider.mx/cider/basics/clojurescript/#browser-connected-clojurescript-repl for details")))
-
-(defun cider-check-boot-requirements ()
-  "Check whether we can start a Boot ClojureScript REPL."
-  (cider-verify-piggieback-is-present)
-  (unless (cider-library-present-p "adzerk.boot-cljs-repl")
-    (user-error "The Boot ClojureScript REPL is not available.  Please check https://github.com/adzerk-oss/boot-cljs-repl/blob/master/README.md for details")))
 
 (defun cider-check-krell-requirements ()
   "Check whether we can start a Krell ClojureScript REPL."
@@ -1223,8 +1177,6 @@ The supplied string will be wrapped in a do form if needed."
           cider-check-node-requirements)
     (weasel "(do (require 'weasel.repl.websocket) (cider.piggieback/cljs-repl (weasel.repl.websocket/repl-env :ip \"127.0.0.1\" :port 9001)))"
             cider-check-weasel-requirements)
-    (boot "(do (require 'adzerk.boot-cljs-repl) (adzerk.boot-cljs-repl/start-repl))"
-          cider-check-boot-requirements)
     (shadow cider-shadow-cljs-init-form cider-check-shadow-cljs-requirements)
     (shadow-select cider-shadow-select-cljs-init-form cider-check-shadow-cljs-requirements)
     (krell "(require '[clojure.edn :as edn]
@@ -2072,7 +2024,6 @@ Search for lein or java processes including nrepl.command nREPL."
 PROJECT-DIR defaults to current project."
   (let* ((default-directory (or project-dir (clojure-project-dir (cider-current-dir))))
          (build-files '((lein        . "project.clj")
-                        (boot        . "build.boot")
                         (clojure-cli . "deps.edn")
                         (babashka    . "bb.edn")
                         (shadow-cljs . "shadow-cljs.edn")
