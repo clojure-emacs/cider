@@ -2,6 +2,9 @@
 
 ## master (unreleased)
 
+- [#3810](https://github.com/clojure-emacs/cider/pull/3810) Add the `cider-inspector-print-current-value` command to
+  print the current value of the inspector.
+
 ### New features
 
 - [#3802](https://github.com/clojure-emacs/cider/issues/3802): Inspector analytics.
