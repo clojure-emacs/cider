@@ -48,45 +48,6 @@ documentation lookup, the namespace browser, and macroexpansion).
 
 TIP: For more information on Weasel you should consult its https://github.com/nrepl/weasel/blob/master/README.md[documentation].
 
-== Boot ClojureScript REPL
-
-`boot-cljs` is another browser-connected ClojureScript REPL, that's targeting the Boot build tool.
-Internally, it's powered by Weasel. Let's go over the steps required to use it.
-
-. Add this to your dependencies in `build.boot`:
-+
-[source,clojure]
-----
-[adzerk/boot-cljs        "X.Y.Z"  :scope "test"]
-[adzerk/boot-cljs-repl   "X.Y.Z"  :scope "test"]
-[pandeiro/boot-http      "X.Y.Z"  :scope "test"]
-[weasel                  "0.7.1"  :scope "test"]
-[cider/piggieback "0.5.3"  :scope "test"] ; not needed for cider-jack-in-cljs
-----
-+
-and this at the end of `build.boot`:
-+
-[source,clojure]
-----
-(require
- '[adzerk.boot-cljs :refer [cljs]]
- '[adzerk.boot-cljs-repl :refer [cljs-repl]]
- '[pandeiro.boot-http :refer [serve]])
-
-(deftask dev []
-  (comp (serve)
-        (watch)
-        (cljs-repl) ; order is important!!
-        (cljs)))
-----
-+
-. Type kbd:[M-x] `customize-variable` kbd:[RET] `cider-boot-parameters`
-and insert `dev`.
-. Open a file in your project and type kbd:[M-x] `cider-jack-in-cljs`.
-. Connect to the running server with your browser. The address is printed on the terminal, but it's probably `+http://localhost:3000+`.
-
-For more information visit https://github.com/adzerk-oss/boot-cljs-repl[boot-cljs-repl].
-
 == nbb (node.js babashka)
 
 CIDER has built-in support for `nbb`. You can either jack in to an nbb project with `M-x clojure-jack-in-cljs`.

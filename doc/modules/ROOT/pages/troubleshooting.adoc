@@ -161,8 +161,8 @@ least what's being required).
 
 === Warning saying you have to use newer nREPL
 
-CIDER currently requires at least nREPL 0.6 to work properly. As nREPL comes
-bundled with Leiningen and Boot, from time to time you might have to override the
+CIDER currently requires at least nREPL 1.0 to work properly. As nREPL comes
+bundled with Leiningen, from time to time you might have to override the
 version supplied by them (e.g. if you're forced to use an older version of
 Leiningen or there's no release bundling the required nREPL version yet). Leiningen
 users can add this to their `profiles.clj` to force the proper dependency:
@@ -171,8 +171,6 @@ users can add this to their `profiles.clj` to force the proper dependency:
 ----
 {:repl {:dependencies [[nrepl/nrepl "x.y.z"]]}}
 ----
-
-The procedure is pretty similar for Boot.
 
 IMPORTANT: Make sure you add the newer nREPL dependency to the `:dependencies` key instead
 of `:plugins` (where the `cider-nrepl` Lein plugin resides). That's a pretty common
@@ -230,7 +228,6 @@ in the "Middleware Setup" section.
 * Do `C-h v cider-inject-dependencies-at-jack-in`, and check that this variable is non-nil.
 * Make sure your project depends on at least Clojure `1.7.0`.
 * If you use Leiningen, make sure your `lein --version` is at least `2.9.0`.
-* If you use Boot and you've changed `cider-boot-parameters`, that's probably the cause.
 
 If the above doesn't work, you can try specifying the cider-nrepl middleware
 manually, as per the
@@ -242,8 +239,8 @@ in the "Middleware Setup" section.
 This means you're manually adding the cider-nrepl middleware in your project,
 but you shouldn't do that because `cider-jack-in` already does that for
 you. Look into the following files, and ensure you've removed all references to
-`cider-nrepl` and `nrepl`: `project.clj`, `build.boot`,
-`~/.lein/profiles.clj` and `~/.boot/profile.boot`.
+`cider-nrepl` and `nrepl`: `project.clj`, `deps.edn`,
+`~/.lein/profiles.clj` and `~/.clojure/deps.edn`.
 
 === I get some error related to refactor-nrepl on startup
 

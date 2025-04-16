@@ -11,6 +11,7 @@
 ### Changes
 
 - [#3782](https://github.com/clojure-emacs/cider/issues/3782): **(Breaking)** Drop official support for Emacs 26.
+- [#3812](https://github.com/clojure-emacs/cider/issues/3812): **(Breaking)** Remove support for Boot.
 - [#3793](https://github.com/clojure-emacs/cider/issues/3793): **(Breaking)** Remove features that relied on printed exception parsing:
   - `cider-stacktrace-analyze-string` and `cider-stacktrace-analyze-at-point` functions.
   - Automatic stacktrace parsing in log viewer.
