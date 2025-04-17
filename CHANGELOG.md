@@ -4,6 +4,7 @@
 
 ### New features
 
+- [#3813](https://github.com/clojure-emacs/cider/pull/3813) Add support for pretty printing values in the inspector.
 - [#3802](https://github.com/clojure-emacs/cider/issues/3802): Inspector analytics.
 - [#3802](https://github.com/clojure-emacs/cider/issues/3802): Inspector table view-mode.
 - [orchard#320](https://github.com/clojure-emacs/orchard/pull/320): Info: recognize printed Java classes/methods and munged Clojure functions in stacktrace outputs.
