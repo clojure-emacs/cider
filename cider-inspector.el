@@ -78,6 +78,11 @@ The max depth can be also changed interactively within the inspector."
   :type 'boolean
   :package-version '(cider . "0.15.0"))
 
+(defcustom cider-inspector-pretty-print nil
+  "When true, pretty print values in the inspector."
+  :type 'boolean
+  :package-version '(cider . "1.18.0"))
+
 (defcustom cider-inspector-skip-uninteresting t
   "Controls whether to skip over uninteresting values in the inspector.
 Only applies to navigation with `cider-inspector-prev-inspectable-object'
@@ -140,6 +145,7 @@ Can be turned to nil once the user sees and acknowledges the feature."
     (define-key map "n" #'cider-inspector-next-inspectable-object)
     (define-key map [(shift tab)] #'cider-inspector-previous-inspectable-object)
     (define-key map "p" #'cider-inspector-previous-inspectable-object)
+    (define-key map "P" #'cider-inspector-toggle-pretty-print)
     (define-key map ":" #'cider-inspect-expr-from-inspector)
     (define-key map "f" #'forward-char)
     (define-key map "b" #'backward-char)
@@ -349,6 +355,15 @@ MAX-NESTED-DEPTH is the new value."
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result :next-inspectable))))
 
+(defun cider-inspector-toggle-pretty-print ()
+  "Toggle the pretty printing of values in the inspector."
+  (interactive)
+  (let ((result (cider-nrepl-send-sync-request
+                 `("op" "inspect-toggle-pretty-print")
+                 (cider-current-repl))))
+    (when (nrepl-dict-get result "value")
+      (cider-inspector--render-value result))))
+
 (defun cider-inspector-toggle-view-mode ()
   "Toggle the view mode of the inspector between normal and object view mode."
   (interactive)
@@ -508,7 +523,9 @@ MAX-COLL-SIZE if non nil."
               ,@(when cider-inspector-max-nested-depth
                   `("max-nested-depth" ,cider-inspector-max-nested-depth))
               ,@(when cider-inspector-display-analytics-hint
-                  `("display-analytics-hint" "true"))))
+                  `("display-analytics-hint" "true"))
+              ,@(when cider-inspector-pretty-print
+                  `("pretty-print" "true"))))
     (cider-nrepl-send-sync-request (cider-current-repl))))
 
 (declare-function cider-set-buffer-ns "cider-mode")
