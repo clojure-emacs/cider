@@ -81,6 +81,10 @@ You'll have access to additional keybindings in the inspector buffer
 | Switch the rendering of the current value between `:normal`, `:table`, and
   `:object` view modes. In `:table` mode, render the value as a table  (only supported for sequences of maps or tuples). In `:object` mode, any value is rendered as a plain Java object (by displaying its fields) instead of custom rendering rules that the Inspector applies in `:normal` mode.
 
+| kbd:[P]
+| `cider-inspector-toggle-pretty-print`
+| Toggle the pretty printing of values in the inspector. You can set the `cider-inspector-pretty-print` customization option to `t`, if you always want values to be be pretty printed.
+
 | kbd:[d]
 | `cider-inspector-def-current-val`
 | Defines a var in the REPL namespace with current inspector value. If you tend to always choose the same name(s), you may want to set the `cider-inspector-preferred-var-names` customization option.
@@ -129,6 +133,10 @@ listed in the table above.
 
 If you enable `cider-inspector-fill-frame`, the inspector window fills its
 frame.
+
+You can toggle the pretty printing of values in the inspector with
+kbd:[P] and customize their initial presentation by adjusting the
+`cider-inspector-pretty-print` customization option.
 
 When you define a var using kbd:[d], a var name can be suggested (default none).
 You can customize this value via the `cider-inspector-preferred-var-names`
