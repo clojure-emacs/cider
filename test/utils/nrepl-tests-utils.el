@@ -113,6 +113,50 @@ calling process."
                             (message ":nrepl-mock-server-process-started...")))))
     server-process))
 
+(defun bencodable-obj-equal? (obj1 obj2)
+  "Compare bencodable objects OBJ1 and OBJ2 for equality.
+They are considered equal if they have the same content.  Dicts are
+considered equal if they have the same key-value pairs, even if the keys
+appear in different order."
+  (cond
+   ((nrepl-dict-p obj1)
+    (if (not (nrepl-dict-p obj2))
+        nil
+      (let ((obj1-keys (sort (nrepl-dict-keys obj1)
+                             (lambda (a b)
+                               (string< a b))))
+            (obj2-keys (sort (nrepl-dict-keys obj2)
+                             (lambda (a b)
+                               (string< a b)))))
+        (if (not (equal obj1-keys obj2-keys))
+            nil
+          (seq-every-p #'identity
+                       (mapcar (lambda (key)
+                                 (bencodable-obj-equal?
+                                  (nrepl-dict-get obj1 key)
+                                  (nrepl-dict-get obj2 key)))
+                               obj1-keys))))))
+   ((listp obj1)
+    (if (not (and (listp obj2)
+                  (= (length obj1)
+                     (length obj2))))
+        nil
+      (seq-every-p #'identity
+                   (cl-mapcar (lambda (obj1 obj2)
+                                (bencodable-obj-equal? obj1 obj2))
+                              obj1
+                              obj2))))
+   ((integerp obj1)
+    (if (not (integerp obj2))
+        nil
+      (= obj1 obj2)))
+   ((stringp obj1)
+    (if (not (stringp obj2))
+        nil
+      (string= obj1 obj2)))
+   ;; Any other kind of value is not a bencodable value.
+   nil))
+
 (provide 'nrepl-tests-utils)
 
 ;;; nrepl-tests-utils.el ends here

@@ -33,38 +33,73 @@
 (require 'queue)
 (require 'cl)
 
+(defun nrepl-server-mock--get-keys (dict keys)
+  "Get the values for KEYS from nrepl-dict DICT.
+Get them as a list, so they can be easily consumed by
+`cl-destructuring-bind`."
+  (mapcar (lambda (k) (nrepl-dict-get dict k)) keys))
+
 (defun nrepl-server-mock-filter (proc output)
   "Handle the nREPL message found in OUTPUT sent by the client PROC.
 Minimal implementation, just enough for fulfilling clients' testing
-requirements."
+requirements.
+
+Additional complexity is added by the fact that bencoded dictionaries
+must have their keys in sorted order.  But we don't want to have to
+remember to write them down as such in the test values here (because
+there is ample room for mistakes that are harder to debug)."
   ;; (mock/log! ":mock.filter/output %s :msg %s" proc output)
 
   (condition-case error-details
       (let* ((msg (queue-dequeue (cdr (nrepl-bdecode output))))
              (_ (mock/log! ":mock.filter/msg :in %S" msg))
+             ;; Message id and session are needed for all request
+             ;; messages and responses. Get them once here.
+             (msg-id (nrepl-dict-get msg "id"))
+             (msg-session (nrepl-dict-get msg "session"))
              (response (pcase msg
-                         (`(dict "op" "clone"
-                                 "client-name" "CIDER"
-                                 "client-version" ,cider-version
-                                 "id" ,id)
-                          `(dict "id" ,id
+                         ((pred (lambda (msg)
+                                  (let ((keys '("client-version")))
+                                    (cl-destructuring-bind (client-version) (nrepl-server-mock--get-keys msg keys)
+                                      (bencodable-obj-equal? msg
+                                                             `(dict "op" "clone"
+                                                                    "client-name" "CIDER"
+                                                                    "client-version" ,client-version
+                                                                    "id" ,msg-id))))))
+                          `(dict "id" ,msg-id
                                  "session" "a-session"
                                  "status" ("done")
                                  "new-session" "a-new-session"))
 
-                         (`(dict "op" "describe" "session" ,session "id" ,id)
-                          `(dict "id" ,id "session" ,session "status"
-                                 ("done")))
+                         ((pred (bencodable-obj-equal? `(dict "op" "describe"
+                                                              "id" ,msg-id
+                                                              "session" ,msg-session)))
+                          `(dict "id" ,msg-id
+                                 "session" ,msg-session
+                                 "status" ("done")))
+
                          ;; Eval op can include other fields in addition to the
                          ;; code, we only need the signature and the session and
-                         ;; id fields at the end.
-                         (`(dict "op" "eval" "code" ,_code . ,rest)
-                          (cl-destructuring-bind (_ session _ id) (seq-drop rest (- (seq-length rest) 4))
-                            `(dict "id" ,id "session" ,session "status"
-                                   ("done"))))
-                         (`(dict "op" "close" "session" ,session "id" ,id)
-                          `(dict "id" ,id "session" ,session "status"
-                                 ("done"))))))
+                         ;; id fields.
+                         ((pred (lambda (msg)
+                                  (let ((keys '("op")))
+                                    (cl-destructuring-bind (op) (nrepl-server-mock--get-keys msg keys)
+                                      (bencodable-obj-equal? `(dict "op" ,op
+                                                                    "id" ,msg-id
+                                                                    "session" ,msg-session)
+                                                             `(dict "op" "eval"
+                                                                    "id" ,msg-id
+                                                                    "session" ,msg-session))))))
+                          `(dict "id" ,msg-id
+                                 "session" ,msg-session
+                                 "status" ("done")))
+
+                         ((pred (bencodable-obj-equal? `(dict "op" "close"
+                                                              "id" ,msg-id
+                                                              "session" ,msg-session)))
+                          `(dict "id" ,msg-id
+                                 "session" ,msg-session
+                                 "status" ("done"))))))
 
         (mock/log! ":mock.filter/msg :out %S" response)
         (if (not response)

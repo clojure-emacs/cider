@@ -33,6 +33,7 @@
 ### Bugs fixed
 
 - [#3784](https://github.com/clojure-emacs/cider/issues/3784): Inspector: make point less erratic when navigating between inspector screens.
+- [#3786](https://github.com/clojure-emacs/cider/issues/3786): Sort dictionaries by key in nrepl-bencode
 
 ### Bugs fixed
 
