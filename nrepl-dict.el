@@ -37,7 +37,9 @@
 
 (defun nrepl-dict (&rest key-vals)
   "Create nREPL dict from KEY-VALS."
-  (cons 'dict key-vals))
+  (if (cl-evenp (length key-vals))
+      (cons 'dict key-vals)
+    (error "An even number of KEY-VALS is needed to build a dict object")))
 
 (defun nrepl-dict-from-hash (hash)
   "Create nREPL dict from HASH."

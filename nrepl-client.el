@@ -423,13 +423,30 @@ decoded message or nil if the strings were completely decoded."
       (erase-buffer)
       (cons string-q response-q))))
 
+(defun nrepl--bencode-dict (dict)
+  "Encode DICT with bencode.
+According to the Bittorrent protocol specification[1], when bencoding
+dictionaries, keys must be strings and appear in sorted order (sorted as
+raw strings, not alphanumerics).
+
+[1] https://www.bittorrent.org/beps/bep_0003.html#bencoding"
+  (let* ((sorted-keys (sort (nrepl-dict-keys dict)
+                            (lambda (a b)
+                                     (string< a b))))
+         (sorted-dict (nrepl-dict)))
+    (dolist (k sorted-keys sorted-dict)
+      (nrepl-dict-put sorted-dict
+                      k
+                      (nrepl-dict-get dict k)))
+    (mapconcat #'nrepl-bencode (cdr sorted-dict) "")))
+
 (defun nrepl-bencode (object)
   "Encode OBJECT with bencode.
 Integers, lists and nrepl-dicts are treated according to bencode
 specification.  Everything else is encoded as string."
   (cond
    ((integerp object) (format "i%de" object))
-   ((nrepl-dict-p object) (format "d%se" (mapconcat #'nrepl-bencode (cdr object) "")))
+   ((nrepl-dict-p object) (format "d%se" (nrepl--bencode-dict object)))
    ((listp object) (format "l%se" (mapconcat #'nrepl-bencode object "")))
    (t (format "%s:%s" (string-bytes object) object))))
 

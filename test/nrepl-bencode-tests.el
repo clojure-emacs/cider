@@ -327,10 +327,48 @@ If object is incomplete, return a decoded path."
                   "int" 1
                   "int-list" (1 2 3 4 5)
                   "string" "f30dbd69-7095-40c1-8e98-7873ae71a07f"
-                  "dict" (dict "k1" 1 "k2" 2 "k3" "333333")
+                  "unordered-dict" (dict "k3" "333333" "k2" 2 "k1" 1)
                   "status" ("eval-error")))
-      (expect (car (nrepl-bdecode-string (nrepl-bencode obj)))
-              :to-equal obj))))
+      ;; Bencoded dicts may change the order of the keys of original
+      ;; dict, as bencoding a dict MUST encode the keys in sorted
+      ;; order.  We need to compare objects taking this into account.
+      (expect (bencodable-obj-equal?
+               obj
+               (car (nrepl-bdecode-string (nrepl-bencode obj))))
+              :to-be t))))
+
+(describe "nrepl--bencode"
+  (it "encodes strings"
+    (expect (nrepl-bencode "spam") :to-equal "4:spam")
+    (expect (nrepl-bencode "") :to-equal "0:")
+    ;; Assuming we use UTF-8 encoded strings, which
+    ;; Clojure/Clojurescript do.
+    (expect (nrepl-bencode "Божидар") :to-equal "14:Божидар"))
+
+  (it "encodes integers"
+    (expect (nrepl-bencode 3) :to-equal "i3e")
+    (expect (nrepl-bencode -3) :to-equal "i-3e"))
+
+  (it "encodes lists"
+    (expect (nrepl-bencode '("spam" "eggs"))
+            :to-equal "l4:spam4:eggse")
+    (expect (nrepl-bencode '("spam" ("eggs" "salt")))
+            :to-equal "l4:spaml4:eggs4:saltee")
+    (expect (nrepl-bencode '(1 2 3 (4 5 (6)) 7 8))
+            :to-equal "li1ei2ei3eli4ei5eli6eeei7ei8ee"))
+
+  (it "encodes dicts"
+    (expect (nrepl-bencode '(dict "spam" "eggs" "cow" "moo"))
+            :to-equal "d3:cow3:moo4:spam4:eggse")
+    (expect (nrepl-bencode '(dict "spam" "eggs"
+                                  "cow" (dict "foo" "foobar" "bar" "baz")))
+            :to-equal "d3:cowd3:bar3:baz3:foo6:foobare4:spam4:eggse"))
+
+  (it "handles nils"
+    (expect (nrepl-bencode '("" nil (dict "" nil)))
+            :to-equal "l0:led0:leee")
+    (expect (nrepl-bencode '("" nil (dict "cow" nil "" 6)))
+            :to-equal "l0:led0:i6e3:cowleee")))
 
 ;; benchmarks
 
