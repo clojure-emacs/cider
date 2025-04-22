@@ -62,7 +62,7 @@ install CIDER with the following command:
 ### Launch an nREPL server and client from Emacs
 
 Simply open in Emacs a file belonging to your `lein` or `tools.deps` project (like
-`foo.clj`) and type <kbd>M-x</kbd> `cider-jack-in`. This will start an nREPL
+`foo.clj`) and type <kbd>M-x</kbd> `cider-jack-in`. This will start an [nREPL][]
 server with all the project dependencies loaded in and CIDER will automatically
 connect to it.
 
@@ -265,8 +265,6 @@ Copyright © 2012-2025 Bozhidar Batsov, Artur Malabarba, Tim King, Phil Hagelber
 
 [badge-license]: https://img.shields.io/badge/license-GPL_3-green.svg
 [nREPL]:https://github.com/nrepl/nrepl
-[Sly]: https://github.com/joaotavora/sly
-[Geiser]: https://github.com/jaor/geiser
 [clojure-mode]: https://github.com/clojure-emacs/clojure-mode
 [clojure-ts-mode]: https://github.com/clojure-emacs/clojure-ts-mode
 [inf-clojure]: https://github.com/clojure-emacs/inf-clojure
