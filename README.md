@@ -78,8 +78,8 @@ a Clojure project, without having to visit any file in it.
 You can go to your project's directory in a terminal and type there
 (assuming you're using Leiningen that is):
 
-```
-$ lein repl
+```shell
+lein repl
 ```
 
 Alternatively you can start nREPL either manually or by the facilities provided
@@ -128,22 +128,22 @@ The direction of the project is being stewarded by the CIDER core team. This
 group of long-term contributors manage releases, evaluate pull-requests, and
 does a lot of the groundwork on major new features.
 
-* [Bozhidar Batsov](https://github.com/bbatsov) (author & head maintainer)
-* [Vitalie Spinu](https://github.com/vspinu)
-* [Michael Griffiths](https://github.com/cichli)
-* [Lars Andersen](https://github.com/expez)
+- [Bozhidar Batsov](https://github.com/bbatsov) (author & head maintainer)
+- [Vitalie Spinu](https://github.com/vspinu)
+- [Michael Griffiths](https://github.com/cichli)
+- [Lars Andersen](https://github.com/expez)
 
 ### CIDER Alumni
 
 In addition, we'd like to extend a special thanks the following retired CIDER
 core team members. Lovingly known as The Alumni:
 
-* [Tim King](https://github.com/kingtim) (original author)
-* [Phil Hagelberg](https://github.com/technomancy)
-* [Hugo Duncan](https://github.com/hugoduncan)
-* [Steve Purcell](https://github.com/purcell)
-* [Artur Malabarba](https://github.com/malabarba)
-* [Jeff Valk](https://github.com/jeffvalk)
+- [Tim King](https://github.com/kingtim) (original author)
+- [Phil Hagelberg](https://github.com/technomancy)
+- [Hugo Duncan](https://github.com/hugoduncan)
+- [Steve Purcell](https://github.com/purcell)
+- [Artur Malabarba](https://github.com/malabarba)
+- [Jeff Valk](https://github.com/jeffvalk)
 
 ## Release policy
 
@@ -181,11 +181,12 @@ for your preferences (although currently [Open Collective](https://opencollectiv
 If you're working in a company that's making significant use of CIDER we'd appreciate it if you suggest to your company
 to become a CIDER sponsor.
 
-You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] via
-[Open Collective](https://opencollective.com/cider),
-[GitHub Sponsors](https://github.com/sponsors/bbatsov),
-[Patreon](https://www.patreon.com/bbatsov) and
-[PayPal](https://www.paypal.me/bbatsov).
+You can support the development of CIDER, [clojure-mode][] and [inf-clojure][] via:
+
+- [Open Collective](https://opencollective.com/cider)
+- [GitHub Sponsors](https://github.com/sponsors/bbatsov)
+- [Patreon](https://www.patreon.com/bbatsov)
+- [PayPal](https://www.paypal.me/bbatsov)
 
 ### Open Collective Backers
 
