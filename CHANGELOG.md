@@ -4,20 +4,19 @@
 
 ### New features
 
-- [#3810](https://github.com/clojure-emacs/cider/pull/3810): Add the `cider-inspector-print-current-value` command to print the current value of the inspector.
-- [#3813](https://github.com/clojure-emacs/cider/pull/3813) Add support for pretty printing values in the inspector.
 - [#3802](https://github.com/clojure-emacs/cider/issues/3802): Inspector analytics.
 - [#3802](https://github.com/clojure-emacs/cider/issues/3802): Inspector table view-mode.
+- [#3813](https://github.com/clojure-emacs/cider/issues/3813): Inspector pretty-printing mode.
+- [#3810](https://github.com/clojure-emacs/cider/pull/3810): Inspector: `C-c C-p` to pretty-printthe currently inspected value.
 - [orchard#320](https://github.com/clojure-emacs/orchard/pull/320): Info: recognize printed Java classes/methods and munged Clojure functions in stacktrace outputs.
 
 ### Changes
 
-- [#3782](https://github.com/clojure-emacs/cider/issues/3782): **(Breaking)** Drop official support for Emacs 26.
 - [#3812](https://github.com/clojure-emacs/cider/issues/3812): **(Breaking)** Remove support for Boot.
 - [#3793](https://github.com/clojure-emacs/cider/issues/3793): **(Breaking)** Remove features that relied on printed exception parsing:
   - `cider-stacktrace-analyze-string` and `cider-stacktrace-analyze-at-point` functions.
   - Automatic stacktrace parsing in log viewer.
-- Bump the injected `cider-nrepl` to [0.55.3](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0553-2025-04-24).
+- Bump the injected `cider-nrepl` to [0.55.4](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0554-2025-04-26).
   - [compliment#122](https://github.com/alexander-yakushev/compliment/pull/122): Completion: sort candidates by priority.
   - Inspector: add dedicated view for Exceptions.
   - Stop vendoring Haystack dependency.
@@ -31,14 +30,12 @@
 - [#3803](https://github.com/clojure-emacs/cider/pull/3803): Enable dynamic indentation for `clojure-ts-mode`.
 - [#3805](https://github.com/clojure-emacs/cider/pull/3805): Profiler: update to latest profiling middleware.
 - [#3806](https://github.com/clojure-emacs/cider/pull/3806): Add client info to `clone` op request.
+- [#3782](https://github.com/clojure-emacs/cider/issues/3782): Drop official support for Emacs 26.
 
 ### Bugs fixed
 
 - [#3784](https://github.com/clojure-emacs/cider/issues/3784): Inspector: make point less erratic when navigating between inspector screens.
 - [#3786](https://github.com/clojure-emacs/cider/issues/3786): Sort dictionaries by key in nrepl-bencode
-
-### Bugs fixed
-
 - [#3779](https://github.com/clojure-emacs/cider/pull/3779): `cider-find-keyword` doesn't work with `clojure-ts-mode`.
 - [#3791](https://github.com/clojure-emacs/cider/issues/3791): Missing font lock when `cider-font-lock-dynamically` is enabled
   for `clojure-ts-mode`.

@@ -2,5 +2,5 @@
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [clj-http "3.12.3"]]
   :source-paths ["src"]
-  :plugins [[cider/cider-nrepl "0.55.3"]
+  :plugins [[cider/cider-nrepl "0.55.4"]
             [refactor-nrepl "3.9.0"]])
