@@ -4,6 +4,8 @@
 
 ### New features
 
+- [#3822](https://github.com/clojure-emacs/cider/issues/3822): Add `cider-pprint-eval-last-sexp-and-replace` interactive command.
+
 ### Changes
 
 - [#3816](https://github.com/clojure-emacs/cider/issues/3816): **(Breaking)** Remove enrich-classpath support from cider-jack-in.

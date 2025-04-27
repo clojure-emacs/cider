@@ -449,6 +449,10 @@ kbd:[C-c C-v C-q]
 kbd:[C-c C-v C-f e]
 | Evaluate the form preceding point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.
 
+| `cider-pprint-eval-last-sexp-and-replace`
+| kbd:[C-c C-v C-f w]
+| Evaluate the form preceding point and replace it with its pretty-printed result.
+
 | `cider-pprint-eval-defun-at-point`
 | kbd:[C-c C-v C-f d]
 | Evaluate the top level form under point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.
