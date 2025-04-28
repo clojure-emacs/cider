@@ -7,7 +7,7 @@
 - [#3802](https://github.com/clojure-emacs/cider/issues/3802): Inspector analytics.
 - [#3802](https://github.com/clojure-emacs/cider/issues/3802): Inspector table view-mode.
 - [#3813](https://github.com/clojure-emacs/cider/issues/3813): Inspector pretty-printing mode.
-- [#3810](https://github.com/clojure-emacs/cider/pull/3810): Inspector: `C-c C-p` to pretty-printthe currently inspected value.
+- [#3810](https://github.com/clojure-emacs/cider/pull/3810): Inspector: `C-c C-p` to pretty-print the currently inspected value.
 - [orchard#320](https://github.com/clojure-emacs/orchard/pull/320): Info: recognize printed Java classes/methods and munged Clojure functions in stacktrace outputs.
 
 ### Changes
