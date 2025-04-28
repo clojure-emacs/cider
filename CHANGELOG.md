@@ -37,8 +37,7 @@
 - [#3784](https://github.com/clojure-emacs/cider/issues/3784): Inspector: make point less erratic when navigating between inspector screens.
 - [#3786](https://github.com/clojure-emacs/cider/issues/3786): Sort dictionaries by key in nrepl-bencode
 - [#3779](https://github.com/clojure-emacs/cider/pull/3779): `cider-find-keyword` doesn't work with `clojure-ts-mode`.
-- [#3791](https://github.com/clojure-emacs/cider/issues/3791): Missing font lock when `cider-font-lock-dynamically` is enabled
-  for `clojure-ts-mode`.
+- [#3791](https://github.com/clojure-emacs/cider/issues/3791): Missing font-lock when `cider-font-lock-dynamically` is enabled for `clojure-ts-mode`.
 
 ## 1.17.1 (2025-02-25)
 
@@ -48,7 +47,7 @@
 
 ### Bugs fixed
 
-- [#3775](https://github.com/clojure-emacs/cider/issues/3775): Code completion throws MalformedURLException on Windows.
+- [#3775](https://github.com/clojure-emacs/cider/issues/3775): Code completion throws `MalformedURLException` on Windows.
 
 ## 1.17.0 (2025-02-17)
 
