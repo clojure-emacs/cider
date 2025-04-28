@@ -8,9 +8,7 @@ does a lot of the groundwork on major new features. Here are the current members
 of the CIDER core team, listed in the order of joining it:
 
 * https://github.com/bbatsov[Bozhidar Batsov] (author & head maintainer)
-* https://github.com/vspinu[Vitalie Spinu]
-* https://github.com/cichli[Michael Griffiths]
-* https://github.com/expez[Lars Andersen]
+* https://github.com/alexander-yakushev[Oleksandr Yakushev]
 
 == CIDER Alumni
 
@@ -23,3 +21,6 @@ core team members. Lovingly known as The Alumni:
 * https://github.com/purcell[Steve Purcell]
 * https://github.com/malabarba[Artur Malabarba]
 * https://github.com/jeffvalk[Jeff Valk]
+* https://github.com/vspinu[Vitalie Spinu]
+* https://github.com/cichli[Michael Griffiths]
+* https://github.com/expez[Lars Andersen]

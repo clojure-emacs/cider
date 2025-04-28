@@ -129,9 +129,7 @@ group of long-term contributors manage releases, evaluate pull-requests, and
 does a lot of the groundwork on major new features.
 
 - [Bozhidar Batsov](https://github.com/bbatsov) (author & head maintainer)
-- [Vitalie Spinu](https://github.com/vspinu)
-- [Michael Griffiths](https://github.com/cichli)
-- [Lars Andersen](https://github.com/expez)
+- [Oleksandr Yakushev](https://github.com/alexander-yakushev)
 
 ### CIDER Alumni
 
@@ -144,6 +142,9 @@ core team members. Lovingly known as The Alumni:
 - [Steve Purcell](https://github.com/purcell)
 - [Artur Malabarba](https://github.com/malabarba)
 - [Jeff Valk](https://github.com/jeffvalk)
+- [Vitalie Spinu](https://github.com/vspinu)
+- [Michael Griffiths](https://github.com/cichli)
+- [Lars Andersen](https://github.com/expez)
 
 ## Release policy
 
