@@ -51,7 +51,7 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
   :type '(radio
           (integer :tag "Fill Column")
           (const :tag "None" nil)
-          (const :tag "Use default fill-column" t)))
+          (const :tag "Use default fill-column" t))
   :package-version '(cider . "0.7.0"))
 
 (defcustom cider-stacktrace-default-filters '(tooling dup)
