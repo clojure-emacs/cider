@@ -76,7 +76,7 @@ Pick nil if you prefer the same window as *cider-error*."
 (defconst cider-error-buffer "*cider-error*")
 
 (defcustom cider-stacktrace-suppressed-errors '()
-  "Errors that won't make the stacktrace buffer 'pop-over' your active window.
+  "Errors that won't make the stacktrace buffer pop over your active window.
 The error types are represented as strings."
   :type '(list string)
   :package-version '(cider . "0.12.0"))
