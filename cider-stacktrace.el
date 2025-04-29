@@ -56,7 +56,7 @@ If nil, messages will not be wrapped.  If truthy but non-numeric,
 
 (defcustom cider-stacktrace-default-filters '(tooling dup)
   "Frame types to omit from initial stacktrace display."
-  :type '(list symbol)
+  :type '(repeat symbol)
   :package-version '(cider . "0.6.0"))
 
 (defcustom cider-stacktrace-navigate-to-other-window t
