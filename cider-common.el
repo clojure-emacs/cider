@@ -123,8 +123,9 @@ Use CALLBACK as the completing read var callback."
 (defun cider-try-symbol-at-point (prompt callback)
   "Call CALLBACK with symbol at point.
 On failure, read a symbol name using PROMPT and call CALLBACK with that."
-  (condition-case nil (funcall callback (cider--kw-to-symbol (cider-symbol-at-point 'look-back)))
-    ('error (funcall callback (cider-read-from-minibuffer prompt)))))
+  (condition-case nil
+      (funcall callback (cider--kw-to-symbol (cider-symbol-at-point 'look-back)))
+    (error (funcall callback (cider-read-from-minibuffer prompt)))))
 
 (declare-function cider-mode "cider-mode")
 
