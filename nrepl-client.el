@@ -432,7 +432,7 @@ raw strings, not alphanumerics).
 [1] https://www.bittorrent.org/beps/bep_0003.html#bencoding"
   (let* ((sorted-keys (sort (nrepl-dict-keys dict)
                             (lambda (a b)
-                                     (string< a b))))
+                              (string< a b))))
          (sorted-dict (nrepl-dict)))
     (dolist (k sorted-keys sorted-dict)
       (nrepl-dict-put sorted-dict
@@ -1325,7 +1325,7 @@ described by `nrepl-message-buffer-name-template'."
     ;; the time-stamps are quite useful for debugging
     (setq msg (cons (car msg)
                     (cider-plist-put (cdr msg) "time-stamp"
-                                   (format-time-string "%Y-%m-%0d %H:%M:%S.%N"))))
+                                     (format-time-string "%Y-%m-%0d %H:%M:%S.%N"))))
     (with-current-buffer (nrepl-messages-buffer (current-buffer))
       (setq buffer-read-only nil)
       (when (> (buffer-size) nrepl-message-buffer-max-size)

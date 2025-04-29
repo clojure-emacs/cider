@@ -455,7 +455,7 @@ This includes the arglist and ns and symbol name (if available)."
                            (equal name-or-member "q"))
                       (let ((arglists (cider-plist-get eldoc-plist "arglists")))
                         (cider-plist-put eldoc-plist "arglists"
-                                       (cider--eldoc-add-datomic-query-inputs-to-arglists arglists))))
+                                         (cider--eldoc-add-datomic-query-inputs-to-arglists arglists))))
                      ;; if none of the clauses is successful, do cache the eldoc
                      (t (setq cider-eldoc-last-symbol (list thing eldoc-plist))))
                   ;; middleware eldoc lookups are expensive, so we
