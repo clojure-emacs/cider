@@ -48,12 +48,15 @@
   "Fill column for error messages in stacktrace display.
 If nil, messages will not be wrapped.  If truthy but non-numeric,
 `fill-column' will be used."
-  :type 'list
+  :type '(radio
+          (integer :tag "Fill Column")
+          (const :tag "None" nil)
+          (const :tag "Use default fill-column" t)))
   :package-version '(cider . "0.7.0"))
 
 (defcustom cider-stacktrace-default-filters '(tooling dup)
   "Frame types to omit from initial stacktrace display."
-  :type 'list
+  :type '(list symbol)
   :package-version '(cider . "0.6.0"))
 
 (defcustom cider-stacktrace-navigate-to-other-window t
@@ -75,7 +78,7 @@ Pick nil if you prefer the same window as *cider-error*."
 (defcustom cider-stacktrace-suppressed-errors '()
   "Errors that won't make the stacktrace buffer 'pop-over' your active window.
 The error types are represented as strings."
-  :type 'list
+  :type '(list string)
   :package-version '(cider . "0.12.0"))
 
 ;; Faces
