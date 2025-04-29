@@ -33,6 +33,7 @@
 
 ;;; Code:
 (require 'cl-lib)
+(require 'cider-util)
 
 
 (defun nrepl-dict (&rest key-vals)
@@ -75,7 +76,7 @@ removed in a future release."
     (if (nrepl-dict-p dict)
         ;; Note: The structure of the following expression avoids the
         ;; expensive containment check in nearly all cases, see #3717
-        (or (lax-plist-get (cdr dict) key)
+        (or (cider-plist-get (cdr dict) key)
             ;; TODO: remove DEFAULT argument and the following clause
             (when default
               (and (not (nrepl-dict-contains dict key))
@@ -89,7 +90,7 @@ Return new dict.  Dict is modified by side effects."
       `(dict ,key ,value)
     (if (not (nrepl-dict-p dict))
         (error "Not an nREPL dict object: %s" dict)
-      (setcdr dict (lax-plist-put (cdr dict) key value))
+      (setcdr dict (cider-plist-put (cdr dict) key value))
       dict)))
 
 (defun nrepl-dict-keys (dict)

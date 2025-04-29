@@ -251,6 +251,22 @@ Can only error if SKIP is non-nil."
         (forward-sexp 2)
         (cider-sexp-at-point))
     (error nil)))
+
+
+;;; Plists
+
+(defun cider-plist-get (plist prop)
+  "Extract PROP from PLIST using `equal'.
+
+An alternative `lax-plist-get' that got deprecated in Emacs 29."
+  (lax-plist-get plist prop))
+
+(defun cider-plist-put (plist prop val)
+  "Change value in PLIST of PROP to VAL, comparing with `equal'.
+
+An alternative to `lax-plist-put' that got deprecated in Emacs 29."
+  (lax-plist-put plist prop val))
+
 
 ;;; Text properties
 

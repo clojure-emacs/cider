@@ -930,7 +930,7 @@ the standard session."
     (when-let* ((session (if tooling nrepl-tooling-session nrepl-session)))
       (setq request (append request `("session" ,session))))
     (let* ((id (nrepl-next-request-id connection))
-           (request (cons 'dict (lax-plist-put request "id" id)))
+           (request (cons 'dict (cider-plist-put request "id" id)))
            (message (nrepl-bencode request)))
       (nrepl-log-message request 'request)
       (puthash id callback nrepl-pending-requests)
@@ -1324,7 +1324,7 @@ described by `nrepl-message-buffer-name-template'."
     ;; append a time-stamp to the message before logging it
     ;; the time-stamps are quite useful for debugging
     (setq msg (cons (car msg)
-                    (lax-plist-put (cdr msg) "time-stamp"
+                    (cider-plist-put (cdr msg) "time-stamp"
                                    (format-time-string "%Y-%m-%0d %H:%M:%S.%N"))))
     (with-current-buffer (nrepl-messages-buffer (current-buffer))
       (setq buffer-read-only nil)
@@ -1334,7 +1334,7 @@ described by `nrepl-message-buffer-name-template'."
         (delete-region (point-min) (- (point) 1)))
       (goto-char (point-max))
       (nrepl-log-pp-object (nrepl-decorate-msg msg type)
-                           (nrepl-log--message-color (lax-plist-get (cdr msg) "id"))
+                           (nrepl-log--message-color (cider-plist-get (cdr msg) "id"))
                            t)
       (when-let* ((win (get-buffer-window)))
         (set-window-point win (point-max)))

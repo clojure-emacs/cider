@@ -260,7 +260,7 @@ This cache is stored in the connection buffer.")
   (let* ((current-repl (cider-current-repl nil 'ensure))
          (require-code (cdr (assoc (cider-repl-type current-repl) cider-repl-require-repl-utils-code))))
     (nrepl-send-sync-request
-     (lax-plist-put
+     (cider-plist-put
       (nrepl--eval-request require-code (cider-current-ns))
       "inhibit-cider-middleware" "true")
      current-repl)))
@@ -660,7 +660,7 @@ the input stream may block the whole colorization process."
   "Return non-nil if NS-FORM for CONNECTION changed since last eval."
   (when-let* ((ns (cider-ns-from-form ns-form)))
     (not (string= ns-form
-                  (lax-plist-get
+                  (cider-plist-get
                    (buffer-local-value 'cider-repl--ns-forms-plist connection)
                    ns)))))
 
@@ -679,7 +679,7 @@ the input stream may block the whole colorization process."
     (when-let* ((ns (cider-ns-from-form ns-form)))
       ;; cache ns-form
       (setq cider-repl--ns-forms-plist
-            (lax-plist-put cider-repl--ns-forms-plist ns ns-form))
+            (cider-plist-put cider-repl--ns-forms-plist ns ns-form))
       ;; cache ns roots regexp
       (when (string-match "\\([^.]+\\)" ns)
         (let ((root (match-string-no-properties 1 ns)))
