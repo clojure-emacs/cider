@@ -83,8 +83,8 @@ If t, save the files without confirmation."
 If a list of modes, any buffers visiting files on the classpath whose major
 mode is derived from any of the modes might be saved.
 If t, all buffers visiting files on the classpath might be saved."
-  :type '(choice listp
-                 (const t))
+  :type '(choice (repeat :tag "Enable for specific modes" symbol)
+                 (const :tag "Always" t))
   :group 'cider
   :package-version '(cider . "0.21.0"))
 
