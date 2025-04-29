@@ -122,9 +122,9 @@ Only applies when the *cider-inspect* buffer is currently visible."
 If nil, files are not saved.
 If 'prompt, the user is prompted to save the file if it's been modified.
 If t, save the file without confirmation."
-  :type '(choice (const prompt :tag "Prompt to save the file if it's been modified")
-                 (const nil :tag "Don't save the file")
-                 (const t :tag "Save the file without confirmation"))
+  :type '(choice (const :tag "Prompt to save the file if it's been modified" prompt)
+                 (const :tag "Don't save the file" nil)
+                 (const :tag "Save the file without confirmation" t))
   :group 'cider
   :package-version '(cider . "0.6.0"))
 

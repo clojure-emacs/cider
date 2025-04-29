@@ -72,9 +72,9 @@
 If nil, files are not saved.
 If 'prompt, the user is prompted to save files if they have been modified.
 If t, save the files without confirmation."
-  :type '(choice (const prompt :tag "Prompt to save files if they have been modified")
-                 (const nil :tag "Don't save the files")
-                 (const t :tag "Save the files without confirmation"))
+  :type '(choice (const :tag "Prompt to save files if they have been modified" prompt)
+                 (const :tag "Don't save the files" nil)
+                 (const :tag "Save the files without confirmation" t))
   :group 'cider
   :package-version '(cider . "0.15.0"))
 
