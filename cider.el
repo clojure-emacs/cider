@@ -571,7 +571,7 @@ the artifact.")
 
 Used when `cider-jack-in-auto-inject-clojure' is set to `latest'.")
 
-(defconst cider-required-middleware-version "0.55.6"
+(defconst cider-required-middleware-version "0.55.7"
   "The CIDER nREPL version that's known to work properly with CIDER.")
 
 (defcustom cider-injected-middleware-version cider-required-middleware-version

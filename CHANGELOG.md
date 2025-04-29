@@ -16,7 +16,7 @@
 - [#3793](https://github.com/clojure-emacs/cider/issues/3793): **(Breaking)** Remove features that relied on printed exception parsing:
   - `cider-stacktrace-analyze-string` and `cider-stacktrace-analyze-at-point` functions.
   - Automatic stacktrace parsing in log viewer.
-- Bump the injected `cider-nrepl` to [0.55.6](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0555-2025-04-28).
+- Bump the injected `cider-nrepl` to [0.55.7](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0557-2025-04-29).
   - [compliment#122](https://github.com/alexander-yakushev/compliment/pull/122): Completion: sort candidates by priority.
   - Inspector: add dedicated view for Exceptions.
   - Stop vendoring Haystack dependency.
