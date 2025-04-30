@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.18.0 (2025-04-30)
+
 ### New features
 
 - [#3802](https://github.com/clojure-emacs/cider/issues/3802): Inspector analytics.
@@ -12,6 +14,7 @@
 
 ### Changes
 
+- [#3782](https://github.com/clojure-emacs/cider/issues/3782): Drop official support for Emacs 26.
 - [#3812](https://github.com/clojure-emacs/cider/issues/3812): **(Breaking)** Remove support for Boot.
 - [#3793](https://github.com/clojure-emacs/cider/issues/3793): **(Breaking)** Remove features that relied on printed exception parsing:
   - `cider-stacktrace-analyze-string` and `cider-stacktrace-analyze-at-point` functions.
@@ -30,7 +33,6 @@
 - [#3803](https://github.com/clojure-emacs/cider/pull/3803): Enable dynamic indentation for `clojure-ts-mode`.
 - [#3805](https://github.com/clojure-emacs/cider/pull/3805): Profiler: update to latest profiling middleware.
 - [#3806](https://github.com/clojure-emacs/cider/pull/3806): Add client info to `clone` op request.
-- [#3782](https://github.com/clojure-emacs/cider/issues/3782): Drop official support for Emacs 26.
 
 ### Bugs fixed
 
