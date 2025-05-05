@@ -7,6 +7,7 @@
 ### Changes
 
 - [#3816](https://github.com/clojure-emacs/cider/issues/3816): **(Breaking)** Remove enrich-classpath support from cider-jack-in.
+- [#3817](https://github.com/clojure-emacs/cider/issues/3817): Enable `cider-download-java-sources` by default.
 
 ### Bugs fixed
 
