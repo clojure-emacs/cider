@@ -339,7 +339,7 @@ The default value in nREPL is 1024."
   :group 'cider
   :package-version '(cider . "0.25.0"))
 
-(defcustom cider-download-java-sources nil
+(defcustom cider-download-java-sources t
   "Whether to automatically download source artifacts for 3rd-party Java classes.
 
 When enabled, CIDER will attempt to download source JARs from Maven for
