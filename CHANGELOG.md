@@ -2,6 +2,14 @@
 
 ## master (unreleased)
 
+### New features
+
+### Changes
+
+- [#3816](https://github.com/clojure-emacs/cider/issues/3816): **(Breaking)** Remove enrich-classpath support from cider-jack-in.
+
+### Bugs fixed
+
 ## 1.18.0 (2025-04-30)
 
 ### New features

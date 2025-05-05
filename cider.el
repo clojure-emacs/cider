@@ -307,6 +307,7 @@ By default we favor the project-specific shadow-cljs over the system-wide."
 (make-obsolete-variable 'cider-gradle-global-options 'cider-gradle-parameters "1.8.0")
 (make-obsolete-variable 'cider-babashka-global-options 'cider-babashka-parameters "1.8.0")
 (make-obsolete-variable 'cider-nbb-global-options 'cider-nbb-parameters "1.8.0")
+(make-obsolete-variable 'cider-enrich-classpath nil "1.19.0")
 
 (defcustom cider-jack-in-default
   (if (executable-find "clojure") 'clojure-cli 'lein)
@@ -453,49 +454,16 @@ The plist supports the following keys
     (_            (user-error "Unsupported project type `%S'" project-type))))
 
 (defcustom cider-enrich-classpath nil
-  "If t, use enrich-classpath for adding sources/javadocs to the classpath.
-
-enrich-classpath is a Clojure CLI shim, and Leiningen plugin.
-
-This classpath expansion is done in a clean manner,
-without interfering with classloaders."
+  "Removed."
   :type 'boolean
-  :package-version '(cider . "1.2.0")
   :safe #'booleanp)
-
-(defun cider--get-enrich-classpath-lein-script ()
-  "Returns the location of enrich-classpath's lein.sh wrapper script."
-  (when-let ((cider-location (locate-library "cider.el" t)))
-    (concat (file-name-directory cider-location)
-            "lein.sh")))
-
-(defun cider--get-enrich-classpath-clojure-cli-script ()
-  "Returns the location of enrich-classpath's clojure.sh wrapper script."
-  (when-let ((cider-location (locate-library "cider.el" t)))
-    (concat (file-name-directory cider-location)
-            "clojure.sh")))
 
 (defun cider-jack-in-resolve-command (project-type)
   "Determine the resolved file path to `cider-jack-in-command'.
 Throws an error if PROJECT-TYPE is unknown."
   (pcase project-type
-    ('lein (let ((r (cider--resolve-command cider-lein-command)))
-             (if (and cider-enrich-classpath
-                      (not (eq system-type 'windows-nt))
-                      (executable-find (cider--get-enrich-classpath-lein-script)))
-                 (concat "bash " ;; don't assume lein.sh is executable - MELPA might change that
-                         (cider--get-enrich-classpath-lein-script)
-                         " "
-                         r)
-               r)))
-    ('clojure-cli (if (and cider-enrich-classpath
-                           (not (eq system-type 'windows-nt))
-                           (executable-find (cider--get-enrich-classpath-clojure-cli-script)))
-                      (concat "bash " ;; don't assume clojure.sh is executable - MELPA might change that
-                              (cider--get-enrich-classpath-clojure-cli-script)
-                              " "
-                              (cider--resolve-command cider-clojure-cli-command))
-                    (cider--resolve-command cider-clojure-cli-command)))
+    ('lein (cider--resolve-command cider-lein-command))
+    ('clojure-cli (cider--resolve-command cider-clojure-cli-command))
     ('babashka (cider--resolve-command cider-babashka-command))
     ;; here we have to account for the possibility that the command is either
     ;; "npx shadow-cljs" or just "shadow-cljs"
@@ -649,12 +617,8 @@ Added to `cider-jack-in-lein-plugins' (which see) when doing
   "Return a normalized list of Leiningen plugins to be injected.
 See `cider-jack-in-lein-plugins' for the format, except that the list
 returned by this function does not include keyword arguments."
-  (let ((plugins (if cider-enrich-classpath
-                     (append cider-jack-in-lein-plugins
-                             `(("cider/cider-nrepl" ,cider-injected-middleware-version)
-                               ("mx.cider/lein-enrich-classpath" "1.19.3")))
-                   (append cider-jack-in-lein-plugins
-                           `(("cider/cider-nrepl" ,cider-injected-middleware-version))))))
+  (let ((plugins (append cider-jack-in-lein-plugins
+                         `(("cider/cider-nrepl" ,cider-injected-middleware-version)))))
     (thread-last plugins
                  (seq-filter
                   (lambda (spec)
@@ -765,18 +729,6 @@ of EXCLUSIONS can be provided as well.  The returned
 string is quoted for passing as argument to an inferior shell."
   (shell-quote-argument (format "[%s %S%s]" (car list) (cadr list) (cider--lein-artifact-exclusions exclusions))))
 
-(defun cider--extract-lein-profiles (lein-params)
-  "Extracts a list of ('with-profile ...' and a repl command from LEIN-PARAMS).
-
-If no `with-profile' call was found,
-returns an empty string as the first member."
-  (or (when-let* ((pattern "\\(with-profiles?\\s-+\\S-+\\)")
-                  (match-start (string-match pattern lein-params))
-                  (match-end (match-end 0)))
-        (list (concat (substring lein-params match-start match-end) " ")
-              (string-trim (substring lein-params match-end))))
-      (list "" lein-params)))
-
 (defun cider-lein-jack-in-dependencies (global-opts params dependencies dependencies-exclusions lein-plugins &optional lein-middlewares)
   "Create lein jack-in dependencies.
 Does so by concatenating GLOBAL-OPTS, DEPENDENCIES, with DEPENDENCIES-EXCLUSIONS
@@ -802,16 +754,7 @@ removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
                         `(,(concat "update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"))))
               " -- ")
    " -- "
-   (if (not cider-enrich-classpath)
-       params
-     ;; enrich-classpath must be applied after the `with-profile` call, if present,
-     ;; so that it can also process the classpath that is typically expanded by the presence of a set of profiles:
-     (let* ((profiles-and-repl-call (cider--extract-lein-profiles params))
-            (profiles (car profiles-and-repl-call))
-            (repl-call (nth 1 profiles-and-repl-call)))
-       (concat profiles
-               "update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware -- "
-               repl-call)))))
+   params))
 
 (defun cider--dedupe-deps (deps)
   "Removes the duplicates in DEPS."
@@ -1404,8 +1347,7 @@ With the prefix argument,
 allow editing of the jack in command; with a double prefix prompt for all
 these parameters."
   (interactive "P")
-  (let ((cider-enrich-classpath nil) ;; ensure it's disabled for cljs projects, for now
-        (cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
+  (let ((cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
         (cider-jack-in-lein-plugins (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
         (cider-jack-in-nrepl-middlewares (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares))
         (orig-buffer (current-buffer)))
@@ -1433,8 +1375,7 @@ with a double prefix prompt for all these parameters.
 When SOFT-CLJS-START is non-nil, start cljs REPL
 only when the ClojureScript dependencies are met."
   (interactive "P")
-  (let ((cider-enrich-classpath nil) ;; ensure it's disabled for cljs projects, for now
-        (cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
+  (let ((cider-jack-in-dependencies (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
         (cider-jack-in-lein-plugins (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
         (cider-jack-in-nrepl-middlewares (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares))
         (orig-buffer (current-buffer)))

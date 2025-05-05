@@ -147,7 +147,6 @@
       (setq-local cider-injected-middleware-version "0.55.7")
       (setq-local cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware"))
       (setq-local cider-jack-in-dependencies-exclusions '())
-      (setq-local cider-enrich-classpath t)
       (setq-local cider-enable-nrepl-jvmti-agent t))
 
     (it "can inject dependencies in a lein project"
@@ -156,10 +155,7 @@
                                 (shell-quote-argument "[nrepl/nrepl \"0.9.0\"]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.55.7\"]")
-                                " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
                                 " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
-                                " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
 
     (it "can inject dependencies in a lein project with an exclusion"
@@ -170,10 +166,7 @@
                          (shell-quote-argument "[nrepl/nrepl \"0.9.0\" :exclusions [org.clojure/clojure]]")
                          " -- update-in :plugins conj "
                          (shell-quote-argument "[cider/cider-nrepl \"0.55.7\"]")
-                         " -- update-in :plugins conj "
-                         (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
                          " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
-                         " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                          " -- repl :headless")))
 
     (it "can inject dependencies in a lein project with multiple exclusions"
@@ -183,10 +176,7 @@
                                 (shell-quote-argument "[nrepl/nrepl \"0.9.0\" :exclusions [org.clojure/clojure foo.bar/baz]]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.55.7\"]")
-                                " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
                                 " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
-                                " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
 
     (it "can inject dependencies in a gradle project"
@@ -211,10 +201,7 @@
                                 (shell-quote-argument "[refactor-nrepl \"2.0.0\"]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.55.7\"]")
-                                " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
                                 " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
-                                " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless"))))
 
   (describe "when there are global options"
@@ -230,10 +217,7 @@
                                 (shell-quote-argument "[nrepl/nrepl \"0.9.0\"]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.55.7\"]")
-                                " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
                                 " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
-                                " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))
     (it "can concat in a gradle project"
       (expect (cider-inject-jack-in-dependencies "--no-daemon" ":clojureRepl" 'gradle)
@@ -249,7 +233,6 @@
     (before-each
       (fset 'plugins-predicate (lambda (&rest _) t))
       (fset 'middlewares-predicate (lambda (&rest _) t))
-      (setq-local cider-enrich-classpath nil)
       (setq-local cider-jack-in-lein-plugins '(("refactor-nrepl" "2.0.0" :predicate plugins-predicate)))
       (setq-local cider-jack-in-nrepl-middlewares '(("refactor-nrepl.middleware/wrap-refactor" :predicate middlewares-predicate) "cider.nrepl/cider-middleware" ("another/middleware"))))
     (it "includes plugins whose predicates return true"
@@ -290,10 +273,8 @@
               :and-return-value '("refactor-nrepl.middleware/wrap-refactor" "cider.nrepl/cider-middleware"))
       (spy-on 'cider-jack-in-normalized-lein-plugins
               :and-return-value '(("refactor-nrepl" "2.0.0")
-                                  ("cider/cider-nrepl" "0.55.7")
-                                  ("mx.cider/lein-enrich-classpath" "1.19.3")))
-      (setq-local cider-jack-in-dependencies-exclusions '())
-      (setq-local cider-enrich-classpath t))
+                                  ("cider/cider-nrepl" "0.55.7")))
+      (setq-local cider-jack-in-dependencies-exclusions '()))
     (it "uses them in a lein project"
       (expect (cider-inject-jack-in-dependencies "" "repl :headless" 'lein)
               :to-equal (concat "update-in :dependencies conj "
@@ -302,10 +283,7 @@
                                 (shell-quote-argument "[refactor-nrepl \"2.0.0\"]")
                                 " -- update-in :plugins conj "
                                 (shell-quote-argument "[cider/cider-nrepl \"0.55.7\"]")
-                                " -- update-in :plugins conj "
-                                (shell-quote-argument "[mx.cider/lein-enrich-classpath \"1.19.3\"]")
                                 " -- update-in :jvm-opts conj '\"-Djdk.attach.allowAttachSelf\"'"
-                                " -- update-in :middleware conj cider.enrich-classpath.plugin-v2/middleware"
                                 " -- repl :headless")))))
 
 (describe "cider-jack-in-auto-inject-clojure"
@@ -668,25 +646,5 @@
     (spy-on 'file-name-nondirectory :and-call-fake #'identity)
     (expect (cider-locate-running-nrepl-ports "from-dir")
             :to-equal '(("from-dir" "4567") ("lein" "1234") ("local" "2345") ("non-lein" "3456")))))
-
-(describe "cider--extract-lein-profiles"
-  (it "Splits the command by `with-profile' call, if found"
-    (expect (cider--extract-lein-profiles "with-profile dev repl foo bar")
-            :to-equal '("with-profile dev " "repl foo bar"))
-
-    (expect (cider--extract-lein-profiles "with-profiles dev repl foo bar")
-            :to-equal '("with-profiles dev " "repl foo bar"))
-
-    (expect (cider--extract-lein-profiles "with-profile +dev,+test repl foo bar")
-            :to-equal '("with-profile +dev,+test " "repl foo bar"))
-
-    (expect (cider--extract-lein-profiles "with-profiles +dev,+test repl foo bar")
-            :to-equal '("with-profiles +dev,+test " "repl foo bar"))
-
-    (expect (cider--extract-lein-profiles "repl")
-            :to-equal '("" "repl"))
-
-    (expect (cider--extract-lein-profiles "repl :connect 1234")
-            :to-equal '("" "repl :connect 1234"))))
 
 ;;; cider-tests.el ends here

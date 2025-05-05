@@ -295,35 +295,24 @@ Or by customising the jack-in options.
 
 NOTE: Leiningen disables `OmitStackTraceInFastThrow` by default.
 
-=== Errors Related to enrich-classpath
-
-If you get any errors related to `enrich-classpath` when doing `cider-jack-in`, you can disable
-the `enrich-classpath` integration like this:
-
-[source,lisp]
-----
-(setq cider-enrich-classpath nil)
-----
-
 === Navigation to JDK sources doesn't work
 
-Firstly, make sure that you are using enrich-classpath. `cider-enrich-classpath` should be truthy.
-If you are launching your own repl process, it should run through enrich-classpath's `lein` wrapper, or `clojure` wrapper.
+If you try to navigate to the sources of third-party Java libraries, make sure
+that the variable `cider-download-java-sources` is set to `t`.
 
 If you are on Linux and still can't navigate to the source of built-in methods like `.toUpperCase` you
-probably haven't installed the JDK sources. While you're at it - it's good to
-install the JDK's Javadocs as well. On Debian/Ubuntu:
+probably haven't installed the JDK sources. On Debian/Ubuntu:
 
 [source,shell]
 ----
-$ sudo apt install openjdk-17-source openjdk-17-doc
+$ sudo apt install openjdk-21-source openjdk-21-doc
 ----
 
 On Red Hat/Fedora/CentOS:
 
 [source,shell]
 ----
-$ sudo dnf install java-17-openjdk-src java-17-openjdk-javadoc
+$ sudo dnf install java-21-openjdk-src java-21-openjdk-javadoc
 ----
 
 On Guix:
