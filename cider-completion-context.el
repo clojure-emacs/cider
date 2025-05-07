@@ -51,7 +51,7 @@
 Note that this context is slightly different than that of
 `cider-completion-get-context-at-point': this one does not include
 the current symbol at point."
-  (when (save-excursion
+  (when (save-mark-and-excursion
           (condition-case _
               (progn
                 (up-list)
@@ -78,7 +78,7 @@ the current symbol at point."
   "Extract the context at point.
 If point is not inside the list, returns nil; otherwise return \"top-level\"
 form, with symbol at point replaced by __prefix__."
-  (when (save-excursion
+  (when (save-mark-and-excursion
           (condition-case _
               (progn
                 (up-list)
