@@ -107,7 +107,7 @@ We'll discuss those checks further in the upcoming sections.
 
 == Limitations
 
-CIDER currently doesn't support self-hosted ClojureScript implementations (e.g. Lumo).
+CIDER currently doesn't support self-hosted ClojureScript implementations.
 The reason for this is that there's no self-hosted version of nREPL (implemented in ClojureScript)
 available today.
 

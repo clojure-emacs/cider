@@ -28,7 +28,6 @@ Right now CIDER the supports to some extent the following:
 * xref:platforms/babashka.adoc[Babashka]
 * xref:platforms/nbb.adoc[nbb]
 * xref:platforms/clojureclr.adoc[ClojureCLR]
-* Lumo (via https://github.com/djblue/nrepl-cljs)
 * xref:platforms/other_platforms.adoc[scittle, joyride & friends]
 * xref:platforms/basilisp.adoc[Basilisp]
 
