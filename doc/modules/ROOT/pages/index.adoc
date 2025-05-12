@@ -9,6 +9,15 @@ https://github.com/clojure-emacs/clojure-mode[clojure-mode] and https://github.c
 While `clojure-mode` supports editing Clojure source files, `cider-mode` adds support for interacting with a running Clojure process for
 compilation, debugging, definition and documentation lookup, running tests and so on.
 
+*Please consider
+xref:contributing/funding.adoc[supporting financially CIDER's ongoing development].*
+
+== Overview
+
+CIDER aims to provide an interactive development experience similar to the one
+you'd get when programming in Emacs Lisp, Common Lisp (with https://github.com/slime/slime[SLIME]),
+Scheme (with https://github.com/jaor/geiser[Geiser]) and Smalltalk.
+
 .Inspired by SLIME
 ****
 CIDER was originally inspired by the powerful Common Lisp interactive
@@ -18,15 +27,6 @@ CIDER became pretty different from SLIME in many areas. Check out
 https://www.youtube.com/watch?v=4X-1fJm25Ww&list=PLZdCLR02grLoc322bYirANEso3mmzvCiI&index=6[this presentation]
 if you'd like to know more about CIDER's early history.
 ****
-
-*Please consider
-xref:contributing/funding.adoc[supporting financially CIDER's ongoing development].*
-
-== Overview
-
-CIDER aims to provide an interactive development experience similar to the one
-you'd get when programming in Emacs Lisp, Common Lisp (with https://github.com/slime/slime[SLIME] or https://github.com/joaotavora/sly[Sly]),
-Scheme (with https://github.com/jaor/geiser[Geiser]) and Smalltalk.
 
 Programmers are expected to program in a very dynamic and incremental manner,
 constantly re-evaluating existing Clojure definitions and adding new ones to
