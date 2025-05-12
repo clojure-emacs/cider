@@ -22,7 +22,7 @@ support for interacting with a running Clojure process for compilation, code
 completion, debugging, definition and documentation lookup, running tests and so
 on.
 
-----------
+-----------
 [![OpenCollective](https://opencollective.com/cider/backers/badge.svg)](#open-collective-backers)
 [![OpenCollective](https://opencollective.com/cider/sponsors/badge.svg)](#open-collective-sponsors)
 [![Patreon](https://img.shields.io/badge/patreon-donate-orange.svg)](https://www.patreon.com/bbatsov)
