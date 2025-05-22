@@ -119,8 +119,26 @@ and reinstall it. Basically you need to do the following:
 
 == Can I downgrade CIDER to a specific stable version?
 
-No, you can't. Unfortunately `package.el` doesn't support the concept of historical versions of a package -
-there's always only one version that's available - the latest one.
+Emacs 29 introduced `package-vc-install` which allows you to install a package straight from
+a VCS repository (e.g. Git):
+
+    M-x package-vc-install <RET> https://github.com/clojure-emacs/cider <RET>
+
+Refer to the documentation of `package-vc-install` for more details.
+
+In Emacs 30 you can use `use-package` to both install the CIDER from GitHub
+and configure it:
+
+``` emacs-lisp
+(use-package cider
+  :vc (:url "https://github.com/clojure-emacs/cider" :rev "v1.15.0")
+  )
+```
+
+NOTE: `package.el` doesn't support the concept of historical versions of a
+package - there's always only one version that's available in a package
+repository - the latest one. That's why you'll have to resort to a VCS revision
+as a workaround for that limitation.
 
 == Will CIDER eventually support the Clojure 1.8 socket REPL?
 
