@@ -113,12 +113,15 @@ New CIDER users might benefit from keeping a copy close to their keyboard.
 
 ## Get Help
 
-Start with CIDER's [discussions board](https://github.com/clojure-emacs/cider/discussions). If it doesn't get the job done consider some of the other available
+Start with CIDER's [discussions board](https://github.com/clojure-emacs/cider/discussions).
+If it doesn't get the job done consider some of the other available
 [support channels](https://docs.cider.mx/cider/about/support.html).
 
 ## Changelog
 
 An extensive changelog is available [here](CHANGELOG.md).
+
+You can find the release notes for each CIDER release [here](https://github.com/clojure-emacs/cider/releases).
 
 ## Team
 
