@@ -2,8 +2,10 @@
 :experimental:
 
 The canonical way to install CIDER is via `package.el` (Emacs's built-in package
-manager), but it can be installed manually or via alternative package managers such
-as `el-get`.
+manager).
+
+NOTE: You can install CIDER using other package managers as well, but this is
+outside the scope of this guide.
 
 == Prerequisites
 
@@ -106,16 +108,6 @@ by entering: kbd:[C-x C-e].
 
 For further configuration options with `use-package`, consult the
 official https://github.com/jwiegley/use-package[use-package repository].
-
-== Installation via el-get
-
-CIDER is also available for installation from
-the https://github.com/dimitri/el-get[el-get] package manager.
-
-Provided you've already installed `el-get` you can install CIDER with the
-following command:
-
-kbd:[M-x el-get-install <RET> cider <RET>]
 
 == Manual Installation
 
