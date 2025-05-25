@@ -30,7 +30,9 @@ https://elpa.nongnu.org[NonGNU ELPA],
 http://stable.melpa.org[MELPA Stable]
 and http://melpa.org[MELPA].
 
-NOTE: NonGNU ELPA is one of Emacs's standard repositories and is enabled by default on Emacs 28+. You'll have to setup MELPA and MELPA Stable yourselves if you want to use them.
+NOTE: NonGNU ELPA is one of Emacs's standard repositories and is enabled by
+default on Emacs 28+. You'll have to setup MELPA and MELPA Stable yourselves if
+you want to use them.
 
 You can install CIDER with the following command:
 
