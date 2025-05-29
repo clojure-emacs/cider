@@ -6,6 +6,10 @@
 
 ### Changes
 
+- Bump the injected `cider-nrepl` to [0.56.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0560-2025-05-29).
+  - [cider-nrepl#941](https://github.com/clojure-emacs/cider-nrepl/pull/941): Stop vendoring Fipp dependency.
+  - [cider-nrepl#943](https://github.com/clojure-emacs/cider-nrepl/pull/943): Reduce debugger insrumentation bytecode footprint.
+  - [orchard#342](https://github.com/clojure-emacs/orchard/pull/342): Inspector: add hexdump view mode.
 - [#3816](https://github.com/clojure-emacs/cider/issues/3816): **(Breaking)** Remove enrich-classpath support from cider-jack-in.
 - [#3817](https://github.com/clojure-emacs/cider/issues/3817): Enable `cider-download-java-sources` by default.
 
