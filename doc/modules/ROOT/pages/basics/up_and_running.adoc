@@ -450,7 +450,7 @@ The command tunnels as well the remote port 12345 to local machine on port 12345
 ----
 ssh -t -L 12345:localhost:12345 MY_REMOTE_SERVER \
     devcontainer exec  --workspace-folder /home/me/my-clj-code \
-    "clojure -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"0.8.3\"} cider/cider-nrepl {:mvn/version \"0.25.5\"}}}' -m nrepl.cmdline -p 12345 -b 0.0.0.0 --middleware '[\"cider.nrepl/cider-middleware\"]' "
+    "clojure -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"1.3.1\"} cider/cider-nrepl {:mvn/version \"0.55.7\"}}}' -m nrepl.cmdline -p 12345 -b 0.0.0.0 --middleware '[\"cider.nrepl/cider-middleware\"]' "
 ----
 
 For this to work, we need as well to configure `devcontainer.json` with a snippet that exposes port `12345` from the container to the (remote) host:
