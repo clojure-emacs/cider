@@ -65,7 +65,7 @@ NOTE: Make sure you're using https://github.com/clojurephant/clojurephant[Clojur
 [source, groovy]
 ----
 dependencies {
-  devImplementation 'nrepl:nrepl:0.9.0'
+  devImplementation 'nrepl:nrepl:1.3.1'
   devImplementation 'cider:cider-nrepl:0.55.7'
 }
 
