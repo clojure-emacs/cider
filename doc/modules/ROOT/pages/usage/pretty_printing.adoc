@@ -2,8 +2,9 @@
 
 == Configuring a printing function
 
-NOTE: Pretty-printing was overhauled in CIDER 0.21 to leverage new features introduced in nREPL 0.6.
-Refer to https://nrepl.org/nrepl/usage/misc.html#_pretty_printing[nREPL's documentation] for details.
+NOTE: CIDER relies on nREPL's own value printing mechanism. Refer to
+https://nrepl.org/nrepl/usage/misc.html#pretty_printing[nREPL's documentation]
+for details.
 
 You can configure the function used by CIDER for pretty-printing evaluation
 results and other data using the option `cider-print-fn`, which can take the
@@ -15,13 +16,15 @@ equivalent of `clojure.core/pr`.
 * `pr` to use the equivalent of `clojure.core/pr`.
 * `pprint` to use the built-in `clojure.pprint/pprint` (this is the default).
 * `fipp` to use the https://github.com/brandonbloom/fipp[Fast Idiomatic
-Pretty-Printer]. This is approximately
-5-10x faster than `clojure.core/pprint`.
+Pretty-Printer]. This is approximately 5-10x faster than `clojure.core/pprint`.
 * `puget` to use https://github.com/greglook/puget[Puget], which provides
 https://github.com/greglook/puget#canonical-representation[canonical serialization]
 of data on top of fipp, but at a slight performance cost.
 * `zprint` to use https://github.com/kkinnear/zprint[zprint], a fast and
 flexible alternative to the libraries mentioned above.
+
+For `fipp`, `puget`, and `zprint` printers to work, you need to add a
+respective dependency into your project explicitly.
 
 Alternatively, `cider-print-fn` can be set to the namespace-qualified name of a
 Clojure var whose function takes three arguments: the object to print, the
@@ -48,11 +51,6 @@ Here's one example:
   [value writer options]
   (apply pp/write value (mapcat identity (assoc options :stream writer))))
 ----
-
-IMPORTANT: Before Clojure 1.10.2, a
-https://clojure.atlassian.net/browse/CLJ-1445[bug] in `clojure.pprint` caused it
-to not work properly with `+*print-meta*+`. If you need to print the metadata
-you'll have to change the print function or disable pretty-printing.
 
 == Limiting printed output
 
