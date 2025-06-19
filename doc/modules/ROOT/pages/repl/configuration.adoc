@@ -131,7 +131,7 @@ be displayed you'll need to add the following to your config:
 (setq cider-repl-display-output-before-window-boundaries t)
 ----
 
-NOTE: This behaviour was changed in CIDER 1.7, as the auto-scrolling of output
+NOTE: This behavior was changed in CIDER 1.7, as the auto-scrolling of output
 before the REPL prompt is rarely needed, but it's current implementation is very
 slow.
 

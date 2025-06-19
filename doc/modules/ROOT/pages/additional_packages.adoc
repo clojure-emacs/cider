@@ -133,13 +133,13 @@ enable `paredit` in the REPL buffer as well:
 (add-hook 'cider-repl-mode-hook #'paredit-mode)
 ----
 
-==== Unsetting Paredit binding of RET key
+==== Unsetting the Paredit binding of the RET key
 
 In recent versions of Paredit (25+), `RET` is bound to `paredit-RET`. This can cause unexpected
-behaviour in the repl when `paredit-mode` is enabled, e.g. it appears to hang after hitting
+behavior in the REPL when `paredit-mode` is enabled, e.g. it appears to hang after hitting
 `RET` instead of evaluating the last form.
 
-You can disable this Paredit behaviour by adding the following to your `init.el`:
+You can disable this Paredit behavior by adding the following to your `init.el`:
 
 [source,lisp]
 ----
@@ -148,20 +148,24 @@ You can disable this Paredit behaviour by adding the following to your `init.el`
 
 === paren-face
 
-https://github.com/tarsius/paren-face[paren-face] defines a face named `parenthesis` used just for parentheses. The originally intended purpose of this face is to make parentheses less visible in Lisp code by dimming them.
+https://github.com/tarsius/paren-face[paren-face] defines a face named
+`parenthesis` used just for parentheses. The originally intended purpose of this
+face is to make parentheses less visible in Lisp code by dimming them.
 
 In the author's words:
 
-> We lispers probably don’t need to be constantly made aware of the existence of the parentheses. Dimming them might be even more useful for people new to lisp who have not yet learned to subconsciously blend out the parentheses.
+> We lispers probably don’t need to be constantly made aware of the existence of
+> the parentheses. Dimming them might be even more useful for people new to lisp
+> who have not yet learned to subconsciously blend out the parentheses.
 
 TIP: the following customization expands paren-face to dim even more delimiters from the Clojure language: `(setq paren-face-regexp "\\([( ]\\.-\\|[( ]\\.+\\|[][(){}#/]\\)")`.
 
 === Smartparens
 
-https://github.com/Fuco1/smartparens[smartparens] is an excellent alternative
-  to paredit. Many Clojure hackers have adopted it recently and you might want
-  to give it a try as well. To enable `smartparens` in the REPL buffer use the
-  following code:
+https://github.com/Fuco1/smartparens[smartparens] is an excellent alternative to
+paredit. Many Clojure hackers have adopted it recently and you might want to
+give it a try as well. To enable `smartparens` in the REPL buffer use the
+following code:
 
 [source,lisp]
 ----
@@ -214,4 +218,3 @@ forms directly in the REPL.
 
 It's basically a simple alternative of CIDER, which provides a subset of CIDER's
 functionality.
-

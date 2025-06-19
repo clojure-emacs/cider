@@ -329,10 +329,10 @@ NOTE: On Windows and macOS the JDK source code is bundled with the JDK.
 Are you a Paredit user? Have you enabled for the REPL buffers?
 
 In recent versions of Paredit (25+), `RET` is bound to `paredit-RET`. This can cause unexpected
-behaviour in the repl when `paredit-mode` is enabled, e.g. it appears to hang after hitting
+behavior in the repl when `paredit-mode` is enabled, e.g. it appears to hang after hitting
 `RET` instead of evaluating the last form.
 
-You can disable this Paredit behaviour by adding the following to your `init.el`:
+You can disable this Paredit behavior by adding the following to your `init.el`:
 
 [source,lisp]
 ----

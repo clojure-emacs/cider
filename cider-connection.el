@@ -69,7 +69,7 @@ Useful for switching between alternative minor modes like `inf-clojure-mode'."
   :package-version '(cider . "0.9.0"))
 
 (defcustom cider-merge-sessions nil
-  "Controls session combination behaviour.
+  "Controls session combination behavior.
 
 Symbol `host' combines all sessions of a project associated with the same host.
 Symbol `project' combines all sessions of a project.
