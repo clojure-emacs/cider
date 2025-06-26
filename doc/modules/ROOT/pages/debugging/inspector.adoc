@@ -85,6 +85,14 @@ You'll have access to additional keybindings in the inspector buffer
 | `cider-inspector-toggle-pretty-print`
 | Toggle the pretty printing of values in the inspector. You can set the `cider-inspector-pretty-print` customization option to `t`, if you always want values to be be pretty printed.
 
+| kbd:[S]
+| `cider-inspector-toggle-sort-maps`
+| Toggle the sorting of maps by key in the inspector. You can set the `cider-inspector-sort-maps` customization option to `t` if you always want maps to be displayed sorted.
+
+| kbd:[D]
+| `cider-inspector-toggle-only-diff`
+| When inspecting a diff result, toggle only displaying the differing values. You can set the `cider-inspector-only-diff` customization option to `t` if you always want to only show the diff instead of all values.
+
 | kbd:[d]
 | `cider-inspector-def-current-val`
 | Defines a var in the REPL namespace with current inspector value. If you tend to always choose the same name(s), you may want to set the `cider-inspector-preferred-var-names` customization option.

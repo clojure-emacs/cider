@@ -84,6 +84,16 @@ The max depth can be also changed interactively within the inspector."
   :type 'boolean
   :package-version '(cider . "1.18.0"))
 
+(defcustom cider-inspector-sort-maps nil
+  "When true, sort inspected maps by keys."
+  :type 'boolean
+  :package-version '(cider . "1.19.0"))
+
+(defcustom cider-inspector-only-diff nil
+  "When true and inspecting a diff result, only display values that differ."
+  :type 'boolean
+  :package-version '(cider . "1.19.0"))
+
 (defcustom cider-inspector-skip-uninteresting t
   "Controls whether to skip over uninteresting values in the inspector.
 Only applies to navigation with `cider-inspector-prev-inspectable-object'
@@ -147,6 +157,8 @@ Can be turned to nil once the user sees and acknowledges the feature."
     (define-key map [(shift tab)] #'cider-inspector-previous-inspectable-object)
     (define-key map "p" #'cider-inspector-previous-inspectable-object)
     (define-key map "P" #'cider-inspector-toggle-pretty-print)
+    (define-key map "S" #'cider-inspector-toggle-sort-maps)
+    (define-key map "D" #'cider-inspector-toggle-only-diff)
     (define-key map (kbd "C-c C-p") #'cider-inspector-print-current-value)
     (define-key map ":" #'cider-inspect-expr-from-inspector)
     (define-key map "f" #'forward-char)
@@ -184,6 +196,16 @@ Can be turned to nil once the user sees and acknowledges the feature."
   (setq-local electric-indent-chars nil)
   (setq-local sesman-system 'CIDER)
   (visual-line-mode 1))
+
+(defun cider-inspector--highlight-diff-tags ()
+  "Apply face to #± using overlays.
+We use overlays here because font-locking doesn't seem to work for this."
+  (save-excursion
+    (goto-char (point-min))
+    (while (search-forward "#±" nil t)
+      (let ((overlay (make-overlay (match-beginning 0) (match-end 0))))
+        (overlay-put overlay 'face 'font-lock-warning-face)
+        (overlay-put overlay 'priority 100)))))
 
 ;;;###autoload
 (defun cider-inspect-last-sexp ()
@@ -354,9 +376,23 @@ MAX-NESTED-DEPTH is the new value."
 (defun cider-inspector-toggle-pretty-print ()
   "Toggle the pretty printing of values in the inspector."
   (interactive)
-  (let ((result (cider-nrepl-send-sync-request `("op" "inspect-toggle-pretty-print"))))
-    (when (nrepl-dict-get result "value")
-      (cider-inspector--render-value result))))
+  (customize-set-variable 'cider-inspector-pretty-print (not cider-inspector-pretty-print))
+  (cider-inspector--refresh-with-opts
+   "pretty-print" (if cider-inspector-pretty-print "true" "false")))
+
+(defun cider-inspector-toggle-sort-maps ()
+  "Toggle the sorting of maps in the inspector."
+  (interactive)
+  (customize-set-variable 'cider-inspector-sort-maps (not cider-inspector-sort-maps))
+  (cider-inspector--refresh-with-opts
+   "sort-maps" (if cider-inspector-sort-maps "true" "false")))
+
+(defun cider-inspector-toggle-only-diff ()
+  "Toggle the display of only differing values when inspecting diff results."
+  (interactive)
+  (customize-set-variable 'cider-inspector-only-diff (not cider-inspector-only-diff))
+  (cider-inspector--refresh-with-opts
+   "only-diff" (if cider-inspector-only-diff "true" "false")))
 
 (defun cider-inspector-toggle-view-mode ()
   "Toggle the view mode of the inspector between normal and object view mode."
@@ -454,8 +490,9 @@ MAX-COLL-SIZE if non nil."
                   `("max-nested-depth" ,cider-inspector-max-nested-depth))
               ,@(when cider-inspector-display-analytics-hint
                   `("display-analytics-hint" "true"))
-              ,@(when cider-inspector-pretty-print
-                  `("pretty-print" "true"))))
+              "pretty-print" ,(if cider-inspector-pretty-print "true" "false")
+              "sort-maps" ,(if cider-inspector-sort-maps "true" "false")
+              "only-diff" ,(if cider-inspector-only-diff "true" "false")))
     (cider-nrepl-send-sync-request)))
 
 (declare-function cider-set-buffer-ns "cider-mode")
@@ -522,7 +559,8 @@ from stack), `:next-inspectable' (move point to next inspectable object)."
   "Render ELEMENTS."
   (setq cider-inspector-looking-at-java-p nil)
   (dolist (el elements)
-    (cider-inspector-render-el* el)))
+    (cider-inspector-render-el* el))
+  (cider-inspector--highlight-diff-tags))
 
 (defconst cider--inspector-java-headers
   ;; NOTE "--- Static fields:" "--- Instance fields:" are for objects,
