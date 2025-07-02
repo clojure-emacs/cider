@@ -4,7 +4,7 @@
 
 ### New features
 
-- [#3359](https://github.com/clojure-emacs/cider/pull/3359): Add customizable default connection params
+- [#3359](https://github.com/clojure-emacs/cider/pull/3359): Add customizable default connection params (see `cider-connect-default-params` and `cider-connect-default-cljs-params`).
 - [#3828](https://github.com/clojure-emacs/cider/issues/3828): Inspector: diff mode.
 - [#3828](https://github.com/clojure-emacs/cider/issues/3828): Inspector: sorting maps by keys.
 
