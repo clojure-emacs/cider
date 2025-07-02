@@ -198,14 +198,14 @@ Can be turned to nil once the user sees and acknowledges the feature."
   (visual-line-mode 1))
 
 (defun cider-inspector--highlight-diff-tags ()
-  "Apply face to #± using overlays.
-We use overlays here because font-locking doesn't seem to work for this."
+  "Apply distinctive face to #± by manually walking through buffer.
+Doing this via font-locking rules doesn't seem to work, probably because
+the text is already colored by clojure mode font-locking."
   (save-excursion
     (goto-char (point-min))
     (while (search-forward "#±" nil t)
-      (let ((overlay (make-overlay (match-beginning 0) (match-end 0))))
-        (overlay-put overlay 'face 'font-lock-warning-face)
-        (overlay-put overlay 'priority 100)))))
+      (put-text-property (match-beginning 0) (match-end 0)
+                         'face 'font-lock-warning-face))))
 
 ;;;###autoload
 (defun cider-inspect-last-sexp ()
