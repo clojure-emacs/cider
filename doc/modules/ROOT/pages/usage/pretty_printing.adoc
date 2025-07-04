@@ -23,12 +23,15 @@ of data on top of fipp, but at a slight performance cost.
 * `zprint` to use https://github.com/kkinnear/zprint[zprint], a fast and
 flexible alternative to the libraries mentioned above.
 
-IMPORTANT: For `fipp`, `puget`, and `zprint` printers to work, you need to add a
+IMPORTANT: For `fipp`, `puget`, and `zprint` printers to work, you need to add the
 respective dependency in your project explicitly.
 
 Alternatively, `cider-print-fn` can be set to the namespace-qualified name of a
-Clojure var whose function takes three arguments: the object to print, the
-`java.io.PrintWriter` to print on, and a (possibly nil) map of options.
+Clojure var whose function takes three arguments:
+
+* the object to print
+* the `java.io.PrintWriter` to print on
+* a (possibly `nil`) map of options.
 
 [source,lisp]
 ----
