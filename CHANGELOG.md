@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.19.0 (2025-07-10)
+
 ### New features
 
 - [#3359](https://github.com/clojure-emacs/cider/pull/3359): Add customizable default connection params (see `cider-connect-default-params` and `cider-connect-default-cljs-params`).
@@ -18,8 +20,6 @@
   - [orchard#350](https://github.com/clojure-emacs/orchard/pull/350): Inspector: add diff mode and `orchard.inspect/diff`.
 - [#3816](https://github.com/clojure-emacs/cider/issues/3816): **(Breaking)** Remove enrich-classpath support from cider-jack-in.
 - [#3817](https://github.com/clojure-emacs/cider/issues/3817): Enable `cider-download-java-sources` by default.
-
-### Bugs fixed
 
 ## 1.18.0 (2025-04-30)
 
