@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/stale@v9
         with:
-          days-before-issue-stale: 30
+          days-before-issue-stale: 90
           days-before-issue-close: 30
           stale-issue-label: "stale"
           exempt-all-milestones: true
@@ -24,7 +24,7 @@ jobs:
           close-issue-message: >-
             This issue been automatically closed due to lack of activity. Feel free to re-open it
             if you ever come back to it.
-          days-before-pr-stale: 30
+          days-before-pr-stale: 90
           days-before-pr-close: 30
           exempt-pr-labels: "high priority, good first issue, pinned"
           stale-pr-message: >-
