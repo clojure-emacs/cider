@@ -257,7 +257,7 @@ This cache is stored in the connection buffer.")
 (defun cider-repl-require-repl-utils ()
   "Require standard REPL util functions into the current REPL."
   (interactive)
-  (let* ((current-repl (cider-current-repl nil 'ensure))
+  (let* ((current-repl (cider-current-repl 'infer 'ensure))
          (require-code (cdr (assoc (cider-repl-type current-repl) cider-repl-require-repl-utils-code))))
     (nrepl-send-sync-request
      (cider-plist-put
@@ -1202,7 +1202,7 @@ Closes all open parentheses or bracketed expressions."
   "Switch between the Clojure and ClojureScript REPLs for the current project."
   (interactive)
   ;; FIXME: implement cycling as session can hold more than two REPLs
-  (let* ((this-repl (cider-current-repl nil 'ensure))
+  (let* ((this-repl (cider-current-repl 'infer 'ensure))
          (other-repl (car (seq-remove (lambda (r) (eq r this-repl)) (cider-repls nil t)))))
     (if other-repl
         (switch-to-buffer other-repl)

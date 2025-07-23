@@ -108,7 +108,7 @@ prefix arg SET-NAMESPACE sets the namespace in the REPL buffer to that of
 the namespace in the Clojure source buffer"
   (interactive "P")
   (cider--switch-to-repl-buffer
-   (cider-current-repl nil 'ensure)
+   (cider-current-repl 'infer 'ensure)
    set-namespace))
 
 (declare-function cider-load-buffer "cider-eval")
@@ -154,7 +154,7 @@ the related commands `cider-repl-clear-buffer' and
 `cider-repl-clear-output'."
   (interactive "P")
   (let ((origin-buffer (current-buffer)))
-    (switch-to-buffer (cider-current-repl nil 'ensure))
+    (switch-to-buffer (cider-current-repl 'infer 'ensure))
     (if clear-repl
         (cider-repl-clear-buffer)
       (cider-repl-clear-output))

@@ -170,9 +170,10 @@ nREPL connection."
 (defun cider-nrepl-op-supported-p (op &optional connection skip-ensure)
   "Check whether the CONNECTION supports the nREPL middleware OP.
 Skip check if repl is active if SKIP-ENSURE is non nil."
-  (nrepl-op-supported-p op (or connection (cider-current-repl nil (if skip-ensure
-                                                                      nil
-                                                                    'ensure)))))
+  (nrepl-op-supported-p op (or connection
+                               (cider-current-repl 'infer (if skip-ensure
+                                                              nil
+                                                            'ensure)))))
 
 (defun cider-ensure-op-supported (op)
   "Check for support of middleware op OP.
@@ -187,7 +188,9 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 If CONNECTION is provided dispatch to that connection instead of
 the current connection.  Return the id of the sent message.
 If TOOLING is truthy then the tooling session is used."
-  (nrepl-send-request request callback (or connection (cider-current-repl 'any 'ensure)) tooling))
+  (nrepl-send-request request callback (or connection
+                                           (cider-current-repl 'infer 'ensure))
+                      tooling))
 
 (defun cider-nrepl-send-sync-request (request &optional connection
                                               abort-on-input callback)
@@ -199,7 +202,7 @@ at the first sign of user input, so as not to hang the
 interface.
 if CALLBACK is non-nil, it will additionally be called on all received messages."
   (nrepl-send-sync-request request
-                           (or connection (cider-current-repl 'any 'ensure))
+                           (or connection (cider-current-repl 'infer 'ensure))
                            abort-on-input
                            nil
                            callback))
@@ -207,7 +210,7 @@ if CALLBACK is non-nil, it will additionally be called on all received messages.
 (defun cider-nrepl-send-unhandled-request (request &optional connection)
   "Send REQUEST to the nREPL CONNECTION and ignore any responses.
 Immediately mark the REQUEST as done.  Return the id of the sent message."
-  (let* ((conn (or connection (cider-current-repl 'any 'ensure)))
+  (let* ((conn (or connection (cider-current-repl 'infer 'ensure)))
          (id (nrepl-send-request request #'ignore conn)))
     (with-current-buffer conn
       (nrepl--mark-id-completed id))
@@ -219,7 +222,7 @@ If NS is non-nil, include it in the request.  LINE and COLUMN, if non-nil,
 define the position of INPUT in its buffer.  ADDITIONAL-PARAMS is a plist
 to be appended to the request message.  CONNECTION is the connection
 buffer, defaults to (cider-current-repl)."
-  (let ((connection (or connection (cider-current-repl nil 'ensure)))
+  (let ((connection (or connection (cider-current-repl 'infer 'ensure)))
         (eval-buffer (current-buffer)))
     (run-hooks 'cider-before-eval-hook)
     (nrepl-request:eval input
@@ -238,7 +241,10 @@ buffer, defaults to (cider-current-repl)."
 (defun cider-nrepl-sync-request:eval (input &optional connection ns)
   "Send the INPUT to the nREPL CONNECTION synchronously.
 If NS is non-nil, include it in the eval request."
-  (nrepl-sync-request:eval input (or connection (cider-current-repl nil 'ensure)) ns))
+  (nrepl-sync-request:eval input
+                           (or connection
+                               (cider-current-repl 'infer 'ensure))
+                           ns))
 
 (defcustom cider-format-code-options nil
   "A map of options that will be passed to `cljfmt' to format code.
@@ -426,7 +432,7 @@ clobber *1/2/3)."
   ;; namespace forms are always evaluated in the "user" namespace
   (nrepl-request:eval input
                       callback
-                      (or connection (cider-current-repl nil 'ensure))
+                      (or connection (cider-current-repl 'infer 'ensure))
                       ns nil nil nil 'tooling))
 
 (defun cider-sync-tooling-eval (input &optional ns connection)
@@ -437,7 +443,7 @@ bindings of the primary eval nREPL session (e.g. this is not going to
 clobber *1/2/3)."
   ;; namespace forms are always evaluated in the "user" namespace
   (nrepl-sync-request:eval input
-                           (or connection (cider-current-repl nil 'ensure))
+                           (or connection (cider-current-repl 'infer 'ensure))
                            ns
                            'tooling))
 
@@ -458,7 +464,7 @@ itself is present."
   "Interrupt any pending evaluations."
   (interactive)
   ;; FIXME: does this work correctly in cljc files?
-  (with-current-buffer (cider-current-repl nil 'ensure)
+  (with-current-buffer (cider-current-repl 'infer 'ensure)
     (let ((pending-request-ids (cider-util--hash-keys nrepl-pending-requests)))
       (dolist (request-id pending-request-ids)
         (nrepl-request:interrupt
