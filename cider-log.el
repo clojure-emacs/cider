@@ -1422,7 +1422,7 @@ Honors the `cider-log-framework-name' customization variable.
 This function is offered as an alternative to workflows
 based on `transient-mode'."
   (interactive)
-  (cider-current-repl nil 'ensure)
+  (cider-current-repl 'infer 'ensure)
   (let ((framework (cider-log--framework))
         (appender (cider-log--appender))
         (new-default-directory (buffer-local-value 'default-directory (current-buffer))))

@@ -530,7 +530,7 @@ REPL defaults to the current REPL."
   (interactive)
   (let ((repl (or repl
                   (sesman-browser-get 'object)
-                  (cider-current-repl nil 'ensure))))
+                  (cider-current-repl 'infer 'ensure))))
     (cider--close-connection repl))
   ;; if there are no more sessions we can kill all ancillary buffers
   (unless (cider-sessions)
@@ -546,7 +546,7 @@ entire session."
   (interactive)
   (let* ((repl (or repl
                    (sesman-browser-get 'object)
-                   (cider-current-repl nil 'ensure)))
+                   (cider-current-repl 'infer 'ensure)))
          (params (thread-first ()
                                (cider--gather-connect-params repl)
                                (plist-put :session-name (sesman-session-name-for-object 'CIDER repl))
@@ -569,7 +569,7 @@ REPL defaults to the current REPL."
   (interactive)
   (let ((repl (or repl
                   (sesman-browser-get 'object)
-                  (cider-current-repl nil 'ensure))))
+                  (cider-current-repl 'infer 'ensure))))
     (message "%s" (cider--connection-info repl))))
 
 (defconst cider-nrepl-session-buffer "*cider-nrepl-session*")
@@ -580,7 +580,7 @@ REPL defaults to the current REPL."
   "Describe an nREPL session."
   (interactive)
   (cider-ensure-connected)
-  (let* ((repl (cider-current-repl nil 'ensure))
+  (let* ((repl (cider-current-repl 'infer 'ensure))
          (selected-session (completing-read "Describe nREPL session: " (nrepl-sessions repl))))
     (when (and selected-session (not (equal selected-session "")))
       (let* ((session-info (nrepl-sync-request:describe repl))
@@ -602,7 +602,7 @@ REPL defaults to the current REPL."
   "List the loaded nREPL middleware."
   (interactive)
   (cider-ensure-connected)
-  (let* ((repl (cider-current-repl nil 'ensure))
+  (let* ((repl (cider-current-repl 'infer 'ensure))
          (middleware (nrepl-middleware repl)))
     (with-current-buffer (cider-popup-buffer "*cider-nrepl-middleware*" 'select nil 'ancillary)
       (read-only-mode -1)
@@ -946,19 +946,23 @@ REPL (connection) which produced them.")
 
 (defun cider-current-repl (&optional type ensure)
   "Get the most recent REPL of TYPE from the current session.
-TYPE is either clj, cljs, multi or any.
-When nil, infer the type from the current buffer.
+TYPE is either clj, cljs, multi, infer or any.
+When infer or nil, infer the type from the current buffer.
 If ENSURE is non-nil, throw an error if either there is
 no linked session or there is no REPL of TYPE within the current session."
   (let ((type (cider-maybe-intern type)))
     (if (and (derived-mode-p 'cider-repl-mode)
              (or (null type)
                  (eq 'any type)
+                 (eq 'infer type)
                  (eq cider-repl-type type)))
         ;; shortcut when in REPL buffer
         (current-buffer)
       (or cider--ancillary-buffer-repl
-          (let* ((type (or type (cider-repl-type-for-buffer)))
+          (let* ((type (if (or (null type)
+                               (eq 'infer type))
+                           (cider-repl-type-for-buffer)
+                         type))
                  (repls (cider-repls type ensure))
                  (repl (if (<= (length repls) 1)
                            (car repls)
