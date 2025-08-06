@@ -915,7 +915,7 @@ This is used by pretty-printing commands."
            (cider-popup-buffer-quit-function t)))
        ;; also call the default nrepl-err-handler, so that our custom behavior doesn't void the base behavior:
        (when nrepl-err-handler
-         (funcall nrepl-err-handler buffer)))
+         (funcall nrepl-err-handler (current-buffer))))
      ;; content type handler:
      nil
      ;; truncated handler:
