@@ -1025,16 +1025,15 @@ Register CALLBACK as the response handler."
 NS provides context for the request.
 If LINE and COLUMN are non-nil and current buffer is a file buffer, \"line\",
 \"column\" and \"file\" are added to the message."
-  (nconc (and ns `("ns" ,ns))
-         `("op" "eval"
-           "code" ,(substring-no-properties input))
-         (when cider-enlighten-mode
-           '("enlighten" "true"))
-         (let ((file (or (buffer-file-name) (buffer-name))))
-           (when (and line column file)
-             `("file" ,file
-               "line" ,line
-               "column" ,column)))))
+  `("op" "eval"
+    "code" ,(substring-no-properties input)
+    ,@(when ns `("ns" ,ns))
+    ,@(when cider-enlighten-mode '("enlighten" "true"))
+    ,@(let ((file (or (buffer-file-name) (buffer-name))))
+        (when (and line column file)
+          `("file" ,file
+            "line" ,line
+            "column" ,column)))))
 
 (defun nrepl-request:eval (input callback connection &optional ns line column additional-params tooling)
   "Send the request INPUT and register the CALLBACK as the response handler.

@@ -2,6 +2,14 @@
 
 ## master (unreleased)
 
+### New features
+
+### Changes
+
+### Bugs fixed
+
+- [#3832](https://github.com/clojure-emacs/cider/issues/3832): Fix nrepl--eval-request sending duplicate info.
+
 ## 1.19.0 (2025-07-10)
 
 ### New features
