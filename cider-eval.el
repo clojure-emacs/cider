@@ -884,10 +884,10 @@ COMMENT-POSTFIX is the text to output after the last line."
      (lambda (_buffer warning)
        (setq res (concat res warning))))))
 
-(defun cider-popup-eval-handler (&optional buffer _bounds _source-buffer)
+(defun cider-popup-eval-handler (&optional buffer _bounds source-buffer)
   "Make a handler for printing evaluation results in popup BUFFER,
 _BOUNDS representing the buffer bounds of the evaled input,
-and _SOURCE-BUFFER the original buffer
+and SOURCE-BUFFER the original buffer
 
 This is used by pretty-printing commands."
   ;; NOTE: cider-eval-register behavior is not implemented here for performance reasons.
@@ -907,7 +907,7 @@ This is used by pretty-printing commands."
      ;; done handler:
      nil
      ;; eval-error handler:
-     (lambda (buffer)
+     (lambda (_buffer)
        (when (and (buffer-live-p chosen-buffer)
                   (member (buffer-name chosen-buffer)
                           cider-ancillary-buffers))
@@ -915,7 +915,7 @@ This is used by pretty-printing commands."
            (cider-popup-buffer-quit-function t)))
        ;; also call the default nrepl-err-handler, so that our custom behavior doesn't void the base behavior:
        (when nrepl-err-handler
-         (funcall nrepl-err-handler buffer)))
+         (funcall nrepl-err-handler source-buffer)))
      ;; content type handler:
      nil
      ;; truncated handler:
