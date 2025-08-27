@@ -9,6 +9,7 @@
 ### Bugs fixed
 
 - [#3832](https://github.com/clojure-emacs/cider/issues/3832): Fix nrepl--eval-request sending duplicate info.
+- [#3837](https://github.com/clojure-emacs/cider/issues/3837): Fix broken stacktrace response when C-c C-p throws an exception.
 
 ## 1.19.0 (2025-07-10)
 
