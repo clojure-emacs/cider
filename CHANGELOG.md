@@ -4,6 +4,8 @@
 
 ### New features
 
+- [#3839](https://github.com/clojure-emacs/cider/pull/3839): Add jack-in support for ClojureCLR.
+
 ### Changes
 
 ### Bugs fixed

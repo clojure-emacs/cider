@@ -60,13 +60,12 @@ from your Emacs config.
 
 == ClojureCLR Support
 
-CIDER currently has very basic support ClojureCLR (via Arcadia's nREPL server). The reasons for this are the following:
+CIDER currently has very basic support ClojureCLR (via either Arcadia's nREPL server or
+a port of Babashka's nREPL server). The reasons for this are the following:
 
-* nREPL itself runs only on the JVM (because it leverages Java APIs
-internally). There's an
-https://github.com/clojure/clr.tools.nrepl[nREPL port for ClojureCLR], but
-it's not actively maintained and it doesn't behave like the Clojure nREPL.
-* `cider-nrepl` uses a lot of Java code internally itself.
+* The https://github.com/clojure/clr.tools.nrepl/tree/master/partial-nrepl-nrepl-port[nrepl/nrepl port to ClojureCLR] is not yet working
+* `cider-nrepl` uses a lot of Java code internally itself and would need to be adapted/ported like any
+  other clojure library adapted/ported to ClojureCLR.
 
 Those issues are not insurmountable, but are beyond the scope of our current roadmap.
 If someone would like to tackle them, we'd be happy to provide assistance.
