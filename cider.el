@@ -298,6 +298,26 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :safe #'stringp
   :package-version '(cider . "1.14.0"))
 
+(defcustom cider-clr-command
+  "cljr"
+  "The command used to execute ClojureCLR."
+  :type 'string
+  :safe #'stringp
+  :package-version '(cider . "1.20.0"))
+
+(defcustom cider-clr-parameters
+  "-X clojure.tools.nrepl/start-server!"
+  "Params passed to ClojureCLR to start an nREPL server via `cider-jack-in'."
+  :type 'string
+  :safe #'stringp
+  :package-version '(cider . "1.20.0"))
+
+(defcustom cider-clr-nrepl-sha "a58009f03b489b51194834466a2ee7040dad5861"
+  "The version of clr.tools.nrepl injected on jack-in with ClojureCLR."
+  :type 'string
+  :safe #'stringp
+  :package-version '(cider . "1.20.0"))
+
 (make-obsolete-variable 'cider-lein-global-options 'cider-lein-parameters "1.8.0")
 (make-obsolete-variable 'cider-boot-command nil "1.8.0")
 (make-obsolete-variable 'cider-boot-parameters nil "1.8.0")
@@ -325,7 +345,8 @@ to Leiningen."
                  (const gradle)
                  (const babashka)
                  (const nbb)
-                 (const basilisp))
+                 (const basilisp)
+                 (const clr))
   :safe #'symbolp
   :package-version '(cider . "0.9.0"))
 
@@ -346,6 +367,7 @@ command when there is no ambiguity."
                  (const babashka)
                  (const nbb)
                  (const basilisp)
+                 (const clr)
                  (const :tag "Always ask" nil))
   :safe #'symbolp
   :package-version '(cider . "0.13.0"))
@@ -419,7 +441,8 @@ Sub-match 1 must be the project path.")
     (lein        (:prefix-arg 2 :cmd (:jack-in-type clj  :project-type lein :edit-project-dir t)))
     (babashka    (:prefix-arg 3 :cmd (:jack-in-type clj  :project-type babashka :edit-project-dir t)))
     (nbb         (:prefix-arg 4 :cmd (:jack-in-type cljs :project-type nbb :cljs-repl-type nbb :edit-project-dir t)))
-    (basilisp    (:prefix-arg 5 :cmd (:jack-in-type clj  :project-type basilisp :edit-project-dir t))))
+    (basilisp    (:prefix-arg 5 :cmd (:jack-in-type clj  :project-type basilisp :edit-project-dir t)))
+    (clr         (:prefix-arg 6 :cmd (:jack-in-type clj  :project-type clr :edit-project-dir t))))
   "The list of project tools that are supported by the universal jack in command.
 
 Each item in the list consists of the tool name and its plist options.
@@ -451,6 +474,7 @@ The plist supports the following keys
     ('gradle      cider-gradle-command)
     ('nbb         cider-nbb-command)
     ('basilisp    cider-basilisp-command)
+    ('clr         cider-clr-command)
     (_            (user-error "Unsupported project type `%S'" project-type))))
 
 (defcustom cider-enrich-classpath nil
@@ -482,6 +506,7 @@ Throws an error if PROJECT-TYPE is unknown."
     ;; the exec-path
     ('gradle (cider--resolve-project-command cider-gradle-command))
     ('basilisp (cider--resolve-command cider-basilisp-command))
+    ('clr (cider--resolve-command cider-clr-command))
     (_ (user-error "Unsupported project type `%S'" project-type))))
 
 (defun cider-jack-in-global-options (project-type)
@@ -494,6 +519,7 @@ Throws an error if PROJECT-TYPE is unknown."
     ('gradle      cider-gradle-global-options)
     ('nbb         cider-nbb-global-options)
     ('basilisp    nil)
+    ('clr         nil)
     (_            (user-error "Unsupported project type `%S'" project-type))))
 
 (defun cider-jack-in-params (project-type)
@@ -510,6 +536,7 @@ Throws an error if PROJECT-TYPE is unknown."
     ('gradle      cider-gradle-parameters)
     ('nbb         cider-nbb-parameters)
     ('basilisp    cider-basilisp-parameters)
+    ('clr         cider-clr-parameters)
     (_            (user-error "Unsupported project type `%S'" project-type))))
 
 
@@ -856,6 +883,30 @@ Does so by concatenating GLOBAL-OPTS, DEPENDENCIES finally PARAMS."
      " "
      params)))
 
+(defun cider-clr-jack-in-dependencies (params dependencies &optional command)
+  "Create ClojureCLR clr.core.cli jack-in dependencies.
+Does so by concatenating DEPENDENCIES, and PARAMS into a
+suitable `cljr` invocation and quoting, also accounting for COMMAND if
+provided."
+  (let* ((all-deps (thread-last dependencies
+                                (cider--dedupe-deps)
+                                (seq-map (lambda (dep)
+                                           (if (listp (cadr dep))
+                                               (format "%s {%s}"
+                                                       (car dep)
+                                                       (seq-reduce
+                                                        (lambda (acc v)
+                                                          (concat acc (format " :%s \"%s\" " (car v) (cdr v))))
+                                                        (cadr dep)
+                                                        ""))
+                                             (format "%s {:git/sha \"%s\"}" (car dep) (cadr dep)))))))
+         (deps (format "{:deps {%s}}"
+                       (string-join all-deps " ")))
+         (deps-quoted (cider--shell-quote-argument deps command)))
+    (format "-Sdeps %s %s"
+            deps-quoted
+            (if params (format " %s" params) ""))))
+
 (defun cider-add-clojure-dependencies-maybe (dependencies)
   "Return DEPENDENCIES with an added Clojure dependency if requested.
 See also `cider-jack-in-auto-inject-clojure'."
@@ -915,6 +966,10 @@ dependencies."
            (unless (seq-empty-p global-opts) " ")
            params))
     ('basilisp params)
+    ('clr (cider-clr-jack-in-dependencies
+           params
+           `(("io.github.clojure/clr.tools.nrepl" ,cider-clr-nrepl-sha))
+           command))
     (_ (error "Unsupported project type `%S'" project-type))))
 
 
@@ -2031,7 +2086,8 @@ PROJECT-DIR defaults to current project."
                         (gradle      . "build.gradle")
                         (gradle      . "build.gradle.kts")
                         (nbb         . "nbb.edn")
-                        (basilisp    . "basilisp.edn"))))
+                        (basilisp    . "basilisp.edn")
+                        (clr         . "deps-clr.edn"))))
     (delq nil
           (mapcar (lambda (candidate)
                     (when (file-exists-p (cdr candidate))
