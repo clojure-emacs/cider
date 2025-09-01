@@ -6,6 +6,8 @@
 
 ### Changes
 
+- Bump the injected `piggieback` to [0.6.1](https://github.com/nrepl/piggieback/blob/master/CHANGES.md#061-2025-12-31).
+
 ### Bugs fixed
 
 - [#3832](https://github.com/clojure-emacs/cider/issues/3832): Fix nrepl--eval-request sending duplicate info.
