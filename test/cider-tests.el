@@ -109,8 +109,8 @@
 ;;; cider-jack-in tests
 (describe "cider--gradle-dependency-notation"
   (it "returns a GAV when given a two-element list"
-    (expect (cider--gradle-dependency-notation '("cider/piggieback" "0.5.3"))
-            :to-equal "cider:piggieback:0.5.3")))
+    (expect (cider--gradle-dependency-notation '("cider/piggieback" "1.2.3"))
+            :to-equal "cider:piggieback:1.2.3")))
 
 (describe "cider--gradle-jack-in-property"
   (it "returns an empty string if no dependencies passed"
