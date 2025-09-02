@@ -6,6 +6,7 @@
 
 ### Changes
 
+- Bump the injected `nrepl` to [1.4.0](https://github.com/nrepl/nrepl/blob/master/CHANGELOG.md#140-2025-09-02).
 - Bump the injected `piggieback` to [0.6.1](https://github.com/nrepl/piggieback/blob/master/CHANGES.md#061-2025-12-31).
 
 ### Bugs fixed
