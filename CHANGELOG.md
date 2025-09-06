@@ -8,6 +8,7 @@
 
 - Bump the injected `nrepl` to [1.4.0](https://github.com/nrepl/nrepl/blob/master/CHANGELOG.md#140-2025-09-02).
 - Bump the injected `piggieback` to [0.6.1](https://github.com/nrepl/piggieback/blob/master/CHANGES.md#061-2025-12-31).
+- [#3834](https://github.com/clojure-emacs/cider/issues/3834): Change cider-ns-refresh to always use Clojure REPL
 
 ### Bugs fixed
 

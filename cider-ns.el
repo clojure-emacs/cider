@@ -297,36 +297,40 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
 `cider-ns-refresh-after-fn') from being invoked."
   (interactive "p")
   (cider-ensure-connected)
-  (cider-ensure-op-supported "refresh")
-  (cider-ensure-op-supported "cider.clj-reload/reload")
-  (cider-ns-refresh--save-modified-buffers)
-  (let ((clear? (member mode '(clear 16)))
-        (all? (member mode '(refresh-all 4)))
-        (inhibit-refresh-fns (member mode '(inhibit-fns -1))))
-    (cider-map-repls :clj
-      (lambda (conn)
-        ;; Inside the lambda, so the buffer is not created if we error out.
-        (let ((log-buffer (or (get-buffer cider-ns-refresh-log-buffer)
-                              (cider-make-popup-buffer cider-ns-refresh-log-buffer))))
-          (when cider-ns-refresh-show-log-buffer
-            (cider-popup-buffer-display log-buffer))
-          (when inhibit-refresh-fns
-            (cider-emit-into-popup-buffer log-buffer
-                                          "inhibiting refresh functions\n"
-                                          nil
-                                          t))
-          (when clear?
-            (cider-nrepl-send-sync-request `("op" ,(cider-ns--reload-op "reload-clear")) conn))
-          (cider-nrepl-send-request
-           `("op" ,(cider-ns--reload-op (if all? "reload-all" "reload"))
-             ,@(cider--nrepl-print-request-plist fill-column)
-             ,@(when (and (not inhibit-refresh-fns) cider-ns-refresh-before-fn)
-                 `("before" ,cider-ns-refresh-before-fn))
-             ,@(when (and (not inhibit-refresh-fns) cider-ns-refresh-after-fn)
-                 `("after" ,cider-ns-refresh-after-fn)))
-           (lambda (response)
-             (cider-ns-refresh--handle-response response log-buffer))
-           conn))))))
+  (if-let ((clj-connection (cider-current-repl 'clj)))
+      (with-current-buffer clj-connection
+        (cider-ensure-op-supported "refresh")
+        (cider-ensure-op-supported "cider.clj-reload/reload")
+        (cider-ns-refresh--save-modified-buffers)
+        (let ((clear? (member mode '(clear 16)))
+              (all? (member mode '(refresh-all 4)))
+              (inhibit-refresh-fns (member mode '(inhibit-fns -1))))
+          (funcall
+           (lambda (conn)
+             ;; Inside the lambda, so the buffer is not created if we error out.
+             (let ((log-buffer (or (get-buffer cider-ns-refresh-log-buffer)
+                                   (cider-make-popup-buffer cider-ns-refresh-log-buffer))))
+               (when cider-ns-refresh-show-log-buffer
+                 (cider-popup-buffer-display log-buffer))
+               (when inhibit-refresh-fns
+                 (cider-emit-into-popup-buffer log-buffer
+                                               "inhibiting refresh functions\n"
+                                               nil
+                                               t))
+               (when clear?
+                 (cider-nrepl-send-sync-request `("op" ,(cider-ns--reload-op "reload-clear")) conn))
+               (cider-nrepl-send-request
+                `("op" ,(cider-ns--reload-op (if all? "reload-all" "reload"))
+                  ,@(cider--nrepl-print-request-plist fill-column)
+                  ,@(when (and (not inhibit-refresh-fns) cider-ns-refresh-before-fn)
+                      `("before" ,cider-ns-refresh-before-fn))
+                  ,@(when (and (not inhibit-refresh-fns) cider-ns-refresh-after-fn)
+                      `("after" ,cider-ns-refresh-after-fn)))
+                (lambda (response)
+                  (cider-ns-refresh--handle-response response log-buffer))
+                conn)))
+           clj-connection)))
+    (cider--no-repls-user-error 'clj)))
 
 (provide 'cider-ns)
 ;;; cider-ns.el ends here
