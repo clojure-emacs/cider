@@ -175,10 +175,10 @@ Skip check if repl is active if SKIP-ENSURE is non nil."
                                                               nil
                                                             'ensure)))))
 
-(defun cider-ensure-op-supported (op)
-  "Check for support of middleware op OP.
+(defun cider-ensure-op-supported (op &optional connection)
+  "Check for support of middleware op OP for CONNECTION.
 Signal an error if it is not supported."
-  (unless (cider-nrepl-op-supported-p op)
+  (unless (cider-nrepl-op-supported-p op connection)
     (user-error "`%s' requires the nREPL op \"%s\" (provided by cider-nrepl)" this-command op)))
 
 (defun cider-nrepl-send-request (request callback &optional connection tooling)
@@ -623,12 +623,12 @@ Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
         (user-error "Invalid regexp: %s" (nrepl-dict-get response "error-msg"))
       (nrepl-dict-get response "apropos-matches"))))
 
-(defun cider-sync-request:classpath ()
-  "Return a list of classpath entries."
-  (cider-ensure-op-supported "classpath")
+(defun cider-sync-request:classpath (&optional connection)
+  "Return a list of classpath entries for CONNECTION."
+  (cider-ensure-op-supported "classpath" connection)
   (thread-first
     '("op" "classpath")
-    (cider-nrepl-send-sync-request)
+    (cider-nrepl-send-sync-request connection)
     (nrepl-dict-get "classpath")))
 
 (defun cider--get-abs-path (path project)
@@ -652,11 +652,11 @@ resolve those to absolute paths."
           (project (clojure-project-dir)))
       (mapcar (lambda (path) (cider--get-abs-path path project)) classpath))))
 
-(defun cider-classpath-entries ()
-  "Return a list of classpath entries."
+(defun cider-classpath-entries (&optional connection)
+  "Return a list of classpath entries for CONNECTION."
   (seq-map #'expand-file-name ; normalize filenames for e.g. Windows
-           (if (cider-nrepl-op-supported-p "classpath")
-               (cider-sync-request:classpath)
+           (if (cider-nrepl-op-supported-p "classpath" connection)
+               (cider-sync-request:classpath connection)
              (cider-fallback-eval:classpath))))
 
 (defun cider-sync-request:completion (prefix)

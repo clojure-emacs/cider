@@ -219,13 +219,13 @@ presenting the error message as an overlay."
                error)
       (cider-ns--present-error error))))
 
-(defun cider-ns-refresh--save-modified-buffers ()
-  "Ensure any relevant modified buffers are saved before refreshing.
+(defun cider-ns-refresh--save-modified-buffers (&optional connection)
+  "Ensure any relevant modified buffers for CONNECTION are saved before refreshing.
 Its behavior is controlled by `cider-ns-save-files-on-refresh' and
 `cider-ns-save-files-on-refresh-modes'."
   (when cider-ns-save-files-on-refresh
     (let ((dirs (seq-filter #'file-directory-p
-                            (cider-classpath-entries))))
+                            (cider-classpath-entries connection))))
       (save-some-buffers
        (not (eq cider-ns-save-files-on-refresh 'prompt))
        (lambda ()
@@ -297,14 +297,14 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
 `cider-ns-refresh-after-fn') from being invoked."
   (interactive "p")
   (cider-ensure-connected)
-  (cider-ensure-op-supported "refresh")
-  (cider-ensure-op-supported "cider.clj-reload/reload")
-  (cider-ns-refresh--save-modified-buffers)
   (let ((clear? (member mode '(clear 16)))
         (all? (member mode '(refresh-all 4)))
         (inhibit-refresh-fns (member mode '(inhibit-fns -1))))
     (cider-map-repls :clj
       (lambda (conn)
+        (cider-ensure-op-supported "refresh" conn)
+        (cider-ensure-op-supported "cider.clj-reload/reload" conn)
+        (cider-ns-refresh--save-modified-buffers conn)
         ;; Inside the lambda, so the buffer is not created if we error out.
         (let ((log-buffer (or (get-buffer cider-ns-refresh-log-buffer)
                               (cider-make-popup-buffer cider-ns-refresh-log-buffer))))

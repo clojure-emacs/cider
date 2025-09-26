@@ -175,7 +175,7 @@ kbd:[C-u C-c C-c]
 
 | `cider-ns-refresh`
 | kbd:[C-c M-n (M-)r]
-| Reload all modified files on the classpath. If invoked with a prefix argument, reload all files on the classpath. If invoked with a double prefix argument, clear the state of the namespace tracker before reloading.
+| Reload all modified files on the classpath. If invoked with a prefix argument, reload all files on the classpath. If invoked with a double prefix argument, clear the state of the namespace tracker before reloading. Uses a clojure REPL whenever one exists.
 
 | `cider-doc`
 | kbd:[C-c C-d d] +
