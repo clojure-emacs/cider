@@ -300,10 +300,8 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
   (let ((clear? (member mode '(clear 16)))
         (all? (member mode '(refresh-all 4)))
         (inhibit-refresh-fns (member mode '(inhibit-fns -1))))
-    (cider-map-repls :clj
+    (cider-map-repls '(:clj "refresh" "cider.clj-reload/reload")
       (lambda (conn)
-        (cider-ensure-op-supported "refresh" conn)
-        (cider-ensure-op-supported "cider.clj-reload/reload" conn)
         (cider-ns-refresh--save-modified-buffers conn)
         ;; Inside the lambda, so the buffer is not created if we error out.
         (let ((log-buffer (or (get-buffer cider-ns-refresh-log-buffer)
