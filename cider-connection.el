@@ -1015,11 +1015,12 @@ Returns a list of the form ((session1 host1) (session2 host2) ...)."
              sessions
              :initial-value '()))
 
-(defun cider-repls (&optional type ensure)
+(defun cider-repls (&optional type ensure ops-to-support)
   "Return cider REPLs of TYPE from the current session.
 If TYPE is nil or multi, return all REPLs.  If TYPE is a list of types,
 return only REPLs of type contained in the list.  If ENSURE is non-nil,
-throw an error if no linked session exists."
+throw an error if no linked session exists.  If OPS-TO-SUPPORT is non-nil,
+filters out all the REPLs that do not support the designated ops."
   (let ((type (cond
                ((listp type)
                 (mapcar #'cider-maybe-intern type))
@@ -1045,7 +1046,10 @@ throw an error if no linked session exists."
     (or (seq-filter (lambda (b)
                       (unless
                           (cider-cljs-pending-p b)
-                        (cider--match-repl-type type b)))
+                        (and (cider--match-repl-type type b)
+                             (seq-every-p (lambda (op)
+                                            (nrepl-op-supported-p op b))
+                                          ops-to-support))))
                     repls)
         (when ensure
           (cider--no-repls-user-error type)))))
@@ -1082,16 +1086,8 @@ session."
            (ensure (cl-case which-key
                      (:auto nil)
                      (t 'ensure)))
-           (repls (cider-repls type ensure)))
-      (mapcar (lambda (repl)
-                (mapc (lambda (op)
-                        (unless (nrepl-op-supported-p op repl)
-                          (user-error "`%s' requires the nREPL op \"%s\" (provided by cider-nrepl)"
-                                      this-command op)))
-                      ops-to-support)
-                (funcall function repl))
-              repls))))
-
+           (repls (cider-repls type ensure ops-to-support)))
+      (mapcar function repls))))
 
 ;; REPLs double as connections in CIDER, so it's useful to be able to refer to
 ;; them as connections in certain contexts.

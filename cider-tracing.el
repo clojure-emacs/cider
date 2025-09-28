@@ -72,10 +72,9 @@ opposite of what that option dictates."
   "Toggle ns tracing.
 Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
   (interactive "P")
-  (cider-map-repls :clj-strict
+  (cider-map-repls '(:clj-strict  "toggle-trace-ns")
     (lambda (conn)
       (with-current-buffer conn
-        (cider-ensure-op-supported "toggle-trace-ns")
         (let ((ns (if query
                       (completing-read "Toggle trace for ns: "
                                        (cider-sync-request:ns-list))
