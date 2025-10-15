@@ -6,13 +6,18 @@
 
 ### Changes
 
-- Bump the injected `nrepl` to [1.4.0](https://github.com/nrepl/nrepl/blob/master/CHANGELOG.md#140-2025-09-02).
+- Bump the injected `nrepl` to [1.5.0](https://github.com/nrepl/nrepl/blob/master/CHANGELOG.md#150-2025-10-15).
+  - * [nrepl#385](https://github.com/nrepl/nrepl/pull/385): Preserve filename in functions compiled during regular eval.
 - Bump the injected `piggieback` to [0.6.1](https://github.com/nrepl/piggieback/blob/master/CHANGES.md#061-2025-12-31).
+- Bump the injected `cider-nrepl` to [0.58.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0580-2025-10-16).
+  - * [cider-nrepl#951](https://github.com/clojure-emacs/cider-nrepl/pull/951): Debug: correctly process #dbg tag during load-file.
 
 ### Bugs fixed
 
 - [#3832](https://github.com/clojure-emacs/cider/issues/3832): Fix nrepl--eval-request sending duplicate info.
 - [#3837](https://github.com/clojure-emacs/cider/issues/3837): Fix broken stacktrace response when C-c C-p throws an exception.
+- [orchard#353](https://github.com/clojure-emacs/orchard/pull/353): Stacktrace: flag Clojure functions as duplicate.
+- [orchard#355](https://github.com/clojure-emacs/orchard/pull/355): Java: resolve source files for non-base JDK classes.
 
 ## 1.19.0 (2025-07-10)
 
