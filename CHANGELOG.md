@@ -6,7 +6,7 @@
 
 ### Changes
 
-- Bump the injected `nrepl` to [1.5.0](https://github.com/nrepl/nrepl/blob/master/CHANGELOG.md#150-2025-10-15).
+- Bump the injected `nrepl` to [1.5.1](https://github.com/nrepl/nrepl/blob/master/CHANGELOG.md#151-2025-10-18).
   - * [nrepl#385](https://github.com/nrepl/nrepl/pull/385): Preserve filename in functions compiled during regular eval.
 - Bump the injected `piggieback` to [0.6.1](https://github.com/nrepl/piggieback/blob/master/CHANGES.md#061-2025-12-31).
 - Bump the injected `cider-nrepl` to [0.58.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0580-2025-10-16).
