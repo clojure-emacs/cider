@@ -365,8 +365,7 @@
                 (expect (cider-repls) :to-have-same-items-as (list l1 l2)))))))))
 
   (describe "killed buffers"
-    (it "do not show up in it
-"
+    (it "do not show up in it"
       (let ((default-directory (expand-file-name "/tmp/some-dir")))
         (cider-test-with-buffers
          (a b)
@@ -401,7 +400,7 @@
            (expect (cider-repls) :to-equal (list a b))
            (sesman-unregister 'CIDER session))))))
 
-  (describe "when ops-to-support is not nil"
+  (describe "when required-ops is not nil"
     :var (nrepl-ops)
     (it "only returns the repls that support the given ops"
       (let ((proj-dir (expand-file-name "/tmp/proj-dir")))

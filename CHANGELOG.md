@@ -11,7 +11,7 @@
 - Bump the injected `piggieback` to [0.6.1](https://github.com/nrepl/piggieback/blob/master/CHANGES.md#061-2025-12-31).
 - Bump the injected `cider-nrepl` to [0.58.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0580-2025-10-16).
   - * [cider-nrepl#951](https://github.com/clojure-emacs/cider-nrepl/pull/951): Debug: correctly process #dbg tag during load-file.
-- [#3834](https://github.com/clojure-emacs/cider/issues/3834): Change cider-ns-refresh to always use Clojure REPL
+- [#3834](https://github.com/clojure-emacs/cider/issues/3834): Change cider-ns-refresh to always use Clojure REPL.
 
 ### Bugs fixed
 

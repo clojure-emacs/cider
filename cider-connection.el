@@ -1015,11 +1015,11 @@ Returns a list of the form ((session1 host1) (session2 host2) ...)."
              sessions
              :initial-value '()))
 
-(defun cider-repls (&optional type ensure ops-to-support)
+(defun cider-repls (&optional type ensure required-ops)
   "Return cider REPLs of TYPE from the current session.
 If TYPE is nil or multi, return all REPLs.  If TYPE is a list of types,
 return only REPLs of type contained in the list.  If ENSURE is non-nil,
-throw an error if no linked session exists.  If OPS-TO-SUPPORT is non-nil,
+throw an error if no linked session exists.  If REQUIRED-OPS is non-nil,
 filters out all the REPLs that do not support the designated ops."
   (let ((type (cond
                ((listp type)
@@ -1049,7 +1049,7 @@ filters out all the REPLs that do not support the designated ops."
                         (and (cider--match-repl-type type b)
                              (seq-every-p (lambda (op)
                                             (nrepl-op-supported-p op b))
-                                          ops-to-support))))
+                                          required-ops))))
                     repls)
         (when ensure
           (cider--no-repls-user-error type)))))
@@ -1071,7 +1071,7 @@ session."
   (declare (indent 1))
   (let ((cur-type (cider-repl-type-for-buffer))
         (which-key (or (car-safe which) which))
-        (ops-to-support (cdr-safe which)))
+        (required-ops (cdr-safe which)))
     (cl-case which-key
       (:clj-strict (when (eq cur-type 'cljs)
                      (user-error "Clojure-only operation requested in a ClojureScript buffer")))
@@ -1086,7 +1086,7 @@ session."
            (ensure (cl-case which-key
                      (:auto nil)
                      (t 'ensure)))
-           (repls (cider-repls type ensure ops-to-support)))
+           (repls (cider-repls type ensure required-ops)))
       (mapcar function repls))))
 
 ;; REPLs double as connections in CIDER, so it's useful to be able to refer to
