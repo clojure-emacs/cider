@@ -1015,11 +1015,12 @@ Returns a list of the form ((session1 host1) (session2 host2) ...)."
              sessions
              :initial-value '()))
 
-(defun cider-repls (&optional type ensure)
+(defun cider-repls (&optional type ensure required-ops)
   "Return cider REPLs of TYPE from the current session.
 If TYPE is nil or multi, return all REPLs.  If TYPE is a list of types,
 return only REPLs of type contained in the list.  If ENSURE is non-nil,
-throw an error if no linked session exists."
+throw an error if no linked session exists.  If REQUIRED-OPS is non-nil,
+filters out all the REPLs that do not support the designated ops."
   (let ((type (cond
                ((listp type)
                 (mapcar #'cider-maybe-intern type))
@@ -1045,7 +1046,10 @@ throw an error if no linked session exists."
     (or (seq-filter (lambda (b)
                       (unless
                           (cider-cljs-pending-p b)
-                        (cider--match-repl-type type b)))
+                        (and (cider--match-repl-type type b)
+                             (seq-every-p (lambda (op)
+                                            (nrepl-op-supported-p op b))
+                                          required-ops))))
                     repls)
         (when ensure
           (cider--no-repls-user-error type)))))
@@ -1053,8 +1057,9 @@ throw an error if no linked session exists."
 (defun cider-map-repls (which function)
   "Call FUNCTION once for each appropriate REPL as indicated by WHICH.
 The function is called with one argument, the REPL buffer.  The appropriate
-connections are found by inspecting the current buffer.  WHICH is one of
-the following keywords:
+connections are found by inspecting the current buffer.  WHICH is either one of
+the following keywords or a list starting with one of them followed by names of
+operations that the REPL is expected to support:
  :auto - Act on the connections whose type matches the current buffer.  In
      `cljc' files, mapping happens over both types of REPLs.
  :clj (:cljs) - Map over clj (cljs)) REPLs only.
@@ -1064,22 +1069,24 @@ the following keywords:
 Error is signaled if no REPL buffers of specified type exist in current
 session."
   (declare (indent 1))
-  (let ((cur-type (cider-repl-type-for-buffer)))
-    (cl-case which
+  (let ((cur-type (cider-repl-type-for-buffer))
+        (which-key (or (car-safe which) which))
+        (required-ops (cdr-safe which)))
+    (cl-case which-key
       (:clj-strict (when (eq cur-type 'cljs)
                      (user-error "Clojure-only operation requested in a ClojureScript buffer")))
       (:cljs-strict (when (eq cur-type 'clj)
                       (user-error "ClojureScript-only operation requested in a Clojure buffer"))))
-    (let* ((type (cl-case which
+    (let* ((type (cl-case which-key
                    ((:clj :clj-strict) 'clj)
                    ((:cljs :cljs-strict) 'cljs)
                    (:auto (if (eq cur-type 'multi)
                               '(clj cljs)
                             cur-type))))
-           (ensure (cl-case which
+           (ensure (cl-case which-key
                      (:auto nil)
                      (t 'ensure)))
-           (repls (cider-repls type ensure)))
+           (repls (cider-repls type ensure required-ops)))
       (mapcar function repls))))
 
 ;; REPLs double as connections in CIDER, so it's useful to be able to refer to

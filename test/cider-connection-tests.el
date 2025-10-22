@@ -398,7 +398,25 @@
                    (append cider-connection-capabilities '(cljs))))
 
            (expect (cider-repls) :to-equal (list a b))
-           (sesman-unregister 'CIDER session)))))))
+           (sesman-unregister 'CIDER session))))))
+
+  (describe "when required-ops is not nil"
+    :var (nrepl-ops)
+    (it "only returns the repls that support the given ops"
+      (let ((proj-dir (expand-file-name "/tmp/proj-dir")))
+        (let ((default-directory proj-dir))
+          (with-repl-buffer ses-name 'clj b1
+            (setq nrepl-ops (nrepl-dict "refresh" 't))
+            (with-repl-buffer ses-name 'clj b2
+              (with-repl-buffer ses-name 'cljs b3
+                (expect (cider-repls nil nil '("refresh")) :to-equal (list b1))))))))
+    (it "raises a user error when ensure is not nil and no repl that supports the ops exist"
+      (let ((proj-dir (expand-file-name "/tmp/proj-dir")))
+        (let ((default-directory proj-dir))
+          (with-repl-buffer ses-name 'clj b1
+            (with-repl-buffer ses-name 'cljs b2
+              (expect (cider-repls nil 't '("refresh")) :to-throw 'user-error))))))))
+
 
 (describe "cider--connection-info"
   (before-each
