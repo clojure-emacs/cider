@@ -51,7 +51,7 @@ jobs:
     # instead.
     - name: Setup Scoop and GPG on Windows
       if: startsWith (matrix.os, 'windows')
-    - uses: MinoruSekine/setup-scoop@v4.0.2
+      uses: MinoruSekine/setup-scoop@v4.0.2
       with:
         apps: gpg
         scoop_update: false
