@@ -49,6 +49,8 @@ jobs:
     # bundled with the GitHub Windows runner cannot handle native
     # Windows paths, so we install a native Windows port of GPG
     # instead.
+    - name: Setup Scoop and GPG on Windows
+      if: startsWith (matrix.os, 'windows')
     - uses: MinoruSekine/setup-scoop@v4.0.2
       with:
         apps: gpg
