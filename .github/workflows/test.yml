@@ -45,6 +45,19 @@ jobs:
       with:
         version: ${{matrix.emacs_version}}
 
+    # Emacs needs GPG to verify package signatures. The MSYS2 GPG
+    # bundled with the GitHub Windows runner cannot handle native
+    # Windows paths, so we install a native Windows port of GPG
+    # instead.
+    - uses: MinoruSekine/setup-scoop@v4.0.2
+      with:
+        apps: gpg
+        scoop_update: false
+    - name: Add GPG at the beginning of PATH on Windows
+      if: startsWith (matrix.os, 'windows')
+      run: |
+        echo "C:\Users\runneradmin\scoop\apps\gpg\current\bin" >> $env:GITHUB_PATH
+
     - name: Install Eldev
       if: "!startsWith (matrix.os, 'windows')"
       run: curl -fsSL https://raw.github.com/doublep/eldev/master/webinstall/github-eldev | sh
