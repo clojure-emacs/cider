@@ -2,27 +2,27 @@
 
 == Current Status
 
-ClojureCLR on CIDER is not great due to the lack of a fully-functional nREPL
-server for ClojureCLR. There are currently two options:
+You will get basic CIDER functionality with ClojureCLR. Three nREPL server options:
 
-- https://github.com/clojure/clr.tools.nrepl[clr.tools.nrepl]: A direct (but incomplete) port of the reference Clojure nREPL server.
+- https://github.com/clojure/clr.tools.nrepl[clr.tools.nrepl]: At present port of babashka's nREPL server (https://github.com/babashka/babashka.nrepl[babashka.nrepl]).
+- https://github.com/clojure/clr.tools.nrepl/tree/master/partial-nrepl-nrepl-port[port of nrepl/nrepl]: A non-working, work-in-progress port of nrepl/nrepl, which may
+  ultimately better integrate with CIDER once CIDER's middleware (cider-nrepl) is also adapted/ported.
 - https://github.com/arcadia-unity/Arcadia/blob/master/Editor/NRepl.cs[Arcadia's nREPL]: A basic, but working nREPL implementation in C#.
 
-If you need to use CIDER with ClojureCLR today Arcadia's nREPL is your only usable option. That being said - `clr.tools.nrepl` is a much
-more sophisticated project and ideally we should get it over to the finish line.
+An alternative to CIDER & a nREPL server is inf-clojure with ClojureCLR's stock socket REPL server.
 
 == Usage
 
 NOTE: Contributions welcome!
 
-As `cider-jack-in` doesn't support ClojureCLR projects out-of-the-box currently, you'll need to start an nREPL server externally and
-connect to it with `cider-connect`.
+`cider-jack-in-universal` will jack into a clr.tools.nrepl server as long as a `deps-clr.edn` file
+exists in the project directory, otherwise you may call `cider-jack-in-universal` with prefix
+argument 6, by either `M-6` or `C-u 6` followed by `M-x cider-jack-in-universal`.
 
 == Plans
 
 In an ideal world we'll achieve the following objectives:
 
-- out-of-the-box ClojureCLR support with `cider-jack-in`
 - feature parity between Clojure's nREPL implementation and `clr.tools.nrepl` (the project can use some help)
 - adapting `cider-nrepl` for ClojureCLR (some of its codebase is JVM-specific)
 

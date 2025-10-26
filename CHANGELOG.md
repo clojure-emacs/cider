@@ -4,6 +4,8 @@
 
 ### New features
 
+- [#3839](https://github.com/clojure-emacs/cider/pull/3839): Add jack-in support for ClojureCLR.
+
 ### Changes
 
 - Bump the injected `nrepl` to [1.5.1](https://github.com/nrepl/nrepl/blob/master/CHANGELOG.md#151-2025-10-18).

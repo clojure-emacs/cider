@@ -183,6 +183,68 @@ If CLI-COMMAND is nil, then use the default."
                 (cider-itu-poll-until (not (eq (process-status nrepl-proc) 'run)) 5)
                 (expect (member (process-status nrepl-proc) '(exit signal))))))))))
 
+  (it "to clr"
+    (with-cider-test-sandbox
+      (with-temp-dir temp-dir
+        ;; Create a project in temp dir
+        (let* ((project-dir temp-dir)
+               (clr-edn (expand-file-name "deps-clr.edn" project-dir)))
+          (write-region "{}" nil clr-edn)
+
+          (with-temp-buffer
+            ;; set default directory to temp project
+            (setq-local default-directory project-dir)
+
+            (let* (;; Get a gv reference so as to poll if the client has
+                   ;; connected to the nREPL server.
+                   (client-is-connected* (cider-itu-nrepl-client-connected-ref-make!))
+
+                   ;; jack in and get repl buffer
+                   ;;
+                   ;; The numerical prefix arg for `clr` in
+                   ;; `cider-jack-in-universal-options' is 6.
+                   (nrepl-proc (cider-jack-in-universal 6))
+                   (nrepl-buf (process-buffer nrepl-proc)))
+
+              ;; wait until the client has successfully connected to the
+              ;; nREPL server.
+              (cider-itu-poll-until (eq (gv-deref client-is-connected*) 'connected) 20)
+
+              ;; give it some time to setup the clj REPL
+              (cider-itu-poll-until (cider-repls 'clj nil) 60)
+
+              ;; send command to the REPL, and push stdout/stderr to
+              ;; corresponding eval-xxx variables.
+              (let ((repl-buffer (cider-current-repl))
+                    (eval-err '())
+                    (eval-out '()))
+                (expect repl-buffer :not :to-be nil)
+
+                ;; send command to the REPL
+                (cider-interactive-eval
+                 ;; ask REPL to return a string that uniquely identifies it.
+                 "(print :clr? (some? (. RuntimeInformation FrameworkDescription)))"
+                 (lambda (return)
+                   (nrepl-dbind-response
+                       return
+                       (out err)
+                     (when err (push err eval-err))
+                     (when out (push out eval-out)))) )
+
+                ;; wait for a response to come back.
+                (cider-itu-poll-until (or eval-err eval-out) 20)
+
+                ;; ensure there are no errors and response is as expected.
+                (expect eval-err :to-equal '())
+                (expect eval-out :to-equal '(":clr? true"))
+
+                ;; exit the REPL.
+                (cider-quit repl-buffer)
+
+                ;; wait for the REPL to exit
+                (cider-itu-poll-until (not (eq (process-status nrepl-proc) 'run)) 5)
+                (expect (member (process-status nrepl-proc) '(exit signal))))))))))
+
   (it "to Basilisp"
     (with-cider-test-sandbox
       (with-temp-dir temp-dir
