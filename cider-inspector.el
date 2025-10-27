@@ -94,6 +94,13 @@ The max depth can be also changed interactively within the inspector."
   :type 'boolean
   :package-version '(cider . "1.19.0"))
 
+(defcustom cider-inspector-tidy-qualified-keywords t
+  "Controls whether to abbreviate qualified keywords.
+When inspector is invoked from a code buffer, replace full namespace name
+with `::' or `::alias'."
+  :type 'boolean
+  :package-version '(cider . "1.20.0"))
+
 (defcustom cider-inspector-skip-uninteresting t
   "Controls whether to skip over uninteresting values in the inspector.
 Only applies to navigation with `cider-inspector-prev-inspectable-object'
@@ -490,6 +497,8 @@ MAX-COLL-SIZE if non nil."
                   `("max-nested-depth" ,cider-inspector-max-nested-depth))
               ,@(when cider-inspector-display-analytics-hint
                   `("display-analytics-hint" "true"))
+              "tidy-qualified-keywords" ,(if cider-inspector-tidy-qualified-keywords
+                                             "true" "false")
               "pretty-print" ,(if cider-inspector-pretty-print "true" "false")
               "sort-maps" ,(if cider-inspector-sort-maps "true" "false")
               "only-diff" ,(if cider-inspector-only-diff "true" "false")))

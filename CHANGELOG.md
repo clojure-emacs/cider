@@ -4,6 +4,8 @@
 
 ### New features
 
+- [#3847](https://github.com/clojure-emacs/cider/issues/3847): Inspector: tidy up namespaced-qualified keywords.
+
 ### Changes
 
 - Bump the injected `nrepl` to [1.5.1](https://github.com/nrepl/nrepl/blob/master/CHANGELOG.md#151-2025-10-18).
