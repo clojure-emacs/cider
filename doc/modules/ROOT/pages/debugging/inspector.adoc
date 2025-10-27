@@ -155,6 +155,11 @@ You can customize this value via the `cider-inspector-preferred-var-names`
 configuration option. Even after setting it, you are free to choose new names on
 the fly, as you type. Most recent names will take priority in subsequent usages.
 
+When `cider-inspector-tidy-qualified-keywords` is enabled, namespace-qualified
+keyword like `::foo` or `::alias/baz` will be displayed in the same manner by
+the inspector if it was invoked in the code buffer of the same namespace or
+requires respective aliases.
+
 == Additional Resources
 
 * https://practicalli.github.io/spacemacs/evaluating-clojure/inspect/[Using CIDER's Inspector in Spacemacs]
