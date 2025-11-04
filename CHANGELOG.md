@@ -22,6 +22,7 @@
 - [orchard#353](https://github.com/clojure-emacs/orchard/pull/353): Stacktrace: flag Clojure functions as duplicate.
 - [orchard#355](https://github.com/clojure-emacs/orchard/pull/355): Java: resolve source files for non-base JDK classes.
 - [#3834](https://github.com/clojure-emacs/cider/issues/3834): Fix cider-ns-refresh throwing an error when a clojure REPL exists, but cider-current-repl does not support the required operations.
+- [#3848](https://github.com/clojure-emacs/cider/issues/3848): Format: fix cider-format crashing when format options are set.
 
 ## 1.19.0 (2025-07-10)
 
