@@ -265,23 +265,17 @@ you need to encode it as the following plist:
 If non-nil, FORMAT-OPTIONS specifies the options cljfmt will use to format
 the code.  See `cider-format-code-options' for details."
   (when format-options
-    (let* ((indents-dict (when (assoc "indents" format-options)
-                           (thread-last
-                             (cadr (assoc "indents" format-options))
-                             (map-pairs)
-                             (seq-mapcat #'identity)
-                             (apply #'nrepl-dict))))
-           (alias-map-dict (when (assoc "alias-map" format-options)
-                             (thread-last
-                               (cadr (assoc "alias-map" format-options))
-                               (map-pairs)
-                               (seq-mapcat #'identity)
-                               (apply #'nrepl-dict)))))
-      (nrepl-dict
-       `(,@(when indents-dict
-             `("indents" ,indents-dict))
-         ,@(when alias-map-dict
-             `("alias-map" ,alias-map-dict)))))))
+    (let* ((indents (cadr (assoc "indents" format-options)))
+           (alias-map (cadr (assoc "alias-map" format-options))))
+      (apply #'nrepl-dict
+             `(,@(when indents
+                   `("indents" ,(thread-last indents
+                                             (seq-mapcat #'identity)
+                                             (apply #'nrepl-dict))))
+               ,@(when alias-map
+                   `("alias-map" ,(thread-last alias-map
+                                               (seq-mapcat #'identity)
+                                               (apply #'nrepl-dict)))))))))
 
 (defcustom cider-print-fn 'pprint
   "Sets the function to use for printing.
