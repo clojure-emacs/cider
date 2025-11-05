@@ -14,7 +14,7 @@
 ;; Homepage: https://www.github.com/clojure-emacs/cider
 ;; Keywords: languages, clojure, cider
 ;;
-;; Version: 1.20.0-snapshot
+;; Version: 1.20.0
 ;; Package-Requires: (
 ;;     (emacs "27")
 ;;     (clojure-mode "5.19")
@@ -103,10 +103,10 @@
 (require 'sesman)
 (require 'package)
 
-(defconst cider-version "1.20.0-snapshot"
+(defconst cider-version "1.20.0"
   "The current version of CIDER.")
 
-(defconst cider-codename "Skiathos"
+(defconst cider-codename "Lanzarote"
   "Codename used to denote stable releases.")
 
 (defcustom cider-lein-command
