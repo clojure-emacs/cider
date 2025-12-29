@@ -51,7 +51,7 @@ or in `build.gradle`:
 [source, groovy]
 ----
 dependencies {
-  devImplementation 'nrepl:nrepl:1.5.1'
+  devImplementation 'nrepl:nrepl:1.5.2'
   devImplementation 'cider:cider-nrepl:0.58.0'
   devImplementation 'cider:cider-piggieback:0.6.1'
 }

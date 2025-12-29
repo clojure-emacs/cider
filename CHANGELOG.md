@@ -2,6 +2,13 @@
 
 ## master (unreleased)
 
+### Changes
+
+### Bugs fixed
+
+- [#3853](https://github.com/clojure-emacs/cider/issues/3853): Fix mangling of printed representations.
+  - This was caused by a bug in nREPL, that was addressed in nREPL 1.5.2
+
 ## 1.20.0 (2025-11-05)
 
 ### New features
