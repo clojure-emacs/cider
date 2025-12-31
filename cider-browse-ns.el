@@ -232,7 +232,7 @@ displayed."
       (t "")))))
 
 (defun cider-browse-ns--display-list (keys items max-length &optional label)
-  "Render the items of KEYS as condained in the nrepl-dict ITEMS.
+  "Render the items of KEYS as contained in the nrepl-dict ITEMS.
 
 Pad the row to be MAX-LENGTH+1.  If LABEL is non-nil, add a header to the
 list of items."
@@ -245,7 +245,9 @@ list of items."
              (first-doc-line (cider-browse-ns--first-doc-line doc))
              (item-line (cider-browse-ns--propertized-item key items)))
         (insert "  ")
-        (insert item-line)
+        (insert-text-button item-line
+                            'action (lambda (_) (cider-browse-ns-operate-at-point))
+                            'face (cider-browse-ns--text-face (nrepl-dict-get items key)))
         (when cider-browse-ns-current-ns
           (insert (make-string (+ (- max-length (string-width item-line)) 1) ?·))
           (insert " " (propertize first-doc-line 'font-lock-face 'font-lock-doc-face)))
