@@ -4,6 +4,8 @@
 
 ### Changes
 
+- Use buttons for items in cider-ns-browser to allow clicking and evil's RET to navigate.
+
 ### Bugs fixed
 
 - [#3853](https://github.com/clojure-emacs/cider/issues/3853): Fix mangling of printed representations.
