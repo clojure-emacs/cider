@@ -47,8 +47,8 @@
 
 ;;; Installation:
 
-;; CIDER is available as a package in melpa.org and stable.melpa.org.  First, make sure you've
-;; enabled one of the repositories in your Emacs config:
+;; CIDER is available as a package in melpa.org and stable.melpa.org.  First,
+;; make sure you've enabled one of the repositories in your Emacs config:
 
 ;; (add-to-list 'package-archives
 ;;              '("melpa" . "https://melpa.org/packages/"))
