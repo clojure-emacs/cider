@@ -16,7 +16,7 @@
 ;;
 ;; Version: 1.21.0-snapshot
 ;; Package-Requires: (
-;;     (emacs "27")
+;;     (emacs "28")
 ;;     (clojure-mode "5.19")
 ;;     (parseedn "1.2.1")
 ;;     (queue "0.2")
