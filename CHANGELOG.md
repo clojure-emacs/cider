@@ -4,7 +4,7 @@
 
 ### Changes
 
-- Use buttons for items in cider-ns-browser to allow clicking and evil's RET to navigate.
+- [#3854](https://github.com/clojure-emacs/cider/pull/3854): Use buttons for items in `cider-ns-browser` to allow clicking and evil's `RET` to navigate.
 
 ### Bugs fixed
 
