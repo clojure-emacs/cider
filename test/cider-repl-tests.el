@@ -281,3 +281,58 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
     (cider-repl-require-repl-utils)
     (expect 'nrepl--eval-request :to-have-been-called-with
             (cdr (assoc 'cljs cider-repl-require-repl-utils-code)) "user")))
+
+;;; cider-repl--history-write tests
+;; Tests for graceful degradation when history file cannot be written.
+;; Contracts: file-writable-p check, parent directory existence check,
+;; warning emission for missing directories, error for other write failures.
+
+(describe "cider-repl--history-write"
+  (describe "when file is writable"
+    (it "writes history successfully"
+      (let* ((temp-dir (make-temp-file "cider-test" t))
+             (history-file (expand-file-name "history" temp-dir))
+             (cider-repl-input-history '("(+ 1 2)" "(def x 1)"))
+             (cider-repl-history-size 100))
+        (unwind-protect
+            (progn
+              (cider-repl--history-write history-file)
+              (expect (file-exists-p history-file) :to-be-truthy)
+              (with-temp-buffer
+                (insert-file-contents history-file)
+                (expect (buffer-string) :to-match "CIDER REPL session")))
+          (delete-directory temp-dir t)))))
+
+  (describe "when parent directory does not exist"
+    (it "emits a warning and returns without error"
+      (let* ((temp-dir (make-temp-file "cider-test" t))
+             (history-file (expand-file-name "nonexistent/history" temp-dir))
+             (cider-repl-input-history '("(+ 1 2)"))
+             (cider-repl-history-size 100)
+             (warning-emitted nil))
+        (unwind-protect
+            (progn
+              (spy-on 'message :and-call-fake
+                      (lambda (&rest args)
+                        (when (string-match-p "directory does not exist"
+                                              (apply #'format args))
+                          (setq warning-emitted t))))
+              (expect (cider-repl--history-write history-file) :not :to-throw)
+              (expect warning-emitted :to-be-truthy))
+          (delete-directory temp-dir t)))))
+
+  (describe "when file is not writable but parent directory exists"
+    (it "raises an error"
+      (let* ((temp-dir (make-temp-file "cider-test" t))
+             (history-file (expand-file-name "history" temp-dir))
+             (cider-repl-input-history '("(+ 1 2)"))
+             (cider-repl-history-size 100))
+        (unwind-protect
+            (progn
+              ;; Create a read-only file
+              (write-region "" nil history-file)
+              (set-file-modes history-file #o444)
+              (expect (cider-repl--history-write history-file)
+                      :to-throw 'error))
+          (set-file-modes history-file #o644)
+          (delete-directory temp-dir t))))))
