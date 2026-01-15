@@ -1636,16 +1636,21 @@ utf-8-unix."
   (let* ((end (min (length cider-repl-input-history) cider-repl-history-size))
          ;; newest items are at the beginning of the list, thus 0
          (hist (cl-subseq cider-repl-input-history 0 end)))
-    (unless (file-writable-p filename)
-      (error (format "History file not writable: %s" filename)))
-    (let ((print-length nil) (print-level nil))
-      (with-temp-file filename
-        ;; TODO: really set cs for output
-        ;; TODO: does cs need to be customizable?
-        (insert ";; -*- coding: utf-8-unix -*-\n")
-        (insert ";; Automatically written history of CIDER REPL session\n")
-        (insert ";; Edit at your own risk\n\n")
-        (prin1 (mapcar #'substring-no-properties hist) (current-buffer))))))
+    (cond
+     ((file-writable-p filename)
+      (let ((print-length nil) (print-level nil))
+        (with-temp-file filename
+          ;; TODO: really set cs for output
+          ;; TODO: does cs need to be customizable?
+          (insert ";; -*- coding: utf-8-unix -*-\n")
+          (insert ";; Automatically written history of CIDER REPL session\n")
+          (insert ";; Edit at your own risk\n\n")
+          (prin1 (mapcar #'substring-no-properties hist) (current-buffer)))))
+     ((not (file-directory-p (file-name-directory filename)))
+      (message "Warning: Cannot write history file, directory does not exist: %s"
+               (file-name-directory filename)))
+     (t
+      (error "History file not writable: %s" filename)))))
 
 (defun cider-repl-history-save (&optional filename)
   "Save the current REPL input history to FILENAME.
