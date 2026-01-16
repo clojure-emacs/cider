@@ -98,7 +98,7 @@ jobs:
 
   test-macos-emacs-latest:
     macos:
-      xcode: "14.0.0"
+      xcode: "16.4.0"
     steps:
       - macos-setup
       - test
