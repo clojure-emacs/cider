@@ -329,10 +329,14 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
              (cider-repl-history-size 100))
         (unwind-protect
             (progn
-              ;; Create a read-only file
               (write-region "" nil history-file)
               (set-file-modes history-file #o444)
+              ;; Root bypasses file permissions, so mock file-writable-p
+              (when (zerop (user-uid))
+                (spy-on 'file-writable-p :and-call-fake
+                        (lambda (f) (not (string= f history-file)))))
               (expect (cider-repl--history-write history-file)
                       :to-throw 'error))
-          (set-file-modes history-file #o644)
+          (unless (zerop (user-uid))
+            (set-file-modes history-file #o644))
           (delete-directory temp-dir t))))))
