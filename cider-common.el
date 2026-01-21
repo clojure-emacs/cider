@@ -376,69 +376,76 @@ is treated as such.  Finally, if URL is relative, it is expanded within each
 of the open Clojure buffers till an existing file ending with URL has been
 found."
   (require 'arc-mode)
-  (cond ((string-match "^file:\\(.+\\)" url)
-         (when-let* ((file (cider--url-to-file (match-string 1 url)))
-                     (path (cider--file-path file)))
-           (find-file-noselect path)))
-        ((string-match "^\\(jar\\|zip\\):\\(file:.+\\)!/\\(.+\\)" url)
-         (when-let* ((entry (match-string 3 url))
-                     (file (cider--url-to-file (match-string 2 url)))
-                     (path (cider--file-path file))
-                     (name (format "%s:%s" path entry))
-                     (avfs (format "%s%s#uzip/%s"
-                                   (expand-file-name (or (getenv "AVFSBASE")  "~/.avfs/"))
-                                   path entry)))
-           (cond
-            ;; 1) use avfs
-            ((file-exists-p avfs)
-             (find-file-noselect avfs))
-            ;; 2) already uncompressed
-            ((find-buffer-visiting name))
-            ;; 3) on remotes use Emacs built-in archiving
-            ((tramp-tramp-file-p path)
-             (find-file path)
-             (goto-char (point-min))
-             ;; anchor to eol to prevent eg. clj matching cljs.
-             (re-search-forward (concat entry "$"))
-             (let ((archive-buffer (current-buffer)))
-               (archive-extract)
-               (kill-buffer archive-buffer))
-             (current-buffer))
-            ;; 4) Use external zip program to extract a single file
-            (t
-             (with-current-buffer (generate-new-buffer
-                                   (file-name-nondirectory entry))
-               ;; Use appropriate coding system for bytes read from unzip cmd to
-               ;; display Emacs native newlines regardless of whether the file
-               ;; uses unix LF or dos CRLF line endings.
-               ;; It's important to avoid spurious CR characters, which may
-               ;; appear as `^M', because they can confuse clojure-mode's symbol
-               ;; detection, e.g. `clojure-find-ns', and break `cider-find-var'.
-               ;; `clojure-find-ns' uses Emacs' (thing-at-point 'symbol) as
-               ;; part of identifying a file's namespace, and when a file
-               ;; isn't decoded properly, namespaces can be reported as
-               ;; `my.lib^M' which `cider-find-var' won't know what to do with.
-               (let ((coding-system-for-read 'prefer-utf-8))
-                 (archive-zip-extract path entry))
-               (set-visited-file-name name)
-               (setq-local default-directory (file-name-directory path))
-               (setq-local buffer-read-only t)
-               (set-buffer-modified-p nil)
-               (set-auto-mode)
-               (current-buffer))))))
-        (t (if-let* ((path (cider--file-path url)))
-               (find-file-noselect path)
-             (unless (file-name-absolute-p url)
-               (let ((cider-buffers (cider-util--clojure-buffers))
-                     (url (file-name-nondirectory url)))
-                 (or (cl-loop for bf in cider-buffers
-                              for path = (with-current-buffer bf
-                                           (expand-file-name url))
-                              if (and path (file-exists-p path))
-                              return (find-file-noselect path))
-                     (cl-loop for bf in cider-buffers
-                              if (string= (buffer-name bf) url)
-                              return bf))))))))
+  (let ((buffer
+         (cond ((string-match "^file:\\(.+\\)" url)
+                (when-let* ((file (cider--url-to-file (match-string 1 url)))
+                            (path (cider--file-path file)))
+                  (find-file-noselect path)))
+               ((string-match "^\\(jar\\|zip\\):\\(file:.+\\)!/\\(.+\\)" url)
+                (when-let* ((entry (match-string 3 url))
+                            (file (cider--url-to-file (match-string 2 url)))
+                            (path (cider--file-path file))
+                            (name (format "%s:%s" path entry))
+                            (avfs (format "%s%s#uzip/%s"
+                                          (expand-file-name (or (getenv "AVFSBASE")  "~/.avfs/"))
+                                          path entry)))
+                  (cond
+                   ;; 1) use avfs
+                   ((file-exists-p avfs)
+                    (find-file-noselect avfs))
+                   ;; 2) already uncompressed
+                   ((find-buffer-visiting name))
+                   ;; 3) on remotes use Emacs built-in archiving
+                   ((tramp-tramp-file-p path)
+                    (find-file path)
+                    (goto-char (point-min))
+                    ;; anchor to eol to prevent eg. clj matching cljs.
+                    (re-search-forward (concat entry "$"))
+                    (let ((archive-buffer (current-buffer)))
+                      (archive-extract)
+                      (kill-buffer archive-buffer))
+                    (current-buffer))
+                   ;; 4) Use external zip program to extract a single file
+                   (t
+                    (with-current-buffer (generate-new-buffer
+                                          (file-name-nondirectory entry))
+                      ;; Use appropriate coding system for bytes read from unzip cmd to
+                      ;; display Emacs native newlines regardless of whether the file
+                      ;; uses unix LF or dos CRLF line endings.
+                      ;; It's important to avoid spurious CR characters, which may
+                      ;; appear as `^M', because they can confuse clojure-mode's symbol
+                      ;; detection, e.g. `clojure-find-ns', and break `cider-find-var'.
+                      ;; `clojure-find-ns' uses Emacs' (thing-at-point 'symbol) as
+                      ;; part of identifying a file's namespace, and when a file
+                      ;; isn't decoded properly, namespaces can be reported as
+                      ;; `my.lib^M' which `cider-find-var' won't know what to do with.
+                      (let ((coding-system-for-read 'prefer-utf-8))
+                        (archive-zip-extract path entry))
+                      (set-visited-file-name name)
+                      (setq-local default-directory (file-name-directory path))
+                      (setq-local buffer-read-only t)
+                      (set-buffer-modified-p nil)
+                      (set-auto-mode)
+                      (current-buffer))))))
+               (t (if-let* ((path (cider--file-path url)))
+                      (find-file-noselect path)
+                    (unless (file-name-absolute-p url)
+                      (let ((cider-buffers (cider-util--clojure-buffers))
+                            (url (file-name-nondirectory url)))
+                        (or (cl-loop for bf in cider-buffers
+                                     for path = (with-current-buffer bf
+                                                  (expand-file-name url))
+                                     if (and path (file-exists-p path))
+                                     return (find-file-noselect path))
+                            (cl-loop for bf in cider-buffers
+                                     if (string= (buffer-name bf) url)
+                                     return bf))))))))
+        (sesman-session (sesman-current-session 'CIDER)))
+    ;; After finding a Clojure file, link it with the same session that we
+    ;; jumped from.
+    (when sesman-session
+      (sesman-link-with-buffer buffer sesman-session))
+    buffer))
 
 (defun cider--open-other-window-p (arg)
   "Test prefix value ARG to see if it indicates displaying results in other window."
