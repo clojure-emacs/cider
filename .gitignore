@@ -2,6 +2,7 @@
 *\#*\#
 *.\#*
 *.elc
+flycheck_*.el
 /.eldev
 /Eldev-local
 elpa*
