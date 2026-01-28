@@ -120,19 +120,6 @@
   :type 'string
   :safe #'stringp)
 
-(defcustom cider-boot-command
-  "boot"
-  "The command used to execute Boot."
-  :type 'string
-  :package-version '(cider . "0.9.0"))
-
-(defcustom cider-boot-parameters
-  "repl -s -b localhost wait"
-  "Params passed to boot to start an nREPL server via `cider-jack-in'."
-  :type 'string
-  :safe #'stringp
-  :package-version '(cider . "0.9.0"))
-
 (defcustom cider-clojure-cli-command
   (if (and (eq system-type 'windows-nt)
            (null (executable-find "clojure")))
