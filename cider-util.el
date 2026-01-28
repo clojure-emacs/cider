@@ -104,13 +104,6 @@ which nREPL uses for temporary evaluation file names."
   (let ((fname (file-name-nondirectory file-name)))
     (string-match-p "^form-init" fname)))
 
-(defun cider--cljc-buffer-p (&optional buffer)
-  "Return non-nil if the current buffer is visiting a cljc file.
-
-If BUFFER is provided act on that buffer instead."
-  (with-current-buffer (or buffer (current-buffer))
-    (or (cider-clojurec-major-mode-p))))
-
 (defun cider-keyword-at-point-p (&optional point)
   "Return non-nil if POINT is in a Clojure keyword.
 
