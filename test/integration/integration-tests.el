@@ -1,6 +1,6 @@
 ;;; integration-tests.el  -*- lexical-binding: t; -*-
 
-;; Copyright © 2022-2025 Ioannis Kappas
+;; Copyright © 2022-2026 Ioannis Kappas
 
 ;; This file is NOT part of GNU Emacs.
 

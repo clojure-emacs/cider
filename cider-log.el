@@ -1,6 +1,6 @@
 ;;; cider-log.el --- Log inspection functionality for Clojure -*- lexical-binding: t -*-
 
-;; Copyright © 2023-2025 Bozhidar Batsov and CIDER contributors
+;; Copyright © 2023-2026 Bozhidar Batsov and CIDER contributors
 
 ;; Author: r0man <roman@burningswell.com>
 

@@ -1,6 +1,6 @@
 ;; nrepl-server-mock.el --- Mock nREPL server -*- lexical-binding: t; -*-
 
-;; Copyright © 2021-2025 Ioannis Kappas
+;; Copyright © 2021-2026 Ioannis Kappas
 
 ;; This file is NOT part of GNU Emacs.
 

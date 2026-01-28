@@ -1,6 +1,6 @@
 ;;; cider-find-ts-tests.el ---                       -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2025  Roman Rudakov
+;; Copyright (C) 2025-2026  Roman Rudakov
 
 ;; Author: Roman Rudakov <rrudakov@fastmail.com>
 

@@ -1,6 +1,6 @@
 ;;; cider-completion-tests.el  -*- lexical-binding: t; -*-
 
-;; Copyright © 2012-2025 Bozhidar Batsov
+;; Copyright © 2012-2026 Bozhidar Batsov
 
 ;; Author: Bozhidar Batsov <bozhidar@batsov.dev>
 
