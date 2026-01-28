@@ -21,6 +21,8 @@
 
 (defvar cider-test-type 'main)
 (setf eldev-standard-excludes `(:or ,eldev-standard-excludes
+                                    ;; Exclude flycheck temporary files
+                                    "./flycheck_*.el"
                                     ;; Avoid including files in test "projects".
                                     (eldev-pcase-exhaustive cider-test-type
                                                             (`main            "./test/*/")
