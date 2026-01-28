@@ -109,12 +109,6 @@
   :prefix "cider-docview-"
   :group 'cider)
 
-(defcustom cider-docview-fill-column fill-column
-  "Fill column for docstrings in doc buffer."
-  :type 'list
-  :group 'cider-docview-mode
-  :package-version '(cider . "0.7.0"))
-
 
 ;; Faces
 
