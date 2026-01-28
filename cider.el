@@ -114,12 +114,6 @@
   "The command used to execute Leiningen."
   :type 'string)
 
-(defcustom cider-lein-global-options
-  nil
-  "Command global options used to execute Leiningen (e.g.: -o for offline)."
-  :type 'string
-  :safe #'stringp)
-
 (defcustom cider-lein-parameters
   "repl :headless :host localhost"
   "Params passed to Leiningen to start an nREPL server via `cider-jack-in'."
@@ -131,13 +125,6 @@
   "The command used to execute Boot."
   :type 'string
   :package-version '(cider . "0.9.0"))
-
-(defcustom cider-boot-global-options
-  nil
-  "Command global options used to execute Boot (e.g.: -c for checkouts)."
-  :type 'string
-  :safe #'stringp
-  :package-version '(cider . "0.14.0"))
 
 (defcustom cider-boot-parameters
   "repl -s -b localhost wait"
@@ -155,13 +142,6 @@
 Don't use clj here, as it doesn't work when spawned from Emacs due to it
 using rlwrap.  If on Windows and no \"clojure\" executable is found we
 default to \"powershell\"."
-  :type 'string
-  :safe #'stringp
-  :package-version '(cider . "0.17.0"))
-
-(defcustom cider-clojure-cli-global-options
-  nil
-  "Command line options used to execute clojure with tools.deps."
   :type 'string
   :safe #'stringp
   :package-version '(cider . "0.17.0"))
@@ -204,13 +184,6 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :safe #'stringp
   :package-version '(cider . "0.17.0"))
 
-(defcustom cider-shadow-cljs-global-options
-  ""
-  "Command line options used to execute shadow-cljs (e.g.: -v for verbose mode)."
-  :type 'string
-  :safe #'stringp
-  :package-version '(cider . "0.17.0"))
-
 (defcustom cider-shadow-cljs-parameters
   "server"
   "Params passed to shadow-cljs to start an nREPL server via `cider-jack-in'."
@@ -224,13 +197,6 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :type 'string
   :safe #'stringp
   :package-version '(cider . "0.10.0"))
-
-(defcustom cider-gradle-global-options
-  ""
-  "Command line options used to execute Gradle (e.g.: -m for dry run)."
-  :type 'string
-  :safe #'stringp
-  :package-version '(cider . "0.14.0"))
 
 (defcustom cider-gradle-parameters
   "clojureRepl"
@@ -246,13 +212,6 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :safe #'stringp
   :package-version '(cider . "1.2.0"))
 
-(defcustom cider-babashka-global-options
-  nil
-  "Command line options used to execute Babashka."
-  :type 'string
-  :safe #'stringp
-  :package-version '(cider . "1.2.0"))
-
 (defcustom cider-babashka-parameters
   "nrepl-server localhost:0"
   "Params passed to babashka to start an nREPL server via `cider-jack-in'."
@@ -263,13 +222,6 @@ By default we favor the project-specific shadow-cljs over the system-wide."
 (defcustom cider-nbb-command
   "nbb"
   "The command used to execute nbb."
-  :type 'string
-  :safe #'stringp
-  :package-version '(cider . "1.6.0"))
-
-(defcustom cider-nbb-global-options
-  nil
-  "Command line options used to execute nbb."
   :type 'string
   :safe #'stringp
   :package-version '(cider . "1.6.0"))
@@ -298,15 +250,6 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :safe #'stringp
   :package-version '(cider . "1.14.0"))
 
-(make-obsolete-variable 'cider-lein-global-options 'cider-lein-parameters "1.8.0")
-(make-obsolete-variable 'cider-boot-command nil "1.8.0")
-(make-obsolete-variable 'cider-boot-parameters nil "1.8.0")
-(make-obsolete-variable 'cider-boot-global-options nil "1.8.0")
-(make-obsolete-variable 'cider-clojure-cli-global-options 'cider-clojure-cli-parameters "1.8.0")
-(make-obsolete-variable 'cider-shadow-cljs-global-options 'cider-shadow-cljs-parameters "1.8.0")
-(make-obsolete-variable 'cider-gradle-global-options 'cider-gradle-parameters "1.8.0")
-(make-obsolete-variable 'cider-babashka-global-options 'cider-babashka-parameters "1.8.0")
-(make-obsolete-variable 'cider-nbb-global-options 'cider-nbb-parameters "1.8.0")
 (make-obsolete-variable 'cider-enrich-classpath nil "1.19.0")
 
 (defcustom cider-jack-in-default
@@ -483,18 +426,6 @@ Throws an error if PROJECT-TYPE is unknown."
     ('gradle (cider--resolve-project-command cider-gradle-command))
     ('basilisp (cider--resolve-command cider-basilisp-command))
     (_ (user-error "Unsupported project type `%S'" project-type))))
-
-(defun cider-jack-in-global-options (project-type)
-  "Determine the command line options for `cider-jack-in' for the PROJECT-TYPE."
-  (pcase project-type
-    ('lein        cider-lein-global-options)
-    ('clojure-cli cider-clojure-cli-global-options)
-    ('babashka    cider-babashka-global-options)
-    ('shadow-cljs cider-shadow-cljs-global-options)
-    ('gradle      cider-gradle-global-options)
-    ('nbb         cider-nbb-global-options)
-    ('basilisp    nil)
-    (_            (user-error "Unsupported project type `%S'" project-type))))
 
 (defun cider-jack-in-params (project-type)
   "Determine the commands params for `cider-jack-in' for the PROJECT-TYPE."
@@ -699,16 +630,14 @@ ClojureNRepl task."
              middlewares
              " "))
 
-(defun cider-gradle-jack-in-dependencies (global-opts params dependencies middlewares)
+(defun cider-gradle-jack-in-dependencies (params dependencies middlewares)
   "Create gradle jack in dependencies.
-Does so by concatenating GLOBAL-OPTS, DEPENDENCIES,
-and MIDDLEWARES.  GLOBAL-OPTS and PARAMS are taken as-is.
+Does so by concatenating PARAMS, DEPENDENCIES,
+and MIDDLEWARES.  PARAMS are taken as-is.
 DEPENDENCIES are translated into Gradle's typical
 group:artifact:version notation and MIDDLEWARES are
 prepared as arguments to Clojurephant's ClojureNRepl task."
-  (concat global-opts
-          (unless (seq-empty-p global-opts) " ")
-          (when cider-enable-nrepl-jvmti-agent
+  (concat (when cider-enable-nrepl-jvmti-agent
             "-Pjdk.attach.allowAttachSelf ")
           (cider--gradle-jack-in-property (append (cider--jack-in-required-dependencies) dependencies))
           " "
@@ -729,13 +658,11 @@ of EXCLUSIONS can be provided as well.  The returned
 string is quoted for passing as argument to an inferior shell."
   (shell-quote-argument (format "[%s %S%s]" (car list) (cadr list) (cider--lein-artifact-exclusions exclusions))))
 
-(defun cider-lein-jack-in-dependencies (global-opts params dependencies dependencies-exclusions lein-plugins &optional lein-middlewares)
+(defun cider-lein-jack-in-dependencies (params dependencies dependencies-exclusions lein-plugins &optional lein-middlewares)
   "Create lein jack-in dependencies.
-Does so by concatenating GLOBAL-OPTS, DEPENDENCIES, with DEPENDENCIES-EXCLUSIONS
+Does so by concatenating DEPENDENCIES, with DEPENDENCIES-EXCLUSIONS
 removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
   (concat
-   global-opts
-   (unless (seq-empty-p global-opts) " ")
    (mapconcat #'identity
               (append (seq-map (lambda (dep)
                                  (let ((exclusions (cadr (assoc (car dep) dependencies-exclusions))))
@@ -803,12 +730,12 @@ rules to quote it."
             (concat ":" aliases)))
       "")))
 
-(defun cider-clojure-cli-jack-in-dependencies (global-options params dependencies &optional command)
+(defun cider-clojure-cli-jack-in-dependencies (params dependencies &optional command)
   "Create Clojure tools.deps jack-in dependencies.
-Does so by concatenating DEPENDENCIES, PARAMS and GLOBAL-OPTIONS into a
-suitable `clojure` invocation and quoting, also accounting for COMMAND if
-provided.  The main is placed in an inline alias :cider/nrepl so that if
-your aliases contain any mains, the cider/nrepl one will be the one used."
+Does so by concatenating DEPENDENCIES and PARAMS into a suitable `clojure`
+invocation and quoting, also accounting for COMMAND if provided.  The main
+is placed in an inline alias :cider/nrepl so that if your aliases contain
+any mains, the cider/nrepl one will be the one used."
   (let* ((all-deps (thread-last dependencies
                                 (append (cider--jack-in-required-dependencies))
                                 ;; Duplicates are never OK since they would result in
@@ -836,20 +763,16 @@ your aliases contain any mains, the cider/nrepl one will be the one used."
                          "")
                        main-opts))
          (deps-quoted (cider--shell-quote-argument deps command)))
-    (format "%s-Sdeps %s -M%s:cider/nrepl%s"
-            ;; TODO: global-options are deprecated and should be removed in CIDER 2.0
-            (if global-options (format "%s " global-options) "")
+    (format "-Sdeps %s -M%s:cider/nrepl%s"
             deps-quoted
             (cider--combined-aliases)
             (if params (format " %s" params) ""))))
 
-(defun cider-shadow-cljs-jack-in-dependencies (global-opts params dependencies)
+(defun cider-shadow-cljs-jack-in-dependencies (params dependencies)
   "Create shadow-cljs jack-in deps.
-Does so by concatenating GLOBAL-OPTS, DEPENDENCIES finally PARAMS."
+Does so by concatenating PARAMS and DEPENDENCIES."
   (let ((dependencies (append (cider--jack-in-required-dependencies) dependencies)))
     (concat
-     global-opts
-     (unless (seq-empty-p global-opts) " ")
      (mapconcat #'identity
                 (seq-map (lambda (dep) (format "-d %s:%s" (car dep) (cadr dep))) dependencies)
                 " ")
@@ -873,8 +796,8 @@ See also `cider-jack-in-auto-inject-clojure'."
               dependencies))
     dependencies))
 
-(defun cider-inject-jack-in-dependencies (global-opts params project-type &optional command)
-  "Return GLOBAL-OPTS and PARAMS with injected REPL dependencies.
+(defun cider-inject-jack-in-dependencies (params project-type &optional command)
+  "Return PARAMS with injected REPL dependencies.
 These are set in `cider-jack-in-dependencies', `cider-jack-in-lein-plugins'
 and `cider-jack-in-nrepl-middlewares' are injected from the CLI according
 to the used PROJECT-TYPE, and COMMAND if provided.  Eliminates the need for
@@ -882,7 +805,6 @@ hacking profiles.clj for supporting CIDER with its nREPL middleware and
 dependencies."
   (pcase project-type
     ('lein (cider-lein-jack-in-dependencies
-            global-opts
             params
             (cider-add-clojure-dependencies-maybe
              (append `(("nrepl/nrepl" ,cider-injected-nrepl-version)) cider-jack-in-dependencies))
@@ -890,30 +812,21 @@ dependencies."
             (cider-jack-in-normalized-lein-plugins)
             cider-jack-in-lein-middlewares))
     ('clojure-cli (cider-clojure-cli-jack-in-dependencies
-                   global-opts
                    params
                    (cider-add-clojure-dependencies-maybe
                     cider-jack-in-dependencies)
                    command))
-    ('babashka (concat
-                global-opts
-                (unless (seq-empty-p global-opts) " ")
-                params))
+    ('babashka params)
     ('shadow-cljs (cider-shadow-cljs-jack-in-dependencies
-                   global-opts
                    params
                    (cider-add-clojure-dependencies-maybe
                     cider-jack-in-dependencies)))
     ('gradle (cider-gradle-jack-in-dependencies
-              global-opts
               params
               (cider-add-clojure-dependencies-maybe
                cider-jack-in-dependencies)
               (cider-jack-in-normalized-nrepl-middlewares)))
-    ('nbb (concat
-           global-opts
-           (unless (seq-empty-p global-opts) " ")
-           params))
+    ('nbb params)
     ('basilisp params)
     (_ (error "Unsupported project type `%S'" project-type))))
 
@@ -1664,8 +1577,6 @@ PARAMS is a plist with the following keys (non-exhaustive list)
                                (cider-project-type project-dir)))
              (command (cider-jack-in-command project-type))
              (command-resolved (cider-jack-in-resolve-command project-type))
-             ;; TODO: global-options are deprecated and should be removed in CIDER 2.0
-             (command-global-opts (cider-jack-in-global-options project-type))
              (command-params (cider-jack-in-params project-type)))
         (if command-resolved
             (with-current-buffer (or (plist-get params :--context-buffer)
@@ -1676,7 +1587,7 @@ PARAMS is a plist with the following keys (non-exhaustive list)
                                                       'cider--jack-in-nrepl-params-history)
                                        command-params))
                      (cmd-params (if cider-inject-dependencies-at-jack-in
-                                     (cider-inject-jack-in-dependencies command-global-opts command-params
+                                     (cider-inject-jack-in-dependencies command-params
                                                                         project-type command)
                                    command-params)))
                 (if (or project-dir cider-allow-jack-in-without-project)

@@ -6,6 +6,7 @@
 
 - [#3854](https://github.com/clojure-emacs/cider/pull/3854): Use buttons for items in `cider-ns-browser` to allow clicking and evil's `RET` to navigate.
 - Drop support for Emacs 27.
+- Remove deprecated `cider-*-global-opts`.
 
 ### Bugs fixed
 
