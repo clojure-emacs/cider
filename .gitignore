@@ -11,9 +11,9 @@ TAGS
 .DS_STORE
 dist
 .vagrant/
-cider-autoloads.el
+lisp/cider-autoloads.el
 .dir-locals?.el
-cider-pkg.el
+lisp/cider-pkg.el
 cider-refcard.aux
 cider-refcard.log
 doc/auto/
