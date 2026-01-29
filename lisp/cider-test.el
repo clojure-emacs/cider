@@ -507,7 +507,7 @@ If ELAPSED-TIME is provided it will be included in the summary."
                                                       (ms (nrepl-dict-get elapsed "ms")))
                                             (propertize (format " %s ms" ms) 'face 'font-lock-comment-face))
                                           "")
-                "\n"))
+                                      "\n"))
                             pairs))))
       (cider-insert "\n")
       (cider-test-render-summary buffer summary elapsed-time)
@@ -567,16 +567,16 @@ The optional arg TEST denotes an individual test name."
              (ms (if ms
                      (propertize (format " in %s ms" ms ) 'face 'font-lock-comment-face)
                    ".")))
-      (message (propertize
-                "%sRan %d assertions, in %d test functions. %d failures, %d errors%s"
-                'face (cond ((not (zerop error)) 'cider-test-error-face)
-                            ((not (zerop fail))  'cider-test-failure-face)
-                            (t                   'cider-test-success-face)))
-               (concat (if (= 1 ns)     ; ns count from summary
-                           (cider-propertize (car (nrepl-dict-keys results)) 'ns)
-                         (propertize (format "%d namespaces" ns) 'face 'default))
-                       (propertize ": " 'face 'default))
-               test var fail error ms)))))
+        (message (propertize
+                  "%sRan %d assertions, in %d test functions. %d failures, %d errors%s"
+                  'face (cond ((not (zerop error)) 'cider-test-error-face)
+                              ((not (zerop fail))  'cider-test-failure-face)
+                              (t                   'cider-test-success-face)))
+                 (concat (if (= 1 ns)     ; ns count from summary
+                             (cider-propertize (car (nrepl-dict-keys results)) 'ns)
+                           (propertize (format "%d namespaces" ns) 'face 'default))
+                         (propertize ": " 'face 'default))
+                 test var fail error ms)))))
 
 ;;; Test definition highlighting
 ;;
