@@ -486,7 +486,9 @@ If ELAPSED-TIME is provided it will be included in the summary."
               tests))
 
 (defun cider-test-render-report (buffer summary results &optional elapsed-time ns-elapsed-time var-elapsed-time)
-  "Emit into BUFFER the report for the SUMMARY, and test RESULTS."
+  "Emit into BUFFER the report for the SUMMARY, and test RESULTS.
+Optional ELAPSED-TIME, NS-ELAPSED-TIME, and VAR-ELAPSED-TIME provide
+timing data for the overall run, per-namespace, and per-var respectively."
   (with-current-buffer buffer
     (let ((inhibit-read-only t))
       (cider-test-report-mode)
