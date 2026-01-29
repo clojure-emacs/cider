@@ -41,6 +41,7 @@
 (require 'cider-popup)
 (require 'cider-stacktrace)
 (require 'cider-overlays)
+(require 'cider-resolve)
 (require 'cider-util)
 
 ;;; Variables
