@@ -70,7 +70,7 @@
 (defcustom cider-ns-save-files-on-refresh 'prompt
   "Controls whether to prompt to save files before refreshing.
 If nil, files are not saved.
-If 'prompt, the user is prompted to save files if they have been modified.
+If \\='prompt, the user is prompted to save files if they have been modified.
 If t, save the files without confirmation."
   :type '(choice (const :tag "Prompt to save files if they have been modified" prompt)
                  (const :tag "Don't save the files" nil)
@@ -248,7 +248,7 @@ Based on OP-NAME and the value of cider-ns-code-reload-tool defcustom."
 
 ;;;###autoload
 (defun cider-ns-reload (&optional prompt)
-  "Send a (require 'ns :reload) to the REPL.
+  "Send a (require \\='ns :reload) to the REPL.
 
 With an argument PROMPT, it prompts for a namespace name.  This is the
 Clojure out of the box reloading experience and does not rely on
@@ -263,7 +263,7 @@ identified libs even if they are already loaded\"."
 
 ;;;###autoload
 (defun cider-ns-reload-all (&optional prompt)
-  "Send a (require 'ns :reload-all) to the REPL.
+  "Send a (require \\='ns :reload-all) to the REPL.
 
 With an argument PROMPT, it prompts for a namespace name.  This is the
 Clojure out of the box reloading experience and does not rely on
@@ -280,7 +280,7 @@ indirectly load via require\"."
 ;;;###autoload
 (defun cider-ns-refresh (&optional mode)
   "Reload modified and unloaded namespaces, using the Reloaded Workflow.
-Uses the configured 'refresh dirs' \(defaults to the classpath dirs).
+Uses the configured `refresh dirs' \(defaults to the classpath dirs).
 
 With a single prefix argument, or if MODE is `refresh-all', reload all
 namespaces on the classpath dirs unconditionally.

@@ -42,6 +42,7 @@
 (require 'cider-completion-context)
 (require 'cider-inspector)
 (require 'cider-find)
+(require 'cider-log)
 (require 'cider-xref-backend)
 (require 'subr-x)
 
@@ -465,8 +466,8 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (defconst cider--has-many-mouse-buttons (not (memq window-system '(mac ns)))
   "Non-nil if system binds forward and back buttons to <mouse-8> and <mouse-9>.
 
-As it stands Emacs fires these events on <mouse-8> and <mouse-9> on 'x' and
-'w32'systems while on macOS it presents them on <mouse-4> and <mouse-5>.")
+As it stands Emacs fires these events on <mouse-8> and <mouse-9> on `x' and
+`w32'systems while on macOS it presents them on <mouse-4> and <mouse-5>.")
 
 (defcustom cider-use-xref t
   "Enable xref integration."
@@ -489,7 +490,7 @@ higher precedence."
     (unless cider-use-xref
       (define-key map (kbd "M-.") #'cider-find-var)
       (define-key map (kbd "M-,") #'cider-pop-back))
-    (define-key map (kbd (if cider--has-many-mouse-buttons "<mouse-8>" "<mouse-4>")) #'xref-pop-marker-stack)
+    (define-key map (kbd (if cider--has-many-mouse-buttons "<mouse-8>" "<mouse-4>")) #'xref-go-back)
     (define-key map (kbd (if cider--has-many-mouse-buttons "<mouse-9>" "<mouse-5>")) #'cider-find-dwim-at-mouse)
     (define-key map (kbd "C-c C-.") #'cider-find-ns)
     (define-key map (kbd "C-c C-:") #'cider-find-keyword)

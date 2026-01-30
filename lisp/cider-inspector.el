@@ -54,7 +54,7 @@ The page size can be also changed interactively within the inspector."
 
 (defcustom cider-inspector-max-atom-length 150
   "Default max length of nested atoms before they are truncated.
-'Atom' here means any collection member that satisfies (complement coll?).
+`Atom' here means any collection member that satisfies (complement coll?).
 The max length can be also changed interactively within the inspector."
   :type '(integer :tag "Max atom length" 150)
   :package-version '(cider . "1.1.0"))
@@ -623,7 +623,7 @@ from stack), `:next-inspectable' (move point to next inspectable object)."
 
 (defun cider-find-inspectable-object (direction limit)
   "Find the next/previous inspectable object.
-DIRECTION can be either 'next or 'prev.
+DIRECTION can be either \\='next or \\='prev.
 LIMIT is the maximum or minimum position in the current buffer.
 
 Return a list of two values: If an object could be found, the

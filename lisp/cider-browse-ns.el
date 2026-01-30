@@ -60,9 +60,8 @@
 (defcustom cider-browse-ns-default-filters nil
   "List of default hide filters to apply to browse-ns buffer.
 
-Available options include `private', `test', `macro', `function', and
-`var'."
-  :type 'list
+Available options include `private', `test', `macro', `function', and `var'."
+  :type '(list symbol)
   :package-version '(cider . "1.4.0"))
 
 (defconst cider-browse-ns-buffer "*cider-ns-browser*")
@@ -455,7 +454,7 @@ var-meta map."
 
 (defun cider-browse-ns--thing-at-point ()
   "Get the thing at point.
-Return a list of the type ('ns or 'var) and the value."
+Return a list of the type (\\='ns or \\='var) and the value."
   (let ((ns-p (get-text-property (point) 'ns))
         (line (car (split-string (string-trim (thing-at-point 'line)) " "))))
     (if (or ns-p (string-match "\\." line))
