@@ -98,8 +98,8 @@ Setting this to nil removes the fontification restriction."
     (nth 4 (parse-partial-sexp beg (point)))))
 
 (defun cider--tooling-file-p (file-name)
-  "Return t if FILE-NAME is not a 'real' source file.
-Currently, only check if the relative file name starts with 'form-init'
+  "Return t if FILE-NAME is not a `real' source file.
+Currently, only check if the relative file name starts with `form-init'
 which nREPL uses for temporary evaluation file names."
   (let ((fname (file-name-nondirectory file-name)))
     (string-match-p "^form-init" fname)))
@@ -449,13 +449,13 @@ objects."
           candidates))
 
 (defun cider-add-to-alist (symbol car cadr)
-  "Add '(CAR CADR) to the alist stored in SYMBOL.
+  "Add \\='(CAR CADR) to the alist stored in SYMBOL.
 If CAR already corresponds to an entry in the alist, destructively replace
 the entry's second element with CADR.
 
 This can be used, for instance, to update the version of an injected
 plugin or dependency with:
-  (cider-add-to-alist 'cider-jack-in-lein-plugins
+  (cider-add-to-alist \\='cider-jack-in-lein-plugins
                   \"plugin/artifact-name\" \"THE-NEW-VERSION\")"
   (let ((alist (symbol-value symbol)))
     (if-let* ((cons (assoc car alist)))

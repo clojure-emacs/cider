@@ -361,7 +361,7 @@ Tables are marked to be ignored by line wrap."
            (put-text-property (org-table-begin) (org-table-end) 'block 'table)))))))
 
 (defun cider-docview-wrap-text (buffer)
-  "For text in BUFFER not propertized as 'block', apply line wrap."
+  "For text in BUFFER not propertized as `block', apply line wrap."
   (with-current-buffer buffer
     (save-excursion
       (while (not (eobp))

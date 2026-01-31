@@ -210,7 +210,8 @@ list."
   :type '(alist :key-type character
                 :value-type (list
                              (string :tag "command name")
-                             (choice (string :tag "display name") nil)))
+                             (choice (string :tag "display name")
+                                     (const nil))))
   :package-version '(cider . "0.24.0"))
 
 (defun cider--debug-format-locals-list (locals)
@@ -507,7 +508,7 @@ REASON is a keyword describing why this buffer was necessary."
 COORDINATES is a list of integers that specify how to navigate into the
 sexp that is after point when this function is called.
 
-As an example, a COORDINATES list of '(1 0 2) means:
+As an example, a COORDINATES list of \\='(1 0 2) means:
   - enter next sexp then `forward-sexp' once,
   - enter next sexp,
   - enter next sexp then `forward-sexp' twice.

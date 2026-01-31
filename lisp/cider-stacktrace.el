@@ -241,9 +241,9 @@ override this and ensure that those frames are shown."
 (defun cider-stacktrace-indicate-filters (filters pos-filters)
   "Update enabled state of filter buttons.
 
-Find buttons with a 'filter property; if filter is a member of FILTERS, or
-if filter is nil ('show all') and the argument list is non-nil, fontify the
-button as disabled.  Upon finding text with a 'hidden-count property, stop
+Find buttons with a \\='filter property; if filter is a member of FILTERS, or
+if filter is nil (`show all') and the argument list is non-nil, fontify the
+button as disabled.  Upon finding text with a \\='hidden-count property, stop
 searching and update the hidden count text.  POS-FILTERS is the list of
 positive filters to always include."
   (with-current-buffer cider-error-buffer
@@ -370,7 +370,7 @@ filters for the resulting machinery."
   "Return intersection of ERROR-TYPES and CIDER-STACKTRACE-SUPPRESSED-ERRORS.
 I.e, Return non-nil if the seq ERROR-TYPES shares any elements with
 `cider-stacktrace-suppressed-errors'.  This means that even a
-'well-behaved' (ie, promoted) error type will be 'guilty by association' if
+`well-behaved' (ie, promoted) error type will be `guilty by association' if
 grouped with a suppressed error type."
   (seq-intersection error-types cider-stacktrace-suppressed-errors))
 
@@ -634,7 +634,7 @@ others."
                                               (car filter))))
       (insert " "))
 
-    (let ((hidden "(0 frames hidden)"))
+    (let ((hidden (copy-sequence "(0 frames hidden)")))
       (put-text-property 0 (length hidden) 'hidden-count t hidden)
       (insert " " hidden "\n"))))
 
@@ -766,8 +766,8 @@ the NAME.  The whole group is prefixed by string INDENT."
         (cider-stacktrace-emit-indented (concat str "\n") nil nil t)
         (when id
           (remove-from-invisibility-spec (cons id t))
-          (let ((hide-beg (save-excursion (goto-char pos) (point-at-eol)))
-                (hide-end (1- (point-at-bol))))
+          (let ((hide-beg (save-excursion (goto-char pos) (line-end-position)))
+                (hide-end (1- (line-beginning-position))))
             (overlay-put (make-overlay hide-beg hide-end) 'invisible id)))))))
 
 (defun cider-stacktrace--emit-spec-problems (spec-data indent)
@@ -926,7 +926,7 @@ make INSPECT-INDEX actionable if present."
 
 (defun cider-stacktrace-render (buffer causes &optional error-types)
   "Emit into BUFFER useful stacktrace information for the CAUSES.
-Takes an optional ERROR-TYPES list which will render a 'suppression' toggle
+Takes an optional ERROR-TYPES list which will render a `suppression' toggle
 that alters the pop-over/pop-under behavorior of the stacktrace buffers
 created by these types of errors.  The suppressed errors set can be customized
 through the `cider-stacktrace-suppressed-errors' variable."
