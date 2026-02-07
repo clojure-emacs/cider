@@ -14,7 +14,7 @@
 ;; Homepage: https://www.github.com/clojure-emacs/cider
 ;; Keywords: languages, clojure, cider
 ;;
-;; Version: 1.21.0-snapshot
+;; Version: 1.21.0
 ;; Package-Requires: (
 ;;     (emacs "28")
 ;;     (clojure-mode "5.19")
@@ -103,7 +103,7 @@
 (require 'sesman)
 (require 'package)
 
-(defconst cider-version "1.21.0-snapshot"
+(defconst cider-version "1.21.0"
   "The current version of CIDER.")
 
 (defconst cider-codename "Gràcia"
@@ -278,7 +278,7 @@ command when there is no ambiguity."
 
 (defcustom cider-allow-jack-in-without-project 'warn
   "Controls what happens when doing `cider-jack-in' outside a project.
-When set to 'warn you'd prompted to confirm the command.
+When set to `warn' (default) you'd prompted to confirm the command.
 When set to t `cider-jack-in' will quietly continue.
 When set to nil `cider-jack-in' will fail."
   :type '(choice (const :tag "always" t)

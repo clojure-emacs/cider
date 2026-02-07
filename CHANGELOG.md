@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.21.0 (2026-02-07)
+
 ### Changes
 
 - [#3854](https://github.com/clojure-emacs/cider/pull/3854): Use buttons for items in `cider-ns-browser` to allow clicking and evil's `RET` to navigate.
