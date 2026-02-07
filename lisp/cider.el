@@ -237,8 +237,6 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :safe #'stringp
   :package-version '(cider . "1.14.0"))
 
-(make-obsolete-variable 'cider-enrich-classpath nil "1.19.0")
-
 (defcustom cider-jack-in-default
   (if (executable-find "clojure") 'clojure-cli 'lein)
   "The default tool to use when doing `cider-jack-in' outside a project.
@@ -380,11 +378,6 @@ The plist supports the following keys
     ('nbb         cider-nbb-command)
     ('basilisp    cider-basilisp-command)
     (_            (user-error "Unsupported project type `%S'" project-type))))
-
-(defcustom cider-enrich-classpath nil
-  "Removed."
-  :type 'boolean
-  :safe #'booleanp)
 
 (defun cider-jack-in-resolve-command (project-type)
   "Determine the resolved file path to `cider-jack-in-command'.
