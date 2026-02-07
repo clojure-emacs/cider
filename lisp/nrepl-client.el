@@ -215,16 +215,6 @@ PARAMS is as in `nrepl-make-buffer-name'."
   "Return t if HOST is local."
   (string-match-p tramp-local-host-regexp host))
 
-(defun nrepl-extract-port (dir)
-  "Read port from applicable repl-port file in directory DIR."
-  (condition-case nil
-      (or (nrepl--port-from-file (expand-file-name "repl-port" dir))
-          (nrepl--port-from-file (expand-file-name ".nrepl-port" dir))
-          (nrepl--port-from-file (expand-file-name "target/repl-port" dir))
-          (nrepl--port-from-file (expand-file-name ".shadow-cljs/nrepl.port" dir)))
-    ;; This operation can hit permission errors, particularly on macOS:
-    (error nil)))
-
 (defun nrepl-extract-ports (dir)
   "Read ports from applicable repl-port files in directory DIR."
   (condition-case nil
@@ -235,8 +225,6 @@ PARAMS is as in `nrepl-make-buffer-name'."
                   (nrepl--port-from-file (expand-file-name ".shadow-cljs/nrepl.port" dir))))
     ;; This operation can hit permission errors, particularly on macOS:
     (error nil)))
-
-(make-obsolete 'nrepl-extract-port 'nrepl-extract-ports "1.5.0")
 
 (defun nrepl--port-string-to-number (s)
   "Converts `S' from string to number when suitable."
