@@ -249,7 +249,6 @@ As the Clojure CLI is bundled with Clojure itself, it's the default.
 In the absence of the Clojure CLI (e.g. on Windows), we fallback
 to Leiningen."
   :type '(choice (const lein)
-                 (const boot)
                  (const clojure-cli)
                  (const shadow-cljs)
                  (const gradle)
@@ -269,7 +268,6 @@ is indicated by the variable if present.  Note, this is only when CIDER
 cannot decide which of many build systems to use and will never override a
 command when there is no ambiguity."
   :type '(choice (const lein)
-                 (const boot)
                  (const clojure-cli)
                  (const shadow-cljs)
                  (const gradle)
@@ -1084,7 +1082,6 @@ you're working on."
                  (const :tag "Browser"  browser)
                  (const :tag "Node"     node)
                  (const :tag "Weasel"   weasel)
-                 (const :tag "Boot"     boot)
                  (const :tag "Shadow"   shadow)
                  (const :tag "Shadow w/o Server" shadow-select)
                  (const :tag "Krell"    krell)
