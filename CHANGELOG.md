@@ -10,6 +10,8 @@
 - Drop support for Emacs 27.
   - This was prompted by upstream deps dropping support for it.
 - Remove deprecated `cider-*-global-opts`.
+- Move Emacs Lisp code under `lisp/` folder to improve the structure of the repo.
+  - That's not a user-visible change, but might affect the packaging depending on how you're installing CIDER.
 
 ### Bugs fixed
 
