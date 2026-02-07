@@ -106,7 +106,7 @@
 (defconst cider-version "1.21.0-snapshot"
   "The current version of CIDER.")
 
-(defconst cider-codename "Lanzarote"
+(defconst cider-codename "Gràcia"
   "Codename used to denote stable releases.")
 
 (defcustom cider-lein-command
