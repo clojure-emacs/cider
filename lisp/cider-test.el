@@ -61,8 +61,6 @@
   :type 'boolean
   :package-version '(cider . "0.9.0"))
 
-(make-obsolete 'cider-test-defining-forms nil "1.8.0")
-
 (defvar cider-test--current-repl nil
   "Contains the reference to the REPL where the tests were last invoked from.
 This is needed for *cider-test-report* navigation
