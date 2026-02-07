@@ -42,7 +42,7 @@ Its usage is mostly self-describing, since each command has its keybinding attac
 
 == Getting started
 
-To use CIDER Log Mode, there two main ways to get started:
+To use CIDER Log Mode, there are two main ways to get started:
 
 * `M-x cider-log-show-frameworks`, to see the available logging frameworks. If your logging framework is supported but not shown, see the troubleshooting section.
 * `M-x cider-log-event`, which uses transient-mode and will not immediately show the logs (you should use transient-mode to show the `+*cider-log*+` buffer)
@@ -164,7 +164,7 @@ Log4j2 reconfiguration mechanism.
 
 TIP: If your logging framework of choice is not currently supported by CIDER Log Mode,
 you can opt to use Clojure's official `tools.logging` façade in your project, such that you can locally,
-unobstrusively tell it to use a supported framework (like Logback) instead of your project's default one.
+unobtrusively tell it to use a supported framework (like Logback) instead of your project's default one.
 Note that its choice of logging backend implementation can be controlled with the
 `-Dclojure.tools.logging.factory` Java system property, which can be cleanly customized locally via Lein profiles,
 or Clojure CLI aliases.
@@ -184,7 +184,7 @@ or Clojure CLI aliases.
 
 | `cider-log-set-buffer`
 | kbd:[C-c M-l f b]
-| Select the log buffer to user. Default: `+*cider-log*+`
+| Select the log buffer to use. Default: `+*cider-log*+`
 
 | `cider-log-browse-javadocs`
 | kbd:[C-c M-l f j]
@@ -337,7 +337,7 @@ using logical AND condition. The following filters are available:
 
 | `pattern`
 | kbd:[-r]
-| Only include log events whose message matcches the regular expression `pattern`.
+| Only include log events whose message matches the regular expression `pattern`.
 
 | `start-time`
 | kbd:[-s]

@@ -144,7 +144,7 @@ established. This behavior is configurable via `cider-connection-message-fn`:
 (setq cider-connection-message-fn nil)
 ----
 
-The default message are stored in the variable `cider-words-of-inspiration` that
+The default messages are stored in the variable `cider-words-of-inspiration` that
 you can tweak easily yourselves:
 
 [source,lisp]
@@ -186,7 +186,7 @@ suppress them from appearing in some buffer switching commands like
 (setq nrepl-hide-special-buffers t)
 ----
 
-If you need to make the hidden buffers appear When using
+If you need to make the hidden buffers appear when using
 `switch-to-buffer`, type kbd:[SPC] after issuing the command. The
 hidden buffers will always be visible in `list-buffers` (kbd:[C-x C-b]).
 

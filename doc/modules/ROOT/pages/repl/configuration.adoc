@@ -90,7 +90,7 @@ following:
 
 == Customizing the `Return` key's behavior
 
-Ordinarily, kbd:[Return] immediate sends a form for
+Ordinarily, kbd:[Return] immediately sends a form for
 evaluation. If you want to insert a newline into the REPL buffer as
 you're editing, you can do so using kbd:[C-j]. If you are
 entering a lot of longer forms that span multiple lines, it may be
@@ -132,7 +132,7 @@ be displayed you'll need to add the following to your config:
 ----
 
 NOTE: This behavior was changed in CIDER 1.7, as the auto-scrolling of output
-before the REPL prompt is rarely needed, but it's current implementation is very
+before the REPL prompt is rarely needed, but its current implementation is very
 slow.
 
 == Auto-trimming the REPL buffer

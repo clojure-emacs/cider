@@ -2,7 +2,7 @@
 
 Quick access to documentation is very important for productive
 development. That's why CIDER puts a heavy emphasis on this
-and provides lot of documentation-related functionality.
+and provides a lot of documentation-related functionality.
 
 == Looking up Documentation
 
@@ -26,7 +26,7 @@ automatically parse the source file when you query the documentation for a Java
 class (e.g. `java.lang.Thread`) or a method
 (e.g. `java.lang.Thread/currentThread`) and will display the properly formatted
 JavaDoc in the documentation buffer. You will also see better Eldoc
-documentation (minibuffer hints) for Java methods. If the source file are
+documentation (minibuffer hints) for Java methods. If the source files are
 present, you are able to jump to class or method definition by pressing
 kbd:[M-.] on the class name or method name.
 
@@ -50,7 +50,7 @@ retry that until the next restart.
 NOTE: While Eldoc functionality benefits from having Java sources, the eldoc
 itself will not trigger the downloading of Java source JARs. You will have to
 lookup the documentation once manually or jump to the definition in order for
-the JAR is downloaded. After that, Eldoc will pick up the Java sources and
+the JAR to be downloaded. After that, Eldoc will pick up the Java sources and
 display better hints.
 
 Alternatively, you can use
@@ -130,7 +130,7 @@ You can change the delimiters that CIDER uses to find references if
 you want to support other reference formats.  Simply update the regexp in
 `cider-doc-xref-regexp` to match your preferred format. The first
 group of the regexp should always match the cross-reference name. For
-example, if you want to want to use Latex-style references
+example, if you want to use Latex-style references
 (`+\ref{...}+`) instead, the regexp would be:
 
 ----

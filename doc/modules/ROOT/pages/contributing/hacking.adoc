@@ -8,7 +8,7 @@ working on the Emacs Lisp side (CIDER) and the Clojure side (`cider-nrepl`).
 
 === Obtaining the source code
 
-People typically install CIDER via `package.el`. While this gives you access the
+People typically install CIDER via `package.el`. While this gives you access to the
 source code (as it's part of the package), it's always a much better idea to
 simply clone the code from GitHub and use it. In general - avoid editing the
 code of an installed package.
@@ -63,14 +63,14 @@ evaluating the code you've altered/added with commands like `C-M-x`,
 `eval-buffer` and so on.
 
 Once you've evaluated the new code, you can invoke some interactive command that
-uses it internally or open a Emacs Lisp REPL and experiment with it there. You
+uses it internally or open an Emacs Lisp REPL and experiment with it there. You
 can open an Emacs Lisp REPL with `M-x ielm`.
 
 You can also quickly evaluate some Emacs Lisp code in the minibuffer with `M-:`.
 
 === Testing the code
 
-The code you've wrote should ideally be covered by specs. We use
+The code you've written should ideally be covered by specs. We use
 the https://github.com/jorgenschaefer/emacs-buttercup[buttercup] library for
 CIDER's specs. If you're familiar with `Jasmine` or `RSpec` you'll feel right at
 home.
@@ -198,7 +198,7 @@ writing tests.
 . Absolute paths. It is a common practice to use dummy absolute paths,
 such as `/tmp/a-dir` or `/docker/src, in tests,` as test inputs. These
 are not valid absolute paths on Windows though, since they are missing
-the initial driver letter (e.g.`c:/tmp/a-dir`), but we can wrap them
+the initial drive letter (e.g.`c:/tmp/a-dir`), but we can wrap them
 around with `expand-file-name` to make them so e.g. in tests
 +
 [source,emacs-lisp]
@@ -211,7 +211,7 @@ around with `expand-file-name` to make them so e.g. in tests
 
 . Command-line arguments. When calling external programs, it might be
 necessary to quote some long command line arguments, though quoting
-rules are different on Windows (shells) that they are on Unix.  Use
+rules are different on Windows (shells) than they are on Unix.  Use
 `shell-quote-argument` to achieve the desired compatibility across the
 different architectures.
 
@@ -227,13 +227,13 @@ Just do `cider-jack-in` within the `cider-nrepl` project and start hacking as
 you would on any other Clojure project.  The only thing to keep in mind is that
 you'll have to restart CIDER when you add new middleware.
 
-The jacked-in project's definitions will take precedence over the once you have
+The jacked-in project's definitions will take precedence over the ones you have
 from a binary `cider-nrepl` installation. This means it's pretty easy to get
 immediate feedback for the changes you've made.
 
 === Testing the code
 
-The code you've wrote should ideally be covered by test. We use the
+The code you've written should ideally be covered by tests. We use the
 `clojure.test` library for ``cider-nrepl``'s tests.
 
 You can run the tests you authored/changed straight from Emacs. Consult the

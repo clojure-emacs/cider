@@ -89,7 +89,7 @@ you can navigate back to `+*cider-error*+` with kbd:[C-x <left>] (`previous-buff
 
 CIDER comes with a powerful solution for dealing with Clojure
 stacktraces. CIDER presents stack traces in a special major mode,
-`cider-stacktrace-mode`, which gives you gives you some key features:
+`cider-stacktrace-mode`, which gives you some key features:
 
 * the ability to filter out certain stack frames to reduce clutter
 * some handy ways to navigate to the cause of the exception

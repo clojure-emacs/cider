@@ -30,7 +30,7 @@ kbd:[C-c C-c]
 
 | kbd:[C-up] +
 kbd:[C-down]
-| Go to to previous/next input in history.
+| Go to previous/next input in history.
 
 | kbd:[M-p] +
 kbd:[M-n]

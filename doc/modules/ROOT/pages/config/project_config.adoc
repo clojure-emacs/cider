@@ -40,7 +40,7 @@ Emacs Lisp code. If you, however, feel
 overwhelmed by its syntax you can simply do `M-x add-dir-local-variable` and
 you'll be able to select the major-mode, the variable and its value
 interactively.  One small problem with this approach is that the resulting
-`.dir-local.el` will be created in the current directory, which may be a problem
+`.dir-locals.el` will be created in the current directory, which may be a problem
 depending on what you're trying to do. Users of
 https://github.com/bbatsov/projectile[Projectile] may leverage the
 project-aware `projectile-edit-dir-locals` command instead.

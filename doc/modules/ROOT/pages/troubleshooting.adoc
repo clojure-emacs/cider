@@ -72,7 +72,7 @@ That's CIDER's way of representing the request (marked with `+-->+`) and respons
 
 nREPL message logging is not enabled by default. Set `nrepl-log-messages` to `t`
 to activate it. Alternatively you can use kbd:[M-x]
-`nrepl-toggle-message-logging` to enable/disable logging temporary within your
+`nrepl-toggle-message-logging` to enable/disable logging temporarily within your
 current Emacs session. Note that enabling message logging can impact
 performance.
 
@@ -104,7 +104,7 @@ you can step forward until you find the problem.
 
 nREPL message logging is not enabled by default. Set `nrepl-log-messages` to `t`
 to activate it. Alternatively you can use kbd:[M-x]
-`nrepl-toggle-message-logging` to enable/disable logging temporary within your
+`nrepl-toggle-message-logging` to enable/disable logging temporarily within your
 current Emacs session. Note that enabling message logging can impact
 performance.
 
@@ -122,7 +122,7 @@ and copy this information.
 === The REPL blows up when some function returns an URL
 
 Most likely you've encountered some issue with the `content-type` middleware. Generally, that's
-easy to confirm by inspecting the stracktrace:
+easy to confirm by inspecting the stacktrace:
 
 [source,clojure]
 ----
@@ -271,7 +271,7 @@ be handled client-side. See https://github.com/clojure-emacs/cider/issues/2852.
 Occasionally the JVM might remove some stack frames, resulting in no stacktrace
 information being displayed in CIDER's error buffer.
 
-That's caused by an JVM optimization (`OmitStackTraceInFastThrow`, enabled by
+That's caused by a JVM optimization (`OmitStackTraceInFastThrow`, enabled by
 default), which optimizes "built-in" exceptions that are thrown frequently enough
 to be cached and have no stacktrace.
 
@@ -351,4 +351,4 @@ that's due to one of the following reasons:
  ** Session linking generally works by determining whether the current buffer is related to the classpath of some REPL.
  ** You can obtain debug info echoed to the `+*Messages*+` buffer by running `M-x cider-debug-sesman-friendly-session-p` on the problematic buffer.
   *** By reading it, you might be able to determine why CIDER failed to see the relationship between `(buffer-filename)` and the classpath.
-  *** Feel free to created a detailed GitHub issue including this information.
+  *** Feel free to create a detailed GitHub issue including this information.

@@ -1,7 +1,7 @@
 = Tracing Function Execution
 :experimental:
 
-You can trace the arguments supplied, to and the result values produced
+You can trace the arguments supplied to, and the result values produced
 by functions using kbd:[C-c M-t v]. CIDER will prompt you for the
 name of the function you want to trace, defaulting to the previous
 top-level definition.

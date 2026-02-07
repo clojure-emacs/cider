@@ -109,7 +109,7 @@ To quit or restart individual connections use CIDER commands
 
 All CIDER commands (evaluation, completion, switching to REPL etc.) operate on
 the relevant REPL within the current session. The current session is the most
-relevant session among all linked session (or friendly sessions when no links
+relevant session among all linked sessions (or friendly sessions when no links
 exist). Session relevance is decided by the specificity of the linked contexts
 and recency of the REPL buffers.
 

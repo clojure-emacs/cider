@@ -23,7 +23,7 @@ eventually with more generic versions that dispatch on the type of the nREPL con
 
 == Current Status
 
-Right now CIDER the supports to some extent the following:
+Right now CIDER supports to some extent the following:
 
 * xref:platforms/babashka.adoc[Babashka]
 * xref:platforms/nbb.adoc[nbb]
@@ -39,4 +39,4 @@ While not a very high priority, making CIDER usable with any nREPL server is cer
 https://github.com/clojure-emacs/cider/issues/2848[Here] you can find a discussion about the changes needed to
 get CIDER to work with Fennel, plus a couple of commits that illustrate them.
 
-Any help on that front would greatly appreciated!
+Any help on that front would be greatly appreciated!

@@ -213,7 +213,7 @@ with
 === Customizing the Jack-in Command Behavior
 
 You can use kbd:[C-u M-x] `cider-jack-in` kbd:[RET] to specify the exact command
-that `cider-jack-in` would run. This option is very useful is you want to e.g.
+that `cider-jack-in` would run. This option is very useful if you want to e.g.
 specify extra Leiningen profiles or `deps.edn` aliases.
 
 Alternatively you can kbd:[C-u C-u M-x] `cider-jack-in` kbd:[RET], which is a
@@ -227,7 +227,7 @@ NOTE: The examples use only `cider-jack-in`, but this behavior is consistent
 for all `cider-jack-in-\*` commands.
 
 You can further customize the command line CIDER uses for `cider-jack-in` by
-modifying the some options. Those differ a bit between the various tools,
+modifying some options. Those differ a bit between the various tools,
 so we'll examine them tool by tool.
 
 ==== Leiningen Options
@@ -391,9 +391,9 @@ of ssh for remote connection unconditionally.
 WARNING: As nREPL connections are insecure by default, you're encouraged to use only SSH
 tunneling when connecting to servers running outside of your network.
 
-There's a another case in which CIDER may optionally leverage the `ssh` command - when
+There's another case in which CIDER may optionally leverage the `ssh` command - when
 trying to figure out potential target hosts and ports when you're doing `cider-connect-\*`.
-If  `cider-infer-remote-nrepl-ports` is true, CIDER will use ssh to try to infer
+If `cider-infer-remote-nrepl-ports` is true, CIDER will use ssh to try to infer
 nREPL ports on remote hosts (for a direct connection). That option is also set to `nil`
 by default.
 
@@ -459,7 +459,7 @@ In this scenario and assuming a folder `/home/me/my-clj-code` containing the rel
 devcontainer up --workspace-folder /home/me/my-clj-code
 ----
 
-Then we can start a nREPL server inside the container on the remote host as shown below (executed from from your local machine).
+Then we can start a nREPL server inside the container on the remote host as shown below (executed from your local machine).
 The command tunnels as well the remote port 12345 to local machine on port 12345:
 
 [source,sh]
@@ -497,7 +497,7 @@ When locally running nREPL servers, there is the option to listen on a
 socket file instead of opening a network port.  As long as access to
 the parent directory of the socket is sufficiently protected, this is
 much more secure than the network port, since any local user can
-access the port-provided REPL.  It can also be be helpful in other
+access the port-provided REPL.  It can also be helpful in other
 cases, e.g. when working with virtual networks (containers) where
 sharing a file socket can be vastly simpler than managing bridge
 networks and firewall setups.

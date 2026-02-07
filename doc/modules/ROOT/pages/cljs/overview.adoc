@@ -16,7 +16,7 @@ and how to setup the most popular ClojureScript REPLs.
 
 == nREPL and ClojureScript
 
-nREPL doesn't natively support ClojureScript evaluation, that why an additional
+nREPL doesn't natively support ClojureScript evaluation, that's why an additional
 middleware is needed. For most REPLs (with the notable exceptions of `shadow-cljs`, `nbb`), CIDER relies on the popular Piggieback middleware for its
 ClojureScript support.
 
@@ -80,7 +80,7 @@ cljs.user>
 ----
 
 This difference comes from a performance optimization in Piggieback, which avoids
-creating an different REPLs for each ClojureScript form it evaluates.
+creating different REPLs for each ClojureScript form it evaluates.
 
 TIP: You can learn more about this difference https://github.com/nrepl/piggieback/pull/98[here].
 

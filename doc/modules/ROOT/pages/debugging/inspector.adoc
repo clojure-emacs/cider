@@ -22,7 +22,7 @@ the last result. This behavior can be controlled with the variable
 TIP: The inspector can also be invoked in the middle of a debugging
 session, see xref:debugging/debugger.adoc[here] for more details.
 
-TIP: The current value of the debugger can be as sent as well to Clojure's
+TIP: The current value of the debugger can be sent as well to Clojure's
 `tap>` facility. This can be used to integrate CIDER with various external
 tools which render tapped values in a web browser, for example.
 
@@ -83,7 +83,7 @@ You'll have access to additional keybindings in the inspector buffer
 
 | kbd:[P]
 | `cider-inspector-toggle-pretty-print`
-| Toggle the pretty printing of values in the inspector. You can set the `cider-inspector-pretty-print` customization option to `t`, if you always want values to be be pretty printed.
+| Toggle the pretty printing of values in the inspector. You can set the `cider-inspector-pretty-print` customization option to `t`, if you always want values to be pretty printed.
 
 | kbd:[S]
 | `cider-inspector-toggle-sort-maps`
@@ -119,11 +119,11 @@ You'll have access to additional keybindings in the inspector buffer
 
 | kbd:[t]
 | `cider-inspector-tap-current-val`
-| Performs `tap>` using the inspector's current value as it argument.
+| Performs `tap>` using the inspector's current value as its argument.
 
 | kbd:[1]
 | `cider-inspector-tap-at-point`
-| Performs `tap>` using the inspector's current sub-value (the one at POINT) as it argument.
+| Performs `tap>` using the inspector's current sub-value (the one at POINT) as its argument.
 
 |===
 
@@ -140,7 +140,7 @@ can disable the auto selection with the variable
 You can set the amount of data shown by default with the variables
 `cider-inspector-page-size`, `cider-inspector-max-coll-size`,
 `cider-inspector-max-nested-depth`, and `cider-inspector-max-atom-length`. The
-values can be adjusted for the current inspector buffer using the keybidings
+values can be adjusted for the current inspector buffer using the keybindings
 listed in the table above.
 
 If you enable `cider-inspector-fill-frame`, the inspector window fills its

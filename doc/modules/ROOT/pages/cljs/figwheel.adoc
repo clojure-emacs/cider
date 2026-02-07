@@ -1,8 +1,8 @@
 = Using Figwheel
 :experimental:
 
-Figwheel is one of the most popular ClojureScript REPLs today. Below you'll
-instructions how to setup and use it with CIDER.
+Figwheel is one of the most popular ClojureScript REPLs today. Below you'll find
+instructions on how to set up and use it with CIDER.
 
 NOTE: There are two versions of Figwheel out there - the legacy https://github.com/bhauman/lein-figwheel[figwheel] and
 the modern https://github.com/bhauman/figwheel-main[figwheel-main]. You're
@@ -127,7 +127,7 @@ in the root of your Leiningen project definition.
 [figwheel-sidecar "0.5.19"] ; use here whatever the current version of figwheel is
 ----
 +
-WARNING: Keep in mind that CIDER does not support versions versions of Piggieback older than 0.4. Make sure that you use a compatible version of Figwheel.
+WARNING: Keep in mind that CIDER does not support versions of Piggieback older than 0.4. Make sure that you use a compatible version of Figwheel.
 +
 . Add this to your dev `:repl-options` (not needed for `cider-jack-in-cljs`):
 +

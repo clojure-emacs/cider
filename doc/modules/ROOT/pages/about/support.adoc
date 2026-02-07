@@ -26,7 +26,7 @@ users. If you need an invite you can go http://clojurians.net/[here].
 
 There's also another channel named `#emacs` for generic Emacs discussions.
 
-NOTE: Bozhidar Slack handle is `bozhidar`, instead of `bbatsov`.
+NOTE: Bozhidar's Slack handle is `bozhidar`, instead of `bbatsov`.
 
 == StackOverflow
 

@@ -44,6 +44,6 @@ dedicated to CIDER 0.12.
 
 == Tutorials
 
-IMPORTANT: Keep in mind that third-party tutorials might be outdated by time you get to read them.
+IMPORTANT: Keep in mind that third-party tutorials might be outdated by the time you get to read them.
 
 * https://practicalli.github.io/spacemacs/[Clojure Development with Spacemacs]

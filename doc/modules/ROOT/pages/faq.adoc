@@ -91,19 +91,19 @@ There's no precise roadmap, but there are a few major goals for the (near) futur
 
 You can find more details in our https://github.com/clojure-emacs/cider/blob/master/ROADMAP.md[roadmap document].
 
-NOTE: If you'd like to tackle some item from the roadmap, Bozhidar will happy to help and guide you along the way.
+NOTE: If you'd like to tackle some item from the roadmap, Bozhidar will be happy to help and guide you along the way.
 
 == Is it true that stable CIDER releases often happen around major Clojure conferences?
 
 Yep. We want to give people a reason to talk about CIDER at such events. :-)
 
 TIP: Inviting Bozhidar or any other core CIDER developers to present at Clojure
-conferences is likely going to results in more CIDER releases,
+conferences is likely going to result in more CIDER releases,
 so you should totally do this!
 
 == How unstable is the MELPA (snapshot) build of CIDER?
 
-It's pretty stable. Serious regression are introduced rather rarely and are
+It's pretty stable. Serious regressions are introduced rather rarely and are
 usually fixed within a few hours. Using the MELPA build gives you early access to
 new features and you're also helping the maintainers with the testing process.
 

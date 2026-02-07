@@ -12,7 +12,7 @@ Improvements to the two libraries automatically translate to improvements in CID
 
 == Standard completion
 
-Out-of-the box CIDER uses the standard Emacs tooling for code completion. When you
+Out-of-the-box CIDER uses the standard Emacs tooling for code completion. When you
 press kbd:[TAB] or kbd:[M-TAB] you'll get completion candidates in a
 dedicated buffer.
 
@@ -166,7 +166,7 @@ following snippet accomplishes that:
 (add-to-list 'completion-category-overrides '(cider (styles basic)))
 ----
 
-For a better description of how those completion styles operates, refer to the
+For a better description of how those completion styles operate, refer to the
 official Emacs manual on
 https://www.gnu.org/software/emacs/manual/html_node/emacs/Completion-Styles.html[how
 completion alternatives are chosen].

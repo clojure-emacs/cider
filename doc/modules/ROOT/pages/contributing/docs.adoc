@@ -58,8 +58,8 @@ It can also be triggered manually if needed.
 IMPORTANT: Don't forget to update the manual's version metadata when cutting CIDER releases.
 It lives in `doc/antora.yml`.
 
-When cutting new releases you'll have to updated `antora-playbook.yml` to mention
-their relevant tags from which the documentation needs to be build. Here's how this
+When cutting new releases you'll have to update `antora-playbook.yml` to mention
+their relevant tags from which the documentation needs to be built. Here's how this
 looks for one of the projects:
 
 [source]

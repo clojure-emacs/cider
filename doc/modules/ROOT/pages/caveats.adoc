@@ -60,7 +60,7 @@ from your Emacs config.
 
 == ClojureCLR Support
 
-CIDER currently has very basic support ClojureCLR (via Arcadia's nREPL server). The reasons for this are the following:
+CIDER currently has very basic support for ClojureCLR (via Arcadia's nREPL server). The reasons for this are the following:
 
 * nREPL itself runs only on the JVM (because it leverages Java APIs
 internally). There's an
@@ -74,7 +74,7 @@ If someone would like to tackle them, we'd be happy to provide assistance.
 == Injecting dependencies and Leiningen pedantic: abort mode
 
 Because injection currently creates an override of the nREPL dependency that
-Leingingen also pulls in starting up the REPL will fail if `:pedantic? :abort`
+Leiningen also pulls in starting up the REPL will fail if `:pedantic? :abort`
 is set. There are several ways to address this:
 
 * Remove the `:pedantic? :abort` setting.

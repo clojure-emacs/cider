@@ -12,7 +12,7 @@ of the CIDER core team, listed in the order of joining it:
 
 == CIDER Alumni
 
-In addition, we'd like to extend a special thanks the following retired CIDER
+In addition, we'd like to extend a special thanks to the following retired CIDER
 core team members. Lovingly known as The Alumni:
 
 * https://github.com/kingtim[Tim King] (original author)

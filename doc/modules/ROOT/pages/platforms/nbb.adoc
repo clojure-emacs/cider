@@ -8,7 +8,7 @@ It is highly compatible with ClojureScript, so it works with CIDER out of the bo
 
 == Usage
 
-You can either jack in to an nbb project with `M-x clojure-jack-in-cljs`.
+You can jack in to an nbb project with `M-x cider-jack-in-cljs`,
 
 or start its bundled nREPL server:
 

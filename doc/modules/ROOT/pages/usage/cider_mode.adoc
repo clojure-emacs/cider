@@ -62,7 +62,7 @@ Here's a list of the key bindings of `cider-mode`:
 | `cider-eval-last-sexp`
 | kbd:[C-x C-e] +
 kbd:[C-c C-e]
-| Evaluate the form preceding point and display the result in the echo area and/or in an buffer overlay (according to `cider-use-overlays`).  If invoked with a prefix argument, insert the result into the current buffer.
+| Evaluate the form preceding point and display the result in the echo area and/or in a buffer overlay (according to `cider-use-overlays`).  If invoked with a prefix argument, insert the result into the current buffer.
 
 | `cider-eval-last-sexp-and-replace`
 | kbd:[C-c C-v w]
@@ -70,7 +70,7 @@ kbd:[C-c C-e]
 
 | `cider-eval-last-sexp-to-repl`
 | kbd:[C-c M-e]
-| Evaluate the form preceding point and output it result to the REPL buffer.  If invoked with a prefix argument, takes you to the REPL buffer after being invoked.
+| Evaluate the form preceding point and output its result to the REPL buffer.  If invoked with a prefix argument, takes you to the REPL buffer after being invoked.
 
 | `cider-insert-last-sexp-in-repl`
 | kbd:[C-c M-p]

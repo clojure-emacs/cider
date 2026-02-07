@@ -1,7 +1,7 @@
 = Using shadow-cljs
 :experimental:
 
-`shadow-cljs` is one of the most popular toolchain for doing ClojureScript
+`shadow-cljs` is one of the most popular toolchains for doing ClojureScript
 development these days. In this section we'll discuss how to set it up and
 use it together with CIDER.
 

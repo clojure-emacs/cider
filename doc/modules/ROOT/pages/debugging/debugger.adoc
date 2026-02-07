@@ -270,7 +270,7 @@ wrapped in a `breakpoint`):
 
 * In `(fn [x] (inc x))` the return value is a function object and carries no
 information. Note that this is not the same as the return value when you
-*call* this function (which *is* interesting). Also, even those this form
+*call* this function (which *is* interesting). Also, even though this form
 is not wrapped in a breakpoint, the forms inside it *are* (`(inc x)` and
 `x`).
 * Similarly, in a form like `(map inc (range 10))`, the symbol `inc`

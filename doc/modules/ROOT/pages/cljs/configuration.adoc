@@ -84,7 +84,7 @@ ClojureScript REPL, you can invoke
 == Enhanced Completion
 
 By default CIDER will enrich the ClojureScript completion results using
-the https://github.com/rksm/clj-suitable[suitable] library. If case you run
+the https://github.com/rksm/clj-suitable[suitable] library. In case you run
 into any `suitable`-related issues you can disable the enhanced completion like this:
 
 [source,lisp]

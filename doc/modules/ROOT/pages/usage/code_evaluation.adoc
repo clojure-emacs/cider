@@ -25,7 +25,7 @@ As CIDER derives almost all of its functionality by inspecting the runtime (REPL
 of your application, you need to evaluate something before functionality like code completion,
 `eldoc` or definition lookup would work.
 
-Typically the first think you'd do when visiting a Clojure buffer would be to load (evaluate) the buffer with `cider-load-buffer` (kbd:[C-c C-k]).
+Typically the first thing you'd do when visiting a Clojure buffer would be to load (evaluate) the buffer with `cider-load-buffer` (kbd:[C-c C-k]).
 
 Afterwards most of the time you'd be evaluating expressions one at a time either using
 `cider-eval-last-sexp` (kbd:[C-c C-e] or kbd:[C-x C-e]) or `cider-eval-defun-at-point`
@@ -34,7 +34,7 @@ Afterwards most of the time you'd be evaluating expressions one at a time either
 .What happens if I don't evaluate the entire buffer first?
 ****
 You might be wondering why do you need to evaluate the entire source buffer. After all,
-won't be it be nice if you could just start evaluating only the forms you're interested in?
+won't it be nice if you could just start evaluating only the forms you're interested in?
 
 Technically speaking you're not required to evaluate the entire source buffer first, but not
 doing so introduces some subtleties and a bit of complexity. In general the only
@@ -133,9 +133,9 @@ eval response was received from nrepl server with status "done".
 
 nREPL has an asynchronous evaluation model, where eval requests
 are enqueued and the responses are sent back to the clients when available.
-This model works great most of the time as doesn't require clients
+This model works great most of the time as it doesn't require clients
 to block while waiting for responses, but it also requires the clients
-to able to handle comfortably response callbacks.
+to be able to handle comfortably response callbacks.
 
 Unfortunately, some of Emacs's internal APIs don't play well with asynchronous
 evaluation (e.g. completion, eldoc, etc) and in those cases CIDER simulates
@@ -399,7 +399,7 @@ pretty simple - legacy. The principle sources of inspiration for CIDER, Emacs an
 provide more or less the same functionality, but use different keybindings. CIDER
 tried to find a common ground by adopting them both.
 
-On top of this, at some when it became clear that CIDER has set the world record
+On top of this, at some point when it became clear that CIDER has set the world record
 for evaluation command, we've introduced a dedicated keymap for all eval commands
 (that's everything with the prefix kbd:[C-c C-v]). This leads to funny situations
 like `cider-eval-defun-at-point` having 3 keybindings:
@@ -410,7 +410,7 @@ like `cider-eval-defun-at-point` having 3 keybindings:
 
 Okay, those are technically 4 keybindings, but who's counting!
 
-NOTE: Some of you are probably wonder why kbd:[C-c C-v] instead of
+NOTE: Some of you are probably wondering why kbd:[C-c C-v] instead of
 kbd:[C-c C-e], right? Again - legacy. Historically kbd:[C-c C-e]
 was mapped to `cider-eval-last-sexp`, otherwise we would have picked
 this binding. It's still possible to recycle it down the road, as
@@ -425,7 +425,7 @@ Below is a listing of most keybindings for evaluation commands:
 | `cider-eval-last-sexp`
 | kbd:[C-x C-e] +
 kbd:[C-c C-e]
-| Evaluate the form preceding point and display the result in the echo area and/or in an buffer overlay (according to `cider-use-overlays`).  If invoked with a prefix argument, insert the result into the current buffer.
+| Evaluate the form preceding point and display the result in the echo area and/or in a buffer overlay (according to `cider-use-overlays`).  If invoked with a prefix argument, insert the result into the current buffer.
 
 | `cider-tap-last-sexp`
 | kbd:[C-c C-v q] +
@@ -438,7 +438,7 @@ kbd:[C-c C-v C-q]
 
 | `cider-eval-last-sexp-to-repl`
 | kbd:[C-c M-e]
-| Evaluate the form preceding point and output it result to the REPL buffer.  If invoked with a prefix argument, takes you to the REPL buffer after being invoked.
+| Evaluate the form preceding point and output its result to the REPL buffer.  If invoked with a prefix argument, takes you to the REPL buffer after being invoked.
 
 | `cider-insert-last-sexp-in-repl`
 | kbd:[C-u C-c M-p]

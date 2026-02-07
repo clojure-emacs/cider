@@ -1,6 +1,6 @@
 = Profiling
 
-CIDER has a simple built-in profiler that can you to quickly measure the running
+CIDER has a simple built-in profiler that can help you to quickly measure the running
 time of individual functions. It is similar to wrapping your functions with
 `time` macro, except it records every timing and displays a summarized result.
 
@@ -48,7 +48,7 @@ Let's demystify all the column names:
 * `:std`: Standard deviation.
 * `:sum`: Aggregate time spent in fn.
 * `:min`: Minimal recorded time for fn.
-* `:min`: Maximal recorded time for fn.
+* `:max`: Maximal recorded time for fn.
 * `:med`: Median i.e. fiftieth percentile.
 * `:samples`: A list of all timing samples. You can click it to see the full list in the inspector.
 

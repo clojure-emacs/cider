@@ -15,7 +15,7 @@ The packages listed here belong to three categories:
 IMPORTANT: Make sure that the version of any extension you've installed is compatible with
 your CIDER version.
 
-CIDER extensions typically are Emacs packages that built on top of CIDER's Emacs Lisp API.
+CIDER extensions typically are Emacs packages that are built on top of CIDER's Emacs Lisp API.
 Some of them ship with extra nREPL middleware as well (e.g. `clj-refactor`). Typically
 packages that rely on middleware would hook into CIDER's middleware injection
 functionality and inject their own functionality automatically as well.
@@ -110,7 +110,7 @@ Clojure.
 
 === subword-mode
 
-Enabling `CamelCase` support for editing commands(like
+Enabling `CamelCase` support for editing commands (like
 `forward-word`, `backward-word`, etc) in the REPL is quite useful since
 we often have to deal with Java class and method names. The built-in
 Emacs minor mode `subword-mode` provides such functionality:

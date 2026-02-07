@@ -30,7 +30,7 @@ prior to the insertion.
 Typically, when you're actively using the REPL, your cursor will be at
 the end of the REPL buffer (`point-max`). In this case, the text is
 inserted at the end of the buffer and the point advances to the end of
-the inserted text (as if point was pushed by along by the text as it
+the inserted text (as if point was pushed along by the text as it
 was inserted).
 
 In the unusual case where you invoke the history browser when your

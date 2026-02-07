@@ -2,7 +2,7 @@
 
 == Overview
 
-Here "other platforms" essentially means any (Clojure) platforms that hasn't
+Here "other platforms" essentially means any (Clojure) platforms that haven't
 been mentioned specifically earlier in a dedicated section of the documentation.
 
 As noted earlier in the documentation, down the road CIDER might support non-Clojure
