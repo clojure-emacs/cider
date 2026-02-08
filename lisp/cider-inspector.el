@@ -71,8 +71,6 @@ The max depth can be also changed interactively within the inspector."
   :type '(integer :tag "Max nested collection depth" 5)
   :package-version '(cider . "1.14.0"))
 
-(defvar cider-inspector-spacious-collections nil
-  "Controls whether the inspector renders values in collections spaciously.")
 
 (defcustom cider-inspector-fill-frame nil
   "Controls whether the CIDER inspector window fills its frame."

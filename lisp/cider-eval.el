@@ -470,20 +470,6 @@ Show error overlay in BUFFER if needed."
 \"Syntax error compiling at (src/workspace_service.clj:227:3).\"
 \"Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1).\"")
 
-(defconst cider--clojure-execution-error
-  `(sequence
-    (or "Error reading eval result "   ; phase = :read-eval-result
-        "Error printing return value " ; phase = :print-eval-result
-        "Execution error ")            ; phase = :execution
-    (minimal-match (zero-or-more anything)) ; optional class, eg. (ArithmeticException)
-    ,cider--clojure-1.10-location))
-
-(defconst cider--clojure-spec-execution-error
-  `(sequence
-    "Execution error - invalid arguments to "
-    (minimal-match (one-or-more anything))
-    " "
-    ,cider--clojure-1.10-location))
 
 (defconst cider-module-info-regexp
   (rx " ("
