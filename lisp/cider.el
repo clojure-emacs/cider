@@ -18,6 +18,7 @@
 ;; Package-Requires: (
 ;;     (emacs "28")
 ;;     (clojure-mode "5.19")
+;;     (compat "30")
 ;;     (parseedn "1.2.1")
 ;;     (queue "0.2")
 ;;     (spinner "1.7")
