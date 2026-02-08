@@ -28,7 +28,6 @@
 (require 'button)
 (require 'cl-lib)
 (require 'easymenu)
-(require 'map)
 (require 'seq)
 (require 'subr-x)
 
