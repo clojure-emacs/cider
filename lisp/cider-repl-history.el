@@ -149,10 +149,6 @@ face used for highlighting."
   :type '(choice (const nil) (const t) (const solid) (const pulse))
   :package-version '(cider . "0.15.0"))
 
-(defcustom cider-repl-history-separator-face 'bold
-  "The face in which to highlight the `cider-repl-history-separator'."
-  :type 'face
-  :package-version '(cider . "0.15.0"))
 
 (defcustom cider-repl-history-current-entry-face 'highlight
   "The face in which to highlight the command history current entry."
