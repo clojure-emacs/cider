@@ -356,8 +356,6 @@ See `cider-connection-capabilities'."
 (declare-function cider--debug-init-connection "cider-debug")
 (declare-function cider-repl-init "cider-repl")
 (declare-function cider-nrepl-op-supported-p "cider-client")
-(declare-function cider-nrepl-request:eval "cider-client")
-
 (defun cider--connected-handler ()
   "Handle CIDER initialization after nREPL connection has been established.
 This function is appended to `nrepl-connected-hook' in the client process
@@ -620,8 +618,6 @@ REPL defaults to the current REPL."
 (cl-defmethod sesman-more-relevant-p ((_system (eql CIDER)) session1 session2)
   "Figure out if SESSION1 or SESSION2 is more relevant."
   (sesman-more-recent-p (cdr session1) (cdr session2)))
-
-(declare-function cider-classpath-entries "cider-client")
 
 (defvar cider-sesman-browser-map
   (let ((map (make-sparse-keymap)))

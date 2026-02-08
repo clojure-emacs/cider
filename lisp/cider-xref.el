@@ -104,8 +104,6 @@ the symbol found by the xref search as argument."
           "Can't find the source because it wasn't defined with `cider-eval-buffer'")))
     (error "No source location for %s" name)))
 
-(declare-function cider-mode "cider-mode")
-
 (defun cider-show-xref (summary results)
   "Show SUMMARY and RESULTS in a pop-up buffer."
   (with-current-buffer (cider-popup-buffer cider-xref-buffer 'select 'apropos-mode 'ancillary)
