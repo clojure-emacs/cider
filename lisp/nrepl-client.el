@@ -244,7 +244,7 @@ Discards it if it can be determined that the port is not active."
       (if (eq system-type 'windows-nt)
           port-string
         (unless (equal ""
-                      (shell-command-to-string (format "lsof -i:%s" port-number)))
+                       (shell-command-to-string (format "lsof -i:%s" port-number)))
           port-string)))))
 
 (defun nrepl--ssh-file-name-matches-host-p (file-name host)
