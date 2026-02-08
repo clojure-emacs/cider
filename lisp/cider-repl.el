@@ -2030,8 +2030,8 @@ in an unexpected place."
         (newmap (make-sparse-keymap)))
     (set-keymap-parent newmap oldmap)
     (define-key newmap (kbd "RET") nil)
-    (make-local-variable 'minor-mode-overriding-map-alist)
-    (push `(paredit-mode . ,newmap) minor-mode-overriding-map-alist)))
+    (setq-local minor-mode-overriding-map-alist
+                (cons `(paredit-mode . ,newmap) minor-mode-overriding-map-alist))))
 
 (define-derived-mode cider-repl-mode fundamental-mode "REPL"
   "Major mode for Clojure REPL interactions.
