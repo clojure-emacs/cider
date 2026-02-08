@@ -95,7 +95,7 @@ jobs:
       uses: DeLaGuardo/setup-clojure@13.5.2
       with:
         bb: '1.12.214'
-        cli: '1.12.4.1602'
+        cli: '1.12.4.1597'
         lein: '2.12.0'
 
     - uses: actions/setup-node@v6
