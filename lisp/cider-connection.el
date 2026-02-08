@@ -1096,13 +1096,6 @@ session."
 (defalias 'cider-map-connections #'cider-map-repls)
 (defalias 'cider-connection-type-for-buffer #'cider-repl-type-for-buffer)
 
-;; Deprecated after #2324 (introduction of sesman)
-
-(define-obsolete-function-alias 'cider-current-repl-buffer #'cider-current-repl "0.18")
-(define-obsolete-function-alias 'cider-repl-buffers #'cider-repls "0.18")
-(define-obsolete-function-alias 'cider-current-session #'cider-nrepl-eval-session "0.18")
-(define-obsolete-function-alias 'cider-current-tooling-session #'cider-nrepl-tooling-session "0.18")
-(define-obsolete-function-alias 'nrepl-connection-buffer-name #'nrepl-repl-buffer-name "0.18")
 
 (provide 'cider-connection)
 
