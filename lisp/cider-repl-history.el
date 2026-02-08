@@ -612,10 +612,10 @@ HISTORY-BUF is the history, and optional arg REGEXP is a filter."
               ;; display highest or lowest duplicate.
               ;; if `cider-repl-history-display-duplicate-highest' is t,
               ;; display highest (most recent) duplicate.
-              (cl-delete-duplicates
-               items
-               :test #'equal
-               :from-end cider-repl-history-display-duplicate-highest))
+              (setq items (cl-delete-duplicates
+                           items
+                           :test #'equal
+                           :from-end cider-repl-history-display-duplicate-highest)))
             (when (stringp regexp)
               (setq items (delq nil
                                 (mapcar
