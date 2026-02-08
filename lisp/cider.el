@@ -1704,10 +1704,7 @@ canceled the action, signal quit."
 (defun cider--ssh-hosts ()
   "Retrieve all ssh host from local configuration files."
   (seq-map (lambda (s) (list (replace-regexp-in-string ":$" "" s)))
-           ;; `tramp-completion-mode' is obsoleted in 26
-           (cl-progv (if (version< emacs-version "26")
-                         '(tramp-completion-mode)
-                       '(non-essential)) '(t)
+           (let ((non-essential t))
              (tramp-completion-handle-file-name-all-completions "" "/ssh:"))))
 
 (defun cider--completing-read-host (hosts)
@@ -1722,13 +1719,9 @@ Return a list of the form (HOST PORT), where PORT can be nil."
     (if (= 3 (length host)) (cdr host) host)))
 
 (defun cider--tramp-file-name (vec)
-  "A simple compatibility wrapper around `make-tramp-file-name'.
-Tramp version starting 26.1 is using a `cl-defstruct' rather than vanilla VEC."
-  (if (version< emacs-version "26.1")
-      vec
-    (with-no-warnings
-      (make-tramp-file-name :method (elt vec 0)
-                            :host   (elt vec 2)))))
+  "Create a tramp file name from VEC."
+  (make-tramp-file-name :method (elt vec 0)
+                        :host   (elt vec 2)))
 
 (defcustom cider-infer-remote-nrepl-ports nil
   "When true, cider will use ssh to try to infer nREPL ports on remote hosts."
