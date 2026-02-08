@@ -67,7 +67,7 @@ the symbol found by the xref search as argument."
                                    'help-echo "Display doc")
       (insert-text-button var-name 'type 'apropos-symbol))
     (when-let ((doc (nrepl-dict-get result "doc")))
-      (when (not (string-equal "(not documented)" doc))
+      (unless (string-equal "(not documented)" doc)
         (insert "\n  ")
         (let ((beg (point)))
           (insert (propertize doc 'font-lock-face 'font-lock-doc-face))

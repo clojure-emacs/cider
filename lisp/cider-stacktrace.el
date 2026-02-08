@@ -782,7 +782,7 @@ the NAME.  The whole group is prefixed by string INDENT."
       (dolist (prob problems)
         (nrepl-dbind-response prob (in val predicate reason spec at extra)
           (insert "\n")
-          (when (not (string= val value))
+          (unless (string= val value)
             (cider-stacktrace--insert-named-group indent2 "   val: " val))
           (when in
             (cider-stacktrace--insert-named-group indent2 "    in: " in))
