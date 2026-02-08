@@ -243,8 +243,8 @@ Discards it if it can be determined that the port is not active."
                 (port-number (nrepl--port-string-to-number port-string)))
       (if (eq system-type 'windows-nt)
           port-string
-        (when (not (equal ""
-                          (shell-command-to-string (format "lsof -i:%s" port-number))))
+        (unless (equal ""
+                      (shell-command-to-string (format "lsof -i:%s" port-number)))
           port-string)))))
 
 (defun nrepl--ssh-file-name-matches-host-p (file-name host)
@@ -368,7 +368,7 @@ STACK is as in `nrepl--bdecode-1'.  Return a cons (INFO . STACK)."
 
 (defun nrepl--ensure-fundamental-mode ()
   "Enable `fundamental-mode' if it is not enabled already."
-  (when (not (eq 'fundamental-mode major-mode))
+  (unless (eq 'fundamental-mode major-mode)
     (fundamental-mode)))
 
 (defun nrepl-bdecode (string-q &optional response-q)
@@ -695,10 +695,10 @@ Do not kill the server if there is a REPL connected to that server."
   (when (buffer-live-p server-buf)
     (with-current-buffer server-buf
       ;; Don't kill if there is at least one REPL connected to it.
-      (when (not (seq-find (lambda (b)
-                             (eq (buffer-local-value 'nrepl-server-buffer b)
-                                 server-buf))
-                           (buffer-list)))
+      (unless (seq-find (lambda (b)
+                          (eq (buffer-local-value 'nrepl-server-buffer b)
+                              server-buf))
+                        (buffer-list))
         (nrepl-kill-server-buffer server-buf)))))
 
 (defun nrepl-start-client-process (&optional host port server-proc buffer-builder socket-file)
@@ -1217,7 +1217,7 @@ If the nREPL PROCESS failed to initiate and encountered a fatal EVENT
 signal, raise an `error'.  Additionally, if the EVENT signal is SIGHUP,
 close any existing client connections."
   ;; only interested on fatal signals.
-  (when (not (process-live-p process))
+  (unless (process-live-p process)
     (emacs-bug-46284/when-27.1-windows-nt
      ;; There is a bug in emacs 27.1 (since fixed) that sets all EVENT
      ;; descriptions for signals to "unknown signal". We correct this by

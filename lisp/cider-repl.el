@@ -636,7 +636,7 @@ the input stream may block the whole colorization process."
                 (let* ((sgr-end-pos (match-end 0))
                        (fragment-matches-whole? (or (= sgr-end-pos 0)
                                                     (= sgr-end-pos (length fragment)))))
-                  (when (not fragment-matches-whole?)
+                  (unless fragment-matches-whole?
                     ;; Definitely not an partial SGR seq, flush it out of
                     ;; `ansi-color-context'.
                     t)))))))
