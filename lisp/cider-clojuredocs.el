@@ -26,7 +26,6 @@
 ;;; Code:
 
 (require 'subr-x)
-(require 'url-vars)
 
 (require 'cider-client)
 (require 'cider-common)

@@ -25,8 +25,6 @@
 
 ;;; Code:
 
-(require 'map)
-(require 'seq)
 (require 'subr-x)
 
 (require 'spinner)
