@@ -325,7 +325,7 @@ N = 1 => 3, N = 2 => 4, etc."
 
 (defun cider-test-ediff ()
   "Show diff of the expected vs actual value for the test at point.
-With the actual value, the outermost '(not ...)' s-expression is removed."
+With the actual value, the outermost `(not ...)' s-expression is removed."
   (interactive)
   (let* ((expected-buffer (generate-new-buffer " *expected*"))
          (actual-buffer   (generate-new-buffer " *actual*"))

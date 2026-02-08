@@ -18,6 +18,7 @@
 ;; Package-Requires: (
 ;;     (emacs "28")
 ;;     (clojure-mode "5.19")
+;;     (compat "30")
 ;;     (parseedn "1.2.1")
 ;;     (queue "0.2")
 ;;     (spinner "1.7")
@@ -356,7 +357,7 @@ The plist supports the following keys
 
 - :cmd a plist of instructions how to invoke the jack in command, with keys
 
-  - :jack-in-type 'clj to start a clj repl and 'cljs for a cljs repl.
+  - :jack-in-type `clj' to start a clj repl and `cljs' for a cljs repl.
 
   - &rest the same set of params supported by the `cider-jack-in-clj' and
     `cider-jack-in-cljs' commands.")
@@ -1231,7 +1232,7 @@ double prefix prompt for all these parameters."
 (defun cider-jack-in-cljs (params)
   "Start an nREPL server for the current project and connect to it.
 PARAMS is a plist optionally containing :project-dir, :jack-in-cmd and
-:cljs-repl-type (e.g. 'shadow, 'node, 'figwheel, etc).
+:cljs-repl-type (e.g. `shadow', `node', `figwheel', etc).
 
 With the prefix argument,
 allow editing of the jack in command; with a double prefix prompt for all
@@ -1257,7 +1258,7 @@ these parameters."
 (defun cider-jack-in-clj&cljs (&optional params soft-cljs-start)
   "Start an nREPL server and connect with clj and cljs REPLs.
 PARAMS is a plist optionally containing :project-dir, :jack-in-cmd and
-:cljs-repl-type (e.g. 'shadow, 'node, 'fighweel, etc).
+:cljs-repl-type (e.g. `shadow', `node', `figwheel', etc).
 
 With the prefix argument, allow for editing of the jack in command;
 with a double prefix prompt for all these parameters.
@@ -1311,8 +1312,8 @@ server is created."
 ;;;###autoload
 (defun cider-connect-sibling-cljs (params &optional other-repl)
   "Create a ClojureScript REPL with the same server as OTHER-REPL.
-PARAMS is a plist optionally containing :cljs-repl-type (e.g. 'node,
-'figwheel, 'shadow, etc).
+PARAMS is a plist optionally containing :cljs-repl-type (e.g. `node',
+`figwheel', `shadow', etc).
 
 All other parameters are inferred from the OTHER-REPL.
 OTHER-REPL defaults to `cider-current-repl' but in programs can also be a
@@ -1392,7 +1393,7 @@ their supplied or default values."
 (defun cider-connect-cljs (&optional params)
   "Initialize a ClojureScript connection to an nREPL server.
 PARAMS is a plist optionally containing :host, :port, :project-dir and
-:cljs-repl-type (e.g. 'shadow, 'node, 'figwheel, etc).
+:cljs-repl-type (e.g. `shadow', `node', `figwheel', etc).
 If nil, use the default parameters in `cider-connect-default-params' or
 `cider-connect-default-cljs-params'.
 
@@ -1416,7 +1417,7 @@ their supplied or default values."
 (defun cider-connect-clj&cljs (params &optional soft-cljs-start)
   "Initialize a Clojure and ClojureScript connection to an nREPL server.
 PARAMS is a plist optionally containing :host, :port, :project-dir and
-:cljs-repl-type (e.g. 'shadow, 'node, 'figwheel, etc).
+:cljs-repl-type (e.g. `shadow', `node', `figwheel', etc).
 If nil, use the default parameters in `cider-connect-default-params' and
 `cider-connect-default-cljs-params'.
 

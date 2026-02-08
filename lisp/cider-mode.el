@@ -465,8 +465,8 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (defconst cider--has-many-mouse-buttons (not (memq window-system '(mac ns)))
   "Non-nil if system binds forward and back buttons to <mouse-8> and <mouse-9>.
 
-As it stands Emacs fires these events on <mouse-8> and <mouse-9> on 'x' and
-'w32'systems while on macOS it presents them on <mouse-4> and <mouse-5>.")
+As it stands Emacs fires these events on <mouse-8> and <mouse-9> on `x' and
+`w32' systems while on macOS it presents them on <mouse-4> and <mouse-5>.")
 
 (defcustom cider-use-xref t
   "Enable xref integration."
@@ -489,7 +489,8 @@ higher precedence."
     (unless cider-use-xref
       (define-key map (kbd "M-.") #'cider-find-var)
       (define-key map (kbd "M-,") #'cider-pop-back))
-    (define-key map (kbd (if cider--has-many-mouse-buttons "<mouse-8>" "<mouse-4>")) #'xref-pop-marker-stack)
+    (let ((xref-back (if (fboundp 'xref-go-back) 'xref-go-back 'xref-pop-marker-stack)))
+      (define-key map (kbd (if cider--has-many-mouse-buttons "<mouse-8>" "<mouse-4>")) xref-back))
     (define-key map (kbd (if cider--has-many-mouse-buttons "<mouse-9>" "<mouse-5>")) #'cider-find-dwim-at-mouse)
     (define-key map (kbd "C-c C-.") #'cider-find-ns)
     (define-key map (kbd "C-c C-:") #'cider-find-keyword)
@@ -606,10 +607,11 @@ re-visited."
     (if-let* ((meta (cider-resolve-var ns symbol-name))
               (indent (or (nrepl-dict-get meta "style/indent")
                           (nrepl-dict-get meta "indent"))))
-        (let ((format (format ":indent metadata on ‘%s’ is unreadable! \nERROR: %%s"
-                              symbol-name)))
-          (with-demoted-errors format
-            (cider--deep-vector-to-list (read indent))))
+        (condition-case-unless-debug err
+            (cider--deep-vector-to-list (read indent))
+          (error (message ":indent metadata on `%s' is unreadable!\nERROR: %s"
+                          symbol-name (error-message-string err))
+                 nil))
       ;; There's no indent metadata, but there might be a clojure-mode
       ;; indent-spec with fully-qualified namespace.
       (when (string-match cider-resolve--prefix-regexp symbol-name)

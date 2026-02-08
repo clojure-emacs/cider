@@ -38,7 +38,8 @@
 (require 'subr-x)
 (require 'thingatpt)
 
-;; clojure-mode and CIDER
+;; Third-party
+(require 'compat)
 (require 'clojure-mode)
 
 (defalias 'cider-pop-back #'pop-tag-mark)
@@ -98,8 +99,8 @@ Setting this to nil removes the fontification restriction."
     (nth 4 (parse-partial-sexp beg (point)))))
 
 (defun cider--tooling-file-p (file-name)
-  "Return t if FILE-NAME is not a 'real' source file.
-Currently, only check if the relative file name starts with 'form-init'
+  "Return t if FILE-NAME is not a real source file.
+Currently, only check if the relative file name starts with `form-init'
 which nREPL uses for temporary evaluation file names."
   (let ((fname (file-name-nondirectory file-name)))
     (string-match-p "^form-init" fname)))
@@ -249,16 +250,12 @@ Can only error if SKIP is non-nil."
 ;;; Plists
 
 (defun cider-plist-get (plist prop)
-  "Extract PROP from PLIST using `equal'.
-
-An alternative `lax-plist-get' that got deprecated in Emacs 29."
-  (lax-plist-get plist prop))
+  "Extract PROP from PLIST using `equal' for comparison."
+  (compat-call plist-get plist prop #'equal))
 
 (defun cider-plist-put (plist prop val)
-  "Change value in PLIST of PROP to VAL, comparing with `equal'.
-
-An alternative to `lax-plist-put' that got deprecated in Emacs 29."
-  (lax-plist-put plist prop val))
+  "Change value in PLIST of PROP to VAL, comparing with `equal'."
+  (compat-call plist-put plist prop val #'equal))
 
 
 ;;; Text properties
@@ -449,13 +446,13 @@ objects."
           candidates))
 
 (defun cider-add-to-alist (symbol car cadr)
-  "Add '(CAR CADR) to the alist stored in SYMBOL.
+  "Add (CAR CADR) to the alist stored in SYMBOL.
 If CAR already corresponds to an entry in the alist, destructively replace
 the entry's second element with CADR.
 
 This can be used, for instance, to update the version of an injected
 plugin or dependency with:
-  (cider-add-to-alist 'cider-jack-in-lein-plugins
+  (cider-add-to-alist \\='cider-jack-in-lein-plugins
                   \"plugin/artifact-name\" \"THE-NEW-VERSION\")"
   (let ((alist (symbol-value symbol)))
     (if-let* ((cons (assoc car alist)))
