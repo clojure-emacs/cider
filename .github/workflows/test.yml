@@ -83,36 +83,32 @@ jobs:
         get-command deps.exe | split-path -parent | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
     - name: Check out the source code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v6
 
     - name: Prepare java
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v6
       with:
         distribution: 'temurin'
-        # shadow requires java 11
         java-version: ${{matrix.java_version}}
 
     - name: Install Clojure Tools
-      # Use SHA until
-      # https://github.com/DeLaGuardo/setup-clojure/issues/78 is
-      # released
-      uses: DeLaGuardo/setup-clojure@1376ded6747c79645e82c856f16375af5f5de307
+      uses: DeLaGuardo/setup-clojure@13.5.2
       with:
-        bb: '1.0.165'
-        cli: '1.10.3.1013'
-        lein: '2.9.10'
+        bb: '1.12.214'
+        cli: '1.12.4.1602'
+        lein: '2.12.0'
 
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v6
       with:
-        node-version: 16
-    - run: npm install shadow-cljs@2.20.13 -g
-    - run: npm install nbb@1.1.152 -g
+        node-version: 22
+    - run: npm install shadow-cljs@2.28.23 -g
+    - run: npm install nbb@1.4.206 -g
 
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v6
       with:
         python-version: '3.12'
     - run: |
-        pip install basilisp==0.1.0b2
+        pip install basilisp==0.5.0
 
     - name: Test integration
       run: |
