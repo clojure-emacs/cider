@@ -14,17 +14,22 @@ on:
 permissions:
   contents: read #  to fetch code (actions/checkout)
 
+# Cancel superseded workflow runs on the same PR.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   integration:
     # Run integration tests for all OSs and EMACS_VERSIONs.
     runs-on: ${{matrix.os}}
 
     strategy:
+      # Don't cancel other matrix jobs when one fails.
+      fail-fast: false
       matrix:
         # Test all Emacs versions on Ubuntu.
         os: [ubuntu-latest]
-        # TODO: reenable snapshot once this is fixed https://app.circleci.com/pipelines/github/clojure-emacs/cider/2931/workflows/b7284759-c6d1-44dd-bbfc-e71709e3f62f/jobs/17699
-        # emacs_version: ['28.2', '29.3', '30.1', 'snapshot']
         emacs_version: ['28.2', '29.3', '30.1']
         java_version: ['21']
         include:
@@ -41,7 +46,7 @@ jobs:
 
     steps:
     - name: Set up Emacs
-      uses: jcs090218/setup-emacs@master
+      uses: jcs090218/setup-emacs@v3
       with:
         version: ${{matrix.emacs_version}}
 
@@ -67,12 +72,6 @@ jobs:
     - name: Install Eldev on MS-Windows
       if: startsWith (matrix.os, 'windows')
       run: |
-        # Remove expired DST Root CA X3 certificate. Workaround
-        # for https://debbugs.gnu.org/cgi/bugreport.cgi?bug=51038
-        # bug on Emacs 27.2.
-        gci cert:\LocalMachine\Root\DAC9024F54D8F6DF94935FB1732638CA6AD77C13
-        gci cert:\LocalMachine\Root\DAC9024F54D8F6DF94935FB1732638CA6AD77C13 | Remove-Item
-
         curl.exe -fsSL https://raw.github.com/doublep/eldev/master/webinstall/github-eldev.bat | cmd /Q
 
     - name: Install deps.clj on MS-Windows

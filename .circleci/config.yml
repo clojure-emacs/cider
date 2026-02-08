@@ -33,11 +33,6 @@ commands:
       - run:
           name: Install Eldev
           command: |
-            # Remove expired DST Root CA X3 certificate. Workaround
-            # for https://debbugs.gnu.org/cgi/bugreport.cgi?bug=51038
-            # bug on Emacs 27.2.
-            gci cert:\LocalMachine\Root\DAC9024F54D8F6DF94935FB1732638CA6AD77C13
-            gci cert:\LocalMachine\Root\DAC9024F54D8F6DF94935FB1732638CA6AD77C13 | Remove-Item
             (iwr https://raw.github.com/doublep/eldev/master/webinstall/circle-eldev.ps1).Content | powershell -command -
   test:
     steps:
@@ -54,16 +49,6 @@ commands:
           command: eldev -dtT compile --warnings-as-errors
 
 jobs:
-  # NB: commented until https://github.com/magit/transient/issues/368 or
-  # whatever is causing it is fixed.
-  # test-ubuntu-emacs-27:
-  #   docker:
-  #     - image: silex/emacs:27-ci
-  #       entrypoint: bash
-  #   steps:
-  #     - setup
-  #     - test
-
   test-ubuntu-emacs-28:
     docker:
       - image: silex/emacs:28-ci
@@ -88,14 +73,6 @@ jobs:
       - setup
       - test
 
-  test-ubuntu-emacs-master:
-    docker:
-      - image: silex/emacs:master-ci
-        entrypoint: bash
-    steps:
-      - setup
-      - test
-
   test-macos-emacs-latest:
     macos:
       xcode: "16.4.0"
@@ -115,7 +92,7 @@ jobs:
 
   test-shellcheck:
     docker:
-      - image: circleci/clojure:openjdk-17-lein-2.9.5-buster
+      - image: cimg/base:current
     steps:
       - checkout
       - shellcheck/install
@@ -134,10 +111,6 @@ workflows:
     jobs:
       - test-shellcheck
       - test-lint
-      # - test-ubuntu-emacs-27:
-      #     requires:
-      #       - test-lint
-      #       - test-shellcheck
       - test-ubuntu-emacs-28:
           requires:
             - test-lint
@@ -150,11 +123,6 @@ workflows:
           requires:
             - test-lint
             - test-shellcheck
-      # TODO: reenable once this issue is fixed https://app.circleci.com/pipelines/github/clojure-emacs/cider/2931/workflows/b7284759-c6d1-44dd-bbfc-e71709e3f62f/jobs/17699
-      # - test-ubuntu-emacs-master:
-      #     requires:
-      #       - test-lint
-      #       - test-shellcheck
       - test-windows-emacs-latest:
           requires:
             - test-lint
