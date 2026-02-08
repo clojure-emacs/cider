@@ -658,8 +658,7 @@ HISTORY-BUF is the history, and optional arg REGEXP is a filter."
                   (format "%s (of %s) %s in the command history shown."
                           (length items) history-length entry))
                 (substitute-command-keys
-                 (concat "  Type \\[cider-repl-history-quit] to quit.  "
-                         "\\[describe-mode] for help.")))))
+                 "  Type \\[cider-repl-history-quit] to quit.  \\[describe-mode] for help."))))
             (set-buffer-modified-p nil)
             (goto-char (point-min))
             (cider-repl-history-forward 0)
