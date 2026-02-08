@@ -136,7 +136,7 @@ value is thing at point."
                          (thing-at-point 'filename))
       (or (thing-at-point 'filename) ""))))
   (cider-ensure-op-supported "resource")
-  (when (= (length path) 0)
+  (when (string-empty-p path)
     (error "Cannot find resource for empty path"))
   (if-let* ((resource (cider-sync-request:resource path))
             (buffer (cider-find-file resource)))

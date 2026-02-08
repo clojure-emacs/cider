@@ -1597,7 +1597,7 @@ It does not yet set the input history."
 (defun cider-repl--find-dir-for-history ()
   "Find the first suitable directory to store the project's history."
   (seq-find
-   (lambda (dir) (and (not (null dir)) (not (tramp-tramp-file-p dir))))
+   (lambda (dir) (and dir (not (tramp-tramp-file-p dir))))
    (list nrepl-project-dir (clojure-project-dir) default-directory)))
 
 (defun cider-repl-history-load (&optional filename)

@@ -833,8 +833,7 @@ test selectors to filter the tests with."
                   (funcall cider-test-infer-test-ns (cider-current-ns t)))))
       (cider-test-execute ns nil silent prompt-for-filters)
     (if (eq major-mode 'cider-test-report-mode)
-        (when (y-or-n-p (concat "Test report does not define a namespace. "
-                                "Rerun failed/erring tests?"))
+        (when (y-or-n-p "Test report does not define a namespace. Rerun failed/erring tests?")
           (cider-test-rerun-failed-tests))
       (unless silent
         (message "No namespace to test in current context")))))
