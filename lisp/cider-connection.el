@@ -1006,10 +1006,10 @@ Returns a list of the form ((session1 host1) (session2 host2) ...)."
 
 (defun cider--extract-connections (sessions)
   "Returns a flattened list of all session buffers in SESSIONS."
-  (cl-reduce (lambda (x y)
-               (append x (cdr y)))
-             sessions
-             :initial-value '()))
+  (seq-reduce (lambda (x y)
+                (append x (cdr y)))
+              sessions
+              '()))
 
 (defun cider-repls (&optional type ensure required-ops)
   "Return cider REPLs of TYPE from the current session.

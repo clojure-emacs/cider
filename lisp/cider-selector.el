@@ -55,19 +55,19 @@ CONSIDER-VISIBLE-P will allow handling of visible windows as well.
 First pass only considers buffers that are not already visible.
 Second pass will attempt one of visible ones for scenarios where the window
 is visible, but not focused."
-  (cl-loop for buffer in (buffer-list)
-           when (and (with-current-buffer buffer
-                       (apply #'derived-mode-p (if (listp modes)
-                                                   modes
-                                                 (list modes))))
-                     ;; names starting with space are considered hidden by Emacs
-                     (not (string-match-p "^ " (buffer-name buffer)))
-                     (or consider-visible-p
-                         (null (get-buffer-window buffer 'visible))))
-           return buffer
-           finally (if consider-visible-p
-                       (error "Can't find unshown buffer in %S" modes)
-                     (cider-selector--recently-visited-buffer modes t))))
+  (or (seq-find (lambda (buffer)
+                  (and (with-current-buffer buffer
+                         (apply #'derived-mode-p (if (listp modes)
+                                                     modes
+                                                   (list modes))))
+                       ;; names starting with space are considered hidden by Emacs
+                       (not (string-match-p "^ " (buffer-name buffer)))
+                       (or consider-visible-p
+                           (null (get-buffer-window buffer 'visible)))))
+                (buffer-list))
+      (if consider-visible-p
+          (error "Can't find unshown buffer in %S" modes)
+        (cider-selector--recently-visited-buffer modes t))))
 
 ;;;###autoload
 (defun cider-selector (&optional other-window)
@@ -83,7 +83,7 @@ See `def-cider-selector-method' for defining new methods."
          (ch (save-window-excursion
                (select-window (minibuffer-window))
                (read-char)))
-         (method (cl-find ch cider-selector-methods :key #'car)))
+         (method (seq-find (lambda (m) (eql ch (car m))) cider-selector-methods)))
     (cond (method
            (funcall (caddr method)))
           (t
@@ -116,24 +116,25 @@ is chosen.  The returned buffer is selected with
                            (t
                             (switch-to-buffer buffer)))))))
     `(setq cider-selector-methods
-           (cl-sort (cons (list ,key ,description ,method)
-                          (cl-remove ,key cider-selector-methods :key #'car))
-                    #'< :key #'car))))
+           (sort (cons (list ,key ,description ,method)
+                       (seq-remove (lambda (m) (eql ,key (car m))) cider-selector-methods))
+                 (lambda (a b) (< (car a) (car b)))))))
 
 (def-cider-selector-method ?? "Selector help buffer."
   (ignore-errors (kill-buffer cider-selector-help-buffer))
   (with-current-buffer (get-buffer-create cider-selector-help-buffer)
     (insert "CIDER Selector Methods:\n\n")
-    (cl-loop for (key line nil) in cider-selector-methods
-             do (insert (format "%c:\t%s\n" key line)))
+    (dolist (entry cider-selector-methods)
+      (insert (format "%c:\t%s\n" (car entry) (cadr entry))))
     (goto-char (point-min))
     (help-mode)
     (display-buffer (current-buffer) t))
   (cider-selector)
   (current-buffer))
 
-(cl-pushnew (list ?4 "Select in other window" (lambda () (cider-selector t)))
-            cider-selector-methods :key #'car)
+(unless (seq-find (lambda (m) (eql ?4 (car m))) cider-selector-methods)
+  (push (list ?4 "Select in other window" (lambda () (cider-selector t)))
+        cider-selector-methods))
 
 (def-cider-selector-method ?c
   "Most recently visited clojure-mode buffer."

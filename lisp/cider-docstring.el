@@ -67,16 +67,16 @@ otherwise, it's included as-is."
   (when (and fragments
              (> (length fragments)
                 0))
-    (string-trim (cl-reduce (lambda (new-s fragment)
-                              (let* ((html? (equal "html" (nrepl-dict-get fragment "type")))
-                                     (v (nrepl-dict-get fragment "content")))
-                                (concat new-s (if html?
-                                                  (let ((shr-use-fonts nil)
-                                                        (shr-external-rendering-functions '((pre . cider--render-pre))))
-                                                    (cider--html-to-propertized-string v))
-                                                v))))
-                            fragments
-                            :initial-value ""))))
+    (string-trim (seq-reduce (lambda (new-s fragment)
+                               (let* ((html? (equal "html" (nrepl-dict-get fragment "type")))
+                                      (v (nrepl-dict-get fragment "content")))
+                                 (concat new-s (if html?
+                                                   (let ((shr-use-fonts nil)
+                                                         (shr-external-rendering-functions '((pre . cider--render-pre))))
+                                                     (cider--html-to-propertized-string v))
+                                                 v))))
+                             fragments
+                             ""))))
 
 (defcustom cider-docstring-max-lines 20
   "The maximum number of docstring lines that will be rendered in a UI widget (or the echo area).

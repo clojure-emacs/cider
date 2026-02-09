@@ -228,7 +228,7 @@ Each element of LOCALS should be a list of at least two elements."
 (defun cider--debug-propertize-prompt-commands ()
   "In-place format the command display names for the `cider-debug-prompt' overlay."
   (mapc (lambda (spec)
-          (cl-destructuring-bind (char _cmd disp-name) spec
+          (pcase-let ((`(,char ,_cmd ,disp-name) spec))
             (when-let* ((pos (seq-position disp-name char)))
               (put-text-property pos (1+ pos) 'face 'cider-debug-prompt-face disp-name))))
         cider-debug-prompt-commands))
@@ -238,14 +238,14 @@ Each element of LOCALS should be a list of at least two elements."
   ;; Force `default' face, otherwise the overlay "inherits" the face of the text
   ;; after it.
   (format (propertize "%s\n" 'face 'default)
-          (cl-reduce
+          (seq-reduce
            (lambda (prompt spec)
-             (cl-destructuring-bind (_char cmd disp) spec
-               (if (and disp (cl-find cmd commands :test 'string=))
+             (pcase-let ((`(,_char ,cmd ,disp) spec))
+               (if (and disp (seq-find (lambda (c) (string= cmd c)) commands))
                    (concat prompt " " disp)
                  prompt)))
            cider-debug-prompt-commands
-           :initial-value "")))
+           "")))
 
 (defvar-local cider--debug-prompt-overlay nil)
 
