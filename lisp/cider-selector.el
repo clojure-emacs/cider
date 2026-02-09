@@ -85,7 +85,7 @@ See `def-cider-selector-method' for defining new methods."
                (read-char)))
          (method (cl-find ch cider-selector-methods :key #'car)))
     (cond (method
-           (funcall (cl-caddr method)))
+           (funcall (caddr method)))
           (t
            (message "No method for character: ?\\%c" ch)
            (ding)

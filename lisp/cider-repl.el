@@ -1635,7 +1635,7 @@ Currently coding system for writing the contents is hardwired to
 utf-8-unix."
   (let* ((end (min (length cider-repl-input-history) cider-repl-history-size))
          ;; newest items are at the beginning of the list, thus 0
-         (hist (cl-subseq cider-repl-input-history 0 end)))
+         (hist (seq-subseq cider-repl-input-history 0 end)))
     (cond
      ((file-writable-p filename)
       (let ((print-length nil) (print-level nil))

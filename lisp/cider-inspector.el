@@ -599,7 +599,7 @@ from stack), `:next-inspectable' (move point to next inspectable object)."
           ((and (consp el) (eq (car el) :newline))
            (insert "\n"))
           ((and (consp el) (eq (car el) :value))
-           (cider-inspector-render-value (cadr el) (cl-caddr el)))
+           (cider-inspector-render-value (cadr el) (caddr el)))
           (t (message "Unrecognized inspector object: %s" el))))
 
   ;; Java-related headers indicate that the next elements to be rendered

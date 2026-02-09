@@ -981,7 +981,7 @@ no linked session or there is no REPL of TYPE within the current session."
                (let ((capabilities
                       (buffer-local-value 'cider-connection-capabilities buffer)))
                  (cond ((listp type)
-                        (cl-some (lambda (it) (member it capabilities)) type))
+                        (seq-some (lambda (it) (member it capabilities)) type))
                        (t (member type capabilities)))))))))
 
 (defun cider--get-host-from-session (session)

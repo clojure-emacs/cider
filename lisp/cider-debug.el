@@ -229,7 +229,7 @@ Each element of LOCALS should be a list of at least two elements."
   "In-place format the command display names for the `cider-debug-prompt' overlay."
   (mapc (lambda (spec)
           (cl-destructuring-bind (char _cmd disp-name) spec
-            (when-let* ((pos (cl-position char disp-name)))
+            (when-let* ((pos (seq-position disp-name char)))
               (put-text-property pos (1+ pos) 'face 'cider-debug-prompt-face disp-name))))
         cider-debug-prompt-commands))
 
