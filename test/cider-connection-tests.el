@@ -543,3 +543,93 @@
                                                                                     :project-dir "/Users/me/myproject"
                                                                                     :repl-type cider-connection-tests-dummy-function))
             :to-equal "*cider-repl me/myproject:localhost:12345(cider-connection-tests-dummy-function)*")))
+
+(describe "cider-default-session"
+
+  :var (sesman-sessions-hashmap sesman-links-alist ses-name ses-name2)
+
+  (before-each
+    (setq sesman-sessions-hashmap (make-hash-table :test #'equal)
+          sesman-links-alist nil
+          cider-default-session nil
+          ses-name "a-session"
+          ses-name2 "b-session"))
+
+  (after-each
+    (setq cider-default-session nil))
+
+  (describe "cider-repls with default session"
+    (it "returns REPLs from the default session regardless of project context"
+      (let ((a-dir (expand-file-name "/tmp/a-dir"))
+            (b-dir (expand-file-name "/tmp/b-dir")))
+        (let ((default-directory a-dir))
+          (with-repl-buffer ses-name 'clj b1
+            (with-repl-buffer ses-name 'cljs b2
+              (let ((default-directory b-dir))
+                (with-repl-buffer ses-name2 'clj b3
+                  (with-repl-buffer ses-name2 'cljs b4
+                    ;; Without default session, we get b-dir's session
+                    (expect (cider-repls) :to-equal (list b4 b3))
+
+                    ;; Set default session to a-session
+                    (setq cider-default-session ses-name)
+
+                    ;; Now we get a-session's REPLs even though we're in b-dir
+                    (expect (cider-repls) :to-have-same-items-as (list b1 b2))))))))))
+
+    (it "still filters by type when default session is set"
+      (let ((a-dir (expand-file-name "/tmp/a-dir"))
+            (b-dir (expand-file-name "/tmp/b-dir")))
+        (let ((default-directory a-dir))
+          (with-repl-buffer ses-name 'clj b1
+            (with-repl-buffer ses-name 'cljs b2
+              (let ((default-directory b-dir))
+                (with-repl-buffer ses-name2 'clj b3
+                  (setq cider-default-session ses-name)
+                  (expect (cider-repls 'clj) :to-equal (list b1))
+                  (expect (cider-repls 'cljs) :to-equal (list b2)))))))))
+
+    (it "returns nil and warns when default session no longer exists"
+      (let ((default-directory (expand-file-name "/tmp/a-dir")))
+        (with-repl-buffer ses-name 'clj _b1
+          (setq cider-default-session "nonexistent-session")
+          ;; Should warn and return nil (stale default session yields no REPLs)
+          (expect (cider-repls) :to-equal nil)))))
+
+  (describe "cider-set-default-session"
+    (it "sets the default session from active sessions"
+      (let ((default-directory (expand-file-name "/tmp/a-dir")))
+        (with-repl-buffer ses-name 'clj b1
+          (spy-on 'completing-read :and-return-value ses-name)
+          (cider-set-default-session)
+          (expect cider-default-session :to-equal ses-name)))))
+
+  (describe "cider-clear-default-session"
+    (it "clears the default session"
+      (setq cider-default-session "some-session")
+      (cider-clear-default-session)
+      (expect cider-default-session :to-equal nil)))
+
+  (describe "cider--connection-info with default session"
+    (before-each
+      (spy-on 'cider--java-version :and-return-value "1.7")
+      (spy-on 'cider--clojure-version :and-return-value "1.7.0")
+      (spy-on 'cider--nrepl-version :and-return-value "0.2.1"))
+
+    (it "appends default session info when set"
+      (with-temp-buffer
+        (setq-local nrepl-endpoint '(:host "localhost" :port 4005))
+        (setq-local nrepl-project-dir "proj")
+        (setq-local cider-repl-type 'clj)
+        (setq cider-default-session "my-session")
+        (expect (cider--connection-info (current-buffer))
+                :to-equal "CLJ proj@localhost:4005 (Java 1.7, Clojure 1.7.0, nREPL 0.2.1) [default session: my-session]")))
+
+    (it "does not append default session info when not set"
+      (with-temp-buffer
+        (setq-local nrepl-endpoint '(:host "localhost" :port 4005))
+        (setq-local nrepl-project-dir "proj")
+        (setq-local cider-repl-type 'clj)
+        (setq cider-default-session nil)
+        (expect (cider--connection-info (current-buffer))
+                :to-equal "CLJ proj@localhost:4005 (Java 1.7, Clojure 1.7.0, nREPL 0.2.1)")))))
