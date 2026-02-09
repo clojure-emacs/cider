@@ -296,6 +296,10 @@ If invoked with a prefix ARG eval the expression after inserting it."
     "--"
     ["Connection info" cider-describe-connection
      :active (cider-connected-p)]
+    ["Set default session" cider-set-default-session
+     :active (cider-connected-p)]
+    ["Clear default session" cider-clear-default-session
+     :active cider-default-session]
     ["Select any CIDER buffer" cider-selector]
     "--"
     ["Configure CIDER" (customize-group 'cider)]
