@@ -902,7 +902,7 @@ the corresponding type of response."
 (defun nrepl-next-request-id (connection)
   "Return the next request id for CONNECTION."
   (with-current-buffer connection
-    (number-to-string (cl-incf nrepl-request-counter))))
+    (number-to-string (setq nrepl-request-counter (1+ nrepl-request-counter)))))
 
 (defun nrepl-send-request (request callback connection &optional tooling)
   "Send REQUEST and register response handler CALLBACK using CONNECTION.
@@ -1413,7 +1413,7 @@ FOREGROUND and BUTTON are as in `nrepl-log-pp-object'."
       (if (null (cdr object))
           (insert ")\n")
         (let* ((indent (+ 2 (- (current-column) (length head))))
-               (sorted-pairs (sort (seq-partition (cl-copy-list (cdr object)) 2)
+               (sorted-pairs (sort (seq-partition (copy-sequence (cdr object)) 2)
                                    (lambda (a b)
                                      (string< (car a) (car b)))))
                (name-lengths (seq-map (lambda (pair) (length (car pair))) sorted-pairs))

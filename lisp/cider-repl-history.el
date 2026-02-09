@@ -492,8 +492,8 @@ Otherwise, return it unchanged."
 
 (defmacro cider-repl-history-add-overlays-for (item &rest body)
   "Add overlays for ITEM, and execute BODY."
-  (let ((beg (cl-gensym "cider-repl-history-add-overlays-"))
-        (end (cl-gensym "cider-repl-history-add-overlays-")))
+  (let ((beg (gensym "cider-repl-history-add-overlays-"))
+        (end (gensym "cider-repl-history-add-overlays-")))
     `(let ((,beg (point))
            (,end
             (progn

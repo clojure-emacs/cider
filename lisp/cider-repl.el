@@ -1102,7 +1102,7 @@ If NEWLINE is true then add a newline at the end of the input."
           (add-text-properties cider-repl-input-start-mark
                                (point)
                                `(cider-old-input
-                                 ,(cl-incf cider-repl-old-input-counter))))
+                                 ,(setq cider-repl-old-input-counter (1+ cider-repl-old-input-counter)))))
         (unless cider-repl-use-clojure-font-lock
           (let ((overlay (make-overlay cider-repl-input-start-mark end)))
             ;; These properties are on an overlay so that they won't be taken

@@ -308,7 +308,7 @@ the tags that must be shown."
                    (hide (cider-stacktrace--should-hide-p neg-filters
                                                           pos-filters
                                                           flags)))
-              (when hide (cl-incf hidden))
+              (when hide (setq hidden (1+ hidden)))
               (put-text-property (point) (line-beginning-position 2)
                                  'invisible hide)))
           (forward-line 1))
@@ -746,7 +746,7 @@ the NAME.  The whole group is prefixed by string INDENT."
   (let* ((str (and vals (replace-regexp-in-string "\n+\\'" "" (apply #'concat vals))))
          (id (and str
                   (string-match "\n" str)
-                  (cl-gensym name))))
+                  (gensym name))))
     (insert indent)
     (if id
         (let* ((beg-link (string-match "[^ :]" name))
