@@ -790,7 +790,7 @@ with the given LIMIT."
                                        cider-font-lock-dynamically))
         deprecated enlightened
         macros functions vars instrumented traced)
-    (cl-labels ((handle-plist
+    (cl-flet ((handle-plist
                  (plist)
                  ;; Note that (memq 'function cider-font-lock-dynamically) and similar statements are evaluated differently
                  ;; for `core' - they're always truthy for `core' (see related core-handling code some lines below):

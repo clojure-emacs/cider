@@ -335,7 +335,7 @@ fully initialized."
 PARAM-TUPLES are tuples of (param-key description) or (param-key
 description transform) where transform is called with the param-value if
 present."
-  (cl-labels
+  (cl-flet
       ((emit-comment
         (contents)
         (insert-before-markers

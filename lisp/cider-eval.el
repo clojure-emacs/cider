@@ -221,7 +221,7 @@ Returns the position at which PROPERTY was found, or nil if not found."
 _ARG and _RESET are ignored, as there is only ever one compilation error.
 They exist for compatibility with `next-error'."
   (interactive)
-  (cl-labels ((goto-next-note-boundary
+  (cl-flet ((goto-next-note-boundary
                ()
                (let ((p (or (cider-find-property 'cider-note-p)
                             (cider-find-property 'cider-note-p t))))

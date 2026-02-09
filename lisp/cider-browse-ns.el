@@ -268,7 +268,7 @@ list of items."
 (defun cider-browse-ns--render-items (items)
   "Render the nrepl-dict ITEMS to the browse-ns buffer."
   (let* ((max-length (cider-browse-ns--column-width items)))
-    (cl-labels
+    (cl-flet
         ((keys-from-pred
           (pred items)
           (nrepl-dict-keys (nrepl-dict-filter (lambda (_ var-meta)
