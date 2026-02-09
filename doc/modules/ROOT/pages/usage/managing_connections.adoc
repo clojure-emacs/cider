@@ -126,6 +126,22 @@ By default https://github.com/vspinu/sesman[Sesman] allows multiple simultaneous
 directories, but only one link per buffer. See `sesman-single-link-contexts` if
 you would like to change that.
 
+== Default Session
+
+If you'd rather bypass sesman's context-based session inference and always use a
+specific session, you can designate one as the *default session*.  When a default
+session is set, all REPL lookups (evaluation, completion, etc.) use it regardless
+of project context.  This is useful for monorepo setups, scratch buffers, or when
+working across multiple projects that share a single REPL.
+
+* `cider-set-default-session` -- prompts you to pick from the active sessions and sets it as the default.
+* `cider-clear-default-session` -- clears the default session, reverting to normal project-based session association.
+
+Both commands are also available from the CIDER menu.
+
+If the default session no longer exists (e.g. it was closed), CIDER will warn you
+and fall through to the normal session lookup.
+
 == Current REPL
 
 The current REPL is the most relevant REPL from the current session. REPL relevance

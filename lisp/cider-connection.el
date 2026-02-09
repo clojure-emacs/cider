@@ -82,6 +82,10 @@ All other values do not combine any sessions."
   :safe #'symbolp
   :package-version '(cider . "1.5"))
 
+(defvar cider-default-session nil
+  "When non-nil, bypass sesman and use this session for all REPL lookups.
+Set interactively with `cider-set-default-session'.")
+
 (defcustom cider-reuse-dead-repls 'prompt
   "How to deal with existing dead REPL buffers when initializing a connection.
 
@@ -481,30 +485,33 @@ Info contains project name, current REPL namespace, host:port endpoint and
 runtime details.  When GENERICP is non-nil, don't provide specific info
 about this buffer (like variable `cider-repl-type')."
   (with-current-buffer connection-buffer
-    (cond
-     ((cider--clojure-version)
-      (format "%s%s@%s:%s (Java %s, Clojure %s, nREPL %s)"
-              (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
-              (or (cider--project-name nrepl-project-dir) "<no project>")
-              (plist-get nrepl-endpoint :host)
-              (plist-get nrepl-endpoint :port)
-              (cider--java-version)
-              (cider--clojure-version)
-              (cider--nrepl-version)))
-     ((cider--babashka-version)
-      (format "%s%s@%s:%s (Babashka %s, babashka.nrepl %s)"
-              (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
-              (or (cider--project-name nrepl-project-dir) "<no project>")
-              (plist-get nrepl-endpoint :host)
-              (plist-get nrepl-endpoint :port)
-              (cider--babashka-version)
-              (cider--babashka-nrepl-version)))
-     (t
-      (format "%s%s@%s:%s"
-              (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
-              (or (cider--project-name nrepl-project-dir) "<no project>")
-              (plist-get nrepl-endpoint :host)
-              (plist-get nrepl-endpoint :port))))))
+    (let ((info (cond
+                 ((cider--clojure-version)
+                  (format "%s%s@%s:%s (Java %s, Clojure %s, nREPL %s)"
+                          (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
+                          (or (cider--project-name nrepl-project-dir) "<no project>")
+                          (plist-get nrepl-endpoint :host)
+                          (plist-get nrepl-endpoint :port)
+                          (cider--java-version)
+                          (cider--clojure-version)
+                          (cider--nrepl-version)))
+                 ((cider--babashka-version)
+                  (format "%s%s@%s:%s (Babashka %s, babashka.nrepl %s)"
+                          (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
+                          (or (cider--project-name nrepl-project-dir) "<no project>")
+                          (plist-get nrepl-endpoint :host)
+                          (plist-get nrepl-endpoint :port)
+                          (cider--babashka-version)
+                          (cider--babashka-nrepl-version)))
+                 (t
+                  (format "%s%s@%s:%s"
+                          (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
+                          (or (cider--project-name nrepl-project-dir) "<no project>")
+                          (plist-get nrepl-endpoint :host)
+                          (plist-get nrepl-endpoint :port))))))
+      (if cider-default-session
+          (format "%s [default session: %s]" info cider-default-session)
+        info))))
 
 (defvar-local cider-connection-capabilities '()
   "A list of some of the capabilities of this connection buffer.
@@ -607,6 +614,24 @@ REPL defaults to the current REPL."
       (insert (format "Currently loaded middleware:\n"))
       (mapc (lambda (mw) (insert (format "  * %s\n" mw))) middleware))
     (display-buffer "*cider-nrepl-middleware*")))
+
+(defun cider-set-default-session ()
+  "Set the default session for all REPL lookups.
+When a default session is set, all evaluations use it
+regardless of project context."
+  (interactive)
+  (let* ((sessions (cider-sessions))
+         (session-names (mapcar #'car sessions))
+         (name (completing-read "Set default CIDER session: " session-names nil t)))
+    (setq cider-default-session name)
+    (message "Default CIDER session set to '%s'" name)))
+
+(defun cider-clear-default-session ()
+  "Clear the default CIDER session.
+Reverts to normal project-based session association."
+  (interactive)
+  (setq cider-default-session nil)
+  (message "Default CIDER session cleared"))
 
 
 ;;; Sesman's Session-Wise Management UI
@@ -1021,24 +1046,29 @@ filters out all the REPLs that do not support the designated ops."
                ((listp type)
                 (mapcar #'cider-maybe-intern type))
                ((cider-maybe-intern type))))
-        (repls (pcase cider-merge-sessions
-                 ('host
-                  (if ensure
-                      (or (cider--extract-connections (cider--get-sessions-with-same-host
-                                                       (sesman-current-session 'CIDER)
-                                                       (sesman-current-sessions 'CIDER)))
-                          (user-error "No linked %s sessions" 'CIDER))
-                    (cider--extract-connections (cider--get-sessions-with-same-host
-                                                 (sesman-current-session 'CIDER)
-                                                 (sesman-current-sessions 'CIDER)))))
-                 ('project
-                  (if ensure
-                      (or (cider--extract-connections (sesman-current-sessions 'CIDER))
-                          (user-error "No linked %s sessions" 'CIDER))
-                    (cider--extract-connections (sesman-current-sessions 'CIDER))))
-                 (_ (cdr (if ensure
-                             (sesman-ensure-session 'CIDER)
-                           (sesman-current-session 'CIDER)))))))
+        (repls (if cider-default-session
+                   (if-let* ((session (sesman-session 'CIDER cider-default-session)))
+                       (cdr session)
+                     (message "Default CIDER session '%s' no longer exists, ignoring" cider-default-session)
+                     nil)
+                 (pcase cider-merge-sessions
+                   ('host
+                    (if ensure
+                        (or (cider--extract-connections (cider--get-sessions-with-same-host
+                                                         (sesman-current-session 'CIDER)
+                                                         (sesman-current-sessions 'CIDER)))
+                            (user-error "No linked %s sessions" 'CIDER))
+                      (cider--extract-connections (cider--get-sessions-with-same-host
+                                                   (sesman-current-session 'CIDER)
+                                                   (sesman-current-sessions 'CIDER)))))
+                   ('project
+                    (if ensure
+                        (or (cider--extract-connections (sesman-current-sessions 'CIDER))
+                            (user-error "No linked %s sessions" 'CIDER))
+                      (cider--extract-connections (sesman-current-sessions 'CIDER))))
+                   (_ (cdr (if ensure
+                               (sesman-ensure-session 'CIDER)
+                             (sesman-current-session 'CIDER))))))))
     (or (seq-filter (lambda (b)
                       (unless
                           (cider-cljs-pending-p b)

@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### New features
+
+- [#3865](https://github.com/clojure-emacs/cider/pull/3865): Add default session feature to bypass sesman's project-based dispatch (`cider-set-default-session`, `cider-clear-default-session`).
+
 ## 1.21.0 (2026-02-07)
 
 ### Changes
