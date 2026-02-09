@@ -1145,7 +1145,7 @@ are not balanced."
 If REPLACE is non-nil the current input is replaced with the old
 input; otherwise the new input is appended.  The old input has the
 text property `cider-old-input'."
-  (cl-multiple-value-bind (beg end) (cider-property-bounds 'cider-old-input)
+  (pcase-let ((`(,beg ,end) (cider-property-bounds 'cider-old-input)))
     (let ((old-input (buffer-substring beg end)) ;;preserve
           ;;properties, they will be removed later
           (offset (- (point) beg)))
@@ -1471,9 +1471,10 @@ Empty strings and duplicates are ignored."
 Search in DIRECTION for REGEXP.
 Return -1 resp the length of the history if no item matches."
   ;; Loop through the history list looking for a matching line
-  (let* ((step (cl-ecase direction
-                 (forward -1)
-                 (backward 1)))
+  (let* ((step (pcase direction
+                 ('forward -1)
+                 ('backward 1)
+                 (_ (error "Invalid direction: %s" direction))))
          (history cider-repl-input-history)
          (len (length history)))
     (cl-loop for pos = (+ start-pos step) then (+ pos step)

@@ -627,9 +627,10 @@ LIMIT is the maximum or minimum position in the current buffer.
 Return a list of two values: If an object could be found, the
 starting position of the found object and T is returned;
 otherwise LIMIT and NIL is returned."
-  (let ((finder (cl-ecase direction
-                  (next 'next-single-property-change)
-                  (prev 'previous-single-property-change))))
+  (let ((finder (pcase direction
+                  ('next 'next-single-property-change)
+                  ('prev 'previous-single-property-change)
+                  (_ (error "Invalid direction: %s" direction)))))
     (let ((prop nil) (curpos (point)))
       (while (and (not prop) (not (= curpos limit)))
         (let ((newpos (funcall finder curpos 'cider-value-idx nil limit)))

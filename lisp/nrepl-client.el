@@ -1222,7 +1222,7 @@ close any existing client connections."
      ;; descriptions for signals to "unknown signal". We correct this by
      ;; resetting it back to its canonical value.
      (when (eq (process-status process) 'signal)
-       (cl-case (process-exit-status process)
+       (pcase (process-exit-status process)
          ;; SIGHUP==1 emacs nt/inc/ms-w32.h
          (1 (setq event "Hangup"))
          ;; SIGINT==2 x86_64-w64-mingw32/include/signal.h

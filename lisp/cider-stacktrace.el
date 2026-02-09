@@ -376,7 +376,9 @@ grouped with a suppressed error type."
 (defun cider-stacktrace-suppress-error (error-type)
   "Destructively add ERROR-TYPE to the `cider-stacktrace-suppressed-errors' set."
   (setq cider-stacktrace-suppressed-errors
-        (cl-adjoin error-type cider-stacktrace-suppressed-errors :test 'equal)))
+        (if (member error-type cider-stacktrace-suppressed-errors)
+            cider-stacktrace-suppressed-errors
+          (cons error-type cider-stacktrace-suppressed-errors))))
 
 (defun cider-stacktrace-promote-error (error-type)
   "Destructively remove ERROR-TYPE from `cider-stacktrace-suppressed-errors'."

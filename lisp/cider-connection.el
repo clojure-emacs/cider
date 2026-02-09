@@ -1068,20 +1068,20 @@ session."
   (let ((cur-type (cider-repl-type-for-buffer))
         (which-key (or (car-safe which) which))
         (required-ops (cdr-safe which)))
-    (cl-case which-key
+    (pcase which-key
       (:clj-strict (when (eq cur-type 'cljs)
                      (user-error "Clojure-only operation requested in a ClojureScript buffer")))
       (:cljs-strict (when (eq cur-type 'clj)
                       (user-error "ClojureScript-only operation requested in a Clojure buffer"))))
-    (let* ((type (cl-case which-key
-                   ((:clj :clj-strict) 'clj)
-                   ((:cljs :cljs-strict) 'cljs)
+    (let* ((type (pcase which-key
+                   ((or :clj :clj-strict) 'clj)
+                   ((or :cljs :cljs-strict) 'cljs)
                    (:auto (if (eq cur-type 'multi)
                               '(clj cljs)
                             cur-type))))
-           (ensure (cl-case which-key
+           (ensure (pcase which-key
                      (:auto nil)
-                     (t 'ensure)))
+                     (_ 'ensure)))
            (repls (cider-repls type ensure required-ops)))
       (mapcar function repls))))
 

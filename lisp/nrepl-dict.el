@@ -96,23 +96,21 @@ Return new dict.  Dict is modified by side effects."
 (defun nrepl-dict-keys (dict)
   "Return all the keys in the nREPL DICT."
   (if (nrepl-dict-p dict)
-      (cl-loop for l on (cdr dict) by #'cddr
-               collect (car l))
+      (mapcar #'car (seq-partition (cdr dict) 2))
     (error "Not an nREPL dict object: %s" dict)))
 
 (defun nrepl-dict-vals (dict)
   "Return all the values in the nREPL DICT."
   (if (nrepl-dict-p dict)
-      (cl-loop for l on (cdr dict) by #'cddr
-               collect (cadr l))
+      (mapcar #'cadr (seq-partition (cdr dict) 2))
     (error "Not an nREPL dict object: %s" dict)))
 
 (defun nrepl-dict-map (fn dict)
   "Map FN on nREPL DICT.
 FN must accept two arguments key and value."
   (if (nrepl-dict-p dict)
-      (cl-loop for l on (cdr dict) by #'cddr
-               collect (funcall fn (car l) (cadr l)))
+      (mapcar (lambda (pair) (funcall fn (car pair) (cadr pair)))
+              (seq-partition (cdr dict) 2))
     (error "Not an nREPL dict object: %s" dict)))
 
 (defun nrepl-dict-merge (dict1 dict2)
@@ -217,8 +215,9 @@ If NO-JOIN is given, return the first non nil dict."
   "Destructure an nREPL RESPONSE dict.
 Bind the value of the provided KEYS and execute BODY."
   (declare (debug (form (&rest symbolp) body)))
-  `(let ,(cl-loop for key in keys
-                  collect `(,key (nrepl-dict-get ,response ,(format "%s" key))))
+  `(let ,(mapcar (lambda (key)
+                   `(,key (nrepl-dict-get ,response ,(format "%s" key))))
+                 keys)
      ,@body))
 (put 'nrepl-dbind-response 'lisp-indent-function 2)
 

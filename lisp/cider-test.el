@@ -451,7 +451,7 @@ If ELAPSED-TIME is provided it will be included in the summary."
                 (insert "\n")))
             (if diffs
                 (dolist (d diffs)
-                  (cl-destructuring-bind (actual (removed added)) d
+                  (pcase-let ((`(,actual (,removed ,added)) d))
                     (insert-label "actual")
                     (insert-rect actual)
                     (insert "\n")
