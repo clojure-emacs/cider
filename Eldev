@@ -67,8 +67,6 @@
 ;; CIDER cannot be compiled otherwise.
 (setf eldev-build-load-before-byte-compiling t)
 
-(setf eldev-lint-default '(elisp))
-(with-eval-after-load 'elisp-lint
-  ;; We will byte-compile with Eldev.
-  (setf elisp-lint-ignored-validators '("package-lint" "fill-column" "byte-compile")
-        enable-local-variables        :safe))
+;; package-lint is disabled because nrepl-*.el files intentionally use
+;; the `nrepl-' prefix instead of the `cider-' package prefix.
+(setf eldev-lint-default '(checkdoc))
