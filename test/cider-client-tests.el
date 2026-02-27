@@ -143,6 +143,23 @@
       (let ((ns "  (ns bar)\n"))
         (expect (cider-ns-form-p ns) :to-equal 0))))
 
+(describe "cider--nrepl-format-code-request-options"
+  (it "preserves non-map formatter options"
+    (let ((opts (cider--nrepl-format-code-request-options
+                 '(("remove-consecutive-blank-lines?" t)
+                   ("remove-multiple-non-indenting-spaces?" t)))))
+      (expect (nrepl-dict-get opts "remove-consecutive-blank-lines?") :to-be-truthy)
+      (expect (nrepl-dict-get opts "remove-multiple-non-indenting-spaces?") :to-be-truthy)))
+
+  (it "encodes nested map formatter options as nREPL dicts"
+    (let* ((opts (cider--nrepl-format-code-request-options
+                  '(("indents" (("org.me/foo" (("inner" 0)))))
+                    ("alias-map" (("me" "org.me"))))))
+           (indents (nrepl-dict-get opts "indents"))
+           (alias-map (nrepl-dict-get opts "alias-map")))
+      (expect (nrepl-dict-get indents "org.me/foo") :to-equal '(("inner" 0)))
+      (expect (nrepl-dict-get alias-map "me") :to-equal "org.me"))))
+
 (describe "cider-expected-ns"
   (before-each
     (spy-on 'cider-connected-p :and-return-value t)
