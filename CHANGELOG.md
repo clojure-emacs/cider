@@ -6,6 +6,10 @@
 
 - [#3865](https://github.com/clojure-emacs/cider/pull/3865): Add default session feature to bypass sesman's project-based dispatch (`cider-set-default-session`, `cider-clear-default-session`).
 
+### Bugs fixed
+
+- [#3209](https://github.com/clojure-emacs/cider/issues/3209): Fix `cider-format` dropping non-map cljfmt options (e.g. `remove-consecutive-blank-lines?`).
+
 ## 1.21.0 (2026-02-07)
 
 ### Changes
