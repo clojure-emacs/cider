@@ -9,6 +9,9 @@
 ### Bugs fixed
 
 - [#3209](https://github.com/clojure-emacs/cider/issues/3209): Fix `cider-format` dropping non-map cljfmt options (e.g. `remove-consecutive-blank-lines?`).
+### Changes
+
+- Bump the injected nREPL version to 1.6.
 
 ## 1.21.0 (2026-02-07)
 
