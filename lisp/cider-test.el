@@ -61,6 +61,9 @@
   :type 'boolean
   :package-version '(cider . "0.9.0"))
 
+(defvar cider-test--spinner-buffers nil
+  "List of buffers where test spinners are active.")
+
 (defvar cider-test--current-repl nil
   "Contains the reference to the REPL where the tests were last invoked from.
 This is needed for *cider-test-report* navigation
@@ -540,6 +543,26 @@ timing data for the overall run, per-namespace, and per-var respectively."
       (current-buffer))))
 
 
+;;; Test spinner
+
+(defun cider-test-spinner-start (buffer)
+  "Start a test spinner in BUFFER.
+Uses `cider-show-spinner' to decide whether to show it.
+Tracks BUFFER for later cleanup by `cider-test-spinner-stop'."
+  (when (and cider-show-spinner
+             (buffer-live-p buffer)
+             (not (memq buffer cider-test--spinner-buffers)))
+    (cider-spinner-start buffer)
+    (push buffer cider-test--spinner-buffers)))
+
+(defun cider-test-spinner-stop ()
+  "Stop all active test spinners."
+  (dolist (buffer cider-test--spinner-buffers)
+    (when (buffer-live-p buffer)
+      (with-current-buffer buffer
+        (when spinner-current (spinner-stop)))))
+  (setq cider-test--spinner-buffers nil))
+
 ;;; Message echo
 
 (defun cider-test-echo-running (ns &optional test)
@@ -723,6 +746,7 @@ running them."
               ;; we generate a different message when running individual tests
               (cider-test-echo-running ns (car tests))
             (cider-test-echo-running ns)))
+        (cider-test-spinner-start (current-buffer))
         (setq cider-test--current-repl conn)
         (let* ((retest? (eq :non-passing ns))
                (request `("op" ,(cond ((stringp ns)         "test")
@@ -747,6 +771,10 @@ running them."
            request
            (lambda (response)
              (nrepl-dbind-response response (summary results status out err elapsed-time ns-elapsed-time var-elapsed-time)
+               (when (or (member "done" status)
+                         (member "error" status)
+                         (member "namespace-not-found" status))
+                 (cider-test-spinner-stop))
                (cond ((member "namespace-not-found" status)
                       (unless silent
                         (message "No test namespace: %s" (cider-propertize ns 'ns))))
