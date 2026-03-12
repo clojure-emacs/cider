@@ -377,7 +377,7 @@ If CLI-COMMAND is nil, then use the default."
                 (cider-itu-poll-until (not (eq (process-status nrepl-proc) 'run)) 5)
                 (expect (member (process-status nrepl-proc) '(exit signal))))))))))
 
-  (it "to shadow"
+  (xit "to shadow" ;; disabled: shadow-cljs 2.20.13 incompatible with nREPL 1.6
     ;; shadow asks user whether they want to open a browser, force to no
     (spy-on 'y-or-n-p)
 
