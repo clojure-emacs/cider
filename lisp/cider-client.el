@@ -40,9 +40,13 @@
 (require 'nrepl-client)
 
 
-;;; Eval spinner
-(defcustom cider-eval-spinner-type 'progress-bar
-  "Appearance of the evaluation spinner.
+;;; Spinner
+(define-obsolete-variable-alias 'cider-eval-spinner-type 'cider-spinner-type "1.18.0")
+(define-obsolete-variable-alias 'cider-show-eval-spinner 'cider-show-spinner "1.18.0")
+(define-obsolete-variable-alias 'cider-eval-spinner-delay 'cider-spinner-delay "1.18.0")
+
+(defcustom cider-spinner-type 'progress-bar
+  "Appearance of the spinner.
 
 Value is a symbol.  The possible values are the symbols in the
 `spinner-types' variable."
@@ -50,14 +54,14 @@ Value is a symbol.  The possible values are the symbols in the
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
-(defcustom cider-show-eval-spinner t
-  "When true, show the evaluation spinner in the mode line."
+(defcustom cider-show-spinner t
+  "When true, show a spinner in the mode line for long-running operations."
   :type 'boolean
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
-(defcustom cider-eval-spinner-delay 1
-  "Amount of time, in seconds, after which the evaluation spinner will be shown."
+(defcustom cider-spinner-delay 1
+  "Amount of time, in seconds, after which the spinner will be shown."
   :type 'integer
   :group 'cider
   :package-version '(cider . "0.10.0"))
@@ -83,12 +87,12 @@ resulting value are used to compute completions."
   :package-version '(cider . "1.2.0"))
 
 (defun cider-spinner-start (buffer)
-  "Start the evaluation spinner in BUFFER.
-Do nothing if `cider-show-eval-spinner' is nil."
-  (when cider-show-eval-spinner
+  "Start a spinner in BUFFER.
+Do nothing if `cider-show-spinner' is nil."
+  (when cider-show-spinner
     (with-current-buffer buffer
-      (spinner-start cider-eval-spinner-type nil
-                     cider-eval-spinner-delay))))
+      (spinner-start cider-spinner-type nil
+                     cider-spinner-delay))))
 
 (defun cider-eval-spinner (eval-buffer response)
   "Handle RESPONSE stopping the spinner.
@@ -227,7 +231,7 @@ buffer, defaults to (cider-current-repl)."
     (run-hooks 'cider-before-eval-hook)
     (nrepl-request:eval input
                         (lambda (response)
-                          (when cider-show-eval-spinner
+                          (when cider-show-spinner
                             (cider-eval-spinner connection response))
                           (when (and (buffer-live-p eval-buffer)
                                      (member "done" (nrepl-dict-get response "status")))
