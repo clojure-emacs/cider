@@ -13,8 +13,7 @@
 ### Changes
 
 - Bump the injected nREPL version to 1.6.
-### Changes
-
+- Convert modern tuple-format indent specs (e.g. `[[:block 1] [:inner 0]]`) to legacy format for compatibility with older clojure-mode versions.
 - Rename `cider-eval-spinner-type`, `cider-show-eval-spinner`, and `cider-eval-spinner-delay` to `cider-spinner-type`, `cider-show-spinner`, and `cider-spinner-delay`.  The old names are kept as obsolete aliases.
 
 ## 1.21.0 (2026-02-07)

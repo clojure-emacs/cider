@@ -543,6 +543,70 @@ Any other value is just returned."
       (mapcar #'cider--deep-vector-to-list x)
     x))
 
+(defun cider--modern-indent-spec-p (spec)
+  "Return non-nil if SPEC is a modern tuple-based indent spec.
+Modern specs are lists of rules like ((:block N)) or ((:inner D))."
+  (and (listp spec)
+       spec
+       (cl-every (lambda (rule)
+                   (and (listp rule)
+                        (memq (car rule) '(:block :inner))))
+                 spec)))
+
+(defun cider--indent-spec-to-legacy (spec)
+  "Convert a modern indent SPEC to legacy format for older clojure-mode.
+Returns SPEC unchanged if it is not in modern format.
+
+Modern format uses ((:block N)), ((:inner D)), ((:inner D I)).
+Legacy format uses integers, :defn, and positional lists.
+
+This ensures compatibility with clojure-mode versions that don't
+understand the modern format."
+  (if (not (cider--modern-indent-spec-p spec))
+      spec
+    (let ((block-n nil)
+          (inner-no-idx nil)
+          (inner-with-idx nil))
+      (dolist (rule spec)
+        (pcase rule
+          (`(:block ,n) (setq block-n n))
+          (`(:inner ,d) (push d inner-no-idx))
+          (`(:inner ,d ,i) (push (cons d i) inner-with-idx))))
+      (cond
+       ;; Simple: only (:block N)
+       ((and block-n (null inner-no-idx) (null inner-with-idx))
+        block-n)
+       ;; Simple: only (:inner 0)
+       ((and (null block-n) (null inner-with-idx)
+             (equal inner-no-idx '(0)))
+        :defn)
+       ;; Complex: build positional list
+       (t
+        (let ((result (list))
+              (wrap-defn (lambda (depth)
+                           (let ((s :defn))
+                             (dotimes (_ depth)
+                               (setq s (list s)))
+                             s))))
+          (when block-n
+            (setq result (list block-n)))
+          ;; Place indexed :inner rules at their positions
+          (dolist (ir inner-with-idx)
+            (let* ((depth (car ir))
+                   (idx (cdr ir))
+                   (pos (+ (if block-n 1 0) idx))
+                   (wrapped (funcall wrap-defn depth)))
+              (while (<= (length result) pos)
+                (setq result (append result (list nil))))
+              (setf (nth pos result) wrapped)))
+          ;; Append non-indexed :inner rules (ascending depth)
+          (dolist (depth (sort inner-no-idx #'<))
+            (setq result (append result (list (funcall wrap-defn depth)))))
+          ;; Trailing nil for specs with indexed rules
+          (when inner-with-idx
+            (setq result (append result (list nil))))
+          result))))))
+
 
 ;;; Help mode
 

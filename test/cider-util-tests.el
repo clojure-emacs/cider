@@ -283,6 +283,40 @@ buffer."
     (expect (cider--deep-vector-to-list '[bug]) :to-equal '(bug))
     (expect (cider--deep-vector-to-list '(bug)) :to-equal '(bug))))
 
+(describe "cider--modern-indent-spec-p"
+  (it "recognizes modern specs"
+    (expect (cider--modern-indent-spec-p '((:block 1))) :to-be-truthy)
+    (expect (cider--modern-indent-spec-p '((:inner 0))) :to-be-truthy)
+    (expect (cider--modern-indent-spec-p '((:block 1) (:inner 2 0))) :to-be-truthy))
+
+  (it "rejects legacy and non-spec values"
+    (expect (cider--modern-indent-spec-p 1) :not :to-be-truthy)
+    (expect (cider--modern-indent-spec-p :defn) :not :to-be-truthy)
+    (expect (cider--modern-indent-spec-p '(1 (:defn))) :not :to-be-truthy)))
+
+(describe "cider--indent-spec-to-legacy"
+  (it "converts simple modern specs"
+    (expect (cider--indent-spec-to-legacy '((:block 0))) :to-equal 0)
+    (expect (cider--indent-spec-to-legacy '((:block 1))) :to-equal 1)
+    (expect (cider--indent-spec-to-legacy '((:inner 0))) :to-equal :defn))
+
+  (it "converts complex multi-rule specs"
+    (expect (cider--indent-spec-to-legacy '((:block 1) (:inner 2 0)))
+            :to-equal '(1 ((:defn)) nil))
+    (expect (cider--indent-spec-to-legacy '((:block 2) (:inner 1)))
+            :to-equal '(2 (:defn)))
+    (expect (cider--indent-spec-to-legacy '((:block 1) (:inner 1)))
+            :to-equal '(1 (:defn)))
+    (expect (cider--indent-spec-to-legacy '((:block 1) (:inner 0)))
+            :to-equal '(1 :defn))
+    (expect (cider--indent-spec-to-legacy '((:inner 0) (:inner 1)))
+            :to-equal '(:defn (:defn))))
+
+  (it "returns legacy specs unchanged"
+    (expect (cider--indent-spec-to-legacy 1) :to-equal 1)
+    (expect (cider--indent-spec-to-legacy :defn) :to-equal :defn)
+    (expect (cider--indent-spec-to-legacy '(1 (:defn))) :to-equal '(1 (:defn)))))
+
 (describe "cider-version-sans-patch"
   :var (cider-version)
   (it "returns the version sans the patch"
