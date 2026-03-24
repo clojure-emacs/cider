@@ -233,17 +233,18 @@ For reference, the same specs in the legacy positional format:
 
 Many macros have a number of "special" arguments, followed by an arbitrary
 number of "non-special" arguments (sometimes called the body). The "non-special"
-arguments have a small indentation (usually 2 spaces). The special arguments
+arguments have body-style indentation (2 spaces). The special arguments
 are usually on the same line as the macro name, but, when necessary, they are
 placed on a separate line with additional indentation.
 
-For instance, `defrecord` has two special arguments, and here's how it might be indented:
+This is controlled by the `[:block N]` rule. For instance, `defrecord` has
+`[:block 2]` (two special arguments), and here's how it might be indented:
 
 [source,clojure]
 ----
 (defrecord TheNameOfTheRecord
-    [a pretty long argument list]
-  SomeType
+    [a pretty long argument list]   ;; special arg — extra indent
+  SomeType                          ;; body — 2 spaces
   (assoc [_ x]
     (.assoc pretty x 10)))
 ----
@@ -261,11 +262,11 @@ Here's another way one could do it:
 
 _The point of the indent spec is *not* to specify how many spaces to use._
 
-The point is just to say "a defrecord has *2* special arguments", and then let
-the editor and the user come to an agreement on how many spaces they like to use
-for special and non-special arguments.
+The point is just to say "a defrecord has *2* special arguments" (via
+`[:block 2]`), and then let the editor and the user come to an agreement on how
+many spaces they like to use for special and non-special arguments.
 
-== Internal indentation
+== Internal Indentation (Depth)
 
 The issue goes a bit deeper. Note the last argument in that `defrecord`. A
 regular function form would be internally indented as:
@@ -275,18 +276,37 @@ regular function form would be internally indented as:
        (.assoc pretty x 10))
 ----
 
-But this is not a regular function call, it's a definition. So we want to
-specify that this form internally has 1 special argument (the arglist vector),
-so that it will be indented like this:
+But this is not a regular function call, it's a method definition. So we want
+the method body to get body-style indentation:
 
 ----
 (assoc [_ x]
   (.assoc pretty x 10))
 ----
 
-The indent spec does this as well. It lets you specify that, for each argument
-beyond the 2nd, if it is a form, it should be internally indented as having 1
-special argument.
+This is what the `[:inner 1]` rule does — it says "at depth 1 (inside the
+arguments of this form), use body-style indentation." Combined with
+`[:block 2]`, the full spec `[[:block 2] [:inner 1]]` gives defrecord both
+special argument handling and correct method body indentation.
+
+== Namespace-Qualified Symbols
+
+In `clojure-mode`, you can specify different indentation for the same symbol
+depending on its namespace. This is useful when a library redefines a form
+with different semantics:
+
+[source,lisp]
+----
+;; Default indentation for `do`
+(put-clojure-indent 'do '((:block 0)))
+
+;; Custom indentation for `my-ns/do`
+(put-clojure-indent 'my-ns/do '((:block 1)))
+----
+
+When a namespace-qualified symbol has no explicit spec, `clojure-mode`
+automatically falls back to the unqualified symbol's spec. For example,
+`clojure.core/let` uses the same spec as `let`.
 
 == Indentation inference
 
