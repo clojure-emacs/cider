@@ -93,13 +93,16 @@ To get `clojure-mode` to indent it properly you'll need to add the following cod
 
 [source,lisp]
 ----
-(put-clojure-indent 'with-in-str 1)
+(put-clojure-indent 'with-in-str '((:block 1)))
 
 ;; or
 
 (define-clojure-indent
-  (with-in-str 1)
+  (with-in-str '((:block 1))))
 ----
+
+NOTE: The legacy shorthand `(put-clojure-indent 'with-in-str 1)` is also
+accepted for backward compatibility but will be removed in clojure-mode 6.
 
 TIP: You can find more details https://github.com/clojure-emacs/clojure-mode#indentation-of-macro-forms[here].
 
@@ -128,13 +131,13 @@ they've written (using an example in core):
   (baz))
 ----
 
-And here's a more complex one:
+And here's a more complex one using the modern tuple format:
 
 [source,clojure]
 ----
 (defmacro letfn
   "[DOCSTRING]"
-  {:style/indent [1 [[:defn]] :form]}
+  {:style/indent [[:block 1] [:inner 2 0]]}
   [fnspecs & body]
   ...cut for brevity...)
 
@@ -151,6 +154,9 @@ Don't worry if this looks intimidating. For most macros the indent spec should
 be either just a number, or one of the keywords `:defn` or `:form`. A full
 description of the spec is provided in the
 xref:indent_spec.adoc[indent spec section of the manual].
+
+NOTE: The legacy positional format (e.g., `[1 [[:defn]] :form]`) is also
+accepted but will be removed in clojure-mode 6.
 
 If you _don't_ want to use this feature, you can disable it by setting
 `cider-dynamic-indentation` to `nil` in your Emacs init file.

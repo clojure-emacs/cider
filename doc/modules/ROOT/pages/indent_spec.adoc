@@ -15,7 +15,44 @@ under the `:style/indent` key.
   ...cut for brevity...)
 ----
 
-It can take one of 3 forms:
+There are two supported formats for indent specs: the **modern tuple format**
+(preferred) and the **legacy positional format** (deprecated, will be removed in
+clojure-mode 6).
+
+=== Modern format (preferred)
+
+The modern format uses explicit rule tuples and is shared across `clojure-mode`,
+`clojure-ts-mode`, and `cljfmt`. Each rule is a vector of the form
+`[:block N]` or `[:inner D]` or `[:inner D I]`:
+
+[cols="1,3"]
+|===
+| Rule | Meaning
+
+| `[:block N]`
+| The first N arguments are "special" (indented further); remaining arguments are body.
+
+| `[:inner D]`
+| At nesting depth D inside the form, use body-style indentation.
+
+| `[:inner D I]`
+| Like `:inner`, but only applies at position I within the enclosing form.
+|===
+
+Rules are combined in a vector. For example:
+
+* `1` or `[[:block 1]]` — one special arg, then body (e.g., `when`, `let`)
+* `:defn` or `[[:inner 0]]` — all args are body (e.g., `defn`, `fn`)
+* `[[:block 2] [:inner 1]]` — two special args, nested sub-forms get body indent (e.g., `defrecord`, `deftype`)
+* `[[:block 1] [:inner 2 0]]` — one special arg, depth-2 nesting at position 0 (e.g., `letfn`)
+
+Simple specs (an integer or `:defn`) are shorthand for the corresponding
+single-rule vector.
+
+=== Legacy format (deprecated)
+
+The legacy format uses positional lists where each element controls indentation
+at the corresponding argument position. It takes one of these forms:
 
 * Absent, meaning _"indent like a regular function call"_.
 * An integer or a keyword `x`, which is shorthand for the list `[x]`.
@@ -33,6 +70,9 @@ internally (if it's not a form the spec is irrelevant).
  ** If the function/macro has more arguments than the list has elements, the last
 element of the list applies to all remaining arguments.
 
+NOTE: The legacy positional format will be removed in clojure-mode 6. New code
+should use the modern tuple format.
+
 '''
 
 == Examples
@@ -42,34 +82,36 @@ Here we go into several examples using some well-known macros and forms from
 don't need to specify them. They are just examples to guide you when writing
 indent specs for your own macros, or for macros from third party libs.
 
-One very simple example is the `do` form. All of its arguments get the same
-indentation, and none of them are special. So its indent spec is simply `[0]`,
-or `0` for short.
+=== Simple specs
+
+The `do` form has no special arguments — all args get body indentation.
+Its indent spec is simply `0` (shorthand for `[[:block 0]]`).
 
 [source,clojure]
 ----
 (do
   (something)
   (quick))
-
-(do (whatever)
-    (you)
-    (want))
 ----
 
-Sticking to simplicity, the `when-let*` macro has one special argument (the
-binding vector) and there's no out-of-the-ordinary internal structure
-involved. So the indent spec is just `1` (which is shorthand for `[1]`).
+The `when-let` macro has one special argument (the binding vector).
+Its indent spec is `1` (shorthand for `[[:block 1]]`).
 
-'''
+[source,clojure]
+----
+(when-let [x (foo)]
+  (bar x))
+----
 
-Let's see something more sophisticated. If the `defrecord` indent spec used by
-`clojure-mode` is `[2 :form :form [1]]`. This is saying:
+The `defn` macro uses `:defn` (shorthand for `[[:inner 0]]`), meaning all
+arguments get body-style indentation.
 
-* `defrecord` has 2 special arguments (the name and the arglist).
-* The first two arguments have no special internal structure.
-* All remaining arguments have an internal indent spec of `[1]` (which means
-only the arglist is indented specially and the rest is the body).
+=== Multi-rule specs
+
+`defrecord` uses `[[:block 2] [:inner 1]]`. This means:
+
+* 2 special arguments (the name and the fields vector) via `[:block 2]`.
+* Nested sub-forms (protocol method bodies) get body-style indentation via `[:inner 1]`.
 
 [source,clojure]
 ----
@@ -82,12 +124,11 @@ only the arglist is indented specially and the rest is the body).
     "My very own thing!!"))
 ----
 
-For something even more complicated: `letfn` is `+[1 [[:defn]] :form]+`. This means
+`letfn` uses `[[:block 1] [:inner 2 0]]`. This means:
 
-* `letfn` has one special argument (the bindings list).
-* The first arg has an indent spec of `+[[:defn]]+`, which means all forms
-_inside_ the first arg have an indent spec of `+[:defn]+`.
-* The second argument, and all other arguments, are regular forms.
+* 1 special argument (the bindings vector) via `[:block 1]`.
+* At nesting depth 2, position 0 (i.e., inside each binding form), use
+body-style indentation via `[:inner 2 0]`.
 
 [source,clojure]
 ----
@@ -97,6 +138,16 @@ _inside_ the first arg have an indent spec of `+[:defn]+`.
           (* (twice y) 3))]
   (six-times 15))
 ----
+
+=== Legacy format examples
+
+For reference, the same specs in the legacy positional format:
+
+* `do`: `0`
+* `when-let`: `1`
+* `defn`: `:defn`
+* `defrecord`: `[2 nil nil [:defn]]`
+* `letfn`: `[1 [[:defn]] :form]`
 
 == Special Arguments
 
