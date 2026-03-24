@@ -134,7 +134,7 @@ Its indent spec is simply `0` (shorthand for `[[:block 0]]`).
 [source,clojure]
 ----
 (do
-  (something)
+  (something)    ;; body (2-space indent)
   (quick))
 ----
 
@@ -143,55 +143,91 @@ Its indent spec is `1` (shorthand for `[[:block 1]]`).
 
 [source,clojure]
 ----
-(when-let [x (foo)]
-  (bar x))
+(when-let [x (foo)]   ;; position 0 — special arg
+  (bar x))            ;; position 1+ — body
 ----
 
 The `defn` macro uses `:defn` (shorthand for `[[:inner 0]]`), meaning all
-arguments get body-style indentation.
+arguments get body-style indentation regardless of position.
+
+[source,clojure]
+----
+(defn my-fn
+  [x]            ;; depth 0 — body-indented
+  (inc x))       ;; depth 0 — body-indented
+----
 
 === Multi-rule specs
 
 `defrecord` uses `[[:block 2] [:inner 1]]`. This means:
 
-* 2 special arguments (the name and the fields vector) via `[:block 2]`.
-* Nested sub-forms (protocol method bodies) get body-style indentation via `[:inner 1]`.
+* `[:block 2]` — 2 special arguments (the name and the fields vector).
+* `[:inner 1]` — at depth 1 (inside the protocol method forms), use body-style
+  indentation. This is what makes method bodies indent correctly.
 
 [source,clojure]
 ----
-(defrecord Thing [a]
-  FileNameMap
-  (getContentTypeFor [_ file-name]
+(defrecord Thing [a]                 ;; depth 0, pos 0-1: special args ([:block 2])
+  FileNameMap                        ;; depth 0, pos 2+: body
+  (getContentTypeFor [_ file-name]   ;;   depth 1: body-indented ([:inner 1])
     (str a "-" file-name))
   Object
   (toString [_]
     "My very own thing!!"))
 ----
 
-`letfn` uses `[[:block 1] [:inner 2 0]]`. This means:
+`letfn` uses `[[:block 1] [:inner 2 0]]`. This is the most complex built-in
+spec:
 
-* 1 special argument (the bindings vector) via `[:block 1]`.
-* At nesting depth 2, position 0 (i.e., inside each binding form), use
-body-style indentation via `[:inner 2 0]`.
+* `[:block 1]` — 1 special argument (the bindings vector).
+* `[:inner 2 0]` — at depth 2, *only at position 0*, use body-style
+indentation. Why position 0? Because inside the bindings vector (depth 1),
+each binding is a list like `(twice [x] body)`. Position 0 in each binding
+is the function name+arglist, and the body follows. The position restriction
+ensures that only the function definitions inside the bindings get body-style
+indentation.
 
 [source,clojure]
 ----
-(letfn [(twice [x]
-          (* x 2))
+(letfn [(twice [x]          ;; depth 0, pos 0: special arg ([:block 1])
+          (* x 2))          ;; depth 2, pos 0: body-indented ([:inner 2 0])
         (six-times [y]
           (* (twice y) 3))]
-  (six-times 15))
+  (six-times 15))           ;; depth 0, pos 1+: body
 ----
 
-=== Legacy format examples
+==== Choosing the right rule
+
+As a rule of thumb:
+
+* **Use `[:block N]`** for macros with N special arguments before a body — this
+  is the most common case. Examples: `when` (1), `let` (1), `condp` (2),
+  `catch` (2).
+* **Use `[:inner 0]`** for def-like forms where all arguments are body. Examples:
+  `defn`, `fn`, `deftest`, `defmethod`.
+* **Use `[:inner 1]`** when the form contains sub-forms whose bodies need
+  body-style indentation (like protocol method definitions). Examples:
+  `defprotocol`, `deftype`, `defrecord`.
+* **Combine rules** when a form has both special args _and_ nested structure.
+  Examples: `defrecord` = `[:block 2]` + `[:inner 1]`.
+
+=== Legacy format equivalents
 
 For reference, the same specs in the legacy positional format:
 
-* `do`: `0`
-* `when-let`: `1`
-* `defn`: `:defn`
-* `defrecord`: `[2 nil nil [:defn]]`
-* `letfn`: `[1 [[:defn]] :form]`
+[cols="1,1,1"]
+|===
+| Form | Modern | Legacy
+
+| `do` | `0` or `[[:block 0]]` | `0`
+| `when-let` | `1` or `[[:block 1]]` | `1`
+| `defn` | `:defn` or `[[:inner 0]]` | `:defn`
+| `defrecord` | `[[:block 2] [:inner 1]]` | `[2 nil nil [:defn]]`
+| `defprotocol` | `[[:block 1] [:inner 1]]` | `[1 [:defn]]`
+| `extend-protocol` | `[[:block 1] [:inner 0]]` | `[1 :defn]`
+| `reify` | `[[:inner 0] [:inner 1]]` | `[:defn [:defn]]`
+| `letfn` | `[[:block 1] [:inner 2 0]]` | `[1 [[:defn]] :form]`
+|===
 
 == Special Arguments
 
