@@ -603,7 +603,11 @@ re-visited."
   :group 'cider)
 
 (defun cider--get-symbol-indent (symbol-name)
-  "Return the indent metadata for SYMBOL-NAME in the current namespace."
+  "Return the indent metadata for SYMBOL-NAME in the current namespace.
+The return value is always in legacy format (integers, :defn,
+positional lists) for compatibility with all clojure-mode versions.
+Modern tuple-format specs from the nREPL backend are converted
+automatically."
   (let* ((ns (let ((clojure-cache-ns t)) ; we force ns caching here for performance reasons
                ;; silence bytecode warning of unused lexical var
                (ignore clojure-cache-ns)
@@ -612,7 +616,11 @@ re-visited."
               (indent (or (nrepl-dict-get meta "style/indent")
                           (nrepl-dict-get meta "indent"))))
         (condition-case-unless-debug err
-            (cider--deep-vector-to-list (read indent))
+            (let ((spec (cider--deep-vector-to-list (read indent))))
+              ;; Convert modern tuple specs to legacy format so that
+              ;; older clojure-mode versions (without modern format
+              ;; support) still work correctly.
+              (cider--indent-spec-to-legacy spec))
           (error (message ":indent metadata on `%s' is unreadable!\nERROR: %s"
                           symbol-name (error-message-string err))
                  nil))
