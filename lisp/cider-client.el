@@ -524,34 +524,6 @@ contain a `candidates' key, it is returned as is."
           info)
       var-info)))
 
-;; FIXME: Now that nREPL supports a lookup op natively, we should
-;; remove this eval-based hack at some point.
-(defconst cider-info-form "
-(do
-  (require 'clojure.java.io)
-  (require 'clojure.walk)
-
-  (if-let [var (resolve '%s)]
-    (let [info (meta var)]
-      (-> info
-          (update :ns str)
-          (update :name str)
-          (update :file (comp str clojure.java.io/resource))
-          (cond-> (:macro info) (update :macro str))
-          (cond-> (:special-form info) (update :special-form str))
-          (cond-> (:protocol info) (update :protocol str))
-          (cond-> (:arglists info) (update :arglists str))
-          (assoc :arglists-str (str (:arglists info)))
-          (clojure.walk/stringify-keys)))))
-")
-
-(defun cider-fallback-eval:info (var)
-  "Obtain VAR metadata via a regular eval.
-Used only when the info nREPL middleware is not available."
-  (let* ((response (cider-sync-tooling-eval (format cider-info-form var)))
-         (var-info (nrepl-dict-from-hash (parseedn-read-str (nrepl-dict-get response "value")))))
-    var-info))
-
 (defun cider-var-info (var &optional all)
   "Return info for VAR as an nREPL dict.
 When multiple matching vars are returned you'll be prompted to select one,
@@ -559,8 +531,7 @@ unless ALL is truthy."
   (when (and var (not (string= var "")))
     (let ((var-info (cond
                      ((cider-nrepl-op-supported-p "info") (cider-sync-request:info var nil nil (cider-completion-get-context t)))
-                     ((cider-nrepl-op-supported-p "lookup") (cider-sync-request:lookup var))
-                     (t (cider-fallback-eval:info var)))))
+                     ((cider-nrepl-op-supported-p "lookup") (cider-sync-request:lookup var)))))
       (if all var-info (cider--var-choice var-info)))))
 
 (defun cider-member-info (class member)

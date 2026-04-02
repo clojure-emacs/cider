@@ -12,6 +12,7 @@
 - [#3209](https://github.com/clojure-emacs/cider/issues/3209): Fix `cider-format` dropping non-map cljfmt options (e.g. `remove-consecutive-blank-lines?`).
 ### Changes
 
+- [#3788](https://github.com/clojure-emacs/cider/issues/3788): Remove the `cider-info-form` eval fallback for `cider-var-info`. The `info` and `lookup` nREPL ops are now required.
 - Bump the injected nREPL version to 1.6.
 - Convert modern tuple-format indent specs (e.g. `[[:block 1] [:inner 0]]`) to legacy format for compatibility with older clojure-mode versions.
 - Rename `cider-eval-spinner-type`, `cider-show-eval-spinner`, and `cider-eval-spinner-delay` to `cider-spinner-type`, `cider-show-spinner`, and `cider-spinner-delay`.  The old names are kept as obsolete aliases.

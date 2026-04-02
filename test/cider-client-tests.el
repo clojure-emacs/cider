@@ -62,23 +62,9 @@
     (expect (nrepl-dict-get (cider-var-info "str") "doc")
             :to-equal "stub"))
 
-  (it "fallbacks to eval in the absence of the info middleware"
-    (spy-on 'cider-fallback-eval:info :and-return-value
-            '(dict
-              "arglists" "([] [x] [x & ys])"
-              "ns" "clojure.core"
-              "name" "str"
-              "column" 1
-              "added" "1.0"
-              "static" "true"
-              "doc" "stub"
-              "line" 504
-              "file" "jar:file:/clojure-1.5.1.jar!/clojure/core.clj"
-              "tag" "class java.lang.String"
-              "status" ("done")))
+  (it "returns nil in the absence of the info and lookup middleware"
     (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
-    (expect (nrepl-dict-get (cider-var-info "str") "doc")
-            :to-equal "stub")))
+    (expect (cider-var-info "str") :to-equal nil)))
 
 
 (describe "cider-repl-type-for-buffer"
