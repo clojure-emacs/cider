@@ -317,6 +317,58 @@ buffer."
     (expect (cider--indent-spec-to-legacy :defn) :to-equal :defn)
     (expect (cider--indent-spec-to-legacy '(1 (:defn))) :to-equal '(1 (:defn)))))
 
+(describe "cider-in-string-p"
+  (it "returns non-nil when point is inside a string"
+    (with-clojure-buffer "(def x \"hel|lo\")"
+      (expect (cider-in-string-p) :to-be-truthy)))
+
+  (it "returns nil when point is outside a string"
+    (with-clojure-buffer "(def| x \"hello\")"
+      (expect (cider-in-string-p) :not :to-be-truthy))))
+
+(describe "cider-in-comment-p"
+  (it "returns non-nil when point is inside a comment"
+    (with-clojure-buffer ";; hel|lo\n(def x 1)"
+      (expect (cider-in-comment-p) :to-be-truthy)))
+
+  (it "returns nil when point is outside a comment"
+    (with-clojure-buffer ";; hello\n(def| x 1)"
+      (expect (cider-in-comment-p) :not :to-be-truthy))))
+
+(describe "cider--tooling-file-p"
+  (it "returns non-nil for form-init files"
+    (expect (cider--tooling-file-p "form-init12345.clj") :to-be-truthy)
+    (expect (cider--tooling-file-p "/tmp/form-init67890.clj") :to-be-truthy))
+
+  (it "returns nil for normal source files"
+    (expect (cider--tooling-file-p "core.clj") :not :to-be-truthy)
+    (expect (cider--tooling-file-p "/src/myapp/core.clj") :not :to-be-truthy)))
+
+(describe "cider--project-name"
+  (it "extracts the project name from a directory path"
+    (expect (cider--project-name "/home/user/projects/my-app/") :to-equal "my-app")
+    (expect (cider--project-name "/home/user/projects/my-app") :to-equal "my-app"))
+
+  (it "returns nil for nil input"
+    (expect (cider--project-name nil) :to-equal nil)))
+
+(describe "cider-propertize"
+  (it "applies the correct face for each kind"
+    (expect (get-text-property 0 'face (cider-propertize "x" 'fn))
+            :to-equal 'font-lock-function-name-face)
+    (expect (get-text-property 0 'face (cider-propertize "x" 'var))
+            :to-equal 'font-lock-variable-name-face)
+    (expect (get-text-property 0 'face (cider-propertize "x" 'ns))
+            :to-equal 'font-lock-type-face)
+    (expect (get-text-property 0 'face (cider-propertize "x" 'macro))
+            :to-equal 'font-lock-keyword-face)
+    (expect (get-text-property 0 'face (cider-propertize "x" 'special-form))
+            :to-equal 'font-lock-keyword-face))
+
+  (it "uses a literal face name as-is"
+    (expect (get-text-property 0 'face (cider-propertize "x" 'font-lock-warning-face))
+            :to-equal 'font-lock-warning-face)))
+
 (describe "cider-version-sans-patch"
   :var (cider-version)
   (it "returns the version sans the patch"
