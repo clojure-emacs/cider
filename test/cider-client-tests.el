@@ -62,6 +62,19 @@
     (expect (nrepl-dict-get (cider-var-info "str") "doc")
             :to-equal "stub"))
 
+  (it "falls back to lookup when info op is not available"
+    (spy-on 'cider-sync-request:lookup :and-return-value
+            '(dict
+              "arglists" "([] [x] [x & ys])"
+              "ns" "clojure.core"
+              "name" "str"
+              "doc" "stub"))
+    (spy-on 'cider-nrepl-op-supported-p :and-call-fake
+            (lambda (op &optional conn)
+              (string= op "lookup")))
+    (expect (nrepl-dict-get (cider-var-info "str") "doc")
+            :to-equal "stub"))
+
   (it "returns nil in the absence of the info and lookup middleware"
     (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
     (expect (cider-var-info "str") :to-equal nil)))
