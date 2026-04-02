@@ -27,9 +27,36 @@
 
 (require 'buttercup)
 (require 'cider-test)
+(require 'cider-client)
 (require 'spinner)
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
+(describe "cider--test-var-p"
+  (it "uses cider/get-state op when available"
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
+    (spy-on 'cider-resolve--get-in :and-return-value t)
+    (expect (cider--test-var-p "myapp.core-test" "my-test") :to-be-truthy)
+    (expect 'cider-resolve--get-in :to-have-been-called-with
+            "myapp.core-test" "interns" "my-test" "test"))
+
+  (it "returns nil via cider/get-state when var is not a test"
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
+    (spy-on 'cider-resolve--get-in :and-return-value nil)
+    (expect (cider--test-var-p "myapp.core" "my-fn") :not :to-be-truthy))
+
+  (it "falls back to eval when cider/get-state is not available"
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
+    (spy-on 'cider-sync-tooling-eval :and-return-value
+            '(dict "value" "true"))
+    (expect (cider--test-var-p "myapp.core-test" "my-test") :to-be-truthy)
+    (expect 'cider-sync-tooling-eval :to-have-been-called))
+
+  (it "returns nil via eval fallback when var is not a test"
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
+    (spy-on 'cider-sync-tooling-eval :and-return-value
+            '(dict "value" "false"))
+    (expect (cider--test-var-p "myapp.core" "my-fn") :not :to-be-truthy)))
 
 (describe "cider-test--string-contains-newline"
   (it "Returns `t' only for escaped newlines"

@@ -79,6 +79,47 @@
     (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
     (expect (cider-var-info "str") :to-equal nil)))
 
+(describe "cider-member-info"
+  (it "returns member info for a given class and member"
+    (spy-on 'cider-sync-request:info :and-return-value
+            '(dict
+              "class" "java.lang.String"
+              "member" "length"
+              "arglists" "()"
+              "returns" "int"
+              "status" ("done")))
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
+    (spy-on 'cider-nrepl-eval-session :and-return-value nil)
+    (spy-on 'cider-current-ns :and-return-value "user")
+    (let ((info (cider-member-info "java.lang.String" "length")))
+      (expect (nrepl-dict-get info "member") :to-equal "length")
+      (expect (nrepl-dict-get info "class") :to-equal "java.lang.String")))
+
+  (it "returns nil when class is nil"
+    (expect (cider-member-info nil "length") :to-equal nil))
+
+  (it "returns nil when member is nil"
+    (expect (cider-member-info "java.lang.String" nil) :to-equal nil)))
+
+(describe "cider-classpath-entries"
+  (it "uses the classpath op when available"
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
+    (spy-on 'cider-sync-request:classpath :and-return-value
+            '("/project/src" "/project/test" "/home/.m2/repository/clojure.jar"))
+    (let ((entries (cider-classpath-entries)))
+      (expect 'cider-sync-request:classpath :to-have-been-called)
+      (expect entries :to-have-same-items-as
+              '("/project/src" "/project/test" "/home/.m2/repository/clojure.jar"))))
+
+  (it "falls back to eval when the classpath op is not available"
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
+    (spy-on 'cider-fallback-eval:classpath :and-return-value
+            '("/project/src" "/project/test"))
+    (let ((entries (cider-classpath-entries)))
+      (expect 'cider-fallback-eval:classpath :to-have-been-called)
+      (expect entries :to-have-same-items-as
+              '("/project/src" "/project/test")))))
+
 
 (describe "cider-repl-type-for-buffer"
   :var (cider-repl-type)
