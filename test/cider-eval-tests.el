@@ -40,3 +40,51 @@
             :to-equal '("/Users/vemv/haystack/src/haystack/parser.cljc" 13 0 cider-error-highlight-face "Syntax error reading source at (/Users/vemv/haystack/src/haystack/parser.cljc:13:0)."))
     (expect (cider-extract-error-info cider-compilation-regexp "Syntax error FOOING clojure.core/let at (src/haystack/analyzer.clj:18:1).\n[1] - failed: even-number-of-forms? at: [:bindings] spec: :clojure.core.specs.alpha/bindings\n")
             :to-equal nil)))
+
+(describe "cider--shorten-error-message"
+  (it "strips compilation error prefixes"
+    (expect (cider--shorten-error-message
+             "Syntax error compiling clojure.core/let at (src/foo.clj:18:1).\nbad stuff")
+            :to-equal "bad stuff"))
+
+  (it "strips reflection warning prefixes"
+    (expect (cider--shorten-error-message
+             "Reflection warning, /tmp/foo/src/core.clj:14:1 - call to method foo")
+            :to-equal "call to method foo"))
+
+  (it "strips module info suffixes"
+    (expect (cider--shorten-error-message
+             "No matching method found (Long is in module java.base of loader 'bootstrap'; String is in module java.base of loader 'bootstrap')")
+            :to-equal "No matching method found"))
+
+  (it "returns simple messages unchanged"
+    (expect (cider--shorten-error-message "something went wrong")
+            :to-equal "something went wrong")))
+
+(describe "cider--matching-delimiter"
+  (it "returns closing delimiters for opening ones"
+    (expect (cider--matching-delimiter ?\() :to-equal ?\))
+    (expect (cider--matching-delimiter ?\[) :to-equal ?\])
+    (expect (cider--matching-delimiter ?\{) :to-equal ?\}))
+
+  (it "returns opening delimiters for closing ones"
+    (expect (cider--matching-delimiter ?\)) :to-equal ?\()
+    (expect (cider--matching-delimiter ?\]) :to-equal ?\[)
+    (expect (cider--matching-delimiter ?\}) :to-equal ?\{)))
+
+(describe "cider--insert-closing-delimiters"
+  (it "closes open parentheses"
+    (expect (cider--insert-closing-delimiters "(defn foo [x]")
+            :to-equal "(defn foo [x])"))
+
+  (it "closes nested open forms"
+    (expect (cider--insert-closing-delimiters "(let [x (+ 1 2")
+            :to-equal "(let [x (+ 1 2)])"))
+
+  (it "handles already balanced code"
+    (expect (cider--insert-closing-delimiters "(+ 1 2)")
+            :to-equal "(+ 1 2)"))
+
+  (it "closes open maps and vectors"
+    (expect (cider--insert-closing-delimiters "{:a [1 2")
+            :to-equal "{:a [1 2]}")))
