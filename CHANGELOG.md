@@ -10,8 +10,11 @@
 ### Bugs fixed
 
 - [#3209](https://github.com/clojure-emacs/cider/issues/3209): Fix `cider-format` dropping non-map cljfmt options (e.g. `remove-consecutive-blank-lines?`).
+
 ### Changes
 
+- Bump the injected `nrepl` to [1.7.0](https://github.com/nrepl/nrepl/blob/master/CHANGELOG.md#170-2026-04-14).
+- Bump the injected `cider-nrepl` to [0.59.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0590-2026-04-14).
 - [#3788](https://github.com/clojure-emacs/cider/issues/3788): Remove the `cider-info-form` eval fallback for `cider-var-info`. The `info` and `lookup` nREPL ops are now required.
 - Bump the injected nREPL version to 1.6.
 - Convert modern tuple-format indent specs (e.g. `[[:block 1] [:inner 0]]`) to legacy format for compatibility with older clojure-mode versions.
