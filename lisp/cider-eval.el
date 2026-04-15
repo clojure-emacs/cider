@@ -399,7 +399,7 @@ Accumulates a list of causes and then calls CALLBACK on causes and phase."
   ;; Causes are returned as a series of messages, which we aggregate in `causes'
   (let (causes ex-phase)
     (cider-nrepl-send-request
-     `("op" "analyze-last-stacktrace")
+     `("op" "cider/analyze-last-stacktrace")
      (lambda (response)
        (nrepl-dbind-response response (status phase)
          (if (member "done" status)
@@ -418,7 +418,7 @@ Show error overlay in BUFFER if needed."
   "This function determines how the error buffer is shown.
 It delegates the actual error content to the eval or op handler.
 Show error overlay in BUFFER if needed."
-  (cond ((cider-nrepl-op-supported-p "analyze-last-stacktrace")
+  (cond ((cider-nrepl-op-supported-p "cider/analyze-last-stacktrace")
          (cider-default-err-op-handler buffer))
         ((cider-library-present-p "clojure.stacktrace")
          (cider-default-err-eval-handler))
@@ -1433,12 +1433,12 @@ passing arguments."
 (defun cider-undef ()
   "Undefine a symbol from the current ns."
   (interactive)
-  (cider-ensure-op-supported "undef")
+  (cider-ensure-op-supported "cider/undef")
   (cider-read-symbol-name
    "Undefine symbol: "
    (lambda (sym)
      (cider-nrepl-send-request
-      `("op" "undef"
+      `("op" "cider/undef"
         "ns" ,(cider-current-ns)
         "sym" ,sym)
       (cider-interactive-eval-handler (current-buffer))))))
@@ -1446,9 +1446,9 @@ passing arguments."
 (defun cider-undef-all (&optional ns)
   "Undefine all symbols and aliases from the namespace NS."
   (interactive)
-  (cider-ensure-op-supported "undef-all")
+  (cider-ensure-op-supported "cider/undef-all")
   (cider-nrepl-send-sync-request
-   `("op" "undef-all"
+   `("op" "cider/undef-all"
      "ns" ,(or ns (cider-current-ns)))))
 
 ;; Eval keymaps
@@ -1606,7 +1606,7 @@ all ns aliases and var mappings from the namespaces being reloaded"
   "Load all namespaces in the current project."
   (interactive)
   (cider-ensure-connected)
-  (cider-ensure-op-supported "ns-load-all")
+  (cider-ensure-op-supported "cider/ns-load-all")
   (when (y-or-n-p "Are you sure you want to load all namespaces in the project? ")
     (message "Loading all project namespaces...")
     (let ((loaded-ns-count (length (cider-sync-request:ns-load-all))))

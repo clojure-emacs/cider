@@ -102,7 +102,7 @@ configure `cider-debug-prompt' instead."
 (defun cider-browse-instrumented-defs ()
   "List all instrumented definitions."
   (interactive)
-  (if-let* ((all (thread-first (cider-nrepl-send-sync-request '("op" "debug-instrumented-defs"))
+  (if-let* ((all (thread-first (cider-nrepl-send-sync-request '("op" "cider/debug-instrumented-defs"))
                                (nrepl-dict-get "list"))))
       (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
         (let ((inhibit-read-only t))
@@ -137,7 +137,7 @@ configure `cider-debug-prompt' instead."
 (defun cider--debug-init-connection ()
   "Initialize a connection with the cider.debug middleware."
   (cider-nrepl-send-request
-   `("op" "init-debugger"
+   `("op" "cider/init-debugger"
      ,@(cider--nrepl-print-request-plist fill-column))
    #'cider--debug-response-handler))
 
@@ -437,7 +437,7 @@ message."
   (when (and (string-prefix-p ":" command) force)
     (setq command (format "{:response %s :force? true}" command)))
   (cider-nrepl-send-unhandled-request
-   `("op" "debug-input"
+   `("op" "cider/debug-input"
      "input" ,(or command ":quit")
      "key" ,(or key (nrepl-dict-get cider--debug-mode-response "key"))))
   (ignore-errors (cider--debug-mode -1)))

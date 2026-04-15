@@ -62,8 +62,8 @@ Possible values are:
   "Macroexpand, using EXPANDER, the given EXPR.
 The default for DISPLAY-NAMESPACES is taken from
 `cider-macroexpansion-display-namespaces'."
-  (cider-ensure-op-supported "macroexpand")
-  (let ((result (thread-first `("op" "macroexpand"
+  (cider-ensure-op-supported "cider/macroexpand")
+  (let ((result (thread-first `("op" "cider/macroexpand"
                                 "expander" ,expander
                                 "code" ,expr
                                 "ns" ,(cider-current-ns)

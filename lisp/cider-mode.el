@@ -176,7 +176,7 @@ With a prefix argument, prompt for function to run instead of -main."
   (cider-ensure-connected)
   (let ((name (or function "-main")))
     (when-let* ((response (cider-nrepl-send-sync-request
-                           `("op" "ns-list-vars-by-name"
+                           `("op" "cider/ns-list-vars-by-name"
                              "name" ,name))))
       (if-let* ((vars (split-string (substring (nrepl-dict-get response "var-list") 1 -1))))
           (cider-interactive-eval

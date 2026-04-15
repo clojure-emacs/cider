@@ -13,6 +13,7 @@
 
 ### Changes
 
+- [#710](https://github.com/clojure-emacs/cider-nrepl/issues/710): Use namespaced nREPL ops (e.g. `cider/info` instead of `info`) to match cider-nrepl 0.59+.
 - Bump the injected `nrepl` to [1.7.0](https://github.com/nrepl/nrepl/blob/master/CHANGELOG.md#170-2026-04-14).
 - Bump the injected `cider-nrepl` to [0.59.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0590-2026-04-14).
 - [#3788](https://github.com/clojure-emacs/cider/issues/3788): Remove the `cider-info-form` eval fallback for `cider-var-info`. The `info` and `lookup` nREPL ops are now required.

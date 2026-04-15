@@ -368,7 +368,7 @@ a more user friendly representation of SPEC-FORM."
 (defun cider-browse-spec--browse (spec)
   "Browse SPEC."
   (cider-ensure-connected)
-  (cider-ensure-op-supported "spec-form")
+  (cider-ensure-op-supported "cider/spec-form")
   ;; Expand auto-resolved keywords
   (when-let* ((val (and (string-match-p "^::.+" spec)
                         (nrepl-dict-get (cider-sync-tooling-eval spec (cider-current-ns)) "value"))))
@@ -398,7 +398,7 @@ property."
   "Generate and print an example of the current spec."
   (interactive)
   (cider-ensure-connected)
-  (cider-ensure-op-supported "spec-example")
+  (cider-ensure-op-supported "cider/spec-example")
   (if-let* ((spec cider-browse-spec--current-spec))
       (if-let* ((example (cider-sync-request:spec-example spec)))
           (with-current-buffer (cider-popup-buffer cider-browse-spec-example-buffer 'select #'cider-browse-spec-example-mode 'ancillary)
@@ -430,7 +430,7 @@ Generates a new example for the current spec."
   "Open the list of specs that matches REGEX in a popup buffer.
 Displays all specs when REGEX is nil."
   (cider-ensure-connected)
-  (cider-ensure-op-supported "spec-list")
+  (cider-ensure-op-supported "cider/spec-list")
   (let ((filter-regex (or regex "")))
     (with-current-buffer (cider-popup-buffer cider-browse-spec-buffer 'select nil 'ancillary)
       (let ((specs (cider-sync-request:spec-list filter-regex)))

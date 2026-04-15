@@ -218,7 +218,7 @@ the value of `cider-prompt-for-symbol'.  With prefix arg ARG, does the
 opposite of what that option dictates."
   (interactive "P")
   (cider-ensure-connected)
-  (cider-ensure-op-supported "info")
+  (cider-ensure-op-supported "cider/info")
   (funcall (cider-prompt-for-symbol-function arg)
            "Javadoc for"
            #'cider-javadoc-handler))

@@ -84,7 +84,7 @@ Show results in a different window if OTHER-WINDOW is true."
   (if-let* ((info (cider-var-info symbol-file)))
       (cider--jump-to-loc-from-info info other-window)
     (progn
-      (cider-ensure-op-supported "resource")
+      (cider-ensure-op-supported "cider/resource")
       (if-let* ((resource (cider-sync-request:resource symbol-file))
                 (buffer (cider-find-file resource)))
           (cider-jump-to buffer 0 other-window)
@@ -135,7 +135,7 @@ value is thing at point."
                          nil nil
                          (thing-at-point 'filename))
       (or (thing-at-point 'filename) ""))))
-  (cider-ensure-op-supported "resource")
+  (cider-ensure-op-supported "cider/resource")
   (when (string-empty-p path)
     (error "Cannot find resource for empty path"))
   (if-let* ((resource (cider-sync-request:resource path))
@@ -185,7 +185,7 @@ A prefix ARG of `-` or a double prefix argument causes
 the results to be displayed in a different window."
   (interactive "P")
   (cider-ensure-connected)
-  (cider-ensure-op-supported "ns-path")
+  (cider-ensure-op-supported "cider/ns-path")
   (if ns
       (cider--find-ns ns)
     (let* ((namespaces (cider-sync-request:ns-list))

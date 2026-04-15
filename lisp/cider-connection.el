@@ -300,7 +300,7 @@ message in the REPL area."
 ;; TODO: Use some null handler here
 (defun cider--subscribe-repl-to-server-out ()
   "Subscribe to the nREPL server's *out*."
-  (cider-nrepl-send-request '("op" "out-subscribe")
+  (cider-nrepl-send-request '("op" "cider/out-subscribe")
                             (cider-interactive-eval-handler (current-buffer))))
 
 (defvar cider-mode)
@@ -383,7 +383,7 @@ buffer."
          ;; If we don't do this the server's output will end up
          ;; in the *nrepl-server* buffer.
          (when (and cider-redirect-server-output-to-repl
-                    (cider-nrepl-op-supported-p "out-subscribe"))
+                    (cider-nrepl-op-supported-p "cider/out-subscribe"))
            (cider--subscribe-repl-to-server-out))
 
          ;; Middleware on cider-nrepl's side is deferred until first usage, but

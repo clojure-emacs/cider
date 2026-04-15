@@ -395,7 +395,7 @@ Otherwise return the eldoc of the first symbol of the sexp."
   "Return the info for THING (as string).
 This includes the arglist and ns and symbol name (if available)."
   (let ((thing (cider-eldoc--convert-ns-keywords thing)))
-    (when (and (cider-nrepl-op-supported-p "eldoc")
+    (when (and (cider-nrepl-op-supported-p "cider/eldoc")
                thing
                ;; ignore blank things
                (not (string-blank-p thing))
