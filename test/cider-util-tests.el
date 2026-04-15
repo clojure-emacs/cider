@@ -480,3 +480,46 @@ and some other vars (like clojure.core/filter).
       (expect (cider-clojure-major-mode-p) :to-be-truthy)
       (expect (cider-clojurescript-major-mode-p) :not :to-be-truthy)
       (expect (cider-clojurec-major-mode-p) :to-be-truthy))))
+
+(describe "cider-plist-get"
+  (it "retrieves values using equal comparison"
+    (let ((plist '("name" "foo" "ns" "bar")))
+      (expect (cider-plist-get plist "name") :to-equal "foo")
+      (expect (cider-plist-get plist "ns") :to-equal "bar")))
+
+  (it "returns nil for missing keys"
+    (let ((plist '("name" "foo")))
+      (expect (cider-plist-get plist "missing") :to-be nil)))
+
+  (it "works with an empty plist"
+    (expect (cider-plist-get nil "key") :to-be nil)))
+
+(describe "cider-plist-put"
+  (it "sets a value using equal comparison"
+    (let ((plist '("name" "foo" "ns" "bar")))
+      (expect (cider-plist-get (cider-plist-put plist "name" "baz") "name")
+              :to-equal "baz")))
+
+  (it "adds a new key-value pair"
+    (let ((plist '("name" "foo")))
+      (expect (cider-plist-get (cider-plist-put plist "ns" "bar") "ns")
+              :to-equal "bar"))))
+
+(describe "cider-intern-keys"
+  (it "converts string keys to symbols"
+    (expect (cider-intern-keys '("foo" 1 "bar" 2))
+            :to-equal '(foo 1 bar 2)))
+
+  (it "leaves symbol keys unchanged"
+    (expect (cider-intern-keys '(foo 1 bar 2))
+            :to-equal '(foo 1 bar 2)))
+
+  (it "returns nil for nil input"
+    (expect (cider-intern-keys nil) :to-be nil)))
+
+(describe "cider-maybe-intern"
+  (it "interns a string"
+    (expect (cider-maybe-intern "foo") :to-equal 'foo))
+
+  (it "returns a symbol as-is"
+    (expect (cider-maybe-intern 'foo) :to-equal 'foo)))
