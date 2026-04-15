@@ -109,7 +109,8 @@
     (let ((entries (cider-classpath-entries)))
       (expect 'cider-sync-request:classpath :to-have-been-called)
       (expect entries :to-have-same-items-as
-              '("/project/src" "/project/test" "/home/.m2/repository/clojure.jar"))))
+              (mapcar #'expand-file-name
+                      '("/project/src" "/project/test" "/home/.m2/repository/clojure.jar")))))
 
   (it "falls back to eval when the classpath op is not available"
     (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
@@ -118,7 +119,8 @@
     (let ((entries (cider-classpath-entries)))
       (expect 'cider-fallback-eval:classpath :to-have-been-called)
       (expect entries :to-have-same-items-as
-              '("/project/src" "/project/test")))))
+              (mapcar #'expand-file-name
+                      '("/project/src" "/project/test"))))))
 
 
 (describe "cider-repl-type-for-buffer"
