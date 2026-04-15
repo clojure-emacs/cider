@@ -88,3 +88,35 @@
   (it "closes open maps and vectors"
     (expect (cider--insert-closing-delimiters "{:a [1 2")
             :to-equal "{:a [1 2]}")))
+
+(describe "cider-clojure-compilation-error-phases"
+  (it "returns the default value when set to t"
+    (let ((cider-clojure-compilation-error-phases t))
+      (expect (cider-clojure-compilation-error-phases)
+              :to-equal cider-clojure-compilation-error-phases-default-value)))
+
+  (it "returns the custom value when not t"
+    (let ((cider-clojure-compilation-error-phases '(:compile-error)))
+      (expect (cider-clojure-compilation-error-phases)
+              :to-equal '(:compile-error)))))
+
+(describe "cider--guess-eval-context"
+  (it "extracts let bindings from parent forms"
+    (with-temp-buffer
+      (delay-mode-hooks (clojure-mode))
+      (insert "(let [x 1\n      y 2]\n  |)")
+      (goto-char (point-min))
+      (search-forward "|")
+      (delete-char -1)
+      (let ((ctx (cider--guess-eval-context)))
+        (expect ctx :to-match "x 1")
+        (expect ctx :to-match "y 2"))))
+
+  (it "returns empty string when not inside a let"
+    (with-temp-buffer
+      (delay-mode-hooks (clojure-mode))
+      (insert "(defn foo [] |)")
+      (goto-char (point-min))
+      (search-forward "|")
+      (delete-char -1)
+      (expect (cider--guess-eval-context) :to-equal ""))))
