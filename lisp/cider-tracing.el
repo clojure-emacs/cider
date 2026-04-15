@@ -34,7 +34,7 @@
 
 (defun cider-sync-request:toggle-trace-var (sym)
   "Toggle var tracing for SYM."
-  (thread-first `("op" "toggle-trace-var"
+  (thread-first `("op" "cider/toggle-trace-var"
                   "ns" ,(cider-current-ns)
                   "sym" ,sym)
                 (cider-nrepl-send-sync-request)))
@@ -56,14 +56,14 @@ Prompts for the symbol to use, or uses the symbol at point, depending on
 the value of `cider-prompt-for-symbol'.  With prefix arg ARG, does the
 opposite of what that option dictates."
   (interactive "P")
-  (cider-ensure-op-supported "toggle-trace-var")
+  (cider-ensure-op-supported "cider/toggle-trace-var")
   (funcall (cider-prompt-for-symbol-function arg)
            "Toggle trace for var"
            #'cider--toggle-trace-var))
 
 (defun cider-sync-request:toggle-trace-ns (ns)
   "Toggle namespace tracing for NS."
-  (thread-first `("op" "toggle-trace-ns"
+  (thread-first `("op" "cider/toggle-trace-ns"
                   "ns" ,ns)
                 (cider-nrepl-send-sync-request)))
 
@@ -72,7 +72,7 @@ opposite of what that option dictates."
   "Toggle ns tracing.
 Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
   (interactive "P")
-  (cider-map-repls '(:clj-strict  "toggle-trace-ns")
+  (cider-map-repls '(:clj-strict  "cider/toggle-trace-ns")
     (lambda (conn)
       (with-current-buffer conn
         (let ((ns (if query

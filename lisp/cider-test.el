@@ -274,7 +274,7 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
   "Display stacktrace for the erring NS VAR test with the assertion INDEX."
   (let (causes)
     (cider-nrepl-send-request
-     `("op" "test-stacktrace"
+     `("op" "cider/test-stacktrace"
        "ns" ,ns
        "var" ,var
        "index" ,index
@@ -749,10 +749,10 @@ running them."
         (cider-test-spinner-start (current-buffer))
         (setq cider-test--current-repl conn)
         (let* ((retest? (eq :non-passing ns))
-               (request `("op" ,(cond ((stringp ns)         "test")
-                                      ((eq :project ns)     "test-all")
-                                      ((eq :loaded ns)      "test-all")
-                                      (retest?              "retest")))))
+               (request `("op" ,(cond ((stringp ns)         "cider/test")
+                                      ((eq :project ns)     "cider/test-all")
+                                      ((eq :loaded ns)      "cider/test-all")
+                                      (retest?              "cider/retest")))))
           ;; we add optional parts of the request only when relevant
           (when (and (listp include-selectors) include-selectors)
             (setq request (append request `("include" ,include-selectors))))

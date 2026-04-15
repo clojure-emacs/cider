@@ -957,7 +957,7 @@ Handles an external-body TYPE by issuing a slurp request to fetch the content."
   (if-let* ((args        (cadr type))
             (access-type (nrepl-dict-get args "access-type")))
       (nrepl-send-request
-       (list "op" "slurp" "url" (nrepl-dict-get args access-type))
+       (list "op" "cider/slurp" "url" (nrepl-dict-get args access-type))
        (cider-repl-handler buffer)
        (cider-current-repl)))
   nil)
@@ -1809,7 +1809,7 @@ The checking is done as follows:
                                             (cider-classpath-entries))))
                                   (process-put proc :cached-classpath cp)
                                   cp)))
-                 (ns-list (when (nrepl-op-supported-p "ns-list" repl)
+                 (ns-list (when (nrepl-op-supported-p "cider/ns-list" repl)
                             (or (process-get proc :all-namespaces)
                                 (let ((ns-list (with-current-buffer repl
                                                  (cider-sync-request:ns-list))))

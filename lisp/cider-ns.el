@@ -238,9 +238,9 @@ Its behavior is controlled by `cider-ns-save-files-on-refresh' and
   "Return the reload operation to use.
 Based on OP-NAME and the value of cider-ns-code-reload-tool defcustom."
   (if (eq cider-ns-code-reload-tool 'tools.namespace)
-      (cond ((string= op-name "reload")       "refresh")
-            ((string= op-name "reload-all")   "refresh-all")
-            ((string= op-name "reload-clear") "refresh-clear"))
+      (cond ((string= op-name "reload")       "cider/refresh")
+            ((string= op-name "reload-all")   "cider/refresh-all")
+            ((string= op-name "reload-clear") "cider/refresh-clear"))
 
     (cond ((string= op-name "reload")       "cider.clj-reload/reload")
           ((string= op-name "reload-all")   "cider.clj-reload/reload-all")
@@ -300,7 +300,7 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
   (let ((clear? (member mode '(clear 16)))
         (all? (member mode '(refresh-all 4)))
         (inhibit-refresh-fns (member mode '(inhibit-fns -1))))
-    (cider-map-repls '(:clj "refresh" "cider.clj-reload/reload")
+    (cider-map-repls '(:clj "cider/refresh" "cider.clj-reload/reload")
       (lambda (conn)
         (cider-ns-refresh--save-modified-buffers conn)
         ;; Inside the lambda, so the buffer is not created if we error out.

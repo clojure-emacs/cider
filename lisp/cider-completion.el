@@ -133,7 +133,7 @@ completion functionality."
    ;; if we don't have a connection, end early
    ((not (cider-connected-p)) nil)
    ;; next we try if cider-nrepl's completion is available
-   ((cider-nrepl-op-supported-p "complete")
+   ((cider-nrepl-op-supported-p "cider/complete")
     (let* ((context (cider-completion-get-context))
            (candidates (cider-sync-request:complete prefix context)))
       (mapcar #'cider-completion--parse-candidate-map candidates)))

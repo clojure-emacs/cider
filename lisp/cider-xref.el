@@ -120,7 +120,7 @@ the symbol found by the xref search as argument."
   "Show all functions that reference the var matching NS and SYMBOL."
   (interactive)
   (cider-ensure-connected)
-  (cider-ensure-op-supported "fn-refs")
+  (cider-ensure-op-supported "cider/fn-refs")
   (if-let* ((ns (or ns (cider-current-ns)))
             (symbol (or symbol (cider-symbol-at-point)))
             (results (cider-sync-request:fn-refs ns symbol)))
@@ -132,7 +132,7 @@ the symbol found by the xref search as argument."
   "Show all functions referenced by the var matching NS and SYMBOL."
   (interactive)
   (cider-ensure-connected)
-  (cider-ensure-op-supported "fn-deps")
+  (cider-ensure-op-supported "cider/fn-deps")
   (if-let* ((ns (or ns (cider-current-ns)))
             (symbol (or symbol (cider-symbol-at-point)))
             (results (cider-sync-request:fn-deps ns symbol)))
@@ -157,7 +157,7 @@ the symbol found by the xref search as argument."
   "Displays the references for NS and SYMBOL using completing read."
   (interactive)
   (cider-ensure-connected)
-  (cider-ensure-op-supported "fn-refs")
+  (cider-ensure-op-supported "cider/fn-refs")
   (if-let* ((ns (or ns (cider-current-ns)))
             (symbol (or symbol (cider-symbol-at-point)))
             (results (mapcar (lambda (d) (nrepl-dict-get d "name")) (cider-sync-request:fn-refs ns symbol)))
@@ -170,7 +170,7 @@ the symbol found by the xref search as argument."
   "Displays the function dependencies for  NS and SYMBOL using completing read."
   (interactive)
   (cider-ensure-connected)
-  (cider-ensure-op-supported "fn-deps")
+  (cider-ensure-op-supported "cider/fn-deps")
   (if-let* ((ns (or ns (cider-current-ns)))
             (symbol (or symbol (cider-symbol-at-point)))
             (results (mapcar (lambda (d) (nrepl-dict-get d "name")) (cider-sync-request:fn-deps ns symbol)))

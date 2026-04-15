@@ -44,7 +44,7 @@
   ;; backends, if cider-nrepl is not loaded.
   (when (or
          ;; the main requirement:
-         (cider-nrepl-op-supported-p "ns-path" nil 'skip-ensure)
+         (cider-nrepl-op-supported-p "cider/ns-path" nil 'skip-ensure)
          ;; the fallback, used for bare nrepl or babashka integrations:
          (cider-nrepl-op-supported-p "lookup" nil 'skip-ensure))
     'cider))
@@ -108,7 +108,7 @@ These are used for presentation purposes."
 (cl-defmethod xref-backend-references ((_backend (eql cider)) var)
   "Find references of VAR."
   (cider-ensure-connected)
-  (cider-ensure-op-supported "fn-refs")
+  (cider-ensure-op-supported "cider/fn-refs")
   (when-let* ((ns (cider-current-ns))
               (results (cider-sync-request:fn-refs ns var))
               (previously-existing-buffers (buffer-list)))
@@ -150,7 +150,7 @@ These are used for presentation purposes."
 (cl-defmethod xref-backend-apropos ((_backend (eql cider)) pattern)
   "Find all symbols that match regexp PATTERN."
   (cider-ensure-connected)
-  (cider-ensure-op-supported "apropos")
+  (cider-ensure-op-supported "cider/apropos")
   (when-let* ((ns (cider-current-ns))
               (results (cider-sync-request:apropos pattern ns t t completion-ignore-case)))
     (mapcar (lambda (info)

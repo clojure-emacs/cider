@@ -40,7 +40,7 @@
 
 (defun cider-sync-request:clojuredocs-lookup (ns sym)
   "Perform nREPL \"clojuredocs-lookup\" op with NS and SYM."
-  (thread-first `("op" "clojuredocs-lookup"
+  (thread-first `("op" "cider/clojuredocs-lookup"
                   "ns" ,ns
                   "sym" ,sym)
                 (cider-nrepl-send-sync-request)
@@ -48,7 +48,7 @@
 
 (defun cider-sync-request:clojuredocs-refresh ()
   "Refresh the ClojureDocs cache."
-  (thread-first '("op" "clojuredocs-refresh-cache")
+  (thread-first '("op" "cider/clojuredocs-refresh-cache")
                 (cider-nrepl-send-sync-request)
                 (nrepl-dict-get "status")))
 

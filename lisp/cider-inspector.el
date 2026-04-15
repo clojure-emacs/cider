@@ -273,14 +273,14 @@ In particular, it does not read `cider-sexp-at-point'."
 (defun cider-inspector-pop ()
   "Pop the last value off the inspector stack and render it."
   (interactive)
-  (let ((result (cider-nrepl-send-sync-request `("op" "inspect-pop"))))
+  (let ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-pop"))))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result :pop))))
 
 (defun cider-inspector-push (idx)
   "Inspect the value at IDX in the inspector stack and render it."
   (interactive)
-  (let ((result (cider-nrepl-send-sync-request `("op" "inspect-push"
+  (let ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-push"
                                                  "idx" ,idx))))
     (when (nrepl-dict-get result "value")
       (push (point) cider-inspector-location-stack)
@@ -292,7 +292,7 @@ If EX-DATA is true, inspect ex-data of the exception instead."
   (interactive)
   (cl-assert (numberp index))
   (let ((result (cider-nrepl-send-sync-request
-                 `("op" "inspect-last-exception"
+                 `("op" "cider/inspect-last-exception"
                    "index" ,index
                    ,@(when ex-data
                        `("ex-data" "true"))))))
@@ -303,21 +303,21 @@ If EX-DATA is true, inspect ex-data of the exception instead."
 (defun cider-inspector-previous-sibling ()
   "Inspect the previous sibling value within a sequential parent."
   (interactive)
-  (let ((result (cider-nrepl-send-sync-request `("op" "inspect-previous-sibling"))))
+  (let ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-previous-sibling"))))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result))))
 
 (defun cider-inspector-next-sibling ()
   "Inspect the next sibling value within a sequential parent."
   (interactive)
-  (let ((result (cider-nrepl-send-sync-request `("op" "inspect-next-sibling"))))
+  (let ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-next-sibling"))))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result))))
 
 (defun cider-inspector--refresh-with-opts (&rest opts)
   "Invokes `inspect-refresh' op with supplied extra OPTS.
 Re-renders the currently inspected value."
-  (let ((result (cider-nrepl-send-sync-request `("op" "inspect-refresh" ,@opts))))
+  (let ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-refresh" ,@opts))))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result))))
 
@@ -331,7 +331,7 @@ Re-renders the currently inspected value."
 
 Does nothing if already on the last page."
   (interactive)
-  (let ((result (cider-nrepl-send-sync-request '("op" "inspect-next-page"))))
+  (let ((result (cider-nrepl-send-sync-request '("op" "cider/inspect-next-page"))))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result))))
 
@@ -340,7 +340,7 @@ Does nothing if already on the last page."
 
 Does nothing if already on the first page."
   (interactive)
-  (let ((result (cider-nrepl-send-sync-request '("op" "inspect-prev-page"))))
+  (let ((result (cider-nrepl-send-sync-request '("op" "cider/inspect-prev-page"))))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result))))
 
@@ -374,7 +374,7 @@ MAX-NESTED-DEPTH is the new value."
   ;; Disable hint about analytics feature so that it is never displayed again.
   (when cider-inspector-display-analytics-hint
     (customize-set-variable 'cider-inspector-display-analytics-hint nil))
-  (let ((result (cider-nrepl-send-sync-request `("op" "inspect-display-analytics"))))
+  (let ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-display-analytics"))))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result :next-inspectable))))
 
@@ -402,7 +402,7 @@ MAX-NESTED-DEPTH is the new value."
 (defun cider-inspector-toggle-view-mode ()
   "Toggle the view mode of the inspector between normal and object view mode."
   (interactive)
-  (let ((result (cider-nrepl-send-sync-request `("op" "inspect-toggle-view-mode"))))
+  (let ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-toggle-view-mode"))))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result :next-inspectable))))
 
@@ -434,7 +434,7 @@ current-namespace."
   (interactive (let ((ns (cider-current-ns)))
                  (list (cider-inspector--read-var-name-from-user ns)
                        ns)))
-  (when-let* ((result (cider-nrepl-send-sync-request `("op" "inspect-def-current-value"
+  (when-let* ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-def-current-value"
                                                        "ns" ,ns
                                                        "var-name" ,var-name))))
     (cider-inspector--render-value result)
@@ -444,17 +444,17 @@ current-namespace."
   "Print the current value of the inspector."
   (interactive)
   (cider-ensure-connected)
-  (cider-ensure-op-supported "inspect-print-current-value")
+  (cider-ensure-op-supported "cider/inspect-print-current-value")
   (let ((buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode 'ancillary)))
     (cider-nrepl-send-request
-     `("op" "inspect-print-current-value"
+     `("op" "cider/inspect-print-current-value"
        ,@(cider--nrepl-print-request-plist fill-column))
      (cider-popup-eval-handler buffer))))
 
 (defun cider-inspector-tap-current-val ()
   "Sends the current Inspector current value to `tap>'."
   (interactive)
-  (let ((response (cider-nrepl-send-sync-request '("op" "inspect-tap-current-value"))))
+  (let ((response (cider-nrepl-send-sync-request '("op" "cider/inspect-tap-current-value"))))
     (nrepl-dbind-response response (value err)
       (if value
           (message "Successfully tapped the current Inspector value")
@@ -467,7 +467,7 @@ current-namespace."
     (pcase property
       (`cider-value-idx
        (cl-assert value)
-       (nrepl-dbind-response (cider-nrepl-send-sync-request `("op" "inspect-tap-indexed"
+       (nrepl-dbind-response (cider-nrepl-send-sync-request `("op" "cider/inspect-tap-indexed"
                                                               "idx" ,value))
            (value err)
          (if value
