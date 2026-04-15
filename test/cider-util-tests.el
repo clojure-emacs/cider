@@ -319,7 +319,7 @@ buffer."
 
 (describe "cider-in-string-p"
   (it "returns non-nil when point is inside a string"
-    (with-clojure-buffer "(def x \"hel|lo\")"
+    (with-clojure-buffer "(def x \"hell|o\")"
       (expect (cider-in-string-p) :to-be-truthy)))
 
   (it "returns nil when point is outside a string"
@@ -328,7 +328,7 @@ buffer."
 
 (describe "cider-in-comment-p"
   (it "returns non-nil when point is inside a comment"
-    (with-clojure-buffer ";; hel|lo\n(def x 1)"
+    (with-clojure-buffer ";; hell|o\n(def x 1)"
       (expect (cider-in-comment-p) :to-be-truthy)))
 
   (it "returns nil when point is outside a comment"
