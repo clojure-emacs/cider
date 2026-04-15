@@ -113,7 +113,7 @@
                     :not :to-be-truthy)
             (expect (spinner--active-p (buffer-local-value 'spinner-current buf2))
                     :not :to-be-truthy)
-            (expect cider-test--spinner-buffers :to-equal nil))
+            (expect cider-test--spinner-buffers :to-be nil))
         (when (buffer-live-p buf1) (kill-buffer buf1))
         (when (buffer-live-p buf2) (kill-buffer buf2))
         (setq cider-test--spinner-buffers nil)))))

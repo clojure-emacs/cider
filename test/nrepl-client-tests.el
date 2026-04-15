@@ -118,11 +118,11 @@
     (expect (nrepl--port-string-to-number "1234\nfoobar")
             :to-equal 1234)
     (expect (nrepl--port-string-to-number "")
-            :to-equal nil)
+            :to-be nil)
     (expect (nrepl--port-string-to-number "\n")
-            :to-equal nil)
+            :to-be nil)
     (expect (nrepl--port-string-to-number "adas\n")
-            :to-equal nil)))
+            :to-be nil)))
 
 (describe "nrepl-parse-port"
   (it "standard"

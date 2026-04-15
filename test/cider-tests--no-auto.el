@@ -97,4 +97,4 @@ from the latter. Remaining content is compared for string equality."
 
 (describe "cider-test-all-docs"
   (it "returns nil if `cider-doc' output matches with the `clojure.repl/doc'"
-    (expect (cider-test-all-docs) :to-equal nil)))
+    (expect (cider-test-all-docs) :to-be nil)))

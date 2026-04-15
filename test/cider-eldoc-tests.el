@@ -37,7 +37,7 @@
     (expect (cider--find-rest-args-position ["fmt" "&" "arg"])
             :to-equal 1)
     (expect (cider--find-rest-args-position ["fmt" "arg"])
-            :to-equal nil)))
+            :to-be nil)))
 
 (describe "cider--eldoc-format-class-names"
   :var (class-names)
@@ -181,7 +181,7 @@
         (insert "(a (b b) (c c) d)"))
       (search-forward "d")
       (let ((cider-eldoc-max-num-sexps-to-skip 2))
-        (expect (cider-eldoc-beginning-of-sexp) :to-equal nil)
+        (expect (cider-eldoc-beginning-of-sexp) :to-be nil)
         (expect (point) :to-equal 4)))))
 
 (describe "cider--eldoc-remove-dot"
@@ -218,7 +218,7 @@
               '("eldoc-info" ("clojure.core" "inc" (("x"))) "thing" "inc" "pos" 0))
       ;; eldoc can be nil
       (search-forward "1")
-      (expect (cider-eldoc-info-in-current-sexp) :to-equal nil)
+      (expect (cider-eldoc-info-in-current-sexp) :to-be nil)
       ;; when cursor is at the end of sexp, display eldoc of first symbol
       (search-forward "]")
       (expect (cider-eldoc-info-in-current-sexp) :to-equal
@@ -239,7 +239,7 @@
                 '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 1))
         ;; eldoc can be nil
         (search-forward "1")
-        (expect (cider-eldoc-info-in-current-sexp) :to-equal nil)
+        (expect (cider-eldoc-info-in-current-sexp) :to-be nil)
         ;; when cursor is at the end of sexp, display eldoc of first symbol
         (search-forward "]")
         (expect (cider-eldoc-info-in-current-sexp) :to-equal

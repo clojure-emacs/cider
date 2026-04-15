@@ -46,7 +46,7 @@
            (info (cider-extract-error-info cider-compilation-regexp message)))
       (expect (cider-error-test--file-name info) :to-equal "/some/test/file/core.clj")
       (expect (cider-error-test--line-num info) :to-equal 31)
-      (expect (cider-error-test--col-num info) :to-equal nil)
+      (expect (cider-error-test--col-num info) :to-be nil)
       (expect (cider-error-test--face info) :to-equal 'cider-error-highlight-face))
 
     ;; test-cider-extract-error-info-14-windows
@@ -54,15 +54,15 @@
            (info (cider-extract-error-info cider-compilation-regexp message)))
       (expect (cider-error-test--file-name info) :to-equal "c:\\some\\test\\file\\core.clj")
       (expect (cider-error-test--line-num info) :to-equal 31)
-      (expect (cider-error-test--col-num info) :to-equal nil)
+      (expect (cider-error-test--col-num info) :to-be nil)
       (expect (cider-error-test--face info) :to-equal 'cider-error-highlight-face))
 
     ;; test-cider-extract-error-info-14-no-file
     (let* ((message "Syntax error compiling at (REPL:31). Unable to resolve symbol: dummy in this context.")
            (info (cider-extract-error-info cider-compilation-regexp message)))
-      (expect (cider-error-test--file-name info) :to-equal nil)
+      (expect (cider-error-test--file-name info) :to-be nil)
       (expect (cider-error-test--line-num info) :to-equal 31)
-      (expect (cider-error-test--col-num info) :to-equal nil)
+      (expect (cider-error-test--col-num info) :to-be nil)
       (expect (cider-error-test--face info) :to-equal 'cider-error-highlight-face))
 
 
@@ -71,15 +71,15 @@
            (info (cider-extract-error-info cider-compilation-regexp message)))
       (expect (cider-error-test--file-name info) :to-equal "/some/othertest/file/core.clj")
       (expect (cider-error-test--line-num info) :to-equal 24)
-      (expect (cider-error-test--col-num info) :to-equal nil)
+      (expect (cider-error-test--col-num info) :to-be nil)
       (expect (cider-error-test--face info) :to-equal 'cider-warning-highlight-face))
 
     ;; test-cider-extract-warning-info-14-no-file
     (let* ((message "Reflection warning, NO_SOURCE_PATH:24 - reference to field getCanonicalPath can't be resolved.")
            (info (cider-extract-error-info cider-compilation-regexp message)))
-      (expect (cider-error-test--file-name info) :to-equal nil)
+      (expect (cider-error-test--file-name info) :to-be nil)
       (expect (cider-error-test--line-num info) :to-equal 24)
-      (expect (cider-error-test--col-num info) :to-equal nil)
+      (expect (cider-error-test--col-num info) :to-be nil)
       (expect (cider-error-test--face info) :to-equal 'cider-warning-highlight-face))
 
     ;; test-cider-extract-error-info-15
@@ -93,7 +93,7 @@
     ;; test-cider-extract-error-info-15-no-file
     (let* ((message "Syntax error compiling at (REPL:31:3). Unable to resolve symbol: dummy in this context")
            (info (cider-extract-error-info cider-compilation-regexp message)))
-      (expect (cider-error-test--file-name info) :to-equal nil)
+      (expect (cider-error-test--file-name info) :to-be nil)
       (expect (cider-error-test--line-num info) :to-equal 31)
       (expect (cider-error-test--col-num info) :to-equal 3)
       (expect (cider-error-test--face info) :to-equal 'cider-error-highlight-face))
@@ -109,7 +109,7 @@
     ;; test-cider-extract-warning-info-15-no-file
     (let* ((message "Reflection warning, NO_SOURCE_PATH:24:43 - reference to field getCanonicalPath can't be resolved.")
            (info (cider-extract-error-info cider-compilation-regexp message)))
-      (expect (cider-error-test--file-name info) :to-equal nil)
+      (expect (cider-error-test--file-name info) :to-be nil)
       (expect (cider-error-test--line-num info) :to-equal 24)
       (expect (cider-error-test--col-num info) :to-equal 43)
       (expect (cider-error-test--face info) :to-equal 'cider-warning-highlight-face))))

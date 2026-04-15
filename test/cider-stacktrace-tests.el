@@ -171,9 +171,9 @@
     (it "returns nil"
       (setq cider-stacktrace-suppressed-errors '())
       (expect (cider-stacktrace-some-suppressed-errors-p '("a"))
-              :to-equal nil)
+              :to-be nil)
       (expect (cider-stacktrace-some-suppressed-errors-p '())
-              :to-equal nil)))
+              :to-be nil)))
 
   (describe "when some errors are suppressed"
     (it "returns a list of suppressed errors and all errors associated with them"

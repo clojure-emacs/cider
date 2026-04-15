@@ -553,7 +553,7 @@
             (expect (buffer-local-value 'cider-repl-type client-buffer)
                     :to-equal 'cljs)
             (expect (buffer-local-value 'cider-repl-cljs-upgrade-pending client-buffer)
-                    :to-equal nil)
+                    :to-be nil)
             ;; kill server
             (delete-process (get-buffer-process client-buffer))))))
     (it "for a custom REPL type project that needs to switch to cljs"
