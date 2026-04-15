@@ -117,3 +117,18 @@
         (when (buffer-live-p buf1) (kill-buffer buf1))
         (when (buffer-live-p buf2) (kill-buffer buf2))
         (setq cider-test--spinner-buffers nil)))))
+
+(describe "cider-test--extract-from-actual"
+  (it "extracts the first form from an actual result"
+    (expect (cider-test--extract-from-actual "(not (= 3 4))" 1)
+            :to-equal "3"))
+
+  (it "extracts the second form from an actual result"
+    (expect (cider-test--extract-from-actual "(not (= 3 4))" 2)
+            :to-equal "4"))
+
+  (it "handles nested forms"
+    (expect (cider-test--extract-from-actual "(not (= {:a 1} {:a 2}))" 1)
+            :to-equal "{:a 1}")
+    (expect (cider-test--extract-from-actual "(not (= {:a 1} {:a 2}))" 2)
+            :to-equal "{:a 2}")))
