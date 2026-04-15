@@ -158,16 +158,16 @@
   (it "returns interned symbols for a namespace"
     (with-mock-ns-cache
       (let ((symbols (cider-resolve-ns-symbols "clojure.set")))
-        (expect (plist-get symbols "union" #'equal) :to-be-truthy))))
+        (expect (cider-plist-get symbols "union") :to-be-truthy))))
 
   (it "includes alias-qualified symbols"
     (with-mock-ns-cache
       (let ((symbols (cider-resolve-ns-symbols "myapp.core")))
         ;; Should include interns
-        (expect (plist-get symbols "my-fn" #'equal) :to-be-truthy)
+        (expect (cider-plist-get symbols "my-fn") :to-be-truthy)
         ;; Should include alias-qualified symbols
-        (expect (plist-get symbols "str/join" #'equal) :to-be-truthy)
-        (expect (plist-get symbols "set/union" #'equal) :to-be-truthy))))
+        (expect (cider-plist-get symbols "str/join") :to-be-truthy)
+        (expect (cider-plist-get symbols "set/union") :to-be-truthy))))
 
   (it "returns nil for unknown namespaces"
     (with-mock-ns-cache
