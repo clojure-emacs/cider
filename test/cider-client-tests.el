@@ -39,8 +39,8 @@
 
 (describe "cider-var-info"
   (it "handles gracefully empty input"
-    (expect (cider-var-info nil) :to-equal nil)
-    (expect (cider-var-info "") :to-equal nil))
+    (expect (cider-var-info nil) :to-be nil)
+    (expect (cider-var-info "") :to-be nil))
 
   (it "returns vars info as an nREPL dict"
     (spy-on 'cider-sync-request:info :and-return-value
@@ -77,7 +77,7 @@
 
   (it "returns nil in the absence of the info and lookup middleware"
     (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
-    (expect (cider-var-info "str") :to-equal nil)))
+    (expect (cider-var-info "str") :to-be nil)))
 
 (describe "cider-member-info"
   (it "returns member info for a given class and member"
@@ -96,10 +96,10 @@
       (expect (nrepl-dict-get info "class") :to-equal "java.lang.String")))
 
   (it "returns nil when class is nil"
-    (expect (cider-member-info nil "length") :to-equal nil))
+    (expect (cider-member-info nil "length") :to-be nil))
 
   (it "returns nil when member is nil"
-    (expect (cider-member-info "java.lang.String" nil) :to-equal nil)))
+    (expect (cider-member-info "java.lang.String" nil) :to-be nil)))
 
 (describe "cider-classpath-entries"
   (it "uses the classpath op when available"
@@ -146,7 +146,7 @@
 
   (it "returns nil as its default value"
     (setq cider-repl-type nil)
-    (expect (cider-repl-type-for-buffer) :to-equal nil)))
+    (expect (cider-repl-type-for-buffer) :to-be nil)))
 
 (describe "cider-nrepl-send-unhandled-request"
   (it "returns the id of the request sent to nREPL server and ignores the response"
@@ -168,7 +168,7 @@
 (describe "cider-ensure-op-supported"
   (it "returns nil when the op is supported"
     (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
-    (expect (cider-ensure-op-supported "foo") :to-equal nil))
+    (expect (cider-ensure-op-supported "foo") :to-be nil))
   (it "raises a user-error if the op is not supported"
     (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
     (expect (cider-ensure-op-supported "foo")
@@ -177,7 +177,7 @@
 (describe "cider-ns-form-p"
   (it "doesn't match ns in a string"
       (let ((ns-in-string "\"\n(ns bar)\n\""))
-        (expect (cider-ns-form-p ns-in-string) :to-equal nil)))
+        (expect (cider-ns-form-p ns-in-string) :to-be nil)))
   (it "matches ns"
       (let ((ns "(ns bar)\n"))
         (expect (cider-ns-form-p ns) :to-equal 0)))

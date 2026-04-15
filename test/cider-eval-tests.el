@@ -39,7 +39,7 @@
     (expect (cider-extract-error-info cider-compilation-regexp "Syntax error reading source at (/Users/vemv/haystack/src/haystack/parser.cljc:13:0).")
             :to-equal '("/Users/vemv/haystack/src/haystack/parser.cljc" 13 0 cider-error-highlight-face "Syntax error reading source at (/Users/vemv/haystack/src/haystack/parser.cljc:13:0)."))
     (expect (cider-extract-error-info cider-compilation-regexp "Syntax error FOOING clojure.core/let at (src/haystack/analyzer.clj:18:1).\n[1] - failed: even-number-of-forms? at: [:bindings] spec: :clojure.core.specs.alpha/bindings\n")
-            :to-equal nil)))
+            :to-be nil)))
 
 (describe "cider--shorten-error-message"
   (it "strips compilation error prefixes"

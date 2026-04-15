@@ -82,11 +82,11 @@
   (it "returns nil for missing keys"
     (with-mock-ns-cache
       (expect (cider-resolve--get-in "myapp.core" "interns" "nonexistent")
-              :to-equal nil)))
+              :to-be nil)))
 
   (it "returns nil when no REPL is connected"
     (spy-on 'cider-current-repl :and-return-value nil)
-    (expect (cider-resolve--get-in "myapp.core") :to-equal nil)))
+    (expect (cider-resolve--get-in "myapp.core") :to-be nil)))
 
 (describe "cider-resolve-alias"
   (it "resolves a known alias to its namespace"
@@ -142,7 +142,7 @@
   (it "returns nil for completely unknown vars"
     (with-mock-ns-cache
       (expect (cider-resolve-var "myapp.core" "totally-unknown")
-              :to-equal nil))))
+              :to-be nil))))
 
 (describe "cider-resolve-core-ns"
   (it "returns clojure.core for Clojure REPLs"
@@ -152,7 +152,7 @@
 
   (it "returns nil when no REPL is connected"
     (spy-on 'cider-current-repl :and-return-value nil)
-    (expect (cider-resolve-core-ns) :to-equal nil)))
+    (expect (cider-resolve-core-ns) :to-be nil)))
 
 (describe "cider-resolve-ns-symbols"
   (it "returns interned symbols for a namespace"
@@ -171,6 +171,6 @@
 
   (it "returns nil for unknown namespaces"
     (with-mock-ns-cache
-      (expect (cider-resolve-ns-symbols "nonexistent.ns") :to-equal nil))))
+      (expect (cider-resolve-ns-symbols "nonexistent.ns") :to-be nil))))
 
 ;;; cider-resolve-tests.el ends here

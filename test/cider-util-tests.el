@@ -350,7 +350,7 @@ buffer."
     (expect (cider--project-name "/home/user/projects/my-app") :to-equal "my-app"))
 
   (it "returns nil for nil input"
-    (expect (cider--project-name nil) :to-equal nil)))
+    (expect (cider--project-name nil) :to-be nil)))
 
 (describe "cider-propertize"
   (it "applies the correct face for each kind"
@@ -459,21 +459,23 @@ and some other vars (like clojure.core/filter).
       (expect (cider--find-symbol-xref) :to-equal "references")
       (expect (cider--find-symbol-xref) :to-equal "clojure.core/map")
       (expect (cider--find-symbol-xref) :to-equal "clojure.core/filter")
-      (expect (cider--find-symbol-xref) :to-equal nil))))
+      (expect (cider--find-symbol-xref) :to-be nil))))
 
 (describe "major-mode-predicates"
-  (with-temp-buffer
-    (it "matches clojure-mode"
+  (it "matches clojure-mode"
+    (with-temp-buffer
       (clojure-mode)
       (expect (cider-clojure-major-mode-p) :to-be-truthy)
       (expect (cider-clojurescript-major-mode-p) :not :to-be-truthy)
-      (expect (cider-clojurec-major-mode-p) :not :to-be-truthy))
-    (it "matches clojurescript-mode"
+      (expect (cider-clojurec-major-mode-p) :not :to-be-truthy)))
+  (it "matches clojurescript-mode"
+    (with-temp-buffer
       (clojurescript-mode)
       (expect (cider-clojure-major-mode-p) :to-be-truthy)
       (expect (cider-clojurescript-major-mode-p) :to-be-truthy)
-      (expect (cider-clojurec-major-mode-p) :not :to-be-truthy))
-    (it "matches clojurec-mode"
+      (expect (cider-clojurec-major-mode-p) :not :to-be-truthy)))
+  (it "matches clojurec-mode"
+    (with-temp-buffer
       (clojurec-mode)
       (expect (cider-clojure-major-mode-p) :to-be-truthy)
       (expect (cider-clojurescript-major-mode-p) :not :to-be-truthy)

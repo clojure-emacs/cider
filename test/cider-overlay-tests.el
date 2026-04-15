@@ -227,6 +227,6 @@ being set that way"
     (cider--with-overlay ("ok")
       (mapc #'cider--delete-overlay (overlays-at (point-min)))
       (setq overlay-position (mapcar #'overlay-start (overlays-at (point-min))))
-      (expect overlay-position :to-equal nil))))
+      (expect overlay-position :to-be nil))))
 
 ;;; cider-overlay-tests.el ends here

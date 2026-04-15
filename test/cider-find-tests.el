@@ -83,15 +83,15 @@ stuff"
             (expect (cider-symbol-at-point 'look-back) :to-equal "::foo")))
 
         (nrepl-dbind-response (cider--find-keyword-loc "::some.ns/bar") (dest dest-point)
-          (expect dest-point :to-equal nil))
+          (expect dest-point :to-be nil))
 
         (nrepl-dbind-response (cider--find-keyword-loc ":some.ns/bar") (dest dest-point)
-          (expect dest-point :to-equal nil))
+          (expect dest-point :to-be nil))
 
         (expect (cider--find-keyword-loc ":foo") :to-throw 'user-error)
 
         (nrepl-dbind-response (cider--find-keyword-loc ":unrelated/foo") (dest dest-point)
-          (expect dest-point :to-equal nil))
+          (expect dest-point :to-be nil))
 
         (nrepl-dbind-response (cider--find-keyword-loc "::unrelated/foo") (dest dest-point)
-          (expect dest-point :to-equal nil))))))
+          (expect dest-point :to-be nil))))))

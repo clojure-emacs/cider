@@ -46,5 +46,5 @@
 (describe "cider-clojuredocs-url"
   (it "creates a clojuredocs search URL"
     (expect (cider-clojuredocs-url "even?" "clojure.core") :to-equal "https://clojuredocs.org/clojure.core/even_q")
-    (expect (cider-clojuredocs-url nil "clojure.core") :to-equal nil)
-    (expect (cider-clojuredocs-url "even?" nil) :to-equal nil)))
+    (expect (cider-clojuredocs-url nil "clojure.core") :to-be nil)
+    (expect (cider-clojuredocs-url "even?" nil) :to-be nil)))

@@ -32,38 +32,36 @@
 
 (describe "cider-enable-flex-completion"
   (when (>= emacs-major-version 27)
-    (cl-assert (not (member 'flex (assq 'styles (assq 'cider completion-category-overrides)))))
-    (let ((old-value completion-category-overrides))
-      (unwind-protect
-          (progn
-            (it "adds `flex' and `basic' as a fallback"
-              (let ((expected-category-overrides '((cider (styles flex basic)))))
-                (cider-enable-flex-completion)
-                (expect (member 'flex (assq 'styles (assq 'cider completion-category-overrides)))
-                        :to-be-truthy)
-                (expect (member 'basic (assq 'styles (assq 'cider completion-category-overrides)))
-                        :to-be-truthy)
-                (expect completion-category-overrides :to-equal expected-category-overrides)))
+    (it "adds `flex' and `basic' as a fallback"
+      (let ((completion-category-overrides nil))
+        (cider-enable-flex-completion)
+        (expect (member 'flex (assq 'styles (assq 'cider completion-category-overrides)))
+                :to-be-truthy)
+        (expect (member 'basic (assq 'styles (assq 'cider completion-category-overrides)))
+                :to-be-truthy)
+        (expect completion-category-overrides
+                :to-equal '((cider (styles flex basic))))))
 
-            (it "doesn't add `cycle'"
-              (expect (assq 'cycle (assq 'cider completion-category-overrides))
-                      :to-be nil))
+    (it "doesn't add `cycle'"
+      (let ((completion-category-overrides nil))
+        (cider-enable-flex-completion)
+        (expect (assq 'cycle (assq 'cider completion-category-overrides))
+                :to-be nil)))
 
-            (it "adds just `flex' if there is another style present"
-              (setq completion-category-overrides '((cider (styles partial-completion))))
-              (cider-enable-flex-completion)
-              (expect (member 'flex (assq 'styles (assq 'cider completion-category-overrides)))
-                      :to-be-truthy)
-              (expect (member 'partial-completion (assq 'styles (assq 'cider completion-category-overrides)))
-                      :to-be-truthy)
-              (expect (member 'basic (assq 'styles (assq 'cider completion-category-overrides)))
-                      :to-be nil))
+    (it "adds just `flex' if there is another style present"
+      (let ((completion-category-overrides '((cider (styles partial-completion)))))
+        (cider-enable-flex-completion)
+        (expect (member 'flex (assq 'styles (assq 'cider completion-category-overrides)))
+                :to-be-truthy)
+        (expect (member 'partial-completion (assq 'styles (assq 'cider completion-category-overrides)))
+                :to-be-truthy)
+        (expect (member 'basic (assq 'styles (assq 'cider completion-category-overrides)))
+                :to-be nil)))
 
-            (it "doesn't re-add `flex' if already present, preserving `cycle' as well"
-              (let ((with-flex-and-cycle '((cider (styles basic flex)
-                                                  (cycle t)))))
-                (setq completion-category-overrides with-flex-and-cycle)
-                (cider-enable-flex-completion)
-                (expect completion-category-overrides
-                        :to-equal with-flex-and-cycle))))
-        (setq completion-category-overrides old-value)))))
+    (it "doesn't re-add `flex' if already present, preserving `cycle' as well"
+      (let ((completion-category-overrides '((cider (styles basic flex)
+                                                    (cycle t)))))
+        (cider-enable-flex-completion)
+        (expect completion-category-overrides
+                :to-equal '((cider (styles basic flex)
+                                   (cycle t))))))))

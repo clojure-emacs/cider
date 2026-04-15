@@ -153,11 +153,11 @@
         (it "returns nil"
           ;; for clj
           (with-repl-buffer ses-name 'cljs _b1
-            (expect (cider-current-repl 'clj) :to-equal nil))
+            (expect (cider-current-repl 'clj) :to-be nil))
 
           ;; for cljs
           (with-repl-buffer ses-name 'clj _b2
-            (expect (cider-current-repl 'cljs) :to-equal nil))))
+            (expect (cider-current-repl 'cljs) :to-be nil))))
 
       (describe "when type argument is not given"
 
@@ -184,13 +184,13 @@
             (with-repl-buffer ses-name 'clj _b1
               (with-temp-buffer
                 (setq major-mode 'clojurescript-mode)
-                (expect (cider-current-repl) :to-equal nil)))
+                (expect (cider-current-repl) :to-be nil)))
 
             ;; for cljs
             (with-repl-buffer ses-name 'cljs _b2
               (with-temp-buffer
                 (setq major-mode 'clojure-mode)
-                (expect (cider-current-repl) :to-equal nil))))))))
+                (expect (cider-current-repl) :to-be nil))))))))
 
   (describe "when multiple sessions exist"
     (it "always returns the most recently used connection"
@@ -242,9 +242,9 @@
 
   (describe "when there are no active connections"
     (it "returns nil"
-      (expect (cider-repls) :to-equal nil)
-      (expect (cider-repls 'clj) :to-equal nil)
-      (expect (cider-repls 'cljs) :to-equal nil)))
+      (expect (cider-repls) :to-be nil)
+      (expect (cider-repls 'clj) :to-be nil)
+      (expect (cider-repls 'cljs) :to-be nil)))
 
   (describe "when multiple sessions exist"
     (it "always returns the most recently used connection"
@@ -594,7 +594,7 @@
         (with-repl-buffer ses-name 'clj _b1
           (setq cider-default-session "nonexistent-session")
           ;; Should warn and return nil (stale default session yields no REPLs)
-          (expect (cider-repls) :to-equal nil)))))
+          (expect (cider-repls) :to-be nil)))))
 
   (describe "cider-set-default-session"
     (it "sets the default session from active sessions"
@@ -608,7 +608,7 @@
     (it "clears the default session"
       (setq cider-default-session "some-session")
       (cider-clear-default-session)
-      (expect cider-default-session :to-equal nil)))
+      (expect cider-default-session :to-be nil)))
 
   (describe "cider--connection-info with default session"
     (before-each

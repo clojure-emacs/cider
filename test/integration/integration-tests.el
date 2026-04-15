@@ -627,7 +627,7 @@ If CLI-COMMAND is nil, then use the default."
       (with-temp-buffer
         (setq-local cider-connect-default-params '(:host "localhost"))
         (ignore-errors (call-interactively 'cider-connect))
-        (expect host-prompt :to-equal nil)
+        (expect host-prompt :to-be nil)
         (expect port-prompt :to-equal t))
       (with-temp-buffer
         (setq host-prompt nil port-prompt nil)
@@ -638,5 +638,5 @@ If CLI-COMMAND is nil, then use the default."
           (error
            (expect e :to-equal
                    '(error "[nREPL] Direct connection to localhost:65536 failed"))))
-        (expect host-prompt :to-equal nil)
-        (expect port-prompt :to-equal nil)))))
+        (expect host-prompt :to-be nil)
+        (expect port-prompt :to-be nil)))))

@@ -35,7 +35,7 @@
 ;;; cider-common tests
 (describe "cider-abbreviate-ns"
   (it "handles nil input"
-    (expect (cider-abbreviate-ns nil) :to-equal nil))
+    (expect (cider-abbreviate-ns nil) :to-be nil))
 
   (it "handles empty string input"
     (expect (cider-abbreviate-ns "") :to-equal ""))
@@ -48,7 +48,7 @@
 
 (describe "cider-last-ns-segment"
   (it "handles nil input"
-    (expect (cider-last-ns-segment nil) :to-equal nil))
+    (expect (cider-last-ns-segment nil) :to-be nil))
 
   (it "handles empty string input"
     (expect (cider-last-ns-segment "") :to-equal ""))
@@ -64,7 +64,7 @@
     (expect (cider--kw-to-symbol "symbol") :to-equal "symbol")
     (expect (cider--kw-to-symbol ":clj.core/str") :to-equal "clj.core/str")
     (expect (cider--kw-to-symbol "::keyword") :to-equal "keyword")
-    (expect (cider--kw-to-symbol nil) :to-equal nil)))
+    (expect (cider--kw-to-symbol nil) :to-be nil)))
 
 (describe "cider-make-tramp-prefix"
   (it "returns tramp-prefix only"
@@ -122,9 +122,9 @@
               :to-equal /home/host/project/src/namespace.clj))
   (it "returns nil if no prefixes match ('from-nrepl)"
       (expect (cider--translate-path-test `((,/docker/src . ,/home/host/project/src)) /home/host/random/file.clj 'from-nrepl)
-              :to-equal nil)
+              :to-be nil)
       (expect (cider--translate-path-from-nrepl-test `((,/docker/src . ,/home/host/project/src)) /home/host/random/file.clj)
-              :to-equal nil))
+              :to-be nil))
   (it "won't replace a prefix in the middle of the path ('from-nrepl)"
       (expect (cider--translate-path-test `((,/src . ,/host)) /src/project/src/ns.clj 'from-nrepl)
               :to-equal /host/project/src/ns.clj)
@@ -156,9 +156,9 @@
               :to-equal /docker/src/namespace.clj))
   (it "returns nil if no prefixes match ('to-nrepl)"
       (expect (cider--translate-path-test `((,/docker/src . ,/home/host/project/src)) /home/host/random/file.clj 'to-nrepl)
-              :to-equal nil)
+              :to-be nil)
       (expect (cider--translate-path-to-nrepl-test `((,/docker/src . ,/home/host/project/src)) /home/host/random/file.clj)
-              :to-equal nil))
+              :to-be nil))
   (it "won't replace a prefix in the middle of the path ('to-nrepl)"
       (expect (cider--translate-path-test `((,/src . ,/host)) /host/project/host/ns.clj 'to-nrepl)
               :to-equal /src/project/host/ns.clj)

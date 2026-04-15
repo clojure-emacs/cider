@@ -74,16 +74,28 @@
 
   (it "renders a s/schema map form"
     (cider-browse-spec-tests--setup-spec-form cider-browse-spec-tests--schema-map-response)
-    (expect (cider-browse-spec--browse ":example/customer")))
+    (let ((buf (cider-browse-spec--browse ":example/customer")))
+      (expect (bufferp buf) :to-be-truthy)
+      (expect (with-current-buffer buf (buffer-string)) :to-match "s/schema")
+      (kill-buffer buf)))
 
   (it "renders a s/schema vector form"
     (cider-browse-spec-tests--setup-spec-form cider-browse-spec-tests--schema-vector-response)
-    (expect (cider-browse-spec--browse ":example/customer")))
+    (let ((buf (cider-browse-spec--browse ":example/customer")))
+      (expect (bufferp buf) :to-be-truthy)
+      (expect (with-current-buffer buf (buffer-string)) :to-match "s/schema")
+      (kill-buffer buf)))
 
   (it "renders a s/select form"
     (cider-browse-spec-tests--setup-spec-form cider-browse-spec-tests--movie-times-user-response)
-    (expect (cider-browse-spec--browse ":user/movie-times-user")))
+    (let ((buf (cider-browse-spec--browse ":user/movie-times-user")))
+      (expect (bufferp buf) :to-be-truthy)
+      (expect (with-current-buffer buf (buffer-string)) :to-match "s/select")
+      (kill-buffer buf)))
 
   (it "renders a s/union form"
     (cider-browse-spec-tests--setup-spec-form cider-browse-spec-tests--company-addr-response)
-    (expect (cider-browse-spec--browse ":user/company-addr"))))
+    (let ((buf (cider-browse-spec--browse ":user/company-addr")))
+      (expect (bufferp buf) :to-be-truthy)
+      (expect (with-current-buffer buf (buffer-string)) :to-match "s/union")
+      (kill-buffer buf))))
