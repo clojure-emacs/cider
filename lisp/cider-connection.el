@@ -955,6 +955,9 @@ function with the repl buffer set as current."
       (setq nrepl-err-handler #'cider-default-err-handler
             nrepl-need-input-handler-function #'cider-need-input
             nrepl-namespace-handler-function #'cider--update-buffer-ns
+            nrepl-close-connection-handler-function #'cider--close-connection
+            nrepl-format-buffer-name-function #'cider-format-connection-params
+            nrepl-connect-params (cider--gather-connect-params)
             ;; used as a new-repl marker in cider-set-repl-type
             mode-name nil
             cider-session-name ses-name
