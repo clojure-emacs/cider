@@ -32,16 +32,20 @@
 (require 'cider-connection)
 
 (describe "Enable cider-minor mode on clojure-ts-mode buffers"
-  (setq clojure-ts-mode-hook nil)
-  (with-temp-buffer
-    (clojure-ts-mode)
-    (it "should enable cider-mode in the clojure-ts-mode buffer"
-      (cider-enable-on-existing-clojure-buffers)
-      (expect local-minor-modes :to-contain 'cider-mode)
-      (expect clojure-ts-mode-hook :to-contain #'cider-mode))
-    (it "should disable cider-mode in the clojure-ts-mode-buffer"
-      (cider-disable-on-existing-clojure-buffers)
-      (expect local-minor-modes :not :to-contain 'cider-mode))))
+  (it "should enable cider-mode in the clojure-ts-mode buffer"
+    (let ((clojure-ts-mode-hook nil))
+      (with-temp-buffer
+        (clojure-ts-mode)
+        (cider-enable-on-existing-clojure-buffers)
+        (expect local-minor-modes :to-contain 'cider-mode)
+        (expect clojure-ts-mode-hook :to-contain #'cider-mode))))
+  (it "should disable cider-mode in the clojure-ts-mode buffer"
+    (let ((clojure-ts-mode-hook nil))
+      (with-temp-buffer
+        (clojure-ts-mode)
+        (cider-enable-on-existing-clojure-buffers)
+        (cider-disable-on-existing-clojure-buffers)
+        (expect local-minor-modes :not :to-contain 'cider-mode)))))
 
 (describe "cider-repl-type-for-buffers"
   (it "correctly detects corresponding repl type based on clojure-ts-* major mode"
