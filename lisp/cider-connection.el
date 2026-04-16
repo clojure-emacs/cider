@@ -1074,7 +1074,7 @@ filters out all the REPLs that do not support the designated ops."
                           (cider-cljs-pending-p b)
                         (and (cider--match-repl-type type b)
                              (seq-every-p (lambda (op)
-                                            (nrepl-op-supported-p op b))
+                                            (cider-nrepl-op-supported-p op b))
                                           required-ops))))
                     repls)
         (when ensure
