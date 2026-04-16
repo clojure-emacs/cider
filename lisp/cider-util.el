@@ -41,6 +41,7 @@
 ;; Third-party
 (require 'compat)
 (require 'clojure-mode)
+(require 'nrepl-dict)
 
 (defalias 'cider-pop-back #'pop-tag-mark)
 
@@ -249,13 +250,8 @@ Can only error if SKIP is non-nil."
 
 ;;; Plists
 
-(defun cider-plist-get (plist prop)
-  "Extract PROP from PLIST using `equal' for comparison."
-  (compat-call plist-get plist prop #'equal))
-
-(defun cider-plist-put (plist prop val)
-  "Change value in PLIST of PROP to VAL, comparing with `equal'."
-  (compat-call plist-put plist prop val #'equal))
+(defalias 'cider-plist-get #'nrepl-plist-get)
+(defalias 'cider-plist-put #'nrepl-plist-put)
 
 
 ;;; Text properties
