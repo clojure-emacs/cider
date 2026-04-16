@@ -27,6 +27,7 @@
 
 (require 'buttercup)
 (require 'cider-eval)
+(require 'cider-test-utils "test/utils/cider-test-utils")
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
@@ -102,21 +103,11 @@
 
 (describe "cider--guess-eval-context"
   (it "extracts let bindings from parent forms"
-    (with-temp-buffer
-      (delay-mode-hooks (clojure-mode))
-      (insert "(let [x 1\n      y 2]\n  |)")
-      (goto-char (point-min))
-      (search-forward "|")
-      (delete-char -1)
+    (with-clojure-buffer "(let [x 1\n      y 2]\n  |)"
       (let ((ctx (cider--guess-eval-context)))
         (expect ctx :to-match "x 1")
         (expect ctx :to-match "y 2"))))
 
   (it "returns empty string when not inside a let"
-    (with-temp-buffer
-      (delay-mode-hooks (clojure-mode))
-      (insert "(defn foo [] |)")
-      (goto-char (point-min))
-      (search-forward "|")
-      (delete-char -1)
+    (with-clojure-buffer "(defn foo [] |)"
       (expect (cider--guess-eval-context) :to-equal ""))))

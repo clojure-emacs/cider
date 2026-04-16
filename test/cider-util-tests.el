@@ -29,27 +29,10 @@
 
 (require 'buttercup)
 (require 'cider-util)
+(require 'cider-test-utils "test/utils/cider-test-utils")
 (require 'package)
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
-
-(defun with-clojure-buffer--go-to-point ()
-  (when (search-forward "|" nil 'noerror)
-    (delete-char -1)))
-
-(defmacro with-clojure-buffer (contents &rest body)
-  "Execute BODY in a clojure-mode buffer with CONTENTS
-
-CONTENTS is a string containing an optional character `|' indicating the
-cursor position. If not present, the cursor is placed at the end of the
-buffer."
-  (declare (indent 1))
-  `(with-temp-buffer
-     (delay-mode-hooks (clojure-mode))
-     (insert ,contents)
-     (goto-char (point-min))
-     (with-clojure-buffer--go-to-point)
-     ,@body))
 
 ;;; cider-util tests
 
