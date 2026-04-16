@@ -33,7 +33,22 @@
 
 ;;; Code:
 (require 'cl-lib)
-(require 'cider-util)
+(require 'compat)
+
+
+;;; String-keyed plist utilities
+;;
+;; nREPL uses string keys in its protocol messages, but Emacs' built-in
+;; `plist-get'/`plist-put' only compare with `eq' in Emacs 28.  We use
+;; `compat-call' to get `equal' comparison on all supported Emacs versions.
+
+(defun nrepl-plist-get (plist prop)
+  "Extract PROP from PLIST using `equal' for comparison."
+  (compat-call plist-get plist prop #'equal))
+
+(defun nrepl-plist-put (plist prop val)
+  "Change value in PLIST of PROP to VAL, comparing with `equal'."
+  (compat-call plist-put plist prop val #'equal))
 
 
 (defun nrepl-dict (&rest key-vals)
@@ -76,7 +91,7 @@ removed in a future release."
     (if (nrepl-dict-p dict)
         ;; Note: The structure of the following expression avoids the
         ;; expensive containment check in nearly all cases, see #3717
-        (or (cider-plist-get (cdr dict) key)
+        (or (nrepl-plist-get (cdr dict) key)
             ;; TODO: remove DEFAULT argument and the following clause
             (when default
               (and (not (nrepl-dict-contains dict key))
@@ -90,7 +105,7 @@ Return new dict.  Dict is modified by side effects."
       `(dict ,key ,value)
     (if (not (nrepl-dict-p dict))
         (error "Not an nREPL dict object: %s" dict)
-      (setcdr dict (cider-plist-put (cdr dict) key value))
+      (setcdr dict (nrepl-plist-put (cdr dict) key value))
       dict)))
 
 (defun nrepl-dict-keys (dict)
