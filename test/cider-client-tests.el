@@ -174,6 +174,38 @@
     (expect (cider-ensure-op-supported "foo")
             :to-throw 'user-error)))
 
+(describe "cider--fallback-op"
+  (it "returns the namespaced op when it is supported"
+    (spy-on 'nrepl-op-supported-p :and-call-fake
+            (lambda (op _conn) (equal op "cider/info")))
+    (expect (cider--fallback-op "cider/info" :fake-conn) :to-equal "cider/info"))
+
+  (it "falls back to the unprefixed name when namespaced op is not supported"
+    (spy-on 'nrepl-op-supported-p :and-call-fake
+            (lambda (op _conn) (equal op "info")))
+    (expect (cider--fallback-op "cider/info" :fake-conn) :to-equal "info"))
+
+  (it "returns the op as-is when neither version is supported"
+    (spy-on 'nrepl-op-supported-p :and-return-value nil)
+    (expect (cider--fallback-op "cider/info" :fake-conn) :to-equal "cider/info"))
+
+  (it "does not strip prefix from non-cider ops"
+    (spy-on 'nrepl-op-supported-p :and-return-value nil)
+    (expect (cider--fallback-op "completions" :fake-conn) :to-equal "completions")))
+
+(describe "cider--resolve-op-in-request"
+  (it "rewrites the op in the request when falling back"
+    (spy-on 'cider--fallback-op :and-return-value "info")
+    (let ((result (cider--resolve-op-in-request '("op" "cider/info" "ns" "user") :fake-conn)))
+      (expect (cider-plist-get result "op") :to-equal "info")
+      (expect (cider-plist-get result "ns") :to-equal "user")))
+
+  (it "returns the request unchanged when no fallback is needed"
+    (spy-on 'cider--fallback-op :and-return-value "cider/info")
+    (let* ((request '("op" "cider/info" "ns" "user"))
+           (result (cider--resolve-op-in-request request :fake-conn)))
+      (expect result :to-equal request))))
+
 (describe "cider-ns-form-p"
   (it "doesn't match ns in a string"
       (let ((ns-in-string "\"\n(ns bar)\n\""))

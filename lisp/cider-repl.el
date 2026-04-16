@@ -956,10 +956,9 @@ Part of the default `cider-repl-content-type-handler-alist'."
 Handles an external-body TYPE by issuing a slurp request to fetch the content."
   (if-let* ((args        (cadr type))
             (access-type (nrepl-dict-get args "access-type")))
-      (nrepl-send-request
+      (cider-nrepl-send-request
        (list "op" "cider/slurp" "url" (nrepl-dict-get args access-type))
-       (cider-repl-handler buffer)
-       (cider-current-repl)))
+       (cider-repl-handler buffer)))
   nil)
 
 (defvar cider-repl-content-type-handler-alist
@@ -981,12 +980,12 @@ nREPL ops, it may be convenient to prevent inserting a prompt.")
 (defun cider--maybe-get-state-cljs ()
   "Invokes `cider/get-state' when it's possible to do so."
   (when-let ((conn (cider-current-repl 'cljs)))
-    (when (nrepl-op-supported-p "cider/get-state" conn)
-      (nrepl-send-request '("op" "cider/get-state")
-                          (lambda (_response)
-                            ;; No action is necessary: this request results in `cider-repl--state-handler` being called.
-                            )
-                          conn))))
+    (when (cider-nrepl-op-supported-p "cider/get-state" conn)
+      (cider-nrepl-send-request '("op" "cider/get-state")
+                                (lambda (_response)
+                                  ;; No action is necessary: this request results in `cider-repl--state-handler` being called.
+                                  )
+                                conn))))
 
 (defun cider--maybe-get-state-for-shadow-cljs (buffer &optional err)
   "Refresh the changed namespaces metadata given BUFFER and ERR (stderr string).
@@ -1809,7 +1808,7 @@ The checking is done as follows:
                                             (cider-classpath-entries))))
                                   (process-put proc :cached-classpath cp)
                                   cp)))
-                 (ns-list (when (nrepl-op-supported-p "cider/ns-list" repl)
+                 (ns-list (when (cider-nrepl-op-supported-p "cider/ns-list" repl)
                             (or (process-get proc :all-namespaces)
                                 (let ((ns-list (with-current-buffer repl
                                                  (cider-sync-request:ns-list))))

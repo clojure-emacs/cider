@@ -171,19 +171,46 @@ nREPL connection."
           (clojure-expected-ns path)))
     (clojure-expected-ns path)))
 
+(defun cider--fallback-op (op connection)
+  "Return the effective op name for OP on CONNECTION.
+Try OP as-is first, then fall back to the unprefixed name for
+backward compatibility with older cider-nrepl versions that don't
+use namespaced ops."
+  (let ((legacy (string-remove-prefix "cider/" op)))
+    (cond
+     ((nrepl-op-supported-p op connection) op)
+     ((and (not (equal op legacy))
+           (nrepl-op-supported-p legacy connection))
+      legacy)
+     (t op))))
+
 (defun cider-nrepl-op-supported-p (op &optional connection skip-ensure)
   "Check whether the CONNECTION supports the nREPL middleware OP.
+Also checks for the unprefixed legacy name when OP starts with
+\"cider/\", for backward compatibility with older cider-nrepl.
 Skip check if repl is active if SKIP-ENSURE is non nil."
-  (nrepl-op-supported-p op (or connection
-                               (cider-current-repl 'infer (if skip-ensure
-                                                              nil
-                                                            'ensure)))))
+  (let ((conn (or connection
+                  (cider-current-repl 'infer (if skip-ensure nil 'ensure)))))
+    (or (nrepl-op-supported-p op conn)
+        (let ((legacy (string-remove-prefix "cider/" op)))
+          (and (not (equal op legacy))
+               (nrepl-op-supported-p legacy conn))))))
 
 (defun cider-ensure-op-supported (op &optional connection)
   "Check for support of middleware op OP for CONNECTION.
 Signal an error if it is not supported."
   (unless (cider-nrepl-op-supported-p op connection)
     (user-error "`%s' requires the nREPL op \"%s\" (provided by cider-nrepl)" this-command op)))
+
+(defun cider--resolve-op-in-request (request connection)
+  "Resolve the op in REQUEST to a name supported by CONNECTION.
+Falls back to the unprefixed legacy op name when the server
+doesn't support namespaced ops."
+  (let* ((op (cider-plist-get request "op"))
+         (effective (cider--fallback-op op connection)))
+    (if (equal op effective)
+        request
+      (cider-plist-put (copy-sequence request) "op" effective))))
 
 (defun cider-nrepl-send-request (request callback &optional connection tooling)
   "Send REQUEST and register response handler CALLBACK.
@@ -192,9 +219,9 @@ REQUEST is a pair list of the form (\"op\" \"operation\" \"par1-name\"
 If CONNECTION is provided dispatch to that connection instead of
 the current connection.  Return the id of the sent message.
 If TOOLING is truthy then the tooling session is used."
-  (nrepl-send-request request callback (or connection
-                                           (cider-current-repl 'infer 'ensure))
-                      tooling))
+  (let ((conn (or connection (cider-current-repl 'infer 'ensure))))
+    (nrepl-send-request (cider--resolve-op-in-request request conn)
+                        callback conn tooling)))
 
 (defun cider-nrepl-send-sync-request (request &optional connection
                                               abort-on-input callback)
@@ -205,17 +232,19 @@ If ABORT-ON-INPUT is non-nil, the function will return nil
 at the first sign of user input, so as not to hang the
 interface.
 if CALLBACK is non-nil, it will additionally be called on all received messages."
-  (nrepl-send-sync-request request
-                           (or connection (cider-current-repl 'infer 'ensure))
-                           abort-on-input
-                           nil
-                           callback))
+  (let ((conn (or connection (cider-current-repl 'infer 'ensure))))
+    (nrepl-send-sync-request (cider--resolve-op-in-request request conn)
+                             conn
+                             abort-on-input
+                             nil
+                             callback)))
 
 (defun cider-nrepl-send-unhandled-request (request &optional connection)
   "Send REQUEST to the nREPL CONNECTION and ignore any responses.
 Immediately mark the REQUEST as done.  Return the id of the sent message."
   (let* ((conn (or connection (cider-current-repl 'infer 'ensure)))
-         (id (nrepl-send-request request #'ignore conn)))
+         (id (nrepl-send-request (cider--resolve-op-in-request request conn)
+                                 #'ignore conn)))
     (with-current-buffer conn
       (nrepl--mark-id-completed id))
     id))
