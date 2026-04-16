@@ -905,8 +905,10 @@ This is used by pretty-printing commands."
      ;; content type handler:
      nil
      ;; truncated handler:
-     (lambda (buffer warning)
-       (cider-emit-into-popup-buffer buffer warning 'font-lock-warning-face t)))))
+     (lambda (buffer)
+       (let ((warning (format "\n... output truncated to %sB ..."
+                              (file-size-human-readable cider-print-quota))))
+         (cider-emit-into-popup-buffer buffer warning 'font-lock-warning-face t))))))
 
 
 ;;; Interactive valuation commands

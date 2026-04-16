@@ -785,6 +785,16 @@ which we can eventually reuse."
 (defvar nrepl-err-handler nil
   "Evaluation error handler.")
 
+(defvar nrepl-need-input-handler-function nil
+  "Function to call when the server requests stdin input.
+Called with one argument: the REPL buffer.
+When nil, need-input requests are ignored.")
+
+(defvar nrepl-namespace-handler-function nil
+  "Function to call when the server reports a namespace change.
+Called with two arguments: BUFFER and NS (string).
+When nil, namespace changes are ignored.")
+
 (defun nrepl--mark-id-completed (id)
   "Move ID from `nrepl-pending-requests' to `nrepl-completed-requests'.
 It is safe to call this function multiple times on the same ID."
@@ -794,12 +804,9 @@ It is safe to call this function multiple times on the same ID."
     (puthash id handler nrepl-completed-requests)
     (remhash id nrepl-pending-requests)))
 
-(declare-function cider-repl--emit-interactive-output "cider-repl")
 (defun nrepl-notify (msg type)
-  "Handle \"notification\" server request.
-MSG is a string to be displayed.  TYPE is the type of the message.  All
-notifications are currently displayed with `message' function and emitted
-to the REPL."
+  "Handle a server notification with MSG and TYPE.
+Displays the notification via `message'."
   (let* ((face (pcase type
                  ((or "message" `nil) 'font-lock-builtin-face)
                  ("warning" 'warning)
@@ -807,15 +814,9 @@ to the REPL."
          (msg (if face
                   (propertize msg 'face face)
                 (format "%s: %s" (upcase type) msg))))
-    (cider-repl--emit-interactive-output msg (or face 'font-lock-builtin-face))
     (message msg)))
 
-(defvar cider-buffer-ns)
-(defvar cider-print-quota)
 (defvar cider-special-mode-truncate-lines)
-(declare-function cider-clojure-major-mode-p "cider-util")
-(declare-function cider-need-input "cider-client")
-(declare-function cider-set-buffer-ns "cider-mode")
 
 (defun nrepl-make-response-handler (buffer value-handler stdout-handler
                                            stderr-handler done-handler
@@ -847,10 +848,8 @@ the corresponding type of response."
   (lambda (response)
     (nrepl-dbind-response response (content-type content-transfer-encoding body
                                                  value ns out err status id)
-      (when (buffer-live-p buffer)
-        (with-current-buffer buffer
-          (when (and ns (not (cider-clojure-major-mode-p)))
-            (cider-set-buffer-ns ns))))
+      (when (and ns nrepl-namespace-handler-function)
+        (funcall nrepl-namespace-handler-function buffer ns))
       (cond ((and content-type content-type-handler)
              (funcall content-type-handler buffer
                       (if (string= content-transfer-encoding "base64")
@@ -868,20 +867,16 @@ the corresponding type of response."
                (funcall stderr-handler buffer err)))
             (status
              (when (and truncated-handler (member "nrepl.middleware.print/truncated" status))
-               (let ((warning (format "\n... output truncated to %sB ..."
-                                      (file-size-human-readable cider-print-quota))))
-                 (funcall truncated-handler buffer warning)))
-             (when (member "notification" status)
-               (nrepl-dbind-response response (msg type)
-                 (nrepl-notify msg type)))
+               (funcall truncated-handler buffer))
              (when (member "interrupted" status)
                (message "Evaluation interrupted."))
              (when (member "eval-error" status)
                (funcall (or eval-error-handler nrepl-err-handler) buffer))
              (when (member "namespace-not-found" status)
                (message "Namespace `%s' not found." ns))
-             (when (member "need-input" status)
-               (cider-need-input buffer))
+             (when (and (member "need-input" status)
+                        nrepl-need-input-handler-function)
+               (funcall nrepl-need-input-handler-function buffer))
              (when (member "done" status)
                (nrepl--mark-id-completed id)
                (when done-handler
@@ -927,8 +922,6 @@ the standard session."
 (defvar nrepl-ongoing-sync-request nil
   "Dynamically bound to t while a sync request is ongoing.")
 
-(declare-function cider--render-stacktrace-causes "cider-eval")
-
 (defun nrepl-send-sync-request (request connection &optional abort-on-input
                                         tooling callback)
   "Send REQUEST to the nREPL server synchronously using CONNECTION.
@@ -939,8 +932,8 @@ sign of user input, so as not to hang the interface.
 If TOOLING, use the tooling session rather than the standard session.
 
 If CALLBACK is non-nil, it will additionally be called on all received
-messages. This shouldn't be used this for any control logic — use the
-asynchronous `nrepl-send-request' directly for that. CALLBACK here should
+messages.  This shouldn't be used this for any control logic - use the
+asynchronous `nrepl-send-request' directly for that.  CALLBACK here should
 be used to react to some intermediate events in an otherwise synchronous
 command and e.g. notify the user about them."
   (let* ((time0 (current-time))
@@ -958,9 +951,10 @@ command and e.g. notify the user about them."
                           (input-pending-p))))
       (setq status (nrepl-dict-get response "status"))
       ;; If we get a need-input message then the repl probably isn't going
-      ;; anywhere, and we'll just timeout. So we forward it to the user.
-      (if (member "need-input" status)
-          (progn (cider-need-input (current-buffer))
+      ;; anywhere, and we'll just timeout.  So we forward it to the user.
+      (if (and (member "need-input" status)
+               nrepl-need-input-handler-function)
+          (progn (funcall nrepl-need-input-handler-function (current-buffer))
                  ;; If the user took a few seconds to respond, we might
                  ;; unnecessarily timeout, so let's reset the timer.
                  (setq time0 (current-time)))
@@ -975,11 +969,9 @@ command and e.g. notify the user about them."
       (accept-process-output nil 0.01))
     ;; If we couldn't finish, return nil.
     (when (member "done" status)
-      (nrepl-dbind-response response (ex err eval-error pp-stacktrace id)
-        (when (and ex err)
-          (cond (eval-error (funcall nrepl-err-handler))
-                (pp-stacktrace (cider--render-stacktrace-causes
-                                pp-stacktrace (remove "done" status))))) ;; send the error type
+      (nrepl-dbind-response response (ex err eval-error id)
+        (when (and ex err eval-error)
+          (funcall nrepl-err-handler))
         (when id
           (with-current-buffer connection
             (nrepl--mark-id-completed id)))
