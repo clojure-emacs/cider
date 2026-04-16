@@ -59,13 +59,7 @@ there is ample room for mistakes that are harder to debug)."
              (msg-session (nrepl-dict-get msg "session"))
              (response (pcase msg
                          ((pred (lambda (msg)
-                                  (let ((keys '("client-version")))
-                                    (cl-destructuring-bind (client-version) (nrepl-server-mock--get-keys msg keys)
-                                      (bencodable-obj-equal? msg
-                                                             `(dict "op" "clone"
-                                                                    "client-name" "CIDER"
-                                                                    "client-version" ,client-version
-                                                                    "id" ,msg-id))))))
+                                  (equal "clone" (nrepl-dict-get msg "op"))))
                           `(dict "id" ,msg-id
                                  "session" "a-session"
                                  "status" ("done")

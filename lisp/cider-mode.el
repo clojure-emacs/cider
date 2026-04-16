@@ -1140,6 +1140,12 @@ property."
   (when (or cider-mode (derived-mode-p 'cider-repl-mode))
     (cider-refresh-dynamic-font-lock ns)))
 
+(define-minor-mode cider-enlighten-mode
+  "Minor mode for displaying locals in debugger-instrumented evaluations."
+  :lighter (cider-mode " light")
+  :global t
+  :group 'cider)
+
 (provide 'cider-mode)
 
 ;;; cider-mode.el ends here

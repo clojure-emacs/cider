@@ -237,6 +237,7 @@ FORMAT is a format string to compile with ARGS and display on the REPL."
              ")\n"))))
 
 (defvar cider-version)
+(defvar cider-enlighten-mode)
 (defun cider--check-required-nrepl-version ()
   "Check whether we're using a compatible nREPL version."
   (if-let* ((nrepl-version (cider--nrepl-version)))
@@ -368,6 +369,7 @@ buffer."
   ;; `cider-enlighten-mode' changes eval to include the debugger, so we inhibit
   ;; it here as the debugger isn't necessarily initialized yet
   (let ((cider-enlighten-mode nil))
+    (setq nrepl-connect-params (cider--gather-connect-params))
     ;; after initialization, set mode-line and buffer name.
     (cider-set-repl-type cider-repl-type)
     (cider-repl-init
@@ -957,7 +959,10 @@ function with the repl buffer set as current."
             nrepl-namespace-handler-function #'cider--update-buffer-ns
             nrepl-close-connection-handler-function #'cider--close-connection
             nrepl-format-buffer-name-function #'cider-format-connection-params
-            nrepl-connect-params (cider--gather-connect-params)
+            nrepl-client-name "CIDER"
+            nrepl-client-version cider-version
+            nrepl-extra-eval-params-function
+            (lambda () (when cider-enlighten-mode '("enlighten" "true")))
             ;; used as a new-repl marker in cider-set-repl-type
             mode-name nil
             cider-session-name ses-name
