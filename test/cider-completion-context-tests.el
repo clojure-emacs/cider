@@ -27,6 +27,7 @@
 
 (require 'buttercup)
 (require 'cider-completion-context)
+(require 'cider-test-utils "test/utils/cider-test-utils")
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
