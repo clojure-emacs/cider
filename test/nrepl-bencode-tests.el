@@ -29,7 +29,7 @@
 
 (require 'buttercup)
 (require 'cl-lib)
-(require 'nrepl-client)
+(require 'nrepl-bencode)
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
