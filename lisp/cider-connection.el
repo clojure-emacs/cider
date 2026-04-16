@@ -898,8 +898,34 @@ PARAMS is a plist as received by `cider-repl-create'."
             (cider-reuse-dead-repls ;; fallthrough for 'auto / 'any / other non-nil values
              (car sorted-repls))))))
 
+(defvar cider-print-quota)
 (declare-function cider-default-err-handler "cider-eval")
+(declare-function cider-repl--emit-interactive-output "cider-repl")
+(declare-function cider-need-input "cider-client")
+(declare-function cider-set-buffer-ns "cider-mode")
+(declare-function cider--render-stacktrace-causes "cider-eval")
 (declare-function cider-repl-mode "cider-repl")
+
+(defun cider--update-buffer-ns (buffer ns)
+  "Update BUFFER's namespace to NS if it's not a Clojure source buffer."
+  (when (buffer-live-p buffer)
+    (with-current-buffer buffer
+      (when (not (cider-clojure-major-mode-p))
+        (cider-set-buffer-ns ns)))))
+
+(defun cider--handle-notification (response)
+  "Handle notification status in nREPL RESPONSE.
+Emits the notification message to the REPL buffer."
+  (nrepl-dbind-response response (status msg type)
+    (when (member "notification" status)
+      (let* ((face (pcase type
+                     ((or "message" `nil) 'font-lock-builtin-face)
+                     ("warning" 'warning)
+                     ("error"   'error)))
+             (msg (if face
+                      (propertize msg 'face face)
+                    (format "%s: %s" (upcase type) msg))))
+        (cider-repl--emit-interactive-output msg (or face 'font-lock-builtin-face))))))
 (declare-function cider-repl--state-handler "cider-repl")
 (declare-function cider-repl-reset-markers "cider-repl")
 (defvar-local cider-session-name nil)
@@ -927,6 +953,8 @@ function with the repl buffer set as current."
       (unless (derived-mode-p 'cider-repl-mode)
         (cider-repl-mode))
       (setq nrepl-err-handler #'cider-default-err-handler
+            nrepl-need-input-handler-function #'cider-need-input
+            nrepl-namespace-handler-function #'cider--update-buffer-ns
             ;; used as a new-repl marker in cider-set-repl-type
             mode-name nil
             cider-session-name ses-name
@@ -941,6 +969,7 @@ function with the repl buffer set as current."
         (setq cider-cljs-repl-type type))
       (cider-repl-reset-markers)
       (add-hook 'nrepl-response-handler-functions #'cider-repl--state-handler nil 'local)
+      (add-hook 'nrepl-response-handler-functions #'cider--handle-notification nil 'local)
       (add-hook 'nrepl-connected-hook #'cider--connected-handler nil 'local)
       (add-hook 'nrepl-disconnected-hook #'cider--disconnected-handler nil 'local)
       (current-buffer))))

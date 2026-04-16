@@ -39,6 +39,8 @@
 (require 'cider-util)
 (require 'nrepl-client)
 
+(declare-function cider--render-stacktrace-causes "cider-eval")
+
 
 ;;; Spinner
 (define-obsolete-variable-alias 'cider-eval-spinner-type 'cider-spinner-type "1.18.0")
@@ -232,12 +234,19 @@ If ABORT-ON-INPUT is non-nil, the function will return nil
 at the first sign of user input, so as not to hang the
 interface.
 if CALLBACK is non-nil, it will additionally be called on all received messages."
-  (let ((conn (or connection (cider-current-repl 'infer 'ensure))))
-    (nrepl-send-sync-request (cider--resolve-op-in-request request conn)
-                             conn
-                             abort-on-input
-                             nil
-                             callback)))
+  (let* ((conn (or connection (cider-current-repl 'infer 'ensure)))
+         (response (nrepl-send-sync-request (cider--resolve-op-in-request request conn)
+                                            conn
+                                            abort-on-input
+                                            nil
+                                            callback)))
+    ;; Handle cider-nrepl middleware's pp-stacktrace in sync responses.
+    (when response
+      (nrepl-dbind-response response (ex err pp-stacktrace status)
+        (when (and ex err pp-stacktrace)
+          (cider--render-stacktrace-causes pp-stacktrace
+                                           (remove "done" status)))))
+    response))
 
 (defun cider-nrepl-send-unhandled-request (request &optional connection)
   "Send REQUEST to the nREPL CONNECTION and ignore any responses.
