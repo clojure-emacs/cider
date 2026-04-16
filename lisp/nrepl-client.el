@@ -119,6 +119,8 @@ When true some special buffers like the server buffer will be hidden."
 (defvar-local nrepl-server-buffer nil)
 (defvar-local nrepl-messages-buffer nil)
 (defvar-local nrepl-endpoint nil)
+(defvar-local nrepl-connect-params nil
+  "Connection parameters plist, used for buffer naming.")
 (defvar-local nrepl-project-dir nil)
 (defvar-local nrepl-is-server nil)
 (defvar-local nrepl-server-command nil)
@@ -161,13 +163,20 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 (defconst nrepl-server-buffer-name-template "*nrepl-server %s*")
 (defconst nrepl-tunnel-buffer-name-template "*nrepl-tunnel %s*")
 
-(declare-function cider-format-connection-params "cider-connection")
+(defvar nrepl-format-buffer-name-function nil
+  "Function to format buffer names from a template and params.
+Called with two arguments: TEMPLATE (string) and PARAMS (plist).
+When nil, TEMPLATE is used as-is.")
+
 (defun nrepl-make-buffer-name (template params &optional dup-ok)
   "Generate a buffer name using TEMPLATE and PARAMS.
-TEMPLATE and PARAMS are as in `cider-format-connection-params'.  If
-optional DUP-OK is non-nil, the returned buffer is not \"uniquified\" by a
+TEMPLATE is a format string and PARAMS a plist of connection parameters.
+Formatting is done by `nrepl-format-buffer-name-function' if set.
+If optional DUP-OK is non-nil, the returned buffer is not \"uniquified\" by a
 call to `generate-new-buffer-name'."
-  (let ((name (cider-format-connection-params template params)))
+  (let ((name (if nrepl-format-buffer-name-function
+                  (funcall nrepl-format-buffer-name-function template params)
+                template)))
     (if dup-ok
         name
       (generate-new-buffer-name name))))
@@ -316,7 +325,7 @@ and kill the process buffer."
           (format "\n*** Closed on %s ***\n" (replace-regexp-in-string "  +"
                                                                        " "
                                                                        (current-time-string)))
-          'face 'cider-repl-stderr-face))
+          'face 'error))
         (run-hooks 'nrepl-disconnected-hook)
         (let ((server-buffer nrepl-server-buffer))
           (when (and (buffer-live-p server-buffer)
@@ -631,8 +640,6 @@ Displays the notification via `message'."
                   (propertize msg 'face face)
                 (format "%s: %s" (upcase type) msg))))
     (message msg)))
-
-(defvar cider-special-mode-truncate-lines)
 
 (defun nrepl-make-response-handler (buffer value-handler stdout-handler
                                            stderr-handler done-handler
@@ -956,9 +963,9 @@ match groups:
 1  for the port, and
 2  for the host (babashka only).")
 
-(defun cider--process-plist-put (proc prop val)
+(defun nrepl--process-plist-put (proc prop val)
   "Change value in PROC's plist of PROP to VAL.
-Value is changed using `plist-put`, of which see."
+Value is changed using `plist-put', of which see."
   (thread-first
     proc
     (process-plist)
@@ -970,7 +977,7 @@ Value is changed using `plist-put`, of which see."
 
 The PROCESS plist is updated as (non-exhaustive list):
 
-:cider--nrepl-server-ready set to t when the server is successfully brought
+:nrepl-server-ready set to t when the server is successfully brought
 up."
   ;; In Windows this can be false:
   (let ((server-buffer (process-buffer process)))
@@ -1005,7 +1012,7 @@ up."
                          (list :host host :port port))))))
             (when end
               (setq nrepl-endpoint end)
-              (cider--process-plist-put process :cider--nrepl-server-ready t)
+              (nrepl--process-plist-put process :nrepl-server-ready t)
               (when nrepl-on-port-callback
                 (funcall nrepl-on-port-callback (process-buffer process))))))))))
 
@@ -1016,7 +1023,11 @@ up."
     (cons 'progn body)))
 
 
-(declare-function cider--close-connection "cider-connection")
+(defvar nrepl-close-connection-handler-function nil
+  "Function to call to close a client connection buffer.
+Called with one argument: the REPL buffer to close.
+When nil, client buffers are not cleaned up on server exit.")
+
 (defun nrepl-server-sentinel (process event)
   "Handle nREPL server PROCESS EVENT.
 If the nREPL PROCESS failed to initiate and encountered a fatal EVENT
@@ -1043,10 +1054,11 @@ close any existing client connections."
                                 (buffer-list))))
 
       ;; see https://github.com/clojure-emacs/cider/pull/3333
-      (when (string-match-p "^hangup" event)
-        (mapc #'cider--close-connection clients))
+      (when (and (string-match-p "^hangup" event)
+                 nrepl-close-connection-handler-function)
+        (mapc nrepl-close-connection-handler-function clients))
 
-      (if (process-get process :cider--nrepl-server-ready)
+      (if (process-get process :nrepl-server-ready)
           (progn
             (when server-buffer (kill-buffer server-buffer))
             (message "nREPL server exited."))
@@ -1094,9 +1106,7 @@ operations.")
   "Major mode for displaying nREPL messages.
 
 \\{nrepl-messages-mode-map}"
-  (when cider-special-mode-truncate-lines
-    (setq-local truncate-lines t))
-  (setq-local sesman-system 'CIDER)
+  (setq-local truncate-lines t)
   (setq-local electric-indent-chars nil)
   (setq-local comment-start ";")
   (setq-local comment-end "")
@@ -1276,7 +1286,6 @@ it into the buffer."
         (pp object (current-buffer))
         (insert "\n")))))
 
-(declare-function cider--gather-connect-params "cider-connection")
 (defun nrepl-messages-buffer (conn)
   "Return or create the buffer for CONN.
 The default buffer name is *nrepl-messages connection*."
@@ -1286,7 +1295,7 @@ The default buffer name is *nrepl-messages connection*."
         (setq nrepl-messages-buffer
               (let ((buffer (get-buffer-create
                              (nrepl-messages-buffer-name
-                              (cider--gather-connect-params)))))
+                              nrepl-connect-params))))
                 (with-current-buffer buffer
                   (buffer-disable-undo)
                   (nrepl-messages-mode)

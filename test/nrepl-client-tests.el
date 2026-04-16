@@ -28,19 +28,22 @@
 ;;; Code:
 
 (require 'buttercup)
+(require 'cider-connection)
 (require 'nrepl-client)
 (require 'nrepl-tests-utils "test/utils/nrepl-tests-utils")
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
 (describe "nrepl-server-buffer-name"
-  :var (nrepl-hide-special-buffers params default-directory-backup
+  :var (nrepl-hide-special-buffers nrepl-format-buffer-name-function
+                                   params default-directory-backup
                                    cider-session-name-template)
   (before-all
     (setq default-directory-backup default-directory)
     (setq default-directory (expand-file-name "/path/to/dirA/"))
     (setq params '(:host "localhost" :port 1))
-    (setq cider-session-name-template "%J:%h:%p"))
+    (setq cider-session-name-template "%J:%h:%p")
+    (setq nrepl-format-buffer-name-function #'cider-format-connection-params))
 
   (after-all
    (setq default-directory default-directory-backup))
@@ -75,11 +78,13 @@
             '("2" "39f630b9-9545-4ea0-860e-9846681d0741" ("done")))))
 
 (describe "nrepl-make-buffer-name"
-  :var (default-directory-backup cider-session-name-template)
+  :var (nrepl-format-buffer-name-function default-directory-backup
+                                          cider-session-name-template)
   (before-all
     (setq default-directory-backup default-directory)
     (setq default-directory (expand-file-name "/path/to/dirA/"))
-    (setq cider-session-name-template "%J:%h:%p"))
+    (setq cider-session-name-template "%J:%h:%p")
+    (setq nrepl-format-buffer-name-function #'cider-format-connection-params))
 
   (after-all
    (setq default-directory default-directory-backup))
@@ -198,7 +203,7 @@
 
         ;; server has reported its endpoint
         (nrepl-tests-poll-until server-endpoint 2)
-        (expect (plist-get (process-plist server-process) :cider--nrepl-server-ready)
+        (expect (plist-get (process-plist server-process) :nrepl-server-ready)
                 :to-equal t)
         (condition-case error-details
             ;; start client process
