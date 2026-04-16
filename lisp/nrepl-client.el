@@ -817,9 +817,10 @@ Register CALLBACK as the response handler."
                       callback
                       connection))
 
-(define-minor-mode cider-enlighten-mode nil
-  :lighter (cider-mode " light")
-  :global t)
+(defvar nrepl-extra-eval-params-function nil
+  "Function returning extra params to append to eval requests.
+Called with no arguments.  Should return a plist of string
+key-value pairs, or nil.")
 
 (defun nrepl--eval-request (input &optional ns line column)
   "Prepare :eval request message for INPUT.
@@ -829,7 +830,8 @@ If LINE and COLUMN are non-nil and current buffer is a file buffer, \"line\",
   `("op" "eval"
     "code" ,(substring-no-properties input)
     ,@(when ns `("ns" ,ns))
-    ,@(when cider-enlighten-mode '("enlighten" "true"))
+    ,@(when nrepl-extra-eval-params-function
+        (funcall nrepl-extra-eval-params-function))
     ,@(let ((file (or (buffer-file-name) (buffer-name))))
         (when (and line column file)
           `("file" ,file
@@ -849,7 +851,11 @@ ADDITIONAL-PARAMS is a plist to be appended to the request message."
                       connection
                       tooling))
 
-(defvar cider-version)
+(defvar nrepl-client-name "nrepl.el"
+  "Name of the nREPL client, sent in clone requests.")
+
+(defvar nrepl-client-version nil
+  "Version of the nREPL client, sent in clone requests.")
 
 (defun nrepl-sync-request:clone (connection &optional tooling)
   "Sent a :clone request to create a new client session.
@@ -857,8 +863,9 @@ The request is dispatched via CONNECTION.
 Optional argument TOOLING Tooling is set to t if wanting the tooling session
 from CONNECTION."
   (nrepl-send-sync-request `("op" "clone"
-                             "client-name" "CIDER"
-                             "client-version" ,cider-version)
+                             "client-name" ,nrepl-client-name
+                             ,@(when nrepl-client-version
+                                 `("client-version" ,nrepl-client-version)))
                            connection
                            nil tooling))
 
@@ -1295,7 +1302,8 @@ The default buffer name is *nrepl-messages connection*."
         (setq nrepl-messages-buffer
               (let ((buffer (get-buffer-create
                              (nrepl-messages-buffer-name
-                              nrepl-connect-params))))
+                              (or nrepl-connect-params
+                                  nrepl-endpoint)))))
                 (with-current-buffer buffer
                   (buffer-disable-undo)
                   (nrepl-messages-mode)
