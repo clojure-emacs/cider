@@ -52,7 +52,6 @@
 
 (require 'cider-client)
 (require 'cider-common)
-(require 'cider-jar)
 (require 'cider-overlays)
 (require 'cider-popup)
 (require 'cider-repl)
