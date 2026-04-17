@@ -38,6 +38,9 @@
 (require 'cider-popup)
 (require 'cider-util)
 
+;; Override nrepl-client's default REPL buffer name.
+(setq nrepl-repl-buffer-name-template "*cider-repl %s(%r:%S)*")
+
 (defcustom cider-session-name-template "%J:%h:%p"
   "Format string to use for session names.
 See `cider-format-connection-params' for available format characters."
@@ -915,6 +918,11 @@ PARAMS is a plist as received by `cider-repl-create'."
       (when (not (cider-clojure-major-mode-p))
         (cider-set-buffer-ns ns)))))
 
+(defun cider--remove-session-on-disconnect (client-buffer kill-server-p)
+  "Remove CLIENT-BUFFER from its sesman session.
+When KILL-SERVER-P is non-nil, also remove the associated server."
+  (sesman-remove-object 'CIDER nil client-buffer kill-server-p 'no-error))
+
 (defun cider--handle-notification (response)
   "Handle notification status in nREPL RESPONSE.
 Emits the notification message to the REPL buffer."
@@ -954,10 +962,11 @@ function with the repl buffer set as current."
       (sesman-add-object 'CIDER ses-name buffer 'allow-new)
       (unless (derived-mode-p 'cider-repl-mode)
         (cider-repl-mode))
-      (setq nrepl-err-handler #'cider-default-err-handler
+      (setq nrepl-err-handler-function #'cider-default-err-handler
             nrepl-need-input-handler-function #'cider-need-input
             nrepl-namespace-handler-function #'cider--update-buffer-ns
             nrepl-close-connection-handler-function #'cider--close-connection
+            nrepl-client-disconnected-handler-function #'cider--remove-session-on-disconnect
             nrepl-format-buffer-name-function #'cider-format-connection-params
             nrepl-client-name "CIDER"
             nrepl-client-version cider-version

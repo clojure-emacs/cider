@@ -38,10 +38,9 @@
 ;;
 ;; The nREPL communication process can be broadly represented as follows:
 ;;
-;;    1) The server process is started as an Emacs subprocess (usually by
-;;       `cider-jack-in', which in turn fires up an nREPL server).  Note that
-;;       if a connection was established using `cider-connect' there won't be
-;;       a server process.
+;;    1) The server process is started as an Emacs subprocess (e.g. via
+;;       `nrepl-start-server-process').  Note that if a connection was
+;;       established directly there won't be a server process.
 ;;
 ;;    2) The server's process filter (`nrepl-server-filter') detects the
 ;;       connection port from the first plain text response from the server and
@@ -74,7 +73,6 @@
 (require 'cl-lib)
 (require 'nrepl-dict)
 (require 'nrepl-bencode)
-(require 'sesman)
 (require 'tramp)
 
 ;;; Custom
@@ -159,7 +157,9 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 
 (defconst nrepl-message-buffer-name-template "*nrepl-messages %s(%r:%S)*")
 (defconst nrepl-error-buffer-name "*nrepl-error*")
-(defconst nrepl-repl-buffer-name-template "*cider-repl %s(%r:%S)*")
+(defvar nrepl-repl-buffer-name-template "*nrepl-repl %s(%r:%S)*"
+  "Template for naming REPL buffers.
+See `nrepl-format-buffer-name-function' for the format specifiers.")
 (defconst nrepl-server-buffer-name-template "*nrepl-server %s*")
 (defconst nrepl-tunnel-buffer-name-template "*nrepl-tunnel %s*")
 
@@ -314,9 +314,10 @@ and kill the process buffer."
              (substring message 0 -1)))
   (when (equal (process-status process) 'closed)
     (when-let* ((client-buffer (process-buffer process)))
-      (sesman-remove-object 'CIDER nil client-buffer
-                            (not (process-get process :keep-server))
-                            'no-error)
+      (when nrepl-client-disconnected-handler-function
+        (funcall nrepl-client-disconnected-handler-function
+                 client-buffer
+                 (not (process-get process :keep-server))))
       (nrepl--clear-client-sessions client-buffer)
       (with-current-buffer client-buffer
         (goto-char (point-max))
@@ -607,8 +608,10 @@ which we can eventually reuse."
 ;; After being decoded, responses (aka, messages from the server) are dispatched
 ;; to handlers. Handlers are constructed with `nrepl-make-response-handler'.
 
-(defvar nrepl-err-handler nil
-  "Evaluation error handler.")
+(define-obsolete-variable-alias 'nrepl-err-handler 'nrepl-err-handler-function "1.17.0")
+(defvar nrepl-err-handler-function nil
+  "Function to call on evaluation errors.
+Called with one argument: the REPL buffer.")
 
 (defvar nrepl-need-input-handler-function nil
   "Function to call when the server requests stdin input.
@@ -619,6 +622,11 @@ When nil, need-input requests are ignored.")
   "Function to call when the server reports a namespace change.
 Called with two arguments: BUFFER and NS (string).
 When nil, namespace changes are ignored.")
+
+(defvar nrepl-client-disconnected-handler-function nil
+  "Function to call when a client connection is closed.
+Called with two arguments: CLIENT-BUFFER and KILL-SERVER-P.
+Used by the client to clean up session state on disconnect.")
 
 (defun nrepl--mark-id-completed (id)
   "Move ID from `nrepl-pending-requests' to `nrepl-completed-requests'.
@@ -665,7 +673,7 @@ Handlers are functions of the buffer and the value they handle, except for
 the optional CONTENT-TYPE-HANDLER which should be a function of the buffer,
 content, the content-type to be handled as a list `(type attrs)'.
 
-If the optional EVAL-ERROR-HANDLER is nil, the default `nrepl-err-handler'
+If the optional EVAL-ERROR-HANDLER is nil, the default `nrepl-err-handler-function'
 is used.  If any of the other supplied handlers are nil nothing happens for
 the corresponding type of response."
   (lambda (response)
@@ -694,7 +702,7 @@ the corresponding type of response."
              (when (member "interrupted" status)
                (message "Evaluation interrupted."))
              (when (member "eval-error" status)
-               (funcall (or eval-error-handler nrepl-err-handler) buffer))
+               (funcall (or eval-error-handler nrepl-err-handler-function) buffer))
              (when (member "namespace-not-found" status)
                (message "Namespace `%s' not found." ns))
              (when (and (member "need-input" status)
@@ -794,7 +802,7 @@ command and e.g. notify the user about them."
     (when (member "done" status)
       (nrepl-dbind-response response (ex err eval-error id)
         (when (and ex err eval-error)
-          (funcall nrepl-err-handler))
+          (funcall nrepl-err-handler-function))
         (when id
           (with-current-buffer connection
             (nrepl--mark-id-completed id)))
