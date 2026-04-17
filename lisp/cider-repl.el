@@ -52,6 +52,9 @@
 (require 'cider-resolve)
 
 (declare-function cider-inspect "cider-inspector")
+(declare-function cider-quit "cider-connection")
+(declare-function cider-restart "cider-connection")
+(declare-function cider-describe-connection "cider-connection")
 
 
 (defgroup cider-repl nil

@@ -33,7 +33,7 @@
 (require 'clojure-mode)
 (require 'spinner)
 
-(require 'cider-connection)
+(require 'cider-session)
 (require 'cider-completion-context)
 (require 'cider-common)
 (require 'cider-util)

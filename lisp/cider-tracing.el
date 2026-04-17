@@ -29,7 +29,7 @@
 (require 'cider-client)
 (require 'cider-common) ; for `cider-prompt-for-symbol-function'
 (require 'cider-util) ; for `cider-propertize'
-(require 'cider-connection) ; for `cider-map-repls'
+(require 'cider-session) ; for `cider-map-repls'
 (require 'nrepl-dict)
 
 (defun cider-sync-request:toggle-trace-var (sym)
