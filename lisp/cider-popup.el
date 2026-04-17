@@ -19,7 +19,9 @@
 
 ;;; Commentary:
 
-;; Common functionality for dealing with popup buffers.
+;; Generic popup buffer management for displaying temporary content.
+;; This module has no CIDER-specific dependencies and can be used by
+;; any Emacs package that needs popup buffer functionality.
 
 ;;; Code:
 
