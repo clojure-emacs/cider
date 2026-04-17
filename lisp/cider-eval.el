@@ -54,9 +54,21 @@
 (require 'cider-common)
 (require 'cider-overlays)
 (require 'cider-popup)
-(require 'cider-repl)
 (require 'cider-stacktrace)
 (require 'cider-util)
+
+;; cider-eval.el and cider-repl.el are intentionally decoupled at the require
+;; level.  cider-repl.el is always loaded before any interactive evaluation
+;; happens (a REPL buffer must exist), so these functions are available at
+;; runtime.  The coupling is through two narrow interfaces:
+;;
+;; 1. Output emission - eval handlers route stdout/stderr to the REPL buffer.
+;; 2. Namespace caching - ns forms are cached in the REPL buffer for change
+;;    detection and syntax highlighting.
+(declare-function cider-repl-emit-interactive-stdout "cider-repl")
+(declare-function cider-repl-emit-interactive-stderr "cider-repl")
+(declare-function cider-repl--ns-form-changed-p "cider-repl")
+(declare-function cider-repl--cache-ns-form "cider-repl")
 
 (defconst cider-read-eval-buffer "*cider-read-eval*")
 (defconst cider-result-buffer "*cider-result*")
