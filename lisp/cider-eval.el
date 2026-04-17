@@ -641,7 +641,7 @@ The handler simply inserts the result value in BUFFER."
                                  ;; eval-error handler
                                  (lambda (_buffer)
                                    (setq failed t)
-                                   (funcall nrepl-err-handler source-buffer)))))
+                                   (funcall nrepl-err-handler-function source-buffer)))))
 
 (defun cider--emit-interactive-eval-output (output repl-emit-function)
   "Emit output resulting from interactive code evaluation.
@@ -899,9 +899,9 @@ This is used by pretty-printing commands."
                           cider-ancillary-buffers))
          (with-selected-window (get-buffer-window chosen-buffer)
            (cider-popup-buffer-quit-function t)))
-       ;; also call the default nrepl-err-handler, so that our custom behavior doesn't void the base behavior:
-       (when nrepl-err-handler
-         (funcall nrepl-err-handler source-buffer)))
+       ;; also call the default nrepl-err-handler-function, so that our custom behavior doesn't void the base behavior:
+       (when nrepl-err-handler-function
+         (funcall nrepl-err-handler-function source-buffer)))
      ;; content type handler:
      nil
      ;; truncated handler:

@@ -1060,7 +1060,7 @@ and responding to them.")
          (cider-repl-maybe-trim-buffer buffer))
        (dolist (f cider--repl-done-functions)
          (funcall f buffer)))
-     nrepl-err-handler
+     nrepl-err-handler-function
      (lambda (buffer value content-type)
        (if-let* ((content-attrs (cadr content-type))
                  (content-type* (car content-type))
