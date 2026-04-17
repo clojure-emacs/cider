@@ -91,6 +91,7 @@
 (require 'cider-eldoc)
 (require 'cider-repl)
 (require 'cider-repl-history)
+(require 'cider-session)
 (require 'cider-connection)
 (require 'cider-mode)
 (require 'cider-common)
