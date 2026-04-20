@@ -49,7 +49,7 @@ eldev build :autoloads
 [source,lisp]
 ----
 ;; load CIDER from its source code
-(add-to-list 'load-path "~/projects/cider")
+(add-to-list 'load-path "~/projects/cider/lisp")
 (load "cider-autoloads" t t)
 ----
 
