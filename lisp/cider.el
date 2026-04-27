@@ -342,26 +342,45 @@ Sub-match 1 must be the project path.")
 (defvar cider-host-history nil
   "Completion history for connection hosts.")
 
-(defvar cider-jack-in-universal-options
-  '((clojure-cli (:prefix-arg 1 :cmd (:jack-in-type clj  :project-type clojure-cli :edit-project-dir t)))
-    (lein        (:prefix-arg 2 :cmd (:jack-in-type clj  :project-type lein :edit-project-dir t)))
-    (babashka    (:prefix-arg 3 :cmd (:jack-in-type clj  :project-type babashka :edit-project-dir t)))
-    (nbb         (:prefix-arg 4 :cmd (:jack-in-type cljs :project-type nbb :cljs-repl-type nbb :edit-project-dir t)))
-    (basilisp    (:prefix-arg 5 :cmd (:jack-in-type clj  :project-type basilisp :edit-project-dir t))))
-  "The list of project tools that are supported by the universal jack in command.
+(defvar cider-jack-in-tools nil
+  "Alist of project tools known to `cider-jack-in'.
+Each entry has the form (PROJECT-TYPE . PLIST), where PLIST may contain:
 
-Each item in the list consists of the tool name and its plist options.
+- :command-var symbol of the variable holding the executable name.
 
-The plist supports the following keys
+- :params-var symbol of the variable holding the params string used to
+  start the nREPL server.
 
-- :prefix-arg the numerical prefix arg to use to jack in to the tool.
+- :project-files list of project marker file names.
 
-- :cmd a plist of instructions how to invoke the jack in command, with keys
+- :resolver function of one argument (the command string) returning the
+  resolved invocation, or nil to use `cider--resolve-command'.
 
-  - :jack-in-type `clj' to start a clj repl and `cljs' for a cljs repl.
+- :inject-fn function of three arguments (PARAMS PROJECT-TYPE COMMAND)
+  returning PARAMS with REPL deps injected.  When nil, no injection is
+  performed and PARAMS is used as-is.
 
-  - &rest the same set of params supported by the `cider-jack-in-clj' and
-    `cider-jack-in-cljs' commands.")
+- :universal-prefix-arg numeric prefix arg for `cider-jack-in-universal'.
+  Tools without this key cannot be invoked via that command.
+
+- :jack-in-type `clj' (the default) or `cljs'; controls which jack-in
+  entry point `cider-jack-in-universal' calls.
+
+- :cljs-repl-type cljs REPL type symbol, used when :jack-in-type is `cljs'.
+
+Use `cider-register-jack-in-tool' to add or replace entries.")
+
+(defun cider-register-jack-in-tool (project-type &rest plist)
+  "Register PROJECT-TYPE in `cider-jack-in-tools'.
+PLIST is the property list documented in `cider-jack-in-tools'.  An
+existing entry for PROJECT-TYPE is replaced."
+  (setf (alist-get project-type cider-jack-in-tools) plist))
+
+(defun cider--jack-in-tool (project-type)
+  "Return the plist registered for PROJECT-TYPE.
+Signal a `user-error' if PROJECT-TYPE is not registered."
+  (or (alist-get project-type cider-jack-in-tools)
+      (user-error "Unsupported project type `%S'" project-type)))
 
 ;;;###autoload
 (defun cider-version ()
@@ -371,41 +390,15 @@ The plist supports the following keys
 
 (defun cider-jack-in-command (project-type)
   "Determine the command `cider-jack-in' needs to invoke for the PROJECT-TYPE."
-  (pcase project-type
-    ('lein        cider-lein-command)
-    ('clojure-cli cider-clojure-cli-command)
-    ('babashka    cider-babashka-command)
-    ('shadow-cljs cider-shadow-cljs-command)
-    ('gradle      cider-gradle-command)
-    ('nbb         cider-nbb-command)
-    ('basilisp    cider-basilisp-command)
-    (_            (user-error "Unsupported project type `%S'" project-type))))
+  (symbol-value (plist-get (cider--jack-in-tool project-type) :command-var)))
 
 (defun cider-jack-in-resolve-command (project-type)
   "Determine the resolved file path to `cider-jack-in-command'.
 Throws an error if PROJECT-TYPE is unknown."
-  (pcase project-type
-    ('lein (cider--resolve-command cider-lein-command))
-    ('clojure-cli (cider--resolve-command cider-clojure-cli-command))
-    ('babashka (cider--resolve-command cider-babashka-command))
-    ;; here we have to account for the possibility that the command is either
-    ;; "npx shadow-cljs" or just "shadow-cljs"
-    ('shadow-cljs (let ((parts (split-string cider-shadow-cljs-command)))
-                    (when-let* ((command (cider--resolve-command (car parts))))
-                      (mapconcat #'identity (cons command (cdr parts)) " "))))
-    ;; TODO: Address the duplicated code below.
-    ;; here we have to account for the possibility that the command is either
-    ;; "nbb" (default) or "npx nbb".
-    ('nbb (let ((parts (split-string cider-nbb-command)))
-            (when-let* ((command (cider--resolve-command (car parts))))
-              (mapconcat #'identity (cons command (cdr parts)) " "))))
-    ;; here we have to account for use of the Gradle wrapper which is
-    ;; a shell script within their project, so if they have a clearly
-    ;; relative path like "./gradlew" use locate file instead of checking
-    ;; the exec-path
-    ('gradle (cider--resolve-project-command cider-gradle-command))
-    ('basilisp (cider--resolve-command cider-basilisp-command))
-    (_ (user-error "Unsupported project type `%S'" project-type))))
+  (let* ((spec (cider--jack-in-tool project-type))
+         (command (symbol-value (plist-get spec :command-var)))
+         (resolver (or (plist-get spec :resolver) #'cider--resolve-command)))
+    (funcall resolver command)))
 
 (defun cider-jack-in-params (project-type)
   "Determine the commands params for `cider-jack-in' for the PROJECT-TYPE."
@@ -413,15 +406,7 @@ Throws an error if PROJECT-TYPE is unknown."
   ;; different values of IFS, and the possibility that they'll be run remotely
   ;; (e.g. with TRAMP). Using `", "` causes problems with TRAMP, for example.
   ;; Please be careful when changing them.
-  (pcase project-type
-    ('lein        cider-lein-parameters)
-    ('clojure-cli cider-clojure-cli-parameters)
-    ('babashka    cider-babashka-parameters)
-    ('shadow-cljs cider-shadow-cljs-parameters)
-    ('gradle      cider-gradle-parameters)
-    ('nbb         cider-nbb-parameters)
-    ('basilisp    cider-basilisp-parameters)
-    (_            (user-error "Unsupported project type `%S'" project-type))))
+  (symbol-value (plist-get (cider--jack-in-tool project-type) :params-var)))
 
 
 ;;; Jack-in dependencies injection
@@ -776,41 +761,102 @@ See also `cider-jack-in-auto-inject-clojure'."
               dependencies))
     dependencies))
 
+(defun cider--lein-inject-deps (params _project-type _command)
+  "Inject CIDER deps into PARAMS for a Leiningen project."
+  (cider-lein-jack-in-dependencies
+   params
+   (cider-add-clojure-dependencies-maybe
+    (append `(("nrepl/nrepl" ,cider-injected-nrepl-version)) cider-jack-in-dependencies))
+   cider-jack-in-dependencies-exclusions
+   (cider-jack-in-normalized-lein-plugins)
+   cider-jack-in-lein-middlewares))
+
+(defun cider--clojure-cli-inject-deps (params _project-type command)
+  "Inject CIDER deps into PARAMS for a Clojure CLI project.
+COMMAND is the resolved jack-in command, used to handle PowerShell quoting."
+  (cider-clojure-cli-jack-in-dependencies
+   params
+   (cider-add-clojure-dependencies-maybe cider-jack-in-dependencies)
+   command))
+
+(defun cider--shadow-cljs-inject-deps (params _project-type _command)
+  "Inject CIDER deps into PARAMS for a shadow-cljs project."
+  (cider-shadow-cljs-jack-in-dependencies
+   params
+   (cider-add-clojure-dependencies-maybe cider-jack-in-dependencies)))
+
+(defun cider--gradle-inject-deps (params _project-type _command)
+  "Inject CIDER deps into PARAMS for a Gradle project."
+  (cider-gradle-jack-in-dependencies
+   params
+   (cider-add-clojure-dependencies-maybe cider-jack-in-dependencies)
+   (cider-jack-in-normalized-nrepl-middlewares)))
+
 (defun cider-inject-jack-in-dependencies (params project-type &optional command)
-  "Return PARAMS with injected REPL dependencies.
-These are set in `cider-jack-in-dependencies', `cider-jack-in-lein-plugins'
-and `cider-jack-in-nrepl-middlewares' are injected from the CLI according
-to the used PROJECT-TYPE, and COMMAND if provided.  Eliminates the need for
-hacking profiles.clj for supporting CIDER with its nREPL middleware and
-dependencies."
-  (pcase project-type
-    ('lein (cider-lein-jack-in-dependencies
-            params
-            (cider-add-clojure-dependencies-maybe
-             (append `(("nrepl/nrepl" ,cider-injected-nrepl-version)) cider-jack-in-dependencies))
-            cider-jack-in-dependencies-exclusions
-            (cider-jack-in-normalized-lein-plugins)
-            cider-jack-in-lein-middlewares))
-    ('clojure-cli (cider-clojure-cli-jack-in-dependencies
-                   params
-                   (cider-add-clojure-dependencies-maybe
-                    cider-jack-in-dependencies)
-                   command))
-    ('babashka params)
-    ('shadow-cljs (cider-shadow-cljs-jack-in-dependencies
-                   params
-                   (cider-add-clojure-dependencies-maybe
-                    cider-jack-in-dependencies)))
-    ('gradle (cider-gradle-jack-in-dependencies
-              params
-              (cider-add-clojure-dependencies-maybe
-               cider-jack-in-dependencies)
-              (cider-jack-in-normalized-nrepl-middlewares)))
-    ('nbb params)
-    ('basilisp params)
-    (_ (error "Unsupported project type `%S'" project-type))))
+  "Return PARAMS with injected REPL dependencies for PROJECT-TYPE.
+Looks up the tool's :inject-fn in `cider-jack-in-tools' and calls it with
+PARAMS, PROJECT-TYPE, and the optional resolved COMMAND.  When the tool
+has no :inject-fn (e.g. babashka, nbb, basilisp), PARAMS is returned
+as-is.  Eliminates the need for hacking profiles.clj for supporting CIDER
+with its nREPL middleware and dependencies."
+  (let ((inject (plist-get (cider--jack-in-tool project-type) :inject-fn)))
+    (if inject
+        (funcall inject params project-type command)
+      params)))
 
 
+;;; Built-in jack-in tool registrations
+
+(cider-register-jack-in-tool 'clojure-cli
+                             :command-var 'cider-clojure-cli-command
+                             :params-var 'cider-clojure-cli-parameters
+                             :project-files '("deps.edn")
+                             :inject-fn #'cider--clojure-cli-inject-deps
+                             :universal-prefix-arg 1)
+
+(cider-register-jack-in-tool 'lein
+                             :command-var 'cider-lein-command
+                             :params-var 'cider-lein-parameters
+                             :project-files '("project.clj")
+                             :inject-fn #'cider--lein-inject-deps
+                             :universal-prefix-arg 2)
+
+(cider-register-jack-in-tool 'babashka
+                             :command-var 'cider-babashka-command
+                             :params-var 'cider-babashka-parameters
+                             :project-files '("bb.edn")
+                             :universal-prefix-arg 3)
+
+(cider-register-jack-in-tool 'shadow-cljs
+                             :command-var 'cider-shadow-cljs-command
+                             :params-var 'cider-shadow-cljs-parameters
+                             :project-files '("shadow-cljs.edn")
+                             :resolver #'cider--resolve-prefix-command
+                             :inject-fn #'cider--shadow-cljs-inject-deps)
+
+(cider-register-jack-in-tool 'gradle
+                             :command-var 'cider-gradle-command
+                             :params-var 'cider-gradle-parameters
+                             :project-files '("build.gradle" "build.gradle.kts")
+                             :resolver #'cider--resolve-project-command
+                             :inject-fn #'cider--gradle-inject-deps)
+
+(cider-register-jack-in-tool 'nbb
+                             :command-var 'cider-nbb-command
+                             :params-var 'cider-nbb-parameters
+                             :project-files '("nbb.edn")
+                             :resolver #'cider--resolve-prefix-command
+                             :universal-prefix-arg 4
+                             :jack-in-type 'cljs
+                             :cljs-repl-type 'nbb)
+
+(cider-register-jack-in-tool 'basilisp
+                             :command-var 'cider-basilisp-command
+                             :params-var 'cider-basilisp-parameters
+                             :project-files '("basilisp.edn")
+                             :universal-prefix-arg 5)
+
+
 ;;; ClojureScript REPL creation
 
 (defcustom cider-check-cljs-repl-requirements t
@@ -1912,21 +1958,15 @@ Search for lein or java processes including nrepl.command nREPL."
 
 (defun cider--identify-buildtools-present (&optional project-dir)
   "Identify build systems present by their build files in PROJECT-DIR.
-PROJECT-DIR defaults to current project."
-  (let* ((default-directory (or project-dir (clojure-project-dir (cider-current-dir))))
-         (build-files '((lein        . "project.clj")
-                        (clojure-cli . "deps.edn")
-                        (babashka    . "bb.edn")
-                        (shadow-cljs . "shadow-cljs.edn")
-                        (gradle      . "build.gradle")
-                        (gradle      . "build.gradle.kts")
-                        (nbb         . "nbb.edn")
-                        (basilisp    . "basilisp.edn"))))
+PROJECT-DIR defaults to the current project.  The set of recognized build
+files is derived from the :project-files entries in `cider-jack-in-tools'."
+  (let ((default-directory (or project-dir (clojure-project-dir (cider-current-dir)))))
     (delq nil
-          (mapcar (lambda (candidate)
-                    (when (file-exists-p (cdr candidate))
-                      (car candidate)))
-                  build-files))))
+          (mapcar (lambda (entry)
+                    (when (seq-some #'file-exists-p
+                                    (plist-get (cdr entry) :project-files))
+                      (car entry)))
+                  cider-jack-in-tools))))
 
 (defun cider-project-type (&optional project-dir)
   "Determine the type of the project in PROJECT-DIR.
@@ -1957,6 +1997,22 @@ PROJECT-DIR defaults to the current project."
           ;; 0.18, therefore the need for `cider-maybe-intern'
           (t (cider-maybe-intern cider-jack-in-default)))))
 
+(defun cider--universal-jack-in-tools ()
+  "Return the subset of `cider-jack-in-tools' usable by `cider-jack-in-universal'.
+Each entry is a tool that has a :universal-prefix-arg."
+  (seq-filter (lambda (entry) (plist-get (cdr entry) :universal-prefix-arg))
+              cider-jack-in-tools))
+
+(defun cider--universal-jack-in-opts (project-type)
+  "Build the params plist for `cider-jack-in-universal' for PROJECT-TYPE.
+The returned plist forces project dir editing and carries the cljs REPL
+type (when applicable) so the right entry point can dispatch."
+  (let* ((spec (cider--jack-in-tool project-type))
+         (opts (list :project-type project-type :edit-project-dir t)))
+    (when-let* ((cljs-type (plist-get spec :cljs-repl-type)))
+      (setq opts (plist-put opts :cljs-repl-type cljs-type)))
+    opts))
+
 ;;;###autoload
 (defun cider-jack-in-universal (arg)
   "Start and connect to an nREPL server for the current project or ARG project id.
@@ -1969,8 +2025,8 @@ But if invoked with a numeric prefix ARG, then start an nREPL server for
 the project type denoted by ARG number and connect to it, even if there is
 no project for it in the current dir.
 
-The supported project tools and their assigned numeric prefix ids are
-sourced from `cider-jack-in-universal-options', of which see.
+The supported project tools are those in `cider-jack-in-tools' that have a
+:universal-prefix-arg key.
 
 You can pass a numeric prefix argument n with `M-n` or `C-u n`.
 
@@ -1980,28 +2036,25 @@ M-2 \\[cider-jack-in-universal]."
   (interactive "P")
   (let ((cpt (clojure-project-dir (cider-current-dir))))
     (if (or (integerp arg) (null cpt))
-        (let* ((project-types-available (mapcar #'car cider-jack-in-universal-options))
-               (project-type (if (null arg)
-                                 (intern (completing-read
-                                          "No project found in current dir, select project type to jack in: "
-                                          project-types-available
-                                          nil t))
-
-                               (or (seq-some (lambda (elt)
-                                               (cl-destructuring-bind
-                                                   (project-type (&key prefix-arg &allow-other-keys)) elt
-                                                 (when (= arg prefix-arg)
-                                                   project-type)))
-                                             cider-jack-in-universal-options)
-                                   (error ":cider-jack-in-universal :unsupported-prefix-argument %S :no-such-project"
-                                          arg))))
-               (project-options (cadr (seq-find (lambda (elt) (equal project-type (car elt)))
-                                                cider-jack-in-universal-options)))
-               (jack-in-opts (plist-get project-options :cmd))
-               (jack-in-type (plist-get jack-in-opts :jack-in-type)))
+        (let* ((tools (cider--universal-jack-in-tools))
+               (project-type
+                (cond
+                 ((null arg)
+                  (intern (completing-read
+                           "No project found in current dir, select project type to jack in: "
+                           (mapcar #'car tools) nil t)))
+                 (t
+                  (or (car (seq-find (lambda (entry)
+                                       (eql arg (plist-get (cdr entry) :universal-prefix-arg)))
+                                     tools))
+                      (error ":cider-jack-in-universal :unsupported-prefix-argument %S :no-such-project"
+                             arg)))))
+               (opts (cider--universal-jack-in-opts project-type))
+               (jack-in-type (or (plist-get (cider--jack-in-tool project-type) :jack-in-type)
+                                 'clj)))
           (pcase jack-in-type
-            ('clj (cider-jack-in-clj jack-in-opts))
-            ('cljs (cider-jack-in-cljs jack-in-opts))
+            ('clj (cider-jack-in-clj opts))
+            ('cljs (cider-jack-in-cljs opts))
             (_ (error ":cider-jack-in-universal :jack-in-type-unsupported %S" jack-in-type))))
 
       (cider-jack-in-clj arg))))
@@ -2024,6 +2077,14 @@ otherwise resolve via `cider--resolve-command'."
   (if (string-match-p "\\`\\.\\{1,2\\}/" command)
       (locate-file command (list (clojure-project-dir)) '("" ".bat") 'executable)
     (cider--resolve-command command)))
+
+(defun cider--resolve-prefix-command (command)
+  "Resolve COMMAND that may be a prefixed invocation like \"npx X\".
+Splits COMMAND on whitespace, resolves the first token via
+`cider--resolve-command', and rejoins it with the remaining tokens."
+  (let ((parts (split-string command)))
+    (when-let* ((resolved (cider--resolve-command (car parts))))
+      (mapconcat #'identity (cons resolved (cdr parts)) " "))))
 
 (defcustom cider-connection-message-fn #'cider-random-words-of-inspiration
   "The function to use to generate the message displayed on connect.
