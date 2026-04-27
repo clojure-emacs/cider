@@ -6,6 +6,7 @@
 
 - [#3645](https://github.com/clojure-emacs/cider/issues/3645): Show a spinner in the mode line while tests are running.
 - [#3865](https://github.com/clojure-emacs/cider/pull/3865): Add default session feature to bypass sesman's project-based dispatch (`cider-set-default-session`, `cider-clear-default-session`).
+- Introduce `cider-jack-in-tools` and `cider-register-jack-in-tool` so third-party packages can register new project tools for `cider-jack-in` and `cider-jack-in-universal`.
 
 ### Bugs fixed
 
@@ -20,6 +21,7 @@
 - Bump the injected nREPL version to 1.6.
 - Convert modern tuple-format indent specs (e.g. `[[:block 1] [:inner 0]]`) to legacy format for compatibility with older clojure-mode versions.
 - Rename `cider-eval-spinner-type`, `cider-show-eval-spinner`, and `cider-eval-spinner-delay` to `cider-spinner-type`, `cider-show-spinner`, and `cider-spinner-delay`.  The old names are kept as obsolete aliases.
+- Replace `cider-jack-in-universal-options` with the more general `cider-jack-in-tools` registry; the old variable is removed. Anyone who customized it should migrate by calling `cider-register-jack-in-tool` instead.
 
 ## 1.21.0 (2026-02-07)
 
