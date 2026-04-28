@@ -18,6 +18,7 @@
 - `cider--update-project-dir` no longer reuses a single `*cider-context-buffer*` across calls. Each invocation gets a unique hidden buffer, so concurrent or interrupted jack-ins don't stomp each other.
 - `nrepl-server-filter` now treats wildcard/loopback printed bind addresses (`localhost`, `127.0.0.1`, `0.0.0.0`, `::1`, `::`) as "use the calling context", so jacking in over TRAMP to a server that prints `localhost` connects to the TRAMP host instead of the local machine.
 - `cider--resolve-command` now actually verifies command presence on remote hosts via `executable-find`'s remote search, instead of unconditionally trusting the user-supplied command. A missing tool on the remote side now surfaces immediately during jack-in instead of as a server-startup failure later.
+- `nrepl--ssh-tunnel-connect` no longer routes its `ssh` invocation through a shell. The tunnel command is now spawned via `start-process` with an explicit arg list, eliminating shell-quoting hazards in user/host components.
 
 ### Changes
 
