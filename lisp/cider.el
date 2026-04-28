@@ -2096,15 +2096,15 @@ M-2 \\[cider-jack-in-universal]."
       (cider-jack-in-clj arg))))
 
 
-;; TODO: Implement a check for command presence over tramp
 (defun cider--resolve-command (command)
-  "Find COMMAND in exec path (see variable `exec-path').
-Return nil if not found.  In case `default-directory' is non-local we
-assume the command is available."
-  (when-let* ((command (or (and (file-remote-p default-directory) command)
-                           (executable-find command)
-                           (executable-find (concat command ".bat")))))
-    (shell-quote-argument command)))
+  "Find COMMAND in `exec-path', or on the remote host's PATH over TRAMP.
+Return the (shell-quoted) absolute path if found, otherwise nil.  When
+`default-directory' is remote, `executable-find' is asked to search on
+that host instead of the local one."
+  (let ((remote (file-remote-p default-directory)))
+    (when-let* ((found (or (executable-find command remote)
+                           (executable-find (concat command ".bat") remote))))
+      (shell-quote-argument found))))
 
 (defun cider--resolve-project-command (command)
   "Find COMMAND in project dir or exec path (see variable `exec-path').

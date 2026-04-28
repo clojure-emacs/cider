@@ -16,6 +16,7 @@
 - `cider-clojure-cli-command` and `cider-jack-in-default` no longer freeze their auto-detection result at package load time. With the new `nil` default, CIDER picks the right command/tool at jack-in time, so installing Clojure (or moving it on PATH) no longer requires restarting Emacs.
 - `cider--update-project-dir` no longer reuses a single `*cider-context-buffer*` across calls. Each invocation gets a unique hidden buffer, so concurrent or interrupted jack-ins don't stomp each other.
 - `nrepl-server-filter` now treats wildcard/loopback printed bind addresses (`localhost`, `127.0.0.1`, `0.0.0.0`, `::1`, `::`) as "use the calling context", so jacking in over TRAMP to a server that prints `localhost` connects to the TRAMP host instead of the local machine.
+- `cider--resolve-command` now actually verifies command presence on remote hosts via `executable-find`'s remote search, instead of unconditionally trusting the user-supplied command. A missing tool on the remote side now surfaces immediately during jack-in instead of as a server-startup failure later.
 
 ### Changes
 
