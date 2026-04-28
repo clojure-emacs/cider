@@ -1977,12 +1977,52 @@ Do it by looping over the open REPL buffers."
                       (list dir (prin1-to-string port))))))
                (seq-filter #'identity)))
 
-(defun cider--running-nrepl-paths ()
-  "Retrieve project paths of running nREPL servers.
-Search for lein or java processes including nrepl.command nREPL."
+(defcustom cider-running-nrepl-paths-cache-ttl 5.0
+  "How long, in seconds, to cache the running-nREPL path scan.
+Each scan spawns several `ps' and `lsof' subprocesses; caching across
+back-to-back endpoint completions avoids redundant work.  The cache is
+keyed by `default-directory', so each TRAMP host has its own entry.
+
+Set to 0 (or any non-positive number) to disable caching."
+  :type 'number
+  :safe #'numberp
+  :package-version '(cider . "1.22.0"))
+
+(defvar cider--running-nrepl-paths-cache nil
+  "Cache for `cider--running-nrepl-paths'.
+An alist of (KEY . (TIMESTAMP . PATHS)).  KEY is `default-directory' at
+the time of the scan; TIMESTAMP is `float-time'; PATHS is the result.")
+
+(defun cider-clear-running-nrepl-paths-cache ()
+  "Discard the cached running-nREPL path scan.
+Use this if you suspect the cache is stale (e.g. you just started or
+killed an nREPL server) and don't want to wait out
+`cider-running-nrepl-paths-cache-ttl'."
+  (interactive)
+  (setq cider--running-nrepl-paths-cache nil))
+
+(defun cider--running-nrepl-paths-uncached ()
+  "Retrieve project paths of running nREPL servers, without caching.
+Search for lein or java processes running nREPL."
   (append (cider--invoke-running-nrepl-path #'cider--running-lein-nrepl-paths)
           (cider--invoke-running-nrepl-path #'cider--running-local-nrepl-paths)
           (cider--invoke-running-nrepl-path #'cider--running-non-lein-nrepl-paths)))
+
+(defun cider--running-nrepl-paths ()
+  "Retrieve project paths of running nREPL servers, with TTL caching.
+The cache TTL is controlled by `cider-running-nrepl-paths-cache-ttl';
+see also `cider-clear-running-nrepl-paths-cache'."
+  (let* ((key default-directory)
+         (entry (assoc key cider--running-nrepl-paths-cache))
+         (now (float-time)))
+    (if (and entry
+             (> cider-running-nrepl-paths-cache-ttl 0)
+             (< (- now (cadr entry)) cider-running-nrepl-paths-cache-ttl))
+        (cddr entry)
+      (let ((paths (cider--running-nrepl-paths-uncached)))
+        (setf (alist-get key cider--running-nrepl-paths-cache nil nil #'equal)
+              (cons now paths))
+        paths))))
 
 (defun cider--identify-buildtools-present (&optional project-dir)
   "Identify build systems present by their build files in PROJECT-DIR.
