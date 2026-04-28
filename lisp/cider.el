@@ -1561,21 +1561,19 @@ Params is a plist with the following keys (non-exhaustive)
         (plist-put params :project-dir
                    (or proj-dir
                        (clojure-project-dir (cider-current-dir))))
-      ;; If proj-dir is not a parent of default-directory, transfer all local
-      ;; variables and hack dir-local variables into a temporary buffer and keep
-      ;; that buffer within `params` for the later use by other --update-
-      ;; functions. The context buffer should not be used outside of the param
-      ;; initialization pipeline. Therefore, we don't bother with making it
-      ;; unique or killing it anywhere.
-      (let ((context-buf-name " *cider-context-buffer*"))
-        (when (get-buffer context-buf-name)
-          (kill-buffer context-buf-name))
-        (with-current-buffer (get-buffer-create context-buf-name)
+      ;; If proj-dir is not a parent of default-directory, transfer all
+      ;; local variables and hack dir-local variables into a temporary
+      ;; buffer kept on `params' for the rest of the param-update pipeline.
+      ;; Generate a unique buffer name so that interleaved or interrupted
+      ;; jack-ins do not stomp each other.  The buffer is hidden and small;
+      ;; it is left for Emacs to reclaim when no longer referenced.
+      (let ((context-buf (generate-new-buffer " *cider-context-buffer*" t)))
+        (with-current-buffer context-buf
           (dolist (pair (buffer-local-variables orig-buffer))
             (pcase pair
               (`(,name . ,value)        ;ignore unbound variables
                (ignore-errors (set (make-local-variable name) value))))
-            (setq-local buffer-file-name nil))
+          (setq-local buffer-file-name nil))
           (let ((default-directory proj-dir))
             (hack-dir-local-variables-non-file-buffer)
             (thread-first params
