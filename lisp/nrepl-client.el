@@ -250,8 +250,13 @@ Discards it if it can be determined that the port is not active."
                 (port-number (nrepl--port-string-to-number port-string)))
       (if (eq system-type 'windows-nt)
           port-string
+        ;; `process-file-shell-command' honors `default-directory' and so
+        ;; runs lsof on the remote host when FILE lives on TRAMP.
         (unless (equal ""
-                       (shell-command-to-string (format "lsof -i:%s" port-number)))
+                       (with-temp-buffer
+                         (process-file-shell-command
+                          (format "lsof -i:%s" port-number) nil t)
+                         (buffer-string)))
           port-string)))))
 
 (defun nrepl--ssh-file-name-matches-host-p (file-name host)
