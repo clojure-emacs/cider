@@ -615,6 +615,22 @@
                 :to-equal
                 "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/watch :client-build) (shadow/watch :other-build) (shadow/nrepl-select :client-build))")))))
 
+(describe "cider--resolve-command"
+  (it "passes the TRAMP host to `executable-find' when default-directory is remote"
+    (let ((default-directory "/ssh:remote-host:/home/me/")
+          (received-remote nil))
+      (spy-on 'executable-find
+              :and-call-fake
+              (lambda (_command &optional remote)
+                (setq received-remote remote)
+                "/usr/bin/clojure"))
+      (cider--resolve-command "clojure")
+      (expect received-remote :to-equal "/ssh:remote-host:")))
+  (it "returns nil when the command is not found on the remote host"
+    (let ((default-directory "/ssh:remote-host:/home/me/"))
+      (spy-on 'executable-find :and-return-value nil)
+      (expect (cider--resolve-command "no-such-command") :to-be nil))))
+
 (describe "cider--resolve-project-command"
   (it "if command starts with ./ it resolves relative to clojure-project-dir"
     (spy-on 'locate-file :and-return-value "/project/command")
