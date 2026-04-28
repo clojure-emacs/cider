@@ -427,10 +427,10 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
                       (t default-directory)))
          (ssh (or (executable-find "ssh")
                   (error "[nREPL] Cannot locate 'ssh' executable")))
-         (cmd (nrepl--ssh-tunnel-command ssh remote-dir port))
+         (args (nrepl--ssh-tunnel-args remote-dir port))
          (tunnel-buf (nrepl-tunnel-buffer-name
                       `((:host ,host) (:port ,port))))
-         (tunnel (start-process-shell-command "nrepl-tunnel" tunnel-buf cmd)))
+         (tunnel (apply #'start-process "nrepl-tunnel" tunnel-buf ssh args)))
     (process-put tunnel :waiting-for-port t)
     (set-process-filter tunnel (nrepl--ssh-tunnel-filter port))
     (while (and (process-live-p tunnel)
@@ -445,19 +445,20 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
           (plist-put :tunnel tunnel)
           (plist-put :remote-host host))))))
 
-(defun nrepl--ssh-tunnel-command (ssh dir port)
-  "Command string to open SSH tunnel to the host associated with DIR's PORT."
+(defun nrepl--ssh-tunnel-args (dir port)
+  "Build the ssh program-args list for forwarding PORT from DIR's host.
+Returns the args as a list so the caller can pass them to `start-process'
+without shell intermediation -- this avoids any quoting hazards in the
+host, user or port components.
+
+The -v option is requested because we synchronize on diagnostic output
+to know when port forwarding is up before attempting to connect."
   (with-parsed-tramp-file-name dir v
-    ;; this abuses the -v option for ssh to get output when the port
-    ;; forwarding is set up, which is used to synchronise on, so that
-    ;; the port forwarding is up when we try to connect.
-    (format-spec
-     "%s -v -N -L %p:localhost:%p %u'%h' %n"
-     `((?s . ,ssh)
-       (?p . ,port)
-       (?h . ,v-host)
-       (?u . ,(if v-user (format "-l '%s' " v-user) ""))
-       (?n . ,(if v-port (format "-p '%s' " v-port) ""))))))
+    (append (list "-v" "-N"
+                  "-L" (format "%s:localhost:%s" port port))
+            (when v-user (list "-l" v-user))
+            (when v-port (list "-p" v-port))
+            (list v-host))))
 
 (autoload 'comint-watch-for-password-prompt "comint"  "(autoload).")
 
