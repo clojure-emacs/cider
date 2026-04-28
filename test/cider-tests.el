@@ -37,6 +37,7 @@
     (let ((inhibit-message t)) (customize-group 'cider))))
 
 (describe "cider-figwheel-main-init-form"
+  :var (cider-figwheel-main-default-options)
   ;; whitespace checks sprinkled amongst other tests
   (describe "from options"
     (it "leaves keywords alone"
@@ -55,7 +56,7 @@
   (describe "from minibuffer"
     (before-each
       ;; not necessary as of this writing, but it can't hurt
-      (setq-local cider-figwheel-main-default-options nil))
+      (setq cider-figwheel-main-default-options nil))
     (it "leaves keywords alone"
       (spy-on 'completing-read :and-return-value ":prod")
       (spy-on 'cider--figwheel-main-get-builds :and-return-value '("dev" "prod"))
@@ -101,12 +102,110 @@
         (expect (cider-project-type) :to-equal 'build-tool2))))
 
   (describe "when there are no choices available"
-    (it "returns the value of `cider-jack-in-default'"
-      (spy-on 'cider--identify-buildtools-present
-              :and-return-value '())
-      (expect (cider-project-type) :to-equal cider-jack-in-default))))
+    (before-each
+      (spy-on 'cider--identify-buildtools-present :and-return-value '()))
+    (it "returns the value of `cider-jack-in-default' when explicitly set"
+      (let ((cider-jack-in-default 'shadow-cljs))
+        (expect (cider-project-type) :to-equal 'shadow-cljs)))
+    (it "auto-detects when `cider-jack-in-default' is nil"
+      (let ((cider-jack-in-default nil))
+        (spy-on 'executable-find :and-return-value t)
+        (expect (cider-project-type) :to-equal 'clojure-cli))
+      (let ((cider-jack-in-default nil))
+        (spy-on 'executable-find :and-return-value nil)
+        (expect (cider-project-type) :to-equal 'lein)))))
 
 ;;; cider-jack-in tests
+
+(describe "cider-jack-in-tools registry"
+  (it "registers each built-in tool with command-var, params-var, and project-files"
+    (dolist (tool '(clojure-cli lein babashka shadow-cljs gradle nbb basilisp))
+      (let ((spec (alist-get tool cider-jack-in-tools)))
+        (expect spec :not :to-be nil)
+        (expect (plist-get spec :command-var) :to-be-truthy)
+        (expect (plist-get spec :params-var) :to-be-truthy)
+        (expect (plist-get spec :project-files) :to-be-truthy))))
+
+  (it "errors on lookup for an unknown project type"
+    (expect (cider--jack-in-tool 'no-such-tool) :to-throw 'user-error))
+
+  (describe "cider-register-jack-in-tool"
+    (it "adds new entries and replaces existing ones"
+      (let ((cider-jack-in-tools cider-jack-in-tools))
+        (cider-register-jack-in-tool 'my-test-tool
+                                     :command-var 'cider-lein-command
+                                     :params-var 'cider-lein-parameters
+                                     :project-files '("my.edn"))
+        (expect (cider--jack-in-tool 'my-test-tool) :not :to-be nil)
+        (cider-register-jack-in-tool 'my-test-tool
+                                     :command-var 'cider-lein-command
+                                     :params-var 'cider-lein-parameters
+                                     :project-files '("replaced.edn"))
+        (expect (plist-get (cider--jack-in-tool 'my-test-tool) :project-files)
+                :to-equal '("replaced.edn"))))))
+
+(describe "cider-inject-jack-in-dependencies (no-op tools)"
+  (it "returns params unchanged for babashka"
+    (expect (cider-inject-jack-in-dependencies "nrepl-server localhost:0" 'babashka)
+            :to-equal "nrepl-server localhost:0"))
+  (it "returns params unchanged for nbb"
+    (expect (cider-inject-jack-in-dependencies "nrepl-server" 'nbb)
+            :to-equal "nrepl-server"))
+  (it "returns params unchanged for basilisp"
+    (expect (cider-inject-jack-in-dependencies "nrepl-server" 'basilisp)
+            :to-equal "nrepl-server")))
+
+(describe "cider-inject-jack-in-dependencies (shadow-cljs)"
+  :var (cider-jack-in-dependencies cider-jack-in-nrepl-middlewares)
+  (before-each
+    (setq cider-injected-nrepl-version "1.2.3"
+          cider-injected-middleware-version "2.3.4"
+          cider-jack-in-dependencies nil
+          cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware")))
+  (it "prepends -d flags for the required deps"
+    (expect (cider-inject-jack-in-dependencies "server" 'shadow-cljs)
+            :to-equal "-d nrepl/nrepl:1.2.3 -d cider/cider-nrepl:2.3.4 server")))
+
+(describe "cider-jack-in-universal"
+  :var (chosen-fn chosen-args)
+  (before-each
+    (setq chosen-fn nil chosen-args nil)
+    (spy-on 'cider-jack-in-clj
+            :and-call-fake (lambda (params) (setq chosen-fn 'clj chosen-args params)))
+    (spy-on 'cider-jack-in-cljs
+            :and-call-fake (lambda (params) (setq chosen-fn 'cljs chosen-args params)))
+    (spy-on 'clojure-project-dir :and-return-value nil))
+
+  (it "dispatches to cider-jack-in-clj for a clj prefix-arg"
+    (cider-jack-in-universal 2)
+    (expect chosen-fn :to-be 'clj)
+    (expect (plist-get chosen-args :project-type) :to-be 'lein)
+    (expect (plist-get chosen-args :edit-project-dir) :to-be t))
+
+  (it "dispatches to cider-jack-in-cljs for a cljs prefix-arg"
+    (cider-jack-in-universal 4)
+    (expect chosen-fn :to-be 'cljs)
+    (expect (plist-get chosen-args :project-type) :to-be 'nbb)
+    (expect (plist-get chosen-args :cljs-repl-type) :to-be 'nbb))
+
+  (it "errors on an unknown numeric prefix-arg"
+    (expect (cider-jack-in-universal 99) :to-throw))
+
+  (it "prompts via completing-read when arg is nil and no project is found"
+    (spy-on 'completing-read :and-return-value "babashka")
+    (cider-jack-in-universal nil)
+    (expect chosen-fn :to-be 'clj)
+    (expect (plist-get chosen-args :project-type) :to-be 'babashka)))
+
+(describe "cider--identify-buildtools-present"
+  (it "returns each tool whose project-files exist"
+    (spy-on 'file-exists-p
+            :and-call-fake (lambda (f) (member f '("project.clj" "deps.edn"))))
+    (let ((found (cider--identify-buildtools-present "/tmp/")))
+      (expect found :to-contain 'lein)
+      (expect found :to-contain 'clojure-cli)
+      (expect found :not :to-contain 'gradle))))
+
 (describe "cider--gradle-dependency-notation"
   (it "returns a GAV when given a two-element list"
     (expect (cider--gradle-dependency-notation '("cider/piggieback" "1.2.3"))
@@ -139,15 +238,18 @@
                               (shell-quote-argument "--middleware=other-ns/other-middleware")))))
 
 (describe "cider-inject-jack-in-dependencies"
-  :var (cider-jack-in-dependencies cider-jack-in-nrepl-middlewares cider-jack-in-lein-plugins cider-jack-in-dependencies-exclusions)
+  :var (cider-jack-in-dependencies cider-jack-in-nrepl-middlewares
+        cider-jack-in-lein-plugins cider-jack-in-dependencies-exclusions
+        cider-injected-nrepl-version cider-injected-middleware-version
+        cider-enable-nrepl-jvmti-agent)
 
   (describe "when there is a single dependency"
     (before-each
-      (setq-local cider-injected-nrepl-version "1.2.3")
-      (setq-local cider-injected-middleware-version "2.3.4")
-      (setq-local cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware"))
-      (setq-local cider-jack-in-dependencies-exclusions '())
-      (setq-local cider-enable-nrepl-jvmti-agent t))
+      (setq cider-injected-nrepl-version "1.2.3"
+            cider-injected-middleware-version "2.3.4"
+            cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware")
+            cider-jack-in-dependencies-exclusions '()
+            cider-enable-nrepl-jvmti-agent t))
 
     (it "can inject dependencies in a lein project"
       (expect (cider-inject-jack-in-dependencies "repl :headless" 'lein)
@@ -159,7 +261,7 @@
                                 " -- repl :headless")))
 
     (it "can inject dependencies in a lein project with an exclusion"
-      (setq-local cider-jack-in-dependencies-exclusions '(("nrepl/nrepl" ("org.clojure/clojure"))))
+      (setq cider-jack-in-dependencies-exclusions '(("nrepl/nrepl" ("org.clojure/clojure"))))
       (expect (cider-inject-jack-in-dependencies "repl :headless" 'lein)
               :to-equal (concat
                          "update-in :dependencies conj "
@@ -170,7 +272,7 @@
                          " -- repl :headless")))
 
     (it "can inject dependencies in a lein project with multiple exclusions"
-      (setq-local cider-jack-in-dependencies-exclusions '(("nrepl/nrepl" ("org.clojure/clojure" "foo.bar/baz"))))
+      (setq cider-jack-in-dependencies-exclusions '(("nrepl/nrepl" ("org.clojure/clojure" "foo.bar/baz"))))
       (expect (cider-inject-jack-in-dependencies "repl :headless" 'lein)
               :to-equal (concat "update-in :dependencies conj "
                                 (shell-quote-argument "[nrepl/nrepl \"1.2.3\" :exclusions [org.clojure/clojure foo.bar/baz]]")
@@ -188,10 +290,9 @@
 
   (describe "when there are multiple dependencies"
     (before-each
-      ;; FIXME: Those locals affect tests that follow them
-      (setq-local cider-jack-in-lein-plugins '(("refactor-nrepl" "2.0.0")))
-      (setq-local cider-jack-in-nrepl-middlewares '("refactor-nrepl.middleware/wrap-refactor" "cider.nrepl/cider-middleware"))
-      (setq-local cider-jack-in-dependencies-exclusions '()))
+      (setq cider-jack-in-lein-plugins '(("refactor-nrepl" "2.0.0"))
+            cider-jack-in-nrepl-middlewares '("refactor-nrepl.middleware/wrap-refactor" "cider.nrepl/cider-middleware")
+            cider-jack-in-dependencies-exclusions '()))
     (it "can inject dependencies in a lein project"
       (expect (cider-inject-jack-in-dependencies "repl :headless" 'lein)
               :to-equal (concat "update-in :dependencies conj "
@@ -210,8 +311,8 @@
     (before-each
       (fset 'plugins-predicate (lambda (&rest _) t))
       (fset 'middlewares-predicate (lambda (&rest _) t))
-      (setq-local cider-jack-in-lein-plugins '(("refactor-nrepl" "2.0.0" :predicate plugins-predicate)))
-      (setq-local cider-jack-in-nrepl-middlewares '(("refactor-nrepl.middleware/wrap-refactor" :predicate middlewares-predicate) "cider.nrepl/cider-middleware" ("another/middleware"))))
+      (setq cider-jack-in-lein-plugins '(("refactor-nrepl" "2.0.0" :predicate plugins-predicate))
+            cider-jack-in-nrepl-middlewares '(("refactor-nrepl.middleware/wrap-refactor" :predicate middlewares-predicate) "cider.nrepl/cider-middleware" ("another/middleware"))))
     (it "includes plugins whose predicates return true"
       (expect (cider-jack-in-normalized-lein-plugins)
               :to-equal '(("refactor-nrepl" "2.0.0") ("cider/cider-nrepl" "2.3.4"))))
@@ -251,7 +352,7 @@
       (spy-on 'cider-jack-in-normalized-lein-plugins
               :and-return-value '(("refactor-nrepl" "2.0.0")
                                   ("cider/cider-nrepl" "2.3.4")))
-      (setq-local cider-jack-in-dependencies-exclusions '()))
+      (setq cider-jack-in-dependencies-exclusions '()))
     (it "uses them in a lein project"
       (expect (cider-inject-jack-in-dependencies "repl :headless" 'lein)
               :to-equal (concat "update-in :dependencies conj "
@@ -329,12 +430,17 @@
                               "JABQAFMATgBhAHQAaQB2AGUAQwBvAG0AbQBhAG4AZABBAHIAZwB1AG0AZQBuAHQAUABhAHMAcwBpAG4AZwAgAD0AIAAnAEwAZQBnAGEAYwB5ACcAOwAgAGMAbABvAGoAdQByAGUAIAAiAGMAbQBkAC0AcABhAHIAYQBtAHMAIgA="))))
 
 (describe "cider--update-jack-in-cmd"
+  :var (cider-clojure-cli-command cider-inject-dependencies-at-jack-in
+        cider-allow-jack-in-without-project cider-edit-jack-in-command
+        cider-jack-in-dependencies cider-jack-in-nrepl-middlewares
+        cider-injected-nrepl-version cider-injected-middleware-version
+        cider-clojure-cli-aliases cider-enable-nrepl-jvmti-agent)
   (describe "when 'clojure-cli project type and \"powershell\" command"
     (it "returns a jack-in command using encodedCommand option"
-      (setq-local cider-clojure-cli-command "powershell")
-      (setq-local cider-inject-dependencies-at-jack-in nil)
-      (setq-local cider-allow-jack-in-without-project t)
-      (setq-local cider-edit-jack-in-command nil)
+      (setq cider-clojure-cli-command "powershell"
+            cider-inject-dependencies-at-jack-in nil
+            cider-allow-jack-in-without-project t
+            cider-edit-jack-in-command nil)
       (spy-on 'cider-project-type :and-return-value 'clojure-cli)
       (spy-on 'cider-jack-in-resolve-command :and-return-value "resolved-powershell")
       (spy-on 'cider-jack-in-params :and-return-value "\"cmd-params\"")
@@ -344,37 +450,37 @@
                                 "JABQAFMATgBhAHQAaQB2AGUAQwBvAG0AbQBhAG4AZABBAHIAZwB1AG0AZQBuAHQAUABhAHMAcwBpAG4AZwAgAD0AIAAnAEwAZQBnAGEAYwB5ACcAOwAgAGMAbABvAGoAdQByAGUAIAAiAGMAbQBkAC0AcABhAHIAYQBtAHMAIgA="))))
   (describe "when 'clojure-cli project type"
     (it "uses main opts in an alias to prevent other mains from winning"
-      (setq-local cider-jack-in-dependencies nil)
-      (setq-local cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware"))
-      (setq-local cider-injected-nrepl-version "1.2.3")
-      (setq-local cider-injected-middleware-version "2.3.4")
+      (setq cider-jack-in-dependencies nil
+            cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware")
+            cider-injected-nrepl-version "1.2.3"
+            cider-injected-middleware-version "2.3.4")
       (let ((expected (string-join `("clojure -Sdeps "
                                      ,(shell-quote-argument "{:deps {nrepl/nrepl {:mvn/version \"1.2.3\"} cider/cider-nrepl {:mvn/version \"2.3.4\"}} :aliases {:cider/nrepl {:jvm-opts [\"-Djdk.attach.allowAttachSelf\"], :main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
                                      " -M:cider/nrepl")
                                    "")))
-        (setq-local cider-allow-jack-in-without-project t)
-        (setq-local cider-clojure-cli-command "clojure")
-        (setq-local cider-inject-dependencies-at-jack-in t)
-        (setq-local cider-clojure-cli-aliases nil)
-        (setq-local cider-enable-nrepl-jvmti-agent t)
+        (setq cider-allow-jack-in-without-project t
+              cider-clojure-cli-command "clojure"
+              cider-inject-dependencies-at-jack-in t
+              cider-clojure-cli-aliases nil
+              cider-enable-nrepl-jvmti-agent t)
         (spy-on 'cider-project-type :and-return-value 'clojure-cli)
         (spy-on 'cider-jack-in-resolve-command :and-return-value "clojure")
         (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
                 :to-equal expected)))
 
     (it "allows specifying custom aliases with `cider-clojure-cli-aliases`"
-      (setq-local cider-injected-nrepl-version "1.2.3")
-      (setq-local cider-injected-middleware-version "2.3.4")
+      (setq cider-injected-nrepl-version "1.2.3"
+            cider-injected-middleware-version "2.3.4")
       (let ((expected (string-join `("clojure -Sdeps "
                                      ,(shell-quote-argument "{:deps {nrepl/nrepl {:mvn/version \"1.2.3\"} cider/cider-nrepl {:mvn/version \"2.3.4\"}} :aliases {:cider/nrepl {:jvm-opts [\"-Djdk.attach.allowAttachSelf\"], :main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
                                      " -M:dev:test:cider/nrepl")
                                    "")))
-        (setq-local cider-jack-in-dependencies nil)
-        (setq-local cider-clojure-cli-aliases ":dev:test")
-        (setq-local cider-allow-jack-in-without-project t)
-        (setq-local cider-clojure-cli-command "clojure")
-        (setq-local cider-inject-dependencies-at-jack-in t)
-        (setq-local cider-enable-nrepl-jvmti-agent t)
+        (setq cider-jack-in-dependencies nil
+              cider-clojure-cli-aliases ":dev:test"
+              cider-allow-jack-in-without-project t
+              cider-clojure-cli-command "clojure"
+              cider-inject-dependencies-at-jack-in t
+              cider-enable-nrepl-jvmti-agent t)
         (spy-on 'cider-project-type :and-return-value 'clojure-cli)
         (spy-on 'cider-jack-in-resolve-command :and-return-value "clojure")
         (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)
@@ -382,8 +488,8 @@
 
     (dolist (command '("clojure" "powershell"))
       (it (format "should remove duplicates, yielding the same result (for %S command invocation)" command)
-        (setq-local cider-injected-nrepl-version "1.2.3")
-        (setq-local cider-injected-middleware-version "2.3.4")
+        (setq cider-injected-nrepl-version "1.2.3"
+              cider-injected-middleware-version "2.3.4")
         ;; repeat the same test for PowerShell too
         (let ((expected (string-join `("-Sdeps "
                                        ,(cider--shell-quote-argument "{:deps {cider/cider-nrepl {:mvn/version \"2.3.4\"} nrepl/nrepl {:mvn/version \"1.2.3\"}} :aliases {:cider/nrepl {:jvm-opts [\"-Djdk.attach.allowAttachSelf\"], :main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}"
@@ -395,8 +501,8 @@
                                                           command)
                   :to-equal expected))))
     (it "handles aliases correctly"
-      (setq-local cider-injected-nrepl-version "1.2.3")
-      (setq-local cider-injected-middleware-version "2.3.4")
+      (setq cider-injected-nrepl-version "1.2.3"
+            cider-injected-middleware-version "2.3.4")
       (let ((expected (string-join `("-Sdeps "
                                      ,(shell-quote-argument "{:deps {cider/cider-nrepl {:mvn/version \"2.3.4\"} nrepl/nrepl {:mvn/version \"1.2.3\"}} :aliases {:cider/nrepl {:jvm-opts [\"-Djdk.attach.allowAttachSelf\"], :main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
                                      " -M:test:cider/nrepl")
@@ -422,19 +528,19 @@
           (expect (cider-clojure-cli-jack-in-dependencies nil deps)
                   :to-equal expected))))
     (it "allows to specify git coordinate as cider-jack-in-dependency"
-      (setq-local cider-injected-nrepl-version "1.2.3")
-      (setq-local cider-injected-middleware-version "2.3.4")
-      (setq-local cider-jack-in-dependencies '(("org.clojure/tools.deps" (("git/sha" . "6ae2b6f71773de7549d7f22759e8b09fec27f0d9")
-                                                                          ("git/url" . "https://github.com/clojure/tools.deps/")))))
+      (setq cider-injected-nrepl-version "1.2.3"
+            cider-injected-middleware-version "2.3.4"
+            cider-jack-in-dependencies '(("org.clojure/tools.deps" (("git/sha" . "6ae2b6f71773de7549d7f22759e8b09fec27f0d9")
+                                                                    ("git/url" . "https://github.com/clojure/tools.deps/")))))
       (let ((expected (string-join `("clojure -Sdeps "
                                      ,(shell-quote-argument "{:deps {nrepl/nrepl {:mvn/version \"1.2.3\"} cider/cider-nrepl {:mvn/version \"2.3.4\"} org.clojure/tools.deps { :git/sha \"6ae2b6f71773de7549d7f22759e8b09fec27f0d9\"  :git/url \"https://github.com/clojure/tools.deps/\" }} :aliases {:cider/nrepl {:jvm-opts [\"-Djdk.attach.allowAttachSelf\"], :main-opts [\"-m\" \"nrepl.cmdline\" \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}")
                                      " -M:cider/nrepl")
                                    "")))
-        (setq-local cider-allow-jack-in-without-project t)
-        (setq-local cider-clojure-cli-command "clojure")
-        (setq-local cider-inject-dependencies-at-jack-in t)
-        (setq-local cider-clojure-cli-aliases nil)
-        (setq-local cider-enable-nrepl-jvmti-agent t)
+        (setq cider-allow-jack-in-without-project t
+              cider-clojure-cli-command "clojure"
+              cider-inject-dependencies-at-jack-in t
+              cider-clojure-cli-aliases nil
+              cider-enable-nrepl-jvmti-agent t)
         (spy-on 'cider-project-type :and-return-value 'clojure-cli)
         (spy-on 'cider-jack-in-resolve-command :and-return-value "clojure")
         (expect (plist-get (cider--update-jack-in-cmd nil) :jack-in-cmd)

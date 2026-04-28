@@ -250,8 +250,13 @@ Discards it if it can be determined that the port is not active."
                 (port-number (nrepl--port-string-to-number port-string)))
       (if (eq system-type 'windows-nt)
           port-string
+        ;; `process-file-shell-command' honors `default-directory' and so
+        ;; runs lsof on the remote host when FILE lives on TRAMP.
         (unless (equal ""
-                       (shell-command-to-string (format "lsof -i:%s" port-number)))
+                       (with-temp-buffer
+                         (process-file-shell-command
+                          (format "lsof -i:%s" port-number) nil t)
+                         (buffer-string)))
           port-string)))))
 
 (defun nrepl--ssh-file-name-matches-host-p (file-name host)
@@ -1019,9 +1024,19 @@ up."
                                :port path
                                :socket-file path)))
                       ((string-match nrepl-listening-inet-address-regexp output)
-                       (let ((host (or (match-string 2 output)
-                                       (file-remote-p default-directory 'host)
-                                       "localhost"))
+                       (let* ((printed-host (match-string 2 output))
+                              (tramp-host (file-remote-p default-directory 'host))
+                              ;; When the server prints a wildcard or loopback
+                              ;; address, use the TRAMP host (if any) so we
+                              ;; connect to the remote machine, not the local
+                              ;; one.  Otherwise trust the printed host.
+                              (host (cond
+                                     ((or (null printed-host)
+                                          (member printed-host
+                                                  '("localhost" "127.0.0.1"
+                                                    "0.0.0.0" "::1" "::")))
+                                      (or tramp-host "localhost"))
+                                     (t printed-host)))
                              (port (string-to-number (match-string 1 output))))
                          (message "[nREPL] server started on %s" port)
                          (list :host host :port port))))))

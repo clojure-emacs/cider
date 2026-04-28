@@ -122,17 +122,17 @@
   :type 'string
   :safe #'stringp)
 
-(defcustom cider-clojure-cli-command
-  (if (and (eq system-type 'windows-nt)
-           (null (executable-find "clojure")))
-      "powershell"
-    "clojure")
+(defcustom cider-clojure-cli-command nil
   "The command used to execute clojure with tools.deps.
+When nil (the default), CIDER auto-detects the command at jack-in time:
+\"clojure\" if available on PATH, otherwise \"powershell\" on Windows.
+This avoids freezing the auto-detection result at package load time.
+
 Don't use clj here, as it doesn't work when spawned from Emacs due to it
-using rlwrap.  If on Windows and no \"clojure\" executable is found we
-default to \"powershell\"."
-  :type 'string
-  :safe #'stringp
+using rlwrap."
+  :type '(choice (const :tag "Auto-detect" nil)
+                 (string :tag "Custom command"))
+  :safe (lambda (s) (or (null s) (stringp s)))
   :package-version '(cider . "0.17.0"))
 
 (defcustom cider-clojure-cli-parameters
@@ -239,16 +239,16 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :safe #'stringp
   :package-version '(cider . "1.14.0"))
 
-(defcustom cider-jack-in-default
-  (if (executable-find "clojure") 'clojure-cli 'lein)
+(defcustom cider-jack-in-default nil
   "The default tool to use when doing `cider-jack-in' outside a project.
-This value will only be consulted when no identifying file types, i.e.
-project.clj for leiningen or deps.edn for clojure-cli, could be found.
+This value is consulted when no identifying file types (e.g. project.clj
+for Leiningen or deps.edn for the Clojure CLI) are found.
 
-As the Clojure CLI is bundled with Clojure itself, it's the default.
-In the absence of the Clojure CLI (e.g. on Windows), we fallback
-to Leiningen."
-  :type '(choice (const lein)
+When nil (the default), CIDER auto-detects at jack-in time, picking
+`clojure-cli' when \"clojure\" is on PATH, else `lein'.  Set this
+explicitly to skip the auto-detection."
+  :type '(choice (const :tag "Auto-detect" nil)
+                 (const lein)
                  (const clojure-cli)
                  (const shadow-cljs)
                  (const gradle)
@@ -317,8 +317,11 @@ The repl dependendcies are most likely to be nREPL middlewares."
 
 (defcustom cider-enable-nrepl-jvmti-agent nil
   "When t, add `-Djdk.attach.allowAttachSelf' to the command line arguments.
-This allows nREPL JVMTI agent to be loaded.  It is needed for evaluation
-interruption to properly work on Java 21 and above."
+This is required for nREPL's bundled JVMTI agent to load, which in turn
+is required for eval interruption (e.g. \\[cider-interrupt]) to work
+reliably on Java 21 and later -- earlier JDKs do not need it.  Disabled
+by default because attaching the agent has a small startup cost and
+some hardened environments forbid self-attach."
   :type 'boolean
   :safe #'booleanp
   :version '(cider . "1.15.0"))
@@ -388,17 +391,27 @@ Signal a `user-error' if PROJECT-TYPE is not registered."
   (interactive)
   (message "CIDER %s" (cider--version)))
 
+(defun cider--jack-in-tool-command (spec)
+  "Return the command for tool SPEC.
+Prefers a non-nil value of the :command-var, falling back to the result
+of :default-command-fn when the var is nil or unset.  Returns nil if
+neither produces a value."
+  (or (when-let* ((var (plist-get spec :command-var))) (symbol-value var))
+      (when-let* ((fn (plist-get spec :default-command-fn))) (funcall fn))))
+
 (defun cider-jack-in-command (project-type)
   "Determine the command `cider-jack-in' needs to invoke for the PROJECT-TYPE."
-  (symbol-value (plist-get (cider--jack-in-tool project-type) :command-var)))
+  (or (cider--jack-in-tool-command (cider--jack-in-tool project-type))
+      (user-error "No command configured for project type `%S'" project-type)))
 
 (defun cider-jack-in-resolve-command (project-type)
   "Determine the resolved file path to `cider-jack-in-command'.
 Throws an error if PROJECT-TYPE is unknown."
   (let* ((spec (cider--jack-in-tool project-type))
-         (command (symbol-value (plist-get spec :command-var)))
+         (command (cider--jack-in-tool-command spec))
          (resolver (or (plist-get spec :resolver) #'cider--resolve-command)))
-    (funcall resolver command)))
+    (when command
+      (funcall resolver command))))
 
 (defun cider-jack-in-params (project-type)
   "Determine the commands params for `cider-jack-in' for the PROJECT-TYPE."
@@ -761,6 +774,17 @@ See also `cider-jack-in-auto-inject-clojure'."
               dependencies))
     dependencies))
 
+(defun cider--default-clojure-cli-command ()
+  "Return the auto-detected Clojure CLI command.
+Picks \"clojure\" when found on PATH, else falls back to \"powershell\"
+on Windows.  Used as the :default-command-fn for the clojure-cli tool
+when `cider-clojure-cli-command' is nil."
+  (if (and (eq system-type 'windows-nt)
+           (not (file-remote-p default-directory))
+           (null (executable-find "clojure")))
+      "powershell"
+    "clojure"))
+
 (defun cider--lein-inject-deps (params _project-type _command)
   "Inject CIDER deps into PARAMS for a Leiningen project."
   (cider-lein-jack-in-dependencies
@@ -809,6 +833,7 @@ with its nREPL middleware and dependencies."
 
 (cider-register-jack-in-tool 'clojure-cli
                              :command-var 'cider-clojure-cli-command
+                             :default-command-fn #'cider--default-clojure-cli-command
                              :params-var 'cider-clojure-cli-parameters
                              :project-files '("deps.edn")
                              :inject-fn #'cider--clojure-cli-inject-deps
@@ -1539,21 +1564,19 @@ Params is a plist with the following keys (non-exhaustive)
         (plist-put params :project-dir
                    (or proj-dir
                        (clojure-project-dir (cider-current-dir))))
-      ;; If proj-dir is not a parent of default-directory, transfer all local
-      ;; variables and hack dir-local variables into a temporary buffer and keep
-      ;; that buffer within `params` for the later use by other --update-
-      ;; functions. The context buffer should not be used outside of the param
-      ;; initialization pipeline. Therefore, we don't bother with making it
-      ;; unique or killing it anywhere.
-      (let ((context-buf-name " *cider-context-buffer*"))
-        (when (get-buffer context-buf-name)
-          (kill-buffer context-buf-name))
-        (with-current-buffer (get-buffer-create context-buf-name)
+      ;; If proj-dir is not a parent of default-directory, transfer all
+      ;; local variables and hack dir-local variables into a temporary
+      ;; buffer kept on `params' for the rest of the param-update pipeline.
+      ;; Generate a unique buffer name so that interleaved or interrupted
+      ;; jack-ins do not stomp each other.  The buffer is hidden and small;
+      ;; it is left for Emacs to reclaim when no longer referenced.
+      (let ((context-buf (generate-new-buffer " *cider-context-buffer*" t)))
+        (with-current-buffer context-buf
           (dolist (pair (buffer-local-variables orig-buffer))
             (pcase pair
               (`(,name . ,value)        ;ignore unbound variables
                (ignore-errors (set (make-local-variable name) value))))
-            (setq-local buffer-file-name nil))
+          (setq-local buffer-file-name nil))
           (let ((default-directory proj-dir))
             (hack-dir-local-variables-non-file-buffer)
             (thread-first params
@@ -1836,6 +1859,22 @@ of remote SSH hosts."
                ;; remove nils that may have been returned due to permission errors:
                (seq-filter #'identity)))
 
+(defun cider--shell-command-to-string (command)
+  "Run shell COMMAND via `process-file-shell-command' and return its output.
+Unlike `shell-command-to-string', this respects `default-directory', so
+it executes on the remote host when called from a TRAMP buffer."
+  (with-temp-buffer
+    (process-file-shell-command command nil t)
+    (buffer-string)))
+
+(defun cider--process-file-to-string (program &rest args)
+  "Run PROGRAM with ARGS via `process-file' and return its output.
+Honors `default-directory', so it executes on the remote host when
+called from a TRAMP buffer."
+  (with-temp-buffer
+    (apply #'process-file program nil t nil args)
+    (buffer-string)))
+
 (defun cider--invoke-running-nrepl-path (f)
   "Invokes F safely.
 
@@ -1865,6 +1904,14 @@ of list of the form (project-dir port)."
                                  (nth 1 x))))
                  (seq-uniq))))
 
+(defun cider--lsof-fn-field (lsof-args)
+  "Run lsof with LSOF-ARGS and return the first \"n\" (name) field.
+Returns nil if lsof produced no name field."
+  (thread-last (apply #'cider--process-file-to-string "lsof" lsof-args)
+               (split-string)
+               (seq-find (lambda (s) (string-prefix-p "n" s)))
+               (funcall (lambda (s) (and s (substring s 1))))))
+
 (defun cider--running-lein-nrepl-paths ()
   "Retrieve project paths of running lein nREPL servers.
 Use `cider-ps-running-lein-nrepls-command' and
@@ -1872,7 +1919,7 @@ Use `cider-ps-running-lein-nrepls-command' and
   (unless (eq system-type 'windows-nt)
     (let (paths)
       (with-temp-buffer
-        (insert (shell-command-to-string cider-ps-running-lein-nrepls-command))
+        (insert (cider--shell-command-to-string cider-ps-running-lein-nrepls-command))
         (dolist (regexp cider-ps-running-lein-nrepl-path-regexp-list)
           (goto-char 1)
           (while (re-search-forward regexp nil t)
@@ -1887,7 +1934,7 @@ Use `cider-ps-running-lein-nrepls-command' and
     (let* ((bb-indicator "--nrepl-server")
            (non-lein-nrepl-pids
             (thread-last (split-string
-                          (shell-command-to-string
+                          (cider--shell-command-to-string
                            ;; some of the `ps u` lines we intend to catch:
                            ;; <username> 15411 0.0  0.0 37915744  16084 s000  S+ 3:02PM 0:00.02 bb --nrepl-server
                            ;; <username> 13835 0.1 11.2 37159036 7528432 s009 S+ 2:47PM 6:41.29 java -cp src -m nrepl.cmdline
@@ -1901,36 +1948,17 @@ Use `cider-ps-running-lein-nrepls-command' and
       (when non-lein-nrepl-pids
         (thread-last non-lein-nrepl-pids
                      (mapcar (lambda (pid)
-                               (let* (
-                                      ;; -a: This flag is used to combine conditions with AND instead of OR
-                                      ;; -d: Lists only the file descriptors that match the given <descriptor>
-                                      ;; -n: Inhibits the conversion of network numbers to host names.
-                                      ;; -Fn: output file entry information as separate lines, with 'n' designating network info.
-                                      ;; -p: specifies the <PID>.
-                                      (directory (thread-last (split-string (shell-command-to-string (concat "lsof -a -d cwd -n -Fn -p " pid))
-                                                                            "\n")
-                                                              (seq-map (lambda (s)
-                                                                         (when (string-prefix-p "n" s)
-                                                                           (replace-regexp-in-string "^n" "" s))))
-                                                              (seq-filter #'identity)
-                                                              car))
-                                      ;; -a: This flag is used to combine conditions with AND instead of OR
-                                      ;; -n: Inhibits the conversion of network numbers to host names.
-                                      ;; -P: (important!) Ensure ports are shown as numbers, even if they have a well-known name.
-                                      ;; -Fn: output file entry information as separate lines, with 'n' designating network info.
-                                      ;; -i: this option selects the listing of all network files.
-                                      ;; -p: specifies the <PID>.
-                                      (port (thread-last (split-string (shell-command-to-string (concat "lsof -n -P -Fn -i -a -p " pid))
-                                                                       "\n")
-                                                         (seq-map (lambda (s)
-                                                                    (when (string-prefix-p "n" s)
-                                                                      (replace-regexp-in-string ".*:" "" s))))
-                                                         (seq-filter #'identity)
-                                                         (seq-filter (lambda (s)
-                                                                       (condition-case nil
-                                                                           (numberp (read s))
-                                                                         (error nil))))
-                                                         car)))
+                               (let* ((directory (cider--lsof-fn-field
+                                                  (list "-a" "-d" "cwd" "-n" "-Fn" "-p" pid)))
+                                      (port-line (cider--lsof-fn-field
+                                                  (list "-n" "-P" "-Fn" "-i" "-a" "-p" pid)))
+                                      (port (when port-line
+                                              (replace-regexp-in-string ".*:" "" port-line)))
+                                      (port (when (and port
+                                                       (condition-case nil
+                                                           (numberp (read port))
+                                                         (error nil)))
+                                              port)))
                                  (list directory port))))
                      (seq-filter #'cadr))))))
 
@@ -1990,12 +2018,20 @@ PROJECT-DIR defaults to the current project."
              choices nil t nil nil default)))
           (choices
            (car choices))
-          ;; TODO: Move this fallback outside the project-type check
-          ;; if we're outside a project we fallback to whatever tool
-          ;; is specified in `cider-jack-in-default' (normally clojure-cli)
-          ;; `cider-jack-in-default' used to be a string prior to CIDER
-          ;; 0.18, therefore the need for `cider-maybe-intern'
-          (t (cider-maybe-intern cider-jack-in-default)))))
+          ;; If we're outside a project, fall back to the configured (or
+          ;; auto-detected) default tool.  `cider-jack-in-default' used to
+          ;; be a string prior to CIDER 0.18, hence `cider-maybe-intern'.
+          (t (cider--effective-jack-in-default)))))
+
+(defun cider--effective-jack-in-default ()
+  "Return `cider-jack-in-default', auto-detecting when nil.
+Auto-detect picks `clojure-cli' if \"clojure\" is on PATH at call time,
+otherwise `lein'."
+  (or (cider-maybe-intern cider-jack-in-default)
+      (if (and (not (file-remote-p default-directory))
+               (executable-find "clojure"))
+          'clojure-cli
+        'lein)))
 
 (defun cider--universal-jack-in-tools ()
   "Return the subset of `cider-jack-in-tools' usable by `cider-jack-in-universal'.
