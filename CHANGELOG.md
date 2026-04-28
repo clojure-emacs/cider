@@ -12,6 +12,10 @@
 
 - [#3209](https://github.com/clojure-emacs/cider/issues/3209): Fix `cider-format` dropping non-map cljfmt options (e.g. `remove-consecutive-blank-lines?`).
 - `cider-jack-in-clj` now restores the originating buffer when running its connect callback, matching the behavior of `cider-jack-in-cljs` and `cider-jack-in-clj&cljs`.
+- `cider-locate-running-nrepl-ports` now runs its `ps`/`lsof` probes via `process-file`, so endpoint completion for `cider-connect` works correctly from a TRAMP buffer (it inspects the remote host instead of the local one). Same for the `lsof` health check on `.nrepl-port` files.
+- `cider-clojure-cli-command` and `cider-jack-in-default` no longer freeze their auto-detection result at package load time. With the new `nil` default, CIDER picks the right command/tool at jack-in time, so installing Clojure (or moving it on PATH) no longer requires restarting Emacs.
+- `cider--update-project-dir` no longer reuses a single `*cider-context-buffer*` across calls. Each invocation gets a unique hidden buffer, so concurrent or interrupted jack-ins don't stomp each other.
+- `nrepl-server-filter` now treats wildcard/loopback printed bind addresses (`localhost`, `127.0.0.1`, `0.0.0.0`, `::1`, `::`) as "use the calling context", so jacking in over TRAMP to a server that prints `localhost` connects to the TRAMP host instead of the local machine.
 
 ### Changes
 

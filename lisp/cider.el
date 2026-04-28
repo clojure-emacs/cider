@@ -317,8 +317,11 @@ The repl dependendcies are most likely to be nREPL middlewares."
 
 (defcustom cider-enable-nrepl-jvmti-agent nil
   "When t, add `-Djdk.attach.allowAttachSelf' to the command line arguments.
-This allows nREPL JVMTI agent to be loaded.  It is needed for evaluation
-interruption to properly work on Java 21 and above."
+This is required for nREPL's bundled JVMTI agent to load, which in turn
+is required for eval interruption (e.g. \\[cider-interrupt]) to work
+reliably on Java 21 and later -- earlier JDKs do not need it.  Disabled
+by default because attaching the agent has a small startup cost and
+some hardened environments forbid self-attach."
   :type 'boolean
   :safe #'booleanp
   :version '(cider . "1.15.0"))

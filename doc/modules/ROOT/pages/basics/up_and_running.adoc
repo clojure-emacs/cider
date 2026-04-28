@@ -152,8 +152,10 @@ In tools.deps, add this to one of the aliases that you enable with the REPL:
 If you try to run `cider-jack-in` outside a project
 directory, CIDER will warn you and ask you to confirm whether you
 really want to do this; more often than not, this is an accident.  If
-you decide to proceed, CIDER will invoke the command configured in
-`cider-jack-in-default` (defaults to `clj`, Clojure's basic startup command).
+you decide to proceed, CIDER will invoke the tool configured in
+`cider-jack-in-default`.  When that variable is `nil` (the default),
+CIDER auto-detects at jack-in time, picking `clojure-cli` if `clojure`
+is on `PATH`, otherwise falling back to `lein`.
 
 TIP: You can set `cider-allow-jack-in-without-project` to `t` if you'd like to
 disable the warning displayed when jacking-in outside a project.
@@ -191,24 +193,39 @@ babashka REPL:
                                 (cider-jack-in-universal 3)))
 ----
 
-The list of available build tools to consider is configured in
-`cider-jack-in-universal-options`. Each element of the list consists
-of the tool name and its setup options. Taking `nbb` as an example
-from the list:
+The set of available tools is the subset of `cider-jack-in-tools` that
+declare a `:universal-prefix-arg`.  Each tool entry is registered via
+`cider-register-jack-in-tool` and looks like this:
 
 [source,lisp]
 ----
-(nbb         (:prefix-arg 4 :cmd (:jack-in-type cljs :project-type nbb :cljs-repl-type nbb :edit-project-dir t)))
+(cider-register-jack-in-tool 'nbb
+                             :command-var 'cider-nbb-command
+                             :params-var 'cider-nbb-parameters
+                             :project-files '("nbb.edn")
+                             :resolver #'cider--resolve-prefix-command
+                             :universal-prefix-arg 4
+                             :jack-in-type 'cljs
+                             :cljs-repl-type 'nbb)
 ----
 
-with
+The keys in the property list:
 
-. `:prefix-arg` assigns the `nbb` tool name a numerical argument prefix of 4.
-. `:cmd` how to invoke the command.
-.. `:jack-in-type` use a `cljs` repl.
-.. `:project-type` use `nbb` (see `jack-in-command`) to bring up the nREPL server.
-.. `:cljs-repl-type` client uses the `nbb` cljs repl type (see `cider-cljs-repl-types`) to initialize server.
-.. `:edit-project-dir` ask the user to confirm root directory to use as base.
+- `:command-var` and `:params-var` -- variable symbols holding the
+  executable name and the params string.
+- `:project-files` -- file names that mark a project of this type.
+- `:resolver` -- optional, defaults to `cider--resolve-command`.  Use
+  `cider--resolve-prefix-command` for `npx X` style invocations or
+  `cider--resolve-project-command` for project-relative scripts.
+- `:inject-fn` -- optional, function `(PARAMS PROJECT-TYPE COMMAND)` that
+  returns PARAMS with REPL deps injected.  Tools without one (e.g.
+  babashka, nbb, basilisp) skip injection.
+- `:universal-prefix-arg`, `:jack-in-type`, `:cljs-repl-type` -- used by
+  `cider-jack-in-universal` to dispatch.  Tools without a
+  `:universal-prefix-arg` are not selectable through that command.
+
+You can register additional tools, or replace existing ones, with the
+same call.
 
 === Customizing the Jack-in Command Behavior
 
@@ -225,6 +242,21 @@ a REPL for one or the other.
 
 NOTE: The examples use only `cider-jack-in`, but this behavior is consistent
 for all `cider-jack-in-\*` commands.
+
+==== Overriding the jack-in command per buffer
+
+Setting the buffer-local `cider-jack-in-cmd` to a complete command line
+makes `cider-jack-in-\*` use it verbatim, bypassing the project-type
+detection, the resolver, and dependency injection.  This is the simplest
+escape hatch when CIDER's auto-derivation does the wrong thing -- common
+inside containers, on TRAMP, or when you need to launch the server with
+a custom wrapper script.
+
+[source,lisp]
+----
+;; .dir-locals.el
+((nil . ((cider-jack-in-cmd . "ssh my-box -t bb nrepl-server localhost:0"))))
+----
 
 You can further customize the command line CIDER uses for `cider-jack-in` by
 modifying some options. Those differ a bit between the various tools,
@@ -406,6 +438,32 @@ You can run `cider-jack-in-\*` while working with remote files over TRAMP. CIDER
 will reuse existing SSH connection's parameters (like port and username) for establishing a SSH tunnel.
 The same will happen if you try to `cider-connect-\*` to a host that matches the one you're currently
 connected to.
+
+==== Known TRAMP caveats
+
+A few things still need attention when jacking in over TRAMP:
+
+- *Executable resolution is best-effort on remote hosts.*  CIDER cannot
+  reliably check whether a given command exists on the other side, so a
+  missing executable typically only surfaces when the server fails to
+  start.  When in doubt, set `cider-jack-in-cmd` (see
+  <<Overriding the jack-in command per buffer>>) to the exact command
+  line you want to run.
+- *Endpoint discovery for `cider-connect`* (`cider-locate-running-nrepl-ports`)
+  inspects processes via `ps`/`lsof` on the host given by the buffer's
+  `default-directory`.  When you invoke `cider-connect` from a TRAMP
+  buffer, CIDER queries the remote host -- assuming `ps` and `lsof` are
+  installed there.  If they aren't, the completion list will simply be
+  empty.
+- *Server-printed bind addresses.*  Some servers (e.g. babashka) print
+  the bound address as `localhost`, `127.0.0.1`, or `0.0.0.0`.  CIDER
+  treats those as wildcard/loopback and falls back to the TRAMP host so
+  the resulting connection lands on the right machine; an explicit
+  non-loopback host in the server's output is honored as-is.
+- *Quoting on Windows is local-OS-aware.*  PowerShell-specific encoding
+  is selected from your local `cider-clojure-cli-command`, not the
+  remote host's shell, so cross-OS jack-ins (e.g. Linux Emacs ->
+  Windows host) may need an explicit `cider-jack-in-cmd`.
 
 NOTE: For Docker containers, running `cider-jack-in-\*` over TRAMP may technically work but it may give mixed results.
 Please check out the following section for the recommended approaches.
