@@ -122,17 +122,17 @@
   :type 'string
   :safe #'stringp)
 
-(defcustom cider-clojure-cli-command
-  (if (and (eq system-type 'windows-nt)
-           (null (executable-find "clojure")))
-      "powershell"
-    "clojure")
+(defcustom cider-clojure-cli-command nil
   "The command used to execute clojure with tools.deps.
+When nil (the default), CIDER auto-detects the command at jack-in time:
+\"clojure\" if available on PATH, otherwise \"powershell\" on Windows.
+This avoids freezing the auto-detection result at package load time.
+
 Don't use clj here, as it doesn't work when spawned from Emacs due to it
-using rlwrap.  If on Windows and no \"clojure\" executable is found we
-default to \"powershell\"."
-  :type 'string
-  :safe #'stringp
+using rlwrap."
+  :type '(choice (const :tag "Auto-detect" nil)
+                 (string :tag "Custom command"))
+  :safe (lambda (s) (or (null s) (stringp s)))
   :package-version '(cider . "0.17.0"))
 
 (defcustom cider-clojure-cli-parameters
@@ -239,16 +239,16 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :safe #'stringp
   :package-version '(cider . "1.14.0"))
 
-(defcustom cider-jack-in-default
-  (if (executable-find "clojure") 'clojure-cli 'lein)
+(defcustom cider-jack-in-default nil
   "The default tool to use when doing `cider-jack-in' outside a project.
-This value will only be consulted when no identifying file types, i.e.
-project.clj for leiningen or deps.edn for clojure-cli, could be found.
+This value is consulted when no identifying file types (e.g. project.clj
+for Leiningen or deps.edn for the Clojure CLI) are found.
 
-As the Clojure CLI is bundled with Clojure itself, it's the default.
-In the absence of the Clojure CLI (e.g. on Windows), we fallback
-to Leiningen."
-  :type '(choice (const lein)
+When nil (the default), CIDER auto-detects at jack-in time, picking
+`clojure-cli' when \"clojure\" is on PATH, else `lein'.  Set this
+explicitly to skip the auto-detection."
+  :type '(choice (const :tag "Auto-detect" nil)
+                 (const lein)
                  (const clojure-cli)
                  (const shadow-cljs)
                  (const gradle)
@@ -388,17 +388,27 @@ Signal a `user-error' if PROJECT-TYPE is not registered."
   (interactive)
   (message "CIDER %s" (cider--version)))
 
+(defun cider--jack-in-tool-command (spec)
+  "Return the command for tool SPEC.
+Prefers a non-nil value of the :command-var, falling back to the result
+of :default-command-fn when the var is nil or unset.  Returns nil if
+neither produces a value."
+  (or (when-let* ((var (plist-get spec :command-var))) (symbol-value var))
+      (when-let* ((fn (plist-get spec :default-command-fn))) (funcall fn))))
+
 (defun cider-jack-in-command (project-type)
   "Determine the command `cider-jack-in' needs to invoke for the PROJECT-TYPE."
-  (symbol-value (plist-get (cider--jack-in-tool project-type) :command-var)))
+  (or (cider--jack-in-tool-command (cider--jack-in-tool project-type))
+      (user-error "No command configured for project type `%S'" project-type)))
 
 (defun cider-jack-in-resolve-command (project-type)
   "Determine the resolved file path to `cider-jack-in-command'.
 Throws an error if PROJECT-TYPE is unknown."
   (let* ((spec (cider--jack-in-tool project-type))
-         (command (symbol-value (plist-get spec :command-var)))
+         (command (cider--jack-in-tool-command spec))
          (resolver (or (plist-get spec :resolver) #'cider--resolve-command)))
-    (funcall resolver command)))
+    (when command
+      (funcall resolver command))))
 
 (defun cider-jack-in-params (project-type)
   "Determine the commands params for `cider-jack-in' for the PROJECT-TYPE."
@@ -761,6 +771,17 @@ See also `cider-jack-in-auto-inject-clojure'."
               dependencies))
     dependencies))
 
+(defun cider--default-clojure-cli-command ()
+  "Return the auto-detected Clojure CLI command.
+Picks \"clojure\" when found on PATH, else falls back to \"powershell\"
+on Windows.  Used as the :default-command-fn for the clojure-cli tool
+when `cider-clojure-cli-command' is nil."
+  (if (and (eq system-type 'windows-nt)
+           (not (file-remote-p default-directory))
+           (null (executable-find "clojure")))
+      "powershell"
+    "clojure"))
+
 (defun cider--lein-inject-deps (params _project-type _command)
   "Inject CIDER deps into PARAMS for a Leiningen project."
   (cider-lein-jack-in-dependencies
@@ -809,6 +830,7 @@ with its nREPL middleware and dependencies."
 
 (cider-register-jack-in-tool 'clojure-cli
                              :command-var 'cider-clojure-cli-command
+                             :default-command-fn #'cider--default-clojure-cli-command
                              :params-var 'cider-clojure-cli-parameters
                              :project-files '("deps.edn")
                              :inject-fn #'cider--clojure-cli-inject-deps
@@ -1995,12 +2017,20 @@ PROJECT-DIR defaults to the current project."
              choices nil t nil nil default)))
           (choices
            (car choices))
-          ;; TODO: Move this fallback outside the project-type check
-          ;; if we're outside a project we fallback to whatever tool
-          ;; is specified in `cider-jack-in-default' (normally clojure-cli)
-          ;; `cider-jack-in-default' used to be a string prior to CIDER
-          ;; 0.18, therefore the need for `cider-maybe-intern'
-          (t (cider-maybe-intern cider-jack-in-default)))))
+          ;; If we're outside a project, fall back to the configured (or
+          ;; auto-detected) default tool.  `cider-jack-in-default' used to
+          ;; be a string prior to CIDER 0.18, hence `cider-maybe-intern'.
+          (t (cider--effective-jack-in-default)))))
+
+(defun cider--effective-jack-in-default ()
+  "Return `cider-jack-in-default', auto-detecting when nil.
+Auto-detect picks `clojure-cli' if \"clojure\" is on PATH at call time,
+otherwise `lein'."
+  (or (cider-maybe-intern cider-jack-in-default)
+      (if (and (not (file-remote-p default-directory))
+               (executable-find "clojure"))
+          'clojure-cli
+        'lein)))
 
 (defun cider--universal-jack-in-tools ()
   "Return the subset of `cider-jack-in-tools' usable by `cider-jack-in-universal'.

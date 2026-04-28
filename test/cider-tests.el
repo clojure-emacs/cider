@@ -101,10 +101,18 @@
         (expect (cider-project-type) :to-equal 'build-tool2))))
 
   (describe "when there are no choices available"
-    (it "returns the value of `cider-jack-in-default'"
-      (spy-on 'cider--identify-buildtools-present
-              :and-return-value '())
-      (expect (cider-project-type) :to-equal cider-jack-in-default))))
+    (before-each
+      (spy-on 'cider--identify-buildtools-present :and-return-value '()))
+    (it "returns the value of `cider-jack-in-default' when explicitly set"
+      (let ((cider-jack-in-default 'shadow-cljs))
+        (expect (cider-project-type) :to-equal 'shadow-cljs)))
+    (it "auto-detects when `cider-jack-in-default' is nil"
+      (let ((cider-jack-in-default nil))
+        (spy-on 'executable-find :and-return-value t)
+        (expect (cider-project-type) :to-equal 'clojure-cli))
+      (let ((cider-jack-in-default nil))
+        (spy-on 'executable-find :and-return-value nil)
+        (expect (cider-project-type) :to-equal 'lein)))))
 
 ;;; cider-jack-in tests
 (describe "cider--gradle-dependency-notation"
