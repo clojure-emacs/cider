@@ -7,6 +7,7 @@
 - [#3645](https://github.com/clojure-emacs/cider/issues/3645): Show a spinner in the mode line while tests are running.
 - [#3865](https://github.com/clojure-emacs/cider/pull/3865): Add default session feature to bypass sesman's project-based dispatch (`cider-set-default-session`, `cider-clear-default-session`).
 - Introduce `cider-jack-in-tools` and `cider-register-jack-in-tool` so third-party packages can register new project tools for `cider-jack-in` and `cider-jack-in-universal`.
+- Cache the result of `cider--running-nrepl-paths` (used by `cider-locate-running-nrepl-ports`) for `cider-running-nrepl-paths-cache-ttl` seconds (default 5). Repeated `cider-connect` completions no longer re-spawn a fresh round of `ps`/`lsof` subprocesses each time. `cider-clear-running-nrepl-paths-cache` discards the cache on demand.
 
 ### Bugs fixed
 
