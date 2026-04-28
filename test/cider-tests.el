@@ -115,6 +115,96 @@
         (expect (cider-project-type) :to-equal 'lein)))))
 
 ;;; cider-jack-in tests
+
+(describe "cider-jack-in-tools registry"
+  (it "registers each built-in tool with command-var, params-var, and project-files"
+    (dolist (tool '(clojure-cli lein babashka shadow-cljs gradle nbb basilisp))
+      (let ((spec (alist-get tool cider-jack-in-tools)))
+        (expect spec :not :to-be nil)
+        (expect (plist-get spec :command-var) :to-be-truthy)
+        (expect (plist-get spec :params-var) :to-be-truthy)
+        (expect (plist-get spec :project-files) :to-be-truthy))))
+
+  (it "errors on lookup for an unknown project type"
+    (expect (cider--jack-in-tool 'no-such-tool) :to-throw 'user-error))
+
+  (describe "cider-register-jack-in-tool"
+    (it "adds new entries and replaces existing ones"
+      (let ((cider-jack-in-tools cider-jack-in-tools))
+        (cider-register-jack-in-tool 'my-test-tool
+                                     :command-var 'cider-lein-command
+                                     :params-var 'cider-lein-parameters
+                                     :project-files '("my.edn"))
+        (expect (cider--jack-in-tool 'my-test-tool) :not :to-be nil)
+        (cider-register-jack-in-tool 'my-test-tool
+                                     :command-var 'cider-lein-command
+                                     :params-var 'cider-lein-parameters
+                                     :project-files '("replaced.edn"))
+        (expect (plist-get (cider--jack-in-tool 'my-test-tool) :project-files)
+                :to-equal '("replaced.edn"))))))
+
+(describe "cider-inject-jack-in-dependencies (no-op tools)"
+  (it "returns params unchanged for babashka"
+    (expect (cider-inject-jack-in-dependencies "nrepl-server localhost:0" 'babashka)
+            :to-equal "nrepl-server localhost:0"))
+  (it "returns params unchanged for nbb"
+    (expect (cider-inject-jack-in-dependencies "nrepl-server" 'nbb)
+            :to-equal "nrepl-server"))
+  (it "returns params unchanged for basilisp"
+    (expect (cider-inject-jack-in-dependencies "nrepl-server" 'basilisp)
+            :to-equal "nrepl-server")))
+
+(describe "cider-inject-jack-in-dependencies (shadow-cljs)"
+  :var (cider-jack-in-dependencies cider-jack-in-nrepl-middlewares)
+  (before-each
+    (setq cider-injected-nrepl-version "1.2.3"
+          cider-injected-middleware-version "2.3.4"
+          cider-jack-in-dependencies nil
+          cider-jack-in-nrepl-middlewares '("cider.nrepl/cider-middleware")))
+  (it "prepends -d flags for the required deps"
+    (expect (cider-inject-jack-in-dependencies "server" 'shadow-cljs)
+            :to-equal "-d nrepl/nrepl:1.2.3 -d cider/cider-nrepl:2.3.4 server")))
+
+(describe "cider-jack-in-universal"
+  :var (chosen-fn chosen-args)
+  (before-each
+    (setq chosen-fn nil chosen-args nil)
+    (spy-on 'cider-jack-in-clj
+            :and-call-fake (lambda (params) (setq chosen-fn 'clj chosen-args params)))
+    (spy-on 'cider-jack-in-cljs
+            :and-call-fake (lambda (params) (setq chosen-fn 'cljs chosen-args params)))
+    (spy-on 'clojure-project-dir :and-return-value nil))
+
+  (it "dispatches to cider-jack-in-clj for a clj prefix-arg"
+    (cider-jack-in-universal 2)
+    (expect chosen-fn :to-be 'clj)
+    (expect (plist-get chosen-args :project-type) :to-be 'lein)
+    (expect (plist-get chosen-args :edit-project-dir) :to-be t))
+
+  (it "dispatches to cider-jack-in-cljs for a cljs prefix-arg"
+    (cider-jack-in-universal 4)
+    (expect chosen-fn :to-be 'cljs)
+    (expect (plist-get chosen-args :project-type) :to-be 'nbb)
+    (expect (plist-get chosen-args :cljs-repl-type) :to-be 'nbb))
+
+  (it "errors on an unknown numeric prefix-arg"
+    (expect (cider-jack-in-universal 99) :to-throw))
+
+  (it "prompts via completing-read when arg is nil and no project is found"
+    (spy-on 'completing-read :and-return-value "babashka")
+    (cider-jack-in-universal nil)
+    (expect chosen-fn :to-be 'clj)
+    (expect (plist-get chosen-args :project-type) :to-be 'babashka)))
+
+(describe "cider--identify-buildtools-present"
+  (it "returns each tool whose project-files exist"
+    (spy-on 'file-exists-p
+            :and-call-fake (lambda (f) (member f '("project.clj" "deps.edn"))))
+    (let ((found (cider--identify-buildtools-present "/tmp/")))
+      (expect found :to-contain 'lein)
+      (expect found :to-contain 'clojure-cli)
+      (expect found :not :to-contain 'gradle))))
+
 (describe "cider--gradle-dependency-notation"
   (it "returns a GAV when given a two-element list"
     (expect (cider--gradle-dependency-notation '("cider/piggieback" "1.2.3"))
