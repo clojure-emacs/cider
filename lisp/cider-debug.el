@@ -35,7 +35,7 @@
 (require 'cider-inspector)
 (require 'cider-util)
 (require 'cider-common)
-(require 'nrepl-client) ; `nrepl--mark-id-completed'
+(require 'nrepl-client) ; `nrepl-make-eval-handler', `nrepl-dbind-response'
 (require 'nrepl-dict)
 
 
@@ -117,29 +117,33 @@ configure `cider-debug-prompt' instead."
                                      ns)))))
     (message "No currently instrumented definitions")))
 
-(defun cider--debug-response-handler (response)
-  "Handles RESPONSE from the cider.debug middleware."
-  (nrepl-dbind-response response (status id causes caught-msg)
-    (when (member "enlighten" status)
-      (cider--handle-enlighten response))
-    (when (or (member "eval-error" status)
-              (member "stack" status))
-      ;; TODO: Make the error buffer a bit friendlier when we're just printing
-      ;; the stack.
-      (if cider-show-error-buffer
-          (cider--render-stacktrace-causes causes)
-        (cider--debug-display-result-overlay nil caught-msg)))
-    (when (member "need-debug-input" status)
-      (cider--handle-debug response))
-    (when (member "done" status)
-      (nrepl--mark-id-completed id))))
+(defun cider--debug-response-handler ()
+  "Build a handler for responses from the cider.debug middleware.
+Dispatches on the debug-specific status flags (`enlighten',
+`eval-error', `stack', `need-debug-input').  Bookkeeping for the
+\"done\" status (request-id cleanup) is handled by
+`nrepl-make-eval-handler' itself."
+  (nrepl-make-eval-handler
+   :on-status (lambda (status response)
+                (nrepl-dbind-response response (causes caught-msg)
+                  (when (member "enlighten" status)
+                    (cider--handle-enlighten response))
+                  (when (or (member "eval-error" status)
+                            (member "stack" status))
+                    ;; TODO: Make the error buffer a bit friendlier when we're
+                    ;; just printing the stack.
+                    (if cider-show-error-buffer
+                        (cider--render-stacktrace-causes causes)
+                      (cider--debug-display-result-overlay nil caught-msg)))
+                  (when (member "need-debug-input" status)
+                    (cider--handle-debug response))))))
 
 (defun cider--debug-init-connection ()
   "Initialize a connection with the cider.debug middleware."
   (cider-nrepl-send-request
    `("op" "cider/init-debugger"
      ,@(cider--nrepl-print-request-plist fill-column))
-   #'cider--debug-response-handler))
+   (cider--debug-response-handler)))
 
 
 ;;; Debugging overlays
