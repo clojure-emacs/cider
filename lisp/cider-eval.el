@@ -617,6 +617,49 @@ parsed location."
 
 
 ;;; Interactive evaluation handlers
+
+(declare-function cider--update-buffer-ns "cider-connection" (buffer ns))
+
+(cl-defun cider-make-eval-handler (&key buffer
+                                        on-value on-stdout on-stderr on-done
+                                        on-eval-error on-content-type on-truncated)
+  "Build an eval response handler with CIDER's UI behavior wired in.
+
+This is the editor-level wrapper around `nrepl-make-eval-handler': it
+forwards the standard slots (`:on-value', `:on-stdout', `:on-stderr',
+`:on-done', `:on-content-type', `:on-truncated', `:on-eval-error') and
+additionally:
+
+- updates BUFFER's `cider-buffer-ns' from the response's `ns' slot
+  (only for non-source buffers, via `cider--update-buffer-ns');
+- prompts the user via `cider-need-input' on \"need-input\" status;
+- prints \"Evaluation interrupted.\" on \"interrupted\" status;
+- prints \"Namespace `X' not found.\" on \"namespace-not-found\" status;
+- when no `:on-eval-error' is given, defaults to a thunk that calls
+  `cider-default-err-handler' with BUFFER.
+
+BUFFER is the editor buffer the response is associated with (typically
+the one that issued the eval).  All other slots have the same semantics
+as in `nrepl-make-eval-handler'."
+  (nrepl-make-eval-handler
+   :on-value on-value
+   :on-stdout on-stdout
+   :on-stderr on-stderr
+   :on-done on-done
+   :on-content-type on-content-type
+   :on-truncated on-truncated
+   :on-ns (lambda (ns) (cider--update-buffer-ns buffer ns))
+   :on-status (lambda (status response)
+                (when (member "interrupted" status)
+                  (message "Evaluation interrupted."))
+                (when (member "namespace-not-found" status)
+                  (nrepl-dbind-response response (ns)
+                    (message "Namespace `%s' not found." ns)))
+                (when (member "need-input" status)
+                  (cider-need-input buffer)))
+   :on-eval-error (or on-eval-error
+                      (lambda () (cider-default-err-handler buffer)))))
+
 (defun cider-insert-eval-handler (&optional buffer _bounds source-buffer on-success-callback)
   "Make an nREPL evaluation handler for the BUFFER,
 _BOUNDS representing the buffer bounds of the evaled input,
@@ -627,7 +670,7 @@ The handler simply inserts the result value in BUFFER."
   (let ((eval-buffer (current-buffer))
         (res "")
         (failed nil))
-    (nrepl-make-eval-handler
+    (cider-make-eval-handler
      :buffer (or buffer eval-buffer)
      :on-value (lambda (value)
                  (with-current-buffer buffer
@@ -727,7 +770,7 @@ when `cider-auto-inspect-after-eval' is non-nil."
          (end (when end (copy-marker end)))
          (fringed nil)
          (res ""))
-    (nrepl-make-eval-handler
+    (cider-make-eval-handler
      :buffer (or buffer eval-buffer)
      :on-value (lambda (value)
                  (setq res (concat res value))
@@ -763,7 +806,7 @@ Optional argument DONE-HANDLER lambda will be run once load is complete."
   (let* ((eval-buffer (current-buffer))
          (target (or buffer eval-buffer))
          (res ""))
-    (nrepl-make-eval-handler
+    (cider-make-eval-handler
      :buffer target
      :on-value (lambda (value)
                  (cider--display-interactive-eval-result value 'value)
@@ -788,7 +831,7 @@ Optional argument DONE-HANDLER lambda will be run once load is complete."
   ;; NOTE: cider-eval-register behavior is not implemented here for performance reasons.
   ;; See https://github.com/clojure-emacs/cider/pull/3162
   (let ((target (or buffer (current-buffer))))
-    (nrepl-make-eval-handler
+    (cider-make-eval-handler
      :buffer target
      :on-value (lambda (value)
                  (with-current-buffer target
@@ -803,7 +846,7 @@ Optional argument DONE-HANDLER lambda will be run once load is complete."
 LOCATION is the location marker at which to insert.  COMMENT-PREFIX is the
 comment prefix to use."
   (let ((res ""))
-    (nrepl-make-eval-handler
+    (cider-make-eval-handler
      :buffer buffer
      :on-value (lambda (value) (setq res (concat res value)))
      :on-stdout #'cider-emit-interactive-eval-output
@@ -842,7 +885,7 @@ COMMENT-PREFIX is the comment prefix for the first line of output.
 CONTINUED-PREFIX is the comment prefix to use for the remaining lines.
 COMMENT-POSTFIX is the text to output after the last line."
   (let ((res ""))
-    (nrepl-make-eval-handler
+    (cider-make-eval-handler
      :buffer buffer
      :on-value (lambda (value) (setq res (concat res value)))
      :on-stderr (lambda (err) (setq res (concat res err)))
@@ -870,7 +913,7 @@ This is used by pretty-printing commands."
   ;; NOTE: cider-eval-register behavior is not implemented here for performance reasons.
   ;; See https://github.com/clojure-emacs/cider/pull/3162
   (let ((chosen-buffer (or buffer (current-buffer))))
-    (nrepl-make-eval-handler
+    (cider-make-eval-handler
      :buffer chosen-buffer
      :on-value (lambda (value)
                  (cider-emit-into-popup-buffer chosen-buffer (ansi-color-apply value) nil t))

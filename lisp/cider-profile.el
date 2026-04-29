@@ -56,7 +56,7 @@
   "Make a response handler that calls HANDLER with the response value.
 HANDLER takes one argument (the value).  BUFFER, defaulting to the
 current buffer, is used by the global nREPL handlers (e.g. error)."
-  (nrepl-make-eval-handler
+  (cider-make-eval-handler
    :buffer (or buffer (current-buffer))
    :on-value handler))
 

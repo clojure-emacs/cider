@@ -656,37 +656,41 @@ Displays the notification via `message'."
                 (format "%s: %s" (upcase type) msg))))
     (message msg)))
 
-(cl-defun nrepl-make-eval-handler (&key buffer
-                                        on-value on-stdout on-stderr on-done
+(cl-defun nrepl-make-eval-handler (&key on-value on-stdout on-stderr on-done
+                                        on-ns on-status
                                         on-eval-error on-content-type on-truncated)
   "Build a callback for an nREPL `eval'-style response stream.
 
 Returns a function of one argument (the decoded response dict).  The
-handler dispatches on the standard eval response slots and invokes
-whichever of the keyword sub-handlers has been provided:
+handler is a transport-layer building block: it dispatches on the
+standard eval response slots and invokes whichever of the keyword
+sub-handlers has been provided.  All UI concerns (namespace tracking,
+default error handling, need-input prompting, status messages) live in
+higher layers -- see `cider-make-eval-handler' for the editor wrapper.
+
+Sub-handlers, all optional:
 
   :on-value         called with VALUE when the response carries one.
   :on-stdout        called with the OUT string for stdout chunks.
   :on-stderr        called with the ERR string for stderr chunks.
   :on-done          called with no arguments on the final \"done\" status.
+  :on-ns            called with NS whenever the response carries an `ns'
+                    slot, regardless of which other slots are present.
+  :on-status        called with (STATUS RESPONSE) when the response
+                    carries a `status' slot.  STATUS is the list of
+                    status flags; RESPONSE is the full response dict
+                    so the handler can read sibling slots if needed.
   :on-eval-error    called with no arguments on \"eval-error\" status.
-                    If omitted, falls back to `nrepl-err-handler-function'
-                    (which is then invoked with BUFFER).
   :on-content-type  called with (BODY CONTENT-TYPE) when the response
                     carries a `content-type' slot.  BODY has been
                     base64-decoded when the response indicates so.
   :on-truncated     called with no arguments when the response is flagged
-                    as truncated by `nrepl.middleware.print'.
-
-Sub-handlers do not receive BUFFER -- close over whatever buffer or other
-context you need.  BUFFER is only passed to the global handlers
-configured via `nrepl-namespace-handler-function',
-`nrepl-err-handler-function', and `nrepl-need-input-handler-function'."
+                    as truncated by `nrepl.middleware.print'."
   (lambda (response)
     (nrepl-dbind-response response (content-type content-transfer-encoding body
                                                  value ns out err status id)
-      (when (and ns nrepl-namespace-handler-function)
-        (funcall nrepl-namespace-handler-function buffer ns))
+      (when (and ns on-ns)
+        (funcall on-ns ns))
       (cond ((and content-type on-content-type)
              (funcall on-content-type
                       (if (string= content-transfer-encoding "base64")
@@ -694,32 +698,21 @@ configured via `nrepl-namespace-handler-function',
                         body)
                       content-type))
             (value
-             (when on-value
-               (funcall on-value value)))
+             (when on-value (funcall on-value value)))
             (out
-             (when on-stdout
-               (funcall on-stdout out)))
+             (when on-stdout (funcall on-stdout out)))
             (err
-             (when on-stderr
-               (funcall on-stderr err)))
+             (when on-stderr (funcall on-stderr err)))
             (status
-             (when (and on-truncated (member "nrepl.middleware.print/truncated" status))
+             (when on-status (funcall on-status status response))
+             (when (and on-truncated
+                        (member "nrepl.middleware.print/truncated" status))
                (funcall on-truncated))
-             (when (member "interrupted" status)
-               (message "Evaluation interrupted."))
-             (when (member "eval-error" status)
-               (cond (on-eval-error (funcall on-eval-error))
-                     (nrepl-err-handler-function
-                      (funcall nrepl-err-handler-function buffer))))
-             (when (member "namespace-not-found" status)
-               (message "Namespace `%s' not found." ns))
-             (when (and (member "need-input" status)
-                        nrepl-need-input-handler-function)
-               (funcall nrepl-need-input-handler-function buffer))
+             (when (and on-eval-error (member "eval-error" status))
+               (funcall on-eval-error))
              (when (member "done" status)
                (nrepl--mark-id-completed id)
-               (when on-done
-                 (funcall on-done))))))))
+               (when on-done (funcall on-done))))))))
 
 (defun nrepl-make-response-handler (buffer value-handler stdout-handler
                                            stderr-handler done-handler
@@ -729,9 +722,18 @@ configured via `nrepl-namespace-handler-function',
   "Make a response handler for connection BUFFER.
 
 This is the legacy positional-arg form retained for backward
-compatibility with extensions.  It adapts the (BUFFER VALUE)-style
-sub-handlers expected here to the simpler (VALUE)-style sub-handlers of
-`nrepl-make-eval-handler', which is the form new code should use.
+compatibility with extensions.  New code should use
+`nrepl-make-eval-handler' (transport-only) or, in CIDER, the higher-
+level `cider-make-eval-handler' which layers UI concerns on top.
+
+The shim adapts the (BUFFER VALUE)-style sub-handlers expected here to
+the simpler (VALUE)-style sub-handlers of `nrepl-make-eval-handler',
+and additionally wires up the global handler hooks
+(`nrepl-namespace-handler-function', `nrepl-err-handler-function',
+`nrepl-need-input-handler-function') and the legacy status messages
+that used to live inside `nrepl-make-eval-handler' itself.  Anything
+that was visible behavior of the original 7-positional-arg API stays
+visible behavior here.
 
 VALUE-HANDLER, STDOUT-HANDLER, STDERR-HANDLER, DONE-HANDLER and
 EVAL-ERROR-HANDLER each receive BUFFER as their first argument; the
@@ -740,7 +742,6 @@ type; TRUNCATED-HANDLER receives BUFFER alone.  Any handler given as nil
 results in the corresponding response branch being a no-op."
   (declare (obsolete nrepl-make-eval-handler "1.22"))
   (nrepl-make-eval-handler
-   :buffer buffer
    :on-value (when value-handler
                (lambda (value) (funcall value-handler buffer value)))
    :on-stdout (when stdout-handler
@@ -749,8 +750,21 @@ results in the corresponding response branch being a no-op."
                 (lambda (err) (funcall stderr-handler buffer err)))
    :on-done (when done-handler
               (lambda () (funcall done-handler buffer)))
-   :on-eval-error (when eval-error-handler
-                    (lambda () (funcall eval-error-handler buffer)))
+   :on-ns (when nrepl-namespace-handler-function
+            (lambda (ns) (funcall nrepl-namespace-handler-function buffer ns)))
+   :on-status (lambda (status response)
+                (when (member "interrupted" status)
+                  (message "Evaluation interrupted."))
+                (when (member "namespace-not-found" status)
+                  (nrepl-dbind-response response (ns)
+                    (message "Namespace `%s' not found." ns)))
+                (when (and (member "need-input" status)
+                           nrepl-need-input-handler-function)
+                  (funcall nrepl-need-input-handler-function buffer)))
+   :on-eval-error (cond (eval-error-handler
+                         (lambda () (funcall eval-error-handler buffer)))
+                        (nrepl-err-handler-function
+                         (lambda () (funcall nrepl-err-handler-function buffer))))
    :on-content-type (when content-type-handler
                       (lambda (decoded type)
                         (funcall content-type-handler buffer decoded type)))

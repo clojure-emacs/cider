@@ -201,18 +201,11 @@
                             "my-host"))))
 
 (describe "nrepl-make-eval-handler"
-  :var (nrepl-namespace-handler-function
-        nrepl-err-handler-function
-        nrepl-need-input-handler-function
-        nrepl-pending-requests
-        nrepl-completed-requests)
+  :var (nrepl-pending-requests nrepl-completed-requests)
   (before-each
-    (setq nrepl-namespace-handler-function nil
-          nrepl-err-handler-function nil
-          nrepl-need-input-handler-function nil
-          ;; `nrepl--mark-id-completed' touches these buffer-locals on
-          ;; every "done" status; give it real tables to operate on.
-          nrepl-pending-requests (make-hash-table :test 'equal)
+    ;; `nrepl--mark-id-completed' touches these buffer-locals on every
+    ;; "done" status; give it real tables to operate on.
+    (setq nrepl-pending-requests (make-hash-table :test 'equal)
           nrepl-completed-requests (make-hash-table :test 'equal)))
 
   (it "dispatches value/out/err to the right keyword sub-handlers"
@@ -234,21 +227,32 @@
       (funcall handler '(dict "id" "1" "status" ("done")))
       (expect called :to-be t)))
 
-  (it "falls back to nrepl-err-handler-function when :on-eval-error is omitted"
-    (let* (received-buffer
-           (nrepl-err-handler-function (lambda (b) (setq received-buffer b)))
-           (handler (nrepl-make-eval-handler :buffer 'sentinel)))
-      (funcall handler '(dict "id" "1" "status" ("eval-error")))
-      (expect received-buffer :to-be 'sentinel)))
-
-  (it "prefers :on-eval-error over the global handler when both are set"
-    (let* (custom-called global-called
-           (nrepl-err-handler-function (lambda (_) (setq global-called t)))
+  (it "calls :on-eval-error with no args on eval-error status"
+    (let* (called
            (handler (nrepl-make-eval-handler
-                     :on-eval-error (lambda () (setq custom-called t)))))
+                     :on-eval-error (lambda () (setq called t)))))
       (funcall handler '(dict "id" "1" "status" ("eval-error")))
-      (expect custom-called :to-be t)
-      (expect global-called :to-be nil)))
+      (expect called :to-be t)))
+
+  (it "fires :on-ns whenever the response carries an `ns' slot"
+    (let (received)
+      (let ((handler (nrepl-make-eval-handler
+                      :on-ns (lambda (ns) (setq received ns))
+                      :on-value (lambda (_)))))
+        (funcall handler '(dict "id" "1" "value" "42" "ns" "user")))
+      (expect received :to-equal "user")))
+
+  (it "passes (status response) to :on-status"
+    (let (received-status received-response)
+      (let ((handler (nrepl-make-eval-handler
+                      :on-status (lambda (status response)
+                                   (setq received-status status
+                                         received-response response)))))
+        (funcall handler '(dict "id" "1"
+                                "status" ("namespace-not-found")
+                                "ns" "missing.ns")))
+      (expect received-status :to-equal '("namespace-not-found"))
+      (expect (nrepl-dict-get received-response "ns") :to-equal "missing.ns")))
 
   (it "decodes base64 content for :on-content-type"
     (let (received-body received-type)
