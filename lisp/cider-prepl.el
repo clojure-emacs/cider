@@ -207,7 +207,9 @@ slot's value."
 ;; populates this table.
 
 (defvar cider-prepl--op-fallbacks
-  `(("info" . cider-prepl--info-via-eval))
+  `(("info"     . cider-prepl--info-via-eval)
+    ("apropos"  . cider-prepl--apropos-via-eval)
+    ("ns-vars"  . cider-prepl--ns-vars-via-eval))
   "Alist mapping nREPL op name to a fallback function.
 Each fallback takes (CONN PARAMS HANDLER) and arranges for HANDLER to
 be called with a synthesized response dict matching the nREPL op's
@@ -264,6 +266,49 @@ HANDLER receives a synthesized response dict shaped like the nREPL
                             (funcall handler '(dict "id" "prepl" "status" ("eval-error" "done")))))))
     (cider-send-eval conn form eval-handler)))
 
+(defun cider-prepl--simple-via-eval (conn form handler reshape-fn)
+  "Eval FORM on CONN; on `:ret', call RESHAPE-FN on the parsed value.
+RESHAPE-FN takes the parsed EDN value and returns a list suitable for
+splicing into a `(dict \"id\" \"prepl\" ...)' response.  The user-
+supplied HANDLER then receives that response, followed by a
+`done'-status response."
+  (let ((eval-handler
+         (nrepl-make-eval-handler
+          :on-value (lambda (ret-string)
+                      (let ((parsed (ignore-errors (parseedn-read-str ret-string))))
+                        (funcall handler
+                                 (apply #'list 'dict "id" "prepl"
+                                        (funcall reshape-fn parsed)))
+                        (funcall handler '(dict "id" "prepl" "status" ("done")))))
+          :on-stderr (lambda (err)
+                       (funcall handler `(dict "id" "prepl" "err" ,err)))
+          :on-eval-error (lambda ()
+                           (funcall handler '(dict "id" "prepl" "status" ("eval-error" "done")))))))
+    (cider-send-eval conn form eval-handler)))
+
+(defun cider-prepl--apropos-via-eval (conn params handler)
+  "Implement the `apropos' op on CONN by evaluating `clojure.repl/apropos'.
+Reads \"query\" from PARAMS.  Returns a single response with an
+`apropos-matches' slot holding a list of name strings (a subset of
+what cider-nrepl's apropos returns -- richer metadata is a follow-up)."
+  (let* ((query (cider-prepl--params-get params "query"))
+         (form (format "(mapv str (clojure.repl/apropos #\"%s\"))" (or query ""))))
+    (cider-prepl--simple-via-eval
+     conn form handler
+     (lambda (parsed)
+       (list "apropos-matches" (or parsed (list)))))))
+
+(defun cider-prepl--ns-vars-via-eval (conn params handler)
+  "Implement the `ns-vars' op on CONN by enumerating `ns-publics'.
+Reads \"ns\" from PARAMS.  Returns a single response with an `ns-vars'
+slot holding a list of name strings."
+  (let* ((ns (or (cider-prepl--params-get params "ns") "user"))
+         (form (format "(mapv (comp str key) (ns-publics '%s))" ns)))
+    (cider-prepl--simple-via-eval
+     conn form handler
+     (lambda (parsed)
+       (list "ns-vars" (or parsed (list)))))))
+
 (defun cider-prepl--hash->dict (parsed)
   "Convert PARSED (parseedn output for our info form) to nrepl-dict shape.
 parseedn returns a hash-table with keyword keys; nREPL responses use
@@ -304,18 +349,29 @@ See `cider-prepl--op-fallbacks'."
 
 ;;; Connection setup
 ;;
-;; Sketch only: enough to test against a running prepl by hand.  Full
-;; integration with `cider-connect' / `cider-jack-in' is later work.
+;; Sketch quality: usable for poking at a running prepl by hand, not
+;; yet integrated with `cider-connect' / `cider-jack-in' proper.
+;; What's wired:
+;;   - Sesman registration so the connection buffer is discoverable.
+;;   - A simple `cider-prepl-current-conn' that finds the most-recent
+;;     prepl connection in the current sesman session (or globally).
+;;   - `cider-prepl-eval-string' as a minimal user-facing eval command.
+
+(declare-function sesman-add-object "sesman")
+(declare-function sesman-current-sessions "sesman")
+(declare-function sesman-get-session "sesman")
 
 ;;;###autoload
 (defun cider-connect-prepl (host port)
   "Connect to a Clojure prepl at HOST:PORT.
-Sketch-quality entry point; polishing pending integration with the
-rest of CIDER's connection-management UI."
+Registers the connection buffer with sesman under a synthesized
+session name so it's discoverable through the rest of CIDER's
+session-management surface."
   (interactive
    (list (read-string "Host: " "localhost")
          (read-number "Port: ")))
-  (let* ((buf-name (format "*cider-prepl %s:%d*" host port))
+  (let* ((ses-name (format "prepl:%s:%d" host port))
+         (buf-name (format "*cider-prepl %s:%d*" host port))
          (buf (generate-new-buffer buf-name))
          (proc (open-network-stream "cider-prepl" buf host port)))
     (with-current-buffer buf
@@ -329,11 +385,45 @@ rest of CIDER's connection-management UI."
             ;; be live hash tables for the dispatch to not error.
             nrepl-pending-requests (make-hash-table :test 'equal)
             nrepl-completed-requests (make-hash-table :test 'equal)
-            nrepl--completed-requests-order (queue-create)))
+            nrepl--completed-requests-order (queue-create))
+      ;; Register with sesman.  CIDER's nREPL flow uses the same
+      ;; sesman-system, so prepl connections show up alongside nREPL
+      ;; ones in `sesman-current-sessions' and friends.
+      (require 'sesman)
+      (setq-local sesman-system 'CIDER)
+      (sesman-add-object 'CIDER ses-name buf 'allow-new))
     (set-process-filter proc #'cider-prepl--filter)
     (set-process-coding-system proc 'utf-8-unix 'utf-8-unix)
-    (message "[prepl] connected to %s:%d" host port)
+    (message "[prepl] connected to %s:%d (session %s)" host port ses-name)
     buf))
+
+(defun cider-prepl-current-conn ()
+  "Return the most recently active prepl connection buffer, or nil.
+Walks all live buffers; in a future revision this will go through
+sesman's session resolution to honor the current project / current
+session."
+  (seq-find (lambda (b)
+              (and (buffer-live-p b)
+                   (eq (buffer-local-value 'cider-backend-type b) 'prepl)
+                   (process-live-p (get-buffer-process b))))
+            (buffer-list)))
+
+;;;###autoload
+(defun cider-prepl-eval-string (code &optional conn)
+  "Evaluate CODE on CONN (default: `cider-prepl-current-conn').
+Sketch user-facing command.  Displays the resulting value in the echo
+area.  CODE is read interactively from the minibuffer."
+  (interactive (list (read-string "Code: ")))
+  (let ((conn (or conn (cider-prepl-current-conn))))
+    (unless conn
+      (user-error "No active prepl connection; run `cider-connect-prepl' first"))
+    (let ((response (cider-send-eval-sync conn code)))
+      (let ((value (nrepl-dict-get response "value"))
+            (err   (nrepl-dict-get response "err")))
+        (cond
+         (err   (message "[prepl] %s" err))
+         (value (message "=> %s" value))
+         (t     (message "[prepl] (no value)")))))))
 
 (provide 'cider-prepl)
 

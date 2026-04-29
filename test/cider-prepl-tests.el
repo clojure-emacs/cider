@@ -177,6 +177,55 @@ binding a faux process whose buffer is BUF."
   (it "errors with cider-backend-op-unsupported for unknown ops"
     (expect (cider-supports-op-p buf "no-such-op") :to-be nil)
     (expect (cider-send-op buf "no-such-op" '() #'ignore)
-            :to-throw 'cider-backend-op-unsupported)))
+            :to-throw 'cider-backend-op-unsupported))
+
+  (it "supports apropos via clojure.repl/apropos"
+    (spy-on 'cider-send-eval
+            :and-call-fake
+            (lambda (conn form handler &rest _ignored)
+              (setq received-form form)
+              (with-current-buffer conn
+                (funcall handler '(dict "id" "prepl" "value" "[\"map\" \"mapv\" \"mapcat\"]"))
+                (funcall handler '(dict "id" "prepl" "status" ("done"))))))
+    (expect (cider-supports-op-p buf "apropos") :to-be-truthy)
+    (cider-send-op buf "apropos" '("query" "map") info-handler)
+    (expect received-form :to-match "clojure\\.repl/apropos")
+    (expect received-form :to-match "#\"map\"")
+    (let ((info (car (last captured))))
+      (expect (member "apropos-matches" info) :to-be-truthy)))
+
+  (it "supports ns-vars via ns-publics"
+    (spy-on 'cider-send-eval
+            :and-call-fake
+            (lambda (conn form handler &rest _ignored)
+              (setq received-form form)
+              (with-current-buffer conn
+                (funcall handler '(dict "id" "prepl" "value" "[\"foo\" \"bar\"]"))
+                (funcall handler '(dict "id" "prepl" "status" ("done"))))))
+    (expect (cider-supports-op-p buf "ns-vars") :to-be-truthy)
+    (cider-send-op buf "ns-vars" '("ns" "my.ns") info-handler)
+    (expect received-form :to-match "ns-publics")
+    (expect received-form :to-match "'my\\.ns")
+    (let ((info (car (last captured))))
+      (expect (member "ns-vars" info) :to-be-truthy))))
+
+(describe "cider-prepl-eval-string"
+  :var (buf)
+  (before-each
+    (setq buf (cider-prepl-tests--make-conn-buffer))
+    (spy-on 'cider-prepl-current-conn :and-return-value buf)
+    (spy-on 'cider-send-eval-sync
+            :and-return-value '(dict "value" "42")))
+  (after-each (when (buffer-live-p buf) (kill-buffer buf)))
+
+  (it "sends to the current prepl connection and prints the value"
+    (spy-on 'message)
+    (cider-prepl-eval-string "(+ 1 41)")
+    (expect 'cider-send-eval-sync :to-have-been-called-with buf "(+ 1 41)")
+    (expect 'message :to-have-been-called-with "=> %s" "42"))
+
+  (it "errors when no prepl connection is active"
+    (spy-on 'cider-prepl-current-conn :and-return-value nil)
+    (expect (cider-prepl-eval-string "(+ 1 1)") :to-throw 'user-error)))
 
 ;;; cider-prepl-tests.el ends here
