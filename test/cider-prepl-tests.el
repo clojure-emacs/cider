@@ -134,4 +134,49 @@ binding a faux process whose buffer is BUF."
     (expect 'message :to-have-been-called)
     (expect calls :to-be nil)))
 
+(describe "cider-send-op fallbacks (prepl)"
+  :var (buf received-form info-handler captured)
+  (before-each
+    (setq buf (cider-prepl-tests--make-conn-buffer)
+          received-form nil
+          captured nil)
+    ;; Stub cider-send-eval at the connection level: capture the form
+    ;; the fallback wants to evaluate, and pretend the eval returned a
+    ;; canned EDN response by feeding it to the fallback's intermediate
+    ;; handler.  The real prepl filter dispatches handlers from inside
+    ;; `with-current-buffer (process-buffer proc)' so the eval-handler's
+    ;; bookkeeping (e.g. `nrepl--mark-id-completed') sees the
+    ;; connection's buffer-local hashes.  We replicate that here.
+    (spy-on 'cider-send-eval
+            :and-call-fake
+            (lambda (conn form handler &rest _ignored)
+              (setq received-form form)
+              (with-current-buffer conn
+                (funcall handler
+                         '(dict "id" "prepl" "value"
+                                "{:name \"map\", :ns \"clojure.core\", :doc \"applies fn to each\", :arglists-str \"([f coll])\", :file \"core.clj\", :line 2727, :column 1}"))
+                (funcall handler '(dict "id" "prepl" "status" ("done"))))))
+    (setq info-handler
+          (lambda (response)
+            (push response captured))))
+  (after-each (when (buffer-live-p buf) (kill-buffer buf)))
+
+  (it "supports the info op via clojure.repl/doc-style eval"
+    (expect (cider-supports-op-p buf "info") :to-be-truthy)
+    (cider-send-op buf "info" '("sym" "map" "ns" "clojure.core") info-handler)
+    ;; The eval form should reference the symbol and namespace.
+    (expect received-form :to-match "ns-resolve")
+    (expect received-form :to-match "'map")
+    (expect received-form :to-match "clojure\\.core")
+    ;; Two responses: the value-shaped info dict, then status done.
+    (expect (length captured) :to-equal 2)
+    ;; First response (the info dict) should carry the parsed fields.
+    (let ((info (car (last captured))))
+      (expect (member "doc" info) :to-be-truthy)))
+
+  (it "errors with cider-backend-op-unsupported for unknown ops"
+    (expect (cider-supports-op-p buf "no-such-op") :to-be nil)
+    (expect (cider-send-op buf "no-such-op" '() #'ignore)
+            :to-throw 'cider-backend-op-unsupported)))
+
 ;;; cider-prepl-tests.el ends here

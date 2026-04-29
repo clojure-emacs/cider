@@ -36,6 +36,7 @@
 (require 'sesman)
 (require 'sesman-browser)
 (require 'spinner)
+(require 'cider-backend)
 (require 'cider-popup)
 (require 'cider-session)
 
@@ -599,7 +600,8 @@ function with the repl buffer set as current."
       (sesman-add-object 'CIDER ses-name buffer 'allow-new)
       (unless (derived-mode-p 'cider-repl-mode)
         (cider-repl-mode))
-      (setq nrepl-err-handler-function #'cider-default-err-handler
+      (setq cider-backend-type 'nrepl
+            nrepl-err-handler-function #'cider-default-err-handler
             nrepl-need-input-handler-function #'cider-need-input
             nrepl-namespace-handler-function #'cider--update-buffer-ns
             nrepl-close-connection-handler-function #'cider--close-connection
@@ -634,9 +636,7 @@ function with the repl buffer set as current."
 ;; Implementations of the `cider-backend' generics for nREPL connections.
 ;; Each method is a thin wrapper around the existing nrepl/cider-nrepl
 ;; request layer; the dispatch happens through the buffer-local
-;; `cider-backend-type' (set to `nrepl' on connection buffers).
-
-(require 'cider-backend)
+;; `cider-backend-type' (set to `nrepl' in `cider-repl-create' above).
 
 (declare-function cider-nrepl-send-request "cider-client")
 (declare-function cider-nrepl-send-sync-request "cider-client")
