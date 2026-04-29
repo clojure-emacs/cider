@@ -53,11 +53,12 @@
   "CIDER profiling submenu.")
 
 (defun cider-profile--make-response-handler (handler &optional buffer)
-  "Make a response handler using value handler HANDLER for connection BUFFER.
-
-Optional argument BUFFER defaults to current buffer."
-  (nrepl-make-response-handler
-   (or buffer (current-buffer)) handler nil nil nil))
+  "Make a response handler that calls HANDLER with the response value.
+HANDLER takes one argument (the value).  BUFFER, defaulting to the
+current buffer, is used by the global nREPL handlers (e.g. error)."
+  (nrepl-make-eval-handler
+   :buffer (or buffer (current-buffer))
+   :on-value handler))
 
 ;;;###autoload
 (defun cider-profile-ns-toggle (&optional query)
@@ -75,7 +76,7 @@ current ns."
      `("op" "cider/profile-toggle-ns"
        "ns" ,ns)
      (cider-profile--make-response-handler
-      (lambda (_buffer value)
+      (lambda (value)
         (pcase value
           ("profiled" (message "Profiling enabled for %s" ns))
           ("unprofiled" (message "Profiling disabled for %s" ns)))))))
@@ -97,7 +98,7 @@ With prefix arg or no symbol at point, prompts for a var."
           "ns" ,ns
           "sym" ,sym)
         (cider-profile--make-response-handler
-         (lambda (_buffer value)
+         (lambda (value)
            (pcase value
              ("profiled" (message "Profiling enabled for %s/%s" ns sym))
              ("unprofiled" (message "Profiling disabled for %s/%s" ns sym)))))))))
@@ -124,7 +125,7 @@ With prefix arg or no symbol at point, prompts for a var."
   (cider-nrepl-send-request
    '("op" "cider/profile-clear")
    (cider-profile--make-response-handler
-    (lambda (_buffer value)
+    (lambda (value)
       (when (equal value "cleared")
         (message "Cleared profile data"))))))
 

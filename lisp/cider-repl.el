@@ -271,16 +271,14 @@ This cache is stored in the connection buffer.")
 (defun cider-repl-init-eval-handler (&optional callback)
   "Make an nREPL evaluation handler for use during REPL init.
 Run CALLBACK once the evaluation is complete."
-  (nrepl-make-response-handler (current-buffer)
-                               (lambda (_buffer _value))
-                               (lambda (buffer out)
-                                 (cider-repl-emit-stdout buffer out))
-                               (lambda (buffer err)
-                                 (cider-repl-emit-stderr buffer err))
-                               (lambda (buffer)
-                                 (cider-repl-emit-prompt buffer)
-                                 (when callback
-                                   (funcall callback)))))
+  (let ((buffer (current-buffer)))
+    (nrepl-make-eval-handler
+     :buffer buffer
+     :on-stdout (lambda (out) (cider-repl-emit-stdout buffer out))
+     :on-stderr (lambda (err) (cider-repl-emit-stderr buffer err))
+     :on-done (lambda ()
+                (cider-repl-emit-prompt buffer)
+                (when callback (funcall callback))))))
 
 (defun cider-repl-eval-init-code (&optional callback)
   "Evaluate `cider-repl-init-code' in the current REPL.
@@ -1044,35 +1042,36 @@ and responding to them.")
 (defun cider-repl-handler (buffer)
   "Make an nREPL evaluation handler for the REPL BUFFER."
   (let ((show-prompt t))
-    (nrepl-make-response-handler
-     buffer
-     (lambda (buffer value)
-       (cider-repl-emit-result buffer value t))
-     (lambda (buffer out)
-       (dolist (f cider--repl-stdout-functions)
-         (funcall f buffer out))
-       (cider-repl-emit-stdout buffer out))
-     (lambda (buffer err)
-       (dolist (f cider--repl-stderr-functions)
-         (funcall f buffer err))
-       (cider-repl-emit-stderr buffer err))
-     (lambda (buffer)
-       (when show-prompt
-         (cider-repl-emit-prompt buffer))
-       (when cider-repl-buffer-size-limit
-         (cider-repl-maybe-trim-buffer buffer))
-       (dolist (f cider--repl-done-functions)
-         (funcall f buffer)))
-     nrepl-err-handler-function
-     (lambda (buffer value content-type)
-       (if-let* ((content-attrs (cadr content-type))
-                 (content-type* (car content-type))
-                 (handler (cdr (assoc content-type*
-                                      cider-repl-content-type-handler-alist))))
-           (setq show-prompt (funcall handler content-type buffer value nil t))
-         (cider-repl-emit-result buffer value t t)))
-     (lambda (buffer warning)
-       (cider-repl-emit-stderr buffer warning)))))
+    (nrepl-make-eval-handler
+     :buffer buffer
+     :on-value (lambda (value)
+                 (cider-repl-emit-result buffer value t))
+     :on-stdout (lambda (out)
+                  (dolist (f cider--repl-stdout-functions)
+                    (funcall f buffer out))
+                  (cider-repl-emit-stdout buffer out))
+     :on-stderr (lambda (err)
+                  (dolist (f cider--repl-stderr-functions)
+                    (funcall f buffer err))
+                  (cider-repl-emit-stderr buffer err))
+     :on-done (lambda ()
+                (when show-prompt
+                  (cider-repl-emit-prompt buffer))
+                (when cider-repl-buffer-size-limit
+                  (cider-repl-maybe-trim-buffer buffer))
+                (dolist (f cider--repl-done-functions)
+                  (funcall f buffer)))
+     :on-content-type (lambda (value content-type)
+                        (if-let* ((content-attrs (cadr content-type))
+                                  (content-type* (car content-type))
+                                  (handler (cdr (assoc content-type*
+                                                       cider-repl-content-type-handler-alist))))
+                            (setq show-prompt (funcall handler content-type buffer value nil t))
+                          (cider-repl-emit-result buffer value t t)))
+     :on-truncated (lambda ()
+                     ;; Preserve the (incidentally nil) warning the legacy
+                     ;; truncated-handler form passed through.
+                     (cider-repl-emit-stderr buffer nil)))))
 
 (defun cider--repl-request-plist ()
   "Plist to be merged into REPL eval requests."
@@ -1283,14 +1282,11 @@ With a prefix argument CLEAR-REPL it will clear the entire REPL buffer instead."
 
 (defun cider-repl-switch-ns-handler (buffer)
   "Make an nREPL evaluation handler for the REPL BUFFER's ns switching."
-  (nrepl-make-response-handler buffer
-                               (lambda (_buffer _value))
-                               (lambda (buffer out)
-                                 (cider-repl-emit-stdout buffer out))
-                               (lambda (buffer err)
-                                 (cider-repl-emit-stderr buffer err))
-                               (lambda (buffer)
-                                 (cider-repl-emit-prompt buffer))))
+  (nrepl-make-eval-handler
+   :buffer buffer
+   :on-stdout (lambda (out) (cider-repl-emit-stdout buffer out))
+   :on-stderr (lambda (err) (cider-repl-emit-stderr buffer err))
+   :on-done (lambda () (cider-repl-emit-prompt buffer))))
 
 (defun cider-repl-set-ns (ns)
   "Switch the namespace of the REPL buffer to NS.

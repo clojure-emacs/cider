@@ -627,32 +627,26 @@ The handler simply inserts the result value in BUFFER."
   (let ((eval-buffer (current-buffer))
         (res "")
         (failed nil))
-    (nrepl-make-response-handler (or buffer eval-buffer)
-                                 ;; value handler:
-                                 (lambda (_buffer value)
-                                   (with-current-buffer buffer
-                                     (insert value))
-                                   (when cider-eval-register
-                                     (setq res (concat res value))))
-                                 ;; stdout handler:
-                                 (lambda (_buffer out)
-                                   (cider-repl-emit-interactive-stdout out))
-                                 ;; stderr handler:
-                                 (lambda (_buffer err)
-                                   (cider-repl-emit-interactive-stderr err)
-                                   ;; Don't jump
-                                   (cider-handle-compilation-errors err eval-buffer t))
-                                 ;; done handler:
-                                 (lambda (_buffer)
-                                   (when cider-eval-register
-                                     (set-register cider-eval-register res))
-                                   (when (and (not failed)
-                                              on-success-callback)
-                                     (funcall on-success-callback)))
-                                 ;; eval-error handler
-                                 (lambda (_buffer)
-                                   (setq failed t)
-                                   (funcall nrepl-err-handler-function source-buffer)))))
+    (nrepl-make-eval-handler
+     :buffer (or buffer eval-buffer)
+     :on-value (lambda (value)
+                 (with-current-buffer buffer
+                   (insert value))
+                 (when cider-eval-register
+                   (setq res (concat res value))))
+     :on-stdout (lambda (out) (cider-repl-emit-interactive-stdout out))
+     :on-stderr (lambda (err)
+                  (cider-repl-emit-interactive-stderr err)
+                  ;; Don't jump
+                  (cider-handle-compilation-errors err eval-buffer t))
+     :on-done (lambda ()
+                (when cider-eval-register
+                  (set-register cider-eval-register res))
+                (when (and (not failed) on-success-callback)
+                  (funcall on-success-callback)))
+     :on-eval-error (lambda ()
+                      (setq failed t)
+                      (funcall nrepl-err-handler-function source-buffer)))))
 
 (defun cider--emit-interactive-eval-output (output repl-emit-function)
   "Emit output resulting from interactive code evaluation.
@@ -733,106 +727,94 @@ when `cider-auto-inspect-after-eval' is non-nil."
          (end (when end (copy-marker end)))
          (fringed nil)
          (res ""))
-    (nrepl-make-response-handler
-     (or buffer eval-buffer)
-     ;; value handler:
-     (lambda (_buffer value)
-       (setq res (concat res value))
-       (cider--display-interactive-eval-result res 'value end))
-     ;; stdout handler:
-     (lambda (_buffer out)
-       (cider-emit-interactive-eval-output out))
-     ;; stderr handler:
-     (lambda (_buffer err)
-       (cider-emit-interactive-eval-err-output err)
-       (cider-handle-compilation-errors
-        err eval-buffer
-        ;; Disable jumping behavior when compiling a single form because
-        ;; lines tend to be spurious (e.g. 0:0) and the jump brings us to
-        ;; the beginning of the same form anyway.
-        t))
-     ;; done handler:
-     (lambda (buffer)
-       (if beg
-           (unless fringed
-             (cider--make-fringe-overlays-for-region beg end)
-             (setq fringed t))
-         (cider--make-fringe-overlay end))
-       (when (and cider-auto-inspect-after-eval
-                  (boundp 'cider-inspector-buffer)
-                  (windowp (get-buffer-window cider-inspector-buffer 'visible)))
-         (cider-inspect-last-result)
-         (select-window (get-buffer-window buffer)))
-       (when cider-eval-register
-         (set-register cider-eval-register res))))))
+    (nrepl-make-eval-handler
+     :buffer (or buffer eval-buffer)
+     :on-value (lambda (value)
+                 (setq res (concat res value))
+                 (cider--display-interactive-eval-result res 'value end))
+     :on-stdout (lambda (out) (cider-emit-interactive-eval-output out))
+     :on-stderr (lambda (err)
+                  (cider-emit-interactive-eval-err-output err)
+                  (cider-handle-compilation-errors
+                   err eval-buffer
+                   ;; Disable jumping behavior when compiling a single form
+                   ;; because lines tend to be spurious (e.g. 0:0) and the
+                   ;; jump brings us to the beginning of the same form anyway.
+                   t))
+     :on-done (lambda ()
+                (if beg
+                    (unless fringed
+                      (cider--make-fringe-overlays-for-region beg end)
+                      (setq fringed t))
+                  (cider--make-fringe-overlay end))
+                (let ((target (or buffer eval-buffer)))
+                  (when (and cider-auto-inspect-after-eval
+                             (boundp 'cider-inspector-buffer)
+                             (windowp (get-buffer-window cider-inspector-buffer 'visible)))
+                    (cider-inspect-last-result)
+                    (select-window (get-buffer-window target))))
+                (when cider-eval-register
+                  (set-register cider-eval-register res))))))
 
 
 (defun cider-load-file-handler (&optional buffer done-handler)
   "Make a load file handler for BUFFER.
 Optional argument DONE-HANDLER lambda will be run once load is complete."
-  (let ((eval-buffer (current-buffer))
-        (res ""))
-    (nrepl-make-response-handler (or buffer eval-buffer)
-                                 ;; value
-                                 (lambda (buffer value)
-                                   (cider--display-interactive-eval-result value 'value)
-                                   (when cider-eval-register
-                                     (setq res (concat res value)))
-                                   (when (buffer-live-p buffer)
-                                     (with-current-buffer buffer
-                                       (cider--make-fringe-overlays-for-region (point-min) (point-max))
-                                       (run-hooks 'cider-file-loaded-hook))))
-                                 ;; stdout
-                                 (lambda (_buffer value)
-                                   (cider-emit-interactive-eval-output value))
-                                 ;; stderr
-                                 (lambda (_buffer err)
-                                   (cider-emit-interactive-eval-err-output err)
-                                   (cider-handle-compilation-errors err eval-buffer))
-                                 ;; done
-                                 (lambda (buffer)
-                                   (when cider-eval-register
-                                     (set-register cider-eval-register res))
-                                   (when done-handler
-                                     (funcall done-handler buffer))))))
+  (let* ((eval-buffer (current-buffer))
+         (target (or buffer eval-buffer))
+         (res ""))
+    (nrepl-make-eval-handler
+     :buffer target
+     :on-value (lambda (value)
+                 (cider--display-interactive-eval-result value 'value)
+                 (when cider-eval-register
+                   (setq res (concat res value)))
+                 (when (buffer-live-p target)
+                   (with-current-buffer target
+                     (cider--make-fringe-overlays-for-region (point-min) (point-max))
+                     (run-hooks 'cider-file-loaded-hook))))
+     :on-stdout (lambda (out) (cider-emit-interactive-eval-output out))
+     :on-stderr (lambda (err)
+                  (cider-emit-interactive-eval-err-output err)
+                  (cider-handle-compilation-errors err eval-buffer))
+     :on-done (lambda ()
+                (when cider-eval-register
+                  (set-register cider-eval-register res))
+                (when done-handler
+                  (funcall done-handler target))))))
 
 (defun cider-eval-print-handler (&optional buffer)
   "Make a handler for evaluating and printing result in BUFFER."
   ;; NOTE: cider-eval-register behavior is not implemented here for performance reasons.
   ;; See https://github.com/clojure-emacs/cider/pull/3162
-  (nrepl-make-response-handler (or buffer (current-buffer))
-                               (lambda (buffer value)
-                                 (with-current-buffer buffer
-                                   (insert
-                                    (if (derived-mode-p 'cider-clojure-interaction-mode)
-                                        (format "\n%s\n" value)
-                                      value))))
-                               (lambda (_buffer out)
-                                 (cider-emit-interactive-eval-output out))
-                               (lambda (_buffer err)
-                                 (cider-emit-interactive-eval-err-output err))
-                               ()))
+  (let ((target (or buffer (current-buffer))))
+    (nrepl-make-eval-handler
+     :buffer target
+     :on-value (lambda (value)
+                 (with-current-buffer target
+                   (insert (if (derived-mode-p 'cider-clojure-interaction-mode)
+                               (format "\n%s\n" value)
+                             value))))
+     :on-stdout (lambda (out) (cider-emit-interactive-eval-output out))
+     :on-stderr (lambda (err) (cider-emit-interactive-eval-err-output err)))))
 
 (defun cider-eval-print-with-comment-handler (buffer location comment-prefix)
   "Make a handler for evaluating and printing commented results in BUFFER.
 LOCATION is the location marker at which to insert.  COMMENT-PREFIX is the
 comment prefix to use."
   (let ((res ""))
-    (nrepl-make-response-handler buffer
-                                 (lambda (_buffer value)
-                                   (setq res (concat res value)))
-                                 (lambda (_buffer out)
-                                   (cider-emit-interactive-eval-output out))
-                                 (lambda (_buffer err)
-                                   (cider-emit-interactive-eval-err-output err))
-                                 (lambda (buffer)
-                                   (with-current-buffer buffer
-                                     (save-excursion
-                                       (goto-char (marker-position location))
-                                       (insert (concat comment-prefix
-                                                       res "\n"))))
-                                   (when cider-eval-register
-                                     (set-register cider-eval-register res))))))
+    (nrepl-make-eval-handler
+     :buffer buffer
+     :on-value (lambda (value) (setq res (concat res value)))
+     :on-stdout (lambda (out) (cider-emit-interactive-eval-output out))
+     :on-stderr (lambda (err) (cider-emit-interactive-eval-err-output err))
+     :on-done (lambda ()
+                (with-current-buffer buffer
+                  (save-excursion
+                    (goto-char (marker-position location))
+                    (insert (concat comment-prefix res "\n"))))
+                (when cider-eval-register
+                  (set-register cider-eval-register res))))))
 
 (defun cider-maybe-insert-multiline-comment (result comment-prefix continued-prefix comment-postfix)
   "Insert eval RESULT at current location if RESULT is not empty.
@@ -860,26 +842,24 @@ COMMENT-PREFIX is the comment prefix for the first line of output.
 CONTINUED-PREFIX is the comment prefix to use for the remaining lines.
 COMMENT-POSTFIX is the text to output after the last line."
   (let ((res ""))
-    (nrepl-make-response-handler
-     buffer
-     (lambda (_buffer value)
-       (setq res (concat res value)))
-     nil
-     (lambda (_buffer err)
-       (setq res (concat res err)))
-     (lambda (buffer)
-       (with-current-buffer buffer
-         (save-excursion
-           (goto-char (marker-position location))
-           ;; edge case: defun at eob
-           (unless (bolp) (insert "\n"))
-           (cider-maybe-insert-multiline-comment res comment-prefix continued-prefix comment-postfix)))
-       (when cider-eval-register
-         (set-register cider-eval-register res)))
-     nil
-     nil
-     (lambda (_buffer warning)
-       (setq res (concat res warning))))))
+    (nrepl-make-eval-handler
+     :buffer buffer
+     :on-value (lambda (value) (setq res (concat res value)))
+     :on-stderr (lambda (err) (setq res (concat res err)))
+     :on-done (lambda ()
+                (with-current-buffer buffer
+                  (save-excursion
+                    (goto-char (marker-position location))
+                    ;; edge case: defun at eob
+                    (unless (bolp) (insert "\n"))
+                    (cider-maybe-insert-multiline-comment
+                     res comment-prefix continued-prefix comment-postfix)))
+                (when cider-eval-register
+                  (set-register cider-eval-register res)))
+     :on-truncated (lambda ()
+                     ;; Preserve the (incidentally nil) warning the legacy
+                     ;; truncated-handler form passed through.
+                     (setq res (concat res nil))))))
 
 (defun cider-popup-eval-handler (&optional buffer _bounds source-buffer)
   "Make a handler for printing evaluation results in popup BUFFER,
@@ -890,36 +870,27 @@ This is used by pretty-printing commands."
   ;; NOTE: cider-eval-register behavior is not implemented here for performance reasons.
   ;; See https://github.com/clojure-emacs/cider/pull/3162
   (let ((chosen-buffer (or buffer (current-buffer))))
-    (nrepl-make-response-handler
-     chosen-buffer
-     ;; value handler:
-     (lambda (buffer value)
-       (cider-emit-into-popup-buffer buffer (ansi-color-apply value) nil t))
-     ;; stdout handler:
-     (lambda (_buffer out)
-       (cider-emit-interactive-eval-output out))
-     ;; stderr handler:
-     (lambda (_buffer err)
-       (cider-emit-interactive-eval-err-output err))
-     ;; done handler:
-     nil
-     ;; eval-error handler:
-     (lambda (_buffer)
-       (when (and (buffer-live-p chosen-buffer)
-                  (member (buffer-name chosen-buffer)
-                          cider-ancillary-buffers))
-         (with-selected-window (get-buffer-window chosen-buffer)
-           (cider-popup-buffer-quit-function t)))
-       ;; also call the default nrepl-err-handler-function, so that our custom behavior doesn't void the base behavior:
-       (when nrepl-err-handler-function
-         (funcall nrepl-err-handler-function source-buffer)))
-     ;; content type handler:
-     nil
-     ;; truncated handler:
-     (lambda (buffer)
-       (let ((warning (format "\n... output truncated to %sB ..."
-                              (file-size-human-readable cider-print-quota))))
-         (cider-emit-into-popup-buffer buffer warning 'font-lock-warning-face t))))))
+    (nrepl-make-eval-handler
+     :buffer chosen-buffer
+     :on-value (lambda (value)
+                 (cider-emit-into-popup-buffer chosen-buffer (ansi-color-apply value) nil t))
+     :on-stdout (lambda (out) (cider-emit-interactive-eval-output out))
+     :on-stderr (lambda (err) (cider-emit-interactive-eval-err-output err))
+     :on-eval-error (lambda ()
+                      (when (and (buffer-live-p chosen-buffer)
+                                 (member (buffer-name chosen-buffer)
+                                         cider-ancillary-buffers))
+                        (with-selected-window (get-buffer-window chosen-buffer)
+                          (cider-popup-buffer-quit-function t)))
+                      ;; also call the default nrepl-err-handler-function so
+                      ;; our custom behavior doesn't void the base behavior:
+                      (when nrepl-err-handler-function
+                        (funcall nrepl-err-handler-function source-buffer)))
+     :on-truncated (lambda ()
+                     (let ((warning (format "\n... output truncated to %sB ..."
+                                            (file-size-human-readable cider-print-quota))))
+                       (cider-emit-into-popup-buffer chosen-buffer warning
+                                                     'font-lock-warning-face t))))))
 
 
 ;;; Interactive valuation commands

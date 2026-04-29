@@ -493,7 +493,7 @@ itself is present."
 
 (defun cider-interrupt-handler (buffer)
   "Create an interrupt response handler for BUFFER."
-  (nrepl-make-response-handler buffer nil nil nil nil))
+  (nrepl-make-eval-handler :buffer buffer))
 
 (defun cider-interrupt ()
   "Interrupt any pending evaluations."
@@ -901,14 +901,11 @@ FORMAT-OPTIONS is an optional configuration map for cljfmt."
     (nrepl-dict-get response "formatted-edn")))
 
 ;;; Dealing with input
-;; TODO: Replace this with some nil handler.
 (defun cider-stdin-handler (&optional _buffer)
-  "Make a stdin response handler for _BUFFER."
-  (nrepl-make-response-handler (current-buffer)
-                               (lambda (_buffer _value))
-                               (lambda (_buffer _out))
-                               (lambda (_buffer _err))
-                               nil))
+  "Make a stdin response handler for _BUFFER.
+Intentionally swallows value/out/err so the response is consumed without
+side effects; only the global handlers fire (need-input, eval-error, ...)."
+  (nrepl-make-eval-handler :buffer (current-buffer)))
 
 (defun cider-need-input (buffer)
   "Handle an need-input request from BUFFER."
