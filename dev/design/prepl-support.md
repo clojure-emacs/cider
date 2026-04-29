@@ -72,10 +72,10 @@ Symmetric to the response-side work for #1099. Introduce two
 generics:
 
 ```elisp
-(cl-defgeneric cider-conn-send-eval (conn code handler &key ns line column)
+(cl-defgeneric cider-send-eval (conn code handler &key ns line column)
   "Send CODE for evaluation; HANDLER is built with `cider-make-eval-handler'.")
 
-(cl-defgeneric cider-conn-send-op (conn op params handler)
+(cl-defgeneric cider-send-op (conn op params handler)
   "Send a non-eval op to CONN.  Throws `cider-conn-op-unsupported' if
 the connection type cannot satisfy the op without middleware.")
 ```
@@ -83,15 +83,31 @@ the connection type cannot satisfy the op without middleware.")
 plus thinner ones:
 
 ```elisp
-(cl-defgeneric cider-conn-supports-op-p (conn op))
+(cl-defgeneric cider-send-eval-sync (conn code &key ns))
+(cl-defgeneric cider-supports-op-p (conn op))
 (cl-defgeneric cider-conn-interrupt (conn))
 (cl-defgeneric cider-conn-close (conn))
 ```
 
+### Naming notes
+
+- `cider-send-*` for anything that puts something on the wire.
+  Mirrors `nrepl-send-request`; the verb `send` distinguishes these
+  connection primitives from the densely-populated `cider-eval-*`
+  namespace of interactive editor commands (`cider-eval-region`,
+  `cider-eval-defun-at-point`, etc.).
+- `cider-supports-op-p` for the predicate. No `-conn-` because every
+  CIDER function takes a connection somewhere; flagging it adds noise.
+- `cider-conn-interrupt` and `cider-conn-close` keep the `conn-`
+  prefix because `cider-interrupt` already exists as the user-facing
+  interactive command, and `cider-close` would be similarly
+  ambiguous. The connection lifecycle methods get the namespace tag;
+  the wire methods don't.
+
 The nREPL implementation is a thin wrapper over the existing
 `cider-nrepl-send-request` / `cider-nrepl-send-sync-request`. Existing
-callers migrate from `cider-nrepl-send-request` to `cider-conn-send-eval`
-or `cider-conn-send-op` depending on what they actually want. Old
+callers migrate from `cider-nrepl-send-request` to `cider-send-eval`
+or `cider-send-op` depending on what they actually want. Old
 `cider-nrepl-send-request` is kept as an obsolete shim.
 
 This step is **independently valuable** and should ship to master
