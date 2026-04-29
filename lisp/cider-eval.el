@@ -634,7 +634,7 @@ The handler simply inserts the result value in BUFFER."
                    (insert value))
                  (when cider-eval-register
                    (setq res (concat res value))))
-     :on-stdout (lambda (out) (cider-repl-emit-interactive-stdout out))
+     :on-stdout #'cider-repl-emit-interactive-stdout
      :on-stderr (lambda (err)
                   (cider-repl-emit-interactive-stderr err)
                   ;; Don't jump
@@ -732,7 +732,7 @@ when `cider-auto-inspect-after-eval' is non-nil."
      :on-value (lambda (value)
                  (setq res (concat res value))
                  (cider--display-interactive-eval-result res 'value end))
-     :on-stdout (lambda (out) (cider-emit-interactive-eval-output out))
+     :on-stdout #'cider-emit-interactive-eval-output
      :on-stderr (lambda (err)
                   (cider-emit-interactive-eval-err-output err)
                   (cider-handle-compilation-errors
@@ -773,7 +773,7 @@ Optional argument DONE-HANDLER lambda will be run once load is complete."
                    (with-current-buffer target
                      (cider--make-fringe-overlays-for-region (point-min) (point-max))
                      (run-hooks 'cider-file-loaded-hook))))
-     :on-stdout (lambda (out) (cider-emit-interactive-eval-output out))
+     :on-stdout #'cider-emit-interactive-eval-output
      :on-stderr (lambda (err)
                   (cider-emit-interactive-eval-err-output err)
                   (cider-handle-compilation-errors err eval-buffer))
@@ -795,8 +795,8 @@ Optional argument DONE-HANDLER lambda will be run once load is complete."
                    (insert (if (derived-mode-p 'cider-clojure-interaction-mode)
                                (format "\n%s\n" value)
                              value))))
-     :on-stdout (lambda (out) (cider-emit-interactive-eval-output out))
-     :on-stderr (lambda (err) (cider-emit-interactive-eval-err-output err)))))
+     :on-stdout #'cider-emit-interactive-eval-output
+     :on-stderr #'cider-emit-interactive-eval-err-output)))
 
 (defun cider-eval-print-with-comment-handler (buffer location comment-prefix)
   "Make a handler for evaluating and printing commented results in BUFFER.
@@ -806,8 +806,8 @@ comment prefix to use."
     (nrepl-make-eval-handler
      :buffer buffer
      :on-value (lambda (value) (setq res (concat res value)))
-     :on-stdout (lambda (out) (cider-emit-interactive-eval-output out))
-     :on-stderr (lambda (err) (cider-emit-interactive-eval-err-output err))
+     :on-stdout #'cider-emit-interactive-eval-output
+     :on-stderr #'cider-emit-interactive-eval-err-output
      :on-done (lambda ()
                 (with-current-buffer buffer
                   (save-excursion
@@ -874,8 +874,8 @@ This is used by pretty-printing commands."
      :buffer chosen-buffer
      :on-value (lambda (value)
                  (cider-emit-into-popup-buffer chosen-buffer (ansi-color-apply value) nil t))
-     :on-stdout (lambda (out) (cider-emit-interactive-eval-output out))
-     :on-stderr (lambda (err) (cider-emit-interactive-eval-err-output err))
+     :on-stdout #'cider-emit-interactive-eval-output
+     :on-stderr #'cider-emit-interactive-eval-err-output
      :on-eval-error (lambda ()
                       (when (and (buffer-live-p chosen-buffer)
                                  (member (buffer-name chosen-buffer)

@@ -274,8 +274,8 @@ Run CALLBACK once the evaluation is complete."
   (let ((buffer (current-buffer)))
     (nrepl-make-eval-handler
      :buffer buffer
-     :on-stdout (lambda (out) (cider-repl-emit-stdout buffer out))
-     :on-stderr (lambda (err) (cider-repl-emit-stderr buffer err))
+     :on-stdout (apply-partially #'cider-repl-emit-stdout buffer)
+     :on-stderr (apply-partially #'cider-repl-emit-stderr buffer)
      :on-done (lambda ()
                 (cider-repl-emit-prompt buffer)
                 (when callback (funcall callback))))))
@@ -1284,9 +1284,9 @@ With a prefix argument CLEAR-REPL it will clear the entire REPL buffer instead."
   "Make an nREPL evaluation handler for the REPL BUFFER's ns switching."
   (nrepl-make-eval-handler
    :buffer buffer
-   :on-stdout (lambda (out) (cider-repl-emit-stdout buffer out))
-   :on-stderr (lambda (err) (cider-repl-emit-stderr buffer err))
-   :on-done (lambda () (cider-repl-emit-prompt buffer))))
+   :on-stdout (apply-partially #'cider-repl-emit-stdout buffer)
+   :on-stderr (apply-partially #'cider-repl-emit-stderr buffer)
+   :on-done (apply-partially #'cider-repl-emit-prompt buffer)))
 
 (defun cider-repl-set-ns (ns)
   "Switch the namespace of the REPL buffer to NS.
