@@ -40,6 +40,7 @@
 (require 'nrepl-client)
 
 (declare-function cider--render-stacktrace-causes "cider-eval")
+(declare-function cider-make-eval-handler "cider-eval")
 
 
 ;;; Spinner
@@ -493,7 +494,7 @@ itself is present."
 
 (defun cider-interrupt-handler (buffer)
   "Create an interrupt response handler for BUFFER."
-  (nrepl-make-eval-handler :buffer buffer))
+  (cider-make-eval-handler :buffer buffer))
 
 (defun cider-interrupt ()
   "Interrupt any pending evaluations."
@@ -905,7 +906,7 @@ FORMAT-OPTIONS is an optional configuration map for cljfmt."
   "Make a stdin response handler for _BUFFER.
 Intentionally swallows value/out/err so the response is consumed without
 side effects; only the global handlers fire (need-input, eval-error, ...)."
-  (nrepl-make-eval-handler :buffer (current-buffer)))
+  (cider-make-eval-handler :buffer (current-buffer)))
 
 (defun cider-need-input (buffer)
   "Handle an need-input request from BUFFER."

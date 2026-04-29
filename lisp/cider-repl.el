@@ -52,6 +52,7 @@
 (require 'cider-resolve)
 
 (declare-function cider-inspect "cider-inspector")
+(declare-function cider-make-eval-handler "cider-eval")
 (declare-function cider-quit "cider-connection")
 (declare-function cider-restart "cider-connection")
 (declare-function cider-describe-connection "cider-connection")
@@ -272,7 +273,7 @@ This cache is stored in the connection buffer.")
   "Make an nREPL evaluation handler for use during REPL init.
 Run CALLBACK once the evaluation is complete."
   (let ((buffer (current-buffer)))
-    (nrepl-make-eval-handler
+    (cider-make-eval-handler
      :buffer buffer
      :on-stdout (apply-partially #'cider-repl-emit-stdout buffer)
      :on-stderr (apply-partially #'cider-repl-emit-stderr buffer)
@@ -1042,7 +1043,7 @@ and responding to them.")
 (defun cider-repl-handler (buffer)
   "Make an nREPL evaluation handler for the REPL BUFFER."
   (let ((show-prompt t))
-    (nrepl-make-eval-handler
+    (cider-make-eval-handler
      :buffer buffer
      :on-value (lambda (value)
                  (cider-repl-emit-result buffer value t))
@@ -1282,7 +1283,7 @@ With a prefix argument CLEAR-REPL it will clear the entire REPL buffer instead."
 
 (defun cider-repl-switch-ns-handler (buffer)
   "Make an nREPL evaluation handler for the REPL BUFFER's ns switching."
-  (nrepl-make-eval-handler
+  (cider-make-eval-handler
    :buffer buffer
    :on-stdout (apply-partially #'cider-repl-emit-stdout buffer)
    :on-stderr (apply-partially #'cider-repl-emit-stderr buffer)
