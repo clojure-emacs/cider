@@ -983,11 +983,12 @@ nREPL ops, it may be convenient to prevent inserting a prompt.")
   "Invokes `cider/get-state' when it's possible to do so."
   (when-let ((conn (cider-current-repl 'cljs)))
     (when (cider-nrepl-op-supported-p "cider/get-state" conn)
-      (cider-nrepl-send-request '("op" "cider/get-state")
-                                (lambda (_response)
-                                  ;; No action is necessary: this request results in `cider-repl--state-handler` being called.
-                                  )
-                                conn))))
+      ;; Per-response side effects happen via the global
+      ;; `cider-repl--state-handler' on `nrepl-response-handler-functions',
+      ;; so this request itself ignores its responses.  Using the
+      ;; "unhandled" variant marks the id complete immediately and avoids
+      ;; leaking it into `nrepl-pending-requests'.
+      (cider-nrepl-send-unhandled-request '("op" "cider/get-state") conn))))
 
 (defun cider--maybe-get-state-for-shadow-cljs (buffer &optional err)
   "Refresh the changed namespaces metadata given BUFFER and ERR (stderr string).

@@ -323,7 +323,10 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
              ,@(when (and (not inhibit-refresh-fns) cider-ns-refresh-after-fn)
                  `("after" ,cider-ns-refresh-after-fn)))
            (lambda (response)
-             (cider-ns-refresh--handle-response response log-buffer))
+             (cider-ns-refresh--handle-response response log-buffer)
+             (nrepl-dbind-response response (status id)
+               (when (member "done" status)
+                 (nrepl--mark-id-completed id))))
            conn))))))
 
 (provide 'cider-ns)

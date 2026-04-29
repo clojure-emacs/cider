@@ -280,7 +280,7 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
        "index" ,index
        ,@(cider--nrepl-print-request-plist fill-column))
      (lambda (response)
-       (nrepl-dbind-response response (class status)
+       (nrepl-dbind-response response (class status id)
          (cond (class  (setq causes (cons response causes)))
                (status (when causes
                          (cider-stacktrace-render
@@ -288,7 +288,9 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
                                               cider-auto-select-error-buffer
                                               #'cider-stacktrace-mode
                                               'ancillary)
-                          (reverse causes)))))))
+                          (reverse causes)))
+                       (when (member "done" status)
+                         (nrepl--mark-id-completed id))))))
      cider-test--current-repl)))
 
 (defun cider-test-stacktrace ()
@@ -770,11 +772,12 @@ running them."
           (cider-nrepl-send-request
            request
            (lambda (response)
-             (nrepl-dbind-response response (summary results status out err elapsed-time ns-elapsed-time var-elapsed-time)
+             (nrepl-dbind-response response (summary results status out err elapsed-time ns-elapsed-time var-elapsed-time id)
                (when (or (member "done" status)
                          (member "error" status)
                          (member "namespace-not-found" status))
-                 (cider-test-spinner-stop))
+                 (cider-test-spinner-stop)
+                 (nrepl--mark-id-completed id))
                (cond ((member "namespace-not-found" status)
                       (unless silent
                         (message "No test namespace: %s" (cider-propertize ns 'ns))))
