@@ -343,6 +343,17 @@ and kill the process buffer."
                                                                        (current-time-string)))
           'face 'error))
         (run-hooks 'nrepl-disconnected-hook)
+        ;; Tear down the SSH tunnel, if any, so its `ssh' subprocess
+        ;; doesn't outlive the connection.  The orderly path through
+        ;; `cider--close-connection' already does this; we duplicate it
+        ;; here so abnormal disconnects (server crash, network drop,
+        ;; client process killed) don't leak the tunnel.
+        (when (buffer-live-p nrepl-tunnel-buffer)
+          (when-let* ((tunnel-proc (get-buffer-process nrepl-tunnel-buffer)))
+            (when (process-live-p tunnel-proc)
+              (delete-process tunnel-proc)))
+          (kill-buffer nrepl-tunnel-buffer))
+        (setq nrepl-tunnel-buffer nil)
         (let ((server-buffer nrepl-server-buffer))
           (when (and (buffer-live-p server-buffer)
                      (not (process-get process :keep-server)))

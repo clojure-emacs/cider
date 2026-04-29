@@ -23,6 +23,7 @@
 - `nrepl--ssh-tunnel-connect` no longer routes its `ssh` invocation through a shell. The tunnel command is now spawned via `start-process` with an explicit arg list, eliminating shell-quoting hazards in user/host components.
 - Plug five request-id leaks in raw nREPL response handlers (`cider/test-stacktrace`, `cider/test-var-query`, `cider/analyze-last-stacktrace`, `cider/ns-reload`, `cider/get-state`). They never called `nrepl--mark-id-completed`, so their ids accumulated in the connection's `nrepl-pending-requests` for the lifetime of the session.
 - A response-handler error or an unrecognized response id no longer aborts the nREPL response queue. `nrepl-client-filter` wraps the dispatch call in `with-demoted-errors`, and the no-callback case in `nrepl--dispatch-response` is now a `message` instead of a hard error -- so a single misbehaving callback can no longer drop later responses on the floor.
+- `nrepl-client-sentinel` now tears down the SSH tunnel buffer/process when the client connection closes. Previously only the orderly `cider-quit` path killed the tunnel, so an abnormal disconnect (server crash, network drop) left the `ssh` subprocess as a zombie until Emacs exited.
 
 ### Changes
 
