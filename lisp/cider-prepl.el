@@ -45,7 +45,7 @@
 (require 'parseedn)
 (require 'subr-x)
 
-(require 'cider-conn)
+(require 'cider-backend)
 (require 'nrepl-client)                 ; for nrepl-make-eval-handler
 (require 'nrepl-dict)
 
@@ -162,7 +162,7 @@ slot's value."
 
 (cl-defmethod cider-send-eval ((conn buffer) code handler &key _ns _line _column)
   "Send CODE for evaluation to prepl connection CONN."
-  (cl-assert (eq (cider-conn-type conn) 'prepl))
+  (cl-assert (eq (cider-backend-type conn) 'prepl))
   (with-current-buffer conn
     ;; Enqueue at the tail; dispatch consumes from the head.
     (setq cider-prepl--pending-evals
@@ -175,7 +175,7 @@ slot's value."
 
 (cl-defmethod cider-send-eval-sync ((conn buffer) code &key _ns)
   "Synchronously eval CODE on prepl CONN.  Block until `:ret'/`:exception'."
-  (cl-assert (eq (cider-conn-type conn) 'prepl))
+  (cl-assert (eq (cider-backend-type conn) 'prepl))
   (let* ((response (cons 'dict nil))
          (done nil)
          (handler (nrepl-make-eval-handler
@@ -194,21 +194,21 @@ slot's value."
     response))
 
 (cl-defmethod cider-send-op ((_conn buffer) op _params _handler)
-  "prepl has no native op concept; signal `cider-conn-op-unsupported'.
+  "prepl has no native op concept; signal `cider-backend-op-unsupported'.
 A future iteration will route a curated set of ops through eval-form
 fallbacks (see dev/design/prepl-support.md, Step 3)."
-  (signal 'cider-conn-op-unsupported (list op 'prepl)))
+  (signal 'cider-backend-op-unsupported (list op 'prepl)))
 
 (cl-defmethod cider-supports-op-p ((_conn buffer) _op)
   "prepl has no native op support."
   ;; TODO: return t for ops we provide eval-form fallbacks for.
   nil)
 
-(cl-defmethod cider-conn-interrupt ((_conn buffer))
+(cl-defmethod cider-backend-interrupt ((_conn buffer))
   "prepl has no out-of-band interrupt mechanism."
   (user-error "Interrupt is not supported over prepl; only nREPL connections support it"))
 
-(cl-defmethod cider-conn-close ((conn buffer))
+(cl-defmethod cider-backend-close ((conn buffer))
   "Close prepl connection CONN."
   (when (buffer-live-p conn)
     (when-let* ((proc (get-buffer-process conn)))
@@ -232,7 +232,7 @@ rest of CIDER's connection-management UI."
          (buf (generate-new-buffer buf-name))
          (proc (open-network-stream "cider-prepl" buf host port)))
     (with-current-buffer buf
-      (setq cider-conn-type 'prepl
+      (setq cider-backend-type 'prepl
             cider-prepl--pending-evals nil
             cider-prepl--input-buffer ""
             ;; The shared eval handler from nrepl-make-eval-handler

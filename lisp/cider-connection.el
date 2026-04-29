@@ -629,6 +629,71 @@ function with the repl buffer set as current."
       (current-buffer))))
 
 
+;;; nREPL backend methods
+;;
+;; Implementations of the `cider-backend' generics for nREPL connections.
+;; Each method is a thin wrapper around the existing nrepl/cider-nrepl
+;; request layer; the dispatch happens through the buffer-local
+;; `cider-backend-type' (set to `nrepl' on connection buffers).
+
+(require 'cider-backend)
+
+(declare-function cider-nrepl-send-request "cider-client")
+(declare-function cider-nrepl-send-sync-request "cider-client")
+(declare-function cider-nrepl-op-supported-p "cider-client")
+(declare-function cider-interrupt-handler "cider-client")
+(declare-function nrepl-request:eval "nrepl-client")
+(declare-function nrepl-sync-request:eval "nrepl-client")
+(declare-function nrepl-request:interrupt "nrepl-client")
+
+(cl-defmethod cider-send-eval ((conn buffer) code handler &key ns line column)
+  "Send CODE for evaluation to nREPL connection CONN.
+This delegates to `nrepl-request:eval' with the request constructed
+from CODE, NS, LINE and COLUMN.  HANDLER is invoked on each response."
+  (cl-assert (eq (cider-backend-type conn) 'nrepl)
+             nil "cider-send-eval: not an nREPL connection")
+  (require 'cider-client)
+  (require 'nrepl-client)
+  (with-current-buffer conn
+    (nrepl-request:eval code handler conn ns line column)))
+
+(cl-defmethod cider-send-eval-sync ((conn buffer) code &key ns)
+  "Synchronously evaluate CODE on nREPL connection CONN."
+  (cl-assert (eq (cider-backend-type conn) 'nrepl))
+  (require 'cider-client)
+  (require 'nrepl-client)
+  (nrepl-sync-request:eval code conn ns))
+
+(cl-defmethod cider-send-op ((conn buffer) op params handler)
+  "Send the named OP with PARAMS to nREPL connection CONN.
+PARAMS is a plist of (name value name value ...) strings."
+  (cl-assert (eq (cider-backend-type conn) 'nrepl))
+  (require 'cider-client)
+  (cider-nrepl-send-request (apply #'list "op" op params) handler conn))
+
+(cl-defmethod cider-supports-op-p ((conn buffer) op)
+  "Return non-nil if nREPL connection CONN supports OP."
+  (cl-assert (eq (cider-backend-type conn) 'nrepl))
+  (require 'cider-client)
+  (cider-nrepl-op-supported-p op conn))
+
+(cl-defmethod cider-backend-interrupt ((conn buffer))
+  "Interrupt any pending evaluations on nREPL connection CONN."
+  (cl-assert (eq (cider-backend-type conn) 'nrepl))
+  (require 'cider-client)
+  (with-current-buffer conn
+    (let ((pending-request-ids (hash-table-keys nrepl-pending-requests)))
+      (dolist (request-id pending-request-ids)
+        (nrepl-request:interrupt request-id
+                                 (cider-interrupt-handler conn)
+                                 conn)))))
+
+(cl-defmethod cider-backend-close ((conn buffer))
+  "Close nREPL connection CONN."
+  (cl-assert (eq (cider-backend-type conn) 'nrepl))
+  (cider--close-connection conn))
+
+
 (provide 'cider-connection)
 
 ;;; cider-connection.el ends here

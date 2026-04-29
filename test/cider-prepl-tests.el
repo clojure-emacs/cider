@@ -37,7 +37,7 @@ needs the buffer-local state and a `process-buffer' link, which we
 simulate with a fake process."
   (let ((buf (generate-new-buffer " *cider-prepl-test*")))
     (with-current-buffer buf
-      (setq cider-conn-type 'prepl
+      (setq cider-backend-type 'prepl
             cider-prepl--pending-evals nil
             cider-prepl--input-buffer ""
             nrepl-pending-requests (make-hash-table :test 'equal)

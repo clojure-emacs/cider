@@ -85,8 +85,8 @@ plus thinner ones:
 ```elisp
 (cl-defgeneric cider-send-eval-sync (conn code &key ns))
 (cl-defgeneric cider-supports-op-p (conn op))
-(cl-defgeneric cider-conn-interrupt (conn))
-(cl-defgeneric cider-conn-close (conn))
+(cl-defgeneric cider-backend-interrupt (conn))
+(cl-defgeneric cider-backend-close (conn))
 ```
 
 ### Naming notes
@@ -96,13 +96,33 @@ plus thinner ones:
   connection primitives from the densely-populated `cider-eval-*`
   namespace of interactive editor commands (`cider-eval-region`,
   `cider-eval-defun-at-point`, etc.).
-- `cider-supports-op-p` for the predicate. No `-conn-` because every
-  CIDER function takes a connection somewhere; flagging it adds noise.
-- `cider-conn-interrupt` and `cider-conn-close` keep the `conn-`
-  prefix because `cider-interrupt` already exists as the user-facing
-  interactive command, and `cider-close` would be similarly
-  ambiguous. The connection lifecycle methods get the namespace tag;
-  the wire methods don't.
+- `cider-supports-op-p` for the predicate. No backend prefix because
+  every CIDER function takes a connection somewhere; flagging it adds
+  noise.
+- `cider-backend-interrupt` and `cider-backend-close` keep a prefix
+  to avoid colliding with the user-facing interactive commands
+  `cider-interrupt` and `cider-close-buffer`. Lifecycle methods carry
+  the namespace tag; wire methods don't.
+
+### File layout
+
+- `lisp/cider-backend.el` -- the `cl-defgeneric`s, the
+  `cider-backend-type` buffer-local, and the
+  `cider-backend-op-unsupported` error symbol.  This is the boundary;
+  it knows nothing about specific protocols.
+- `lisp/cider-connection.el` -- existing connection-management
+  surface (cider-quit/restart/list, cider-repl-create) plus the
+  nREPL `cl-defmethod` block at the tail.  The nREPL methods are thin
+  wrappers around the existing `nrepl-client.el` functions, so they
+  belong next to the rest of CIDER's nREPL-side glue rather than in
+  their own file.
+- `lisp/cider-prepl.el` -- prepl protocol decoding plus the prepl
+  `cl-defmethod` block.  prepl is a self-contained protocol
+  implementation, not just glue, so it gets its own file.
+
+There is intentionally no `cider-conn.el` (would be confusable with
+`cider-connection.el`) and no `cider-backend-nrepl.el` (would just be
+glue and is tiny enough to live with the rest of `cider-connection.el`).
 
 The nREPL implementation is a thin wrapper over the existing
 `cider-nrepl-send-request` / `cider-nrepl-send-sync-request`. Existing

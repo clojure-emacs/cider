@@ -1,4 +1,4 @@
-;;; cider-conn.el --- Connection-protocol abstraction for CIDER -*- lexical-binding: t; -*-
+;;; cider-backend.el --- Connection-protocol abstraction for CIDER -*- lexical-binding: t; -*-
 
 ;; Copyright © 2026 Bozhidar Batsov and CIDER contributors
 
@@ -18,41 +18,53 @@
 ;;; Commentary:
 
 ;; The set of `cl-defgeneric' methods every CIDER connection backend
-;; implements.  Today we have one backend (nREPL); a prepl backend is in
-;; flight in the same feature branch.  The point of this file is to give
-;; the rest of CIDER a single place to dispatch through, so swapping or
-;; adding a backend doesn't require editing every call site.
+;; implements.  Today there are two backends: nREPL (methods live at
+;; the bottom of cider-connection.el alongside the rest of the nREPL-
+;; specific connection management) and prepl (in cider-prepl.el).
 ;;
-;; Status: prototype.  No in-tree call sites use these generics yet --
-;; that migration is Step 1 of dev/design/prepl-support.md and ships
-;; incrementally to master once the shape stabilizes.
+;; Naming conventions:
+;;
+;; - Wire methods that put a message on the wire use the `cider-send-*'
+;;   prefix.  The `send' verb keeps them distinct from the densely-
+;;   populated `cider-eval-*' namespace of interactive editor commands.
+;; - Lifecycle methods (interrupt, close) use the `cider-backend-*'
+;;   prefix to avoid colliding with existing user-facing commands like
+;;   `cider-interrupt' and `cider-close-buffer'.
+;; - Predicates and the type accessor follow the prefix that fits the
+;;   layer they describe.
+;;
+;; Status: in development on the prepl-support feature branch.  No
+;; in-tree call sites use these generics yet -- migration is Step 1 of
+;; dev/design/prepl-support.md and ships incrementally to master once
+;; the shape stabilizes.
 
 ;;; Code:
 
 (require 'cl-lib)
 
-(define-error 'cider-conn-op-unsupported
+(define-error 'cider-backend-op-unsupported
   "Operation is not supported by this connection backend")
 
 ;;; Connection identity
 ;;
-;; A "connection" here is just whatever the backend uses to keep state
-;; across requests.  For the nREPL backend that's the connection
-;; buffer.  For the prepl backend it's the connection process buffer.
-;; Generics dispatch on the buffer's `cider-conn-type' buffer-local.
+;; A "connection" is whatever the backend uses to keep state across
+;; requests.  For the nREPL backend that's the connection buffer.  For
+;; the prepl backend it's the prepl process buffer.  Generics dispatch
+;; on the buffer's `cider-backend-type' buffer-local.
 
-(defvar-local cider-conn-type nil
+(defvar-local cider-backend-type nil
   "Symbol identifying the connection backend for this buffer.
 Currently `nrepl' or `prepl'.  Other values are reserved.")
 
-(defun cider-conn-type (conn)
+(defun cider-backend-type (conn)
   "Return the backend type symbol for CONN (a buffer)."
-  (buffer-local-value 'cider-conn-type conn))
+  (buffer-local-value 'cider-backend-type conn))
 
 ;;; Wire methods
 ;;
 ;; Anything that puts a message on the wire.  Implementations live in
-;; the per-backend files (cider-conn-nrepl.el, cider-prepl.el).
+;; the per-backend code (cider-connection.el for nREPL, cider-prepl.el
+;; for prepl).
 
 (cl-defgeneric cider-send-eval (conn code handler &key ns line column)
   "Send CODE to CONN for evaluation.
@@ -72,7 +84,7 @@ collecting the async stream until completion.")
 (cl-defgeneric cider-send-op (conn op params handler)
   "Send a non-eval OP with PARAMS to CONN.
 HANDLER receives responses for the op.  Backends that have no native
-op concept (prepl, plain socket REPL) signal `cider-conn-op-unsupported'
+op concept (prepl, plain socket REPL) signal `cider-backend-op-unsupported'
 unless they have an eval-form fallback for OP.")
 
 (cl-defgeneric cider-supports-op-p (conn op)
@@ -81,17 +93,18 @@ The check is structural -- it does not actually send anything.")
 
 ;;; Lifecycle methods
 ;;
-;; These keep the `conn-' prefix to avoid colliding with existing
-;; user-facing commands (`cider-interrupt', `cider-close-buffer', ...).
+;; These keep the `cider-backend-' prefix to avoid colliding with
+;; existing user-facing commands (`cider-interrupt', `cider-close-buffer',
+;; ...).
 
-(cl-defgeneric cider-conn-interrupt (conn)
+(cl-defgeneric cider-backend-interrupt (conn)
   "Interrupt the currently running evaluation on CONN, if any.
 Backends without an out-of-band interrupt mechanism (prepl, socket
 REPL) signal a `user-error' explaining the limitation.")
 
-(cl-defgeneric cider-conn-close (conn)
+(cl-defgeneric cider-backend-close (conn)
   "Close CONN and release its resources (sockets, buffers, processes).")
 
-(provide 'cider-conn)
+(provide 'cider-backend)
 
-;;; cider-conn.el ends here
+;;; cider-backend.el ends here
