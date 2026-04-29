@@ -29,6 +29,11 @@
 
 (require 'buttercup)
 (require 'cider)
+;; Provides `nrepl-start-mock-server-process' / `nrepl-tests-poll-until',
+;; used by the cider-connect-sibling-cljs and sesman specs below.  Without
+;; this require those tests fail when the file is loaded in isolation,
+;; because no other test file pulls the helpers in first.
+(require 'nrepl-tests-utils "test/utils/nrepl-tests-utils")
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
