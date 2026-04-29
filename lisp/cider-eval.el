@@ -412,12 +412,14 @@ Accumulates a list of causes and then calls CALLBACK on causes and phase."
     (cider-nrepl-send-request
      `("op" "cider/analyze-last-stacktrace")
      (lambda (response)
-       (nrepl-dbind-response response (status phase)
-         (if (member "done" status)
-             (funcall callback causes ex-phase)
-           (when phase
-             (setq ex-phase phase))
-           (setq causes (append causes (list response)))))))))
+       (nrepl-dbind-response response (status phase id)
+         (cond ((member "done" status)
+                (nrepl--mark-id-completed id)
+                (funcall callback causes ex-phase))
+               (t
+                (when phase
+                  (setq ex-phase phase))
+                (setq causes (append causes (list response))))))))))
 
 (defun cider-default-err-op-handler (buffer)
   "Display the last exception, with middleware support.
