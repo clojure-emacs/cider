@@ -267,6 +267,26 @@
       (expect received-body :to-equal "hello")
       (expect received-type :to-equal '("text/plain" ())))))
 
+(describe "nrepl--dispatch-response"
+  :var (nrepl-pending-requests nrepl-completed-requests)
+  (before-each
+    (setq nrepl-pending-requests (make-hash-table :test 'equal)
+          nrepl-completed-requests (make-hash-table :test 'equal)))
+
+  (it "logs a message instead of erroring when no callback is registered"
+    (spy-on 'message)
+    (nrepl--dispatch-response '(dict "id" "404" "value" "anything"))
+    (expect 'message :to-have-been-called))
+
+  (it "does not raise even when the registered callback throws"
+    (puthash "1" (lambda (_) (error "boom!")) nrepl-pending-requests)
+    ;; Demoted-errors lives in `nrepl-client-filter', so a direct call
+    ;; to the dispatcher with a throwing callback DOES propagate.  This
+    ;; spec just locks the contract: the dispatcher itself doesn't add
+    ;; its own protection -- protection is at the filter layer.
+    (expect (nrepl--dispatch-response '(dict "id" "1" "value" "v"))
+            :to-throw 'error)))
+
 (describe "nrepl-client-lifecycle"
   (it "start and stop nrepl client process"
 

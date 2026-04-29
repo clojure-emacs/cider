@@ -282,7 +282,11 @@ functions are demoted to messages, so that they don't prevent the
 callbacks from running.")
 
 (defun nrepl-client-filter (proc string)
-  "Decode message(s) from PROC contained in STRING and dispatch them."
+  "Decode message(s) from PROC contained in STRING and dispatch them.
+Errors raised by individual response handlers (or by the global
+`nrepl-response-handler-functions' hook) are demoted to messages so that
+a single misbehaving callback cannot poison the response queue and drop
+later responses on the floor."
   (let ((string-q (process-get proc :string-q)))
     (queue-enqueue string-q string)
     ;; Start decoding only if the last letter is 'e'
@@ -294,20 +298,26 @@ callbacks from running.")
             (let ((response (queue-dequeue response-q)))
               (with-demoted-errors "Error in one of the `nrepl-response-handler-functions': %s"
                 (run-hook-with-args 'nrepl-response-handler-functions response))
-              (nrepl--dispatch-response response))))))))
+              (with-demoted-errors "Error in nREPL response dispatch: %s"
+                (nrepl--dispatch-response response)))))))))
 
 (defun nrepl--dispatch-response (response)
   "Dispatch the RESPONSE to associated callback.
 First we check the callbacks of pending requests.  If no callback was found,
 we check the completed requests, since responses could be received even for
-older requests with \"done\" status."
+older requests with \"done\" status.
+
+When neither table has a callback for the response's id, log a message
+instead of raising an error: there is nothing actionable for the
+dispatcher to do, and signaling here used to abort processing of any
+later responses sitting in the queue."
   (nrepl-dbind-response response (id)
     (nrepl-log-message response 'response)
     (let ((callback (or (gethash id nrepl-pending-requests)
                         (gethash id nrepl-completed-requests))))
       (if callback
           (funcall callback response)
-        (error "[nREPL] No response handler with id %s found for %s" id (buffer-name))))))
+        (message "[nREPL] No response handler with id %s found for %s" id (buffer-name))))))
 
 (defun nrepl-client-sentinel (process message)
   "Handle sentinel events from PROCESS.
