@@ -859,8 +859,8 @@ command and e.g. notify the user about them."
     ;; If we couldn't finish, return nil.
     (when (member "done" status)
       (nrepl-dbind-response response (ex err eval-error id)
-        (when (and ex err eval-error)
-          (funcall nrepl-err-handler-function))
+        (when (and ex err eval-error nrepl-err-handler-function)
+          (funcall nrepl-err-handler-function connection))
         (when id
           (with-current-buffer connection
             (nrepl--mark-id-completed id)))
