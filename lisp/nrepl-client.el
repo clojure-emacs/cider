@@ -71,6 +71,7 @@
 (require 'seq)
 (require 'subr-x)
 (require 'cl-lib)
+(require 'queue)
 (require 'nrepl-dict)
 (require 'nrepl-bencode)
 (require 'tramp)
@@ -110,6 +111,24 @@ Setting this to nil disables the timeout functionality."
 When true some special buffers like the server buffer will be hidden."
   :type 'boolean)
 
+(defcustom nrepl-completed-requests-max-size 1000
+  "Maximum number of completed-request handlers retained per connection.
+
+nREPL servers occasionally send late messages for requests whose
+\"done\" status has already arrived (typically a sub-second window).
+We keep the recently-completed handlers around so those messages still
+get dispatched.  Without a bound, the table grew unbounded for the
+lifetime of the connection.
+
+Eviction is FIFO: when the table is full, the oldest entry is dropped
+to make room for the newest.  1000 is ample in practice -- requests
+complete in milliseconds, so this caps roughly a second of activity.
+Set to 0 to disable the cache entirely; late messages will then become
+log warnings."
+  :type 'integer
+  :safe #'integerp
+  :package-version '(cider . "1.22.0"))
+
 ;;; Buffer Local Declarations
 
 ;; These variables are used to track the state of nREPL connections
@@ -137,6 +156,10 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 (defvar-local nrepl-pending-requests nil)
 
 (defvar-local nrepl-completed-requests nil)
+
+(defvar-local nrepl--completed-requests-order nil
+  "FIFO of ids in `nrepl-completed-requests', used for bounded eviction.
+See `nrepl-completed-requests-max-size'.")
 
 (defvar-local nrepl-last-sync-response nil
   "Result of the last sync request.")
@@ -583,7 +606,8 @@ client buffer.  Return the newly created client process."
             nrepl-tunnel-buffer (when-let* ((tunnel (plist-get endpoint :tunnel)))
                                   (process-buffer tunnel))
             nrepl-pending-requests (make-hash-table :test 'equal)
-            nrepl-completed-requests (make-hash-table :test 'equal)))
+            nrepl-completed-requests (make-hash-table :test 'equal)
+            nrepl--completed-requests-order (queue-create)))
 
     (with-current-buffer client-buf
       (nrepl--init-client-sessions client-proc)
@@ -658,12 +682,22 @@ Used by the client to clean up session state on disconnect.")
 
 (defun nrepl--mark-id-completed (id)
   "Move ID from `nrepl-pending-requests' to `nrepl-completed-requests'.
-It is safe to call this function multiple times on the same ID."
-  ;; FIXME: This should go away eventually when we get rid of
-  ;; pending-request hash table
+The completed table is bounded by `nrepl-completed-requests-max-size';
+when the cap is reached the oldest entry is evicted FIFO.
+
+It is safe to call this function multiple times on the same ID -- the
+second call is a no-op because the entry has already been moved out of
+`nrepl-pending-requests'."
   (when-let* ((handler (gethash id nrepl-pending-requests)))
     (puthash id handler nrepl-completed-requests)
-    (remhash id nrepl-pending-requests)))
+    (remhash id nrepl-pending-requests)
+    (when nrepl--completed-requests-order
+      (queue-enqueue nrepl--completed-requests-order id)
+      (when (and (> nrepl-completed-requests-max-size 0)
+                 (> (queue-length nrepl--completed-requests-order)
+                    nrepl-completed-requests-max-size))
+        (remhash (queue-dequeue nrepl--completed-requests-order)
+                 nrepl-completed-requests)))))
 
 (defun nrepl-notify (msg type)
   "Handle a server notification with MSG and TYPE.

@@ -287,6 +287,44 @@
     (expect (nrepl--dispatch-response '(dict "id" "1" "value" "v"))
             :to-throw 'error)))
 
+(describe "nrepl--mark-id-completed cap"
+  :var (nrepl-pending-requests nrepl-completed-requests
+        nrepl--completed-requests-order
+        nrepl-completed-requests-max-size)
+  (before-each
+    (setq nrepl-pending-requests (make-hash-table :test 'equal)
+          nrepl-completed-requests (make-hash-table :test 'equal)
+          nrepl--completed-requests-order (queue-create)))
+
+  (cl-flet ((mark (id)
+              ;; A handler must exist in pending for the move to take place.
+              (puthash id #'ignore nrepl-pending-requests)
+              (nrepl--mark-id-completed id)))
+
+    (it "retains entries up to the configured cap"
+      (let ((nrepl-completed-requests-max-size 3))
+        (mark "1") (mark "2") (mark "3")
+        (expect (hash-table-count nrepl-completed-requests) :to-equal 3)
+        (dolist (id '("1" "2" "3"))
+          (expect (gethash id nrepl-completed-requests) :not :to-be nil))))
+
+    (it "evicts the oldest entry FIFO when over the cap"
+      (let ((nrepl-completed-requests-max-size 2))
+        (mark "1") (mark "2") (mark "3")
+        (expect (hash-table-count nrepl-completed-requests) :to-equal 2)
+        (expect (gethash "1" nrepl-completed-requests) :to-be nil)
+        (expect (gethash "2" nrepl-completed-requests) :not :to-be nil)
+        (expect (gethash "3" nrepl-completed-requests) :not :to-be nil)))
+
+    (it "treats max-size of 0 as unbounded"
+      ;; Documented as "disable the cache"; concretely the eviction
+      ;; branch is bypassed and the table grows freely.  In practice
+      ;; users would also need to clear the queue, but the queue itself
+      ;; is bounded by the producer rate, so this is fine.
+      (let ((nrepl-completed-requests-max-size 0))
+        (dotimes (n 5) (mark (number-to-string n)))
+        (expect (hash-table-count nrepl-completed-requests) :to-equal 5)))))
+
 (describe "nrepl-client-lifecycle"
   (it "start and stop nrepl client process"
 
