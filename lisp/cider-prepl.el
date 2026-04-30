@@ -408,22 +408,53 @@ session."
                    (process-live-p (get-buffer-process b))))
             (buffer-list)))
 
+(defun cider-prepl--display-result (response)
+  "Display the value/err from RESPONSE in the echo area."
+  (let ((value (nrepl-dict-get response "value"))
+        (err   (nrepl-dict-get response "err")))
+    (cond
+     (err   (message "[prepl] %s" err))
+     (value (message "=> %s" value))
+     (t     (message "[prepl] (no value)")))))
+
+(defun cider-prepl--ensure-conn ()
+  "Return the current prepl connection, or signal a `user-error'."
+  (or (cider-prepl-current-conn)
+      (user-error "No active prepl connection; run `cider-connect-prepl' first")))
+
 ;;;###autoload
 (defun cider-prepl-eval-string (code &optional conn)
   "Evaluate CODE on CONN (default: `cider-prepl-current-conn').
-Sketch user-facing command.  Displays the resulting value in the echo
-area.  CODE is read interactively from the minibuffer."
+Reads CODE from the minibuffer when called interactively.  Displays
+the value (or error message) in the echo area."
   (interactive (list (read-string "Code: ")))
-  (let ((conn (or conn (cider-prepl-current-conn))))
-    (unless conn
-      (user-error "No active prepl connection; run `cider-connect-prepl' first"))
-    (let ((response (cider-send-eval-sync conn code)))
-      (let ((value (nrepl-dict-get response "value"))
-            (err   (nrepl-dict-get response "err")))
-        (cond
-         (err   (message "[prepl] %s" err))
-         (value (message "=> %s" value))
-         (t     (message "[prepl] (no value)")))))))
+  (let* ((conn (or conn (cider-prepl--ensure-conn)))
+         (response (cider-send-eval-sync conn code)))
+    (cider-prepl--display-result response)))
+
+;;;###autoload
+(defun cider-prepl-eval-region (start end)
+  "Evaluate the region between START and END on the current prepl."
+  (interactive "r")
+  (cider-prepl-eval-string
+   (buffer-substring-no-properties start end)))
+
+;;;###autoload
+(defun cider-prepl-eval-last-sexp ()
+  "Evaluate the sexp immediately before point on the current prepl."
+  (interactive)
+  (cider-prepl-eval-region
+   (save-excursion (backward-sexp) (point))
+   (point)))
+
+;;;###autoload
+(defun cider-prepl-eval-defun-at-point ()
+  "Evaluate the toplevel form at point on the current prepl."
+  (interactive)
+  (save-excursion
+    (let* ((end (progn (end-of-defun) (point)))
+           (start (progn (beginning-of-defun) (point))))
+      (cider-prepl-eval-region start end))))
 
 (provide 'cider-prepl)
 

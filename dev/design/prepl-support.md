@@ -295,6 +295,36 @@ If a standalone cljs prepl ever materializes upstream, we can add
 
 ## Open questions
 
+0. **`cl-defmethod` dispatch by backend type.** *(Surfaced by the
+   prototype.)* Both the nREPL and prepl methods specialize the
+   connection arg as `(conn buffer)`, so the cl dispatch table picks
+   whichever was *defined last*, not whichever matches the runtime
+   `cider-backend-type` of the buffer. Today the prepl methods happen
+   to win because `cider-prepl.el` loads after `cider-connection.el`,
+   but that's load-order luck, not a real dispatch.
+
+   Two reasonable fixes:
+
+   a. Wrap each generic with an outer dispatcher that consults
+      `cider-backend-type` and forwards to a backend-specific helper:
+
+      ```elisp
+      (cl-defgeneric cider-send-eval--impl (backend-type conn code handler ...))
+      (cl-defmethod cider-send-eval--impl ((_ (eql 'nrepl)) conn ...) ...)
+      (cl-defmethod cider-send-eval--impl ((_ (eql 'prepl)) conn ...) ...)
+      (defun cider-send-eval (conn code handler &rest args)
+        (apply #'cider-send-eval--impl (cider-backend-type conn) conn code handler args))
+      ```
+
+   b. Wrap each connection in a typed struct (`cider-nrepl-conn`,
+      `cider-prepl-conn`) that holds the buffer, and dispatch on the
+      struct type. Cleanest CLOS-shape but every caller now has to
+      construct the struct.
+
+   Lean toward (a) -- minimal change, the existing `buffer` argument
+   stays a buffer, dispatch becomes correct. Worth doing before any
+   in-tree call sites migrate to the new generics.
+
 1. **Sync request semantics on prepl.** nREPL's `nrepl-send-sync-request`
    blocks until the `done` status arrives. On prepl, "done" is implicit
    in `:ret`/`:exception`. The sync API will need to be adapted to that

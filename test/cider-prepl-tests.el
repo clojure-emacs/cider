@@ -228,4 +228,40 @@ binding a faux process whose buffer is BUF."
     (spy-on 'cider-prepl-current-conn :and-return-value nil)
     (expect (cider-prepl-eval-string "(+ 1 1)") :to-throw 'user-error)))
 
+(describe "cider-prepl interactive eval commands"
+  :var (sent-code)
+  (before-each
+    (setq sent-code nil)
+    ;; The wrapper commands all funnel through `cider-prepl-eval-string',
+    ;; which in turn calls `cider-send-eval-sync'.  We spy at the
+    ;; wrapper boundary because `cider-send-eval-sync' is a
+    ;; `cl-defgeneric' and spying on it is finicky -- the methods all
+    ;; specialize on `buffer', so the cl dispatch table can swallow the
+    ;; spy depending on load order.
+    (spy-on 'cider-prepl-eval-string
+            :and-call-fake (lambda (code &optional _conn) (setq sent-code code))))
+
+  (it "eval-region forwards the region's text"
+    (with-temp-buffer
+      (insert "(+ 1 2 3)")
+      (cider-prepl-eval-region (point-min) (point-max)))
+    (expect sent-code :to-equal "(+ 1 2 3)"))
+
+  (it "eval-last-sexp picks up the sexp immediately before point"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(foo)\n(bar 42)")
+      (goto-char (point-max))
+      (cider-prepl-eval-last-sexp))
+    (expect sent-code :to-equal "(bar 42)"))
+
+  (it "eval-defun-at-point picks up the enclosing toplevel form"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(defn one [] 1)\n\n(defn two [] 2)\n")
+      (goto-char (point-min))
+      (search-forward "two")
+      (cider-prepl-eval-defun-at-point))
+    (expect sent-code :to-match "two")))
+
 ;;; cider-prepl-tests.el ends here
