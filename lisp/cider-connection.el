@@ -633,10 +633,9 @@ function with the repl buffer set as current."
 
 ;;; nREPL backend methods
 ;;
-;; Implementations of the `cider-backend' generics for nREPL connections.
-;; Each method is a thin wrapper around the existing nrepl/cider-nrepl
-;; request layer; the dispatch happens through the buffer-local
-;; `cider-backend-type' (set to `nrepl' in `cider-repl-create' above).
+;; Helpers that implement the cider-backend protocol for nREPL
+;; connections, plus the registration that wires them into the
+;; dispatch table in cider-backend.el.
 
 (declare-function cider-nrepl-send-request "cider-client")
 (declare-function cider-nrepl-send-sync-request "cider-client")
@@ -646,40 +645,36 @@ function with the repl buffer set as current."
 (declare-function nrepl-sync-request:eval "nrepl-client")
 (declare-function nrepl-request:interrupt "nrepl-client")
 
-(cl-defmethod cider-send-eval ((conn buffer) code handler &key ns line column)
-  "Send CODE for evaluation to nREPL connection CONN.
-This delegates to `nrepl-request:eval' with the request constructed
-from CODE, NS, LINE and COLUMN.  HANDLER is invoked on each response."
-  (cl-assert (eq (cider-backend-type conn) 'nrepl)
-             nil "cider-send-eval: not an nREPL connection")
+(defun cider-nrepl--send-eval (conn code handler &rest args)
+  "Send CODE for evaluation on the nREPL connection CONN.
+ARGS may contain :ns / :line / :column."
   (require 'cider-client)
   (require 'nrepl-client)
   (with-current-buffer conn
-    (nrepl-request:eval code handler conn ns line column)))
+    (nrepl-request:eval code handler conn
+                        (plist-get args :ns)
+                        (plist-get args :line)
+                        (plist-get args :column))))
 
-(cl-defmethod cider-send-eval-sync ((conn buffer) code &key ns)
-  "Synchronously evaluate CODE on nREPL connection CONN."
-  (cl-assert (eq (cider-backend-type conn) 'nrepl))
+(defun cider-nrepl--send-eval-sync (conn code &rest args)
+  "Synchronously evaluate CODE on the nREPL connection CONN.
+ARGS may contain :ns."
   (require 'cider-client)
   (require 'nrepl-client)
-  (nrepl-sync-request:eval code conn ns))
+  (nrepl-sync-request:eval code conn (plist-get args :ns)))
 
-(cl-defmethod cider-send-op ((conn buffer) op params handler)
-  "Send the named OP with PARAMS to nREPL connection CONN.
-PARAMS is a plist of (name value name value ...) strings."
-  (cl-assert (eq (cider-backend-type conn) 'nrepl))
+(defun cider-nrepl--send-op (conn op params handler)
+  "Send the named OP with PARAMS to nREPL connection CONN."
   (require 'cider-client)
   (cider-nrepl-send-request (apply #'list "op" op params) handler conn))
 
-(cl-defmethod cider-supports-op-p ((conn buffer) op)
+(defun cider-nrepl--supports-op-p (conn op)
   "Return non-nil if nREPL connection CONN supports OP."
-  (cl-assert (eq (cider-backend-type conn) 'nrepl))
   (require 'cider-client)
   (cider-nrepl-op-supported-p op conn))
 
-(cl-defmethod cider-backend-interrupt ((conn buffer))
+(defun cider-nrepl--interrupt (conn)
   "Interrupt any pending evaluations on nREPL connection CONN."
-  (cl-assert (eq (cider-backend-type conn) 'nrepl))
   (require 'cider-client)
   (with-current-buffer conn
     (let ((pending-request-ids (hash-table-keys nrepl-pending-requests)))
@@ -688,10 +683,19 @@ PARAMS is a plist of (name value name value ...) strings."
                                  (cider-interrupt-handler conn)
                                  conn)))))
 
-(cl-defmethod cider-backend-close ((conn buffer))
+(defun cider-nrepl--close (conn)
   "Close nREPL connection CONN."
-  (cl-assert (eq (cider-backend-type conn) 'nrepl))
   (cider--close-connection conn))
+
+(cider-backend-register
+ 'nrepl
+ (make-cider-backend-impl
+  :send-eval      #'cider-nrepl--send-eval
+  :send-eval-sync #'cider-nrepl--send-eval-sync
+  :send-op        #'cider-nrepl--send-op
+  :supports-op-p  #'cider-nrepl--supports-op-p
+  :interrupt      #'cider-nrepl--interrupt
+  :close          #'cider-nrepl--close))
 
 
 (provide 'cider-connection)

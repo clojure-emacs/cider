@@ -295,35 +295,23 @@ If a standalone cljs prepl ever materializes upstream, we can add
 
 ## Open questions
 
-0. **`cl-defmethod` dispatch by backend type.** *(Surfaced by the
-   prototype.)* Both the nREPL and prepl methods specialize the
-   connection arg as `(conn buffer)`, so the cl dispatch table picks
-   whichever was *defined last*, not whichever matches the runtime
-   `cider-backend-type` of the buffer. Today the prepl methods happen
-   to win because `cider-prepl.el` loads after `cider-connection.el`,
-   but that's load-order luck, not a real dispatch.
+0. ~~**`cl-defmethod` dispatch by backend type.**~~ *Resolved.* The
+   prototype originally used `cl-defgeneric` / `cl-defmethod` with
+   both backends specializing on `(conn buffer)`, which meant cl
+   picked whichever method was defined last (load-order luck) rather
+   than the runtime `cider-backend-type`. The end-to-end mock-server
+   integration test surfaced this -- nREPL methods were intercepting
+   prepl connections.
 
-   Two reasonable fixes:
+   The fix: replace the cl-generic machinery with a plain dispatch
+   table. `cider-backend.el` defines a `cider-backend-impl` struct
+   with one slot per protocol method; backends call
+   `cider-backend-register` with their implementation. The public
+   `cider-send-eval` / `cider-send-op` / etc. are plain defuns that
+   look up `cider-backend-type`, fetch the impl, and forward.
 
-   a. Wrap each generic with an outer dispatcher that consults
-      `cider-backend-type` and forwards to a backend-specific helper:
-
-      ```elisp
-      (cl-defgeneric cider-send-eval--impl (backend-type conn code handler ...))
-      (cl-defmethod cider-send-eval--impl ((_ (eql 'nrepl)) conn ...) ...)
-      (cl-defmethod cider-send-eval--impl ((_ (eql 'prepl)) conn ...) ...)
-      (defun cider-send-eval (conn code handler &rest args)
-        (apply #'cider-send-eval--impl (cider-backend-type conn) conn code handler args))
-      ```
-
-   b. Wrap each connection in a typed struct (`cider-nrepl-conn`,
-      `cider-prepl-conn`) that holds the buffer, and dispatch on the
-      struct type. Cleanest CLOS-shape but every caller now has to
-      construct the struct.
-
-   Lean toward (a) -- minimal change, the existing `buffer` argument
-   stays a buffer, dispatch becomes correct. Worth doing before any
-   in-tree call sites migrate to the new generics.
+   Simpler than option (a) from the original sketch, and explicit:
+   adding a backend is one `cider-backend-register` call.
 
 1. **Sync request semantics on prepl.** nREPL's `nrepl-send-sync-request`
    blocks until the `done` status arrives. On prepl, "done" is implicit

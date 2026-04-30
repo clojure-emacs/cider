@@ -17,10 +17,11 @@
 
 ;;; Commentary:
 
-;; The set of `cl-defgeneric' methods every CIDER connection backend
-;; implements.  Today there are two backends: nREPL (methods live at
-;; the bottom of cider-connection.el alongside the rest of the nREPL-
-;; specific connection management) and prepl (in cider-prepl.el).
+;; The set of operations every CIDER connection backend implements.
+;; Today there are two backends: nREPL (cider-connection.el at the
+;; tail) and prepl (cider-prepl.el).  Other backends register
+;; themselves the same way: implement the per-backend helper functions
+;; and add an entry to `cider-backend-impls'.
 ;;
 ;; Naming conventions:
 ;;
@@ -33,10 +34,10 @@
 ;; - Predicates and the type accessor follow the prefix that fits the
 ;;   layer they describe.
 ;;
-;; Status: in development on the prepl-support feature branch.  No
-;; in-tree call sites use these generics yet -- migration is Step 1 of
-;; dev/design/prepl-support.md and ships incrementally to master once
-;; the shape stabilizes.
+;; Dispatch: each public function looks up the connection's
+;; `cider-backend-type' (a buffer-local symbol) in `cider-backend-impls'
+;; and forwards to the matching helper.  Backends register themselves
+;; by `setf'-ing a slot via `cider-backend-register'.
 
 ;;; Code:
 
@@ -46,11 +47,6 @@
   "Operation is not supported by this connection backend")
 
 ;;; Connection identity
-;;
-;; A "connection" is whatever the backend uses to keep state across
-;; requests.  For the nREPL backend that's the connection buffer.  For
-;; the prepl backend it's the prepl process buffer.  Generics dispatch
-;; on the buffer's `cider-backend-type' buffer-local.
 
 (defvar-local cider-backend-type nil
   "Symbol identifying the connection backend for this buffer.
@@ -60,50 +56,90 @@ Currently `nrepl' or `prepl'.  Other values are reserved.")
   "Return the backend type symbol for CONN (a buffer)."
   (buffer-local-value 'cider-backend-type conn))
 
+;;; Backend registry
+
+(cl-defstruct cider-backend-impl
+  "Per-backend dispatch table.  Each slot holds a function with the
+signature documented on the corresponding public function below.  Slots
+not implemented should be left nil; the public dispatcher signals
+`cider-backend-op-unsupported' (or returns a sensible default for the
+predicate) in that case."
+  send-eval
+  send-eval-sync
+  send-op
+  supports-op-p
+  interrupt
+  close)
+
+(defvar cider-backend-impls (make-hash-table :test 'eq)
+  "Map of backend type symbols (e.g. `nrepl', `prepl') to `cider-backend-impl'.
+Populated via `cider-backend-register'.")
+
+(defun cider-backend-register (type impl)
+  "Register IMPL (a `cider-backend-impl') under TYPE.
+Calling twice replaces the existing entry."
+  (puthash type impl cider-backend-impls))
+
+(defun cider-backend--impl-for (conn)
+  "Return the `cider-backend-impl' for CONN, signaling on a missing one."
+  (let ((type (cider-backend-type conn)))
+    (or (gethash type cider-backend-impls)
+        (error "No backend registered for connection type %S (buffer %S)"
+               type (buffer-name conn)))))
+
 ;;; Wire methods
 ;;
-;; Anything that puts a message on the wire.  Implementations live in
-;; the per-backend code (cider-connection.el for nREPL, cider-prepl.el
-;; for prepl).
+;; Each public function is a tiny dispatcher; the real work happens in
+;; the per-backend helper stored on the impl struct.
 
-(cl-defgeneric cider-send-eval (conn code handler &key ns line column)
+(defun cider-send-eval (conn code handler &rest args)
   "Send CODE to CONN for evaluation.
 HANDLER is the eval response handler returned by
-`cider-make-eval-handler'.  NS, LINE and COLUMN are optional context
-forwarded to the backend when it understands them.
+`cider-make-eval-handler'.  ARGS may contain :ns / :line / :column.
 
 Returns an opaque request handle (whatever the backend uses to track
-the request -- e.g. an nREPL request id, or an internal index).")
+the request)."
+  (let ((fn (cider-backend-impl-send-eval (cider-backend--impl-for conn))))
+    (unless fn (signal 'cider-backend-op-unsupported (list 'send-eval)))
+    (apply fn conn code handler args)))
 
-(cl-defgeneric cider-send-eval-sync (conn code &key ns)
+(defun cider-send-eval-sync (conn code &rest args)
   "Synchronously evaluate CODE on CONN and return the response dict.
-The dict has the same shape as a final `done'-status nREPL response.
-Backends that don't have native sync semantics simulate them by
-collecting the async stream until completion.")
+ARGS may contain :ns.  The dict has the same shape as a final
+`done'-status nREPL response."
+  (let ((fn (cider-backend-impl-send-eval-sync (cider-backend--impl-for conn))))
+    (unless fn (signal 'cider-backend-op-unsupported (list 'send-eval-sync)))
+    (apply fn conn code args)))
 
-(cl-defgeneric cider-send-op (conn op params handler)
+(defun cider-send-op (conn op params handler)
   "Send a non-eval OP with PARAMS to CONN.
-HANDLER receives responses for the op.  Backends that have no native
-op concept (prepl, plain socket REPL) signal `cider-backend-op-unsupported'
-unless they have an eval-form fallback for OP.")
+HANDLER receives responses for the op.  Backends without native op
+support (or without a fallback for OP) signal
+`cider-backend-op-unsupported'."
+  (let ((fn (cider-backend-impl-send-op (cider-backend--impl-for conn))))
+    (unless fn (signal 'cider-backend-op-unsupported (list op)))
+    (funcall fn conn op params handler)))
 
-(cl-defgeneric cider-supports-op-p (conn op)
+(defun cider-supports-op-p (conn op)
   "Return non-nil if CONN can satisfy OP without raising.
-The check is structural -- it does not actually send anything.")
+Structural check; does not actually send anything."
+  (when-let* ((impl (cider-backend--impl-for conn))
+              (fn (cider-backend-impl-supports-op-p impl)))
+    (funcall fn conn op)))
 
 ;;; Lifecycle methods
-;;
-;; These keep the `cider-backend-' prefix to avoid colliding with
-;; existing user-facing commands (`cider-interrupt', `cider-close-buffer',
-;; ...).
 
-(cl-defgeneric cider-backend-interrupt (conn)
-  "Interrupt the currently running evaluation on CONN, if any.
-Backends without an out-of-band interrupt mechanism (prepl, socket
-REPL) signal a `user-error' explaining the limitation.")
+(defun cider-backend-interrupt (conn)
+  "Interrupt the currently running evaluation on CONN, if any."
+  (let ((fn (cider-backend-impl-interrupt (cider-backend--impl-for conn))))
+    (if fn
+        (funcall fn conn)
+      (user-error "Backend %S does not support interrupt" (cider-backend-type conn)))))
 
-(cl-defgeneric cider-backend-close (conn)
-  "Close CONN and release its resources (sockets, buffers, processes).")
+(defun cider-backend-close (conn)
+  "Close CONN and release its resources."
+  (let ((fn (cider-backend-impl-close (cider-backend--impl-for conn))))
+    (when fn (funcall fn conn))))
 
 (provide 'cider-backend)
 

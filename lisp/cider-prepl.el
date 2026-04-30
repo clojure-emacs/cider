@@ -158,11 +158,10 @@ slot's value."
   ;; entries.  Pass a sentinel string to keep the dict shape valid.
   (funcall handler `(dict "id" "prepl" ,key ,value)))
 
-;;; Generic methods
+;;; Backend protocol helpers
 
-(cl-defmethod cider-send-eval ((conn buffer) code handler &key _ns _line _column)
+(defun cider-prepl--send-eval (conn code handler &rest _args)
   "Send CODE for evaluation to prepl connection CONN."
-  (cl-assert (eq (cider-backend-type conn) 'prepl))
   (with-current-buffer conn
     ;; Enqueue at the tail; dispatch consumes from the head.
     (setq cider-prepl--pending-evals
@@ -173,9 +172,8 @@ slot's value."
     (process-send-string (get-buffer-process conn)
                          (concat code "\n"))))
 
-(cl-defmethod cider-send-eval-sync ((conn buffer) code &key _ns)
+(defun cider-prepl--send-eval-sync (conn code &rest _args)
   "Synchronously eval CODE on prepl CONN.  Block until `:ret'/`:exception'."
-  (cl-assert (eq (cider-backend-type conn) 'prepl))
   (let* ((response (cons 'dict nil))
          (done nil)
          (handler (nrepl-make-eval-handler
@@ -189,7 +187,7 @@ slot's value."
                                  response "err"
                                  (concat (or (nrepl-dict-get response "err") "") e)))
                    :on-done (lambda () (setq done t)))))
-    (cider-send-eval conn code handler)
+    (cider-prepl--send-eval conn code handler)
     (while (not done) (accept-process-output nil 0.05))
     response))
 
@@ -324,28 +322,37 @@ parseedn returns a hash-table with keyword keys; nREPL responses use
       acc))
    (t nil)))
 
-(cl-defmethod cider-send-op ((conn buffer) op params handler)
+(defun cider-prepl--send-op (conn op params handler)
   "Run OP via an eval-form fallback when one is registered, else error.
 See `cider-prepl--op-fallbacks'."
-  (cl-assert (eq (cider-backend-type conn) 'prepl))
   (if-let ((fallback (alist-get op cider-prepl--op-fallbacks nil nil #'equal)))
       (funcall fallback conn params handler)
     (signal 'cider-backend-op-unsupported (list op 'prepl))))
 
-(cl-defmethod cider-supports-op-p ((_conn buffer) op)
+(defun cider-prepl--supports-op-p (_conn op)
   "Return t if the prepl backend has an eval-form fallback for OP."
   (and (assoc op cider-prepl--op-fallbacks) t))
 
-(cl-defmethod cider-backend-interrupt ((_conn buffer))
+(defun cider-prepl--interrupt (_conn)
   "prepl has no out-of-band interrupt mechanism."
   (user-error "Interrupt is not supported over prepl; only nREPL connections support it"))
 
-(cl-defmethod cider-backend-close ((conn buffer))
+(defun cider-prepl--close (conn)
   "Close prepl connection CONN."
   (when (buffer-live-p conn)
     (when-let* ((proc (get-buffer-process conn)))
       (when (process-live-p proc) (delete-process proc)))
     (kill-buffer conn)))
+
+(cider-backend-register
+ 'prepl
+ (make-cider-backend-impl
+  :send-eval      #'cider-prepl--send-eval
+  :send-eval-sync #'cider-prepl--send-eval-sync
+  :send-op        #'cider-prepl--send-op
+  :supports-op-p  #'cider-prepl--supports-op-p
+  :interrupt      #'cider-prepl--interrupt
+  :close          #'cider-prepl--close))
 
 ;;; Connection setup
 ;;

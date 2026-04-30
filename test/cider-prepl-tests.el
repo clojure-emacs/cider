@@ -28,6 +28,7 @@
 
 (require 'buttercup)
 (require 'cider-prepl)
+(require 'cider-prepl-mock-server "test/utils/cider-prepl-mock-server")
 (require 'nrepl-client)
 
 (defun cider-prepl-tests--make-conn-buffer ()
@@ -301,5 +302,38 @@ binding a faux process whose buffer is BUF."
     (cider-prepl-doc "map")
     (expect (car op-args) :to-equal "info")
     (expect (cadr op-args) :to-contain "map")))
+
+(describe "cider-prepl end-to-end via mock server"
+  ;; Integration test: spin up an in-Emacs mock prepl, run
+  ;; `cider-connect-prepl' against it, send forms, verify responses.
+  ;; Works without a JVM.
+  :var (server conn)
+  (before-each
+    (setq server (cider-prepl-mock-server-start)
+          conn   (cider-connect-prepl "127.0.0.1" (plist-get server :port)))
+    ;; Don't make `kill-buffer' prompt in batch mode -- the connection
+    ;; process is still live at that point.
+    (when-let ((proc (get-buffer-process conn)))
+      (set-process-query-on-exit-flag proc nil)))
+  (after-each
+    (when (buffer-live-p conn)
+      (when-let ((proc (get-buffer-process conn)))
+        (when (process-live-p proc) (delete-process proc)))
+      (kill-buffer conn))
+    (when-let ((proc (plist-get server :process)))
+      (when (process-live-p proc) (delete-process proc))))
+
+  (it "round-trips a simple eval"
+    (let ((response (cider-send-eval-sync conn "(+ 1 2)")))
+      (expect (nrepl-dict-get response "value") :to-equal "3")))
+
+  (it "captures stdout from the eval"
+    (let ((response (cider-send-eval-sync conn "(println :hi)")))
+      (expect (nrepl-dict-get response "out") :to-match "hi")
+      (expect (nrepl-dict-get response "value") :to-equal "nil")))
+
+  (it "routes :exception to the err slot"
+    (let ((response (cider-send-eval-sync conn "(/ 1 0)")))
+      (expect (nrepl-dict-get response "err") :to-match "Divide by zero"))))
 
 ;;; cider-prepl-tests.el ends here
