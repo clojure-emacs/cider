@@ -32,6 +32,7 @@
 ** xref:repl/keybindings.adoc[Keybindings]
 ** xref:repl/configuration.adoc[Configuration]
 ** xref:repl/history.adoc[REPL History]
+** xref:repl/prepl.adoc[prepl support (experimental)]
 * Testing
 ** xref:testing/running_tests.adoc[Running Tests]
 ** xref:testing/test_reports.adoc[Test Reports]

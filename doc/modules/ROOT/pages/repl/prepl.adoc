@@ -1,0 +1,130 @@
+= prepl support (experimental)
+:experimental:
+
+CIDER ships an experimental backend that connects to Clojure's prepl
+(`clojure.core.server/io-prepl`) instead of nREPL. This is useful when
+you want a lighter-weight setup with no middleware, or you're targeting
+an environment where running cider-nrepl isn't an option.
+
+[WARNING]
+====
+prepl support is **prototype-quality** and lives behind a separate
+set of commands (`cider-connect-prepl`, `cider-prepl-eval-string`,
+...). It is not yet wired into `cider-connect` / `cider-jack-in`
+proper. Expect rough edges and incomplete feature coverage.
+====
+
+== What works
+
+The fundamentals: connect, evaluate, see output, look up docs.
+
+* `M-x cider-connect-prepl` -- connect to a host/port serving
+  `io-prepl`. The connection registers with sesman so it shows up in
+  `sesman-current-sessions`.
+* `M-x cider-prepl-eval-string` -- evaluate a string interactively.
+* `M-x cider-prepl-eval-region` / `cider-prepl-eval-last-sexp` /
+  `cider-prepl-eval-defun-at-point` -- the usual eval verbs, against
+  the current prepl connection.
+* `M-x cider-prepl-load-file` -- send `(load-file "...")` to the prepl.
+* `M-x cider-prepl-doc` -- look up a symbol's docstring via the
+  `info` op fallback.
+* `M-x cider-prepl-quit` -- close the connection.
+
+The eval response stream is fully demuxed: `:out` / `:err` / `:tap`
+/ `:ret` / `:exception` tags from `io-prepl` are routed through
+CIDER's standard eval handler (`cider-make-eval-handler`), so adding
+new commands on top reuses the same response machinery as nREPL.
+
+== What doesn't work
+
+By design (limitations of prepl itself):
+
+* **Interrupt.** prepl has no out-of-band interrupt mechanism. Use
+  nREPL if you need it.
+* **Bundled clj+cljs in one session.** That's an
+  nREPL+Piggieback-shaped feature; without sessions and middleware
+  there's no clean way to do it. prepl is Clojure-only.
+
+By prototype scope (will improve):
+
+* No dedicated REPL buffer / prompt. Eval results land in the echo
+  area for now.
+* Most cider-nrepl-middleware-shaped features (structured stacktrace
+  buffer, the inspector, the debugger, the test runner UI, profile
+  reporting) require nREPL with cider-nrepl. They have no eval-form
+  fallback today and won't run on prepl.
+* `cider-jack-in-prepl` doesn't exist yet -- you start the prepl
+  yourself (see below) and `cider-connect-prepl` to it.
+
+== Starting an io-prepl
+
+A minimal `deps.edn` alias:
+
+[source,clojure]
+----
+{:aliases
+ {:prepl
+  {:exec-fn  clojure.core.server/start-server
+   :exec-args {:name "prepl"
+               :port 5555
+               :accept clojure.core.server/io-prepl}}}}
+----
+
+Start it:
+
+[source,sh]
+----
+clojure -X:prepl
+----
+
+Then in Emacs: `M-x cider-connect-prepl`, host `localhost`, port
+`5555`.
+
+== Op fallbacks
+
+When you ask for an nREPL-style op (e.g. `info`, `apropos`, `ns-vars`)
+on a prepl connection, CIDER runs an equivalent Clojure form via
+`cider-send-eval` and reshapes the eval `:ret` into a response dict
+matching the nREPL op's documented shape. Today's table:
+
+[cols="1,2,3"]
+|===
+|Op |Form |Notes
+
+|`info`
+|`(let [v (ns-resolve ...)] {:name ... :doc ...})`
+|Subset of cider-nrepl's info: name, ns, doc, arglists-str, file,
+line, column.
+
+|`apropos`
+|`(mapv str (clojure.repl/apropos #"query"))`
+|Returns name strings only -- no metadata. Strict subset of
+cider-nrepl's `apropos`.
+
+|`ns-vars`
+|`(mapv (comp str key) (ns-publics 'foo))`
+|Names only.
+|===
+
+The list will grow over time. Complex ops (the inspector, the
+debugger, the structured stacktrace renderer, ...) are not on the
+roadmap -- if you need them, use nREPL.
+
+== Architecture notes
+
+For curious readers / contributors: the relevant files are
+
+* `lisp/cider-backend.el` -- the protocol that every backend
+  implements (six functions: `cider-send-eval`, `cider-send-eval-sync`,
+  `cider-send-op`, `cider-supports-op-p`, `cider-backend-interrupt`,
+  `cider-backend-close`). Backends register a struct of impl functions
+  via `cider-backend-register`.
+* `lisp/cider-connection.el` -- the nREPL backend implementation,
+  registered alongside the existing connection-management surface.
+* `lisp/cider-prepl.el` -- the prepl backend: process filter for
+  incremental EDN reads, FIFO of pending eval handlers (since prepl
+  has no request ids), op-fallback registry, the user-facing
+  commands.
+
+A more detailed design doc lives at `dev/design/prepl-support.md` in
+the repo (not part of the user manual).
