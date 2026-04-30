@@ -456,6 +456,62 @@ the value (or error message) in the echo area."
            (start (progn (beginning-of-defun) (point))))
       (cider-prepl-eval-region start end))))
 
+;;;###autoload
+(defun cider-prepl-load-file (file)
+  "Load FILE into the current prepl by evaluating `load-file'.
+When called interactively, defaults to the file backing the current
+buffer.  This works on remote prepls only when FILE is a path the
+prepl process itself can resolve."
+  (interactive (list (or buffer-file-name
+                         (read-file-name "Load file: "))))
+  (cider-prepl-eval-string (format "(load-file \"%s\")" file)))
+
+;;;###autoload
+(defun cider-prepl-quit ()
+  "Close the current prepl connection."
+  (interactive)
+  (let ((conn (cider-prepl--ensure-conn)))
+    (cider-backend-close conn)
+    (message "[prepl] connection closed")))
+
+;;;###autoload
+(defun cider-prepl-doc (sym)
+  "Show the docstring for SYM via the `info' op fallback.
+SYM is read from the minibuffer; the symbol at point is used as the
+default."
+  (interactive
+   (list (read-string "Symbol: "
+                      (when-let ((s (thing-at-point 'symbol t)))
+                        s))))
+  (let* ((conn (cider-prepl--ensure-conn))
+         (received nil))
+    (cider-send-op conn "info"
+                   (list "sym" sym
+                         "ns" (or (cider-prepl--current-ns) "user"))
+                   (lambda (response)
+                     (when (nrepl-dict-get response "doc")
+                       (setq received response))))
+    ;; cider-send-op for the info fallback runs synchronously through
+    ;; cider-send-eval (which itself is async on a real connection).
+    ;; A fully-fledged version would pop a buffer and accept the
+    ;; response asynchronously; the sketch just polls briefly.
+    (let ((deadline (+ (float-time) 5.0)))
+      (while (and (not received) (< (float-time) deadline))
+        (accept-process-output nil 0.05)))
+    (cond
+     (received
+      (let ((name (nrepl-dict-get received "name"))
+            (ns   (nrepl-dict-get received "ns"))
+            (doc  (nrepl-dict-get received "doc")))
+        (message "%s/%s\n%s" (or ns "?") (or name sym) (or doc "(no docstring)"))))
+     (t (message "[prepl] no info for %s" sym)))))
+
+(defun cider-prepl--current-ns ()
+  "Best-effort current-ns determination for prepl commands.
+Looks for a `clojure-find-ns' (from clojure-mode); falls back to nil
+if not available, in which case callers should default to \"user\"."
+  (and (fboundp 'clojure-find-ns) (clojure-find-ns)))
+
 (provide 'cider-prepl)
 
 ;;; cider-prepl.el ends here

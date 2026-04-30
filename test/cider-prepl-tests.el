@@ -262,6 +262,44 @@ binding a faux process whose buffer is BUF."
       (goto-char (point-min))
       (search-forward "two")
       (cider-prepl-eval-defun-at-point))
-    (expect sent-code :to-match "two")))
+    (expect sent-code :to-match "two"))
+
+  (it "load-file emits a `(load-file ...)' form"
+    (cider-prepl-load-file "/tmp/foo.clj")
+    (expect sent-code :to-equal "(load-file \"/tmp/foo.clj\")")))
+
+(describe "cider-prepl-quit"
+  :var (buf)
+  (before-each
+    (setq buf (cider-prepl-tests--make-conn-buffer))
+    (spy-on 'cider-prepl-current-conn :and-return-value buf)
+    (spy-on 'cider-backend-close))
+  (after-each (when (buffer-live-p buf) (kill-buffer buf)))
+
+  (it "delegates to cider-backend-close on the current connection"
+    (spy-on 'message)
+    (cider-prepl-quit)
+    (expect 'cider-backend-close :to-have-been-called-with buf)))
+
+(describe "cider-prepl-doc"
+  :var (buf op-args)
+  (before-each
+    (setq buf (cider-prepl-tests--make-conn-buffer)
+          op-args nil)
+    (spy-on 'cider-prepl-current-conn :and-return-value buf)
+    (spy-on 'cider-send-op
+            :and-call-fake
+            (lambda (_conn op params handler)
+              (setq op-args (list op params))
+              ;; Synthesize a successful info response so the command
+              ;; can format and message it.
+              (funcall handler '(dict "name" "map" "ns" "clojure.core" "doc" "applies fn")))))
+  (after-each (when (buffer-live-p buf) (kill-buffer buf)))
+
+  (it "calls the info op with the chosen symbol"
+    (spy-on 'message)
+    (cider-prepl-doc "map")
+    (expect (car op-args) :to-equal "info")
+    (expect (cadr op-args) :to-contain "map")))
 
 ;;; cider-prepl-tests.el ends here
