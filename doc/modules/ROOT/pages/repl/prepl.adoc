@@ -104,6 +104,19 @@ cider-nrepl's `apropos`.
 |`ns-vars`
 |`(mapv (comp str key) (ns-publics 'foo))`
 |Names only.
+
+|`ns-list`
+|`(mapv (comp str ns-name) (all-ns))`
+|All loaded namespaces.
+
+|`source`
+|`(clojure.repl/source-fn (symbol "ns" "sym"))`
+|Returns the source string, or empty if AOT-only.
+
+|`macroexpand`
+|`(pr-str (macroexpand-1 'code))`
+|Honors the `expander` param (`macroexpand-1` / `macroexpand` /
+`macroexpand-all`).
 |===
 
 The list will grow over time. Complex ops (the inspector, the

@@ -208,7 +208,62 @@ binding a faux process whose buffer is BUF."
     (expect received-form :to-match "ns-publics")
     (expect received-form :to-match "'my\\.ns")
     (let ((info (car (last captured))))
-      (expect (member "ns-vars" info) :to-be-truthy))))
+      (expect (member "ns-vars" info) :to-be-truthy)))
+
+  (it "supports ns-list via all-ns"
+    (spy-on 'cider-send-eval
+            :and-call-fake
+            (lambda (conn form handler &rest _ignored)
+              (setq received-form form)
+              (with-current-buffer conn
+                (funcall handler '(dict "id" "prepl" "value" "[\"clojure.core\" \"user\"]"))
+                (funcall handler '(dict "id" "prepl" "status" ("done"))))))
+    (expect (cider-supports-op-p buf "ns-list") :to-be-truthy)
+    (cider-send-op buf "ns-list" '() info-handler)
+    (expect received-form :to-match "all-ns")
+    (let ((info (car (last captured))))
+      (expect (member "ns-list" info) :to-be-truthy)))
+
+  (it "supports source via clojure.repl/source-fn"
+    (spy-on 'cider-send-eval
+            :and-call-fake
+            (lambda (conn form handler &rest _ignored)
+              (setq received-form form)
+              (with-current-buffer conn
+                (funcall handler '(dict "id" "prepl" "value" "\"(defn map [...] ...)\""))
+                (funcall handler '(dict "id" "prepl" "status" ("done"))))))
+    (expect (cider-supports-op-p buf "source") :to-be-truthy)
+    (cider-send-op buf "source" '("sym" "map" "ns" "clojure.core") info-handler)
+    (expect received-form :to-match "source-fn")
+    (let ((info (car (last captured))))
+      (expect (member "source" info) :to-be-truthy)))
+
+  (it "supports macroexpand via macroexpand-1"
+    (spy-on 'cider-send-eval
+            :and-call-fake
+            (lambda (conn form handler &rest _ignored)
+              (setq received-form form)
+              (with-current-buffer conn
+                (funcall handler '(dict "id" "prepl" "value" "\"(if test then else)\""))
+                (funcall handler '(dict "id" "prepl" "status" ("done"))))))
+    (expect (cider-supports-op-p buf "macroexpand") :to-be-truthy)
+    (cider-send-op buf "macroexpand" '("code" "(when test then else)") info-handler)
+    (expect received-form :to-match "macroexpand-1")
+    (let ((info (car (last captured))))
+      (expect (member "expansion" info) :to-be-truthy)))
+
+  (it "macroexpand can target the all expander"
+    (spy-on 'cider-send-eval
+            :and-call-fake
+            (lambda (conn form handler &rest _ignored)
+              (setq received-form form)
+              (with-current-buffer conn
+                (funcall handler '(dict "id" "prepl" "value" "\"(deeply expanded)\""))
+                (funcall handler '(dict "id" "prepl" "status" ("done"))))))
+    (cider-send-op buf "macroexpand"
+                   '("code" "(when test then)" "expander" "macroexpand-all")
+                   info-handler)
+    (expect received-form :to-match "macroexpand-all")))
 
 (describe "cider-prepl-eval-string"
   :var (buf)

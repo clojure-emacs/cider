@@ -205,9 +205,12 @@ slot's value."
 ;; populates this table.
 
 (defvar cider-prepl--op-fallbacks
-  `(("info"     . cider-prepl--info-via-eval)
-    ("apropos"  . cider-prepl--apropos-via-eval)
-    ("ns-vars"  . cider-prepl--ns-vars-via-eval))
+  `(("info"        . cider-prepl--info-via-eval)
+    ("apropos"     . cider-prepl--apropos-via-eval)
+    ("ns-vars"     . cider-prepl--ns-vars-via-eval)
+    ("ns-list"     . cider-prepl--ns-list-via-eval)
+    ("source"      . cider-prepl--source-via-eval)
+    ("macroexpand" . cider-prepl--macroexpand-via-eval))
   "Alist mapping nREPL op name to a fallback function.
 Each fallback takes (CONN PARAMS HANDLER) and arranges for HANDLER to
 be called with a synthesized response dict matching the nREPL op's
@@ -306,6 +309,53 @@ slot holding a list of name strings."
      conn form handler
      (lambda (parsed)
        (list "ns-vars" (or parsed (list)))))))
+
+(defun cider-prepl--ns-list-via-eval (conn _params handler)
+  "Implement the `ns-list' op on CONN.
+Returns a single response with an `ns-list' slot holding a vector of
+namespace name strings."
+  (cider-prepl--simple-via-eval
+   conn "(mapv (comp str ns-name) (all-ns))" handler
+   (lambda (parsed)
+     (list "ns-list" (or parsed (list))))))
+
+(defun cider-prepl--source-via-eval (conn params handler)
+  "Implement the `source' op on CONN via `clojure.repl/source-fn'.
+Reads \"sym\" / \"ns\" from PARAMS.  Returns a single response with a
+`source' slot holding the source string (or nil if the source can't
+be located -- e.g. for AOT-compiled vars)."
+  (let* ((sym (cider-prepl--params-get params "sym"))
+         (ns (or (cider-prepl--params-get params "ns") "user"))
+         ;; `source-fn' returns a string or nil.  Wrap so we always
+         ;; emit one EDN value.
+         (form (format "(or (clojure.repl/source-fn (symbol \"%s\" \"%s\")) \"\")"
+                       ns sym)))
+    (cider-prepl--simple-via-eval
+     conn form handler
+     (lambda (parsed)
+       (list "source" (or parsed ""))))))
+
+(defun cider-prepl--macroexpand-via-eval (conn params handler)
+  "Implement the `macroexpand' op on CONN.
+Reads \"code\" and optional \"expander\" from PARAMS.  Defaults to
+`macroexpand-1'; pass \"macroexpand\" or \"macroexpand-all\" to
+expand once / fully (the all-form requires
+`clojure.walk/macroexpand-all' which we eval inline)."
+  (let* ((code (or (cider-prepl--params-get params "code") ""))
+         (expander (or (cider-prepl--params-get params "expander") "macroexpand-1"))
+         (form
+          (pcase expander
+            ("macroexpand-all"
+             (format "(do (require 'clojure.walk) (pr-str (clojure.walk/macroexpand-all '%s)))"
+                     code))
+            ("macroexpand"
+             (format "(pr-str (macroexpand '%s))" code))
+            (_
+             (format "(pr-str (macroexpand-1 '%s))" code)))))
+    (cider-prepl--simple-via-eval
+     conn form handler
+     (lambda (parsed)
+       (list "expansion" (or parsed ""))))))
 
 (defun cider-prepl--hash->dict (parsed)
   "Convert PARSED (parseedn output for our info form) to nrepl-dict shape.
