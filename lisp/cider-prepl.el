@@ -754,15 +754,7 @@ session-management surface."
       (cider-prepl-mode)
       (setq cider-backend-type 'prepl
             cider-prepl--pending-evals nil
-            cider-prepl--input-buffer ""
-            ;; The shared eval handler from nrepl-make-eval-handler
-            ;; expects these bookkeeping tables on the connection
-            ;; buffer.  prepl has no real request ids -- we use the
-            ;; sentinel "prepl" string -- but the tables still need to
-            ;; be live hash tables for the dispatch to not error.
-            nrepl-pending-requests (make-hash-table :test 'equal)
-            nrepl-completed-requests (make-hash-table :test 'equal)
-            nrepl--completed-requests-order (queue-create))
+            cider-prepl--input-buffer "")
       (setq-local cider-prepl--connect-params (list :host host :port port))
       ;; Register with sesman.  CIDER's nREPL flow uses the same
       ;; sesman-system, so prepl connections show up alongside nREPL

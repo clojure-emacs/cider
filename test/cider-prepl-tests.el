@@ -40,10 +40,7 @@ simulate with a fake process."
     (with-current-buffer buf
       (setq cider-backend-type 'prepl
             cider-prepl--pending-evals nil
-            cider-prepl--input-buffer ""
-            nrepl-pending-requests (make-hash-table :test 'equal)
-            nrepl-completed-requests (make-hash-table :test 'equal)
-            nrepl--completed-requests-order (queue-create)))
+            cider-prepl--input-buffer ""))
     buf))
 
 (defun cider-prepl-tests--feed (buf bytes)

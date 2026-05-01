@@ -685,10 +685,11 @@ Used by the client to clean up session state on disconnect.")
 The completed table is bounded by `nrepl-completed-requests-max-size';
 when the cap is reached the oldest entry is evicted FIFO.
 
-It is safe to call this function multiple times on the same ID -- the
-second call is a no-op because the entry has already been moved out of
-`nrepl-pending-requests'."
-  (when-let* ((handler (gethash id nrepl-pending-requests)))
+A no-op when the request tables aren't set up on the current buffer
+\(e.g. on a non-nREPL backend that reuses the eval-handler shape but
+doesn't track ids), or when ID isn't in the pending table."
+  (when-let* ((tbl nrepl-pending-requests)
+              (handler (gethash id tbl)))
     (puthash id handler nrepl-completed-requests)
     (remhash id nrepl-pending-requests)
     (when nrepl--completed-requests-order
