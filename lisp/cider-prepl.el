@@ -46,6 +46,7 @@
 (require 'subr-x)
 
 (require 'cider-backend)
+(require 'cider-util)                   ; for cider-font-lock-as-clojure
 (require 'comint)
 (require 'nrepl-client)                 ; for nrepl-make-eval-handler
 (require 'nrepl-dict)
@@ -421,6 +422,11 @@ See `cider-prepl--op-fallbacks'."
 
 (defvar cider-prepl-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-q") #'cider-prepl-quit)
+    (define-key map (kbd "C-c M-r") #'cider-prepl-restart)
+    (define-key map (kbd "C-c C-d C-d") #'cider-prepl-doc)
+    (define-key map (kbd "C-c C-d d")   #'cider-prepl-doc)
+    (define-key map (kbd "C-c C-o") #'cider-prepl-clear-output)
     map)
   "Keymap for `cider-prepl-mode'.")
 
@@ -458,19 +464,23 @@ response into PROC's buffer."
 (defun cider-prepl--insert (buf string face-tag)
   "Insert STRING into BUF at the process mark with face for FACE-TAG.
 FACE-TAG is one of `out', `err', `value'; the actual faces reuse the
-existing CIDER REPL faces where they exist, falling back to sensible
-defaults."
+existing CIDER REPL faces where they exist.  For `value' we additionally
+run STRING through `cider-font-lock-as-clojure' so result values pick
+up clojure syntax highlighting."
   (when (and (buffer-live-p buf) (stringp string))
     (with-current-buffer buf
       (when-let* ((proc (get-buffer-process buf)))
-        (let ((face (pcase face-tag
-                      ('out 'cider-repl-stdout-face)
-                      ('err 'cider-repl-stderr-face)
-                      ('value 'cider-repl-result-face))))
+        (let* ((face (pcase face-tag
+                       ('out 'cider-repl-stdout-face)
+                       ('err 'cider-repl-stderr-face)
+                       ('value 'cider-repl-result-face)))
+               (rendered (if (eq face-tag 'value)
+                             (cider-font-lock-as-clojure string)
+                           (propertize string 'font-lock-face face))))
           (save-excursion
             (goto-char (process-mark proc))
             (let ((inhibit-read-only t))
-              (insert (propertize string 'font-lock-face face)))
+              (insert rendered))
             (set-marker (process-mark proc) (point))))))))
 
 (defun cider-prepl--emit-prompt (buf)
@@ -649,6 +659,21 @@ prepl process itself can resolve."
   (interactive (list (or buffer-file-name
                          (read-file-name "Load file: "))))
   (cider-prepl-eval-string (format "(load-file \"%s\")" file)))
+
+;;;###autoload
+(defun cider-prepl-clear-output ()
+  "Clear the current prepl REPL buffer up to the last prompt.
+Leaves the active prompt and any pending input alone."
+  (interactive)
+  (let ((conn (cider-prepl--ensure-conn)))
+    (with-current-buffer conn
+      (let ((proc (get-buffer-process conn))
+            (inhibit-read-only t))
+        (delete-region (point-min)
+                       (save-excursion
+                         (goto-char (process-mark proc))
+                         (forward-line 0)
+                         (point)))))))
 
 ;;;###autoload
 (defun cider-prepl-quit ()

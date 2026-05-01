@@ -410,6 +410,20 @@ binding a faux process whose buffer is BUF."
     (with-current-buffer conn
       (expect (buffer-string) :to-match "3\nuser=> $")))
 
+  (it "clears history but preserves the active prompt"
+    (with-current-buffer conn
+      (cider-prepl--input-sender (get-buffer-process conn) "(+ 1 2)"))
+    (let ((deadline (+ (float-time) 1.0)))
+      (while (and (not (string-match-p "3\nuser=> $"
+                                       (with-current-buffer conn (buffer-string))))
+                  (< (float-time) deadline))
+        (accept-process-output nil 0.05)))
+    (cl-letf (((symbol-function 'cider-prepl--ensure-conn)
+               (lambda () conn)))
+      (cider-prepl-clear-output))
+    (with-current-buffer conn
+      (expect (buffer-string) :to-equal "user=> ")))
+
   (it "drains pending handlers when the connection drops"
     (let* ((received nil)
            (handler (nrepl-make-eval-handler
