@@ -4,6 +4,7 @@
 
 ### New features
 
+- Experimental support for connecting to Clojure's prepl (`clojure.core.server/io-prepl`). New commands: `cider-jack-in-prepl`, `cider-connect-prepl`, `cider-prepl-eval-string`/`region`/`last-sexp`/`defun-at-point`, `cider-prepl-load-file`, `cider-prepl-set-ns`, `cider-prepl-doc`, `cider-prepl-show-tap-buffer`, `cider-prepl-clear-output`, `cider-prepl-quit`, `cider-prepl-restart`. A slim REPL UI (`cider-prepl-mode`, comint-based) tracks the prepl's current namespace in the prompt and routes `:tap` values to a per-connection buffer. Eval-form fallbacks reshape `info`, `eldoc`, `complete`, `apropos`, `ns-vars`, `ns-list`, `source`, `macroexpand`, and `classpath` op calls into nREPL-shaped responses. See `repl/prepl.adoc` for the full picture; expect rough edges -- prototype quality, not yet wired into `cider-connect` / `cider-jack-in` proper.
 - [#3645](https://github.com/clojure-emacs/cider/issues/3645): Show a spinner in the mode line while tests are running.
 - [#3865](https://github.com/clojure-emacs/cider/pull/3865): Add default session feature to bypass sesman's project-based dispatch (`cider-set-default-session`, `cider-clear-default-session`).
 - Introduce `cider-jack-in-tools` and `cider-register-jack-in-tool` so third-party packages can register new project tools for `cider-jack-in` and `cider-jack-in-universal`.

@@ -313,30 +313,42 @@ If a standalone cljs prepl ever materializes upstream, we can add
    Simpler than option (a) from the original sketch, and explicit:
    adding a backend is one `cider-backend-register` call.
 
-1. **Sync request semantics on prepl.** nREPL's `nrepl-send-sync-request`
-   blocks until the `done` status arrives. On prepl, "done" is implicit
-   in `:ret`/`:exception`. The sync API will need to be adapted to that
-   ordering-based model. Probably fine, but worth prototyping early.
+1. ~~**Sync request semantics on prepl.**~~ *Resolved.*
+   `cider-prepl--send-eval-sync` registers an eval handler with an
+   `:on-done` flag and `accept-process-output`s the connection's
+   process until done.  No `done`-status-on-the-wire required --
+   `:ret`/`:exception` close the eval and synthesize `done`
+   internally.
 
-2. **`:tap` channel.** prepl has a `:tap` tag for `tap>` output. nREPL
-   has no equivalent in eval responses. Do we route to stdout (loses
-   distinction), add a new `:on-tap` slot to `nrepl-make-eval-handler`,
-   or expose it as a separate user-facing buffer? Lean toward a new
-   slot.
+2. ~~**`:tap` channel.**~~ *Resolved -- separate buffer.*  Tap is
+   genuinely out-of-band (tap values can fire while no eval is in
+   flight, or for an unrelated eval), so routing onto whichever
+   eval happens to be the head pending was wrong.  Each connection
+   gets a lazily-created `*cider-prepl-tap <conn>*' buffer; tap
+   values are appended there, with clojure font-lock applied.
+   `cider-prepl-show-tap-buffer` (C-c M-t) pops it up.
 
-3. **Spawning a prepl from `cider-jack-in`.** Easy for tools.deps via an
-   alias. Less obvious for Leiningen. Skip Lein support initially?
+3. **Spawning a prepl from `cider-jack-in`.** *Partial.*
+   `cider-jack-in-prepl` exists for `clojure -X` (deps.edn
+   projects).  No Leiningen / shadow-cljs / gradle path -- those
+   tools don't have a clean prepl story, and we'd be reinventing
+   tools-registry plumbing for marginal payoff.  Documented as a
+   known limitation.
 
 4. **Existing nREPL `cider-jack-in-tools` registry** vs. a new prepl
-   registry. The existing registry assumes nREPL semantics in several
-   places (e.g. dependency injection of cider-nrepl). Probably needs a
-   `:protocol` key on tool entries: `nrepl` (default) vs `prepl`. New
-   keys mean a small migration but the registry refactor (#3884) was
-   designed to absorb exactly this kind of extension.
+   registry. *Deferred.* `cider-jack-in-prepl` is a parallel,
+   narrower entry point for now; extending the registry with a
+   `:backend` field (so `cider-jack-in-universal` can route to either
+   nREPL or prepl based on user preference) is a clean follow-up
+   when there's a second prepl tool to support.
 
-5. **EDN reading.** parseedn is already a CIDER dependency. Does it
-   support incremental reading from a stream / queue, or do we need a
-   small ring-buffer wrapper? Worth confirming early.
+5. **EDN reading.** *Resolved (line-buffered).*  io-prepl emits one
+   EDN form per line (`prn`-printed with `*print-readably*` true), so
+   the process filter splits on `\n`, reads complete lines through
+   `parseedn-read-str`, and stashes any trailing partial line in a
+   buffer-local accumulator.  No streaming reader needed -- a custom
+   `:valf` that emits multi-line strings would break this assumption,
+   but stock io-prepl is the contract.
 
 ## Risks
 

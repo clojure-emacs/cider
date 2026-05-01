@@ -33,9 +33,30 @@ The fundamentals: jack in or connect, evaluate, see output, look up docs.
   `cider-prepl-eval-defun-at-point` -- the usual eval verbs, against
   the current prepl connection.
 * `M-x cider-prepl-load-file` -- send `(load-file "...")` to the prepl.
+* `M-x cider-prepl-set-ns` -- switch namespace via `(in-ns 'foo)`.
+  The REPL prompt updates to track the prepl's current namespace.
 * `M-x cider-prepl-doc` -- look up a symbol's docstring via the
   `info` op fallback.
-* `M-x cider-prepl-quit` -- close the connection.
+* `M-x cider-prepl-clear-output` -- clear the REPL buffer up to the
+  active prompt.
+* `M-x cider-prepl-show-tap-buffer` -- pop up the per-connection tap
+  buffer (`*cider-prepl-tap ...*`).
+* `M-x cider-prepl-quit` / `cider-prepl-restart` -- close /
+  reconnect.
+
+In a `cider-prepl-mode` buffer the standard keybindings are:
+
+[cols="1,2"]
+|===
+|Key |Command
+
+|`C-c C-q`     |`cider-prepl-quit`
+|`C-c M-r`     |`cider-prepl-restart`
+|`C-c M-n`     |`cider-prepl-set-ns`
+|`C-c C-d C-d` |`cider-prepl-doc`
+|`C-c C-o`     |`cider-prepl-clear-output`
+|`C-c M-t`     |`cider-prepl-show-tap-buffer`
+|===
 
 The eval response stream is fully demuxed: `:out` / `:err` / `:ret`
 / `:exception` tags from `io-prepl` are routed through CIDER's
