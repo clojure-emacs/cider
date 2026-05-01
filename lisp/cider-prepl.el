@@ -620,6 +620,105 @@ The prompt is marked read-only so user input only happens after it."
           ;; Snap user point to end-of-buffer so they can start typing.
           (goto-char (point-max)))))))
 
+;;; Jack-in
+;;
+;; Start a JVM with `clojure.core.server/io-prepl' running and connect
+;; to it.  We don't extend the existing `cider-jack-in-tools' registry
+;; (it's nREPL-shaped: middleware injection, params shape, etc.);
+;; instead this is a parallel, narrower command for prepl only.
+;; Future work: introduce a `:backend' field on the registry so
+;; cider-jack-in-universal can route to either nREPL or prepl based
+;; on user preference.
+
+(defcustom cider-jack-in-prepl-port 0
+  "Port to bind the prepl on when running `cider-jack-in-prepl'.
+0 means \"pick a free port\" (the OS assigns one)."
+  :type 'integer
+  :package-version '(cider . "1.20.0"))
+
+(defcustom cider-jack-in-prepl-wait-seconds 30
+  "Maximum number of seconds to wait for the prepl server to come up."
+  :type 'integer
+  :package-version '(cider . "1.20.0"))
+
+(declare-function cider-jack-in-resolve-command "cider")
+
+(defun cider-prepl--free-port ()
+  "Return a TCP port the OS believes is currently free.
+Briefly opens a server socket on port 0 (which the kernel assigns to
+a free port), reads the assigned port back, and closes the socket.
+There's an inherent TOCTOU window between this returning and the JVM
+binding -- in practice it's fine for development use."
+  (let ((proc (make-network-process :name "cider-prepl-port-probe"
+                                    :server t
+                                    :host "127.0.0.1"
+                                    :service t
+                                    :noquery t)))
+    (unwind-protect
+        (process-contact proc :service)
+      (delete-process proc))))
+
+(defun cider-prepl--jack-in-args (port)
+  "Build the `clojure -X' invocation that starts an io-prepl on PORT.
+Returns a list of args, suitable for `start-process' (the leading
+command -- the `clojure' binary path -- is added by the caller)."
+  ;; The exec-fn args are EDN; we build the literal string Clojure will
+  ;; parse.  `clojure -X' takes :keyword value pairs as separate argv
+  ;; entries.
+  (list "-X" "clojure.core.server/start-server"
+        ":name" "\"prepl\""
+        ":port" (number-to-string port)
+        ":accept" "clojure.core.server/io-prepl"))
+
+(defun cider-prepl--wait-for-port (host port deadline)
+  "Poll connecting to HOST:PORT until success or DEADLINE (float-time) passes.
+Returns t on success, nil on timeout.  Each failed attempt sleeps
+briefly to avoid busy-waiting."
+  (let ((connected nil))
+    (while (and (not connected) (< (float-time) deadline))
+      (condition-case nil
+          (let ((probe (open-network-stream "cider-prepl-probe" nil host port
+                                            :nowait nil)))
+            (when (process-live-p probe)
+              (setq connected t)
+              (delete-process probe)))
+        (error
+         (sleep-for 0.2))))
+    connected))
+
+;;;###autoload
+(defun cider-jack-in-prepl ()
+  "Start a Clojure prepl in the current project and connect to it.
+Uses `cider-clojure-cli-command' to launch `clojure -X' with
+`clojure.core.server/io-prepl' on `cider-jack-in-prepl-port' (a
+free port if 0).  Once the port is reachable, runs
+`cider-connect-prepl' to attach.
+
+This is a separate entry point from `cider-jack-in' -- prepl has no
+nREPL middleware story, so the existing tools registry doesn't apply."
+  (interactive)
+  (let* ((cmd (or (and (fboundp 'cider-jack-in-resolve-command)
+                       (cider-jack-in-resolve-command 'clojure-cli))
+                  (executable-find "clojure")
+                  (user-error "Cannot locate the `clojure' command")))
+         (port (if (zerop cider-jack-in-prepl-port)
+                   (cider-prepl--free-port)
+                 cider-jack-in-prepl-port))
+         (args (cider-prepl--jack-in-args port))
+         (server-buf (generate-new-buffer
+                      (format "*cider-prepl-server :%d*" port)))
+         (proc (apply #'start-process "cider-prepl-server"
+                      server-buf cmd args)))
+    (set-process-query-on-exit-flag proc nil)
+    (message "[prepl] starting %s on port %d (server buffer: %s)"
+             cmd port (buffer-name server-buf))
+    (let ((deadline (+ (float-time) cider-jack-in-prepl-wait-seconds)))
+      (if (cider-prepl--wait-for-port "127.0.0.1" port deadline)
+          (cider-connect-prepl "127.0.0.1" port)
+        (user-error "prepl server did not become ready within %ds; check %s"
+                    cider-jack-in-prepl-wait-seconds
+                    (buffer-name server-buf))))))
+
 ;;; Connection setup
 ;;
 ;; Sketch quality: usable for poking at a running prepl by hand, not

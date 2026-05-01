@@ -9,16 +9,23 @@ an environment where running cider-nrepl isn't an option.
 [WARNING]
 ====
 prepl support is **prototype-quality** and lives behind a separate
-set of commands (`cider-connect-prepl`, `cider-prepl-eval-string`,
-...). It is not yet wired into `cider-connect` / `cider-jack-in`
-proper. Expect rough edges and incomplete feature coverage.
+set of commands (`cider-jack-in-prepl`, `cider-connect-prepl`,
+`cider-prepl-eval-string`, ...). It is not yet wired into the
+generic `cider-connect` / `cider-jack-in` entry points -- prepl
+has no nREPL middleware story, so the existing tools-registry
+shape doesn't apply. Expect rough edges and incomplete feature
+coverage.
 ====
 
 == What works
 
-The fundamentals: connect, evaluate, see output, look up docs.
+The fundamentals: jack in or connect, evaluate, see output, look up docs.
 
-* `M-x cider-connect-prepl` -- connect to a host/port serving
+* `M-x cider-jack-in-prepl` -- start a JVM with
+  `clojure.core.server/io-prepl` listening on a free port (or
+  `cider-jack-in-prepl-port` if set), then connect.  Uses the
+  configured `cider-clojure-cli-command`; deps.edn projects only.
+* `M-x cider-connect-prepl` -- connect to a host/port already serving
   `io-prepl`. The connection registers with sesman so it shows up in
   `sesman-current-sessions`.
 * `M-x cider-prepl-eval-string` -- evaluate a string interactively.
@@ -59,8 +66,9 @@ By prototype scope (will improve):
   buffer, the inspector, the debugger, the test runner UI, profile
   reporting) require nREPL with cider-nrepl. They have no eval-form
   fallback today and won't run on prepl.
-* `cider-jack-in-prepl` doesn't exist yet -- you start the prepl
-  yourself (see below) and `cider-connect-prepl` to it.
+* `cider-jack-in-prepl` only knows about deps.edn / `clojure -X`.
+  Lein, shadow-cljs, gradle, etc. need to start the prepl themselves
+  (see below) and `cider-connect-prepl` to it.
 
 == Starting an io-prepl
 

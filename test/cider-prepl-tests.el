@@ -334,6 +334,21 @@ binding a faux process whose buffer is BUF."
     (let ((info (car (last captured))))
       (expect (member "classpath" info) :to-be-truthy))))
 
+(describe "cider-jack-in-prepl plumbing"
+  (it "builds clojure -X args targeting io-prepl"
+    (let ((args (cider-prepl--jack-in-args 12345)))
+      (expect args :to-contain "-X")
+      (expect args :to-contain "clojure.core.server/start-server")
+      (expect args :to-contain ":port")
+      (expect args :to-contain "12345")
+      (expect args :to-contain ":accept")
+      (expect args :to-contain "clojure.core.server/io-prepl")))
+
+  (it "free-port returns a positive integer"
+    (let ((port (cider-prepl--free-port)))
+      (expect port :to-be-greater-than 0)
+      (expect port :to-be-less-than 65536))))
+
 (describe "cider-prepl-eval-string"
   :var (buf)
   (before-each
