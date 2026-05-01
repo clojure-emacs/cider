@@ -471,6 +471,7 @@ after the connection is gone."
     (define-key map (kbd "C-c C-d d")   #'cider-prepl-doc)
     (define-key map (kbd "C-c C-o") #'cider-prepl-clear-output)
     (define-key map (kbd "C-c M-t") #'cider-prepl-show-tap-buffer)
+    (define-key map (kbd "C-c M-n") #'cider-prepl-set-ns)
     map)
   "Keymap for `cider-prepl-mode'.")
 
@@ -724,16 +725,24 @@ Defaults to the current prepl connection."
     (cider-backend-close conn)
     (cider-connect-prepl host port)))
 
+(defun cider-prepl--live-prepl-buffer-p (buf)
+  "Return non-nil if BUF is a live prepl connection."
+  (and (buffer-live-p buf)
+       (eq (buffer-local-value 'cider-backend-type buf) 'prepl)
+       (process-live-p (get-buffer-process buf))))
+
+(declare-function cider--extract-connections "cider-session")
+
 (defun cider-prepl-current-conn ()
-  "Return the most recently active prepl connection buffer, or nil.
-Walks all live buffers; in a future revision this will go through
-sesman's session resolution to honor the current project / current
-session."
-  (seq-find (lambda (b)
-              (and (buffer-live-p b)
-                   (eq (buffer-local-value 'cider-backend-type b) 'prepl)
-                   (process-live-p (get-buffer-process b))))
-            (buffer-list)))
+  "Return the prepl connection in the current sesman session, or nil.
+Looks up sesman-linked sessions first so the result honors the
+buffer's project / linked session.  Falls back to scanning all live
+buffers if no session is linked (e.g. in tests, or when accessed
+from a non-Clojure buffer)."
+  (or (seq-find #'cider-prepl--live-prepl-buffer-p
+                (cider--extract-connections
+                 (sesman-current-sessions 'CIDER)))
+      (seq-find #'cider-prepl--live-prepl-buffer-p (buffer-list))))
 
 (defun cider-prepl--display-result (response)
   "Display the value/err from RESPONSE in the echo area."
@@ -782,6 +791,16 @@ the value (or error message) in the echo area."
     (let* ((end (progn (end-of-defun) (point)))
            (start (progn (beginning-of-defun) (point))))
       (cider-prepl-eval-region start end))))
+
+;;;###autoload
+(defun cider-prepl-set-ns (ns)
+  "Switch the current prepl namespace to NS.
+Reads from the minibuffer, defaulting to the namespace of the
+current source buffer if `clojure-mode' is loaded."
+  (interactive
+   (list (read-string "Set ns: "
+                      (or (cider-prepl--current-ns) "user"))))
+  (cider-prepl-eval-string (format "(in-ns '%s)" ns)))
 
 ;;;###autoload
 (defun cider-prepl-load-file (file)
