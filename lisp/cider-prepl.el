@@ -450,9 +450,46 @@ session-management surface."
       (setq-local sesman-system 'CIDER)
       (sesman-add-object 'CIDER ses-name buf 'allow-new))
     (set-process-filter proc #'cider-prepl--filter)
+    (set-process-sentinel proc #'cider-prepl--sentinel)
     (set-process-coding-system proc 'utf-8-unix 'utf-8-unix)
+    ;; Stash the original connection params on the buffer so
+    ;; `cider-prepl-restart' can re-create the connection.
+    (with-current-buffer buf
+      (setq-local cider-prepl--connect-params (list :host host :port port)))
     (message "[prepl] connected to %s:%d (session %s)" host port ses-name)
     buf))
+
+(defvar-local cider-prepl--connect-params nil
+  "Plist (`:host', `:port') used to (re-)connect this buffer's prepl.")
+
+(defun cider-prepl--sentinel (proc event)
+  "Sentinel for prepl PROC: surface unexpected disconnects.
+EVENT is the process status-change message from Emacs."
+  (when (and (memq (process-status proc) '(closed failed exit signal))
+             (buffer-live-p (process-buffer proc)))
+    (with-current-buffer (process-buffer proc)
+      ;; Drain any handlers still waiting.  They won't get a `:ret',
+      ;; so synthesize one with eval-error so callers don't hang.
+      (dolist (entry cider-prepl--pending-evals)
+        (when-let ((handler (plist-get entry :handler)))
+          (funcall handler `(dict "id" "prepl" "err" "Connection closed"))
+          (funcall handler '(dict "id" "prepl" "status" ("eval-error" "done")))))
+      (setq cider-prepl--pending-evals nil))
+    (message "[prepl] connection closed: %s" (string-trim event))))
+
+;;;###autoload
+(defun cider-prepl-restart (&optional conn)
+  "Close CONN and reconnect using the same host/port.
+Defaults to the current prepl connection."
+  (interactive)
+  (let* ((conn (or conn (cider-prepl--ensure-conn)))
+         (params (buffer-local-value 'cider-prepl--connect-params conn))
+         (host (plist-get params :host))
+         (port (plist-get params :port)))
+    (unless (and host port)
+      (user-error "Cannot restart: original connection params not recorded"))
+    (cider-backend-close conn)
+    (cider-connect-prepl host port)))
 
 (defun cider-prepl-current-conn ()
   "Return the most recently active prepl connection buffer, or nil.

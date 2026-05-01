@@ -389,6 +389,28 @@ binding a faux process whose buffer is BUF."
 
   (it "routes :exception to the err slot"
     (let ((response (cider-send-eval-sync conn "(/ 1 0)")))
-      (expect (nrepl-dict-get response "err") :to-match "Divide by zero"))))
+      (expect (nrepl-dict-get response "err") :to-match "Divide by zero")))
+
+  (it "drains pending handlers when the connection drops"
+    (let* ((received nil)
+           (handler (nrepl-make-eval-handler
+                     :on-stderr (lambda (e) (push (cons 'err e) received))
+                     :on-eval-error (lambda () (push 'eval-error received))
+                     :on-done (lambda () (push 'done received)))))
+      ;; Enqueue a handler but don't actually expect a response from
+      ;; the server; we'll drop the server underneath.
+      (with-current-buffer conn
+        (setq cider-prepl--pending-evals
+              (append cider-prepl--pending-evals
+                      (list (list :handler handler :form "(unanswered)")))))
+      (delete-process (plist-get server :process))
+      ;; Give the sentinel time to fire.
+      (let ((deadline (+ (float-time) 1.0)))
+        (while (and (process-live-p (get-buffer-process conn))
+                    (< (float-time) deadline))
+          (accept-process-output nil 0.05)))
+      (expect (assoc 'err received) :to-be-truthy)
+      (expect (member 'eval-error received) :to-be-truthy)
+      (expect (member 'done received) :to-be-truthy))))
 
 ;;; cider-prepl-tests.el ends here
