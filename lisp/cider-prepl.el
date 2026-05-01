@@ -34,10 +34,6 @@
 ;; This file maps that protocol onto CIDER's existing eval-handler
 ;; abstraction (`cider-make-eval-handler') so the rest of CIDER can
 ;; consume prepl responses with the same machinery it uses for nREPL.
-;;
-;; STATUS: prototype on feature branch `prepl-support'.  Plenty of TODOs
-;; inline.  Goal is to demonstrate the architecture; polishing comes
-;; once the shape is agreed.
 
 ;;; Code:
 
@@ -68,6 +64,9 @@ and pop it.  `:tap' is out-of-band and bypasses this queue.")
 Responses are newline-terminated EDN forms; we hold any incomplete
 trailing line here until the next chunk arrives.")
 
+(defvar-local cider-prepl--connect-params nil
+  "Plist (`:host', `:port') used to (re-)connect this buffer's prepl.")
+
 ;;; Process filter: read EDN forms, dispatch to handlers
 ;;
 ;; io-prepl emits one EDN map per response via `prn', with
@@ -77,10 +76,9 @@ trailing line here until the next chunk arrives.")
 ;; each non-empty complete line, keep the trailing partial line for
 ;; the next chunk.
 ;;
-;; TODO: This relies on io-prepl's print settings.  If a server uses a
-;; custom :valf that emits multi-line strings, we'd misparse.  For now,
-;; the contract is "use the stock io-prepl"; document accordingly when
-;; we ship.
+;; This relies on stock io-prepl print settings.  A custom `:valf'
+;; that emits multi-line strings would break the line-per-form
+;; assumption.
 
 (defun cider-prepl--filter (proc string)
   "Process filter for prepl PROC: read responses from STRING, dispatch."
@@ -221,10 +219,6 @@ slot's value."
 ;; entry below builds a Clojure form from PARAMS and provides a
 ;; result-transformer that turns the eval-side `:ret' string into a
 ;; response dict matching the nREPL op's documented response shape.
-;;
-;; Status: prototype.  Just enough to demonstrate the pattern with the
-;; `info' op; the rest of Step 3 (see dev/design/prepl-support.md)
-;; populates this table.
 
 (defvar cider-prepl--op-fallbacks
   `(("info"        . cider-prepl--info-via-eval)
@@ -458,10 +452,6 @@ after the connection is gone."
 ;; would bypass our response handlers).  Output insertion happens in
 ;; an eval-handler we register per-input, writing to the connection
 ;; buffer at the process mark.
-;;
-;; Status: prototype.  No font-locking beyond what comint inherits, no
-;; ns tracking in the prompt, no fancy result formatting.  The shape
-;; is sufficient to demonstrate end-to-end interactive use.
 
 (defvar cider-prepl-mode-map
   (let ((map (make-sparse-keymap)))
@@ -645,13 +635,9 @@ nREPL middleware story, so the existing tools registry doesn't apply."
 
 ;;; Connection setup
 ;;
-;; Sketch quality: usable for poking at a running prepl by hand, not
-;; yet integrated with `cider-connect' / `cider-jack-in' proper.
-;; What's wired:
-;;   - Sesman registration so the connection buffer is discoverable.
-;;   - A simple `cider-prepl-current-conn' that finds the most-recent
-;;     prepl connection in the current sesman session (or globally).
-;;   - `cider-prepl-eval-string' as a minimal user-facing eval command.
+;; Connection buffers register with sesman so they show up alongside
+;; nREPL connections.  `cider-prepl-current-conn' finds the most-
+;; recent live prepl connection (a sesman-aware lookup is a follow-up).
 
 (declare-function sesman-add-object "sesman")
 (declare-function sesman-current-sessions "sesman")
@@ -692,9 +678,6 @@ session-management surface."
     (cider-prepl--emit-prompt buf)
     (message "[prepl] connected to %s:%d (session %s)" host port ses-name)
     buf))
-
-(defvar-local cider-prepl--connect-params nil
-  "Plist (`:host', `:port') used to (re-)connect this buffer's prepl.")
 
 (defun cider-prepl--sentinel (proc event)
   "Sentinel for prepl PROC: surface unexpected disconnects.
