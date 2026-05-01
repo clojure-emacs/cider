@@ -472,6 +472,7 @@ after the connection is gone."
     (define-key map (kbd "C-c C-o") #'cider-prepl-clear-output)
     (define-key map (kbd "C-c M-t") #'cider-prepl-show-tap-buffer)
     (define-key map (kbd "C-c M-n") #'cider-prepl-set-ns)
+    (define-key map (kbd "RET") #'cider-prepl-return)
     map)
   "Keymap for `cider-prepl-mode'.")
 
@@ -494,6 +495,28 @@ Hands the input to `cider-send-eval' with a handler that inserts the
 response into PROC's buffer."
   (let ((conn (process-buffer proc)))
     (cider-send-eval conn input (cider-prepl--repl-handler conn))))
+
+(declare-function cider-repl--input-complete-p "cider-repl")
+
+(defun cider-prepl-return ()
+  "Submit the current input to the prepl, or insert a newline.
+If point is on the active input line and the input is a balanced
+sexp, hand it to `comint-send-input' (which calls our input-sender).
+If the input is unbalanced, insert a newline so multi-line forms can
+be entered.  When point is before the active prompt (i.e. on
+historical output), defer to comint's default copy-old-input."
+  (interactive)
+  (let* ((proc (get-buffer-process (current-buffer)))
+         (mark (process-mark proc)))
+    (cond
+     ((< (point) mark)
+      ;; Outside the input region: let comint handle it
+      ;; (typically copies the historical input to the prompt).
+      (comint-send-input))
+     ((cider-repl--input-complete-p mark (point-max))
+      (comint-send-input))
+     (t
+      (newline-and-indent)))))
 
 (defun cider-prepl--repl-handler (buf)
   "Build an eval handler that inserts responses into BUF."

@@ -509,6 +509,17 @@ binding a faux process whose buffer is BUF."
     (with-current-buffer conn
       (expect (buffer-string) :to-match "3\nuser=> $")))
 
+  (it "RET on an unbalanced form inserts a newline rather than submitting"
+    (with-current-buffer conn
+      (goto-char (point-max))
+      (insert "(let [x")
+      (cider-prepl-return)
+      ;; The input shouldn't have been sent; we should have a literal
+      ;; newline at point-max instead.
+      (expect (buffer-substring-no-properties
+               (- (point) 1) (point))
+              :to-equal "\n")))
+
   (it "updates the prompt to track the prepl's current ns"
     (with-current-buffer conn
       (cider-prepl--input-sender (get-buffer-process conn) "(in-ns 'foo)"))
