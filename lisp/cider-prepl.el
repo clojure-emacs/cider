@@ -194,8 +194,9 @@ slot's value."
 
 (defun cider-prepl--send-eval-sync (conn code &rest _args)
   "Synchronously eval CODE on prepl CONN.  Block until `:ret'/`:exception'."
-  (let* ((response (cons 'dict nil))
+  (let* ((response (nrepl-dict))
          (done nil)
+         (proc (get-buffer-process conn))
          (handler (nrepl-make-eval-handler
                    :on-value (lambda (v) (nrepl-dict-put response "value" v))
                    :on-stdout (lambda (o)
@@ -208,7 +209,8 @@ slot's value."
                                  (concat (or (nrepl-dict-get response "err") "") e)))
                    :on-done (lambda () (setq done t)))))
     (cider-prepl--send-eval conn code handler)
-    (while (not done) (accept-process-output nil 0.05))
+    ;; Wait specifically for output from PROC (no busy-poll).
+    (while (not done) (accept-process-output proc 1.0))
     response))
 
 ;;; Eval-form fallbacks for nREPL ops
@@ -428,10 +430,13 @@ See `cider-prepl--op-fallbacks'."
   (user-error "Interrupt is not supported over prepl; only nREPL connections support it"))
 
 (defun cider-prepl--close (conn)
-  "Close prepl connection CONN."
+  "Close prepl connection CONN.
+Also tears down the linked tap buffer, since it has no further use
+after the connection is gone."
   (when (buffer-live-p conn)
-    (when-let* ((proc (get-buffer-process conn)))
-      (when (process-live-p proc) (delete-process proc)))
+    (let ((tap (buffer-local-value 'cider-prepl--tap-buffer conn)))
+      (when (buffer-live-p tap)
+        (kill-buffer tap)))
     (kill-buffer conn)))
 
 (cider-backend-register
@@ -506,39 +511,38 @@ FACE-TAG is one of `out', `err', `value'; the actual faces reuse the
 existing CIDER REPL faces where they exist.  For `value' we additionally
 run STRING through `cider-font-lock-as-clojure' so result values pick
 up clojure syntax highlighting."
-  (when (and (buffer-live-p buf) (stringp string))
+  (when (stringp string)
     (with-current-buffer buf
-      (when-let* ((proc (get-buffer-process buf)))
-        (let* ((face (pcase face-tag
-                       ('out 'cider-repl-stdout-face)
-                       ('err 'cider-repl-stderr-face)
-                       ('value 'cider-repl-result-face)))
-               (rendered (if (eq face-tag 'value)
-                             (cider-font-lock-as-clojure string)
-                           (propertize string 'font-lock-face face))))
-          (save-excursion
-            (goto-char (process-mark proc))
-            (let ((inhibit-read-only t))
-              (insert rendered))
-            (set-marker (process-mark proc) (point))))))))
+      (let* ((proc (get-buffer-process buf))
+             (face (pcase face-tag
+                     ('out 'cider-repl-stdout-face)
+                     ('err 'cider-repl-stderr-face)
+                     ('value 'cider-repl-result-face)))
+             (rendered (if (eq face-tag 'value)
+                           (cider-font-lock-as-clojure string)
+                         (propertize string 'font-lock-face face))))
+        (save-excursion
+          (goto-char (process-mark proc))
+          (let ((inhibit-read-only t))
+            (insert rendered))
+          (set-marker (process-mark proc) (point)))))))
 
 (defun cider-prepl--emit-prompt (buf)
   "Insert a fresh `user=> ' prompt at the end of BUF.
 The prompt is marked read-only so user input only happens after it."
-  (when (buffer-live-p buf)
-    (with-current-buffer buf
-      (when-let* ((proc (get-buffer-process buf)))
-        (save-excursion
-          (goto-char (process-mark proc))
-          (let ((inhibit-read-only t))
-            (insert (propertize "user=> "
-                                'font-lock-face 'cider-repl-prompt-face
-                                'read-only t
-                                'rear-nonsticky '(read-only)
-                                'front-sticky '(read-only))))
-          (set-marker (process-mark proc) (point))
-          ;; Snap user point to end-of-buffer so they can start typing.
-          (goto-char (point-max)))))))
+  (with-current-buffer buf
+    (let ((proc (get-buffer-process buf)))
+      (save-excursion
+        (goto-char (process-mark proc))
+        (let ((inhibit-read-only t))
+          (insert (propertize "user=> "
+                              'font-lock-face 'cider-repl-prompt-face
+                              'read-only t
+                              'rear-nonsticky '(read-only)
+                              'front-sticky '(read-only))))
+        (set-marker (process-mark proc) (point))
+        ;; Snap user point to end-of-buffer so they can start typing.
+        (goto-char (point-max))))))
 
 ;;; Jack-in
 ;;
@@ -819,33 +823,27 @@ Leaves the active prompt and any pending input alone."
 (defun cider-prepl-doc (sym)
   "Show the docstring for SYM via the `info' op fallback.
 SYM is read from the minibuffer; the symbol at point is used as the
-default."
+default.  Async: the message is `message'd when the response lands."
   (interactive
    (list (read-string "Symbol: "
                       (when-let ((s (thing-at-point 'symbol t)))
                         s))))
-  (let* ((conn (cider-prepl--ensure-conn))
-         (received nil))
-    (cider-send-op conn "info"
-                   (list "sym" sym
-                         "ns" (or (cider-prepl--current-ns) "user"))
-                   (lambda (response)
-                     (when (nrepl-dict-get response "doc")
-                       (setq received response))))
-    ;; cider-send-op for the info fallback runs synchronously through
-    ;; cider-send-eval (which itself is async on a real connection).
-    ;; A fully-fledged version would pop a buffer and accept the
-    ;; response asynchronously; the sketch just polls briefly.
-    (let ((deadline (+ (float-time) 5.0)))
-      (while (and (not received) (< (float-time) deadline))
-        (accept-process-output nil 0.05)))
-    (cond
-     (received
-      (let ((name (nrepl-dict-get received "name"))
-            (ns   (nrepl-dict-get received "ns"))
-            (doc  (nrepl-dict-get received "doc")))
-        (message "%s/%s\n%s" (or ns "?") (or name sym) (or doc "(no docstring)"))))
-     (t (message "[prepl] no info for %s" sym)))))
+  (let ((conn (cider-prepl--ensure-conn))
+        (shown nil))
+    (cider-send-op
+     conn "info"
+     (list "sym" sym "ns" (or (cider-prepl--current-ns) "user"))
+     (lambda (response)
+       (cond
+        ((nrepl-dict-get response "doc")
+         (setq shown t)
+         (message "%s/%s\n%s"
+                  (or (nrepl-dict-get response "ns") "?")
+                  (or (nrepl-dict-get response "name") sym)
+                  (nrepl-dict-get response "doc")))
+        ((and (not shown)
+              (member "done" (nrepl-dict-get response "status")))
+         (message "[prepl] no info for %s" sym)))))))
 
 (defun cider-prepl--current-ns ()
   "Best-effort current-ns determination for prepl commands.
