@@ -43,6 +43,7 @@
 
 (require 'cl-lib)
 (require 'parseedn)
+(require 'queue)
 (require 'subr-x)
 
 (require 'cider-backend)
@@ -54,13 +55,13 @@
 ;;; Buffer-local connection state
 
 (defvar-local cider-prepl--pending-evals nil
-  "FIFO of pending eval entries.
+  "FIFO queue of pending eval entries (a `queue' object, or nil).
 Each entry is a plist with at least:
   :handler         the eval response handler (see `cider-make-eval-handler').
   :form            the source form, for debugging / `:on-status' synthesis.
-The head of the list is the oldest still-running eval -- where
-`:out'/`:err'/`:tap' messages are routed.  `:ret'/`:exception' close
-the head and pop it.")
+The head of the queue is the oldest still-running eval -- where
+`:out'/`:err' messages are routed.  `:ret'/`:exception' close the head
+and pop it.  `:tap' is out-of-band and bypasses this queue.")
 
 (defvar-local cider-prepl--input-buffer ""
   "Accumulator for partial responses received from the wire.
@@ -110,7 +111,7 @@ streamed output, `:ret'/`:exception' as the terminating value
 followed by a synthesized `done' status response."
   (let* ((tag (gethash :tag response))
          (val (gethash :val response))
-         (head (car cider-prepl--pending-evals))
+         (head (queue-first cider-prepl--pending-evals))
          (handler (plist-get head :handler)))
     (pcase tag
       (:tap (cider-prepl--handle-tap (current-buffer) val))
@@ -123,11 +124,11 @@ followed by a synthesized `done' status response."
       (:ret
        (cider-prepl--call-handler-with handler "value" val)
        (cider-prepl--call-handler-with handler "status" '("done"))
-       (pop cider-prepl--pending-evals))
+       (queue-dequeue cider-prepl--pending-evals))
       (:exception
        (cider-prepl--call-handler-with handler "err" val)
        (cider-prepl--call-handler-with handler "status" '("eval-error" "done"))
-       (pop cider-prepl--pending-evals))
+       (queue-dequeue cider-prepl--pending-evals))
       (_
        (message "[prepl] unknown response tag %S in %S" tag response)))))
 
@@ -186,12 +187,8 @@ slot's value."
 (defun cider-prepl--send-eval (conn code handler &rest _args)
   "Send CODE for evaluation to prepl connection CONN."
   (with-current-buffer conn
-    ;; Enqueue at the tail; dispatch consumes from the head.
-    (setq cider-prepl--pending-evals
-          (append cider-prepl--pending-evals
-                  (list (list :handler handler :form code))))
-    ;; TODO: handle multi-line code; io-prepl's read should accept
-    ;; embedded newlines fine, but trailing whitespace matters.
+    (queue-enqueue cider-prepl--pending-evals
+                   (list :handler handler :form code))
     (process-send-string (get-buffer-process conn)
                          (concat code "\n"))))
 
@@ -676,7 +673,7 @@ session-management surface."
       ;; protocol-decoding process filter.
       (cider-prepl-mode)
       (setq cider-backend-type 'prepl
-            cider-prepl--pending-evals nil
+            cider-prepl--pending-evals (queue-create)
             cider-prepl--input-buffer "")
       (setq-local cider-prepl--connect-params (list :host host :port port))
       ;; Register with sesman.  CIDER's nREPL flow uses the same
@@ -703,11 +700,13 @@ EVENT is the process status-change message from Emacs."
     (with-current-buffer (process-buffer proc)
       ;; Drain any handlers still waiting.  They won't get a `:ret',
       ;; so synthesize one with eval-error so callers don't hang.
-      (dolist (entry cider-prepl--pending-evals)
-        (when-let ((handler (plist-get entry :handler)))
-          (funcall handler (nrepl-dict "id" "prepl" "err" "Connection closed"))
-          (funcall handler (nrepl-dict "id" "prepl" "status" '("eval-error" "done")))))
-      (setq cider-prepl--pending-evals nil))
+      (when cider-prepl--pending-evals
+        (while (not (queue-empty cider-prepl--pending-evals))
+          (let* ((entry (queue-dequeue cider-prepl--pending-evals))
+                 (handler (plist-get entry :handler)))
+            (when handler
+              (funcall handler (nrepl-dict "id" "prepl" "err" "Connection closed"))
+              (funcall handler (nrepl-dict "id" "prepl" "status" '("eval-error" "done"))))))))
     (message "[prepl] connection closed: %s" (string-trim event))))
 
 ;;;###autoload

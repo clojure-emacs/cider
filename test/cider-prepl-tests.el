@@ -39,7 +39,7 @@ simulate with a fake process."
   (let ((buf (generate-new-buffer " *cider-prepl-test*")))
     (with-current-buffer buf
       (setq cider-backend-type 'prepl
-            cider-prepl--pending-evals nil
+            cider-prepl--pending-evals (queue-create)
             cider-prepl--input-buffer ""))
     buf))
 
@@ -66,8 +66,8 @@ binding a faux process whose buffer is BUF."
                    :on-done   (lambda () (push 'done calls))
                    :on-eval-error (lambda () (push 'eval-error calls))))
     (with-current-buffer buf
-      (setq cider-prepl--pending-evals
-            (list (list :handler handler :form "(+ 1 2)")))))
+      (queue-enqueue cider-prepl--pending-evals
+                     (list :handler handler :form "(+ 1 2)"))))
   (after-each
     (when (buffer-live-p buf) (kill-buffer buf)))
 
@@ -83,7 +83,8 @@ binding a faux process whose buffer is BUF."
                         (err . "oops")
                         (val . "3")
                         done))
-    (expect (with-current-buffer buf cider-prepl--pending-evals) :to-be nil))
+    (expect (queue-empty (buffer-local-value 'cider-prepl--pending-evals buf))
+            :to-be-truthy))
 
   (it "routes :exception to :on-eval-error and closes the eval"
     (cider-prepl-tests--feed
@@ -93,7 +94,8 @@ binding a faux process whose buffer is BUF."
             :to-equal '((err . "#error{:cause \"boom\"}")
                         eval-error
                         done))
-    (expect (with-current-buffer buf cider-prepl--pending-evals) :to-be nil))
+    (expect (queue-empty (buffer-local-value 'cider-prepl--pending-evals buf))
+            :to-be-truthy))
 
   (it "buffers partial responses split across chunks"
     ;; First chunk has only half a form; nothing should fire yet.
@@ -110,9 +112,8 @@ binding a faux process whose buffer is BUF."
                        :on-value (lambda (v) (push (cons 'val v) calls-2))
                        :on-done  (lambda () (push 'done calls-2)))))
       (with-current-buffer buf
-        (setq cider-prepl--pending-evals
-              (append cider-prepl--pending-evals
-                      (list (list :handler handler-2 :form "(* 2 3)")))))
+        (queue-enqueue cider-prepl--pending-evals
+                       (list :handler handler-2 :form "(* 2 3)")))
       (cider-prepl-tests--feed
        buf
        (concat
@@ -126,7 +127,7 @@ binding a faux process whose buffer is BUF."
               :to-equal '((val . "6") done))))
 
   (it "drops a stray response with no pending eval (logs only)"
-    (with-current-buffer buf (setq cider-prepl--pending-evals nil))
+    (with-current-buffer buf (queue-clear cider-prepl--pending-evals))
     (spy-on 'message)
     (cider-prepl-tests--feed buf "{:tag :out, :val \"orphan\"}\n")
     (expect 'message :to-have-been-called)
@@ -144,7 +145,7 @@ binding a faux process whose buffer is BUF."
       (kill-buffer tap)))
 
   (it "routes :tap even when no eval is pending"
-    (with-current-buffer buf (setq cider-prepl--pending-evals nil))
+    (with-current-buffer buf (queue-clear cider-prepl--pending-evals))
     (cider-prepl-tests--feed buf "{:tag :tap, :val \"99\"}\n")
     (let ((tap (buffer-local-value 'cider-prepl--tap-buffer buf)))
       (expect (buffer-live-p tap) :to-be-truthy)
@@ -514,9 +515,8 @@ binding a faux process whose buffer is BUF."
       ;; Enqueue a handler but don't actually expect a response from
       ;; the server; we'll drop the server underneath.
       (with-current-buffer conn
-        (setq cider-prepl--pending-evals
-              (append cider-prepl--pending-evals
-                      (list (list :handler handler :form "(unanswered)")))))
+        (queue-enqueue cider-prepl--pending-evals
+                       (list :handler handler :form "(unanswered)")))
       (delete-process (plist-get server :process))
       ;; Give the sentinel time to fire.
       (let ((deadline (+ (float-time) 1.0)))
