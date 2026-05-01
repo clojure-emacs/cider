@@ -198,10 +198,12 @@ slot's value."
 (defun cider-prepl--send-eval (conn code handler &rest _args)
   "Send CODE for evaluation to prepl connection CONN."
   (with-current-buffer conn
-    (queue-enqueue cider-prepl--pending-evals
-                   (list :handler handler :form code))
-    (process-send-string (get-buffer-process conn)
-                         (concat code "\n"))))
+    (let ((proc (get-buffer-process conn)))
+      (unless (process-live-p proc)
+        (user-error "prepl connection is closed; reconnect with `cider-prepl-restart'"))
+      (queue-enqueue cider-prepl--pending-evals
+                     (list :handler handler :form code))
+      (process-send-string proc (concat code "\n")))))
 
 (defun cider-prepl--send-eval-sync (conn code &rest _args)
   "Synchronously eval CODE on prepl CONN.  Block until `:ret'/`:exception'."
