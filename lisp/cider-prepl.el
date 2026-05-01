@@ -548,11 +548,13 @@ The prompt is marked read-only so user input only happens after it."
   "Port to bind the prepl on when running `cider-jack-in-prepl'.
 0 means \"pick a free port\" (the OS assigns one)."
   :type 'integer
+  :group 'cider
   :package-version '(cider . "1.20.0"))
 
 (defcustom cider-jack-in-prepl-wait-seconds 30
   "Maximum number of seconds to wait for the prepl server to come up."
   :type 'integer
+  :group 'cider
   :package-version '(cider . "1.20.0"))
 
 (declare-function cider-jack-in-resolve-command "cider")
