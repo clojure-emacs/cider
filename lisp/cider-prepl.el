@@ -102,35 +102,37 @@ trailing line here until the next chunk arrives.")
   (parseedn-read-str line))
 
 (defun cider-prepl--dispatch (response)
-  "Route RESPONSE (a parseedn-decoded hash-table) to the head pending eval.
-For `:out'/`:err'/`:tap' tags, fan out to the head handler.  For
-`:ret'/`:exception', synthesize a `done'-status response so the eval
-handler's `:on-done' fires, then pop the head."
+  "Route RESPONSE (a parseedn-decoded hash-table) appropriately.
+`:tap' is out-of-band; it always goes to the per-connection tap
+buffer regardless of whether an eval is in flight.  Everything else
+fans out to the head pending eval's handler -- `:out'/`:err' as
+streamed output, `:ret'/`:exception' as the terminating value
+followed by a synthesized `done' status response."
   (let* ((tag (cider-prepl--tag response))
          (head (car cider-prepl--pending-evals))
          (handler (plist-get head :handler)))
-    (cond
-     ((not handler)
-      ;; Stray response with no pending eval -- can happen if the user
-      ;; types into the socket out of band.  Log and drop.
-      (message "[prepl] response with no pending eval: %S" response))
-     (t
-      (pcase tag
-        (:out (cider-prepl--call-handler-with handler "out" (cider-prepl--val response)))
-        (:err (cider-prepl--call-handler-with handler "err" (cider-prepl--val response)))
-        (:tap (cider-prepl--call-handler-with handler "out"
-                                              (format ";; tap> %s\n"
-                                                      (cider-prepl--val response))))
-        (:ret
-         (cider-prepl--call-handler-with handler "value" (cider-prepl--val response))
-         (cider-prepl--call-handler-with handler "status" '("done"))
-         (pop cider-prepl--pending-evals))
-        (:exception
-         (cider-prepl--call-handler-with handler "err" (cider-prepl--val response))
-         (cider-prepl--call-handler-with handler "status" '("eval-error" "done"))
-         (pop cider-prepl--pending-evals))
-        (_
-         (message "[prepl] unknown response tag %S in %S" tag response)))))))
+    (pcase tag
+      (:tap (cider-prepl--handle-tap (current-buffer) (cider-prepl--val response)))
+      (_
+       (cond
+        ((not handler)
+         ;; Stray non-tap response with no pending eval -- can happen if
+         ;; the user types into the socket out of band.  Log and drop.
+         (message "[prepl] response with no pending eval: %S" response))
+        (t
+         (pcase tag
+           (:out (cider-prepl--call-handler-with handler "out" (cider-prepl--val response)))
+           (:err (cider-prepl--call-handler-with handler "err" (cider-prepl--val response)))
+           (:ret
+            (cider-prepl--call-handler-with handler "value" (cider-prepl--val response))
+            (cider-prepl--call-handler-with handler "status" '("done"))
+            (pop cider-prepl--pending-evals))
+           (:exception
+            (cider-prepl--call-handler-with handler "err" (cider-prepl--val response))
+            (cider-prepl--call-handler-with handler "status" '("eval-error" "done"))
+            (pop cider-prepl--pending-evals))
+           (_
+            (message "[prepl] unknown response tag %S in %S" tag response)))))))))
 
 (defun cider-prepl--tag (response)
   "Extract the `:tag' keyword from RESPONSE.
@@ -149,6 +151,49 @@ RESPONSE is whatever parseedn returned (typically a hash-table)."
    ((hash-table-p response) (gethash :val response))
    ((listp response) (plist-get response :val))
    (t nil)))
+
+;;; Tap channel
+;;
+;; io-prepl emits `:tap'-tagged responses for any `tap>' call made on
+;; the prepl process, regardless of which eval (if any) caused it.
+;; That makes tap an out-of-band channel: routing it onto whichever
+;; eval happens to be in flight (the obvious thing) is wrong.  Instead
+;; we maintain a per-connection `*cider-prepl-tap <conn>*' buffer and
+;; append every tap value there.
+
+(defvar-local cider-prepl--tap-buffer nil
+  "Buffer used to display tap values for this connection, or nil.
+Lazily created by `cider-prepl--tap-buffer-for' on first tap.")
+
+(defun cider-prepl--tap-buffer-for (conn)
+  "Return the tap buffer associated with CONN, creating it if needed."
+  (with-current-buffer conn
+    (unless (buffer-live-p cider-prepl--tap-buffer)
+      (let ((name (format "*cider-prepl-tap %s*" (buffer-name conn))))
+        (setq cider-prepl--tap-buffer (get-buffer-create name))
+        (with-current-buffer cider-prepl--tap-buffer
+          ;; Plain text buffer; we run values through clojure font-lock
+          ;; on insert.  Avoid `special-mode' so users can copy/yank
+          ;; freely without the read-only barrier.
+          (setq-local truncate-lines nil))))
+    cider-prepl--tap-buffer))
+
+(defun cider-prepl--handle-tap (conn value)
+  "Append VALUE (a string from the wire) to CONN's tap buffer."
+  (when (stringp value)
+    (let ((buf (cider-prepl--tap-buffer-for conn)))
+      (with-current-buffer buf
+        (save-excursion
+          (goto-char (point-max))
+          (insert (cider-font-lock-as-clojure value) "\n"))))))
+
+;;;###autoload
+(defun cider-prepl-show-tap-buffer ()
+  "Pop up the tap buffer for the current prepl connection."
+  (interactive)
+  (let* ((conn (cider-prepl--ensure-conn))
+         (buf (cider-prepl--tap-buffer-for conn)))
+    (pop-to-buffer buf)))
 
 (defun cider-prepl--call-handler-with (handler key value)
   "Synthesize a single-slot response and feed it to HANDLER.
@@ -427,6 +472,7 @@ See `cider-prepl--op-fallbacks'."
     (define-key map (kbd "C-c C-d C-d") #'cider-prepl-doc)
     (define-key map (kbd "C-c C-d d")   #'cider-prepl-doc)
     (define-key map (kbd "C-c C-o") #'cider-prepl-clear-output)
+    (define-key map (kbd "C-c M-t") #'cider-prepl-show-tap-buffer)
     map)
   "Keymap for `cider-prepl-mode'.")
 

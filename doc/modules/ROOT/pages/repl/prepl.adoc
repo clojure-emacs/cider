@@ -30,10 +30,16 @@ The fundamentals: connect, evaluate, see output, look up docs.
   `info` op fallback.
 * `M-x cider-prepl-quit` -- close the connection.
 
-The eval response stream is fully demuxed: `:out` / `:err` / `:tap`
-/ `:ret` / `:exception` tags from `io-prepl` are routed through
-CIDER's standard eval handler (`cider-make-eval-handler`), so adding
-new commands on top reuses the same response machinery as nREPL.
+The eval response stream is fully demuxed: `:out` / `:err` / `:ret`
+/ `:exception` tags from `io-prepl` are routed through CIDER's
+standard eval handler (`cider-make-eval-handler`), so adding new
+commands on top reuses the same response machinery as nREPL.
+
+`:tap` values are out-of-band -- they show up in a per-connection
+`*cider-prepl-tap ...*` buffer (use `M-x cider-prepl-show-tap-buffer`,
+or `C-c M-t` from the REPL).  This way taps from background work
+land in the same place regardless of which eval (if any) was running
+at the time.
 
 == What doesn't work
 

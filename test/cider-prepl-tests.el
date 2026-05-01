@@ -133,7 +133,26 @@ binding a faux process whose buffer is BUF."
     (spy-on 'message)
     (cider-prepl-tests--feed buf "{:tag :out, :val \"orphan\"}\n")
     (expect 'message :to-have-been-called)
-    (expect calls :to-be nil)))
+    (expect calls :to-be nil))
+
+  (it "appends :tap values to the per-connection tap buffer"
+    (cider-prepl-tests--feed buf "{:tag :tap, :val \"42\"}\n")
+    (let ((tap (buffer-local-value 'cider-prepl--tap-buffer buf)))
+      (expect (buffer-live-p tap) :to-be-truthy)
+      (expect (with-current-buffer tap (buffer-string)) :to-match "42"))
+    ;; Tap is out-of-band -- the head pending handler should NOT have
+    ;; seen any output for it.
+    (expect calls :to-be nil)
+    (when-let ((tap (buffer-local-value 'cider-prepl--tap-buffer buf)))
+      (kill-buffer tap)))
+
+  (it "routes :tap even when no eval is pending"
+    (with-current-buffer buf (setq cider-prepl--pending-evals nil))
+    (cider-prepl-tests--feed buf "{:tag :tap, :val \"99\"}\n")
+    (let ((tap (buffer-local-value 'cider-prepl--tap-buffer buf)))
+      (expect (buffer-live-p tap) :to-be-truthy)
+      (expect (with-current-buffer tap (buffer-string)) :to-match "99")
+      (kill-buffer tap))))
 
 (describe "cider-send-op fallbacks (prepl)"
   :var (buf received-form info-handler captured)
