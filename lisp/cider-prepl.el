@@ -89,10 +89,13 @@ by `cider-prepl--emit-prompt' to render the next prompt.")
   "Process filter for prepl PROC: read responses from STRING, dispatch."
   (when (buffer-live-p (process-buffer proc))
     (with-current-buffer (process-buffer proc)
-      (setq cider-prepl--input-buffer (concat cider-prepl--input-buffer string))
-      (let* ((parts (split-string cider-prepl--input-buffer "\n"))
-             ;; Last element is the partial line after the final \n
-             ;; (or "" if the chunk ended exactly on a newline).
+      ;; Skip the concat when the accumulator is empty (the steady-
+      ;; state hot path).  Only when a previous chunk left a partial
+      ;; line do we need to glue it back on.
+      (let* ((full (if (string-empty-p cider-prepl--input-buffer)
+                       string
+                     (concat cider-prepl--input-buffer string)))
+             (parts (split-string full "\n"))
              (trailing (car (last parts)))
              (complete (butlast parts)))
         (setq cider-prepl--input-buffer trailing)
