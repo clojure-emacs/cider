@@ -24,11 +24,15 @@
 (defvar cider-prepl-mock-server--canned-responses
   '(("(+ 1 2)"      . ":out \"\" :ret \"3\"")
     ("(println :hi)" . ":out \":hi\\n\" :ret \"nil\"")
+    ("(in-ns 'foo)"  . ":ret/foo \"#namespace[foo]\"")
     ("(/ 1 0)"      . ":err \"Divide by zero\" :exception \"#error{:cause \\\"Divide by zero\\\"}\""))
   "Alist of trimmed-input → EDN body fragments.
 The fragment is interpolated into a `{:tag X, :val Y, :ns \"user\"}'
 template; multi-tag responses split into multiple newline-delimited
-forms so the consumer sees realistic streaming.")
+forms so the consumer sees realistic streaming.
+
+A `:tag/ns' suffix (e.g. `:ret/foo') overrides the default `:ns'
+of \"user\", letting tests exercise namespace transitions.")
 
 (defun cider-prepl-mock-server--responses-for (input)
   "Return a list of complete EDN response forms for INPUT.
@@ -37,19 +41,25 @@ canned table -- so the caller still sees the request complete."
   (let* ((trimmed (string-trim input))
          (body (or (cdr (assoc trimmed cider-prepl-mock-server--canned-responses))
                    ":out \"\" :ret \"\\\"unknown\\\"\""))
-         (pairs (cider-prepl-mock-server--split-tags body)))
-    (mapcar (lambda (pair)
-              (format "{:tag %s, :val %s, :ns \"user\"}\n"
-                      (car pair) (cdr pair)))
-            pairs)))
+         (triples (cider-prepl-mock-server--split-tags body)))
+    (mapcar (lambda (triple)
+              (pcase-let ((`(,tag ,val ,ns) triple))
+                (format "{:tag %s, :val %s, :ns \"%s\"}\n"
+                        tag val (or ns "user"))))
+            triples)))
 
 (defun cider-prepl-mock-server--split-tags (body)
-  "Parse BODY (a `:tag VAL :tag VAL ...' fragment) into ((:tag . VAL) ...)."
+  "Parse BODY into a list of (TAG VAL NS) triples.
+Each tag entry is `:tag' or `:tag/ns', followed by an EDN-ish VAL."
   (let ((acc nil)
         (rest body))
-    (while (string-match "\\s-*\\(:[a-z]+\\)\\s-+\\(\"\\(?:\\\\.\\|[^\"\\\\]\\)*\"\\|#error{[^}]*}\\)\\s-*"
-                         rest)
-      (push (cons (match-string 1 rest) (match-string 2 rest)) acc)
+    (while (string-match
+            "\\s-*:\\([a-z]+\\)\\(?:/\\([a-zA-Z0-9_.-]+\\)\\)?\\s-+\\(\"\\(?:\\\\.\\|[^\"\\\\]\\)*\"\\|#error{[^}]*}\\)\\s-*"
+            rest)
+      (push (list (concat ":" (match-string 1 rest))
+                  (match-string 3 rest)
+                  (match-string 2 rest))
+            acc)
       (setq rest (substring rest (match-end 0))))
     (nreverse acc)))
 

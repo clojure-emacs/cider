@@ -67,6 +67,11 @@ trailing line here until the next chunk arrives.")
 (defvar-local cider-prepl--connect-params nil
   "Plist (`:host', `:port') used to (re-)connect this buffer's prepl.")
 
+(defvar-local cider-prepl--current-ns "user"
+  "Current namespace on the prepl, as reported by io-prepl in `:ns'.
+Updated whenever a `:ret' or `:exception' response arrives; consumed
+by `cider-prepl--emit-prompt' to render the next prompt.")
+
 ;;; Process filter: read EDN forms, dispatch to handlers
 ;;
 ;; io-prepl emits one EDN map per response via `prn', with
@@ -109,8 +114,11 @@ streamed output, `:ret'/`:exception' as the terminating value
 followed by a synthesized `done' status response."
   (let* ((tag (gethash :tag response))
          (val (gethash :val response))
+         (ns (gethash :ns response))
          (head (queue-first cider-prepl--pending-evals))
          (handler (plist-get head :handler)))
+    (when (stringp ns)
+      (setq cider-prepl--current-ns ns))
     (pcase tag
       (:tap (cider-prepl--handle-tap (current-buffer) val))
       ((guard (not handler))
@@ -120,6 +128,8 @@ followed by a synthesized `done' status response."
       (:out (cider-prepl--call-handler-with handler "out" val))
       (:err (cider-prepl--call-handler-with handler "err" val))
       (:ret
+       (when (stringp ns)
+         (funcall handler (nrepl-dict "id" "prepl" "ns" ns)))
        (cider-prepl--call-handler-with handler "value" val)
        (cider-prepl--call-handler-with handler "status" '("done"))
        (queue-dequeue cider-prepl--pending-evals))
@@ -518,14 +528,16 @@ up clojure syntax highlighting."
           (set-marker (process-mark proc) (point)))))))
 
 (defun cider-prepl--emit-prompt (buf)
-  "Insert a fresh `user=> ' prompt at the end of BUF.
-The prompt is marked read-only so user input only happens after it."
+  "Insert a fresh prompt at the end of BUF.
+Uses `cider-prepl--current-ns' as the prompt prefix; marked read-only
+so user input only happens after it."
   (with-current-buffer buf
-    (let ((proc (get-buffer-process buf)))
+    (let ((proc (get-buffer-process buf))
+          (prompt (format "%s=> " (or cider-prepl--current-ns "user"))))
       (save-excursion
         (goto-char (process-mark proc))
         (let ((inhibit-read-only t))
-          (insert (propertize "user=> "
+          (insert (propertize prompt
                               'font-lock-face 'cider-repl-prompt-face
                               'read-only t
                               'rear-nonsticky '(read-only)

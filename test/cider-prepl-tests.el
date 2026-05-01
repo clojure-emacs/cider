@@ -144,6 +144,23 @@ binding a faux process whose buffer is BUF."
     (when-let ((tap (buffer-local-value 'cider-prepl--tap-buffer buf)))
       (kill-buffer tap)))
 
+  (it "tracks the prepl's current ns and exposes it via :on-ns"
+    (let (seen-ns)
+      (setq handler (nrepl-make-eval-handler
+                     :on-value (lambda (v) (push (cons 'val v) calls))
+                     :on-ns    (lambda (ns) (setq seen-ns ns))
+                     :on-done  (lambda () (push 'done calls))))
+      (with-current-buffer buf
+        (queue-clear cider-prepl--pending-evals)
+        (queue-enqueue cider-prepl--pending-evals
+                       (list :handler handler :form "(in-ns 'foo.bar)")))
+      (cider-prepl-tests--feed
+       buf
+       "{:tag :ret, :val \"#namespace[foo.bar]\", :ns \"foo.bar\", :ms 1}\n")
+      (expect seen-ns :to-equal "foo.bar")
+      (expect (buffer-local-value 'cider-prepl--current-ns buf)
+              :to-equal "foo.bar")))
+
   (it "routes :tap even when no eval is pending"
     (with-current-buffer buf (queue-clear cider-prepl--pending-evals))
     (cider-prepl-tests--feed buf "{:tag :tap, :val \"99\"}\n")
@@ -491,6 +508,18 @@ binding a faux process whose buffer is BUF."
         (accept-process-output nil 0.05)))
     (with-current-buffer conn
       (expect (buffer-string) :to-match "3\nuser=> $")))
+
+  (it "updates the prompt to track the prepl's current ns"
+    (with-current-buffer conn
+      (cider-prepl--input-sender (get-buffer-process conn) "(in-ns 'foo)"))
+    (let ((deadline (+ (float-time) 1.0)))
+      (while (and (not (string-match-p "foo=> $"
+                                       (with-current-buffer conn (buffer-string))))
+                  (< (float-time) deadline))
+        (accept-process-output nil 0.05)))
+    (with-current-buffer conn
+      (expect (buffer-string) :to-match "foo=> $")
+      (expect cider-prepl--current-ns :to-equal "foo")))
 
   (it "clears history but preserves the active prompt"
     (with-current-buffer conn
