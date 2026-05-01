@@ -391,6 +391,25 @@ binding a faux process whose buffer is BUF."
     (let ((response (cider-send-eval-sync conn "(/ 1 0)")))
       (expect (nrepl-dict-get response "err") :to-match "Divide by zero")))
 
+  (it "puts the connection buffer in cider-prepl-mode with an initial prompt"
+    (with-current-buffer conn
+      (expect major-mode :to-be 'cider-prepl-mode)
+      (expect (buffer-string) :to-match "user=> ")))
+
+  (it "renders an eval response inline in the REPL buffer"
+    ;; Drive the input-sender directly (bypassing comint's prompt
+    ;; handling, which would echo the input region).  We just verify
+    ;; the response chain inserts the value + a fresh prompt.
+    (with-current-buffer conn
+      (cider-prepl--input-sender (get-buffer-process conn) "(+ 1 2)"))
+    (let ((deadline (+ (float-time) 1.0)))
+      (while (and (not (string-match-p "3\nuser=> $"
+                                       (with-current-buffer conn (buffer-string))))
+                  (< (float-time) deadline))
+        (accept-process-output nil 0.05)))
+    (with-current-buffer conn
+      (expect (buffer-string) :to-match "3\nuser=> $")))
+
   (it "drains pending handlers when the connection drops"
     (let* ((received nil)
            (handler (nrepl-make-eval-handler

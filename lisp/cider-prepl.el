@@ -46,6 +46,7 @@
 (require 'subr-x)
 
 (require 'cider-backend)
+(require 'comint)
 (require 'nrepl-client)                 ; for nrepl-make-eval-handler
 (require 'nrepl-dict)
 
@@ -404,6 +405,92 @@ See `cider-prepl--op-fallbacks'."
   :interrupt      #'cider-prepl--interrupt
   :close          #'cider-prepl--close))
 
+;;; REPL UI
+;;
+;; A slim REPL surface built on top of `comint-mode'.  comint gives us
+;; prompt-region read-only protection, multi-line input, and history;
+;; we override the input-sender so submitting evaluates via
+;; `cider-send-eval' (rather than naive `process-send-string', which
+;; would bypass our response handlers).  Output insertion happens in
+;; an eval-handler we register per-input, writing to the connection
+;; buffer at the process mark.
+;;
+;; Status: prototype.  No font-locking beyond what comint inherits, no
+;; ns tracking in the prompt, no fancy result formatting.  The shape
+;; is sufficient to demonstrate end-to-end interactive use.
+
+(defvar cider-prepl-mode-map
+  (let ((map (make-sparse-keymap)))
+    map)
+  "Keymap for `cider-prepl-mode'.")
+
+(define-derived-mode cider-prepl-mode comint-mode "cider-prepl"
+  "Major mode for interacting with a Clojure prepl.
+\\{cider-prepl-mode-map}"
+  (setq-local comint-input-sender #'cider-prepl--input-sender)
+  (setq-local comint-prompt-regexp "^[^=>]+=> *")
+  (setq-local comint-prompt-read-only t)
+  ;; comint normally calls `comint-output-filter' as the process
+  ;; filter; we replace that with our protocol decoder, which dispatches
+  ;; to per-eval handlers that take care of the buffer insertion.
+  (when-let* ((proc (get-buffer-process (current-buffer))))
+    (set-process-filter proc #'cider-prepl--filter)))
+
+(defun cider-prepl--input-sender (proc input)
+  "comint input-sender for the prepl.
+PROC is the underlying process; INPUT is the user-submitted text.
+Hands the input to `cider-send-eval' with a handler that inserts the
+response into PROC's buffer."
+  (let ((conn (process-buffer proc)))
+    (cider-send-eval conn input (cider-prepl--repl-handler conn))))
+
+(defun cider-prepl--repl-handler (buf)
+  "Build an eval handler that inserts responses into BUF."
+  (nrepl-make-eval-handler
+   :on-stdout (lambda (s) (cider-prepl--insert buf s 'out))
+   :on-stderr (lambda (s) (cider-prepl--insert buf s 'err))
+   :on-value (lambda (v) (cider-prepl--insert buf (format "%s\n" v) 'value))
+   ;; The :err already came through :on-stderr; the :exception handler
+   ;; just exists to satisfy the protocol.
+   :on-eval-error #'ignore
+   :on-done (lambda () (cider-prepl--emit-prompt buf))))
+
+(defun cider-prepl--insert (buf string face-tag)
+  "Insert STRING into BUF at the process mark with face for FACE-TAG.
+FACE-TAG is one of `out', `err', `value'; the actual faces reuse the
+existing CIDER REPL faces where they exist, falling back to sensible
+defaults."
+  (when (and (buffer-live-p buf) (stringp string))
+    (with-current-buffer buf
+      (when-let* ((proc (get-buffer-process buf)))
+        (let ((face (pcase face-tag
+                      ('out 'cider-repl-stdout-face)
+                      ('err 'cider-repl-stderr-face)
+                      ('value 'cider-repl-result-face))))
+          (save-excursion
+            (goto-char (process-mark proc))
+            (let ((inhibit-read-only t))
+              (insert (propertize string 'font-lock-face face)))
+            (set-marker (process-mark proc) (point))))))))
+
+(defun cider-prepl--emit-prompt (buf)
+  "Insert a fresh `user=> ' prompt at the end of BUF.
+The prompt is marked read-only so user input only happens after it."
+  (when (buffer-live-p buf)
+    (with-current-buffer buf
+      (when-let* ((proc (get-buffer-process buf)))
+        (save-excursion
+          (goto-char (process-mark proc))
+          (let ((inhibit-read-only t))
+            (insert (propertize "user=> "
+                                'font-lock-face 'cider-repl-prompt-face
+                                'read-only t
+                                'rear-nonsticky '(read-only)
+                                'front-sticky '(read-only))))
+          (set-marker (process-mark proc) (point))
+          ;; Snap user point to end-of-buffer so they can start typing.
+          (goto-char (point-max)))))))
+
 ;;; Connection setup
 ;;
 ;; Sketch quality: usable for poking at a running prepl by hand, not
@@ -432,6 +519,11 @@ session-management surface."
          (buf (generate-new-buffer buf-name))
          (proc (open-network-stream "cider-prepl" buf host port)))
     (with-current-buffer buf
+      ;; Run major-mode setup FIRST.  Major modes call
+      ;; `kill-all-local-variables', so anything we set before this
+      ;; point would be wiped.  cider-prepl-mode also installs our
+      ;; protocol-decoding process filter.
+      (cider-prepl-mode)
       (setq cider-backend-type 'prepl
             cider-prepl--pending-evals nil
             cider-prepl--input-buffer ""
@@ -443,19 +535,17 @@ session-management surface."
             nrepl-pending-requests (make-hash-table :test 'equal)
             nrepl-completed-requests (make-hash-table :test 'equal)
             nrepl--completed-requests-order (queue-create))
+      (setq-local cider-prepl--connect-params (list :host host :port port))
       ;; Register with sesman.  CIDER's nREPL flow uses the same
       ;; sesman-system, so prepl connections show up alongside nREPL
       ;; ones in `sesman-current-sessions' and friends.
       (require 'sesman)
       (setq-local sesman-system 'CIDER)
       (sesman-add-object 'CIDER ses-name buf 'allow-new))
-    (set-process-filter proc #'cider-prepl--filter)
     (set-process-sentinel proc #'cider-prepl--sentinel)
     (set-process-coding-system proc 'utf-8-unix 'utf-8-unix)
-    ;; Stash the original connection params on the buffer so
-    ;; `cider-prepl-restart' can re-create the connection.
-    (with-current-buffer buf
-      (setq-local cider-prepl--connect-params (list :host host :port port)))
+    ;; First prompt.
+    (cider-prepl--emit-prompt buf)
     (message "[prepl] connected to %s:%d (session %s)" host port ses-name)
     buf))
 
