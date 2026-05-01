@@ -253,6 +253,9 @@ slot's value."
 
 (defvar cider-prepl--op-fallbacks
   `(("info"        . cider-prepl--info-via-eval)
+    ("eldoc"       . cider-prepl--eldoc-via-eval)
+    ("complete"    . cider-prepl--complete-via-eval)
+    ("classpath"   . cider-prepl--classpath-via-eval)
     ("apropos"     . cider-prepl--apropos-via-eval)
     ("ns-vars"     . cider-prepl--ns-vars-via-eval)
     ("ns-list"     . cider-prepl--ns-list-via-eval)
@@ -313,6 +316,69 @@ HANDLER receives a synthesized response dict shaped like the nREPL
            :on-eval-error (lambda ()
                             (funcall handler '(dict "id" "prepl" "status" ("eval-error" "done")))))))
     (cider-send-eval conn form eval-handler)))
+
+(defun cider-prepl--eldoc-via-eval (conn params handler)
+  "Implement the `eldoc' op on CONN.
+Reads \"sym\" / \"ns\" from PARAMS.  Returns an `eldoc' slot holding
+the var's arglists as a list of arglist-strings, plus `ns'/`name'/
+`docstring'/`type' (subset of cider-nrepl's eldoc response)."
+  (let* ((sym (cider-prepl--params-get params "sym"))
+         (ns (or (cider-prepl--params-get params "ns") "user"))
+         (form (format
+                "(let [v (try (ns-resolve (the-ns '%s) '%s) (catch Throwable _ nil))
+                       m (when v (meta v))]
+                   (when v
+                     {:ns (some-> ^clojure.lang.Var v .ns ns-name str)
+                      :name (str (:name m))
+                      :eldoc (mapv (fn [a] (mapv str a)) (:arglists m))
+                      :docstring (:doc m)
+                      :type (cond (:macro m) \"macro\"
+                                  (:arglists m) \"function\"
+                                  :else \"variable\")}))"
+                ns sym)))
+    (cider-prepl--simple-via-eval
+     conn form handler
+     (lambda (parsed)
+       (cider-prepl--hash->dict parsed)))))
+
+(defun cider-prepl--complete-via-eval (conn params handler)
+  "Implement the `complete' op on CONN by filtering `ns-map' by prefix.
+Reads \"prefix\" / \"ns\" from PARAMS.  Returns a `completions' slot
+holding a vector of maps with `:candidate' and `:type' keys -- the
+shape `cider-complete' expects."
+  (let* ((prefix (or (cider-prepl--params-get params "prefix") ""))
+         (ns (or (cider-prepl--params-get params "ns") "user"))
+         ;; ns-map covers both publics and refers, so completion picks
+         ;; up clojure.core symbols even when the user is in another
+         ;; namespace.
+         (form (format
+                "(into []
+                   (comp (filter (fn [[k _]] (.startsWith (str k) \"%s\")))
+                         (map (fn [[k v]]
+                                {:candidate (str k)
+                                 :type (cond (:macro (meta v)) \"macro\"
+                                             (:arglists (meta v)) \"function\"
+                                             :else \"var\")})))
+                   (ns-map (the-ns '%s)))"
+                prefix ns)))
+    (cider-prepl--simple-via-eval
+     conn form handler
+     (lambda (parsed)
+       ;; parsed is a vector/list of hash-tables; convert each to a dict.
+       (list "completions"
+             (mapcar #'cider-prepl--hash->dict-form
+                     (append (or parsed '()) nil)))))))
+
+(defun cider-prepl--classpath-via-eval (conn _params handler)
+  "Implement the `classpath' op on CONN by reading `java.class.path'.
+Returns a `classpath' slot holding a vector of path strings."
+  (cider-prepl--simple-via-eval
+   conn
+   "(into [] (.split (System/getProperty \"java.class.path\")
+                     (System/getProperty \"path.separator\")))"
+   handler
+   (lambda (parsed)
+     (list "classpath" (or parsed (list))))))
 
 (defun cider-prepl--simple-via-eval (conn form handler reshape-fn)
   "Eval FORM on CONN; on `:ret', call RESHAPE-FN on the parsed value.
@@ -407,7 +473,9 @@ expand once / fully (the all-form requires
 (defun cider-prepl--hash->dict (parsed)
   "Convert PARSED (parseedn output for our info form) to nrepl-dict shape.
 parseedn returns a hash-table with keyword keys; nREPL responses use
-`(dict \"key\" value ...)' with string keys.  Translate."
+`(dict \"key\" value ...)' with string keys.  Translate to a flat
+key-value list (without the leading `dict' symbol) that callers can
+splice into a parent dict."
   (cond
    ((null parsed) nil)
    ((hash-table-p parsed)
@@ -418,6 +486,11 @@ parseedn returns a hash-table with keyword keys; nREPL responses use
                parsed)
       acc))
    (t nil)))
+
+(defun cider-prepl--hash->dict-form (parsed)
+  "Like `cider-prepl--hash->dict' but returns a complete `(dict ...)' form."
+  (when-let ((kvs (cider-prepl--hash->dict parsed)))
+    (apply #'list 'dict kvs)))
 
 (defun cider-prepl--send-op (conn op params handler)
   "Run OP via an eval-form fallback when one is registered, else error.

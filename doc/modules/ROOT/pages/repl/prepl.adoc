@@ -102,6 +102,21 @@ matching the nREPL op's documented shape. Today's table:
 |Subset of cider-nrepl's info: name, ns, doc, arglists-str, file,
 line, column.
 
+|`eldoc`
+|`(let [v (ns-resolve ...)] {:eldoc [[arg ...] ...] :docstring ...})`
+|Arglists, docstring, type.  Enough to drive the standard eldoc
+display.
+
+|`complete`
+|`(filter prefix (ns-map ...))`
+|Returns `:completions` as `[{:candidate "..." :type "..."}]`. No
+context-aware compliment-style ranking -- just prefix-filter on
+publics + refers.
+
+|`classpath`
+|`(.split (System/getProperty "java.class.path") ...)`
+|Vector of classpath entry strings.
+
 |`apropos`
 |`(mapv str (clojure.repl/apropos #"query"))`
 |Returns name strings only -- no metadata. Strict subset of

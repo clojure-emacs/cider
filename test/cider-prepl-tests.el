@@ -282,7 +282,57 @@ binding a faux process whose buffer is BUF."
     (cider-send-op buf "macroexpand"
                    '("code" "(when test then)" "expander" "macroexpand-all")
                    info-handler)
-    (expect received-form :to-match "macroexpand-all")))
+    (expect received-form :to-match "macroexpand-all"))
+
+  (it "supports eldoc via ns-resolve + meta"
+    (spy-on 'cider-send-eval
+            :and-call-fake
+            (lambda (conn form handler &rest _ignored)
+              (setq received-form form)
+              (with-current-buffer conn
+                (funcall handler '(dict "id" "prepl" "value"
+                                        "{:ns \"clojure.core\", :name \"map\", :eldoc [[\"f\" \"coll\"] [\"f\" \"c1\" \"c2\"]], :docstring \"applies f\", :type \"function\"}"))
+                (funcall handler '(dict "id" "prepl" "status" ("done"))))))
+    (expect (cider-supports-op-p buf "eldoc") :to-be-truthy)
+    (cider-send-op buf "eldoc" '("sym" "map" "ns" "clojure.core") info-handler)
+    (expect received-form :to-match "ns-resolve")
+    (expect received-form :to-match ":arglists")
+    (let ((info (car (last captured))))
+      (expect (member "eldoc" info) :to-be-truthy)
+      (expect (member "docstring" info) :to-be-truthy)))
+
+  (it "supports complete by filtering ns-map by prefix"
+    (spy-on 'cider-send-eval
+            :and-call-fake
+            (lambda (conn form handler &rest _ignored)
+              (setq received-form form)
+              (with-current-buffer conn
+                (funcall handler '(dict "id" "prepl" "value"
+                                        "[{:candidate \"map\", :type \"function\"} {:candidate \"mapv\", :type \"function\"}]"))
+                (funcall handler '(dict "id" "prepl" "status" ("done"))))))
+    (expect (cider-supports-op-p buf "complete") :to-be-truthy)
+    (cider-send-op buf "complete" '("prefix" "map" "ns" "clojure.core") info-handler)
+    (expect received-form :to-match "ns-map")
+    (expect received-form :to-match "\"map\"")
+    (let* ((info (car (last captured)))
+           (completions (cadr (member "completions" info))))
+      (expect (length completions) :to-equal 2)
+      (expect (nrepl-dict-get (car completions) "candidate") :to-equal "map")))
+
+  (it "supports classpath via System/getProperty"
+    (spy-on 'cider-send-eval
+            :and-call-fake
+            (lambda (conn form handler &rest _ignored)
+              (setq received-form form)
+              (with-current-buffer conn
+                (funcall handler '(dict "id" "prepl" "value"
+                                        "[\"/a/b/c.jar\" \"/d/e/f.jar\"]"))
+                (funcall handler '(dict "id" "prepl" "status" ("done"))))))
+    (expect (cider-supports-op-p buf "classpath") :to-be-truthy)
+    (cider-send-op buf "classpath" '() info-handler)
+    (expect received-form :to-match "java\\.class\\.path")
+    (let ((info (car (last captured))))
+      (expect (member "classpath" info) :to-be-truthy))))
 
 (describe "cider-prepl-eval-string"
   :var (buf)
