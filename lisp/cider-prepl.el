@@ -108,49 +108,28 @@ buffer regardless of whether an eval is in flight.  Everything else
 fans out to the head pending eval's handler -- `:out'/`:err' as
 streamed output, `:ret'/`:exception' as the terminating value
 followed by a synthesized `done' status response."
-  (let* ((tag (cider-prepl--tag response))
+  (let* ((tag (gethash :tag response))
+         (val (gethash :val response))
          (head (car cider-prepl--pending-evals))
          (handler (plist-get head :handler)))
     (pcase tag
-      (:tap (cider-prepl--handle-tap (current-buffer) (cider-prepl--val response)))
+      (:tap (cider-prepl--handle-tap (current-buffer) val))
+      ((guard (not handler))
+       ;; Stray non-tap response with no pending eval -- can happen if
+       ;; the user types into the socket out of band.  Log and drop.
+       (message "[prepl] response with no pending eval: %S" response))
+      (:out (cider-prepl--call-handler-with handler "out" val))
+      (:err (cider-prepl--call-handler-with handler "err" val))
+      (:ret
+       (cider-prepl--call-handler-with handler "value" val)
+       (cider-prepl--call-handler-with handler "status" '("done"))
+       (pop cider-prepl--pending-evals))
+      (:exception
+       (cider-prepl--call-handler-with handler "err" val)
+       (cider-prepl--call-handler-with handler "status" '("eval-error" "done"))
+       (pop cider-prepl--pending-evals))
       (_
-       (cond
-        ((not handler)
-         ;; Stray non-tap response with no pending eval -- can happen if
-         ;; the user types into the socket out of band.  Log and drop.
-         (message "[prepl] response with no pending eval: %S" response))
-        (t
-         (pcase tag
-           (:out (cider-prepl--call-handler-with handler "out" (cider-prepl--val response)))
-           (:err (cider-prepl--call-handler-with handler "err" (cider-prepl--val response)))
-           (:ret
-            (cider-prepl--call-handler-with handler "value" (cider-prepl--val response))
-            (cider-prepl--call-handler-with handler "status" '("done"))
-            (pop cider-prepl--pending-evals))
-           (:exception
-            (cider-prepl--call-handler-with handler "err" (cider-prepl--val response))
-            (cider-prepl--call-handler-with handler "status" '("eval-error" "done"))
-            (pop cider-prepl--pending-evals))
-           (_
-            (message "[prepl] unknown response tag %S in %S" tag response)))))))))
-
-(defun cider-prepl--tag (response)
-  "Extract the `:tag' keyword from RESPONSE.
-RESPONSE is whatever parseedn returned (typically a hash-table)."
-  ;; parseedn decodes Clojure maps to hash-tables keyed by Lisp
-  ;; keywords.  Keep this concrete-but-shallow until we settle the
-  ;; full edn->elisp story.
-  (cond
-   ((hash-table-p response) (gethash :tag response))
-   ((listp response) (plist-get response :tag))
-   (t nil)))
-
-(defun cider-prepl--val (response)
-  "Extract `:val' from RESPONSE."
-  (cond
-   ((hash-table-p response) (gethash :val response))
-   ((listp response) (plist-get response :val))
-   (t nil)))
+       (message "[prepl] unknown response tag %S in %S" tag response)))))
 
 ;;; Tap channel
 ;;
@@ -200,10 +179,7 @@ Lazily created by `cider-prepl--tap-buffer-for' on first tap.")
 HANDLER is the function returned by `nrepl-make-eval-handler'.  KEY is
 the slot name (\"value\", \"out\", \"err\", \"status\").  VALUE is the
 slot's value."
-  ;; Dummy id -- prepl has none, but the handler's `:on-done' branch
-  ;; calls `nrepl--mark-id-completed' which short-circuits on missing
-  ;; entries.  Pass a sentinel string to keep the dict shape valid.
-  (funcall handler `(dict "id" "prepl" ,key ,value)))
+  (funcall handler (nrepl-dict "id" "prepl" key value)))
 
 ;;; Backend protocol helpers
 
@@ -266,24 +242,12 @@ Each fallback takes (CONN PARAMS HANDLER) and arranges for HANDLER to
 be called with a synthesized response dict matching the nREPL op's
 shape.")
 
-(defun cider-prepl--params-get (params key)
-  "Look up KEY in PARAMS, the alternating-key-value list of op params.
-Op params use string keys, so plain `plist-get' (which uses `eq') won't
-work."
-  (cl-loop for (k v) on params by #'cddr
-           when (equal k key) return v))
-
 (defun cider-prepl--info-via-eval (conn params handler)
-  "Implement the `info' op on CONN by evaluating `clojure.repl/doc'.
-PARAMS is the plist of op params (we read \"sym\" and \"ns\").
-HANDLER receives a synthesized response dict shaped like the nREPL
-`info' response: a `value' slot carrying the info map, then `done'."
-  (let* ((sym (cider-prepl--params-get params "sym"))
-         (ns (or (cider-prepl--params-get params "ns") "user"))
-         ;; Build a Clojure form that resolves the var, gathers metadata,
-         ;; and prints a single map.  We emit a map literal so the eval
-         ;; `:ret' is one EDN form we can read back.  Keys mirror the
-         ;; nREPL info op's response (subset).
+  "Implement the `info' op on CONN by reflecting on a var's metadata.
+Reads \"sym\" / \"ns\" from PARAMS.  Builds a Clojure form that
+resolves the var and returns a map of the standard info fields."
+  (let* ((sym (nrepl-plist-get params "sym"))
+         (ns (or (nrepl-plist-get params "ns") "user"))
          (form (format
                 "(let [v (try (ns-resolve (the-ns '%s) '%s) (catch Throwable _ nil))]
                   (when v
@@ -295,35 +259,16 @@ HANDLER receives a synthesized response dict shaped like the nREPL
                        :file (:file m)
                        :line (:line m)
                        :column (:column m)})))"
-                ns sym))
-         ;; Wrap the user's HANDLER: when our intermediate eval handler
-         ;; receives the :ret value, parse it as EDN and feed it as a
-         ;; `value' response to HANDLER, then close with `done'.
-         (eval-handler
-          (nrepl-make-eval-handler
-           :on-value (lambda (ret-string)
-                       (let* ((parsed (ignore-errors
-                                        (parseedn-read-str ret-string)))
-                              (info-dict (cider-prepl--hash->dict parsed)))
-                         (when info-dict
-                           (funcall handler
-                                    (apply #'list 'dict "id" "prepl"
-                                           (cl-loop for (k v) on info-dict by #'cddr
-                                                    collect k collect v))))
-                         (funcall handler '(dict "id" "prepl" "status" ("done")))))
-           :on-stderr (lambda (err)
-                        (funcall handler `(dict "id" "prepl" "err" ,err)))
-           :on-eval-error (lambda ()
-                            (funcall handler '(dict "id" "prepl" "status" ("eval-error" "done")))))))
-    (cider-send-eval conn form eval-handler)))
+                ns sym)))
+    (cider-prepl--simple-via-eval conn form handler #'cider-prepl--hash->dict)))
 
 (defun cider-prepl--eldoc-via-eval (conn params handler)
   "Implement the `eldoc' op on CONN.
 Reads \"sym\" / \"ns\" from PARAMS.  Returns an `eldoc' slot holding
 the var's arglists as a list of arglist-strings, plus `ns'/`name'/
 `docstring'/`type' (subset of cider-nrepl's eldoc response)."
-  (let* ((sym (cider-prepl--params-get params "sym"))
-         (ns (or (cider-prepl--params-get params "ns") "user"))
+  (let* ((sym (nrepl-plist-get params "sym"))
+         (ns (or (nrepl-plist-get params "ns") "user"))
          (form (format
                 "(let [v (try (ns-resolve (the-ns '%s) '%s) (catch Throwable _ nil))
                        m (when v (meta v))]
@@ -336,18 +281,15 @@ the var's arglists as a list of arglist-strings, plus `ns'/`name'/
                                   (:arglists m) \"function\"
                                   :else \"variable\")}))"
                 ns sym)))
-    (cider-prepl--simple-via-eval
-     conn form handler
-     (lambda (parsed)
-       (cider-prepl--hash->dict parsed)))))
+    (cider-prepl--simple-via-eval conn form handler #'cider-prepl--hash->dict)))
 
 (defun cider-prepl--complete-via-eval (conn params handler)
   "Implement the `complete' op on CONN by filtering `ns-map' by prefix.
 Reads \"prefix\" / \"ns\" from PARAMS.  Returns a `completions' slot
 holding a vector of maps with `:candidate' and `:type' keys -- the
 shape `cider-complete' expects."
-  (let* ((prefix (or (cider-prepl--params-get params "prefix") ""))
-         (ns (or (cider-prepl--params-get params "ns") "user"))
+  (let* ((prefix (or (nrepl-plist-get params "prefix") ""))
+         (ns (or (nrepl-plist-get params "ns") "user"))
          ;; ns-map covers both publics and refers, so completion picks
          ;; up clojure.core symbols even when the user is in another
          ;; namespace.
@@ -364,10 +306,9 @@ shape `cider-complete' expects."
     (cider-prepl--simple-via-eval
      conn form handler
      (lambda (parsed)
-       ;; parsed is a vector/list of hash-tables; convert each to a dict.
-       (list "completions"
-             (mapcar #'cider-prepl--hash->dict-form
-                     (append (or parsed '()) nil)))))))
+       (nrepl-dict "completions"
+                   (mapcar #'cider-prepl--hash->dict
+                           (append (or parsed '()) nil)))))))
 
 (defun cider-prepl--classpath-via-eval (conn _params handler)
   "Implement the `classpath' op on CONN by reading `java.class.path'.
@@ -377,27 +318,26 @@ Returns a `classpath' slot holding a vector of path strings."
    "(into [] (.split (System/getProperty \"java.class.path\")
                      (System/getProperty \"path.separator\")))"
    handler
-   (lambda (parsed)
-     (list "classpath" (or parsed (list))))))
+   (lambda (parsed) (nrepl-dict "classpath" (or parsed (list))))))
 
 (defun cider-prepl--simple-via-eval (conn form handler reshape-fn)
   "Eval FORM on CONN; on `:ret', call RESHAPE-FN on the parsed value.
-RESHAPE-FN takes the parsed EDN value and returns a list suitable for
-splicing into a `(dict \"id\" \"prepl\" ...)' response.  The user-
-supplied HANDLER then receives that response, followed by a
-`done'-status response."
+RESHAPE-FN takes the parsed EDN value and returns an `nrepl-dict' (or
+nil to skip the value response).  The dict gets `id'/`prepl' merged
+in and is fed to HANDLER, followed by a `done'-status response."
   (let ((eval-handler
          (nrepl-make-eval-handler
           :on-value (lambda (ret-string)
-                      (let ((parsed (ignore-errors (parseedn-read-str ret-string))))
-                        (funcall handler
-                                 (apply #'list 'dict "id" "prepl"
-                                        (funcall reshape-fn parsed)))
-                        (funcall handler '(dict "id" "prepl" "status" ("done")))))
+                      (let* ((parsed (ignore-errors (parseedn-read-str ret-string)))
+                             (dict (funcall reshape-fn parsed)))
+                        (when dict
+                          (nrepl-dict-put dict "id" "prepl")
+                          (funcall handler dict))
+                        (funcall handler (nrepl-dict "id" "prepl" "status" '("done")))))
           :on-stderr (lambda (err)
-                       (funcall handler `(dict "id" "prepl" "err" ,err)))
+                       (funcall handler (nrepl-dict "id" "prepl" "err" err)))
           :on-eval-error (lambda ()
-                           (funcall handler '(dict "id" "prepl" "status" ("eval-error" "done")))))))
+                           (funcall handler (nrepl-dict "id" "prepl" "status" '("eval-error" "done")))))))
     (cider-send-eval conn form eval-handler)))
 
 (defun cider-prepl--apropos-via-eval (conn params handler)
@@ -405,23 +345,21 @@ supplied HANDLER then receives that response, followed by a
 Reads \"query\" from PARAMS.  Returns a single response with an
 `apropos-matches' slot holding a list of name strings (a subset of
 what cider-nrepl's apropos returns -- richer metadata is a follow-up)."
-  (let* ((query (cider-prepl--params-get params "query"))
+  (let* ((query (nrepl-plist-get params "query"))
          (form (format "(mapv str (clojure.repl/apropos #\"%s\"))" (or query ""))))
     (cider-prepl--simple-via-eval
      conn form handler
-     (lambda (parsed)
-       (list "apropos-matches" (or parsed (list)))))))
+     (lambda (parsed) (nrepl-dict "apropos-matches" (or parsed (list)))))))
 
 (defun cider-prepl--ns-vars-via-eval (conn params handler)
   "Implement the `ns-vars' op on CONN by enumerating `ns-publics'.
 Reads \"ns\" from PARAMS.  Returns a single response with an `ns-vars'
 slot holding a list of name strings."
-  (let* ((ns (or (cider-prepl--params-get params "ns") "user"))
+  (let* ((ns (or (nrepl-plist-get params "ns") "user"))
          (form (format "(mapv (comp str key) (ns-publics '%s))" ns)))
     (cider-prepl--simple-via-eval
      conn form handler
-     (lambda (parsed)
-       (list "ns-vars" (or parsed (list)))))))
+     (lambda (parsed) (nrepl-dict "ns-vars" (or parsed (list)))))))
 
 (defun cider-prepl--ns-list-via-eval (conn _params handler)
   "Implement the `ns-list' op on CONN.
@@ -429,24 +367,20 @@ Returns a single response with an `ns-list' slot holding a vector of
 namespace name strings."
   (cider-prepl--simple-via-eval
    conn "(mapv (comp str ns-name) (all-ns))" handler
-   (lambda (parsed)
-     (list "ns-list" (or parsed (list))))))
+   (lambda (parsed) (nrepl-dict "ns-list" (or parsed (list))))))
 
 (defun cider-prepl--source-via-eval (conn params handler)
   "Implement the `source' op on CONN via `clojure.repl/source-fn'.
 Reads \"sym\" / \"ns\" from PARAMS.  Returns a single response with a
 `source' slot holding the source string (or nil if the source can't
 be located -- e.g. for AOT-compiled vars)."
-  (let* ((sym (cider-prepl--params-get params "sym"))
-         (ns (or (cider-prepl--params-get params "ns") "user"))
-         ;; `source-fn' returns a string or nil.  Wrap so we always
-         ;; emit one EDN value.
+  (let* ((sym (nrepl-plist-get params "sym"))
+         (ns (or (nrepl-plist-get params "ns") "user"))
          (form (format "(or (clojure.repl/source-fn (symbol \"%s\" \"%s\")) \"\")"
                        ns sym)))
     (cider-prepl--simple-via-eval
      conn form handler
-     (lambda (parsed)
-       (list "source" (or parsed ""))))))
+     (lambda (parsed) (nrepl-dict "source" (or parsed ""))))))
 
 (defun cider-prepl--macroexpand-via-eval (conn params handler)
   "Implement the `macroexpand' op on CONN.
@@ -454,8 +388,8 @@ Reads \"code\" and optional \"expander\" from PARAMS.  Defaults to
 `macroexpand-1'; pass \"macroexpand\" or \"macroexpand-all\" to
 expand once / fully (the all-form requires
 `clojure.walk/macroexpand-all' which we eval inline)."
-  (let* ((code (or (cider-prepl--params-get params "code") ""))
-         (expander (or (cider-prepl--params-get params "expander") "macroexpand-1"))
+  (let* ((code (or (nrepl-plist-get params "code") ""))
+         (expander (or (nrepl-plist-get params "expander") "macroexpand-1"))
          (form
           (pcase expander
             ("macroexpand-all"
@@ -467,30 +401,19 @@ expand once / fully (the all-form requires
              (format "(pr-str (macroexpand-1 '%s))" code)))))
     (cider-prepl--simple-via-eval
      conn form handler
-     (lambda (parsed)
-       (list "expansion" (or parsed ""))))))
+     (lambda (parsed) (nrepl-dict "expansion" (or parsed ""))))))
 
-(defun cider-prepl--hash->dict (parsed)
-  "Convert PARSED (parseedn output for our info form) to nrepl-dict shape.
-parseedn returns a hash-table with keyword keys; nREPL responses use
-`(dict \"key\" value ...)' with string keys.  Translate to a flat
-key-value list (without the leading `dict' symbol) that callers can
-splice into a parent dict."
-  (cond
-   ((null parsed) nil)
-   ((hash-table-p parsed)
-    (let ((acc nil))
+(defun cider-prepl--hash->dict (hash)
+  "Like `nrepl-dict-from-hash' but strips the leading `:' from keyword keys.
+parseedn decodes Clojure maps to hash-tables keyed by Lisp keywords;
+nREPL responses use string keys, so we drop the colon on the way out.
+Returns nil when HASH is nil or empty."
+  (when (and (hash-table-p hash) (not (zerop (hash-table-count hash))))
+    (let ((dict (nrepl-dict)))
       (maphash (lambda (k v)
-                 (push v acc)
-                 (push (substring (symbol-name k) 1) acc))
-               parsed)
-      acc))
-   (t nil)))
-
-(defun cider-prepl--hash->dict-form (parsed)
-  "Like `cider-prepl--hash->dict' but returns a complete `(dict ...)' form."
-  (when-let ((kvs (cider-prepl--hash->dict parsed)))
-    (apply #'list 'dict kvs)))
+                 (nrepl-dict-put dict (substring (symbol-name k) 1) v))
+               hash)
+      dict)))
 
 (defun cider-prepl--send-op (conn op params handler)
   "Run OP via an eval-form fallback when one is registered, else error.
@@ -782,8 +705,8 @@ EVENT is the process status-change message from Emacs."
       ;; so synthesize one with eval-error so callers don't hang.
       (dolist (entry cider-prepl--pending-evals)
         (when-let ((handler (plist-get entry :handler)))
-          (funcall handler `(dict "id" "prepl" "err" "Connection closed"))
-          (funcall handler '(dict "id" "prepl" "status" ("eval-error" "done")))))
+          (funcall handler (nrepl-dict "id" "prepl" "err" "Connection closed"))
+          (funcall handler (nrepl-dict "id" "prepl" "status" '("eval-error" "done")))))
       (setq cider-prepl--pending-evals nil))
     (message "[prepl] connection closed: %s" (string-trim event))))
 
