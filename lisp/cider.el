@@ -352,7 +352,7 @@ Each entry has the form (PROJECT-TYPE . PLIST), where PLIST may contain:
 - :command-var symbol of the variable holding the executable name.
 
 - :params-var symbol of the variable holding the params string used to
-  start the nREPL server.
+  start the nREPL server.  nREPL backend only.
 
 - :project-files list of project marker file names.
 
@@ -361,15 +361,24 @@ Each entry has the form (PROJECT-TYPE . PLIST), where PLIST may contain:
 
 - :inject-fn function of three arguments (PARAMS PROJECT-TYPE COMMAND)
   returning PARAMS with REPL deps injected.  When nil, no injection is
-  performed and PARAMS is used as-is.
+  performed and PARAMS is used as-is.  nREPL backend only.
 
 - :universal-prefix-arg numeric prefix arg for `cider-jack-in-universal'.
   Tools without this key cannot be invoked via that command.
 
 - :jack-in-type `clj' (the default) or `cljs'; controls which jack-in
-  entry point `cider-jack-in-universal' calls.
+  entry point `cider-jack-in-universal' calls.  nREPL backend only.
 
 - :cljs-repl-type cljs REPL type symbol, used when :jack-in-type is `cljs'.
+
+- :backend backend symbol -- `nrepl' (the default) or `prepl'.  Controls
+  whether `cider-jack-in-universal' routes through the nREPL or the prepl
+  jack-in flow.
+
+- :server-args-fn function of one argument (PORT) returning a list of
+  command-line arguments that, when passed to the resolved command, start
+  a server on PORT speaking the entry's :backend protocol.  Required for
+  prepl-backend tools; ignored for nREPL.
 
 Use `cider-register-jack-in-tool' to add or replace entries.")
 
