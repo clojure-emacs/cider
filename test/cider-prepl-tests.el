@@ -377,6 +377,38 @@ binding a faux process whose buffer is BUF."
     (require 'cider)
     (expect (cider-jack-in-prepl 'clojure-cli) :to-throw 'user-error)))
 
+(describe "cider-current-backend dispatch"
+  :var (buf)
+  (before-each (setq buf (cider-prepl-tests--make-conn-buffer)))
+  (after-each (when (buffer-live-p buf) (kill-buffer buf)))
+
+  (it "returns nil when no session is linked"
+    (spy-on 'sesman-current-sessions :and-return-value nil)
+    (expect (cider-current-backend) :to-be nil))
+
+  (it "returns `prepl' when only a prepl connection is linked"
+    (spy-on 'sesman-current-sessions
+            :and-return-value (list (cons "fake-session" (list buf))))
+    (expect (cider-current-backend) :to-equal 'prepl))
+
+  (it "prefers `nrepl' when both backends are linked"
+    (let ((nrepl-buf (generate-new-buffer " *fake-nrepl*")))
+      (with-current-buffer nrepl-buf (setq cider-backend-type 'nrepl))
+      (unwind-protect
+          (progn
+            (spy-on 'sesman-current-sessions
+                    :and-return-value (list (cons "fake-session"
+                                                  (list buf nrepl-buf))))
+            (expect (cider-current-backend) :to-equal 'nrepl))
+        (kill-buffer nrepl-buf))))
+
+  (it "routes cider-eval-last-sexp to the prepl path when active"
+    (require 'cider-eval)
+    (spy-on 'cider-current-backend :and-return-value 'prepl)
+    (spy-on 'cider-prepl-eval-last-sexp)
+    (cider-eval-last-sexp)
+    (expect 'cider-prepl-eval-last-sexp :to-have-been-called)))
+
 (describe "cider-prepl-eval-string"
   :var (buf)
   (before-each

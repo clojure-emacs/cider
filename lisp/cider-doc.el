@@ -58,6 +58,8 @@
   :package-version  '(cider . "0.15.0"))
 
 (declare-function cider-apropos "cider-apropos")
+(declare-function cider-current-backend "cider-session")
+(declare-function cider-prepl-doc "cider-prepl")
 (declare-function cider-apropos-select "cider-apropos")
 (declare-function cider-apropos-documentation "cider-apropos")
 (declare-function cider-apropos-documentation-select "cider-apropos")
@@ -285,10 +287,18 @@ Prompts for the symbol to use, or uses the symbol at point, depending on
 the value of `cider-prompt-for-symbol'.  With prefix arg ARG, does the
 opposite of what that option dictates."
   (interactive "P")
-  (cider-ensure-connected)
-  (funcall (cider-prompt-for-symbol-function arg)
-           "Doc for"
-           #'cider-doc-lookup))
+  (cond
+   ((eq (cider-current-backend) 'prepl)
+    ;; prepl has no popup-doc rendering; route through the message-
+    ;; based fallback in cider-prepl-doc.
+    (funcall (cider-prompt-for-symbol-function arg)
+             "Doc for"
+             #'cider-prepl-doc))
+   (t
+    (cider-ensure-connected)
+    (funcall (cider-prompt-for-symbol-function arg)
+             "Doc for"
+             #'cider-doc-lookup))))
 
 
 ;;; Font Lock and Formatting

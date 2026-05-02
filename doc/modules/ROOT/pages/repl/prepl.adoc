@@ -60,6 +60,15 @@ In a `cider-prepl-mode` buffer the standard keybindings are:
 |`C-c M-t`     |`cider-prepl-show-tap-buffer`
 |===
 
+When a Clojure source buffer is linked to a prepl-only session, the
+standard cider-mode eval bindings dispatch automatically:
+`cider-eval-last-sexp` / `-region` / `-defun-at-point`,
+`cider-load-file`, and `cider-doc` all check `cider-current-backend`
+and route to the corresponding `cider-prepl-*` command when prepl
+is the active backend.  When both nREPL and prepl are linked to the
+same session, nREPL takes priority -- use the explicit
+`cider-prepl-*` commands if you need to override.
+
 The eval response stream is fully demuxed: `:out` / `:err` / `:ret`
 / `:exception` tags from `io-prepl` are routed through CIDER's
 standard eval handler (`cider-make-eval-handler`), so adding new

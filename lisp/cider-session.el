@@ -484,6 +484,24 @@ no linked session or there is no REPL of TYPE within the current session."
                 (cider--no-repls-user-error type)
               repl))))))
 
+(defun cider-current-backend ()
+  "Return the active backend symbol for the current buffer.
+Inspects the sesman-linked sessions and returns `nrepl' if any of
+their connections is an nREPL backend, falling back to `prepl' if a
+prepl backend is linked, and nil when no session is linked.
+
+When both backends have linked connections, prefers `nrepl' (the
+historical default).  Use the backend-specific commands directly
+\(`cider-prepl-eval-last-sexp', etc.) to override."
+  (let ((types (mapcar (lambda (b)
+                         (and (buffer-live-p b)
+                              (buffer-local-value 'cider-backend-type b)))
+                       (cider--extract-connections
+                        (sesman-current-sessions 'CIDER)))))
+    (cond ((memq 'nrepl types) 'nrepl)
+          ((memq 'prepl types) 'prepl)
+          (t nil))))
+
 (defun cider--match-repl-type (type buffer)
   "Return non-nil if TYPE matches BUFFER's REPL type."
   (let ((buffer-repl-type (cider-repl-type buffer)))

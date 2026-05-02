@@ -65,6 +65,11 @@
 ;; 1. Output emission - eval handlers route stdout/stderr to the REPL buffer.
 ;; 2. Namespace caching - ns forms are cached in the REPL buffer for change
 ;;    detection and syntax highlighting.
+(declare-function cider-current-backend "cider-session")
+(declare-function cider-prepl-eval-region "cider-prepl")
+(declare-function cider-prepl-eval-last-sexp "cider-prepl")
+(declare-function cider-prepl-eval-defun-at-point "cider-prepl")
+(declare-function cider-prepl-load-file "cider-prepl")
 (declare-function cider-repl-emit-interactive-stdout "cider-repl")
 (declare-function cider-repl-emit-interactive-stderr "cider-repl")
 (declare-function cider-repl--ns-form-changed-p "cider-repl")
@@ -1021,20 +1026,24 @@ arguments and only proceed with evaluation if it returns nil."
 (defun cider-eval-region (start end)
   "Evaluate the region between START and END."
   (interactive "r")
-  (cider-interactive-eval nil
-                          nil
-                          (list start end)
-                          (cider--nrepl-pr-request-plist)))
+  (if (eq (cider-current-backend) 'prepl)
+      (cider-prepl-eval-region start end)
+    (cider-interactive-eval nil
+                            nil
+                            (list start end)
+                            (cider--nrepl-pr-request-plist))))
 
 (defun cider-eval-last-sexp (&optional output-to-current-buffer)
   "Evaluate the expression preceding point.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current
 buffer."
   (interactive "P")
-  (cider-interactive-eval nil
-                          (when output-to-current-buffer (cider-eval-print-handler))
-                          (cider-last-sexp 'bounds)
-                          (cider--nrepl-pr-request-plist)))
+  (if (eq (cider-current-backend) 'prepl)
+      (cider-prepl-eval-last-sexp)
+    (cider-interactive-eval nil
+                            (when output-to-current-buffer (cider-eval-print-handler))
+                            (cider-last-sexp 'bounds)
+                            (cider--nrepl-pr-request-plist))))
 
 (defun cider-eval-last-sexp-and-replace ()
   "Evaluate the expression preceding point and replace it with its result."
@@ -1328,19 +1337,23 @@ Always binds `clojure-toplevel-inside-comment-form' to t."
 With DEBUG-IT prefix argument, also debug the entire form as with the
 command `cider-debug-defun-at-point'."
   (interactive "P")
-  (let ((inline-debug (eq 16 (car-safe debug-it))))
-    (when debug-it
-      (when (cider-clojurescript-major-mode-p)
-        (when (y-or-n-p "The debugger doesn't support ClojureScript yet, and we need help with that.  \nWould you like to read the Feature Request?")
-          (browse-url "https://github.com/clojure-emacs/cider/issues/1416"))
-        (user-error "The debugger does not support ClojureScript"))
-      (when inline-debug
-        (cider--prompt-and-insert-inline-dbg)))
-    (cider-interactive-eval (when (and debug-it (not inline-debug))
-                              (concat "#dbg\n" (cider-defun-at-point)))
-                            nil
-                            (cider-defun-at-point 'bounds)
-                            (cider--nrepl-pr-request-plist))))
+  (cond
+   ((and (not debug-it) (eq (cider-current-backend) 'prepl))
+    (cider-prepl-eval-defun-at-point))
+   (t
+    (let ((inline-debug (eq 16 (car-safe debug-it))))
+      (when debug-it
+        (when (cider-clojurescript-major-mode-p)
+          (when (y-or-n-p "The debugger doesn't support ClojureScript yet, and we need help with that.  \nWould you like to read the Feature Request?")
+            (browse-url "https://github.com/clojure-emacs/cider/issues/1416"))
+          (user-error "The debugger does not support ClojureScript"))
+        (when inline-debug
+          (cider--prompt-and-insert-inline-dbg)))
+      (cider-interactive-eval (when (and debug-it (not inline-debug))
+                                (concat "#dbg\n" (cider-defun-at-point)))
+                              nil
+                              (cider-defun-at-point 'bounds)
+                              (cider--nrepl-pr-request-plist))))))
 
 (defun cider--insert-closing-delimiters (code)
   "Closes all open parenthesized or bracketed expressions of CODE."
@@ -1603,9 +1616,13 @@ all ns aliases and var mappings from the namespace before reloading it."
                                   (file-name-nondirectory
                                    (buffer-file-name))))
                 (equal current-prefix-arg '(4))))
-  (if-let* ((buffer (find-buffer-visiting filename)))
-      (cider-load-buffer buffer nil undef-all)
-    (cider-load-buffer (find-file-noselect filename) nil undef-all)))
+  (cond
+   ((eq (cider-current-backend) 'prepl)
+    (cider-prepl-load-file filename))
+   ((find-buffer-visiting filename)
+    (cider-load-buffer (find-buffer-visiting filename) nil undef-all))
+   (t
+    (cider-load-buffer (find-file-noselect filename) nil undef-all))))
 
 (defun cider-load-all-files (directory undef-all)
   "Load all files in DIRECTORY (recursively).
