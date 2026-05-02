@@ -8,13 +8,13 @@ an environment where running cider-nrepl isn't an option.
 
 [WARNING]
 ====
-prepl support is **prototype-quality** and lives behind a separate
+prepl support is **prototype-quality** and lives behind its own
 set of commands (`cider-jack-in-prepl`, `cider-connect-prepl`,
-`cider-prepl-eval-string`, ...). It is not yet wired into the
-generic `cider-connect` / `cider-jack-in` entry points -- prepl
-has no nREPL middleware story, so the existing tools-registry
-shape doesn't apply. Expect rough edges and incomplete feature
-coverage.
+`cider-prepl-eval-string`, ...). `cider-jack-in-universal` now
+routes through prepl when invoked with the prepl tool's prefix
+arg (`M-6` for `clojure-cli-prepl`), but the generic
+`cider-connect` / `cider-jack-in-clj` paths still assume nREPL.
+Expect rough edges and incomplete feature coverage.
 ====
 
 == What works
@@ -25,6 +25,8 @@ The fundamentals: jack in or connect, evaluate, see output, look up docs.
   `clojure.core.server/io-prepl` listening on a free port (or
   `cider-jack-in-prepl-port` if set), then connect.  Uses the
   configured `cider-clojure-cli-command`; deps.edn projects only.
+  Also reachable via `M-6 M-x cider-jack-in-universal` (the
+  registered `clojure-cli-prepl` tool).
 * `M-x cider-connect-prepl` -- connect to a host/port already serving
   `io-prepl`. The connection registers with sesman so it shows up in
   `sesman-current-sessions`.

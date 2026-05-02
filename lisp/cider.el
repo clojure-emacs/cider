@@ -890,6 +890,22 @@ with its nREPL middleware and dependencies."
                              :project-files '("basilisp.edn")
                              :universal-prefix-arg 5)
 
+;; prepl-backend tools.  These don't claim `:project-files' -- the
+;; same deps.edn project may be jacked in as either nREPL or prepl,
+;; and project-file-based auto-detection can only pick one.  prepl
+;; tools are reachable via `cider-jack-in-prepl' or via
+;; `cider-jack-in-universal' with the entry's `:universal-prefix-arg'.
+
+(declare-function cider-prepl--jack-in-args "cider-prepl")
+(declare-function cider-jack-in-prepl "cider-prepl")
+
+(cider-register-jack-in-tool 'clojure-cli-prepl
+                             :backend 'prepl
+                             :command-var 'cider-clojure-cli-command
+                             :default-command-fn #'cider--default-clojure-cli-command
+                             :server-args-fn #'cider-prepl--jack-in-args
+                             :universal-prefix-arg 6)
+
 
 ;;; ClojureScript REPL creation
 
@@ -2134,13 +2150,18 @@ M-2 \\[cider-jack-in-universal]."
                                      tools))
                       (error ":cider-jack-in-universal :unsupported-prefix-argument %S :no-such-project"
                              arg)))))
+               (spec (cider--jack-in-tool project-type))
+               (backend (or (plist-get spec :backend) 'nrepl))
                (opts (cider--universal-jack-in-opts project-type))
-               (jack-in-type (or (plist-get (cider--jack-in-tool project-type) :jack-in-type)
-                                 'clj)))
-          (pcase jack-in-type
-            ('clj (cider-jack-in-clj opts))
-            ('cljs (cider-jack-in-cljs opts))
-            (_ (error ":cider-jack-in-universal :jack-in-type-unsupported %S" jack-in-type))))
+               (jack-in-type (or (plist-get spec :jack-in-type) 'clj)))
+          (pcase backend
+            ('nrepl
+             (pcase jack-in-type
+               ('clj (cider-jack-in-clj opts))
+               ('cljs (cider-jack-in-cljs opts))
+               (_ (error ":cider-jack-in-universal :jack-in-type-unsupported %S" jack-in-type))))
+            ('prepl (cider-jack-in-prepl project-type))
+            (_ (error ":cider-jack-in-universal :backend-unsupported %S" backend))))
 
       (cider-jack-in-clj arg))))
 

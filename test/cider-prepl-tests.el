@@ -362,7 +362,20 @@ binding a faux process whose buffer is BUF."
   (it "free-port returns a positive integer"
     (let ((port (cider-prepl--free-port)))
       (expect port :to-be-greater-than 0)
-      (expect port :to-be-less-than 65536))))
+      (expect port :to-be-less-than 65536)))
+
+  (it "registers `clojure-cli-prepl' as a prepl-backend tool"
+    (require 'cider)
+    (let ((spec (cider--jack-in-tool 'clojure-cli-prepl)))
+      (expect (plist-get spec :backend) :to-equal 'prepl)
+      (expect (plist-get spec :server-args-fn)
+              :to-equal #'cider-prepl--jack-in-args)
+      (expect (plist-get spec :universal-prefix-arg)
+              :to-be-truthy)))
+
+  (it "rejects tools whose backend isn't `prepl'"
+    (require 'cider)
+    (expect (cider-jack-in-prepl 'clojure-cli) :to-throw 'user-error)))
 
 (describe "cider-prepl-eval-string"
   :var (buf)
