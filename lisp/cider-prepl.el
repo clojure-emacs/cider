@@ -597,6 +597,27 @@ so user input only happens after it."
   :group 'cider
   :package-version '(cider . "1.20.0"))
 
+(defcustom cider-jack-in-prepl-bind-address nil
+  "Address the prepl server should bind on, or nil for the io-prepl default.
+io-prepl defaults to 127.0.0.1 (loopback only).  When jacking in over
+TRAMP, set this to \"0.0.0.0\" so the remote JVM listens on an
+interface the local Emacs can reach -- or leave it default and use a
+pre-established SSH tunnel."
+  :type '(choice (const :tag "io-prepl default (127.0.0.1)" nil)
+                 (string :tag "Address"))
+  :group 'cider
+  :package-version '(cider . "1.20.0"))
+
+(defcustom cider-jack-in-prepl-host nil
+  "Host to connect to after the prepl server is up, or nil to auto-detect.
+Auto-detect uses the TRAMP host of `default-directory' when remote,
+otherwise 127.0.0.1.  Override when an SSH tunnel makes the remote
+prepl reachable on a different host (typically \"127.0.0.1\")."
+  :type '(choice (const :tag "Auto-detect" nil)
+                 (string :tag "Host"))
+  :group 'cider
+  :package-version '(cider . "1.20.0"))
+
 (declare-function cider-jack-in-resolve-command "cider")
 (declare-function cider--jack-in-tool "cider")
 (declare-function cider--jack-in-tool-command "cider")
@@ -619,14 +640,19 @@ binding -- in practice it's fine for development use."
 (defun cider-prepl--jack-in-args (port)
   "Build the `clojure -X' invocation that starts an io-prepl on PORT.
 Returns a list of args, suitable for `start-process' (the leading
-command -- the `clojure' binary path -- is added by the caller)."
+command -- the `clojure' binary path -- is added by the caller).
+Honors `cider-jack-in-prepl-bind-address' for the JVM's :address
+argument."
   ;; The exec-fn args are EDN; we build the literal string Clojure will
   ;; parse.  `clojure -X' takes :keyword value pairs as separate argv
   ;; entries.
-  (list "-X" "clojure.core.server/start-server"
-        ":name" "\"prepl\""
-        ":port" (number-to-string port)
-        ":accept" "clojure.core.server/io-prepl"))
+  (append (list "-X" "clojure.core.server/start-server"
+                ":name" "\"prepl\""
+                ":port" (number-to-string port)
+                ":accept" "clojure.core.server/io-prepl")
+          (when cider-jack-in-prepl-bind-address
+            (list ":address"
+                  (format "\"%s\"" cider-jack-in-prepl-bind-address)))))
 
 (defun cider-prepl--wait-for-port (host port deadline)
   "Poll connecting to HOST:PORT until success or DEADLINE (float-time) passes.
@@ -651,16 +677,28 @@ TOOL is a symbol naming a registered jack-in tool whose `:backend' is
 `prepl'.  Defaults to `clojure-cli-prepl'.  The tool's command is
 launched with the argv returned by its `:server-args-fn', listening
 on `cider-jack-in-prepl-port' (or a free port if 0).  Once the port
-is reachable, runs `cider-connect-prepl' to attach."
+is reachable, runs `cider-connect-prepl' to attach.
+
+When `default-directory' is remote (i.e. a TRAMP path), the JVM is
+spawned on the remote host via `start-file-process'.  In that case
+`cider-jack-in-prepl-port' must be set to a fixed port (free-port
+discovery probes locally and isn't TRAMP-aware), and you'll usually
+want `cider-jack-in-prepl-bind-address' as \"0.0.0.0\" or an SSH
+tunnel forwarding the port locally.  The connect-side host is
+auto-detected from `default-directory' or overridable via
+`cider-jack-in-prepl-host'."
   (interactive)
   (let* ((tool (or tool 'clojure-cli-prepl))
          (spec (cider--jack-in-tool tool))
          (backend (or (plist-get spec :backend) 'nrepl))
-         (args-fn (plist-get spec :server-args-fn)))
+         (args-fn (plist-get spec :server-args-fn))
+         (remote (file-remote-p default-directory)))
     (unless (eq backend 'prepl)
       (user-error "Tool `%S' is not a prepl tool (backend: %S)" tool backend))
     (unless args-fn
       (user-error "Tool `%S' has no :server-args-fn" tool))
+    (when (and remote (zerop cider-jack-in-prepl-port))
+      (user-error "Set `cider-jack-in-prepl-port' to a fixed port when jacking in over TRAMP"))
     (let* ((cmd (or (cider-jack-in-resolve-command tool)
                     (user-error "Cannot locate command for `%S'" tool)))
            (port (if (zerop cider-jack-in-prepl-port)
@@ -669,14 +707,21 @@ is reachable, runs `cider-connect-prepl' to attach."
            (args (funcall args-fn port))
            (server-buf (generate-new-buffer
                         (format "*cider-prepl-server :%d*" port)))
-           (proc (apply #'start-process "cider-prepl-server"
-                        server-buf cmd args)))
+           ;; `start-file-process' honors `default-directory's
+           ;; remoteness, transparently routing through TRAMP for
+           ;; remote paths.  For local jack-in it behaves like
+           ;; `start-process'.
+           (proc (apply #'start-file-process "cider-prepl-server"
+                        server-buf cmd args))
+           (host (or cider-jack-in-prepl-host
+                     (and remote (file-remote-p default-directory 'host))
+                     "127.0.0.1")))
       (set-process-query-on-exit-flag proc nil)
-      (message "[prepl] starting %s on port %d (server buffer: %s)"
-               cmd port (buffer-name server-buf))
+      (message "[prepl] starting %s on %s:%d (server buffer: %s)"
+               cmd host port (buffer-name server-buf))
       (let ((deadline (+ (float-time) cider-jack-in-prepl-wait-seconds)))
-        (if (cider-prepl--wait-for-port "127.0.0.1" port deadline)
-            (cider-connect-prepl "127.0.0.1" port)
+        (if (cider-prepl--wait-for-port host port deadline)
+            (cider-connect-prepl host port)
           (user-error "prepl server did not become ready within %ds; check %s"
                       cider-jack-in-prepl-wait-seconds
                       (buffer-name server-buf)))))))

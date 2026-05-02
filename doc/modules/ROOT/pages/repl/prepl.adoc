@@ -126,6 +126,23 @@ clojure -X:prepl
 Then in Emacs: `M-x cider-connect-prepl`, host `localhost`, port
 `5555`.
 
+== TRAMP / remote jack-in
+
+`cider-jack-in-prepl` honors TRAMP: if `default-directory` points at
+a remote path (e.g. `/ssh:host:/path/to/project`), the JVM is
+spawned on the remote host via `start-file-process`.  Two caveats:
+
+* The free-port probe runs locally, so it can't pick a port that's
+  free on the remote.  Set `cider-jack-in-prepl-port` to a fixed port
+  before invoking jack-in over TRAMP.
+* io-prepl's default `:address` is `127.0.0.1`, meaning the remote
+  JVM only listens on the remote's loopback.  Either set
+  `cider-jack-in-prepl-bind-address` to `"0.0.0.0"` (so the JVM
+  listens on all interfaces) and let the local Emacs connect to the
+  remote IP, or pre-establish an SSH tunnel and set
+  `cider-jack-in-prepl-host` to `"127.0.0.1"` so the connect side
+  goes through the tunnel.
+
 == Op fallbacks
 
 When you ask for an nREPL-style op (e.g. `info`, `apropos`, `ns-vars`)

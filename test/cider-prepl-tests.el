@@ -375,7 +375,24 @@ binding a faux process whose buffer is BUF."
 
   (it "rejects tools whose backend isn't `prepl'"
     (require 'cider)
-    (expect (cider-jack-in-prepl 'clojure-cli) :to-throw 'user-error)))
+    (expect (cider-jack-in-prepl 'clojure-cli) :to-throw 'user-error))
+
+  (it "honors cider-jack-in-prepl-bind-address in the args"
+    (let ((cider-jack-in-prepl-bind-address "0.0.0.0"))
+      (let ((args (cider-prepl--jack-in-args 5555)))
+        (expect args :to-contain ":address")
+        (expect args :to-contain "\"0.0.0.0\""))))
+
+  (it "omits :address when bind-address is nil"
+    (let ((cider-jack-in-prepl-bind-address nil))
+      (let ((args (cider-prepl--jack-in-args 5555)))
+        (expect (member ":address" args) :to-be nil))))
+
+  (it "errors when remote and port is 0"
+    (require 'cider)
+    (let ((default-directory "/ssh:host:/path/")
+          (cider-jack-in-prepl-port 0))
+      (expect (cider-jack-in-prepl) :to-throw 'user-error))))
 
 (describe "cider-current-backend dispatch"
   :var (buf)
