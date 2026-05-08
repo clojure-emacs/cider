@@ -178,8 +178,7 @@ opposite of what that option dictates."
         ;; highlight the symbol in question in the docs buffer
         (highlight-regexp
          (regexp-quote
-          (or (cadr (split-string sym "/"))
-              sym))
+          (replace-regexp-in-string "^.+?/" "" sym))
          'bold))
     (user-error "ClojureDocs documentation for %s is not found" sym)))
 
