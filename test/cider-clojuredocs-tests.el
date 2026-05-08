@@ -48,3 +48,11 @@
     (expect (cider-clojuredocs-url "even?" "clojure.core") :to-equal "https://clojuredocs.org/clojure.core/even_q")
     (expect (cider-clojuredocs-url nil "clojure.core") :to-be nil)
     (expect (cider-clojuredocs-url "even?" nil) :to-be nil)))
+
+(describe "cider-clojuredocs-lookup-remove-namespace"
+  (it "removes namespace from symbol to highlight only the name"
+    (expect (replace-regexp-in-string "^.+?/" "" "clojure.core//") :to-equal "/")
+    (expect (replace-regexp-in-string "^.+?/" "" "clojure.core/+") :to-equal "+")
+    (expect (replace-regexp-in-string "^.+?/" "" "clojure.core/subs") :to-equal "subs")
+    (expect (replace-regexp-in-string "^.+?/" "" "clojure.string/trim") :to-equal "trim")
+    ))
