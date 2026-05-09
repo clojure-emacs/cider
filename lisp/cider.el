@@ -1209,10 +1209,10 @@ nil."
     (cider-verify-clojurescript-is-present)
     (cider-verify-cljs-repl-requirements cljs-type)))
 
-(defun cider--offer-to-open-app-in-browser (server-buffer)
-  "Look for a server address in SERVER-BUFFER and offer to open it."
-  (when (buffer-live-p server-buffer)
-    (with-current-buffer server-buffer
+(defun cider--offer-to-open-app-in-browser (server-buf)
+  "Look for a server address in SERVER-BUF and offer to open it."
+  (when (buffer-live-p server-buf)
+    (with-current-buffer server-buf
       (save-excursion
         (goto-char (point-min))
         (when-let* ((url (and (search-forward-regexp "http://localhost:[0-9]+" nil 'noerror)
@@ -1272,11 +1272,11 @@ project context even if the user has switched buffers in the meantime."
      (plist-get params :project-dir)
      (plist-get params :jack-in-cmd)
      (when on-port-callback
-       (lambda (server-buffer)
+       (lambda (server-buf)
          (if (buffer-live-p orig-buffer)
              (with-current-buffer orig-buffer
-               (funcall on-port-callback server-buffer))
-           (funcall on-port-callback server-buffer)))))))
+               (funcall on-port-callback server-buf))
+           (funcall on-port-callback server-buf)))))))
 
 (defun cider--update-params (params)
   "Fill-in the passed in PARAMS plist needed to start an nREPL server.
@@ -1313,8 +1313,8 @@ double prefix prompt for all these parameters."
   (let ((params (cider--update-params params)))
     (cider--start-nrepl-server
      params
-     (lambda (server-buffer)
-       (cider-connect-sibling-clj params server-buffer)))))
+     (lambda (server-buf)
+       (cider-connect-sibling-clj params server-buf)))))
 
 (defun cider-start-nrepl-server (params)
   "Start an nREPL server for the current project, but don't connect to it.
@@ -1338,8 +1338,8 @@ these parameters."
     (let ((params (cider--update-params params)))
       (cider--start-nrepl-server
        params
-       (lambda (server-buffer)
-         (cider-connect-sibling-cljs params server-buffer))))))
+       (lambda (server-buf)
+         (cider-connect-sibling-cljs params server-buf))))))
 
 ;;;###autoload
 (defun cider-jack-in-clj&cljs (&optional params soft-cljs-start)
@@ -1361,8 +1361,8 @@ only when the ClojureScript dependencies are met."
                                 (plist-put :do-prompt nil))))
       (cider--start-nrepl-server
        params
-       (lambda (server-buffer)
-         (let ((clj-repl (cider-connect-sibling-clj params server-buffer)))
+       (lambda (server-buf)
+         (let ((clj-repl (cider-connect-sibling-clj params server-buf)))
            (if soft-cljs-start
                (when (cider--check-cljs (plist-get params :cljs-repl-type) 'no-error)
                  (cider-connect-sibling-cljs params clj-repl))
