@@ -50,6 +50,9 @@
 
 (require 'clojure-mode)
 
+(require 'nrepl-client)
+(require 'nrepl-dict)
+
 (require 'cider-client)
 (require 'cider-common)
 (require 'cider-overlays)
