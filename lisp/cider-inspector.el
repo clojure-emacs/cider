@@ -261,7 +261,7 @@ current buffer's namespace."
       (cider-inspector--render-value result :next-inspectable))))
 
 (defun cider-inspect-expr-from-inspector ()
-  "Performs `cider-inspect-expr' in a way that is suitable from the Inspector itself.
+  "Run `cider-inspect-expr' in a way that's suitable from the Inspector itself.
 In particular, it does not read `cider-sexp-at-point'."
   (interactive)
   (let* ((ns (cider-current-ns))

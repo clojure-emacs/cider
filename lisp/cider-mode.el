@@ -648,9 +648,10 @@ that should be font-locked:
    `var': Any non-local var gets the `font-lock-variable-name-face'.
    `deprecated' (default): Any deprecated var gets the `cider-deprecated-face'
    face.
-   `core' (default): Any symbol from clojure.core/cljs.core.  The selected face will depend on type.
-   Note that while rendering `core', all types of vars (`macro', `function', `var', `deprecated')
-   will be honored, regardless of the user's customization value.
+   `core' (default): Any symbol from clojure.core/cljs.core.  The selected
+   face will depend on type.  Note that while rendering `core', all types of
+   vars (`macro', `function', `var', `deprecated') will be honored,
+   regardless of the user's customization value.
 
 The value can also be t, which means to font-lock as much as possible."
   :type '(choice (set :tag "Fine-tune font-locking"

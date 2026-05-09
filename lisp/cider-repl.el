@@ -1773,7 +1773,7 @@ constructs."
 
 The checking is done as follows:
 
-* If the current buffer's name equals to the value of `cider-test-report-buffer',
+* If the current buffer's name equals the value of `cider-test-report-buffer',
   only accept the given session's repl if it equals `cider-test--current-repl'
 * Consider if the buffer belongs to `cider-ancillary-buffers'
 * Consider the buffer's filename, strip any Docker/TRAMP details from it

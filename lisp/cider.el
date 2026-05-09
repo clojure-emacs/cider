@@ -1422,8 +1422,8 @@ These are used as arguments to the commands `cider-connect-clj',
 the corresponding user prompts.
 
 This defcustom is intended for use with .dir-locals.el on a per-project basis.
-See `cider-connect-default-cljs-params' in order to specify a separate set of params
-for cljs REPL connections.
+See `cider-connect-default-cljs-params' in order to specify a separate set
+of params for cljs REPL connections.
 
 Note: it is recommended to set the variable `cider-default-cljs-repl'
 instead of specifying the :cljs-repl-type key."
