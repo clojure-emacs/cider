@@ -170,6 +170,10 @@ opposite of what that option dictates."
     (cider-clojuredocs--insert-notes dict)
     (buffer-string)))
 
+(defun cider-clojuredocs--strip-ns (sym)
+  "Strip the namespace prefix from SYM, leaving just the symbol name."
+  (replace-regexp-in-string "\\`[^/]+/" "" sym))
+
 (defun cider-clojuredocs-lookup (sym)
   "Look up the ClojureDocs documentation for SYM."
   (if-let ((docs (cider-sync-request:clojuredocs-lookup (cider-current-ns) sym)))
@@ -178,7 +182,7 @@ opposite of what that option dictates."
         ;; highlight the symbol in question in the docs buffer
         (highlight-regexp
          (regexp-quote
-          (replace-regexp-in-string "^.+?/" "" sym))
+          (cider-clojuredocs--strip-ns sym))
          'bold))
     (user-error "ClojureDocs documentation for %s is not found" sym)))
 
