@@ -79,7 +79,7 @@ otherwise, it's included as-is."
                              ""))))
 
 (defcustom cider-docstring-max-lines 20
-  "The maximum number of docstring lines that will be rendered in a UI widget (or the echo area).
+  "Maximum number of docstring lines rendered in a UI widget or the echo area.
 
 Note that `cider-docstring' will trim thing smartly, for Java doc comments:
 * First, the whole doc comment will be attempted to be rendered.
@@ -87,13 +87,14 @@ Note that `cider-docstring' will trim thing smartly, for Java doc comments:
   we will use only the first sentence and the block tags
   (that is, the params/throws/returns info).
 * If that exceeds `cider-docstring-max-lines', we will use only the block tags.
-* If that exceeds `cider-docstring-max-lines', we will use only the first sentence."
+* If that exceeds `cider-docstring-max-lines', we will use only the first
+  sentence."
   :type 'integer
   :group 'cider
   :package-version '(cider . "1.8.0"))
 
 (defun cider--attempt-invalid? (attempt)
-  "Check if ATTEMPT is either nil or exceeds `cider-docstring-max-lines' in line count."
+  "Check if ATTEMPT is nil or has more lines than `cider-docstring-max-lines'."
   (or (not attempt)
       (and attempt
            (> (length (split-string attempt "\n"))
@@ -106,7 +107,8 @@ Note that `cider-docstring' will trim thing smartly, for Java doc comments:
 
 (defun cider--render-docstring (eldoc-info)
   "Renders the docstring from ELDOC-INFO based on its length and content.
-Prioritize rendering as much as possible while staying within `cider-docstring-max-lines'."
+Prioritize rendering as much as possible while staying within
+`cider-docstring-max-lines'."
   (let* ((first-sentence-fragments (cider-plist-get eldoc-info "doc-first-sentence-fragments"))
          (body-fragments (cider-plist-get eldoc-info "doc-fragments"))
          (block-tags-fragments (cider-plist-get eldoc-info "doc-block-tags-fragments"))

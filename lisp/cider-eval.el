@@ -484,7 +484,8 @@ Show error overlay in BUFFER if needed."
   "A few example values that will match:
 \"Reflection warning, /tmp/foo/src/foo/core.clj:14:1 - \"
 \"Syntax error compiling at (src/workspace_service.clj:227:3).\"
-\"Unexpected error (ClassCastException) macroexpanding defmulti at (src/haystack/parser.cljc:21:1).\"")
+\"Unexpected error (ClassCastException) macroexpanding defmulti at
+ (src/haystack/parser.cljc:21:1).\"")
 
 
 (defconst cider-module-info-regexp

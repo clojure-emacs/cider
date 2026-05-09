@@ -255,8 +255,8 @@ integer on successful finds, nil otherwise."
   "Find the namespace of the keyword at point and its primary occurrence there.
 
 For instance - if the keyword at point is \":cider.demo/keyword\", this command
-would find the namespace \"cider.demo\" and afterwards find the primary (most relevant or first)
-mention of \"::keyword\" there.
+would find the namespace \"cider.demo\" and afterwards find the primary
+\(most relevant or first) mention of \"::keyword\" there.
 
 Prompt according to prefix ARG and `cider-prompt-for-symbol'.
 A single or double prefix argument inverts the meaning of
