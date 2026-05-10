@@ -42,7 +42,11 @@
 (require 'clojure-mode)
 
 (require 'cider-client)
+(require 'cider-jack-in)
 (require 'nrepl-dict)
+
+;; Defined in cider.el; used by `cider--update-cljs-type'.
+(declare-function cider--update-do-prompt "cider")
 
 (defcustom cider-check-cljs-repl-requirements t
   "When non-nil will run the requirement checks for the different cljs repls.
@@ -375,6 +379,13 @@ nil."
     (cider-verify-clojurescript-is-present)
     (cider-verify-cljs-repl-requirements cljs-type)))
 
+(defcustom cider-offer-to-open-cljs-app-in-browser t
+  "When nil, do not offer to open ClojureScript apps in a browser on connect."
+  :type 'boolean
+  :group 'cider
+  :safe #'booleanp
+  :version '(cider . "0.15.0"))
+
 (defun cider--offer-to-open-app-in-browser (server-buf)
   "Look for a server address in SERVER-BUF and offer to open it."
   (when (buffer-live-p server-buf)
@@ -385,6 +396,50 @@ nil."
                               (match-string 0))))
           (when (y-or-n-p (format "Visit ‘%s’ in a browser? " url))
             (browse-url url)))))))
+
+(defcustom cider-connect-default-cljs-params nil
+  "Default plist of params for connecting to a ClojureScript REPL.
+Recognized keys are :host, :port and :project-dir.
+
+If non-nil, overrides `cider-connect-default-params' for the commands
+`cider-connect-cljs' and (the latter half of) `cider-connect-clj&cljs'.
+
+Note: it is recommended to set the variable `cider-default-cljs-repl'
+instead of specifying the :cljs-repl-type key."
+  :type '(plist :key-type
+                (choice (const :host)
+                        (const :port)
+                        (const :project-dir)))
+  :group 'cider)
+
+(defun cider--update-cljs-type (params)
+  "Update :cljs-repl-type in PARAMS."
+  (with-current-buffer (or (plist-get params :--context-buffer)
+                           (current-buffer))
+    (let ((params (cider--update-do-prompt params))
+          (inferred-type (or (plist-get params :cljs-repl-type)
+                             cider-default-cljs-repl)))
+      (plist-put params :cljs-repl-type
+                 (if (plist-get params :do-prompt)
+                     (cider-select-cljs-repl inferred-type)
+                   (or inferred-type
+                       (cider-select-cljs-repl)))))))
+
+(defmacro cider--with-cljs-jack-in-deps (&rest body)
+  "Run BODY with the cljs jack-in deps appended to the regular ones.
+`cider--update-jack-in-cmd' picks up these dynamic vars indirectly when
+constructing the jack-in command, so they must be in effect for the
+duration of the param-update pipeline."
+  (declare (indent 0) (debug t))
+  `(let ((cider-jack-in-dependencies
+          (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
+         (cider-jack-in-lein-plugins
+          (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
+         (cider-jack-in-nrepl-middlewares
+          (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares)))
+     ,@body))
+
+(put 'cider--with-cljs-jack-in-deps 'lisp-indent-function 0)
 
 (provide 'cider-cljs)
 
