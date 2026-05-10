@@ -328,12 +328,6 @@ some hardened environments forbid self-attach."
   :safe #'booleanp
   :version '(cider . "1.15.0"))
 
-(defcustom cider-offer-to-open-cljs-app-in-browser t
-  "When nil, do not offer to open ClojureScript apps in a browser on connect."
-  :type 'boolean
-  :safe #'booleanp
-  :version '(cider . "0.15.0"))
-
 (defvar cider-ps-running-lein-nrepls-command "ps u | grep leiningen"
   "Process snapshot command used in `cider-locate-running-nrepl-ports'.")
 
@@ -543,22 +537,6 @@ Also checks whether a matching session already exists."
                 (cider--check-existing-session)
                 (cider--update-jack-in-cmd)))
 
-(defmacro cider--with-cljs-jack-in-deps (&rest body)
-  "Run BODY with the cljs jack-in deps appended to the regular ones.
-`cider--update-jack-in-cmd' picks up these dynamic vars indirectly when
-constructing the jack-in command, so they must be in effect for the
-duration of the param-update pipeline."
-  (declare (indent 0) (debug t))
-  `(let ((cider-jack-in-dependencies
-          (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
-         (cider-jack-in-lein-plugins
-          (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
-         (cider-jack-in-nrepl-middlewares
-          (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares)))
-     ,@body))
-
-(put 'cider--with-cljs-jack-in-deps 'lisp-indent-function 0)
-
 ;;;###autoload
 (defun cider-jack-in-clj (params)
   "Start an nREPL server for the current project and connect to it.
@@ -680,21 +658,6 @@ the corresponding user prompts.
 This defcustom is intended for use with .dir-locals.el on a per-project basis.
 See `cider-connect-default-cljs-params' in order to specify a separate set
 of params for cljs REPL connections.
-
-Note: it is recommended to set the variable `cider-default-cljs-repl'
-instead of specifying the :cljs-repl-type key."
-  :type '(plist :key-type
-                (choice (const :host)
-                        (const :port)
-                        (const :project-dir)))
-  :group 'cider)
-
-(defcustom cider-connect-default-cljs-params nil
-  "Default plist of params for connecting to a ClojureScript REPL.
-Recognized keys are :host, :port and :project-dir.
-
-If non-nil, overrides `cider-connect-default-params' for the commands
-`cider-connect-cljs' and (the latter half of) `cider-connect-clj&cljs'.
 
 Note: it is recommended to set the variable `cider-default-cljs-repl'
 instead of specifying the :cljs-repl-type key."
@@ -838,19 +801,6 @@ Params is a plist with the following keys (non-exhaustive)
             (thread-first params
                           (plist-put :project-dir proj-dir)
                           (plist-put :--context-buffer (current-buffer)))))))))
-
-(defun cider--update-cljs-type (params)
-  "Update :cljs-repl-type in PARAMS."
-  (with-current-buffer (or (plist-get params :--context-buffer)
-                           (current-buffer))
-    (let ((params (cider--update-do-prompt params))
-          (inferred-type (or (plist-get params :cljs-repl-type)
-                             cider-default-cljs-repl)))
-      (plist-put params :cljs-repl-type
-                 (if (plist-get params :do-prompt)
-                     (cider-select-cljs-repl inferred-type)
-                   (or inferred-type
-                       (cider-select-cljs-repl)))))))
 
 (defcustom cider-edit-jack-in-command nil
   "When truthy allow the user to edit the command."
