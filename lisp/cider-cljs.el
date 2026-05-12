@@ -42,7 +42,6 @@
 (require 'clojure-mode)
 
 (require 'cider-client)
-(require 'cider-jack-in)
 (require 'nrepl-dict)
 
 ;; Defined in cider.el; used by `cider--update-cljs-type'.
@@ -424,22 +423,6 @@ instead of specifying the :cljs-repl-type key."
                      (cider-select-cljs-repl inferred-type)
                    (or inferred-type
                        (cider-select-cljs-repl)))))))
-
-(defmacro cider--with-cljs-jack-in-deps (&rest body)
-  "Run BODY with the cljs jack-in deps appended to the regular ones.
-`cider--update-jack-in-cmd' picks up these dynamic vars indirectly when
-constructing the jack-in command, so they must be in effect for the
-duration of the param-update pipeline."
-  (declare (indent 0) (debug t))
-  `(let ((cider-jack-in-dependencies
-          (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
-         (cider-jack-in-lein-plugins
-          (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
-         (cider-jack-in-nrepl-middlewares
-          (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares)))
-     ,@body))
-
-(put 'cider--with-cljs-jack-in-deps 'lisp-indent-function 0)
 
 (provide 'cider-cljs)
 
