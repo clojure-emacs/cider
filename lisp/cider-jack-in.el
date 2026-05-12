@@ -43,6 +43,9 @@
 (require 'seq)
 (require 'subr-x)
 
+(require 'clojure-mode)
+(require 'nrepl-client)
+
 (require 'cider-util)
 
 ;; Defined in cider.el; declared here to keep cider-jack-in.el free of a
@@ -51,8 +54,15 @@
 (defvar cider-clojure-cli-aliases)
 (defvar cider-clojure-cli-global-aliases)
 (defvar cider-enable-nrepl-jvmti-agent)
-(defvar cider-jack-in-tools)
-(declare-function cider--jack-in-tool "cider")
+(declare-function cider--update-params "cider")
+(declare-function cider-connect-sibling-clj "cider")
+(declare-function cider-connect-sibling-cljs "cider")
+
+;; Defined in cider-cljs.el; declared here because cider-cljs.el and
+;; cider-jack-in.el deliberately don't require each other (both are required
+;; by cider.el).  By the time these are called, cider.el has loaded both.
+(declare-function cider--update-cljs-type "cider-cljs")
+(declare-function cider--check-cljs "cider-cljs")
 
 (defvar cider-jack-in-dependencies nil
   "List of dependencies where elements are lists of artifact name and version.")
@@ -461,6 +471,267 @@ with its nREPL middleware and dependencies."
     (if inject
         (funcall inject params project-type command)
       params)))
+
+
+;;; Command resolution
+
+(defun cider--resolve-command (command)
+  "Find COMMAND in `exec-path', or on the remote host's PATH over TRAMP.
+Return the (shell-quoted) absolute path if found, otherwise nil.  When
+`default-directory' is remote, `executable-find' is asked to search on
+that host instead of the local one."
+  (let ((remote (file-remote-p default-directory)))
+    (when-let* ((found (or (executable-find command remote)
+                           (executable-find (concat command ".bat") remote))))
+      (shell-quote-argument found))))
+
+(defun cider--resolve-project-command (command)
+  "Find COMMAND in project dir or exec path (see variable `exec-path').
+If COMMAND starts with ./ or ../ resolve relative to `clojure-project-dir',
+otherwise resolve via `cider--resolve-command'."
+  (if (string-match-p "\\`\\.\\{1,2\\}/" command)
+      (locate-file command (list (clojure-project-dir)) '("" ".bat") 'executable)
+    (cider--resolve-command command)))
+
+(defun cider--resolve-prefix-command (command)
+  "Resolve COMMAND that may be a prefixed invocation like \"npx X\".
+Splits COMMAND on whitespace, resolves the first token via
+`cider--resolve-command', and rejoins it with the remaining tokens."
+  (let ((parts (split-string command)))
+    (when-let* ((resolved (cider--resolve-command (car parts))))
+      (mapconcat #'identity (cons resolved (cdr parts)) " "))))
+
+
+;;; Jack-in tool registry
+
+(defvar cider-jack-in-tools nil
+  "Alist of project tools known to `cider-jack-in'.
+Each entry has the form (PROJECT-TYPE . PLIST), where PLIST may contain:
+
+- :command-var symbol of the variable holding the executable name.
+
+- :params-var symbol of the variable holding the params string used to
+  start the nREPL server.
+
+- :project-files list of project marker file names.
+
+- :resolver function of one argument (the command string) returning the
+  resolved invocation, or nil to use `cider--resolve-command'.
+
+- :inject-fn function of three arguments (PARAMS PROJECT-TYPE COMMAND)
+  returning PARAMS with REPL deps injected.  When nil, no injection is
+  performed and PARAMS is used as-is.
+
+- :universal-prefix-arg numeric prefix arg for `cider-jack-in-universal'.
+  Tools without this key cannot be invoked via that command.
+
+- :jack-in-type `clj' (the default) or `cljs'; controls which jack-in
+  entry point `cider-jack-in-universal' calls.
+
+- :cljs-repl-type cljs REPL type symbol, used when :jack-in-type is `cljs'.
+
+Use `cider-register-jack-in-tool' to add or replace entries.")
+
+(defun cider-register-jack-in-tool (project-type &rest plist)
+  "Register PROJECT-TYPE in `cider-jack-in-tools'.
+PLIST is the property list documented in `cider-jack-in-tools'.  An
+existing entry for PROJECT-TYPE is replaced."
+  (setf (alist-get project-type cider-jack-in-tools) plist))
+
+(defun cider--jack-in-tool (project-type)
+  "Return the plist registered for PROJECT-TYPE.
+Signal a `user-error' if PROJECT-TYPE is not registered."
+  (or (alist-get project-type cider-jack-in-tools)
+      (user-error "Unsupported project type `%S'" project-type)))
+
+(defun cider--jack-in-tool-command (spec)
+  "Return the command for tool SPEC.
+Prefers a non-nil value of the :command-var, falling back to the result
+of :default-command-fn when the var is nil or unset.  Returns nil if
+neither produces a value."
+  (or (when-let* ((var (plist-get spec :command-var))) (symbol-value var))
+      (when-let* ((fn (plist-get spec :default-command-fn))) (funcall fn))))
+
+(defun cider-jack-in-command (project-type)
+  "Determine the command `cider-jack-in' needs to invoke for the PROJECT-TYPE."
+  (or (cider--jack-in-tool-command (cider--jack-in-tool project-type))
+      (user-error "No command configured for project type `%S'" project-type)))
+
+(defun cider-jack-in-resolve-command (project-type)
+  "Determine the resolved file path to `cider-jack-in-command'.
+Throws an error if PROJECT-TYPE is unknown."
+  (let* ((spec (cider--jack-in-tool project-type))
+         (command (cider--jack-in-tool-command spec))
+         (resolver (or (plist-get spec :resolver) #'cider--resolve-command)))
+    (when command
+      (funcall resolver command))))
+
+(defun cider-jack-in-params (project-type)
+  "Determine the commands params for `cider-jack-in' for the PROJECT-TYPE."
+  ;; The format of these command-line strings must consider different shells,
+  ;; different values of IFS, and the possibility that they'll be run remotely
+  ;; (e.g. with TRAMP). Using `", "` causes problems with TRAMP, for example.
+  ;; Please be careful when changing them.
+  (symbol-value (plist-get (cider--jack-in-tool project-type) :params-var)))
+
+
+;;; Built-in jack-in tool registrations
+
+(cider-register-jack-in-tool 'clojure-cli
+                             :command-var 'cider-clojure-cli-command
+                             :default-command-fn #'cider--default-clojure-cli-command
+                             :params-var 'cider-clojure-cli-parameters
+                             :project-files '("deps.edn")
+                             :inject-fn #'cider--clojure-cli-inject-deps
+                             :universal-prefix-arg 1)
+
+(cider-register-jack-in-tool 'lein
+                             :command-var 'cider-lein-command
+                             :params-var 'cider-lein-parameters
+                             :project-files '("project.clj")
+                             :inject-fn #'cider--lein-inject-deps
+                             :universal-prefix-arg 2)
+
+(cider-register-jack-in-tool 'babashka
+                             :command-var 'cider-babashka-command
+                             :params-var 'cider-babashka-parameters
+                             :project-files '("bb.edn")
+                             :universal-prefix-arg 3)
+
+(cider-register-jack-in-tool 'shadow-cljs
+                             :command-var 'cider-shadow-cljs-command
+                             :params-var 'cider-shadow-cljs-parameters
+                             :project-files '("shadow-cljs.edn")
+                             :resolver #'cider--resolve-prefix-command
+                             :inject-fn #'cider--shadow-cljs-inject-deps)
+
+(cider-register-jack-in-tool 'gradle
+                             :command-var 'cider-gradle-command
+                             :params-var 'cider-gradle-parameters
+                             :project-files '("build.gradle" "build.gradle.kts")
+                             :resolver #'cider--resolve-project-command
+                             :inject-fn #'cider--gradle-inject-deps)
+
+(cider-register-jack-in-tool 'nbb
+                             :command-var 'cider-nbb-command
+                             :params-var 'cider-nbb-parameters
+                             :project-files '("nbb.edn")
+                             :resolver #'cider--resolve-prefix-command
+                             :universal-prefix-arg 4
+                             :jack-in-type 'cljs
+                             :cljs-repl-type 'nbb)
+
+(cider-register-jack-in-tool 'basilisp
+                             :command-var 'cider-basilisp-command
+                             :params-var 'cider-basilisp-parameters
+                             :project-files '("basilisp.edn")
+                             :universal-prefix-arg 5)
+
+
+;;; ClojureScript jack-in helpers
+
+(defmacro cider--with-cljs-jack-in-deps (&rest body)
+  "Run BODY with the cljs jack-in deps appended to the regular ones.
+`cider--update-jack-in-cmd' picks up these dynamic vars indirectly when
+constructing the jack-in command, so they must be in effect for the
+duration of the param-update pipeline."
+  (declare (indent 0) (debug t))
+  `(let ((cider-jack-in-dependencies
+          (append cider-jack-in-dependencies cider-jack-in-cljs-dependencies))
+         (cider-jack-in-lein-plugins
+          (append cider-jack-in-lein-plugins cider-jack-in-cljs-lein-plugins))
+         (cider-jack-in-nrepl-middlewares
+          (append cider-jack-in-nrepl-middlewares cider-jack-in-cljs-nrepl-middlewares)))
+     ,@body))
+
+(put 'cider--with-cljs-jack-in-deps 'lisp-indent-function 0)
+
+
+;;; User-level Jack-in commands
+
+(defun cider--start-nrepl-server (params &optional on-port-callback)
+  "Start an nREPL server.
+PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
+ON-PORT-CALLBACK (optional) is a function of one argument (server buffer)
+which is called by the process filter once the port of the connection has
+been determined.  The callback runs in the buffer that was current at the
+time of this call, so that subsequent connect logic sees the correct
+project context even if the user has switched buffers in the meantime."
+  (let ((orig-buffer (current-buffer)))
+    (nrepl-start-server-process
+     (plist-get params :project-dir)
+     (plist-get params :jack-in-cmd)
+     (when on-port-callback
+       (lambda (server-buf)
+         (if (buffer-live-p orig-buffer)
+             (with-current-buffer orig-buffer
+               (funcall on-port-callback server-buf))
+           (funcall on-port-callback server-buf)))))))
+
+;;;###autoload
+(defun cider-jack-in-clj (params)
+  "Start an nREPL server for the current project and connect to it.
+PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
+With the prefix argument, allow editing of the jack in command; with a
+double prefix prompt for all these parameters."
+  (interactive "P")
+  (let ((params (cider--update-params params)))
+    (cider--start-nrepl-server
+     params
+     (lambda (server-buf)
+       (cider-connect-sibling-clj params server-buf)))))
+
+(defun cider-start-nrepl-server (params)
+  "Start an nREPL server for the current project, but don't connect to it.
+PARAMS is a plist optionally containing :project-dir and :jack-in-cmd.
+With the prefix argument, allow editing of the start server command; with a
+double prefix prompt for all these parameters."
+  (interactive "P")
+  (cider--start-nrepl-server (cider--update-params params)))
+
+;;;###autoload
+(defun cider-jack-in-cljs (params)
+  "Start an nREPL server for the current project and connect to it.
+PARAMS is a plist optionally containing :project-dir, :jack-in-cmd and
+:cljs-repl-type (e.g. `shadow', `node', `figwheel', etc).
+
+With the prefix argument,
+allow editing of the jack in command; with a double prefix prompt for all
+these parameters."
+  (interactive "P")
+  (cider--with-cljs-jack-in-deps
+    (let ((params (cider--update-params params)))
+      (cider--start-nrepl-server
+       params
+       (lambda (server-buf)
+         (cider-connect-sibling-cljs params server-buf))))))
+
+;;;###autoload
+(defun cider-jack-in-clj&cljs (&optional params soft-cljs-start)
+  "Start an nREPL server and connect with clj and cljs REPLs.
+PARAMS is a plist optionally containing :project-dir, :jack-in-cmd and
+:cljs-repl-type (e.g. `shadow', `node', `figwheel', etc).
+
+With the prefix argument, allow for editing of the jack in command;
+with a double prefix prompt for all these parameters.
+
+When SOFT-CLJS-START is non-nil, start cljs REPL
+only when the ClojureScript dependencies are met."
+  (interactive "P")
+  (cider--with-cljs-jack-in-deps
+    (let ((params (thread-first params
+                                (cider--update-params)
+                                (cider--update-cljs-type)
+                                ;; already asked, don't ask on sibling connect
+                                (plist-put :do-prompt nil))))
+      (cider--start-nrepl-server
+       params
+       (lambda (server-buf)
+         (let ((clj-repl (cider-connect-sibling-clj params server-buf)))
+           (if soft-cljs-start
+               (when (cider--check-cljs (plist-get params :cljs-repl-type) 'no-error)
+                 (cider-connect-sibling-cljs params clj-repl))
+             (cider-connect-sibling-cljs params clj-repl))))))))
 
 (provide 'cider-jack-in)
 
