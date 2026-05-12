@@ -54,6 +54,8 @@
 (defvar cider-clojure-cli-aliases)
 (defvar cider-clojure-cli-global-aliases)
 (defvar cider-enable-nrepl-jvmti-agent)
+(defvar cider-preferred-build-tool)
+(defvar cider-jack-in-default)
 (declare-function cider--update-params "cider")
 (declare-function cider-connect-sibling-clj "cider")
 (declare-function cider-connect-sibling-cljs "cider")
@@ -732,6 +734,120 @@ only when the ClojureScript dependencies are met."
                (when (cider--check-cljs (plist-get params :cljs-repl-type) 'no-error)
                  (cider-connect-sibling-cljs params clj-repl))
              (cider-connect-sibling-cljs params clj-repl))))))))
+
+
+;;; Project type detection and universal jack-in
+
+(defun cider--identify-buildtools-present (&optional project-dir)
+  "Identify build systems present by their build files in PROJECT-DIR.
+PROJECT-DIR defaults to the current project.  The set of recognized build
+files is derived from the :project-files entries in `cider-jack-in-tools'."
+  (let ((default-directory (or project-dir (clojure-project-dir (cider-current-dir)))))
+    (delq nil
+          (mapcar (lambda (entry)
+                    (when (seq-some #'file-exists-p
+                                    (plist-get (cdr entry) :project-files))
+                      (car entry)))
+                  cider-jack-in-tools))))
+
+(defun cider-project-type (&optional project-dir)
+  "Determine the type of the project in PROJECT-DIR.
+When multiple project file markers are present, check for a preferred build
+tool in `cider-preferred-build-tool', otherwise prompt the user to choose.
+PROJECT-DIR defaults to the current project."
+  (let* ((choices (cider--identify-buildtools-present project-dir))
+         (multiple-project-choices (> (length choices) 1))
+         ;; this needs to be a string to be used in `completing-read'
+         (default (symbol-name (car choices)))
+         ;; `cider-preferred-build-tool' used to be a string prior to CIDER
+         ;; 0.18, therefore the need for `cider-maybe-intern'
+         (preferred-build-tool (cider-maybe-intern cider-preferred-build-tool)))
+    (cond ((and multiple-project-choices
+                (member preferred-build-tool choices))
+           preferred-build-tool)
+          (multiple-project-choices
+           (intern
+            (completing-read
+             (format "Which command should be used (default %s): " default)
+             choices nil t nil nil default)))
+          (choices
+           (car choices))
+          ;; If we're outside a project, fall back to the configured (or
+          ;; auto-detected) default tool.  `cider-jack-in-default' used to
+          ;; be a string prior to CIDER 0.18, hence `cider-maybe-intern'.
+          (t (cider--effective-jack-in-default)))))
+
+(defun cider--effective-jack-in-default ()
+  "Return `cider-jack-in-default', auto-detecting when nil.
+Auto-detect picks `clojure-cli' if \"clojure\" is on PATH at call time,
+otherwise `lein'."
+  (or (cider-maybe-intern cider-jack-in-default)
+      (if (and (not (file-remote-p default-directory))
+               (executable-find "clojure"))
+          'clojure-cli
+        'lein)))
+
+(defun cider--universal-jack-in-tools ()
+  "Return the subset of `cider-jack-in-tools' usable by `cider-jack-in-universal'.
+Each entry is a tool that has a :universal-prefix-arg."
+  (seq-filter (lambda (entry) (plist-get (cdr entry) :universal-prefix-arg))
+              cider-jack-in-tools))
+
+(defun cider--universal-jack-in-opts (project-type)
+  "Build the params plist for `cider-jack-in-universal' for PROJECT-TYPE.
+The returned plist forces project dir editing and carries the cljs REPL
+type (when applicable) so the right entry point can dispatch."
+  (let* ((spec (cider--jack-in-tool project-type))
+         (opts (list :project-type project-type :edit-project-dir t)))
+    (when-let* ((cljs-type (plist-get spec :cljs-repl-type)))
+      (setq opts (plist-put opts :cljs-repl-type cljs-type)))
+    opts))
+
+;;;###autoload
+(defun cider-jack-in-universal (arg)
+  "Start and connect to an nREPL server for the current project or ARG project id.
+
+If a project is found in current dir, call `cider-jack-in' passing ARG as
+first parameter, of which see.  Otherwise, ask user which project type to
+start an nREPL server and connect to without a project.
+
+But if invoked with a numeric prefix ARG, then start an nREPL server for
+the project type denoted by ARG number and connect to it, even if there is
+no project for it in the current dir.
+
+The supported project tools are those in `cider-jack-in-tools' that have a
+:universal-prefix-arg key.
+
+You can pass a numeric prefix argument n with `M-n` or `C-u n`.
+
+For example, to jack in to leiningen which is assigned to prefix arg 2 type
+
+M-2 \\[cider-jack-in-universal]."
+  (interactive "P")
+  (let ((cpt (clojure-project-dir (cider-current-dir))))
+    (if (or (integerp arg) (null cpt))
+        (let* ((tools (cider--universal-jack-in-tools))
+               (project-type
+                (cond
+                 ((null arg)
+                  (intern (completing-read
+                           "No project found in current dir, select project type to jack in: "
+                           (mapcar #'car tools) nil t)))
+                 (t
+                  (or (car (seq-find (lambda (entry)
+                                       (eql arg (plist-get (cdr entry) :universal-prefix-arg)))
+                                     tools))
+                      (error ":cider-jack-in-universal :unsupported-prefix-argument %S :no-such-project"
+                             arg)))))
+               (opts (cider--universal-jack-in-opts project-type))
+               (jack-in-type (or (plist-get (cider--jack-in-tool project-type) :jack-in-type)
+                                 'clj)))
+          (pcase jack-in-type
+            ('clj (cider-jack-in-clj opts))
+            ('cljs (cider-jack-in-cljs opts))
+            (_ (error ":cider-jack-in-universal :jack-in-type-unsupported %S" jack-in-type))))
+
+      (cider-jack-in-clj arg))))
 
 (provide 'cider-jack-in)
 
