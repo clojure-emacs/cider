@@ -91,6 +91,7 @@
 (require 'cider-cljs)
 (require 'cider-eldoc)
 (require 'cider-endpoint)
+(require 'cider-inspiration)
 (require 'cider-jack-in)
 (require 'cider-repl)
 (require 'cider-repl-history)

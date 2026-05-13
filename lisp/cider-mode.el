@@ -33,6 +33,7 @@
 
 (require 'clojure-mode)
 (require 'cider-eval)
+(require 'cider-inspiration)
 (require 'cider-test) ; required only for the menu
 (require 'cider-eldoc)
 (require 'cider-resolve)
