@@ -18,3 +18,4 @@ cider-refcard.aux
 cider-refcard.log
 doc/auto/
 test/*.edn
+.claude/
