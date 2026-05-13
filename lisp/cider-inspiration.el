@@ -137,57 +137,98 @@
   (message (cider-random-words-of-inspiration)))
 
 (defvar cider-tips
-  '("Press <\\[cider-connect]> to connect to a running nREPL server."
+  '(;; Connection / session
+    "Press <\\[cider-connect]> to connect to a running nREPL server."
     "Press <\\[cider-quit]> to quit the current connection."
+    "Press <\\[cider-restart]> to restart the active nREPL connection."
+    "Use <M-x cider-jack-in-universal RET> (or M-1..5 prefix) to start any supported project type from a single command."
+    "Use <M-x cider-connect-sibling-clj RET> to spawn another Clojure REPL on the same nREPL server (handy for parallel evaluations)."
+    "Press <\\[cider-describe-connection]> to view information about the connection."
+    "Use <M-x cider-set-default-session RET> to pin a default session and bypass sesman's project-based dispatch."
+    ;; Help / docs / discoverability
     "Press <\\[cider-view-manual]> to view CIDER's manual."
     "Press <\\[cider-view-refcard]> to view CIDER's refcard."
     "Press <\\[describe-mode]> to see a list of the keybindings available (this will work in every Emacs buffer)."
     "Press <\\[cider-repl-handle-shortcut]> to quickly invoke some REPL command."
     "Press <\\[cider-switch-to-last-clojure-buffer]> to switch between the REPL and a Clojure source buffer."
     "Press <\\[cider-doc]> to view the documentation for something (e.g. a var, a Java method)."
+    "Press <\\[cider-clojuredocs]> to look up a symbol in ClojureDocs (community-curated Clojure examples and notes)."
+    "Use <M-x cider-cheatsheet RET> to browse the Clojure cheatsheet from inside Emacs."
+    "Exploring CIDER's menu-bar entries is a great way to discover features."
+    "Keep in mind that some commands don't have a keybinding by default. Explore CIDER!"
+    ;; Find / navigation
     "Press <\\[cider-find-resource]> to find a resource on the classpath."
     "Press <\\[cider-find-var]> to jump to the source of something (e.g. a var, a Java method)."
+    "Press <\\[cider-find-dwim]> to jump to the definition or resource at point - does the right thing for vars, keywords, and resources."
+    "Press <\\[cider-find-keyword]> to jump to the namespace where a Clojure keyword originates."
     "Press <\\[cider-selector]> to quickly select a CIDER buffer."
+    ;; Tests
     "Press <\\[cider-test-run-ns-tests]> to run the tests for the current namespace."
     "Press <\\[cider-test-run-loaded-tests]> to run all loaded tests."
     "Press <\\[cider-test-run-project-tests]> to run all tests for the current project."
+    ;; Apropos
     "Press <\\[cider-apropos]> to look for a symbol by some search string."
     "Press <\\[cider-apropos-documentation]> to look for a symbol that has some string in its docstring."
+    ;; Eval
     "Press <\\[cider-eval-defun-at-point]> to eval the top-level form at point."
-    "Press <\\[cider-eval-dwim]> to eval to run cider-eval-region if a region is active, and cider-eval-defun-at-point otherwise."
+    "Press <\\[cider-eval-dwim]> to run cider-eval-region if a region is active, and cider-eval-defun-at-point otherwise."
+    "Press <\\[cider-eval-region]> to evaluate the selected region."
     "Press <\\[cider-eval-defun-up-to-point]> to eval the top-level form up to the point."
     "Press <\\[cider-eval-sexp-up-to-point]> to eval the current form up to the point."
     "Press <\\[cider-eval-sexp-at-point]> to eval the current form around the point."
     "Press <\\[cider-eval-sexp-at-point-in-context]> to eval the current form around the point in a user-provided context."
     "Press <\\[cider-eval-buffer]> to eval the entire source buffer."
+    "Press <\\[cider-pprint-eval-last-sexp]> to evaluate the preceding form and pretty-print the result."
+    "Press <\\[cider-pprint-eval-defun-at-point]> to evaluate the top-level form at point and pretty-print the result."
+    "Press <\\[cider-load-file]> to load an arbitrary Clojure file into the REPL."
     "Press <\\[cider-scratch]> to create a Clojure scratchpad. Pretty handy for prototyping."
     "Press <\\[cider-read-and-eval]> to evaluate some Clojure expression directly in the minibuffer."
-    "Press <\\[cider-drink-a-sip]> to get more CIDER tips."
-    "Press <\\[cider-browse-ns-all]> to start CIDER's namespace browser."
-    "Press <\\[cider-classpath]> to start CIDER's classpath browser."
-    "Press <\\[cider-repl-history]> to start CIDER's REPL input history browser."
-    "Press <\\[cider-macroexpand-1]> to expand the preceding macro."
+    "Press <\\[cider-interrupt]> to interrupt an ongoing evaluation."
+    "Press <\\[cider-undef]> to undefine a symbol in the current namespace."
+    "Press <\\[cider-load-buffer-and-switch-to-repl-buffer]> to load the current buffer and switch to the REPL buffer afterwards."
+    ;; Macroexpansion
+    "Press <\\[cider-macroexpand-1]> to expand the preceding macro one level."
+    "Press <\\[cider-macroexpand-all]> to fully expand the preceding macro (recursively, not just one level)."
+    ;; Inspect / debug
     "Press <\\[cider-inspect]> to inspect the preceding expression's result."
     "Press <C-u \\[cider-inspect]> to inspect the defun at point's result."
     "Press <C-u C-u \\[cider-inspect]> to read Clojure code from the minibuffer and inspect its result."
+    "Press <\\[cider-inspect-last-result]> to inspect the last evaluation result."
+    "Press <\\[cider-inspect-defun-at-point]> to inspect the result of the top-level form at point."
+    "Press <\\[cider-debug-defun-at-point]> to instrument the top-level form and step through it interactively in the debugger."
+    ;; Xref
+    "Press <\\[cider-xref-fn-refs]> to find all references to a function."
+    "Press <\\[cider-xref-fn-deps]> to list the functions a given function depends on."
+    ;; Browse
+    "Press <\\[cider-browse-ns-all]> to start CIDER's namespace browser."
+    "Use <M-x cider-browse-spec-all RET> to browse all registered Clojure specs."
+    "Press <\\[cider-classpath]> to start CIDER's classpath browser."
+    "Press <\\[cider-repl-history]> to start CIDER's REPL input history browser."
+    ;; Format
+    "Press <\\[cider-format-buffer]> to format the entire buffer using cljfmt."
+    "Press <\\[cider-format-defun]> to format the top-level form at point using cljfmt."
+    "Use <M-x cider-format-edn-buffer RET> to pretty-print the current EDN buffer."
+    ;; Namespace ops
     "Press <\\[cider-ns-refresh]> to reload modified and unloaded namespaces."
-    "You can define Clojure functions to be called before and after `cider-ns-refresh' (see `cider-ns-refresh-before-fn' and `cider-ns-refresh-after-fn'."
-    "Press <\\[cider-describe-connection]> to view information about the connection."
-    "Press <\\[cider-undef]> to undefine a symbol in the current namespace."
-    "Press <\\[cider-interrupt]> to interrupt an ongoing evaluation."
+    "You can define Clojure functions to be called before and after `cider-ns-refresh' (see `cider-ns-refresh-before-fn' and `cider-ns-refresh-after-fn')."
+    "For no-middleware, low-tech, reliable namespace reloading use <\\[cider-ns-reload]>."
+    ;; Profile / trace / log
+    "Use <M-x cider-profile-toggle RET> to toggle profiling for a var; <M-x cider-profile-summary RET> to view results."
+    "Use <M-x cider-toggle-trace-var RET> to trace calls to a Clojure var (or `cider-toggle-trace-ns' for an entire namespace)."
+    "Use <M-x cider-log-show RET> to open CIDER's log inspector for navigating logged events."
+    ;; Configuration / modes
     "Use <M-x customize-group RET cider RET> to see every possible setting you can customize."
     "Use <M-x customize-group RET cider-repl RET> to see every possible REPL setting you can customize."
     "Enable `eldoc-mode' to display function & method signatures in the minibuffer."
     "Enable `cider-enlighten-mode' to display the locals of a function when it's executed."
-    "Use <\\[cider-close-ancillary-buffers]> to close all ancillary buffers created by CIDER (e.g. *cider-doc*)."
-    "Exploring CIDER's menu-bar entries is a great way to discover features."
-    "Keep in mind that some commands don't have a keybinding by default. Explore CIDER!"
     "Tweak `cider-repl-prompt-function' to customize your REPL prompt."
     "Tweak `cider-eldoc-ns-function' to customize the way namespaces are displayed by eldoc."
-    "For no middleware, low-tech and reliable namespace reloading use <\\[cider-ns-reload]>."
-    "Press <\\[cider-load-buffer-and-switch-to-repl-buffer]> to load the current buffer and switch to the REPL buffer afterwards.")
-  "Some handy CIDER tips."
-  )
+    "Customize `cider-jack-in-dependencies' to inject extra deps at jack-in time."
+    "Customize `cider-clojure-cli-aliases' to enable specific deps.edn aliases automatically when jacking in."
+    ;; Self
+    "Use <\\[cider-close-ancillary-buffers]> to close all ancillary buffers created by CIDER (e.g. *cider-doc*)."
+    "Press <\\[cider-drink-a-sip]> to get more CIDER tips.")
+  "Some handy CIDER tips.")
 
 (defun cider-random-tip ()
   "Select a random tip from `cider-tips'."
