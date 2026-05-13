@@ -50,12 +50,6 @@
 
 ;; Defined in cider.el; declared here to keep cider-jack-in.el free of a
 ;; circular require on cider.
-(defvar cider-clojure-cli-command)
-(defvar cider-clojure-cli-aliases)
-(defvar cider-clojure-cli-global-aliases)
-(defvar cider-enable-nrepl-jvmti-agent)
-(defvar cider-preferred-build-tool)
-(defvar cider-jack-in-default)
 (declare-function cider--update-params "cider")
 (declare-function cider-connect-sibling-clj "cider")
 (declare-function cider-connect-sibling-cljs "cider")
@@ -65,6 +59,232 @@
 ;; by cider.el).  By the time these are called, cider.el has loaded both.
 (declare-function cider--update-cljs-type "cider-cljs")
 (declare-function cider--check-cljs "cider-cljs")
+
+
+;;; Build tool commands
+
+(defcustom cider-lein-command
+  "lein"
+  "The command used to execute Leiningen."
+  :type 'string
+  :group 'cider)
+
+(defcustom cider-lein-parameters
+  "repl :headless :host localhost"
+  "Params passed to Leiningen to start an nREPL server via `cider-jack-in'."
+  :type 'string
+  :group 'cider
+  :safe #'stringp)
+
+(defcustom cider-clojure-cli-command nil
+  "The command used to execute clojure with tools.deps.
+When nil (the default), CIDER auto-detects the command at jack-in time:
+\"clojure\" if available on PATH, otherwise \"powershell\" on Windows.
+This avoids freezing the auto-detection result at package load time.
+
+Don't use clj here, as it doesn't work when spawned from Emacs due to it
+using rlwrap."
+  :type '(choice (const :tag "Auto-detect" nil)
+                 (string :tag "Custom command"))
+  :group 'cider
+  :safe (lambda (s) (or (null s) (stringp s)))
+  :package-version '(cider . "0.17.0"))
+
+(defcustom cider-clojure-cli-parameters
+  nil
+  "Params passed to clojure cli to start an nREPL server via `cider-jack-in'."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "1.8.0"))
+
+(defcustom cider-clojure-cli-aliases
+  nil
+  "A list of aliases to include when using the clojure cli.
+Alias names should be of the form \":foo:bar\".
+Leading \"-A\" \"-M\" \"-T\" or \"-X\" are stripped from aliases
+then concatenated into the \"-M[your-aliases]:cider/nrepl\" form."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "1.1"))
+
+(defcustom cider-clojure-cli-global-aliases
+  nil
+  "Global aliases to include when jacking in with the clojure CLI.
+This value should be a string of the form \":foo:bar\", and
+will be prepended to the value of `cider-clojure-cli-aliases'.
+Alias names should be of the form \":foo:bar\".
+Leading \"-A\" \"-M\" \"-T\" or \"-X\" are stripped from aliases
+then concatenated into the \"-M[your-aliases]:cider/nrepl\" form."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "1.14"))
+
+(defcustom cider-shadow-cljs-command
+  "npx shadow-cljs"
+  "The command used to execute shadow-cljs.
+
+By default we favor the project-specific shadow-cljs over the system-wide."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "0.17.0"))
+
+(defcustom cider-shadow-cljs-parameters
+  "server"
+  "Params passed to shadow-cljs to start an nREPL server via `cider-jack-in'."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "0.17.0"))
+
+(defcustom cider-gradle-command
+  "./gradlew"
+  "The command used to execute Gradle."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "0.10.0"))
+
+(defcustom cider-gradle-parameters
+  "clojureRepl"
+  "Params passed to gradle to start an nREPL server via `cider-jack-in'."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "0.10.0"))
+
+(defcustom cider-babashka-command
+  "bb"
+  "The command used to execute Babashka."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "1.2.0"))
+
+(defcustom cider-babashka-parameters
+  "nrepl-server localhost:0"
+  "Params passed to babashka to start an nREPL server via `cider-jack-in'."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "1.2.0"))
+
+(defcustom cider-nbb-command
+  "nbb"
+  "The command used to execute nbb."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "1.6.0"))
+
+(defcustom cider-nbb-parameters
+  "nrepl-server"
+  "Params passed to nbb to start an nREPL server via `cider-jack-in'."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "1.6.0"))
+
+(defcustom cider-basilisp-command
+  "basilisp"
+  "The command used to execute Basilisp.
+
+   If Basilisp is installed in a virtual environment, update this to the
+   full path of the Basilisp executable within that virtual environment."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "1.14.0"))
+
+(defcustom cider-basilisp-parameters
+  "nrepl-server"
+  "Params passed to Basilisp to start an nREPL server via `cider-jack-in'."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "1.14.0"))
+
+
+;;; Jack-in defaults and toggles
+
+(defcustom cider-jack-in-default nil
+  "The default tool to use when doing `cider-jack-in' outside a project.
+This value is consulted when no identifying file types (e.g. project.clj
+for Leiningen or deps.edn for the Clojure CLI) are found.
+
+When nil (the default), CIDER auto-detects at jack-in time, picking
+`clojure-cli' when \"clojure\" is on PATH, else `lein'.  Set this
+explicitly to skip the auto-detection."
+  :type '(choice (const :tag "Auto-detect" nil)
+                 (const lein)
+                 (const clojure-cli)
+                 (const shadow-cljs)
+                 (const gradle)
+                 (const babashka)
+                 (const nbb)
+                 (const basilisp))
+  :group 'cider
+  :safe #'symbolp
+  :package-version '(cider . "0.9.0"))
+
+(defcustom cider-preferred-build-tool
+  nil
+  "Allow choosing a build system when there are many.
+When there are project markers from multiple build systems (e.g. lein and
+clojure-cli) the user is prompted to select one of them.  When non-nil, this
+variable will suppress this behavior and will select whatever build system
+is indicated by the variable if present.  Note, this is only when CIDER
+cannot decide which of many build systems to use and will never override a
+command when there is no ambiguity."
+  :type '(choice (const lein)
+                 (const clojure-cli)
+                 (const shadow-cljs)
+                 (const gradle)
+                 (const babashka)
+                 (const nbb)
+                 (const basilisp)
+                 (const :tag "Always ask" nil))
+  :group 'cider
+  :safe #'symbolp
+  :package-version '(cider . "0.13.0"))
+
+(defcustom cider-allow-jack-in-without-project 'warn
+  "Controls what happens when doing `cider-jack-in' outside a project.
+When set to `warn' (default) you'd prompted to confirm the command.
+When set to t `cider-jack-in' will quietly continue.
+When set to nil `cider-jack-in' will fail."
+  :type '(choice (const :tag "always" t)
+                 (const warn)
+                 (const :tag "never" nil))
+  :group 'cider
+  :safe #'symbolp
+  :package-version '(cider . "0.15.0"))
+
+(defcustom cider-inject-dependencies-at-jack-in t
+  "When nil, do not inject repl dependencies at `cider-jack-in' time.
+The repl dependendcies are most likely to be nREPL middlewares."
+  :type 'boolean
+  :group 'cider
+  :safe #'booleanp
+  :version '(cider . "0.11.0"))
+
+(defcustom cider-enable-nrepl-jvmti-agent nil
+  "When t, add `-Djdk.attach.allowAttachSelf' to the command line arguments.
+This is required for nREPL's bundled JVMTI agent to load, which in turn
+is required for eval interruption (e.g. \\[cider-interrupt]) to work
+reliably on Java 21 and later -- earlier JDKs do not need it.  Disabled
+by default because attaching the agent has a small startup cost and
+some hardened environments forbid self-attach."
+  :type 'boolean
+  :group 'cider
+  :safe #'booleanp
+  :version '(cider . "1.15.0"))
+
+
+;;; Jack-in dependencies
 
 (defvar cider-jack-in-dependencies nil
   "List of dependencies where elements are lists of artifact name and version.")
