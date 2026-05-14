@@ -1769,6 +1769,17 @@ constructs."
                      (mapconcat #'identity (cider-repl--available-shortcuts) ", "))))
         (error "No command selected")))))
 
+(defun cider--cached-or-fetch (proc key fetch-fn)
+  "Return PROC's cached value for KEY, fetching with FETCH-FN on a miss.
+Uses a tagged cons cell as a sentinel so that a cached nil or empty
+list is distinguishable from \"not yet cached\"."
+  (let ((cached (process-get proc key)))
+    (if (and (consp cached) (eq (car cached) 'cider--cached))
+        (cdr cached)
+      (let ((value (funcall fetch-fn)))
+        (process-put proc key (cons 'cider--cached value))
+        value))))
+
 (defun cider--sesman-friendly-session-p (session &optional debug)
   "Check if SESSION is a friendly session, DEBUG optionally.
 
@@ -1779,7 +1790,8 @@ The checking is done as follows:
 * Consider if the buffer belongs to `cider-ancillary-buffers'
 * Consider the buffer's filename, strip any Docker/TRAMP details from it
 * Check if that filename belongs to the classpath,
-  or to the classpath roots (e.g. the project root dir)
+  or to the classpath roots (e.g. the project root dir),
+  or to the connection's project directory
 * As a fallback, check if the buffer's ns form
   matches any of the loaded namespaces."
   (setcdr session (seq-filter #'buffer-live-p (cdr session)))
@@ -1805,29 +1817,31 @@ The checking is done as follows:
         (when-let ((tp (cider-tramp-prefix (current-buffer))))
           (setq file (string-remove-prefix tp file)))
         (when (process-live-p proc)
-          (let* ((classpath (or (process-get proc :cached-classpath)
-                                (let ((cp (with-current-buffer repl
-                                            (cider-classpath-entries))))
-                                  (process-put proc :cached-classpath cp)
-                                  cp)))
+          (let* ((classpath (cider--cached-or-fetch
+                             proc :cached-classpath
+                             (lambda ()
+                               (with-current-buffer repl
+                                 (cider-classpath-entries)))))
                  (ns-list (when (cider-nrepl-op-supported-p "cider/ns-list" repl)
-                            (or (process-get proc :all-namespaces)
-                                (let ((ns-list (with-current-buffer repl
-                                                 (cider-sync-request:ns-list))))
-                                  (process-put proc :all-namespaces ns-list)
-                                  ns-list))))
-                 (classpath-roots (or (process-get proc :cached-classpath-roots)
-                                      (let ((cp (thread-last classpath
-                                                             (seq-filter (lambda (path) (not (string-match-p "\\.jar$" path))))
-                                                             (mapcar #'file-name-directory)
-                                                             (seq-remove  #'null)
-                                                             (seq-uniq))))
-                                        (process-put proc :cached-classpath-roots cp)
-                                        cp))))
+                            (cider--cached-or-fetch
+                             proc :all-namespaces
+                             (lambda ()
+                               (with-current-buffer repl
+                                 (cider-sync-request:ns-list))))))
+                 (classpath-roots (cider--cached-or-fetch
+                                   proc :cached-classpath-roots
+                                   (lambda ()
+                                     (thread-last classpath
+                                                  (seq-filter (lambda (path) (not (string-match-p "\\.jar$" path))))
+                                                  (mapcar #'file-name-directory)
+                                                  (seq-remove  #'null)
+                                                  (seq-uniq)))))
+                 (proj-dir (buffer-local-value 'nrepl-project-dir repl)))
             (or (seq-find (lambda (path) (string-prefix-p path file))
                           classpath)
-                (seq-find (lambda (path) (string-prefix-p path file))
+                (seq-find (lambda (path) (file-in-directory-p file path))
                           classpath-roots)
+                (and proj-dir (file-in-directory-p file proj-dir))
                 (when-let* ((cider-path-translations (cider--all-path-translations))
                             (translated (cider--translate-path file 'to-nrepl :return-all)))
                   (seq-find (lambda (translated-path)
@@ -1835,7 +1849,7 @@ The checking is done as follows:
                                               (string-prefix-p path translated-path))
                                             classpath)
                                   (seq-find (lambda (path)
-                                              (string-prefix-p path translated-path))
+                                              (file-in-directory-p translated-path path))
                                             classpath-roots)))
                             translated))
                 (when-let ((ns (condition-case nil
@@ -1851,7 +1865,10 @@ The checking is done as follows:
                           (member ns (nrepl-dict-keys cider-repl-ns-cache)))
                         (member ns ns-list))))
                 (when debug
-                  (list file "was not determined to belong to classpath:" classpath "or classpath-roots:" classpath-roots))))))))))
+                  (list file
+                        "was not determined to belong to classpath:" classpath
+                        "or classpath-roots:" classpath-roots
+                        "or project-dir:" proj-dir))))))))))
 
 (defun cider-debug-sesman-friendly-session-p ()
   "`message's debugging information relative to friendly sessions.
