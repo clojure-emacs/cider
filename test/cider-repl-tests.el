@@ -29,6 +29,7 @@
 
 (require 'buttercup)
 (require 'cider-repl)
+(require 'cider-connection-test-utils "test/utils/cider-connection-test-utils")
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
@@ -340,3 +341,103 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
           (unless (zerop (user-uid))
             (set-file-modes history-file #o644))
           (delete-directory temp-dir t))))))
+
+(describe "cider--sesman-friendly-session-p"
+  :var (sesman-sessions-hashmap sesman-links-alist cider-default-session
+                                cider-ancillary-buffers ancillary-name
+                                fake-proj-root)
+
+  (before-each
+    (setq sesman-sessions-hashmap (make-hash-table :test #'equal)
+          sesman-links-alist nil
+          cider-default-session nil
+          ;; Inject a known ancillary buffer name; default value is nil
+          ;; and is populated dynamically by `cider-popup-buffer'.
+          ancillary-name "*cider-friendly-test-ancillary*"
+          cider-ancillary-buffers (list ancillary-name)
+          ;; Resolve `file-truename' upfront so classpath strings line up
+          ;; with the matcher's truename'd buffer path (macOS symlinks
+          ;; `/tmp' to `/private/tmp', etc.).
+          fake-proj-root (file-name-as-directory
+                          (file-truename
+                           (make-temp-file "cider-friendly-test-" t)))))
+
+  (after-each
+    (when (and fake-proj-root (file-directory-p fake-proj-root))
+      (delete-directory fake-proj-root t)))
+
+  (describe "cider-default-session short-circuit"
+    (it "returns t when the session matches `cider-default-session'"
+      (with-repl-buffer "a-session" 'clj b
+        (setq cider-default-session "a-session")
+        (expect (cider--sesman-friendly-session-p (list "a-session" b))
+                :to-be-truthy)))
+
+    (it "returns nil for non-default sessions when a default is set"
+      (with-repl-buffer "a-session" 'clj _a
+        (with-repl-buffer "b-session" 'clj b
+          (setq cider-default-session "a-session")
+          (expect (cider--sesman-friendly-session-p (list "b-session" b))
+                  :not :to-be-truthy))))
+
+    (it "falls through when `cider-default-session' names a non-existent session"
+      ;; A pinned-but-killed default session must not lock out all matching.
+      (with-repl-buffer "a-session" 'clj b
+        (setq cider-default-session "ghost-session")
+        (with-temp-buffer
+          (rename-buffer ancillary-name t)
+          ;; Ancillary-buffer branch should fire after the soft fallthrough.
+          (expect (cider--sesman-friendly-session-p (list "a-session" b))
+                  :to-be-truthy)))))
+
+  (describe "ancillary buffer branch"
+    (it "returns t when the current buffer is in `cider-ancillary-buffers'"
+      (with-repl-buffer "a-session" 'clj b
+        (with-temp-buffer
+          (rename-buffer ancillary-name t)
+          (expect (cider--sesman-friendly-session-p (list "a-session" b))
+                  :to-be-truthy)))))
+
+  (describe "classpath matching"
+    ;; The matcher reads cached classpath/classpath-roots/ns-list from the
+    ;; REPL process.  We stub the process accessors so these tests don't
+    ;; need to spawn real subprocesses.
+    (it "matches when the buffer's directory is under a classpath entry"
+      (with-repl-buffer "a-session" 'clj b
+        (let ((classpath (list (concat fake-proj-root "src/"))))
+          (spy-on 'get-buffer-process :and-return-value 'fake-proc)
+          (spy-on 'process-live-p :and-return-value t)
+          (spy-on 'process-get :and-call-fake
+                  (lambda (_proc key)
+                    (pcase key (:cached-classpath classpath) (_ nil))))
+          (with-temp-buffer
+            (setq default-directory (concat fake-proj-root "src/foo/"))
+            (expect (cider--sesman-friendly-session-p (list "a-session" b))
+                    :to-be-truthy)))))
+
+    (it "uses `file-in-directory-p' for classpath roots (no spurious prefix matches)"
+      ;; A classpath root of `<root>/foo' must NOT match a file under
+      ;; `<root>/foobar/' -- the bug that `string-prefix-p' had.
+      (with-repl-buffer "a-session" 'clj b
+        (let ((roots (list (concat fake-proj-root "foo/"))))
+          (spy-on 'get-buffer-process :and-return-value 'fake-proc)
+          (spy-on 'process-live-p :and-return-value t)
+          (spy-on 'process-get :and-call-fake
+                  (lambda (_proc key)
+                    (pcase key (:cached-classpath-roots roots) (_ nil))))
+          (with-temp-buffer
+            (setq default-directory (concat fake-proj-root "foobar/src/"))
+            (expect (cider--sesman-friendly-session-p (list "a-session" b))
+                    :not :to-be-truthy)))))
+
+    (it "falls back to nrepl-project-dir when classpath misses"
+      (with-repl-buffer "a-session" 'clj b
+        (with-current-buffer b
+          (setq-local nrepl-project-dir fake-proj-root))
+        (spy-on 'get-buffer-process :and-return-value 'fake-proc)
+        (spy-on 'process-live-p :and-return-value t)
+        (spy-on 'process-get :and-return-value nil)
+        (with-temp-buffer
+          (setq default-directory (concat fake-proj-root "src/"))
+          (expect (cider--sesman-friendly-session-p (list "a-session" b))
+                  :to-be-truthy))))))
