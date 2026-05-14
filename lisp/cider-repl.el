@@ -1787,9 +1787,9 @@ to the project-dir / ns-form fallbacks in the matcher."
       (process-put proc :cached-classpath classpath)
       (process-put proc :cached-classpath-roots
                    (thread-last classpath
-                                (seq-filter (lambda (path) (not (string-match-p "\\.jar$" path))))
+                                (seq-remove (lambda (path) (string-suffix-p ".jar" path)))
                                 (mapcar #'file-name-directory)
-                                (seq-remove #'null)
+                                (delq nil)
                                 (seq-uniq))))
     (when (cider-nrepl-op-supported-p "cider/ns-list")
       (process-put proc :all-namespaces
@@ -1815,8 +1815,8 @@ The checking is done as follows:
   matches any of the loaded namespaces.
 
 Classpath/namespace caches are populated eagerly at connection time
-by `cider--precompute-friendly-session-cache', so this function is a
-pure path comparison and never blocks on the REPL."
+by `cider--precompute-friendly-session-cache', so this function
+avoids blocking on classpath/ns-list fetches."
   (setcdr session (seq-filter #'buffer-live-p (cdr session)))
   (when-let ((repl (cadr session)))
     (cond
@@ -1851,6 +1851,9 @@ pure path comparison and never blocks on the REPL."
                 (classpath-roots (process-get proc :cached-classpath-roots))
                 (ns-list (process-get proc :all-namespaces))
                 (proj-dir (buffer-local-value 'nrepl-project-dir repl)))
+            ;; Classpath entries can be JAR files (matched as path prefixes of
+            ;; archive-internal paths); roots are real directories and need a
+            ;; proper directory-boundary check.
             (or (seq-find (lambda (path) (string-prefix-p path file))
                           classpath)
                 (seq-find (lambda (path) (file-in-directory-p file path))

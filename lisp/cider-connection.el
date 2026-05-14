@@ -302,10 +302,8 @@ buffer."
        (when cider-repl-init-function
          (funcall cider-repl-init-function))
 
-       ;; Populate the friendly-session matcher cache before enabling
-       ;; `cider-mode' on existing Clojure buffers -- that mode-enable can
-       ;; trigger sesman queries (mode-line refresh, etc.) which would
-       ;; otherwise hit an empty cache.
+       ;; Populate caches before `cider-enable-on-existing-clojure-buffers',
+       ;; whose mode-line refresh path calls the friendly-session matcher.
        (cider--precompute-friendly-session-cache)
 
        (when cider-auto-mode
