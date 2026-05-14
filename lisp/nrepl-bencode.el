@@ -223,12 +223,14 @@ raw strings, not alphanumerics).
 (defun nrepl-bencode (object)
   "Encode OBJECT with bencode.
 Integers, lists and nrepl-dicts are treated according to bencode
-specification.  Everything else is encoded as string."
+specification.  Everything else is coerced to a string via `format' and
+encoded as such."
   (cond
    ((integerp object) (format "i%de" object))
    ((nrepl-dict-p object) (format "d%se" (nrepl--bencode-dict object)))
    ((listp object) (format "l%se" (mapconcat #'nrepl-bencode object "")))
-   (t (format "%s:%s" (string-bytes object) object))))
+   (t (let ((s (if (stringp object) object (format "%s" object))))
+        (format "%s:%s" (string-bytes s) s)))))
 
 (provide 'nrepl-bencode)
 
