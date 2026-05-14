@@ -247,8 +247,6 @@ This cache is stored in the connection buffer.")
                   ;; (specifically, we omit 'friendly' sessions because a given buffer may be friendly to multiple repls,
                   ;;  so we don't want a buffer to mix up font locking rules from different repls).
                   ;; Note that `sesman--linked-sessions' only queries for the directly linked sessions.
-                  ;; That has the additional advantage of running very/predictably fast, since it won't run our
-                  ;; `cider--sesman-friendly-session-p' logic, which can be slow for its non-cached path.
                   (when (member this-repl (car (sesman--linked-sessions 'CIDER)))
                     ;; Metadata changed, so signatures may have changed too.
                     (setq cider-eldoc-last-symbol nil)
@@ -1769,34 +1767,60 @@ constructs."
                      (mapconcat #'identity (cider-repl--available-shortcuts) ", "))))
         (error "No command selected")))))
 
-(defun cider--cached-or-fetch (proc key fetch-fn)
-  "Return PROC's cached value for KEY, fetching with FETCH-FN on a miss.
-Uses a tagged cons cell as a sentinel so that a cached nil or empty
-list is distinguishable from \"not yet cached\"."
-  (let ((cached (process-get proc key)))
-    (if (and (consp cached) (eq (car cached) 'cider--cached))
-        (cdr cached)
-      (let ((value (funcall fetch-fn)))
-        (process-put proc key (cons 'cider--cached value))
-        value))))
+(defun cider--precompute-friendly-session-cache ()
+  "Populate friendly-session matcher caches on the current connection.
+
+Called from `cider--connected-handler' once per new connection.  The
+caches are stored on the connection's process under:
+
+* `:cached-classpath' -- full classpath entries.
+* `:cached-classpath-roots' -- directory roots derived from the
+  classpath (non-JAR entries, deduplicated).
+* `:all-namespaces' -- a snapshot of the namespace list at connect
+  time, used as a fallback for ns-based matching when
+  `cider-repl-ns-cache' is empty.
+
+Errors during fetch are swallowed; an empty cache simply falls through
+to the project-dir / ns-form fallbacks in the matcher."
+  (when-let* ((proc (get-buffer-process (current-buffer))))
+    (let ((classpath (ignore-errors (cider-classpath-entries))))
+      (process-put proc :cached-classpath classpath)
+      (process-put proc :cached-classpath-roots
+                   (thread-last classpath
+                                (seq-filter (lambda (path) (not (string-match-p "\\.jar$" path))))
+                                (mapcar #'file-name-directory)
+                                (seq-remove #'null)
+                                (seq-uniq))))
+    (when (cider-nrepl-op-supported-p "cider/ns-list")
+      (process-put proc :all-namespaces
+                   (ignore-errors (cider-sync-request:ns-list))))))
 
 (defun cider--sesman-friendly-session-p (session &optional debug)
   "Check if SESSION is a friendly session, DEBUG optionally.
 
 The checking is done as follows:
 
+* If `cider-default-session' is set, only that session is considered
+  friendly (it serves every buffer, regardless of project context).
 * If the current buffer's name equals the value of `cider-test-report-buffer',
-  only accept the given session's repl if it equals `cider-test--current-repl'
-* Consider if the buffer belongs to `cider-ancillary-buffers'
-* Consider the buffer's filename, strip any Docker/TRAMP details from it
+  only accept the given session's repl if it equals `cider-test--current-repl'.
+* Consider if the buffer belongs to `cider-ancillary-buffers'.
+* Consider the buffer's filename, strip any Docker/TRAMP details from it.
 * Check if that filename belongs to the classpath,
-  or to the classpath roots (e.g. the project root dir),
-  or to the connection's project directory
+  or to the classpath roots,
+  or to the connection's project directory.
 * As a fallback, check if the buffer's ns form
-  matches any of the loaded namespaces."
+  matches any of the loaded namespaces.
+
+Classpath/namespace caches are populated eagerly at connection time
+by `cider--precompute-friendly-session-cache', so this function is a
+pure path comparison and never blocks on the REPL."
   (setcdr session (seq-filter #'buffer-live-p (cdr session)))
   (when-let ((repl (cadr session)))
     (cond
+     (cider-default-session
+      (equal (car session) cider-default-session))
+
      ((equal (buffer-name)
              cider-test-report-buffer)
       (or (not cider-test--current-repl)
@@ -1817,26 +1841,10 @@ The checking is done as follows:
         (when-let ((tp (cider-tramp-prefix (current-buffer))))
           (setq file (string-remove-prefix tp file)))
         (when (process-live-p proc)
-          (let* ((classpath (cider--cached-or-fetch
-                             proc :cached-classpath
-                             (lambda ()
-                               (with-current-buffer repl
-                                 (cider-classpath-entries)))))
-                 (ns-list (when (cider-nrepl-op-supported-p "cider/ns-list" repl)
-                            (cider--cached-or-fetch
-                             proc :all-namespaces
-                             (lambda ()
-                               (with-current-buffer repl
-                                 (cider-sync-request:ns-list))))))
-                 (classpath-roots (cider--cached-or-fetch
-                                   proc :cached-classpath-roots
-                                   (lambda ()
-                                     (thread-last classpath
-                                                  (seq-filter (lambda (path) (not (string-match-p "\\.jar$" path))))
-                                                  (mapcar #'file-name-directory)
-                                                  (seq-remove  #'null)
-                                                  (seq-uniq)))))
-                 (proj-dir (buffer-local-value 'nrepl-project-dir repl)))
+          (let ((classpath (process-get proc :cached-classpath))
+                (classpath-roots (process-get proc :cached-classpath-roots))
+                (ns-list (process-get proc :all-namespaces))
+                (proj-dir (buffer-local-value 'nrepl-project-dir repl)))
             (or (seq-find (lambda (path) (string-prefix-p path file))
                           classpath)
                 (seq-find (lambda (path) (file-in-directory-p file path))
