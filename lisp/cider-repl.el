@@ -1800,8 +1800,10 @@ to the project-dir / ns-form fallbacks in the matcher."
 
 The checking is done as follows:
 
-* If `cider-default-session' is set, only that session is considered
-  friendly (it serves every buffer, regardless of project context).
+* If `cider-default-session' is set and the named session still
+  exists, only that session is considered friendly (it serves every
+  buffer, regardless of project context).  When the named session has
+  been quit/killed, fall through to the normal matching logic.
 * If the current buffer's name equals the value of `cider-test-report-buffer',
   only accept the given session's repl if it equals `cider-test--current-repl'.
 * Consider if the buffer belongs to `cider-ancillary-buffers'.
@@ -1818,7 +1820,11 @@ pure path comparison and never blocks on the REPL."
   (setcdr session (seq-filter #'buffer-live-p (cdr session)))
   (when-let ((repl (cadr session)))
     (cond
-     (cider-default-session
+     ;; If a default session is set and still exists, only that session is
+     ;; friendly.  If the named session no longer exists we fall through to
+     ;; the normal matching logic, matching `cider-repls' behavior.
+     ((and cider-default-session
+           (sesman-session 'CIDER cider-default-session))
       (equal (car session) cider-default-session))
 
      ((equal (buffer-name)
