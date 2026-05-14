@@ -70,6 +70,9 @@ Sub-match 1 must be the project path.")
 (defvar cider-host-history nil
   "Completion history for connection hosts.")
 
+(defconst cider-default-nrepl-port "7888"
+  "Use this port number when we couldn't infer a port.
+See also https://github.com/nrepl/nREPL/issues/6.")
 
 ;;; Endpoint selection
 
@@ -158,7 +161,8 @@ of remote SSH hosts."
   "Interactively select port for HOST from PORTS."
   (let* ((ports (cider-join-into-alist ports))
          (sel-port (completing-read (format "Port for %s: " host) ports
-                                    nil nil nil nil (caar ports)))
+                                    nil nil nil nil (or (caar ports)
+                                                        cider-default-nrepl-port)))
          (port (or (cdr (assoc sel-port ports)) sel-port))
          (port (if (listp port) (cadr port) port)))
     (if (stringp port) (string-to-number port) port)))
