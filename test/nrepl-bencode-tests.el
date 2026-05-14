@@ -30,6 +30,7 @@
 (require 'buttercup)
 (require 'cl-lib)
 (require 'nrepl-bencode)
+(require 'nrepl-tests-utils "test/utils/nrepl-tests-utils")
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
