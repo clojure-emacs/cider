@@ -28,6 +28,7 @@
 
 ;;; Code:
 
+(require 'cider-compilation)
 (require 'cider-inspector)
 (require 'cider-stacktrace)
 (require 'cl-lib)

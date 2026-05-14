@@ -38,6 +38,7 @@
 
 (require 'cider-common)
 (require 'cider-client)
+(require 'cider-compilation)
 (require 'cider-popup)
 (require 'cider-stacktrace)
 (require 'cider-overlays)
