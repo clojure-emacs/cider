@@ -74,14 +74,24 @@ If object is incomplete, return a decoded path."
 
     (it "decodes integers"
       (expect (nrepl-bdecode-string "i3e") :to-equal '(3))
-      (expect (nrepl-bdecode-string "i-3e") :to-equal '(-3)))
+      (expect (nrepl-bdecode-string "i-3e") :to-equal '(-3))
+      (expect (nrepl-bdecode-string "i0e") :to-equal '(0)))
 
     (it "decodes lists"
-      (expect (nrepl-bdecode-string "l4:spam4:eggse") :to-equal '(("spam" "eggs"))))
+      (expect (nrepl-bdecode-string "l4:spam4:eggse") :to-equal '(("spam" "eggs")))
+      (expect (nrepl-bdecode-string "le") :to-equal '(nil)))
 
     (it "decodes dict"
       (expect (nrepl-bdecode-string  "d3:cow3:moo4:spam4:eggse")
-              :to-equal '((dict "cow" "moo" "spam" "eggs"))))
+              :to-equal '((dict "cow" "moo" "spam" "eggs")))
+      (expect (nrepl-bdecode-string "de") :to-equal '((dict))))
+
+    (it "decodes strings that look like bencode"
+      ;; A string value that happens to contain bencode-looking bytes
+      ;; (digits, `:', `e', `i') must be treated as opaque data via the
+      ;; length prefix, not re-parsed.
+      (expect (nrepl-bdecode-string "6:i3e:4e") :to-equal '("i3e:4e"))
+      (expect (nrepl-bdecode-string "5:l4:le") :to-equal '("l4:le")))
 
 
     (it "decodes queues"
@@ -348,7 +358,8 @@ If object is incomplete, return a decoded path."
 
   (it "encodes integers"
     (expect (nrepl-bencode 3) :to-equal "i3e")
-    (expect (nrepl-bencode -3) :to-equal "i-3e"))
+    (expect (nrepl-bencode -3) :to-equal "i-3e")
+    (expect (nrepl-bencode 0) :to-equal "i0e"))
 
   (it "encodes lists"
     (expect (nrepl-bencode '("spam" "eggs"))
@@ -363,10 +374,63 @@ If object is incomplete, return a decoded path."
             :to-equal "d3:cow3:moo4:spam4:eggse")
     (expect (nrepl-bencode '(dict "spam" "eggs"
                                   "cow" (dict "foo" "foobar" "bar" "baz")))
-            :to-equal "d3:cowd3:bar3:baz3:foo6:foobare4:spam4:eggse"))
+            :to-equal "d3:cowd3:bar3:baz3:foo6:foobare4:spam4:eggse")
+    (expect (nrepl-bencode '(dict)) :to-equal "de"))
 
   (it "handles nils"
     (expect (nrepl-bencode '("" nil (dict "" nil)))
             :to-equal "l0:led0:leee")
     (expect (nrepl-bencode '("" nil (dict "cow" nil "" 6)))
-            :to-equal "l0:led0:i6e3:cowleee")))
+            :to-equal "l0:led0:i6e3:cowleee"))
+
+  (it "coerces non-string scalars via `format'"
+    ;; The fallback branch used to crash on anything that wasn't a
+    ;; string/int/list/dict (`string-bytes' on a symbol or float).
+    (expect (nrepl-bencode 'foo) :to-equal "3:foo")
+    (expect (nrepl-bencode 42.5) :to-equal "4:42.5")))
+
+(describe "round-trip"
+  (it "preserves a variety of bencodable shapes"
+    (dolist (obj (list ""
+                       "spam"
+                       "Божидар"
+                       0
+                       42
+                       -1
+                       '()
+                       '(1 2 3)
+                       '("a" "b" "c")
+                       '(dict)
+                       '(dict "k" "v")
+                       '(dict "a" 1 "b" (1 2 3) "c" (dict "d" "e"))
+                       '(dict "status" ("done") "value" "42")))
+      (expect (bencodable-obj-equal?
+               obj
+               (car (nrepl-bdecode-string (nrepl-bencode obj))))
+              :to-be t))))
+
+(describe "malformed input"
+  ;; The decoder must not crash on invalid bencode -- it logs an error,
+  ;; drains the buffer, and lets the decode loop terminate cleanly.
+  :var (nrepl-error-buffer-name)
+
+  (before-each
+    (setq nrepl-error-buffer-name "*nrepl-error-test*")
+    (spy-on 'nrepl-log-error)
+    (spy-on 'message)
+    (spy-on 'ding))
+
+  (it "logs an error and bails on garbage input"
+    (expect (nrepl-bdecode-string "this is not bencode") :to-equal nil)
+    (expect 'nrepl-log-error :to-have-been-called))
+
+  (it "drains the buffer when garbage follows a complete message"
+    ;; The first message decodes cleanly but the trailing garbage
+    ;; triggers the error path, which discards in-progress state and
+    ;; advances point so `nrepl-bdecode' can exit its loop.
+    (with-temp-buffer
+      (insert "i3e@garbage")
+      (goto-char 1)
+      (nrepl--bdecode-message)
+      (expect (eobp) :to-be-truthy))
+    (expect 'nrepl-log-error :to-have-been-called)))
