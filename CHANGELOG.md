@@ -25,6 +25,7 @@
 - A response-handler error or an unrecognized response id no longer aborts the nREPL response queue. `nrepl-client-filter` wraps the dispatch call in `with-demoted-errors`, and the no-callback case in `nrepl--dispatch-response` is now a `message` instead of a hard error -- so a single misbehaving callback can no longer drop later responses on the floor.
 - `nrepl-client-sentinel` now tears down the SSH tunnel buffer/process when the client connection closes. Previously only the orderly `cider-quit` path killed the tunnel, so an abnormal disconnect (server crash, network drop) left the `ssh` subprocess as a zombie until Emacs exited.
 - Bound `nrepl-completed-requests` with a FIFO cap (`nrepl-completed-requests-max-size`, default 1000). The completed-request handler table previously grew unbounded for the lifetime of a connection; long-running sessions accumulated thousands of stale handler closures.
+- [#3909](https://github.com/clojure-emacs/cider/issues/3909): `cider--sesman-friendly-session-p` is more robust at attaching buffers to existing sessions: it now properly caches empty classpath/ns-list results (previously a nil/empty result was indistinguishable from "not cached" and was re-fetched on every check), falls back to the connection's `nrepl-project-dir` when classpath matching fails, and uses `file-in-directory-p` for classpath-root boundary checks (avoiding spurious prefix matches like `/foo/bar` against `/foo/barber/...`).
 
 ### Changes
 
