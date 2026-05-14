@@ -130,17 +130,23 @@ object is a root list or dict."
    ((looking-at-p "[0-9i]")
     (cons :stub stack))
    ;; else, throw a quiet error
-   (t
-    (message "Invalid bencode message detected. See the %s buffer for details."
-             nrepl-error-buffer-name)
-    (nrepl-log-error
-     (format "Decoder error at position %d (`%s'):"
-             (point) (buffer-substring (point) (min (+ (point) 10) (point-max)))))
-    (nrepl-log-error (buffer-string))
-    (ding)
-    ;; Ensure loop break and clean queues' states in nrepl-bdecode:
-    (goto-char (point-max))
-    (cons :end nil))))
+   (t (nrepl--bdecode-error))))
+
+(defun nrepl--bdecode-error ()
+  "Handle an unrecoverable bencode parse failure.
+Log the offending position and the remaining buffer to the nREPL error
+buffer, surface a notification to the user, and return an `:end' cons
+that drains the rest of the buffer so the decoder loop terminates."
+  (message "Invalid bencode message detected. See the %s buffer for details."
+           nrepl-error-buffer-name)
+  (nrepl-log-error
+   (format "Decoder error at position %d (`%s'):"
+           (point) (buffer-substring (point) (min (+ (point) 10) (point-max)))))
+  (nrepl-log-error (buffer-string))
+  (ding)
+  ;; Drain the buffer so `nrepl-bdecode' exits its loop with clean queue state.
+  (goto-char (point-max))
+  (cons :end nil))
 
 (defun nrepl--bdecode-message (&optional stack)
   "Decode one full message starting at point.
@@ -171,6 +177,9 @@ containing the remainder of the input strings which could not be
 decoded.  RESPONSE-Q is the original queue with successfully decoded messages
 enqueued and with slot STUB containing a nested stack of an incompletely
 decoded message or nil if the strings were completely decoded."
+  ;; A persistent hidden buffer is reused across calls instead of
+  ;; `with-temp-buffer' to avoid per-message buffer allocation on the
+  ;; nREPL hot path.
   (with-current-buffer (get-buffer-create " *nrepl-decoding*")
     ;; Don't needlessly call `fundamental-mode', to prevent needlessly firing
     ;; hooks. This fixes an issue with evil-mode where the cursor loses its
