@@ -210,15 +210,11 @@ dictionaries, keys must be strings and appear in sorted order (sorted as
 raw strings, not alphanumerics).
 
 [1] https://www.bittorrent.org/beps/bep_0003.html#bencoding"
-  (let* ((sorted-keys (sort (nrepl-dict-keys dict)
-                            (lambda (a b)
-                              (string< a b))))
-         (sorted-dict (nrepl-dict)))
-    (dolist (k sorted-keys sorted-dict)
-      (nrepl-dict-put sorted-dict
-                      k
-                      (nrepl-dict-get dict k)))
-    (mapconcat #'nrepl-bencode (cdr sorted-dict) "")))
+  (mapconcat (lambda (k)
+               (concat (nrepl-bencode k)
+                       (nrepl-bencode (nrepl-dict-get dict k))))
+             (sort (nrepl-dict-keys dict) #'string<)
+             ""))
 
 (defun nrepl-bencode (object)
   "Encode OBJECT with bencode.
