@@ -1672,6 +1672,122 @@ constructs."
       (when (equal major-mode 'cider-repl-mode)
         (cider-repl-history-just-save)))))
 
+
+;;; History doctor
+
+(defun cider-repl--history-entry-balanced-p (entry)
+  "Return non-nil if ENTRY's parens balance under Clojure syntax."
+  (with-temp-buffer
+    (delay-mode-hooks (clojure-mode))
+    (insert entry)
+    (condition-case nil
+        (progn (scan-sexps (point-min) (point-max)) t)
+      (scan-error nil))))
+
+(defun cider-repl--history-malformed-entries (history)
+  "Return a list of (INDEX . ENTRY) cells for malformed entries in HISTORY.
+An entry is malformed when its parens don't balance under Clojure syntax."
+  (let ((idx 0) (out nil))
+    (dolist (entry history)
+      (when (and (stringp entry)
+                 (not (cider-repl--history-entry-balanced-p entry)))
+        (push (cons idx entry) out))
+      (cl-incf idx))
+    (nreverse out)))
+
+(defun cider-repl--history-doctor-buffer ()
+  "Get-or-create the doctor inspection buffer."
+  (let ((buf (get-buffer-create "*cider-repl-history-doctor*")))
+    (with-current-buffer buf
+      (delay-mode-hooks (clojure-mode))
+      (setq buffer-read-only t))
+    buf))
+
+(defun cider-repl--history-doctor-show (buf idx entry i total)
+  "Display ENTRY at history index IDX in BUF, with progress header (I/TOTAL)."
+  (with-current-buffer buf
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (insert (format ";; Malformed entry %d/%d -- history index %d, %d chars\n"
+                      i total idx (length entry)))
+      (insert ";; y = delete, n = keep, q = stop reviewing\n\n")
+      (insert entry))
+    (goto-char (point-min))))
+
+(defun cider-repl--history-doctor-walk (repl malformed)
+  "Walk MALFORMED entries and prompt the user to delete each.
+MALFORMED is a list of (INDEX . ENTRY) cells against REPL's history.
+Returns the list of deleted indices."
+  (let ((buf (cider-repl--history-doctor-buffer))
+        (total (length malformed))
+        (i 0)
+        (deleted nil)
+        (done nil))
+    (save-window-excursion
+      (display-buffer buf)
+      (unwind-protect
+          (dolist (pair malformed)
+            (unless done
+              (cl-incf i)
+              (let ((idx (car pair))
+                    (entry (cdr pair)))
+                (cider-repl--history-doctor-show buf idx entry i total)
+                (pcase (read-char-choice
+                        (format "Entry %d/%d (index %d) -- delete? (y/n/q) "
+                                i total idx)
+                        '(?y ?n ?q))
+                  (?y (push idx deleted))
+                  (?n nil)
+                  (?q (setq done t))))))
+        (kill-buffer buf)))
+    (when deleted
+      (with-current-buffer repl
+        (dolist (idx (sort deleted #'>))
+          (setq cider-repl-input-history
+                (append (seq-take cider-repl-input-history idx)
+                        (seq-drop cider-repl-input-history (1+ idx)))))))
+    deleted))
+
+(declare-function cider-current-repl "cider-session")
+(defun cider-repl-history-doctor ()
+  "Interactively review and delete malformed entries in the REPL history.
+
+Walks `cider-repl-input-history' looking for entries whose parens don't
+balance under Clojure syntax -- the kind of corruption that causes
+`cider-repl-history' to fail with \"Unmatched bracket or quote\" (see
+issue #3915).  Each problematic entry is shown in a side buffer; answer
+`y' to delete it, `n' to keep it, `q' to stop reviewing.  When done,
+the history file is rewritten if `cider-repl-history-file' is set."
+  (interactive)
+  (let ((repl (or (and (derived-mode-p 'cider-repl-mode) (current-buffer))
+                  (bound-and-true-p cider-repl-history-repl-buffer)
+                  (and (fboundp 'cider-current-repl) (cider-current-repl))
+                  (user-error "No CIDER REPL available"))))
+    (let* ((history (buffer-local-value 'cider-repl-input-history repl))
+           (malformed (cider-repl--history-malformed-entries history))
+           (total (length malformed)))
+      (cond
+       ((zerop total)
+        (message "REPL history is clean (%d entries, all parse)."
+                 (length history)))
+       (t
+        (message "Found %d malformed %s out of %d.  Reviewing..."
+                 total (if (= total 1) "entry" "entries") (length history))
+        (let ((deleted (cider-repl--history-doctor-walk repl malformed)))
+          (cond
+           ((null deleted)
+            (message "No entries deleted."))
+           (t
+            (when cider-repl-history-file
+              (with-current-buffer repl
+                (cider-repl--history-write cider-repl-history-file)))
+            (message "Deleted %d %s%s."
+                     (length deleted)
+                     (if (= 1 (length deleted)) "entry" "entries")
+                     (if cider-repl-history-file
+                         (format ", saved %s" cider-repl-history-file)
+                       ""))))))))))
+
 
 ;;; REPL shortcuts
 (defcustom cider-repl-shortcut-dispatch-char ?\,
