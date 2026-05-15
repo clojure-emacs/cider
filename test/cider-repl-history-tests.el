@@ -70,6 +70,47 @@
           (when (get-buffer hist-buf-name)
             (kill-buffer hist-buf-name)))))))
 
+(describe "cider-repl--history-entry-balanced-p"
+  (it "accepts well-formed Clojure forms"
+    (expect (cider-repl--history-entry-balanced-p "(+ 1 2)") :to-be-truthy)
+    (expect (cider-repl--history-entry-balanced-p "(let [x [1 2 3]] (map inc x))")
+            :to-be-truthy)
+    (expect (cider-repl--history-entry-balanced-p "{:a 1 :b #{2 3}}") :to-be-truthy)
+    (expect (cider-repl--history-entry-balanced-p "") :to-be-truthy)
+    (expect (cider-repl--history-entry-balanced-p "42") :to-be-truthy))
+
+  (it "rejects entries with unbalanced parens"
+    (expect (cider-repl--history-entry-balanced-p "(let [x 1] x))))")
+            :not :to-be-truthy)
+    (expect (cider-repl--history-entry-balanced-p "(+ 1 (")
+            :not :to-be-truthy)
+    (expect (cider-repl--history-entry-balanced-p "[1 2 3")
+            :not :to-be-truthy)))
+
+(describe "cider-repl--history-malformed-entries"
+  (it "returns nil for an empty history"
+    (expect (cider-repl--history-malformed-entries '()) :to-equal nil))
+
+  (it "returns nil for a fully well-formed history"
+    (expect (cider-repl--history-malformed-entries
+             '("(+ 1 2)" "(println :ok)" "[]"))
+            :to-equal nil))
+
+  (it "reports (INDEX . ENTRY) pairs for each malformed entry"
+    (let ((hist '("(+ 1 2)"        ; 0
+                  "(let [x 1] x))" ; 1 -- malformed
+                  "(println :ok)"  ; 2
+                  "[1 2 3"))       ; 3 -- malformed
+          (out (cider-repl--history-malformed-entries
+                '("(+ 1 2)"
+                  "(let [x 1] x))"
+                  "(println :ok)"
+                  "[1 2 3"))))
+      (ignore hist)
+      (expect (length out) :to-equal 2)
+      (expect (car (nth 0 out)) :to-equal 1)
+      (expect (car (nth 1 out)) :to-equal 3))))
+
 (provide 'cider-repl-history-tests)
 
 ;;; cider-repl-history-tests.el ends here
