@@ -589,12 +589,19 @@ HISTORY-BUF is the history, and optional arg REGEXP is a filter."
   (with-current-buffer history-buf
     (unwind-protect
         (progn
+          ;; Erase any stale content from a previous invocation before
+          ;; (re-)entering the mode.  `cider-repl-history-mode' inherits
+          ;; from `clojure-mode', and its mode hooks can run arbitrary
+          ;; syntax checks (e.g. `check-parens' set up by the user).  If
+          ;; the previous render left an entry with unbalanced parens in
+          ;; the buffer, re-running the hooks on that content would fail
+          ;; with "Unmatched bracket or quote" -- see #3915.
+          (let ((inhibit-read-only t))
+            (erase-buffer))
           (cider-repl-history-mode)
           (setq buffer-read-only nil)
           (when (eq 'one-line cider-repl-history-display-style)
             (setq truncate-lines t))
-          (let ((inhibit-read-only t))
-            (erase-buffer))
           (setq cider-repl-history-repl-buffer repl-buf)
           (setq cider-repl-history-repl-window repl-win)
           (let* ((cider-repl-history-maximum-display-length
