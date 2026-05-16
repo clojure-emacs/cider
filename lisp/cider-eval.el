@@ -437,14 +437,15 @@ LOCATION is the location marker at which to insert.
 COMMENT-PREFIX is the comment prefix for the first line of output.
 CONTINUED-PREFIX is the comment prefix to use for the remaining lines.
 COMMENT-POSTFIX is the text to output after the last line."
-  (let ((res ""))
+  (let ((res "")
+        (stderr ""))
     (cider-make-eval-handler
      :buffer buffer
      :on-value (lambda (value) (setq res (concat res value)))
      ;; Forward stdout to the usual interactive sink so output like the
      ;; `time' macro's "Elapsed time" line isn't silently dropped (#3732).
      :on-stdout #'cider-emit-interactive-eval-output
-     :on-stderr (lambda (err) (setq res (concat res err)))
+     :on-stderr (lambda (err) (setq stderr (concat stderr err)))
      :on-done (lambda ()
                 (with-current-buffer buffer
                   (save-excursion
@@ -452,7 +453,11 @@ COMMENT-POSTFIX is the text to output after the last line."
                     ;; edge case: defun at eob
                     (unless (bolp) (insert "\n"))
                     (cider-maybe-insert-multiline-comment
-                     res comment-prefix continued-prefix comment-postfix)))
+                     (if (or (string-blank-p res)
+                             (string-blank-p stderr))
+                         (string-trim (concat res stderr))
+                       (concat res "\n" (string-trim stderr)))
+                     comment-prefix continued-prefix comment-postfix)))
                 (cider--maybe-set-eval-register res)))))
 
 (defun cider-popup-eval-handler (&optional buffer _bounds source-buffer)
