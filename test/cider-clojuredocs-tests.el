@@ -48,3 +48,15 @@
     (expect (cider-clojuredocs-url "even?" "clojure.core") :to-equal "https://clojuredocs.org/clojure.core/even_q")
     (expect (cider-clojuredocs-url nil "clojure.core") :to-be nil)
     (expect (cider-clojuredocs-url "even?" nil) :to-be nil)))
+
+(describe "cider-clojuredocs--strip-ns"
+  (it "removes the namespace from qualified symbols"
+    (expect (cider-clojuredocs--strip-ns "clojure.core/subs") :to-equal "subs")
+    (expect (cider-clojuredocs--strip-ns "clojure.string/trim") :to-equal "trim"))
+  (it "preserves a slash symbol name (the bug being fixed)"
+    (expect (cider-clojuredocs--strip-ns "clojure.core//") :to-equal "/"))
+  (it "preserves operator-like names"
+    (expect (cider-clojuredocs--strip-ns "clojure.core/+") :to-equal "+"))
+  (it "leaves unqualified symbols unchanged"
+      (expect (cider-clojuredocs--strip-ns "/") :to-equal "/")
+      (expect (cider-clojuredocs--strip-ns "subs") :to-equal "subs")))
