@@ -227,7 +227,7 @@ Necessary since we run some OS-specific commands that may fail."
 When DIR is non-nil also look for nREPL port files in DIR.  Return a list
 of list of the form (project-dir port)."
   (let* ((pairs (cider--running-nrepl-paths))
-         (pairs (if-let (c (and dir (clojure-project-dir dir)))
+         (pairs (if-let (c (and dir (cider-project-dir dir)))
                     (append (cider--path->path-port-pairs c) pairs)
                   pairs)))
     (thread-last pairs

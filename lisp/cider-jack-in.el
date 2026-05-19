@@ -709,10 +709,10 @@ that host instead of the local one."
 
 (defun cider--resolve-project-command (command)
   "Find COMMAND in project dir or exec path (see variable `exec-path').
-If COMMAND starts with ./ or ../ resolve relative to `clojure-project-dir',
+If COMMAND starts with ./ or ../ resolve relative to `cider-project-dir',
 otherwise resolve via `cider--resolve-command'."
   (if (string-match-p "\\`\\.\\{1,2\\}/" command)
-      (locate-file command (list (clojure-project-dir)) '("" ".bat") 'executable)
+      (locate-file command (list (cider-project-dir)) '("" ".bat") 'executable)
     (cider--resolve-command command)))
 
 (defun cider--resolve-prefix-command (command)
@@ -962,7 +962,7 @@ only when the ClojureScript dependencies are met."
   "Identify build systems present by their build files in PROJECT-DIR.
 PROJECT-DIR defaults to the current project.  The set of recognized build
 files is derived from the :project-files entries in `cider-jack-in-tools'."
-  (let ((default-directory (or project-dir (clojure-project-dir (cider-current-dir)))))
+  (let ((default-directory (or project-dir (cider-project-dir (cider-current-dir)))))
     (delq nil
           (mapcar (lambda (entry)
                     (when (seq-some #'file-exists-p
@@ -1044,7 +1044,7 @@ For example, to jack in to leiningen which is assigned to prefix arg 2 type
 
 M-2 \\[cider-jack-in-universal]."
   (interactive "P")
-  (let ((cpt (clojure-project-dir (cider-current-dir))))
+  (let ((cpt (cider-project-dir (cider-current-dir))))
     (if (or (integerp arg) (null cpt))
         (let* ((tools (cider--universal-jack-in-tools))
                (project-type

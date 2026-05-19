@@ -656,7 +656,7 @@ resolve those to absolute paths."
                        (cider-sync-tooling-eval)
                        (nrepl-dict-get "value")
                        read))
-          (project (clojure-project-dir)))
+          (project (cider-project-dir)))
       (mapcar (lambda (path) (cider--get-abs-path path project)) classpath))))
 
 (defun cider-classpath-entries (&optional connection)

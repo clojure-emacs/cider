@@ -323,7 +323,7 @@ removed."
   (let* ((dir (directory-file-name
                (abbreviate-file-name
                 (or (plist-get params :project-dir)
-                    (clojure-project-dir (cider-current-dir))
+                    (cider-project-dir (cider-current-dir))
                     default-directory))))
          (short-proj (file-name-nondirectory (directory-file-name dir)))
          (parent-dir (ignore-errors
@@ -403,7 +403,7 @@ Reverts to normal project-based session association."
 
 (cl-defmethod sesman-project ((_system (eql CIDER)))
   "Find project directory."
-  (clojure-project-dir (cider-current-dir)))
+  (cider-project-dir (cider-current-dir)))
 
 (cl-defmethod sesman-more-relevant-p ((_system (eql CIDER)) session1 session2)
   "Figure out if SESSION1 or SESSION2 is more relevant."

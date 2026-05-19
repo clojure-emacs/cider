@@ -394,7 +394,7 @@ Same for `jar:file:...!/' segments."
                   file-with-protocol)))
     (if (string-match "\\`file:\\(.*\\)" result)
         (let ((file (match-string 1 result))
-              (proj-dir (clojure-project-dir)))
+              (proj-dir (cider-project-dir)))
           (if (and proj-dir
                    (file-in-directory-p file proj-dir))
               (file-relative-name file proj-dir)

@@ -33,6 +33,7 @@
 
 ### Changes
 
+- Project root detection no longer goes through `clojure-mode'/`clojure-ts-mode'.  New `cider-project-dir' built on top of `project.el' is used instead, with `cider-build-tool-files' as the extra root markers.  This works identically whether the user is in `clojure-mode', `clojure-ts-mode', or even a buffer not visiting a Clojure file (e.g. an `M-x cider-connect' from Dired), and respects any `project-find-functions' the user has configured.
 - [#710](https://github.com/clojure-emacs/cider-nrepl/issues/710): Use namespaced nREPL ops (e.g. `cider/info` instead of `info`) to match cider-nrepl 0.59+.
 - Bump the injected `nrepl` to [1.7.0](https://github.com/nrepl/nrepl/blob/master/CHANGELOG.md#170-2026-04-14).
 - Bump the injected `cider-nrepl` to [0.59.0](https://github.com/clojure-emacs/cider-nrepl/blob/master/CHANGELOG.md#0590-2026-04-14).
