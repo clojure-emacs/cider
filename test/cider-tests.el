@@ -179,7 +179,7 @@
             :and-call-fake (lambda (params) (setq chosen-fn 'clj chosen-args params)))
     (spy-on 'cider-jack-in-cljs
             :and-call-fake (lambda (params) (setq chosen-fn 'cljs chosen-args params)))
-    (spy-on 'clojure-project-dir :and-return-value nil))
+    (spy-on 'cider-project-dir :and-return-value nil))
 
   (it "dispatches to cider-jack-in-clj for a clj prefix-arg"
     (cider-jack-in-universal 2)
@@ -572,7 +572,7 @@
           (file-path (concat temporary-file-directory edn-file)))
      (with-temp-file file-path
        (insert ,contents))
-     (spy-on 'clojure-project-dir :and-return-value temporary-file-directory)
+     (spy-on 'cider-project-dir :and-return-value temporary-file-directory)
      ,@body
      (delete-file file-path)))
 
@@ -637,12 +637,12 @@
       (expect (cider--resolve-command "no-such-command") :to-be nil))))
 
 (describe "cider--resolve-project-command"
-  (it "if command starts with ./ it resolves relative to clojure-project-dir"
+  (it "if command starts with ./ it resolves relative to cider-project-dir"
     (spy-on 'locate-file :and-return-value "/project/command")
     (spy-on 'executable-find :and-return-value "/bin/command")
     (expect (cider--resolve-project-command "./command")
             :to-equal "/project/command"))
-  (it "if command starts with ../ it resolves relative to clojure-project-dir"
+  (it "if command starts with ../ it resolves relative to cider-project-dir"
     (spy-on 'locate-file :and-return-value "/project/command")
     (spy-on 'executable-find :and-return-value "/bin/command")
     (expect (cider--resolve-project-command "../command")
@@ -741,7 +741,7 @@
     (spy-on 'cider--running-lein-nrepl-paths :and-return-value '(("lein" "1234")))
     (spy-on 'cider--running-local-nrepl-paths :and-return-value '(("local" "2345")))
     (spy-on 'cider--running-non-lein-nrepl-paths :and-return-value '(("non-lein" "3456")))
-    (spy-on 'clojure-project-dir :and-return-value #'identity)
+    (spy-on 'cider-project-dir :and-return-value #'identity)
     (spy-on 'cider--path->path-port-pairs :and-return-value '(("from-dir" "4567")))
     (spy-on 'directory-file-name :and-call-fake #'identity)
     (spy-on 'file-name-nondirectory :and-call-fake #'identity)

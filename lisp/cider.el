@@ -353,14 +353,14 @@ Params is a plist with the following keys (non-exhaustive)
          (proj-dir (if (or (plist-get params :do-prompt)
                            (plist-get params :edit-project-dir))
                        (read-directory-name "Project: "
-                                            (clojure-project-dir (cider-current-dir)))
+                                            (cider-project-dir (cider-current-dir)))
                      (plist-get params :project-dir)))
          (orig-buffer (current-buffer)))
     (if (or (null proj-dir)
             (file-in-directory-p default-directory proj-dir))
         (plist-put params :project-dir
                    (or proj-dir
-                       (clojure-project-dir (cider-current-dir))))
+                       (cider-project-dir (cider-current-dir))))
       ;; If proj-dir is not a parent of default-directory, transfer all
       ;; local variables and hack dir-local variables into a temporary
       ;; buffer kept on `params' for the rest of the param-update pipeline.

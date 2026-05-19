@@ -89,6 +89,53 @@ Setting this to nil removes the fontification restriction."
       (file-name-directory buffer-file-name)
     default-directory))
 
+(defcustom cider-build-tool-files
+  '("project.clj"      ; Leiningen
+    "build.boot"       ; Boot
+    "build.gradle"     ; Gradle
+    "build.gradle.kts" ; Gradle Kotlin
+    "deps.edn"         ; Clojure CLI (tools.deps)
+    "shadow-cljs.edn"  ; shadow-cljs
+    "bb.edn"           ; babashka
+    "nbb.edn"          ; nbb
+    "basilisp.edn"     ; Basilisp (Python)
+    )
+  "Files indicating the root of a Clojure project.
+Used by `cider-project-dir' as extra root markers passed to
+`project.el'."
+  :type '(repeat string)
+  :group 'cider
+  :safe (lambda (value)
+          (and (listp value)
+               (cl-every #'stringp value))))
+
+(defun cider-project-dir (&optional dir)
+  "Return the absolute path of the current Clojure project root, or nil.
+DIR defaults to `default-directory'.
+
+Built on top of `project.el', so the result respects any project-discovery
+customization the user has configured (`project-find-functions',
+`project-vc-extra-root-markers', etc.).  `cider-build-tool-files' extends
+the set of markers project.el's VC backend will accept, so a `deps.edn'
+or `project.clj' root wins over a deeper enclosing VC root.
+
+Falls back to a `locate-dominating-file' search against
+`cider-build-tool-files' when project.el doesn't detect anything; this
+also covers Emacs 28, which doesn't have `project-vc-extra-root-markers'."
+  (let ((default-directory (or dir default-directory)))
+    (or (let ((project-vc-extra-root-markers
+               (append (and (boundp 'project-vc-extra-root-markers)
+                            project-vc-extra-root-markers)
+                       cider-build-tool-files)))
+          (when-let* ((proj (project-current)))
+            (expand-file-name (project-root proj))))
+        (when-let* ((hits (delq nil
+                                (mapcar (lambda (f)
+                                          (locate-dominating-file
+                                           default-directory f))
+                                        cider-build-tool-files))))
+          (expand-file-name (car (sort hits #'file-in-directory-p)))))))
+
 (defun cider-in-string-p ()
   "Return non-nil if point is in a string."
   (let ((beg (save-excursion (beginning-of-defun-raw) (point))))

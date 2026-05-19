@@ -144,7 +144,7 @@ The default options of `browser-repl' and `node-repl' are also included."
 
 (defun cider--shadow-get-builds ()
   "Extract build names from the shadow-cljs.edn config file in the project root."
-  (let ((shadow-edn (concat (clojure-project-dir) "shadow-cljs.edn")))
+  (let ((shadow-edn (concat (cider-project-dir) "shadow-cljs.edn")))
     (when (file-readable-p shadow-edn)
       (with-temp-buffer
         (insert-file-contents shadow-edn)
@@ -206,7 +206,7 @@ Figwheel for details."
 (defun cider--figwheel-main-get-builds ()
   "Extract build names from the <build-id>.cljs.edn config files.
 Fetches them in the project root."
-  (when-let ((project-dir (clojure-project-dir)))
+  (when-let ((project-dir (cider-project-dir)))
     (let ((builds (directory-files project-dir nil ".*\\.cljs\\.edn")))
       (mapcar (lambda (f) (string-match "^\\(.*\\)\\.cljs\\.edn" f)
                 (match-string 1 f))

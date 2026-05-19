@@ -1390,7 +1390,7 @@ regexes from `cider-locref-regexp-alist' to infer locations at point."
                       (let ((file-from-regexp (if (file-name-absolute-p file)
                                                   file
                                                 ;; when not absolute, expand within the current project
-                                                (when-let* ((proj (clojure-project-dir)))
+                                                (when-let* ((proj (cider-project-dir)))
                                                   (expand-file-name file proj)))))
                         (or (when (file-readable-p file-from-regexp)
                               file-from-regexp)
@@ -1598,7 +1598,7 @@ It does not yet set the input history."
   "Find the first suitable directory to store the project's history."
   (seq-find
    (lambda (dir) (and dir (not (tramp-tramp-file-p dir))))
-   (list nrepl-project-dir (clojure-project-dir) default-directory)))
+   (list nrepl-project-dir (cider-project-dir) default-directory)))
 
 (defun cider-repl-history-load (&optional filename)
   "Load history from FILENAME into current session.
