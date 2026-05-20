@@ -29,6 +29,7 @@ Here's an incomplete list of Clojure platforms that you can use as described abo
 * https://github.com/babashka/nbb[nbb]
 * https://github.com/babashka/scittle[scittle]
 * https://github.com/BetterThanTomorrow/joyride[joyride]
+* https://github.com/nooga/let-go[let-go] (a Clojure dialect implemented in Go)
 
 NOTE: For `nbb` you can alternatively connect via `cider-connect-cljs`, see xref:platforms/nbb.adoc[nbb].
 

@@ -203,6 +203,17 @@ But helps us know if this is a nbb repl, or not."
     (when nrepl-versions
       (nrepl-dict-get nrepl-versions "scittle-nrepl"))))
 
+(defun cider--let-go-version ()
+  "Retrieve the underlying connection's let-go version.
+Formatted as \"MAJOR.MINOR\" since let-go's nREPL `describe` response
+splits the version into separate fields rather than a `version-string`."
+  (with-current-buffer (cider-current-repl)
+    (when-let* ((versions nrepl-versions)
+                (lg (nrepl-dict-get versions "let-go")))
+      (format "%s.%s"
+              (or (nrepl-dict-get lg "major") "?")
+              (or (nrepl-dict-get lg "minor") "?")))))
+
 (defun cider-runtime ()
   "Return the runtime of the nREPl server."
   (cond
@@ -210,6 +221,7 @@ But helps us know if this is a nbb repl, or not."
    ((cider--babashka-version) 'babashka)
    ((cider--nbb-nrepl-version) 'nbb)
    ((cider--scittle-nrepl-version) 'scittle)
+   ((cider--let-go-version) 'let-go)
    (t 'generic)))
 
 (defun cider-runtime-clojure-p ()

@@ -254,6 +254,7 @@ See `cider-connection-capabilities'."
              ('babashka '(babashka jvm-compilation-errors))
              ('nbb '(cljs))
              ('scittle '(cljs))
+             ('let-go '(let-go))
              (_ '()))
            (when
                (eq cider-repl-type 'cljs)
@@ -347,6 +348,13 @@ about this buffer (like variable `cider-repl-type')."
                           (plist-get nrepl-endpoint :port)
                           (cider--babashka-version)
                           (cider--babashka-nrepl-version)))
+                 ((cider--let-go-version)
+                  (format "%s%s@%s:%s (let-go %s)"
+                          (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
+                          (or (cider--project-name nrepl-project-dir) "<no project>")
+                          (plist-get nrepl-endpoint :host)
+                          (plist-get nrepl-endpoint :port)
+                          (cider--let-go-version)))
                  (t
                   (format "%s%s@%s:%s"
                           (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
