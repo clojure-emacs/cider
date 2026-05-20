@@ -43,6 +43,11 @@
 (require 'clojure-mode)
 (require 'nrepl-dict)
 
+;; Declared so the byte-compiler doesn't flag the `let' binding in
+;; `cider-project-dir' as an unused lexical variable on Emacs 28,
+;; where project.el doesn't define this variable.
+(defvar project-vc-extra-root-markers)
+
 (defalias 'cider-pop-back #'pop-tag-mark)
 
 (defcustom cider-font-lock-max-length 10000
