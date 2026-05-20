@@ -243,7 +243,11 @@
     (spy-on 'file-in-directory-p :and-call-fake (lambda (file dir)
                                                   (string-prefix-p dir file)))
     (spy-on 'file-relative-name :and-call-fake (lambda (file dir)
-                                                 (substring file (+ 1 (length dir))))))
+                                                 (substring file (+ 1 (length dir)))))
+    ;; The path-based fallback uses `cider-project-dir' to compute a
+    ;; relative path; stub it so we don't accidentally pick up the
+    ;; surrounding cider repo as a "project".
+    (spy-on 'cider-project-dir :and-return-value "/cider--proj/"))
 
   (it "returns the namespace matching the given string path"
     (expect (cider-expected-ns "/cider--a/foo/bar/baz_utils.clj") :to-equal
@@ -256,14 +260,22 @@
     (expect (cider-expected-ns "/cider--c/foo/bar/baz") :to-equal
             "foo.bar.baz")
     (expect (cider-expected-ns "/cider--base/clj-dev/foo/bar.clj") :to-equal
-            "foo.bar")
-    (expect (cider-expected-ns "/cider--not/in/classpath.clj") :to-equal
-            (clojure-expected-ns "/cider--not/in/classpath.clj")))
+            "foo.bar"))
 
-  (it "returns nil if it cannot find the namespace"
-    (expect (cider-expected-ns "/cider--z/abc/def") :to-equal ""))
+  (it "falls back on project-relative path heuristics when the file is not on the classpath"
+    ;; With our `cider-project-dir' stub returning "/cider--proj/", the
+    ;; mocked `file-relative-name' makes "/cider--proj/src/foo/bar.clj"
+    ;; relative to "/cider--proj/" -> "src/foo/bar.clj".  The path-based
+    ;; helper drops the first directory ("src") and produces "foo.bar".
+    (expect (cider-expected-ns "/cider--proj/src/foo/bar.clj") :to-equal
+            "foo.bar"))
 
-  (it "falls back on `clojure-expected-ns' in the absence of an active nREPL connection"
+  (it "strips known directory prefixes after deriving the ns"
+    ;; Files under e.g. src/clj/... should not produce a "clj." prefix.
+    (expect (cider-expected-ns "/cider--proj/src/clj/foo/bar.clj") :to-equal
+            "foo.bar"))
+
+  (it "uses the path-based fallback in the absence of an active nREPL connection"
     (spy-on 'cider-connected-p :and-return-value nil)
-    (spy-on 'clojure-expected-ns :and-return-value "clojure-expected-ns")
-    (expect (cider-expected-ns "foo") :to-equal "clojure-expected-ns")))
+    (expect (cider-expected-ns "/cider--proj/src/foo/bar.clj") :to-equal
+            "foo.bar")))

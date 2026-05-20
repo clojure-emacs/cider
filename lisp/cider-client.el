@@ -152,27 +152,59 @@ Remove extension and substitute \"/\" with \".\", \"_\" with \"-\"."
     (replace-regexp-in-string "/" ".")
     (replace-regexp-in-string "_" "-")))
 
+(defcustom cider-directory-prefixes
+  '("\\`clj[scxd]?\\.")
+  "Namespace prefixes to strip after deriving a ns from a file path.
+Used by `cider-expected-ns' to discard intermediate source directories
+that aren't really part of the namespace, e.g. a file at
+\"src/clj/foo/bar.clj\" should give the namespace \"foo.bar\" rather
+than \"clj.foo.bar\"."
+  :type '(repeat string)
+  :group 'cider
+  :safe (lambda (value)
+          (and (listp value)
+               (cl-every #'stringp value))))
+
+(defun cider--ns-from-path (path)
+  "Derive a Clojure namespace from PATH using project layout heuristics.
+PATH is expected to be an absolute file path inside a project (see
+`cider-project-dir').  The first directory component of the project-
+relative path is dropped (typically `src' or `test') and any prefix
+matching an entry in `cider-directory-prefixes' is stripped from the
+result.  Returns nil when PATH isn't inside a recognized project."
+  (when-let* ((proj (cider-project-dir (file-name-directory path)))
+              (relative (file-relative-name path proj))
+              (drop-first (mapconcat #'identity
+                                     (cdr (split-string relative "/"))
+                                     "/")))
+    (cl-reduce (lambda (acc re) (replace-regexp-in-string re "" acc))
+               cider-directory-prefixes
+               :initial-value (cider-path-to-ns drop-first))))
+
 (defun cider-expected-ns (&optional path)
   "Return the namespace string matching PATH, or nil if not found.
-If PATH is nil, use the path to the file backing the current buffer.  The
-command falls back to `clojure-expected-ns' in the absence of an active
-nREPL connection."
-  (if (cider-connected-p)
-      (let* ((path (file-truename (or path buffer-file-name)))
-             (relpath (thread-last
-                        (cider-classpath-entries)
-                        (seq-filter #'file-directory-p)
-                        (seq-map (lambda (dir)
-                                   (when (file-in-directory-p path dir)
-                                     (file-relative-name path dir))))
-                        (seq-filter #'identity)
-                        (seq-sort (lambda (a b)
-                                    (< (length a) (length b))))
-                        (car))))
-        (if relpath
-            (cider-path-to-ns relpath)
-          (clojure-expected-ns path)))
-    (clojure-expected-ns path)))
+If PATH is nil, use the path to the file backing the current buffer.
+
+When an nREPL connection is active, the namespace is preferentially
+derived from the connection's classpath entries.  Otherwise (or when
+PATH isn't on the classpath) it falls back to `cider--ns-from-path',
+which uses project layout heuristics."
+  (when-let* ((path (file-truename (or path buffer-file-name))))
+    (if (cider-connected-p)
+        (let ((relpath (thread-last
+                         (cider-classpath-entries)
+                         (seq-filter #'file-directory-p)
+                         (seq-map (lambda (dir)
+                                    (when (file-in-directory-p path dir)
+                                      (file-relative-name path dir))))
+                         (seq-filter #'identity)
+                         (seq-sort (lambda (a b)
+                                     (< (length a) (length b))))
+                         (car))))
+          (if relpath
+              (cider-path-to-ns relpath)
+            (cider--ns-from-path path)))
+      (cider--ns-from-path path))))
 
 (defun cider--fallback-op (op connection)
   "Return the effective op name for OP on CONNECTION.
