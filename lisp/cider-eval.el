@@ -377,7 +377,7 @@ RESULT will be preceded by COMMENT-PREFIX.
 CONTINUED-PREFIX is inserted for each additional line of output.
 COMMENT-POSTFIX is inserted after final text output."
   (unless (string= result "")
-    (clojure-indent-line)
+    (indent-according-to-mode)
     (let ((lines (split-string result "[\n]+" t))
           (beg (point))
           (col (current-indentation)))
