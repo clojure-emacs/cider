@@ -1307,6 +1307,25 @@ This in effect enables or disables the logging of nREPL messages."
   (let ((inhibit-read-only t))
     (erase-buffer)))
 
+(defun nrepl-show-messages ()
+  "Pop up an nREPL messages buffer.
+With more than one active connection, prompt for which one to show.
+If `nrepl-log-messages' is nil no buffer exists yet, so signal an
+error pointing at `nrepl-toggle-message-logging'."
+  (interactive)
+  (let ((buffers (seq-filter (lambda (b)
+                               (with-current-buffer b
+                                 (derived-mode-p 'nrepl-messages-mode)))
+                             (buffer-list))))
+    (pcase (length buffers)
+      (0 (user-error "No nREPL messages buffer exists; enable logging with `nrepl-toggle-message-logging'"))
+      (1 (pop-to-buffer (car buffers)))
+      (_ (pop-to-buffer
+          (get-buffer
+           (completing-read "nREPL messages buffer: "
+                            (mapcar #'buffer-name buffers)
+                            nil t)))))))
+
 (defcustom nrepl-message-colors
   '("red" "brown" "coral" "orange" "green" "deep sky blue" "blue" "dark violet")
   "Colors used in the messages buffer."
