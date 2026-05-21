@@ -1396,6 +1396,9 @@ If ID is nil, return nil."
       (mod (length nrepl-message-colors))
       (nth nrepl-message-colors))))
 
+(defconst nrepl-log--special-keys '("id" "op" "session" "time-stamp")
+  "Keys that are displayed first, in this order, in `nrepl-log--pp-listlike'.")
+
 (defun nrepl-log--pp-listlike (object &optional foreground button)
   "Pretty print nREPL list like OBJECT.
 FOREGROUND and BUTTON are as in `nrepl-log-pp-object'."
@@ -1407,28 +1410,32 @@ FOREGROUND and BUTTON are as in `nrepl-log-pp-object'."
       (insert (color head))
       (if (null (cdr object))
           (insert ")\n")
+        ;; Walk the plist once: bucket pairs whose key is in
+        ;; `nrepl-log--special-keys' into a fixed-position vector so they
+        ;; emit in canonical order, collect the rest in insertion order,
+        ;; and track the widest key for column alignment.  Replaces a
+        ;; pipeline that copy-sequence'd, partitioned, sorted, mapped,
+        ;; filtered, removed, and concatenated the plist for every message.
         (let* ((indent (+ 2 (- (current-column) (length head))))
-               (sorted-pairs (sort (seq-partition (copy-sequence (cdr object)) 2)
-                                   (lambda (a b)
-                                     (string< (car a) (car b)))))
-               (name-lengths (seq-map (lambda (pair) (length (car pair))) sorted-pairs))
-               (longest-name (seq-max name-lengths))
-               ;; Special entries are displayed first
-               (specialq (lambda (pair) (member (car pair) '("id" "op" "session" "time-stamp"))))
-               (special-pairs (seq-filter specialq sorted-pairs))
-               (not-special-pairs (seq-remove specialq sorted-pairs))
-               (all-pairs (seq-concatenate 'list special-pairs not-special-pairs))
-               (sorted-object (apply #'seq-concatenate 'list all-pairs)))
+               (specials (make-vector (length nrepl-log--special-keys) nil))
+               (others nil)
+               (longest-name 0))
+          (cl-loop for (k v) on (cdr object) by #'cddr
+                   do (setq longest-name (max longest-name (length k)))
+                   do (let ((idx (cl-position k nrepl-log--special-keys :test #'equal)))
+                        (if idx
+                            (aset specials idx (cons k v))
+                          (push (cons k v) others))))
           (insert "\n")
-          (cl-loop for l on sorted-object by #'cddr
-                   do (let ((indent-str (make-string indent ?\s))
-                            (name-str (propertize (car l) 'face
-                                                  ;; Only highlight top-level keys.
-                                                  (unless (eq (car object) 'dict)
-                                                    'font-lock-keyword-face)))
-                            (spaces-str (make-string (- longest-name (length (car l))) ?\s)))
-                        (insert (format "%s%s%s " indent-str name-str spaces-str))
-                        (nrepl-log-pp-object (cadr l) nil button)))
+          (let ((indent-str (make-string indent ?\s))
+                ;; Only highlight top-level keys.
+                (face (unless (eq (car object) 'dict) 'font-lock-keyword-face)))
+            (dolist (pair (nconc (delq nil (append specials nil)) (nreverse others)))
+              (let* ((k (car pair))
+                     (v (cdr pair))
+                     (spaces-str (make-string (- longest-name (length k)) ?\s)))
+                (insert indent-str (propertize k 'face face) spaces-str " ")
+                (nrepl-log-pp-object v nil button))))
           (when (eq (car object) 'dict)
             (delete-char -1))
           (insert (color ")\n")))))))
