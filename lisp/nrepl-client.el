@@ -1455,13 +1455,14 @@ it into the buffer."
          (t
           (if (and button (> (length object) min-list-fold-size))
               (nrepl-log-insert-button (format "(%s ...)" (prin1-to-string head)) object)
-            (pp object (current-buffer)))))
+            (prin1 object (current-buffer))
+            (insert "\n"))))
       ;; non-list objects
       (if (stringp object)
           (if (and button (> (length object) min-string-fold-size))
               (nrepl-log-insert-button (format "\"%s...\"" (substring object 0 min-string-fold-size)) object)
             (insert (prin1-to-string object) "\n"))
-        (pp object (current-buffer))
+        (prin1 object (current-buffer))
         (insert "\n")))))
 
 (defun nrepl-messages-buffer (conn)
