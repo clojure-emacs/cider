@@ -45,6 +45,11 @@
 - Convert modern tuple-format indent specs (e.g. `[[:block 1] [:inner 0]]`) to legacy format for compatibility with older clojure-mode versions.
 - Rename `cider-eval-spinner-type`, `cider-show-eval-spinner`, and `cider-eval-spinner-delay` to `cider-spinner-type`, `cider-show-spinner`, and `cider-spinner-delay`.  The old names are kept as obsolete aliases.
 - Replace `cider-jack-in-universal-options` with the more general `cider-jack-in-tools` registry; the old variable is removed. Anyone who customized it should migrate by calling `cider-register-jack-in-tool` instead.
+- Performance and correctness pass on the nREPL message logger:
+  - `nrepl-log-message` no longer mutates the live response dict to attach its display timestamp. Response callbacks used to see a stray `"time-stamp"` key on freshly-arrived messages.
+  - `nrepl-log--pp-listlike` now walks the plist in a single pass instead of copy-sequencing it through a sort/filter/concat pipeline. Specials (`id`, `op`, `session`, `time-stamp`) still print first but in canonical order, and the remaining keys now print in insertion order rather than alphabetically.
+  - `pp` was swapped for `prin1` in the non-dict leaf paths of `nrepl-log-pp-object`.
+  - `nrepl-message-buffer-max-size` and `nrepl-message-buffer-reduce-denominator` are now `defcustom` to match their docstring intent.
 
 ## 1.21.0 (2026-02-07)
 
