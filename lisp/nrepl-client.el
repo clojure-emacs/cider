@@ -1233,6 +1233,7 @@ operations.")
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "n")   #'next-line)
     (define-key map (kbd "p")   #'previous-line)
+    (define-key map (kbd "c")   #'nrepl-clear-messages)
     (define-key map (kbd "TAB") #'forward-button)
     (define-key map (kbd "RET") #'nrepl-log-expand-button)
     (define-key map (kbd "e")   #'nrepl-log-expand-button)
@@ -1297,6 +1298,14 @@ This in effect enables or disables the logging of nREPL messages."
   (if nrepl-log-messages
       (message "nREPL message logging enabled")
     (message "nREPL message logging disabled")))
+
+(defun nrepl-clear-messages ()
+  "Wipe the current nREPL messages buffer."
+  (interactive)
+  (unless (derived-mode-p 'nrepl-messages-mode)
+    (user-error "Not in an `nrepl-messages-mode' buffer"))
+  (let ((inhibit-read-only t))
+    (erase-buffer)))
 
 (defcustom nrepl-message-colors
   '("red" "brown" "coral" "orange" "green" "deep sky blue" "blue" "dark violet")
