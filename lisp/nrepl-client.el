@@ -1263,11 +1263,14 @@ operations.")
 TYPE is either request or response.  The message is logged to a buffer
 described by `nrepl-message-buffer-name-template'."
   (when nrepl-log-messages
-    ;; append a time-stamp to the message before logging it
-    ;; the time-stamps are quite useful for debugging
+    ;; Prepend a time-stamp pair to a fresh head, sharing the original
+    ;; cdr as the tail.  Using `nrepl-plist-put' here would mutate the
+    ;; live message dict, so downstream response handlers would see an
+    ;; unexpected "time-stamp" key appearing on the response they got.
     (setq msg (cons (car msg)
-                    (nrepl-plist-put (cdr msg) "time-stamp"
-                                     (format-time-string "%Y-%m-%0d %H:%M:%S.%N"))))
+                    (cons "time-stamp"
+                          (cons (format-time-string "%Y-%m-%0d %H:%M:%S.%N")
+                                (cdr msg)))))
     (let ((log-buffer (nrepl-messages-buffer (current-buffer))))
       (with-current-buffer log-buffer
         (setq buffer-read-only nil)
