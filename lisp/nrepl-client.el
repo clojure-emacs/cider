@@ -1216,18 +1216,20 @@ keep it enabled unless you need to debug something."
   :type 'boolean
   :safe #'booleanp)
 
-(defconst nrepl-message-buffer-max-size 1000000
+(defcustom nrepl-message-buffer-max-size 1000000
   "Maximum size for the nREPL message buffer.
 Defaults to 1000000 characters, which should be an insignificant
-memory burden, while providing reasonable history.")
+memory burden, while providing reasonable history."
+  :type 'integer)
 
-(defconst nrepl-message-buffer-reduce-denominator 4
+(defcustom nrepl-message-buffer-reduce-denominator 4
   "Divisor by which to reduce message buffer size.
 When the maximum size for the nREPL message buffer is exceeded, the size of
 the buffer is reduced by one over this value.  Defaults to 4, so that 1/4
 of the buffer is removed, which should ensure the buffer's maximum is
 reasonably utilized, while limiting the number of buffer shrinking
-operations.")
+operations."
+  :type 'integer)
 
 (defvar nrepl-messages-mode-map
   (let ((map (make-sparse-keymap)))
