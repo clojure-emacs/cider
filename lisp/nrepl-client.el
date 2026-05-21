@@ -1267,19 +1267,26 @@ described by `nrepl-message-buffer-name-template'."
     (setq msg (cons (car msg)
                     (nrepl-plist-put (cdr msg) "time-stamp"
                                      (format-time-string "%Y-%m-%0d %H:%M:%S.%N"))))
-    (with-current-buffer (nrepl-messages-buffer (current-buffer))
-      (setq buffer-read-only nil)
-      (when (> (buffer-size) nrepl-message-buffer-max-size)
-        (goto-char (/ (buffer-size) nrepl-message-buffer-reduce-denominator))
-        (re-search-forward "^(" nil t)
-        (delete-region (point-min) (- (point) 1)))
-      (goto-char (point-max))
-      (nrepl-log-pp-object (nrepl-decorate-msg msg type)
-                           (nrepl-log--message-color (nrepl-plist-get (cdr msg) "id"))
-                           t)
-      (when-let* ((win (get-buffer-window)))
-        (set-window-point win (point-max)))
-      (setq buffer-read-only t))))
+    (let ((log-buffer (nrepl-messages-buffer (current-buffer))))
+      (with-current-buffer log-buffer
+        (setq buffer-read-only nil)
+        ;; Snapshot which windows were already at end-of-buffer before we
+        ;; insert, so we only auto-follow those.  Windows the user has
+        ;; scrolled back to read history are left where they are.
+        (let ((following (seq-filter
+                          (lambda (w) (= (window-point w) (point-max)))
+                          (get-buffer-window-list log-buffer nil t))))
+          (when (> (buffer-size) nrepl-message-buffer-max-size)
+            (goto-char (/ (buffer-size) nrepl-message-buffer-reduce-denominator))
+            (re-search-forward "^(" nil t)
+            (delete-region (point-min) (- (point) 1)))
+          (goto-char (point-max))
+          (nrepl-log-pp-object (nrepl-decorate-msg msg type)
+                               (nrepl-log--message-color (nrepl-plist-get (cdr msg) "id"))
+                               t)
+          (dolist (w following)
+            (set-window-point w (point-max))))
+        (setq buffer-read-only t)))))
 
 (defun nrepl-toggle-message-logging ()
   "Toggle the value of `nrepl-log-messages' between nil and t.
