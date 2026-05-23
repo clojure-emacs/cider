@@ -833,6 +833,22 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
     (define-key map (kbd "RET") 'cider-log-inspect-event)
     (define-key map (kbd "n") 'cider-log-event-next-line)
     (define-key map (kbd "p") 'cider-log-event-previous-line)
+    (easy-menu-define cider-log-mode-menu map
+      "Menu for CIDER's log mode."
+      '("CIDER Log"
+        ["Inspect event" cider-log-inspect-event]
+        ["Print event" cider-log-print-event]
+        "--"
+        ["Next event" cider-log-event-next-line]
+        ["Previous event" cider-log-event-previous-line]
+        "--"
+        ["Show log" cider-log]
+        ["Log info" cider-log-info]
+        "--"
+        ["Manage framework" cider-log-framework]
+        ["Manage appender" cider-log-appender]
+        ["Manage consumer" cider-log-consumer]
+        ["Manage events" cider-log-event]))
     map)
   "The Cider log stream mode key map.")
 
