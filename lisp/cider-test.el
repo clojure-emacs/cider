@@ -161,8 +161,11 @@ to work against the correct REPL session.")
     ["Run all project tests with filters" (apply-partially cider-test-run-project-tests 'prompt-for-filters)]
     ["Run tests after load-file" cider-auto-test-mode
      :style toggle :selected cider-auto-test-mode]
+    ["Stop after first failure" cider-test-toggle-fail-fast
+     :style toggle :selected cider-test-fail-fast]
     "--"
     ["Interrupt running tests" cider-interrupt]
+    ["Rerun the last test" cider-test-rerun-test]
     ["Rerun failed/erring tests" cider-test-rerun-failed-tests]
     ["Show test report" cider-test-show-report]
     "--"
