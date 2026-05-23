@@ -191,7 +191,7 @@ and point is placed after the expanded form."
         ["Macroexpand-undo" cider-macroexpand-undo]
         ["Go to source" cider-find-var]
         ["Go to doc" cider-doc]
-        ["Go to Javadoc" cider-docview-javadoc]
+        ["Go to Javadoc" cider-javadoc]
         ["Quit" cider-popup-buffer-quit-function]))
     map))
 
