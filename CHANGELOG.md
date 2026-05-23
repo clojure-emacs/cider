@@ -22,6 +22,7 @@
 
 ### Bugs fixed
 
+- Fix two "ClojureScript" submenu entries in `cider-mode-menu` that pointed at long-renamed commands: "Connect to a ClojureScript REPL" called `cider-connect-clojurescript` (gone, now `cider-connect-cljs`) and "Create a ClojureScript REPL from a Clojure REPL" called `cider-jack-in-sibling-clojurescript` (never existed; the right command is `cider-connect-sibling-cljs`).
 - Fix Xref menu entries "Find fn dependencies" / "Find fn dependencies and select" in `cider-mode-menu` that called the non-existent `cider-xref-fn-defs` / `cider-xref-fn-defs-select`.  They now correctly call `cider-xref-fn-deps` / `cider-xref-fn-deps-select`, matching the `C-c C-? d` / `C-c C-? C-d` bindings.
 - [#3209](https://github.com/clojure-emacs/cider/issues/3209): Fix `cider-format` dropping non-map cljfmt options (e.g. `remove-consecutive-blank-lines?`).
 - `cider-jack-in-clj` now restores the originating buffer when running its connect callback, matching the behavior of `cider-jack-in-cljs` and `cider-jack-in-clj&cljs`.

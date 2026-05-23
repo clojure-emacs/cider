@@ -288,9 +288,9 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ("ClojureScript"
      ["Start a ClojureScript REPL" cider-jack-in-cljs
       :help "Starts an nREPL server and connects a ClojureScript REPL to it."]
-     ["Connect to a ClojureScript REPL" cider-connect-clojurescript
+     ["Connect to a ClojureScript REPL" cider-connect-cljs
       :help "Connects to a ClojureScript REPL that's already running."]
-     ["Create a ClojureScript REPL from a Clojure REPL" cider-jack-in-sibling-clojurescript])
+     ["Create a ClojureScript REPL from a Clojure REPL" cider-connect-sibling-cljs])
     "--"
     ["Quit" cider-quit :active (cider-connected-p)]
     ["Restart" cider-restart :active (cider-connected-p)]
