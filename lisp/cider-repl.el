@@ -2134,6 +2134,7 @@ in an unexpected place."
         ["Browse all namespaces" cider-browse-ns-all]
         ["Browse spec" cider-browse-spec]
         ["Browse all specs" cider-browse-spec-all]
+        ["Browse REPL input history" cider-repl-history]
         "--"
         ["Next prompt" cider-repl-next-prompt]
         ["Previous prompt" cider-repl-previous-prompt]

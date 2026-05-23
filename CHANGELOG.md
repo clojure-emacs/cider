@@ -22,6 +22,7 @@
 
 ### Bugs fixed
 
+- `cider-repl-mode-menu` now lists `cider-repl-history` ("Browse REPL input history", `C-c M-p`) alongside the other Browse entries.
 - `cider-test-menu` now lists `cider-test-rerun-test` ("Rerun the last test", `a`/`C-a` in `cider-test-commands-map`) and `cider-test-toggle-fail-fast` (rendered as a `:style toggle` reflecting `cider-test-fail-fast`).
 - `cider-browse-ns-mode-menu` now lists "Operate at point" (`RET`) and dedicated "Filter" and "Group by" submenus that expose the `h p/t/m/f/v` and `g t/v` chords.  Previously the menu showed only 3 of the 11+ bound commands.
 - `cider-inspector-mode-menu` now exposes the inspector's full command surface: sibling navigation, max-nested-depth, the three view toggles (pretty-print / sort-maps / only-diff, rendered as `:style toggle`), the object/normal view toggle, tap/print/analytics, and `cider-inspect-expr-from-inspector`.  Previously ~13 bound commands were menu-invisible.
