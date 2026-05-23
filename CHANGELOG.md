@@ -22,6 +22,7 @@
 
 ### Bugs fixed
 
+- `cider-browse-spec-mode`, `cider-browse-spec-view-mode`, and `cider-browse-spec-example-mode` each have an `easy-menu` now, exposing the drill/browse-all/generate-example commands that previously had no menu affordance.
 - `cider-repl-history-mode` now has an `easy-menu` ("REPL History") covering insert, navigation, search/filter, refresh/delete/undo, and quit.
 - `cider-log-mode` now has an `easy-menu` ("CIDER Log") covering event inspect/print, navigation, and the framework/appender/consumer/event management commands previously only reachable via the `C-c M-l` prefix.
 - `cider-macroexpansion-mode`, `cider-repl-history-mode`, and `cider--debug-mode` docstrings now include `\\{...-map}`, so `C-h m` (`describe-mode`) lists the active key bindings instead of just a one-line description.

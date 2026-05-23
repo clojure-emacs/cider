@@ -55,6 +55,15 @@
     (define-key map (kbd "RET") #'cider-browse-spec--browse-at)
     (define-key map "n" #'forward-button)
     (define-key map "p" #'backward-button)
+    (easy-menu-define cider-browse-spec-mode-menu map
+      "Menu for CIDER's spec browser."
+      '("Spec Browser"
+        ["Browse spec at point" cider-browse-spec--browse-at]
+        "--"
+        ["Next spec" forward-button]
+        ["Previous spec" backward-button]
+        "--"
+        ["Browse all specs" cider-browse-spec-all]))
     map)
   "Keymap for `cider-browse-spec-mode'.")
 
@@ -77,6 +86,16 @@
     (define-key map "e" #'cider-browse-spec--print-curr-spec-example)
     (define-key map "n" #'forward-button)
     (define-key map "p" #'backward-button)
+    (easy-menu-define cider-browse-spec-view-mode-menu map
+      "Menu for CIDER's spec view."
+      '("Spec"
+        ["Drill into nested spec" cider-browse-spec--browse-at]
+        ["Generate example value" cider-browse-spec--print-curr-spec-example]
+        "--"
+        ["Next nested spec" forward-button]
+        ["Previous nested spec" backward-button]
+        "--"
+        ["Browse all specs" cider-browse-spec-all]))
     map)
   "Keymap for `cider-browse-spec-view-mode'.")
 
@@ -96,6 +115,13 @@
     (define-key map "^" #'cider-browse-spec-all)
     (define-key map "e" #'cider-browse-spec--print-curr-spec-example)
     (define-key map "g" #'revert-buffer)
+    (easy-menu-define cider-browse-spec-example-mode-menu map
+      "Menu for CIDER's spec example."
+      '("Spec Example"
+        ["Generate another example" cider-browse-spec--print-curr-spec-example]
+        ["Refresh" revert-buffer]
+        "--"
+        ["Browse all specs" cider-browse-spec-all]))
     map)
   "Keymap for `cider-browse-spec-example-mode'.")
 
