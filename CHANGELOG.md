@@ -22,6 +22,7 @@
 
 ### Bugs fixed
 
+- `cider-mode-eval-menu` now lists `cider-pprint-eval-defun-at-point` ("Eval top-level sexp in popup buffer", `C-c C-f`), `cider-read-and-eval` (`C-c M-:`), `cider-undef` (`C-c C-u`), and `cider-undef-all` (`C-c C-M-u`).  All were bound but menu-invisible.
 - `cider-sesman-browser-map` no longer binds `C-c C-i` to `cider-describe-connection`.  `C-i` is `TAB` on terminals, so the binding shadowed `TAB` while point was on a REPL entry in the sesman browser.  `C-c C-d` and `C-c M-d` still invoke the command, alongside the `j d` / `j i` chords.
 - Fix `cider-macroexpansion-mode` menu's "Go to Javadoc" entry calling `cider-docview-javadoc` (the doc-buffer-only helper) instead of the general `cider-javadoc` command bound to `j` in the same map.
 - Fix two "ClojureScript" submenu entries in `cider-mode-menu` that pointed at long-renamed commands: "Connect to a ClojureScript REPL" called `cider-connect-clojurescript` (gone, now `cider-connect-cljs`) and "Create a ClojureScript REPL from a Clojure REPL" called `cider-jack-in-sibling-clojurescript` (never existed; the right command is `cider-connect-sibling-cljs`).

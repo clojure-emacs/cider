@@ -325,6 +325,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ["Eval top-level sexp to point" cider-eval-defun-up-to-point]
     ["Eval top-level sexp to comment" cider-eval-defun-to-comment]
     ["Eval top-level sexp and pretty-print to comment" cider-pprint-eval-defun-to-comment]
+    ["Eval top-level sexp in popup buffer" cider-pprint-eval-defun-at-point]
     "--"
     ["Eval current list" cider-eval-list-at-point]
     ["Eval current sexp" cider-eval-sexp-at-point]
@@ -346,8 +347,12 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ["Eval selected region if active, otherwise top-level sexp" cider-eval-dwim]
     ["Eval selected region" cider-eval-region]
     ["Eval ns form" cider-eval-ns-form]
+    ["Read and eval expression" cider-read-and-eval]
     "--"
     ["Interrupt evaluation" cider-interrupt]
+    "--"
+    ["Undefine a symbol" cider-undef]
+    ["Undefine all symbols in ns" cider-undef-all]
     "--"
     ["Insert last sexp in REPL" cider-insert-last-sexp-in-repl]
     ["Insert last sexp in REPL and eval" (cider-insert-last-sexp-in-repl t)
