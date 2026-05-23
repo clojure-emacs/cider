@@ -22,6 +22,7 @@
 
 ### Bugs fixed
 
+- Fix Xref menu entries "Find fn dependencies" / "Find fn dependencies and select" in `cider-mode-menu` that called the non-existent `cider-xref-fn-defs` / `cider-xref-fn-defs-select`.  They now correctly call `cider-xref-fn-deps` / `cider-xref-fn-deps-select`, matching the `C-c C-? d` / `C-c C-? C-d` bindings.
 - [#3209](https://github.com/clojure-emacs/cider/issues/3209): Fix `cider-format` dropping non-map cljfmt options (e.g. `remove-consecutive-blank-lines?`).
 - `cider-jack-in-clj` now restores the originating buffer when running its connect callback, matching the behavior of `cider-jack-in-cljs` and `cider-jack-in-clj&cljs`.
 - `cider-locate-running-nrepl-ports` now runs its `ps`/`lsof` probes via `process-file`, so endpoint completion for `cider-connect` works correctly from a TRAMP buffer (it inspects the remote host instead of the local one). Same for the `lsof` health check on `.nrepl-port` files.
