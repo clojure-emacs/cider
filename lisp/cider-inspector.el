@@ -176,21 +176,38 @@ Can be turned to nil once the user sees and acknowledges the feature."
       "Menu for CIDER's inspector."
       `("CIDER Inspector"
         ["Inspect" cider-inspector-operate-on-point]
+        ["Open file/URL at point" cider-inspector-open-thing-at-point]
         ["Pop" cider-inspector-pop]
         ["Refresh" cider-inspector-refresh]
         "--"
         ["Next Inspectable Object" cider-inspector-next-inspectable-object]
         ["Previous Inspectable Object" cider-inspector-previous-inspectable-object]
+        ["Next Sibling" cider-inspector-next-sibling]
+        ["Previous Sibling" cider-inspector-previous-sibling]
         "--"
         ["Next Page" cider-inspector-next-page]
         ["Previous Page" cider-inspector-prev-page]
         ["Set Page Size" cider-inspector-set-page-size]
         ["Set Max Atom Length" cider-inspector-set-max-atom-length]
         ["Set Max Collection Size" cider-inspector-set-max-coll-size]
-        ["Define Var" cider-inspector-def-current-val]
+        ["Set Max Nested Depth" cider-inspector-set-max-nested-depth]
         "--"
-        ["Quit" cider-popup-buffer-quit-function]
-        ))
+        ["Pretty Print" cider-inspector-toggle-pretty-print
+         :style toggle :selected cider-inspector-pretty-print]
+        ["Sort Maps" cider-inspector-toggle-sort-maps
+         :style toggle :selected cider-inspector-sort-maps]
+        ["Show Only Diff" cider-inspector-toggle-only-diff
+         :style toggle :selected cider-inspector-only-diff]
+        ["Toggle Object/Normal View" cider-inspector-toggle-view-mode]
+        "--"
+        ["Define Var" cider-inspector-def-current-val]
+        ["Tap Current Value" cider-inspector-tap-current-val]
+        ["Tap Value at Point" cider-inspector-tap-at-point]
+        ["Print Current Value" cider-inspector-print-current-value]
+        ["Inspect Expression…" cider-inspect-expr-from-inspector]
+        ["Display Analytics" cider-inspector-display-analytics]
+        "--"
+        ["Quit" cider-popup-buffer-quit-function]))
     map))
 
 (define-derived-mode cider-inspector-mode special-mode "Inspector"
