@@ -22,6 +22,7 @@
 
 ### Bugs fixed
 
+- `cider-browse-ns-mode-menu` now lists "Operate at point" (`RET`) and dedicated "Filter" and "Group by" submenus that expose the `h p/t/m/f/v` and `g t/v` chords.  Previously the menu showed only 3 of the 11+ bound commands.
 - `cider-inspector-mode-menu` now exposes the inspector's full command surface: sibling navigation, max-nested-depth, the three view toggles (pretty-print / sort-maps / only-diff, rendered as `:style toggle`), the object/normal view toggle, tap/print/analytics, and `cider-inspect-expr-from-inspector`.  Previously ~13 bound commands were menu-invisible.
 - `cider-mode-eval-menu` now lists `cider-pprint-eval-defun-at-point` ("Eval top-level sexp in popup buffer", `C-c C-f`), `cider-read-and-eval` (`C-c M-:`), `cider-undef` (`C-c C-u`), and `cider-undef-all` (`C-c C-M-u`).  All were bound but menu-invisible.
 - `cider-sesman-browser-map` no longer binds `C-c C-i` to `cider-describe-connection`.  `C-i` is `TAB` on terminals, so the binding shadowed `TAB` while point was on a REPL entry in the sesman browser.  `C-c C-d` and `C-c M-d` still invoke the command, alongside the `j d` / `j i` chords.

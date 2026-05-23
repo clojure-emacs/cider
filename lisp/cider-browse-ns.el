@@ -103,10 +103,22 @@ Available options include `private', `test', `macro', `function', and
     (easy-menu-define cider-browse-ns-mode-menu map
       "Menu for CIDER's namespace browser"
       '("Namespace Browser"
+        ["Operate at point" cider-browse-ns-operate-at-point]
         ["Show doc" cider-browse-ns-doc-at-point]
         ["Go to definition" cider-browse-ns-find-at-point]
         "--"
-        ["Browse all namespaces" cider-browse-ns-all]))
+        ["Browse all namespaces" cider-browse-ns-all]
+        "--"
+        ("Filter"
+         ["Show everything" cider-browse-ns-toggle-all]
+         ["Hide private vars" cider-browse-ns-toggle-hide-private]
+         ["Hide test vars" cider-browse-ns-toggle-hide-test]
+         ["Hide macros" cider-browse-ns-toggle-hide-macro]
+         ["Hide functions" cider-browse-ns-toggle-hide-function]
+         ["Hide vars" cider-browse-ns-toggle-hide-var])
+        ("Group by"
+         ["Type" cider-browse-ns-group-by-type]
+         ["Visibility" cider-browse-ns-group-by-visibility])))
     map))
 
 (defvar cider-browse-ns-mouse-map
