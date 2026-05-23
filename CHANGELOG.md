@@ -22,6 +22,7 @@
 
 ### Bugs fixed
 
+- `cider-macroexpansion-mode`, `cider-repl-history-mode`, and `cider--debug-mode` docstrings now include `\\{...-map}`, so `C-h m` (`describe-mode`) lists the active key bindings instead of just a one-line description.
 - `cider-repl-mode-menu` now lists `cider-repl-history` ("Browse REPL input history", `C-c M-p`) alongside the other Browse entries.
 - `cider-test-menu` now lists `cider-test-rerun-test` ("Rerun the last test", `a`/`C-a` in `cider-test-commands-map`) and `cider-test-toggle-fail-fast` (rendered as a `:style toggle` reflecting `cider-test-fail-fast`).
 - `cider-browse-ns-mode-menu` now lists "Operate at point" (`RET`) and dedicated "Filter" and "Group by" submenus that expose the `h p/t/m/f/v` and `g t/v` chords.  Previously the menu showed only 3 of the 11+ bound commands.

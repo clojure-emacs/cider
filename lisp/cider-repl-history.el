@@ -712,7 +712,9 @@ HISTORY-BUF is the history, and optional arg REGEXP is a filter."
 
 (put 'cider-repl-history-mode 'mode-class 'special)
 (define-derived-mode cider-repl-history-mode clojure-mode "History"
-  "Major mode for browsing the entries in the command input history."
+  "Major mode for browsing the entries in the command input history.
+
+\\{cider-repl-history-mode-map}"
   (setq-local sesman-system 'CIDER))
 
 ;;;###autoload
