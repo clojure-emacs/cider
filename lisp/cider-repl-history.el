@@ -708,6 +708,24 @@ HISTORY-BUF is the history, and optional arg REGEXP is a filter."
     (define-key map (kbd "D")   #'cider-repl-history-delete-entry-at-point)
     (define-key map (kbd "?")   #'describe-mode)
     (define-key map (kbd "h")   #'describe-mode)
+    (easy-menu-define cider-repl-history-mode-menu map
+      "Menu for CIDER's REPL history browser."
+      '("REPL History"
+        ["Insert entry and quit" cider-repl-history-insert-and-quit]
+        "--"
+        ["Next entry" cider-repl-history-forward]
+        ["Previous entry" cider-repl-history-previous]
+        "--"
+        ["Filter by regexp" cider-repl-history-occur]
+        ["Search forward" cider-repl-history-search-forward]
+        ["Search backward" cider-repl-history-search-backward]
+        "--"
+        ["Refresh from REPL" cider-repl-history-update]
+        ["Delete entry at point" cider-repl-history-delete-entry-at-point]
+        ["Undo in other window" cider-repl-history-undo-other-window]
+        "--"
+        ["Help" describe-mode]
+        ["Quit" cider-repl-history-quit]))
     map))
 
 (put 'cider-repl-history-mode 'mode-class 'special)
