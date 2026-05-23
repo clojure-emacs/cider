@@ -437,7 +437,6 @@ Reverts to normal project-based session association."
     (define-key map (kbd "C-c M-r") #'cider-restart)
     (define-key map (kbd "C-c C-d") #'cider-describe-connection)
     (define-key map (kbd "C-c M-d") #'cider-describe-connection)
-    (define-key map (kbd "C-c C-i") #'cider-describe-connection)
     map)
   "Map active on REPL objects in sesman browser.")
 

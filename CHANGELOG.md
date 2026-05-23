@@ -22,6 +22,7 @@
 
 ### Bugs fixed
 
+- `cider-sesman-browser-map` no longer binds `C-c C-i` to `cider-describe-connection`.  `C-i` is `TAB` on terminals, so the binding shadowed `TAB` while point was on a REPL entry in the sesman browser.  `C-c C-d` and `C-c M-d` still invoke the command, alongside the `j d` / `j i` chords.
 - Fix `cider-macroexpansion-mode` menu's "Go to Javadoc" entry calling `cider-docview-javadoc` (the doc-buffer-only helper) instead of the general `cider-javadoc` command bound to `j` in the same map.
 - Fix two "ClojureScript" submenu entries in `cider-mode-menu` that pointed at long-renamed commands: "Connect to a ClojureScript REPL" called `cider-connect-clojurescript` (gone, now `cider-connect-cljs`) and "Create a ClojureScript REPL from a Clojure REPL" called `cider-jack-in-sibling-clojurescript` (never existed; the right command is `cider-connect-sibling-cljs`).
 - Fix Xref menu entries "Find fn dependencies" / "Find fn dependencies and select" in `cider-mode-menu` that called the non-existent `cider-xref-fn-defs` / `cider-xref-fn-defs-select`.  They now correctly call `cider-xref-fn-deps` / `cider-xref-fn-deps-select`, matching the `C-c C-? d` / `C-c C-? C-d` bindings.
