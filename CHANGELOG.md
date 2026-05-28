@@ -20,6 +20,10 @@
   - The editor-level `cider-make-eval-handler` wraps it with CIDER's UI behavior (ns tracking, default error handler, need-input prompt, "Evaluation interrupted." / "Namespace not found." messages). In-tree callers all use it.
 - New nREPL message log commands: `nrepl-show-messages` pops up the messages buffer (prompting when there are multiple connections), and `c` in `nrepl-messages-mode` runs the new `nrepl-clear-messages` to wipe the buffer. Auto-follow on new entries now leaves windows alone if you've scrolled back to read history; only windows already at end-of-buffer get scrolled to the latest message.
 
+### New features
+
+- `cider-eval-commands-map` (`C-c C-v` prefix) now binds five long-existing eval commands that previously had no presence under the prefix: `cider-eval-last-sexp-to-repl` (`j`/`C-j`), `cider-eval-print-last-sexp` (`p`/`C-p`), `cider-read-and-eval` (`:`), `cider-eval-defun-to-comment` (`;`), and `cider-pprint-eval-last-sexp-to-repl` (`f j e`).  Existing chords (`C-c M-e`, `C-c M-:`, `C-c M-;`) are unchanged.
+
 ### Bugs fixed
 
 - `cider-browse-spec-mode`, `cider-browse-spec-view-mode`, and `cider-browse-spec-example-mode` each have an `easy-menu` now, exposing the drill/browse-all/generate-example commands that previously had no menu affordance.

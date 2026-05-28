@@ -998,6 +998,7 @@ passing arguments."
     (define-key map (kbd "d") #'cider-pprint-eval-defun-at-point)
     (define-key map (kbd "c e") #'cider-pprint-eval-last-sexp-to-comment)
     (define-key map (kbd "c d") #'cider-pprint-eval-defun-to-comment)
+    (define-key map (kbd "j e") #'cider-pprint-eval-last-sexp-to-repl)
 
     ;; duplicates with C- for convenience
     (define-key map (kbd "C-e") #'cider-pprint-eval-last-sexp)
@@ -1006,6 +1007,8 @@ passing arguments."
     (define-key map (kbd "C-c C-e") #'cider-pprint-eval-last-sexp-to-comment)
     (define-key map (kbd "C-c d") #'cider-pprint-eval-defun-to-comment)
     (define-key map (kbd "C-c C-d") #'cider-pprint-eval-defun-to-comment)
+    (define-key map (kbd "C-j e") #'cider-pprint-eval-last-sexp-to-repl)
+    (define-key map (kbd "C-j C-e") #'cider-pprint-eval-last-sexp-to-repl)
     map))
 
 (defvar cider-eval-commands-map
@@ -1027,6 +1030,10 @@ passing arguments."
     (define-key map (kbd "c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "b") #'cider-eval-sexp-at-point-in-context)
     (define-key map (kbd "k") #'cider-kill-last-result)
+    (define-key map (kbd "j") #'cider-eval-last-sexp-to-repl)
+    (define-key map (kbd "p") #'cider-eval-print-last-sexp)
+    (define-key map (kbd ":") #'cider-read-and-eval)
+    (define-key map (kbd ";") #'cider-eval-defun-to-comment)
     (define-key map (kbd "f") 'cider-eval-pprint-commands-map)
 
     ;; duplicates with C- for convenience
@@ -1046,6 +1053,8 @@ passing arguments."
     (define-key map (kbd "C-c") #'cider-eval-last-sexp-in-context)
     (define-key map (kbd "C-b") #'cider-eval-sexp-at-point-in-context)
     (define-key map (kbd "C-k") #'cider-kill-last-result)
+    (define-key map (kbd "C-j") #'cider-eval-last-sexp-to-repl)
+    (define-key map (kbd "C-p") #'cider-eval-print-last-sexp)
     (define-key map (kbd "C-f") 'cider-eval-pprint-commands-map)
     map))
 
