@@ -22,7 +22,12 @@
 
 ### New features
 
-- `cider-eval-commands-map` (`C-c C-v` prefix) now binds five long-existing eval commands that previously had no presence under the prefix: `cider-eval-last-sexp-to-repl` (`j`/`C-j`), `cider-eval-print-last-sexp` (`p`/`C-p`), `cider-read-and-eval` (`:`), `cider-eval-defun-to-comment` (`;`), and `cider-pprint-eval-last-sexp-to-repl` (`f j e`).  Existing chords (`C-c M-e`, `C-c M-:`, `C-c M-;`) are unchanged.
+- `cider-eval-commands-map` (`C-c C-v` prefix) now binds five eval commands that previously had no entry under the prefix:
+  - `cider-eval-last-sexp-to-repl` (`j`/`C-j`)
+  - `cider-eval-print-last-sexp` (`p`/`C-p`)
+  - `cider-read-and-eval` (`:`)
+  - `cider-eval-defun-to-comment` (`;`)
+  - `cider-pprint-eval-last-sexp-to-repl` (`f j e`)
 
 ### Bugs fixed
 
