@@ -506,3 +506,39 @@ and some other vars (like clojure.core/filter).
 
   (it "returns a symbol as-is"
     (expect (cider-maybe-intern 'foo) :to-equal 'foo)))
+
+(describe "cider-project-dir"
+  (let (root)
+    (before-each
+      (setq root (file-name-as-directory (make-temp-file "cider-proj-" t))))
+    (after-each
+      (delete-directory root t))
+
+    (it "returns the deepest cider-build-tool-files match"
+      ;; root/.git, root/clj/deps.edn, point in root/clj/src/
+      (make-directory (expand-file-name ".git" root))
+      (let ((clj (expand-file-name "clj/" root)))
+        (make-directory (expand-file-name "src" clj) t)
+        (write-region "" nil (expand-file-name "deps.edn" clj))
+        ;; Even if project-current would return the outer .git root (as
+        ;; projectile or a custom project-find-function might), the
+        ;; build-tool file walk must take priority.
+        (spy-on 'project-current :and-return-value `(vc Git ,root))
+        (expect (cider-project-dir (expand-file-name "src/" clj))
+                :to-equal clj)))
+
+    (it "picks the deepest match when multiple build-tool files exist up the tree"
+      ;; root/deps.edn AND root/sub/deps.edn -- the deeper one wins.
+      (write-region "" nil (expand-file-name "deps.edn" root))
+      (let ((sub (expand-file-name "sub/" root)))
+        (make-directory sub)
+        (write-region "" nil (expand-file-name "deps.edn" sub))
+        (expect (cider-project-dir sub) :to-equal sub)))
+
+    (it "falls back to project-current when no build-tool file is found"
+      (spy-on 'project-current :and-return-value `(vc Git ,root))
+      (expect (cider-project-dir root) :to-equal root))
+
+    (it "returns nil when there is neither a build-tool file nor a project"
+      (spy-on 'project-current :and-return-value nil)
+      (expect (cider-project-dir root) :to-be nil))))
