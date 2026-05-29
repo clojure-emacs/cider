@@ -31,7 +31,6 @@
 
 ### Bugs fixed
 
-- Fix `cider-jack-in` picking the wrong project root in polyglot/monorepo layouts where `deps.edn` (or any other `cider-build-tool-files` entry) sits in a subdirectory of a `.git`/projectile root.  `cider-project-dir` now searches `cider-build-tool-files` first and only falls back to `project-current`, so the result no longer depends on whether `project-current` is backed by `project-try-vc`, projectile, or any other discovery function.
 - `cider-browse-spec-mode`, `cider-browse-spec-view-mode`, and `cider-browse-spec-example-mode` each have an `easy-menu` now, exposing the drill/browse-all/generate-example commands that previously had no menu affordance.
 - `cider-repl-history-mode` now has an `easy-menu` ("REPL History") covering insert, navigation, search/filter, refresh/delete/undo, and quit.
 - `cider-log-mode` now has an `easy-menu` ("CIDER Log") covering event inspect/print, navigation, and the framework/appender/consumer/event management commands previously only reachable via the `C-c M-l` prefix.
