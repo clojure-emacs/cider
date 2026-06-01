@@ -89,7 +89,7 @@
 
 (describe "cider-load-file"
   (it "works as expected in empty Clojure buffers"
-    (spy-on 'cider-request:load-file :and-return-value nil)
+    (spy-on 'cider-load-file-request :and-return-value nil)
     (let ((default-directory "/tmp/a-dir"))
       (with-repl-buffer "load-file-session" 'clj _b
         (with-temp-buffer
@@ -99,7 +99,7 @@
 
 (describe "cider-interactive-eval"
   (it "works as expected in empty Clojure buffers"
-    (spy-on 'cider-nrepl-request:eval :and-return-value nil)
+    (spy-on 'cider-nrepl-send-eval-request :and-return-value nil)
     (let ((default-directory "/tmp/a-dir"))
       (with-repl-buffer "interaction-session" 'clj _b
         (with-temp-buffer

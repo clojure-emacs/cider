@@ -152,7 +152,11 @@ These are used for presentation purposes."
   (cider-ensure-connected)
   (cider-ensure-op-supported "cider/apropos")
   (when-let* ((ns (cider-current-ns))
-              (results (cider-sync-request:apropos pattern ns t t completion-ignore-case)))
+              (results (cider-apropos-request pattern
+                                              :search-ns ns
+                                              :docs-p t
+                                              :privates-p t
+                                              :case-sensitive-p completion-ignore-case)))
     (mapcar (lambda (info)
               (let* ((symbol (nrepl-dict-get info "name"))
                      (loc (cider--var-to-xref-location symbol))

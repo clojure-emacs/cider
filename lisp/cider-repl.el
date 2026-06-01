@@ -286,15 +286,14 @@ Run CALLBACK once the evaluation is complete."
   (interactive)
   (let* ((request `(,@(cider--repl-request-plist)
                     "inhibit-cider-middleware" "true")))
-    (cider-nrepl-request:eval
+    (cider-nrepl-send-eval-request
      ;; Ensure we evaluate _something_ so the initial namespace is correctly set
      (thread-first (or cider-repl-init-code '("nil"))
                    (string-join "\n"))
      (cider-repl-init-eval-handler callback)
-     nil
-     (line-number-at-pos (point))
-     (cider-column-number-at-pos (point))
-     request)))
+     :line (line-number-at-pos (point))
+     :column (cider-column-number-at-pos (point))
+     :additional-params request)))
 
 (defun cider-repl-init (buffer &optional callback)
   "Initialize the REPL in BUFFER.
@@ -1115,13 +1114,13 @@ If NEWLINE is true then add a newline at the end of the input."
         (goto-char (point-max))
         (cider-repl--mark-input-start)
         (cider-repl--mark-output-start)
-        (cider-nrepl-request:eval
+        (cider-nrepl-send-eval-request
          input
          (cider-repl-handler (current-buffer))
-         (cider-current-ns)
-         (line-number-at-pos input-start)
-         (cider-column-number-at-pos input-start)
-         (cider--repl-request-plist))))))
+         :ns (cider-current-ns)
+         :line (line-number-at-pos input-start)
+         :column (cider-column-number-at-pos input-start)
+         :additional-params (cider--repl-request-plist))))))
 
 (defun cider-repl-return (&optional end-of-input)
   "Evaluate the current input string, or insert a newline.
@@ -1384,7 +1383,7 @@ regexes from `cider-locref-regexp-alist' to infer locations at point."
                     ;; 1) retrieve from info middleware
                     (when var
                       (or (cider-sync-request:ns-path var)
-                          (nrepl-dict-get (cider-sync-request:info var) "file")))
+                          (nrepl-dict-get (cider-info-request :sym var) "file")))
                     (when-let* ((file (plist-get loc :file)))
                       ;; 2) file detected by the regexp
                       (let ((file-from-regexp (if (file-name-absolute-p file)

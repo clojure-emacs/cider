@@ -517,16 +517,16 @@ arguments and only proceed with evaluation if it returns nil."
       (cider-map-repls :auto
         (lambda (connection)
           (cider--prep-interactive-eval form connection)
-          (cider-nrepl-request:eval
+          (cider-nrepl-send-eval-request
            form
            (or callback (cider-interactive-eval-handler nil bounds))
            ;; always eval ns forms in the user namespace
            ;; otherwise trying to eval ns form for the first time will produce an error
-           (if (cider-ns-form-p form) "user" (cider-current-ns))
-           (when start (line-number-at-pos start))
-           (when start (cider-column-number-at-pos start))
-           additional-params
-           connection))))))
+           :ns (if (cider-ns-form-p form) "user" (cider-current-ns))
+           :line (when start (line-number-at-pos start))
+           :column (when start (cider-column-number-at-pos start))
+           :additional-params additional-params
+           :connection connection))))))
 
 (defun cider-eval-region (start end)
   "Evaluate the region between START and END."
@@ -1101,12 +1101,12 @@ all ns aliases and var mappings from the namespace before reloading it."
             (lambda (repl)
               (when ns-form
                 (cider-repl--cache-ns-form ns-form repl))
-              (cider-request:load-file (cider--file-string filename)
+              (cider-load-file-request (cider--file-string filename)
                                        (funcall cider-to-nrepl-filename-function
                                                 (cider--server-filename filename))
                                        (file-name-nondirectory filename)
-                                       repl
-                                       callback)))
+                                       :connection repl
+                                       :callback callback)))
           (message "Loading %s..." filename))))))
 
 (defun cider-load-file (filename &optional undef-all)
