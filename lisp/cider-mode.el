@@ -1060,7 +1060,7 @@ See \(info \"(elisp) Special Properties\")"
                             (let* ((locals (nrepl-dict-get cider--debug-mode-response "locals"))
                                    (local-val (cadr (assoc sym locals))))
                               (format " with value:\n%s" local-val))))
-                (let* ((info (cider-sync-request:info sym nil nil (cider-completion-get-context t)))
+                (let* ((info (cider-info-request :sym sym :context (cider-completion-get-context t)))
                        (candidates (nrepl-dict-get info "candidates")))
                   (if candidates
                       (concat "There were ambiguities resolving this symbol:\n\n"
