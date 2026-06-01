@@ -258,6 +258,30 @@ If TOOLING is truthy then the tooling session is used."
     (nrepl-send-request (cider--resolve-op-in-request request conn)
                         callback conn tooling)))
 
+(cl-defun cider-nrepl-sync-request (request &key connection abort-on-input callback)
+  "Send REQUEST to the nREPL server synchronously using CONNECTION.
+Hold till final \"done\" message has arrived and join all response messages
+of the same \"op\" that came along and return the accumulated response.
+If ABORT-ON-INPUT is non-nil, the function will return nil
+at the first sign of user input, so as not to hang the
+interface.
+if CALLBACK is non-nil, it will additionally be called on all received messages.
+
+This is the keyword-argument form; `cider-nrepl-send-sync-request' is the
+legacy positional shim retained for backward compatibility."
+  (let* ((conn (or connection (cider-current-repl 'infer 'ensure)))
+         (response (nrepl-sync-request (cider--resolve-op-in-request request conn)
+                                       conn
+                                       :abort-on-input abort-on-input
+                                       :callback callback)))
+    ;; Handle cider-nrepl middleware's pp-stacktrace in sync responses.
+    (when response
+      (nrepl-dbind-response response (ex err pp-stacktrace status)
+        (when (and ex err pp-stacktrace)
+          (cider--render-stacktrace-causes pp-stacktrace
+                                           (remove "done" status)))))
+    response))
+
 (defun cider-nrepl-send-sync-request (request &optional connection
                                               abort-on-input callback)
   "Send REQUEST to the nREPL server synchronously using CONNECTION.
@@ -266,20 +290,14 @@ of the same \"op\" that came along and return the accumulated response.
 If ABORT-ON-INPUT is non-nil, the function will return nil
 at the first sign of user input, so as not to hang the
 interface.
-if CALLBACK is non-nil, it will additionally be called on all received messages."
-  (let* ((conn (or connection (cider-current-repl 'infer 'ensure)))
-         (response (nrepl-send-sync-request (cider--resolve-op-in-request request conn)
-                                            conn
-                                            abort-on-input
-                                            nil
-                                            callback)))
-    ;; Handle cider-nrepl middleware's pp-stacktrace in sync responses.
-    (when response
-      (nrepl-dbind-response response (ex err pp-stacktrace status)
-        (when (and ex err pp-stacktrace)
-          (cider--render-stacktrace-causes pp-stacktrace
-                                           (remove "done" status)))))
-    response))
+if CALLBACK is non-nil, it will additionally be called on all received messages.
+
+This positional form is kept for backward compatibility; new code should
+prefer the keyword-argument `cider-nrepl-sync-request'."
+  (cider-nrepl-sync-request request
+                           :connection connection
+                           :abort-on-input abort-on-input
+                           :callback callback))
 
 (defun cider-nrepl-send-unhandled-request (request &optional connection)
   "Send REQUEST to the nREPL CONNECTION and ignore any responses.
@@ -291,27 +309,46 @@ Immediately mark the REQUEST as done.  Return the id of the sent message."
       (nrepl--mark-id-completed id))
     id))
 
+(cl-defun cider-nrepl-send-eval-request (input callback
+                                               &key ns line column additional-params connection)
+  "Send the request INPUT and register the CALLBACK as the response handler.
+If NS is non-nil, include it in the request.  LINE and COLUMN, if non-nil,
+define the position of INPUT in its buffer.  ADDITIONAL-PARAMS is a plist
+to be appended to the request message.  CONNECTION is the connection
+buffer, defaults to (cider-current-repl).
+
+This is the keyword-argument form; `cider-nrepl-request:eval' is the legacy
+positional shim retained for backward compatibility."
+  (let ((connection (or connection (cider-current-repl 'infer 'ensure)))
+        (eval-buffer (current-buffer)))
+    (run-hooks 'cider-before-eval-hook)
+    (nrepl-send-eval-request input
+                             (lambda (response)
+                               (when cider-show-spinner
+                                 (cider-eval-spinner connection response))
+                               (when (and (buffer-live-p eval-buffer)
+                                          (member "done" (nrepl-dict-get response "status")))
+                                 (with-current-buffer eval-buffer
+                                   (run-hooks 'cider-after-eval-done-hook)))
+                               (funcall callback response))
+                             connection
+                             :ns ns :line line :column column
+                             :additional-params additional-params)
+    (cider-spinner-start connection)))
+
 (defun cider-nrepl-request:eval (input callback &optional ns line column additional-params connection)
   "Send the request INPUT and register the CALLBACK as the response handler.
 If NS is non-nil, include it in the request.  LINE and COLUMN, if non-nil,
 define the position of INPUT in its buffer.  ADDITIONAL-PARAMS is a plist
 to be appended to the request message.  CONNECTION is the connection
-buffer, defaults to (cider-current-repl)."
-  (let ((connection (or connection (cider-current-repl 'infer 'ensure)))
-        (eval-buffer (current-buffer)))
-    (run-hooks 'cider-before-eval-hook)
-    (nrepl-request:eval input
-                        (lambda (response)
-                          (when cider-show-spinner
-                            (cider-eval-spinner connection response))
-                          (when (and (buffer-live-p eval-buffer)
-                                     (member "done" (nrepl-dict-get response "status")))
-                            (with-current-buffer eval-buffer
-                              (run-hooks 'cider-after-eval-done-hook)))
-                          (funcall callback response))
-                        connection
-                        ns line column additional-params)
-    (cider-spinner-start connection)))
+buffer, defaults to (cider-current-repl).
+
+This positional form is kept for backward compatibility; new code should
+prefer the keyword-argument `cider-nrepl-send-eval-request'."
+  (cider-nrepl-send-eval-request input callback
+                                 :ns ns :line line :column column
+                                 :additional-params additional-params
+                                 :connection connection))
 
 (defun cider-nrepl-sync-request:eval (input &optional connection ns)
   "Send the INPUT to the nREPL CONNECTION synchronously.
@@ -498,10 +535,10 @@ evaluated in the tooling nREPL session don't affect the thread-local
 bindings of the primary eval nREPL session (e.g. this is not going to
 clobber *1/2/3)."
   ;; namespace forms are always evaluated in the "user" namespace
-  (nrepl-request:eval input
-                      callback
-                      (or connection (cider-current-repl 'infer 'ensure))
-                      ns nil nil nil 'tooling))
+  (nrepl-send-eval-request input
+                           callback
+                           (or connection (cider-current-repl 'infer 'ensure))
+                           :ns ns :tooling 'tooling))
 
 (defun cider-sync-tooling-eval (input &optional ns connection)
   "Send the request INPUT to CONNECTION and evaluate in synchronously.
@@ -601,24 +638,27 @@ When multiple matching vars are returned you'll be prompted to select one,
 unless ALL is truthy."
   (when (and var (not (string= var "")))
     (let ((var-info (cond
-                     ((cider-nrepl-op-supported-p "cider/info") (cider-sync-request:info var nil nil (cider-completion-get-context t)))
+                     ((cider-nrepl-op-supported-p "cider/info") (cider-info-request :sym var :context (cider-completion-get-context t)))
                      ((cider-nrepl-op-supported-p "lookup") (cider-sync-request:lookup var)))))
       (if all var-info (cider--var-choice var-info)))))
 
 (defun cider-member-info (class member)
   "Return info for MEMBER of CLASS as an nREPL dict."
   (when (and class member)
-    (cider-sync-request:info nil class member (cider-completion-get-context t))))
+    (cider-info-request :class class :member member :context (cider-completion-get-context t))))
 
 
 ;;; Requests
 
 (declare-function cider-load-file-handler "cider-eval")
-(defun cider-request:load-file (file-contents file-path file-name &optional connection callback)
+(cl-defun cider-load-file-request (file-contents file-path file-name &key connection callback)
   "Perform the nREPL \"load-file\" op.
 FILE-CONTENTS, FILE-PATH and FILE-NAME are details of the file to be
 loaded.  If CONNECTION is nil, use `cider-current-repl'.  If CALLBACK
-is nil, use `cider-load-file-handler'."
+is nil, use `cider-load-file-handler'.
+
+This is the keyword-argument form; `cider-request:load-file' is the legacy
+positional shim retained for backward compatibility."
   (cider-nrepl-send-request `("op" "load-file"
                               "file" ,file-contents
                               "file-path" ,file-path
@@ -626,6 +666,17 @@ is nil, use `cider-load-file-handler'."
                             (or callback
                                 (cider-load-file-handler (current-buffer)))
                             connection))
+
+(defun cider-request:load-file (file-contents file-path file-name &optional connection callback)
+  "Perform the nREPL \"load-file\" op.
+FILE-CONTENTS, FILE-PATH and FILE-NAME are details of the file to be
+loaded.  If CONNECTION is nil, use `cider-current-repl'.  If CALLBACK
+is nil, use `cider-load-file-handler'.
+
+This positional form is kept for backward compatibility; new code should
+prefer the keyword-argument `cider-load-file-request'."
+  (cider-load-file-request file-contents file-path file-name
+                           :connection connection :callback callback))
 
 
 ;;; Sync Requests
@@ -644,12 +695,15 @@ Emacs Lisp."
   :group 'cider
   :package-version '(cider . "0.13.0"))
 
-(defun cider-sync-request:apropos (query &optional search-ns docs-p privates-p case-sensitive-p)
+(cl-defun cider-apropos-request (query &key search-ns docs-p privates-p case-sensitive-p)
   "Send \"apropos\" request for regexp QUERY.
 
-Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
+Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P.
+
+This is the keyword-argument form; `cider-sync-request:apropos' is the legacy
+positional shim retained for backward compatibility."
   (let* ((query (replace-regexp-in-string "[ \t]+" ".+" query))
-         (response (cider-nrepl-send-sync-request
+         (response (cider-nrepl-sync-request
                     `("op" "cider/apropos"
                       "ns" ,(cider-current-ns)
                       "query" ,query
@@ -661,6 +715,19 @@ Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P."
     (if (member "apropos-regexp-error" (nrepl-dict-get response "status"))
         (user-error "Invalid regexp: %s" (nrepl-dict-get response "error-msg"))
       (nrepl-dict-get response "apropos-matches"))))
+
+(defun cider-sync-request:apropos (query &optional search-ns docs-p privates-p case-sensitive-p)
+  "Send \"apropos\" request for regexp QUERY.
+
+Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P.
+
+This positional form is kept for backward compatibility; new code should
+prefer the keyword-argument `cider-apropos-request'."
+  (cider-apropos-request query
+                         :search-ns search-ns
+                         :docs-p docs-p
+                         :privates-p privates-p
+                         :case-sensitive-p case-sensitive-p))
 
 (defun cider-sync-request:classpath (&optional connection)
   "Return a list of classpath entries for CONNECTION."
@@ -703,8 +770,8 @@ resolve those to absolute paths."
   (when-let* ((dict (thread-first `("op" "completions"
                                     "ns" ,(cider-current-ns)
                                     "prefix" ,prefix)
-                                  (cider-nrepl-send-sync-request (cider-current-repl)
-                                                                 'abort-on-input))))
+                                  (cider-nrepl-sync-request :connection (cider-current-repl)
+                                                           :abort-on-input 'abort-on-input))))
     (nrepl-dict-get dict "completions")))
 
 (defun cider-sync-request:complete (prefix context)
@@ -716,23 +783,25 @@ CONTEXT represents a completion context for compliment."
                                     "context" ,context
                                     "sort-order" "by-name"
                                     ,@(when cider-enhanced-cljs-completion-p '("enhanced-cljs-completion?" "t")))
-                                  (cider-nrepl-send-sync-request (cider-current-repl)
-                                                                 'abort-on-input))))
+                                  (cider-nrepl-sync-request :connection (cider-current-repl)
+                                                           :abort-on-input 'abort-on-input))))
     (nrepl-dict-get dict "completions")))
 
 (defun cider-sync-request:complete-flush-caches ()
   "Send \"complete-flush-caches\" op to flush Compliment's caches."
-  (cider-nrepl-send-sync-request (list "op" "cider/complete-flush-caches"
-                                       "session" (cider-nrepl-eval-session))
-                                 nil
-                                 'abort-on-input))
+  (cider-nrepl-sync-request (list "op" "cider/complete-flush-caches"
+                                 "session" (cider-nrepl-eval-session))
+                           :abort-on-input 'abort-on-input))
 
-(defun cider-sync-request:info (symbol &optional class member context)
-  "Send \"info\" op with parameters SYMBOL or CLASS and MEMBER, honor CONTEXT."
+(cl-defun cider-info-request (&key sym class member context)
+  "Send \"info\" op with parameters SYM or CLASS and MEMBER, honor CONTEXT.
+
+This is the keyword-argument form; `cider-sync-request:info' is the legacy
+positional shim retained for backward compatibility."
   (let* ((req
           `("op" "cider/info"
             "ns" ,(cider-current-ns)
-            ,@(when symbol `("sym" ,symbol))
+            ,@(when sym `("sym" ,sym))
             ,@(when class `("class" ,class))
             ,@(when member `("member" ,member))
             ,@(when context `("context" ,context))
@@ -747,10 +816,17 @@ CONTEXT represents a completion context for compliment."
                          (nrepl-dict-get coords "artifact")
                          (nrepl-dict-get coords "version"))))))
          (var-info
-          (cider-nrepl-send-sync-request req (cider-current-repl) nil callback)))
+          (cider-nrepl-sync-request req :connection (cider-current-repl) :callback callback)))
     (if (member "no-info" (nrepl-dict-get var-info "status"))
         nil
       var-info)))
+
+(defun cider-sync-request:info (symbol &optional class member context)
+  "Send \"info\" op with parameters SYMBOL or CLASS and MEMBER, honor CONTEXT.
+
+This positional form is kept for backward compatibility; new code should
+prefer the keyword-argument `cider-info-request'."
+  (cider-info-request :sym symbol :class class :member member :context context))
 
 (defun cider-sync-request:lookup (symbol &optional lookup-fn)
   "Send \"lookup\" op request with parameters SYMBOL and LOOKUP-FN."
@@ -763,26 +839,36 @@ CONTEXT represents a completion context for compliment."
         nil
       (nrepl-dict-get var-info "info"))))
 
-(defun cider-sync-request:eldoc (symbol &optional class member context)
-  "Send \"eldoc\" op with parameters SYMBOL or CLASS and MEMBER, honor CONTEXT."
+(cl-defun cider-eldoc-request (&key sym class member context)
+  "Send \"eldoc\" op with parameters SYM or CLASS and MEMBER, honor CONTEXT.
+
+This is the keyword-argument form; `cider-sync-request:eldoc' is the legacy
+positional shim retained for backward compatibility."
   (when-let* ((eldoc (thread-first `("op" "cider/eldoc"
                                      "ns" ,(cider-current-ns)
-                                     ,@(when symbol `("sym" ,symbol))
+                                     ,@(when sym `("sym" ,sym))
                                      ,@(when class `("class" ,class))
                                      ,@(when member `("member" ,member))
                                      ,@(when context `("context" ,context)))
-                                   (cider-nrepl-send-sync-request (cider-current-repl)
-                                                                  'abort-on-input))))
+                                   (cider-nrepl-sync-request :connection (cider-current-repl)
+                                                            :abort-on-input 'abort-on-input))))
     (if (member "no-eldoc" (nrepl-dict-get eldoc "status"))
         nil
       eldoc)))
+
+(defun cider-sync-request:eldoc (symbol &optional class member context)
+  "Send \"eldoc\" op with parameters SYMBOL or CLASS and MEMBER, honor CONTEXT.
+
+This positional form is kept for backward compatibility; new code should
+prefer the keyword-argument `cider-eldoc-request'."
+  (cider-eldoc-request :sym symbol :class class :member member :context context))
 
 (defun cider-sync-request:eldoc-datomic-query (symbol)
   "Send \"eldoc-datomic-query\" op with parameter SYMBOL."
   (when-let* ((eldoc (thread-first `("op" "cider/eldoc-datomic-query"
                                      "ns" ,(cider-current-ns)
                                      ,@(when symbol `("sym" ,symbol)))
-                                   (cider-nrepl-send-sync-request nil 'abort-on-input))))
+                                   (cider-nrepl-sync-request :abort-on-input 'abort-on-input))))
     (if (member "no-eldoc" (nrepl-dict-get eldoc "status"))
         nil
       eldoc)))
