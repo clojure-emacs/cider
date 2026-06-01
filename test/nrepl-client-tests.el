@@ -267,6 +267,49 @@
       (expect received-body :to-equal "hello")
       (expect received-type :to-equal '("text/plain" ())))))
 
+(describe "nrepl-send-eval-request"
+  (it "passes code, callback, connection and tooling through to nrepl-send-request"
+    (let (captured)
+      (spy-on 'nrepl-send-request :and-call-fake
+              (lambda (request callback connection &optional tooling)
+                (setq captured (list request callback connection tooling))))
+      (let ((cb (lambda (_))))
+        (nrepl-send-eval-request "(+ 1 1)" cb :fake-conn
+                                 :ns "user" :tooling 'tooling)
+        (cl-destructuring-bind (request callback connection tooling) captured
+          (expect callback :to-be cb)
+          (expect connection :to-be :fake-conn)
+          (expect tooling :to-be 'tooling)
+          (expect (nrepl-dict-get (cons 'dict request) "code") :to-equal "(+ 1 1)")
+          (expect (nrepl-dict-get (cons 'dict request) "ns") :to-equal "user")))))
+
+  (it "produces the same request as the positional nrepl-request:eval shim"
+    (let (calls)
+      (spy-on 'nrepl-send-request :and-call-fake
+              (lambda (&rest args) (push args calls)))
+      (let ((cb (lambda (_))))
+        (nrepl-send-eval-request "(+ 1 1)" cb :fake-conn
+                                 :ns "user" :line 1 :column 2
+                                 :additional-params '("foo" "bar") :tooling 'tooling)
+        (nrepl-request:eval "(+ 1 1)" cb :fake-conn
+                            "user" 1 2 '("foo" "bar") 'tooling))
+      (expect (length calls) :to-equal 2)
+      (expect (nth 0 calls) :to-equal (nth 1 calls)))))
+
+(describe "nrepl-send-sync-request"
+  (it "delegates to nrepl-sync-request with positional args mapped to keywords"
+    (let (captured)
+      (spy-on 'nrepl-sync-request :and-call-fake
+              (lambda (request connection &rest kwargs)
+                (setq captured (list request connection kwargs))))
+      (nrepl-send-sync-request '("op" "x") :fake-conn 'abort 'tooling #'ignore)
+      (cl-destructuring-bind (request connection kwargs) captured
+        (expect request :to-equal '("op" "x"))
+        (expect connection :to-be :fake-conn)
+        (expect (plist-get kwargs :abort-on-input) :to-be 'abort)
+        (expect (plist-get kwargs :tooling) :to-be 'tooling)
+        (expect (plist-get kwargs :callback) :to-be #'ignore)))))
+
 (describe "nrepl--dispatch-response"
   :var (nrepl-pending-requests nrepl-completed-requests)
   (before-each

@@ -866,8 +866,8 @@ the standard session."
 (defvar nrepl-ongoing-sync-request nil
   "Dynamically bound to t while a sync request is ongoing.")
 
-(defun nrepl-send-sync-request (request connection &optional abort-on-input
-                                        tooling callback)
+(cl-defun nrepl-sync-request (request connection &key abort-on-input
+                                      tooling callback)
   "Send REQUEST to the nREPL server synchronously using CONNECTION.
 Hold till final \"done\" message has arrived and join all response messages
 of the same \"op\" that came along.
@@ -879,7 +879,10 @@ If CALLBACK is non-nil, it will additionally be called on all received
 messages.  This shouldn't be used this for any control logic - use the
 asynchronous `nrepl-send-request' directly for that.  CALLBACK here should
 be used to react to some intermediate events in an otherwise synchronous
-command and e.g. notify the user about them."
+command and e.g. notify the user about them.
+
+This is the keyword-argument form; `nrepl-send-sync-request' is the legacy
+positional shim retained for backward compatibility."
   (let* ((time0 (current-time))
          (response (cons 'dict nil))
          (nrepl-ongoing-sync-request t)
@@ -921,6 +924,28 @@ command and e.g. notify the user about them."
             (nrepl--mark-id-completed id)))
         response))))
 
+(defun nrepl-send-sync-request (request connection &optional abort-on-input
+                                        tooling callback)
+  "Send REQUEST to the nREPL server synchronously using CONNECTION.
+Hold till final \"done\" message has arrived and join all response messages
+of the same \"op\" that came along.
+If ABORT-ON-INPUT is non-nil, the function will return nil at the first
+sign of user input, so as not to hang the interface.
+If TOOLING, use the tooling session rather than the standard session.
+
+If CALLBACK is non-nil, it will additionally be called on all received
+messages.  This shouldn't be used this for any control logic - use the
+asynchronous `nrepl-send-request' directly for that.  CALLBACK here should
+be used to react to some intermediate events in an otherwise synchronous
+command and e.g. notify the user about them.
+
+This positional form is kept for backward compatibility; new code should
+prefer the keyword-argument `nrepl-sync-request'."
+  (nrepl-sync-request request connection
+                      :abort-on-input abort-on-input
+                      :tooling tooling
+                      :callback callback))
+
 (defun nrepl-request:stdin (input callback connection)
   "Send a :stdin request with INPUT using CONNECTION.
 Register CALLBACK as the response handler."
@@ -959,6 +984,23 @@ If LINE and COLUMN are non-nil and current buffer is a file buffer, \"line\",
             "line" ,line
             "column" ,column)))))
 
+(cl-defun nrepl-send-eval-request (input callback connection
+                                         &key ns line column additional-params tooling)
+  "Send the request INPUT and register the CALLBACK as the response handler.
+The request is dispatched via CONNECTION.  If NS is non-nil,
+include it in the request.  LINE and COLUMN, if non-nil, define the position
+of INPUT in its buffer.  A CONNECTION uniquely determines two connections
+available: the standard interaction one and the tooling session.  If the
+tooling is desired, set TOOLING to true.
+ADDITIONAL-PARAMS is a plist to be appended to the request message.
+
+This is the keyword-argument form; `nrepl-request:eval' is the legacy
+positional shim retained for backward compatibility."
+  (nrepl-send-request (append (nrepl--eval-request input ns line column) additional-params)
+                      callback
+                      connection
+                      tooling))
+
 (defun nrepl-request:eval (input callback connection &optional ns line column additional-params tooling)
   "Send the request INPUT and register the CALLBACK as the response handler.
 The request is dispatched via CONNECTION.  If NS is non-nil,
@@ -966,11 +1008,13 @@ include it in the request.  LINE and COLUMN, if non-nil, define the position
 of INPUT in its buffer.  A CONNECTION uniquely determines two connections
 available: the standard interaction one and the tooling session.  If the
 tooling is desired, set TOOLING to true.
-ADDITIONAL-PARAMS is a plist to be appended to the request message."
-  (nrepl-send-request (append (nrepl--eval-request input ns line column) additional-params)
-                      callback
-                      connection
-                      tooling))
+ADDITIONAL-PARAMS is a plist to be appended to the request message.
+
+This positional form is kept for backward compatibility; new code should
+prefer the keyword-argument `nrepl-send-eval-request'."
+  (nrepl-send-eval-request input callback connection
+                           :ns ns :line line :column column
+                           :additional-params additional-params :tooling tooling))
 
 (defvar nrepl-client-name "nrepl.el"
   "Name of the nREPL client, sent in clone requests.")
@@ -983,17 +1027,17 @@ ADDITIONAL-PARAMS is a plist to be appended to the request message."
 The request is dispatched via CONNECTION.
 Optional argument TOOLING Tooling is set to t if wanting the tooling session
 from CONNECTION."
-  (nrepl-send-sync-request `("op" "clone"
-                             "client-name" ,nrepl-client-name
-                             ,@(when nrepl-client-version
-                                 `("client-version" ,nrepl-client-version)))
-                           connection
-                           nil tooling))
+  (nrepl-sync-request `("op" "clone"
+                        "client-name" ,nrepl-client-name
+                        ,@(when nrepl-client-version
+                            `("client-version" ,nrepl-client-version)))
+                      connection
+                      :tooling tooling))
 
 (defun nrepl-sync-request:close (connection)
   "Sent a :close request to close CONNECTION's SESSION."
-  (nrepl-send-sync-request '("op" "close") connection)
-  (nrepl-send-sync-request '("op" "close") connection nil t)) ;; close tooling session
+  (nrepl-sync-request '("op" "close") connection)
+  (nrepl-sync-request '("op" "close") connection :tooling t)) ;; close tooling session
 
 (defun nrepl-sync-request:describe (connection)
   "Perform :describe request for CONNECTION and SESSION."
@@ -1014,11 +1058,10 @@ The request is dispatched via CONNECTION.
 If NS is non-nil, include it in the request
 If TOOLING is non-nil the evaluation is done using the tooling nREPL
 session."
-  (nrepl-send-sync-request
+  (nrepl-sync-request
    (nrepl--eval-request input ns)
    connection
-   nil
-   tooling))
+   :tooling tooling))
 
 (defun nrepl-sessions (connection)
   "Get a list of active sessions on the nREPL server using CONNECTION."
