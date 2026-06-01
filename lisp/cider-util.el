@@ -43,11 +43,6 @@
 (require 'clojure-mode)
 (require 'nrepl-dict)
 
-;; Declared so the byte-compiler doesn't flag the `let' binding in
-;; `cider-project-dir' as an unused lexical variable on Emacs 28,
-;; where project.el doesn't define this variable.
-(defvar project-vc-extra-root-markers)
-
 (defalias 'cider-pop-back #'pop-tag-mark)
 
 (defcustom cider-font-lock-max-length 10000
@@ -106,8 +101,8 @@ Setting this to nil removes the fontification restriction."
     "basilisp.edn"     ; Basilisp (Python)
     )
   "Files indicating the root of a Clojure project.
-Used by `cider-project-dir' as extra root markers passed to
-`project.el'."
+Used by `cider-project-dir' to locate the nearest enclosing build-tool
+file, walking up from the current buffer."
   :type '(repeat string)
   :group 'cider
   :safe (lambda (value)
@@ -118,28 +113,24 @@ Used by `cider-project-dir' as extra root markers passed to
   "Return the absolute path of the current Clojure project root, or nil.
 DIR defaults to `default-directory'.
 
-Built on top of `project.el', so the result respects any project-discovery
-customization the user has configured (`project-find-functions',
-`project-vc-extra-root-markers', etc.).  `cider-build-tool-files' extends
-the set of markers project.el's VC backend will accept, so a `deps.edn'
-or `project.clj' root wins over a deeper enclosing VC root.
+Walks up from DIR looking for any of `cider-build-tool-files'; the
+deepest match wins.  This finds the Clojure project root even when a
+broader VC repo (e.g. a `.git' monorepo) sits higher up, and regardless
+of whether `project-current' is backed by `project-try-vc', projectile,
+or any other discovery function plugged into `project-find-functions'.
 
-Falls back to a `locate-dominating-file' search against
-`cider-build-tool-files' when project.el doesn't detect anything; this
-also covers Emacs 28, which doesn't have `project-vc-extra-root-markers'."
+Falls back to `project-current' when no build-tool file is found
+anywhere up from DIR, so `cider-connect' invoked from a non-Clojure
+directory still has a sensible default."
   (let ((default-directory (or dir default-directory)))
-    (or (let ((project-vc-extra-root-markers
-               (append (and (boundp 'project-vc-extra-root-markers)
-                            project-vc-extra-root-markers)
-                       cider-build-tool-files)))
-          (when-let* ((proj (project-current)))
-            (expand-file-name (project-root proj))))
-        (when-let* ((hits (delq nil
+    (or (when-let* ((hits (delq nil
                                 (mapcar (lambda (f)
                                           (locate-dominating-file
                                            default-directory f))
                                         cider-build-tool-files))))
-          (expand-file-name (car (sort hits #'file-in-directory-p)))))))
+          (expand-file-name (car (sort hits #'file-in-directory-p))))
+        (when-let* ((proj (project-current)))
+          (expand-file-name (project-root proj))))))
 
 (defun cider-in-string-p ()
   "Return non-nil if point is in a string."
