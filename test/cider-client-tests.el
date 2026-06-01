@@ -43,7 +43,7 @@
     (expect (cider-var-info "") :to-be nil))
 
   (it "returns vars info as an nREPL dict"
-    (spy-on 'cider-sync-request:info :and-return-value
+    (spy-on 'cider-info-request :and-return-value
             '(dict
               "arglists" "([] [x] [x & ys])"
               "ns" "clojure.core"
@@ -81,7 +81,7 @@
 
 (describe "cider-member-info"
   (it "returns member info for a given class and member"
-    (spy-on 'cider-sync-request:info :and-return-value
+    (spy-on 'cider-info-request :and-return-value
             '(dict
               "class" "java.lang.String"
               "member" "length"
@@ -164,6 +164,102 @@
         (expect (gethash id nrepl-completed-requests) :to-equal #'ignore)))
     (ignore-errors
       (kill-buffer "*nrepl-messages*"))))
+
+(describe "cider-nrepl-send-eval-request"
+  (it "delegates to nrepl-send-eval-request with the keyword args mapped through"
+    (let (captured)
+      (spy-on 'cider-spinner-start)
+      (spy-on 'nrepl-send-eval-request :and-call-fake
+              (lambda (input _callback connection &rest kwargs)
+                (setq captured (list input connection kwargs))))
+      (cider-nrepl-send-eval-request "(+ 1 1)" #'ignore
+                                     :ns "user" :line 1 :column 2
+                                     :additional-params '("a" "b")
+                                     :connection :fake-conn)
+      (cl-destructuring-bind (input connection kwargs) captured
+        (expect input :to-equal "(+ 1 1)")
+        (expect connection :to-be :fake-conn)
+        (expect (plist-get kwargs :ns) :to-equal "user")
+        (expect (plist-get kwargs :line) :to-equal 1)
+        (expect (plist-get kwargs :column) :to-equal 2)
+        (expect (plist-get kwargs :additional-params) :to-equal '("a" "b")))))
+
+  (it "the positional cider-nrepl-request:eval shim delegates identically"
+    (let (calls)
+      (spy-on 'cider-spinner-start)
+      (spy-on 'nrepl-send-eval-request :and-call-fake
+              (lambda (&rest args) (push args calls)))
+      (cider-nrepl-send-eval-request "(+ 1 1)" #'ignore
+                                     :ns "user" :line 1 :column 2
+                                     :additional-params '("a" "b")
+                                     :connection :fake-conn)
+      (cider-nrepl-request:eval "(+ 1 1)" #'ignore
+                                "user" 1 2 '("a" "b") :fake-conn)
+      (expect (length calls) :to-equal 2)
+      ;; the wrapped callback is a fresh closure each call, so compare
+      ;; everything except it: the input and the connection + keyword args
+      (expect (nth 0 (nth 0 calls)) :to-equal (nth 0 (nth 1 calls)))
+      (expect (nthcdr 2 (nth 0 calls)) :to-equal (nthcdr 2 (nth 1 calls))))))
+
+(describe "cider-nrepl-sync-request"
+  (it "the positional cider-nrepl-send-sync-request shim delegates with keywords"
+    (let (captured)
+      (spy-on 'cider-nrepl-sync-request :and-call-fake
+              (lambda (request &rest kwargs) (setq captured (list request kwargs))))
+      (cider-nrepl-send-sync-request '("op" "x") :fake-conn 'abort #'ignore)
+      (cl-destructuring-bind (request kwargs) captured
+        (expect request :to-equal '("op" "x"))
+        (expect (plist-get kwargs :connection) :to-be :fake-conn)
+        (expect (plist-get kwargs :abort-on-input) :to-be 'abort)
+        (expect (plist-get kwargs :callback) :to-be #'ignore)))))
+
+(describe "cider-sync-request:info"
+  (it "delegates to cider-info-request with positional args mapped to keywords"
+    (let (captured)
+      (spy-on 'cider-info-request :and-call-fake
+              (lambda (&rest kwargs) (setq captured kwargs)))
+      (cider-sync-request:info "sym" "cls" "mbr" "ctx")
+      (expect (plist-get captured :sym) :to-equal "sym")
+      (expect (plist-get captured :class) :to-equal "cls")
+      (expect (plist-get captured :member) :to-equal "mbr")
+      (expect (plist-get captured :context) :to-equal "ctx"))))
+
+(describe "cider-sync-request:eldoc"
+  (it "delegates to cider-eldoc-request with positional args mapped to keywords"
+    (let (captured)
+      (spy-on 'cider-eldoc-request :and-call-fake
+              (lambda (&rest kwargs) (setq captured kwargs)))
+      (cider-sync-request:eldoc "sym" "cls" "mbr" "ctx")
+      (expect (plist-get captured :sym) :to-equal "sym")
+      (expect (plist-get captured :class) :to-equal "cls")
+      (expect (plist-get captured :member) :to-equal "mbr")
+      (expect (plist-get captured :context) :to-equal "ctx"))))
+
+(describe "cider-sync-request:apropos"
+  (it "delegates to cider-apropos-request with positional args mapped to keywords"
+    (let (captured)
+      (spy-on 'cider-apropos-request :and-call-fake
+              (lambda (query &rest kwargs) (setq captured (list query kwargs))))
+      (cider-sync-request:apropos "qry" "ns" t t t)
+      (cl-destructuring-bind (query kwargs) captured
+        (expect query :to-equal "qry")
+        (expect (plist-get kwargs :search-ns) :to-equal "ns")
+        (expect (plist-get kwargs :docs-p) :to-be t)
+        (expect (plist-get kwargs :privates-p) :to-be t)
+        (expect (plist-get kwargs :case-sensitive-p) :to-be t)))))
+
+(describe "cider-request:load-file"
+  (it "delegates to cider-load-file-request with positional args mapped to keywords"
+    (let (captured)
+      (spy-on 'cider-load-file-request :and-call-fake
+              (lambda (fc fp fn &rest kwargs) (setq captured (list fc fp fn kwargs))))
+      (cider-request:load-file "contents" "/path" "name" :fake-conn #'ignore)
+      (cl-destructuring-bind (fc fp fn kwargs) captured
+        (expect fc :to-equal "contents")
+        (expect fp :to-equal "/path")
+        (expect fn :to-equal "name")
+        (expect (plist-get kwargs :connection) :to-be :fake-conn)
+        (expect (plist-get kwargs :callback) :to-be #'ignore)))))
 
 (describe "cider-ensure-op-supported"
   (it "returns nil when the op is supported"
