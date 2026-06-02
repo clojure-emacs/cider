@@ -112,11 +112,16 @@ by clicking or navigating to them by other means."
   :type 'boolean
   :package-version '(cider . "0.27.0"))
 
-(defcustom cider-inspector-display-analytics-hint t
-  "When true, display hint about analytics feature for eligible objects.
-Can be turned to nil once the user sees and acknowledges the feature."
+(defcustom cider-inspector-display-analytics-hint nil
+  "Obsolete; no longer used."
   :type 'boolean
   :package-version '(cider . "1.18.0"))
+(make-obsolete 'cider-inspector-display-analytics-hint nil "1.22")
+
+(defcustom cider-inspector-display-help t
+  "When true, render help at the bottom of the inspector page."
+  :type 'boolean
+  :package-version '(cider . "1.22.0"))
 
 (defvar cider-inspector-uninteresting-regexp
   (concat "nil"                      ; nils are not interesting
@@ -164,6 +169,7 @@ Can be turned to nil once the user sees and acknowledges the feature."
     (define-key map "P" #'cider-inspector-toggle-pretty-print)
     (define-key map "S" #'cider-inspector-toggle-sort-maps)
     (define-key map "D" #'cider-inspector-toggle-only-diff)
+    (define-key map "?" #'cider-inspector-toggle-display-help)
     (define-key map (kbd "C-c C-p") #'cider-inspector-print-current-value)
     (define-key map ":" #'cider-inspect-expr-from-inspector)
     (define-key map "f" #'forward-char)
@@ -388,12 +394,15 @@ MAX-NESTED-DEPTH is the new value."
 (defun cider-inspector-display-analytics ()
   "Toggle the display of analytics for the inspected object."
   (interactive)
-  ;; Disable hint about analytics feature so that it is never displayed again.
-  (when cider-inspector-display-analytics-hint
-    (customize-set-variable 'cider-inspector-display-analytics-hint nil))
   (let ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-display-analytics"))))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result :next-inspectable))))
+
+(defun cider-inspector-toggle-display-help ()
+  "Toggle the display of help message in the inspector window."
+  (interactive)
+  (customize-set-variable 'cider-inspector-display-help (not cider-inspector-display-help))
+  (cider-inspector-refresh))
 
 (defun cider-inspector-toggle-pretty-print ()
   "Toggle the pretty printing of values in the inspector."
@@ -499,25 +508,23 @@ current-namespace."
 Set the page size in paginated view to PAGE-SIZE, maximum length of atomic
 collection members to MAX-ATOM-LENGTH, and maximum size of nested collections to
 MAX-COLL-SIZE if non nil."
-  (thread-first
-    (append (nrepl--eval-request expr ns)
-            `("inspect" "true"
-              ,@(when cider-inspector-page-size
-                  `("page-size" ,cider-inspector-page-size))
-              ,@(when cider-inspector-max-atom-length
-                  `("max-atom-length" ,cider-inspector-max-atom-length))
-              ,@(when cider-inspector-max-coll-size
-                  `("max-coll-size" ,cider-inspector-max-coll-size))
-              ,@(when cider-inspector-max-nested-depth
-                  `("max-nested-depth" ,cider-inspector-max-nested-depth))
-              ,@(when cider-inspector-display-analytics-hint
-                  `("display-analytics-hint" "true"))
-              "tidy-qualified-keywords" ,(if cider-inspector-tidy-qualified-keywords
-                                             "true" "false")
-              "pretty-print" ,(if cider-inspector-pretty-print "true" "false")
-              "sort-maps" ,(if cider-inspector-sort-maps "true" "false")
-              "only-diff" ,(if cider-inspector-only-diff "true" "false")))
-    (cider-nrepl-send-sync-request)))
+  (cider-nrepl-send-sync-request
+   (append (nrepl--eval-request expr ns)
+           `("inspect" "true"
+             ,@(when cider-inspector-page-size
+                 `("page-size" ,cider-inspector-page-size))
+             ,@(when cider-inspector-max-atom-length
+                 `("max-atom-length" ,cider-inspector-max-atom-length))
+             ,@(when cider-inspector-max-coll-size
+                 `("max-coll-size" ,cider-inspector-max-coll-size))
+             ,@(when cider-inspector-max-nested-depth
+                 `("max-nested-depth" ,cider-inspector-max-nested-depth))
+             ;; "display-analytics-hint" "nil"
+             "tidy-qualified-keywords" ,(if cider-inspector-tidy-qualified-keywords
+                                            "true" "false")
+             "pretty-print" ,(if cider-inspector-pretty-print "true" "false")
+             "sort-maps" ,(if cider-inspector-sort-maps "true" "false")
+             "only-diff" ,(if cider-inspector-only-diff "true" "false")))))
 
 (declare-function cider-set-buffer-ns "cider-mode")
 
@@ -574,7 +581,9 @@ from stack), `:next-inspectable' (move point to next inspectable object)."
     (let ((inhibit-read-only t))
       (condition-case nil
           (cider-inspector-render* (car (read-from-string str)))
-        (error (insert "\nInspector error for: " str))))
+        (error (insert "\nInspector error for: " str)))
+      (when cider-inspector-display-help
+        (cider-inspector--render-help)))
     (goto-char (point-min))))
 
 (defvar cider-inspector-looking-at-java-p nil)
@@ -734,6 +743,63 @@ that value.
            (cider-inspector-operate-on-point))
           (t
            (error "No clickable part here")))))
+
+(defconst cider-inspector--inline-help-data
+  '((cider-inspector-toggle-display-help . "Show/hide this message")
+    ((cider-inspector-operate-on-point
+      cider-inspector-operate-on-click)
+     . "Inspect object at point")
+    (cider-inspector-pop . "Pop back to outer object")
+    (cider-inspector-refresh . "Refresh current view")
+    ((cider-inspector-next-page cider-inspector-prev-page) . "Scroll to next/previous page")
+    ((cider-inspector-next-inspectable-object
+      cider-inspector-previous-inspectable-object)
+     . "Navigate to next/previous inspectable object")
+    ((cider-inspector-next-sibling cider-inspector-previous-sibling)
+     . "Inspect next/previous sibling in the collection.")
+    (cider-inspector-display-analytics . "Calculate analytics for the current object")
+    (cider-inspector-def-current-val . "Define current value as a top-level var")
+    (cider-inspector-tap-current-val . "Send current value to tap>")
+    (cider-inspector-print-current-value . "Print current value")
+    (cider-inspector-open-thing-at-point . "Open file or URL at point")
+    (cider-inspect-expr-from-inspector . "Inspect prompted expression")
+    (cider-inspector-toggle-view-mode . "Cycle between view modes")
+    (cider-inspector-toggle-pretty-print . "Toggle pretty-printing")
+    (cider-inspector-toggle-sort-maps . "Sort inspected map by key")
+    (cider-inspector-toggle-only-diff . "Hide equal values when rendering a diff")
+    (cider-inspector-set-page-size . "Set pagination page size")
+    (cider-inspector-set-max-atom-length . "Set maximum item length before truncating")
+    (cider-inspector-set-max-coll-size . "Set maximum collection size before truncating")
+    (cider-inspector-set-max-nested-depth . "Set maximum collection depth before truncating")
+    (cider-popup-buffer-quit-function . "Quit inspector")))
+
+(defun cider-inspector--render-help ()
+  "Render a keybinding help block at the bottom of the buffer."
+  (save-excursion
+    (let ((computed-items nil)
+          (max-len 0))
+      (goto-char (point-max))
+      (insert "\n\n")
+      (insert (propertize "--- Keybindings:\n" 'font-lock-face 'font-lock-comment-face))
+      ;; Pre-compute key strings and calculate maximum length
+      (dolist (cmd-pair cider-inspector--inline-help-data)
+        (let* ((cmd (car cmd-pair))
+               (desc (cdr cmd-pair))
+               (keys (mapcar (lambda (k)
+                               (propertize (key-description (where-is-internal k cider-inspector-mode-map t))
+                                           'font-lock-face 'help-key-binding))
+                             (if (atom cmd) (list cmd) cmd)))
+               (key-str (string-join keys ", ")))
+          (setq max-len (max max-len (length key-str)))
+          (push (cons key-str desc) computed-items)))
+      ;; Render lines with right-aligned padding.
+      (dolist (item (nreverse computed-items))
+        (let* ((key-str (car item))
+               (desc (cdr item))
+               (padding (make-string (- max-len (length key-str)) ?\s)))
+          (insert "  " padding key-str
+                  "  " (propertize desc 'font-lock-face 'font-lock-comment-face)
+                  "\n"))))))
 
 (provide 'cider-inspector)
 
