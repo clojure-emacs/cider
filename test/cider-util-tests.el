@@ -536,7 +536,13 @@ and some other vars (like clojure.core/filter).
         (expect (cider-project-dir sub) :to-equal sub)))
 
     (it "falls back to project-current when no build-tool file is found"
-      (spy-on 'project-current :and-return-value `(vc Git ,root))
+      ;; Mock at the public API boundary.  The internal shape of a project
+      ;; object, and how `project-root' extracts the root from it, differs
+      ;; across Emacs versions (on Emacs 28 a vc project is `(vc . root)',
+      ;; on 29+ it is `(vc Backend root)'), so hard-coding one shape breaks
+      ;; the other.
+      (spy-on 'project-current :and-return-value 'fake-project)
+      (spy-on 'project-root :and-return-value root)
       (expect (cider-project-dir root) :to-equal root))
 
     (it "returns nil when there is neither a build-tool file nor a project"
