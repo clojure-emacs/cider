@@ -57,6 +57,39 @@ NOTE: the suggested ClojureScript setup is apt for e.g. library development, but
 For those cases, you may want to check out our xref:cljs/shadow-cljs.adoc#using-cider-connect-cljs[shadow-cljs]
 or xref:cljs/figwheel.adoc#clojure-cli-setup[figwheel] setups instead.
 
+=== Using Launchpad
+
+[Launchpad](https://github.com/lambdaisland/launchpad) lets you start a nREPL server from the command line,
+while including the middleware your editor requires and providing additional developer conveniences.
+
+In your project, create `bin/launchpad`. The only requirement is [babashka](https://babashka.org/).
+
+[source,clojure]
+----
+#!/usr/bin/env bb
+
+(require '[babashka.deps :as deps])
+(deps/add-deps '{:deps {com.lambdaisland/launchpad {:mvn/version "RELEASE"}}})
+
+(require '[lambdaisland.launchpad :as launchpad])
+
+(launchpad/main {})
+----
+
+Now `bin/launchpad --emacs` will start a Clojure process, and connect Emacs to your REPL, and include the 
+`cider-nrepl` middleware.
+
+To load additional middleware, configure it inside `bin/launchpad`
+
+
+[source,clojure]
+----
+;; <snip> ... as before ... <snip>
+(launchpad/main {:middleware [your.custom/nrepl-middleware]})
+----
+
+See `bin/launchpad --help` or the [README](https://github.com/lambdaisland/launchpad) for more info.
+
 === Using Gradle
 
 NOTE: Make sure you're using https://github.com/clojurephant/clojurephant[Clojurephant] 0.4.0 or newer.
