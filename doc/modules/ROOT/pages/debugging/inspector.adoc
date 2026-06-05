@@ -27,7 +27,9 @@ TIP: The current value of the debugger can be sent as well to Clojure's
 tools which render tapped values in a web browser, for example.
 
 You'll have access to additional keybindings in the inspector buffer
-(which is internally using `cider-inspector-mode`):
+(which is internally using `cider-inspector-mode`). All bindings are listed
+at the bottom of the inspector buffer in the `Keybindings` section. It can be
+toggled by pressing kbd:[?].
 
 |===
 | Keyboard shortcut | Command | Description
@@ -127,33 +129,32 @@ You'll have access to additional keybindings in the inspector buffer
 
 |===
 
+=== View modes
+
+The point of the inspector is to display and navigate familiar data structures
+in a more pleasant and obvious way. For example, in the inspector, a sequential
+collection is rendered with each item on its own line and paginated. However,
+for some object types, inspector supports additional view modes. The modes can
+be cycled by calling `cider-inspector-toggle-view-mode` (kbd:[v] by default).
+
+- `:object` - default view mode for rendering any Java object that doesn't have
+  a custom renderer. Displays all object fields and their values. Known types
+  can also be switched to this mode.
+- `:table` - can be enabled when inspecting a sequence of maps when each map has
+  same or mostly same keys.
+- `:hex` - available for byte arrays and ByteBuffer objects, renders them in a
+  "hexdump" style.
+
 == Configuration
 
-By default, navigation skips over values like nils, numbers and
-keywords, which are not interesting to inspect. You can control this
-behavior using the variable `cider-inspector-skip-uninteresting`.
-
-The inspector buffer is automatically selected by default. You
-can disable the auto selection with the variable
-`cider-inspector-auto-select-buffer`.
+You can see and change all variables related to Inspector by doing `M-x
+customize-group cider-inspector`.
 
 You can set the amount of data shown by default with the variables
 `cider-inspector-page-size`, `cider-inspector-max-coll-size`,
 `cider-inspector-max-nested-depth`, and `cider-inspector-max-atom-length`. The
 values can be adjusted for the current inspector buffer using the keybindings
 listed in the table above.
-
-If you enable `cider-inspector-fill-frame`, the inspector window fills its
-frame.
-
-You can toggle the pretty printing of values in the inspector with
-kbd:[P] and customize their initial presentation by adjusting the
-`cider-inspector-pretty-print` customization option.
-
-When you define a var using kbd:[d], a var name can be suggested (default none).
-You can customize this value via the `cider-inspector-preferred-var-names`
-configuration option. Even after setting it, you are free to choose new names on
-the fly, as you type. Most recent names will take priority in subsequent usages.
 
 When `cider-inspector-tidy-qualified-keywords` is enabled, namespace-qualified
 keyword like `::foo` or `::alias/baz` will be displayed in the same manner by
