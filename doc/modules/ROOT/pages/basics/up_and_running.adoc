@@ -243,24 +243,12 @@ a REPL for one or the other.
 NOTE: The examples use only `cider-jack-in`, but this behavior is consistent
 for all `cider-jack-in-\*` commands.
 
-==== Overriding the jack-in command per buffer
-
-Setting the buffer-local `cider-jack-in-cmd` to a complete command line
-makes `cider-jack-in-\*` use it verbatim, bypassing the project-type
-detection, the resolver, and dependency injection.  This is the simplest
-escape hatch when CIDER's auto-derivation does the wrong thing -- common
-inside containers, on TRAMP, or when you need to launch the server with
-a custom wrapper script.
-
-[source,lisp]
-----
-;; .dir-locals.el
-((nil . ((cider-jack-in-cmd . "ssh my-box -t bb nrepl-server localhost:0"))))
-----
-
 You can further customize the command line CIDER uses for `cider-jack-in` by
 modifying some options. Those differ a bit between the various tools,
 so we'll examine them tool by tool.
+
+TIP: If instead you want to bypass command construction entirely and run a
+command of your own, see <<Overriding the Jack-In Command>> below.
 
 ==== Leiningen Options
 
@@ -334,30 +322,41 @@ use `cider-connect` instead of `cider-jack-in`.
 * `cider-shadow-cljs-command` - the command to run `shadow-cljs` (`npx shadow-cljs` by default). By default we favor the project-specific shadow-cljs over the system-wide.
 * `cider-shadow-cljs-parameters` - the task to start a REPL server (`server` by default)
 
-=== Override the Jack-In Command
+=== Overriding the Jack-In Command
 
-Which Jack-In Command is used is based on the project type. You can override the Jack-In Command either project-wide or as an argument in Lisp.
-This allows for fine-grained control over how cider starts the nrepl-server.
+Which jack-in command is used is normally inferred from the project type, but
+you can override it for full control over how CIDER starts the nREPL server.
+An overriding command is used verbatim: it bypasses project-type detection,
+the resolver, and dependency injection.  This is the simplest escape hatch
+when CIDER's auto-derivation does the wrong thing, which is common inside
+containers, on TRAMP, or when you need a custom wrapper script.
 
-The precedence order for determining the Jack-In Command is:
-1. `:jack-in-cmd` if provided as a parameter,
-2. `cider-jack-in-cmd` if set as a directory local variable, and
-3. Inferred from the project type (the default).
+The precedence order for determining the jack-in command is:
 
-==== Setting a project-wide command
+. `:jack-in-cmd` passed as a parameter,
+. `cider-jack-in-cmd` set as a (directory-local) variable, and
+. the command inferred from the project type (the default).
 
-You can set a local variable `cider-jack-in-cmd` to override the jack-in command.
+NOTE: Since the command is used verbatim, it has to start an nREPL server with
+the `cider-nrepl` middleware itself; CIDER won't inject the dependencies for
+you in this case.
+
+==== Via a directory-local variable
+
+Set `cider-jack-in-cmd` to a complete command line, typically in
+`.dir-locals.el`:
 
 [source,emacs-lisp]
 ----
-((nil
-  (cider-jack-in-cmd . "nbb nrepl-server")))
+;; .dir-locals.el
+((nil . ((cider-jack-in-cmd . "ssh my-box -t bb nrepl-server localhost:0"))))
 ----
 
-==== Passing the Command Programmatically as a Parameter
+==== Via a parameter
 
-You can provide an override Jack-In command as an argument to `cider-jack-in`.
-Here is an example Nbb Jack-In command, providing a custom `:jack-in-cmd`.
+You can also pass the command programmatically as the `:jack-in-cmd` parameter
+of `cider-jack-in-\*`.  For example, a dedicated command that starts an nbb
+REPL:
 
 [source,emacs-lisp]
 ----
@@ -367,17 +366,16 @@ Here is an example Nbb Jack-In command, providing a custom `:jack-in-cmd`.
   (cider-jack-in-clj '(:jack-in-cmd "nbb nrepl-server")))
 ----
 
-==== Starting nREPL server without trying to connect to it ====
+=== Starting an nREPL Server Without Connecting
 
-In some situations, it might be useful to only start a nREPL server process, without
-connecting to it. This can support complex setups
-for which CIDER cannot reliably detect to which server/port to connect, and
-would therefore fail.
-This assumes that the user will execute a `cider-connect` command manually afterwards,
-specifying host/port.
+In some situations, it might be useful to only start an nREPL server process,
+without connecting to it.  This can support complex setups for which CIDER
+cannot reliably detect which server/port to connect to, and would therefore
+fail.  This assumes that you will run `cider-connect` manually afterwards,
+specifying the host/port.
 
-For this scenario, the `cider-start-nrepl-server` (kbd:[C-c C-x (C-)j (C-)n])  command is provided, which
-takes the same parameters as `cider-jack-in`.
+For this scenario, the `cider-start-nrepl-server` (kbd:[C-c C-x (C-)j (C-)n])
+command is provided, which takes the same parameters as `cider-jack-in`.
 
 == Connect to a Running nREPL Server
 
@@ -479,7 +477,7 @@ A few things still need attention when jacking in over TRAMP:
   reliably check whether a given command exists on the other side, so a
   missing executable typically only surfaces when the server fails to
   start.  When in doubt, set `cider-jack-in-cmd` (see
-  <<Overriding the jack-in command per buffer>>) to the exact command
+  <<Overriding the Jack-In Command>>) to the exact command
   line you want to run.
 - *Endpoint discovery for `cider-connect`* (`cider-locate-running-nrepl-ports`)
   inspects processes via `ps`/`lsof` on the host given by the buffer's
