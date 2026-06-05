@@ -292,6 +292,38 @@ with the following alternatives
 NOTE: Alternatively you can use WSL (e.g. to run nREPL and Emacs there), which
 will likely result in a better overall development experience.
 
+==== How the Clojure CLI Command Is Built
+
+CIDER doesn't run your aliases with `-X` or `-A`.  Instead it injects an
+inline `:cider/nrepl` alias whose `:main-opts` start the nREPL server, and
+invokes it with `-M`.  A typical jack-in command ends up looking like this:
+
+  clojure -Sdeps '{:deps {...}}' -M:dev:cider/nrepl
+
+Aliases you add via `cider-clojure-cli-aliases` (project-local, usually set in
+`.dir-locals.el`) or `cider-clojure-cli-global-aliases` (global) are
+concatenated into that `-M...:cider/nrepl` form.  A leading `-A`, `-M`, `-T`,
+or `-X` is stripped from each alias, since CIDER picks the exec flag and you
+only supply the alias names.
+
+For example, to enable your project's `:dev` alias at jack-in:
+
+[source,emacs-lisp]
+----
+;; .dir-locals.el
+((clojure-mode
+  (cider-clojure-cli-aliases . ":dev")))
+----
+
+Because CIDER bootstraps nREPL through `:main-opts`, jack-in is inherently
+`-M`-based.  That's fine for aliases that contribute `:extra-deps`,
+`:extra-paths`, or `:jvm-opts`, as those take effect no matter which exec flag
+is used.  It does not work for exec-style aliases that rely on an `:exec-fn`
+(the ones you'd normally run with `-X`).  If you need such an alias to set up
+your environment, start the nREPL server yourself (e.g. via a `clojure -X:dev`
+invocation that launches an nREPL server with the CIDER middleware) and then
+use `cider-connect` instead of `cider-jack-in`.
+
 ==== Gradle Options
 
 * `cider-gradle-command` - the name of the Gradle executable (`./gradlew` by default)
@@ -309,12 +341,12 @@ This allows for fine-grained control over how cider starts the nrepl-server.
 
 The precedence order for determining the Jack-In Command is:
 1. `:jack-in-cmd` if provided as a parameter,
-2. `cider-jack-in-command` if set as a directory local variable, and
+2. `cider-jack-in-cmd` if set as a directory local variable, and
 3. Inferred from the project type (the default).
 
 ==== Setting a project-wide command
 
-You can set a local variable `cider-jack-in-command` to override the jack-in command.
+You can set a local variable `cider-jack-in-cmd` to override the jack-in command.
 
 [source,emacs-lisp]
 ----
