@@ -735,7 +735,8 @@ If PROMPT-FOR-FILTERS is non-nil, prompt the user for a test selector filters.
 The include/exclude selectors will be used to filter the tests before
 running them."
   (cider-test-clear-highlights)
-  (let ((include-selectors
+  (let ((cider-project-dir (cider-project-dir))
+        (include-selectors
          (if prompt-for-filters
              (cider-test--prompt-for-selectors
               "Test selectors to include (space separated): ")
@@ -799,9 +800,8 @@ running them."
                                       cider-test-report-buffer
                                       cider-auto-select-test-report-buffer)))
                               (with-current-buffer b
-                                ;; Change the default-directory so that it doesn't affect `sesman--linked-sessions` logic:
                                 (setq-local default-directory
-                                            (with-current-buffer "*Messages*" default-directory)))
+                                            cider-project-dir))
                               (cider-test-render-report
                                b
                                summary

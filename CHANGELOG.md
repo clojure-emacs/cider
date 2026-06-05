@@ -87,6 +87,7 @@
   - `nrepl-log--pp-listlike` now walks the plist in a single pass instead of copy-sequencing it through a sort/filter/concat pipeline. Specials (`id`, `op`, `session`, `time-stamp`) still print first but in canonical order, and the remaining keys now print in insertion order rather than alphabetically.
   - `pp` was swapped for `prin1` in the non-dict leaf paths of `nrepl-log-pp-object`.
   - `nrepl-message-buffer-max-size` and `nrepl-message-buffer-reduce-denominator` are now `defcustom` to match their docstring intent.
+- Set `default-directory` in `cider-test-report-mode` buffers to `(cider-project-dir)`
 
 ## 1.21.0 (2026-02-07)
 
