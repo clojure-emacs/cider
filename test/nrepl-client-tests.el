@@ -75,7 +75,20 @@
                 (id session status)
               (list id session status))
             :to-equal
-            '("2" "39f630b9-9545-4ea0-860e-9846681d0741" ("done")))))
+            '("2" "39f630b9-9545-4ea0-860e-9846681d0741" ("done"))))
+
+  (it "binds missing keys to nil"
+    (nrepl-dbind-response '(dict "foo" "1") (foo bar)
+      (expect foo :to-equal "1")
+      (expect bar :to-equal nil)))
+
+  (it "evaluates the response expression only once"
+    (let ((call-count 0))
+      (nrepl-dbind-response (progn (cl-incf call-count) ; side-effectful
+                                   '(dict "a" "1" "b" "2" "c" "3"))
+          (a b c)
+        (ignore a b c))
+      (expect call-count :to-equal 1))))
 
 (describe "nrepl-make-buffer-name"
   :var (nrepl-format-buffer-name-function default-directory-backup
