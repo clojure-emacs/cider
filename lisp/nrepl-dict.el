@@ -230,10 +230,12 @@ If NO-JOIN is given, return the first non nil dict."
   "Destructure an nREPL RESPONSE dict.
 Bind the value of the provided KEYS and execute BODY."
   (declare (debug (form (&rest symbolp) body)))
-  `(let ,(mapcar (lambda (key)
-                   `(,key (nrepl-dict-get ,response ,(format "%s" key))))
-                 keys)
-     ,@body))
+  (let ((response-var (gensym "response")))
+    `(let* ((,response-var ,response)
+            ,@(mapcar (lambda (key)
+                        `(,key (nrepl-dict-get ,response-var ,(format "%s" key))))
+                      keys))
+       ,@body)))
 (put 'nrepl-dbind-response 'lisp-indent-function 2)
 
 (provide 'nrepl-dict)
