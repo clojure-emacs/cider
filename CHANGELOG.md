@@ -33,6 +33,7 @@
   - `cider-read-and-eval` (`:`)
   - `cider-eval-defun-to-comment` (`;`)
   - `cider-pprint-eval-last-sexp-to-repl` (`f j e`)
+- [#3839](https://github.com/clojure-emacs/cider/pull/3839): Add jack-in support for ClojureCLR.
 
 ### Bugs fixed
 
