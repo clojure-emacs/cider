@@ -174,16 +174,25 @@ them in a REPL buffer, as a REPL is an integral part of a session.
 
 == Friendly Sessions
 
-https://github.com/vspinu/sesman[Sesman] defines "friendly" session to allow for on-the-fly operation on
-sessions from contexts where there are no explicit links. In CIDER friendly
-sessions are defined by the project dependencies. For example when you use
-`cider-find-var` (kbd:[M-.]) to navigate to a var definition in a
-dependency project the current project's session becomes a friendly session for
-the dependency.
+https://github.com/vspinu/sesman[Sesman] defines "friendly" sessions to allow for on-the-fly operation on
+sessions from contexts where there are no explicit links. In CIDER a session is
+friendly to a buffer when the buffer's file lives under the session's project
+directory. So if you open a file anywhere in your project, the project's session
+is automatically used even before you link anything explicitly. Explicitly
+linked sessions still have precedence over friendly ones.
 
-When you evaluate some code from a dependency project and there are no explicit
-links in that project, the most recent friendly session is used to evaluate the
-code. Explicitly linked sessions have precedence over the friendly sessions.
+Files that live *outside* the project directory don't match this rule. The most
+common case is jumping to a dependency's source with `cider-find-var`
+(kbd:[M-.]): there CIDER pins the buffer to the session you navigated from, so
+evaluation and other commands keep targeting that REPL. Source buffers you open
+by other means (e.g. a plain `find-file` into a jar) won't be associated
+automatically; link a session explicitly or set `cider-default-session` if you
+need that.
+
+NOTE: Earlier CIDER versions inferred friendly sessions from the full project
+classpath (and, as a fallback, the buffer's namespace). That ran on every
+redisplay and could cause severe editor lag, so it was replaced with the simpler
+project-directory rule described above.
 
 You can disable friendly session inference by customizing
 `sesman-use-friendly-sessions`.

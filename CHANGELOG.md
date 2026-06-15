@@ -36,6 +36,7 @@
 
 ### Bugs fixed
 
+- [#3933](https://github.com/clojure-emacs/cider/issues/3933): Fix severe editor lag in Clojure buffers when no REPL is linked.  Friendly-session matching no longer scans the project classpath (or the buffer's namespace) on every redisplay; it now just checks whether the buffer's file is under a session's project directory.  Dependency sources jumped to via `cider-find-var` are pinned to their originating session instead.
 - `cider-browse-spec-mode`, `cider-browse-spec-view-mode`, and `cider-browse-spec-example-mode` each have an `easy-menu` now, exposing the drill/browse-all/generate-example commands that previously had no menu affordance.
 - `cider-repl-history-mode` now has an `easy-menu` ("REPL History") covering insert, navigation, search/filter, refresh/delete/undo, and quit.
 - `cider-log-mode` now has an `easy-menu` ("CIDER Log") covering event inspect/print, navigation, and the framework/appender/consumer/event management commands previously only reachable via the `C-c M-l` prefix.
