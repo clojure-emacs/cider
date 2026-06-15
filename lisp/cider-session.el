@@ -463,7 +463,10 @@ Reverts to normal project-based session association."
   "Special buffer-local variable that contains reference to the REPL connection.
 This should be set in ancillary CIDER buffers that originate from some
 event (e.g. *cider-inspector*, *cider-error*) and which never change the
-REPL (connection) which produced them.")
+REPL (connection) which produced them.  It is also set on source buffers
+visited outside the project directory (e.g. a dependency's source jumped
+to via `cider-find-var'), pinning them to the session they were navigated
+from.")
 
 (defun cider-current-repl (&optional type ensure)
   "Get the most recent REPL of TYPE from the current session.
@@ -479,7 +482,8 @@ no linked session or there is no REPL of TYPE within the current session."
                  (eq cider-repl-type type)))
         ;; shortcut when in REPL buffer
         (current-buffer)
-      (or cider--ancillary-buffer-repl
+      (or (and (buffer-live-p cider--ancillary-buffer-repl)
+               cider--ancillary-buffer-repl)
           (let* ((type (if (or (null type)
                                (eq 'infer type))
                            (cider-repl-type-for-buffer)

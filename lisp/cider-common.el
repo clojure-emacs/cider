@@ -128,6 +128,24 @@ On failure, read a symbol name using PROMPT and call CALLBACK with that."
     (error (funcall callback (cider-read-from-minibuffer prompt)))))
 
 (declare-function cider-mode "cider-mode")
+(declare-function cider-current-repl "cider-session")
+(defvar cider--ancillary-buffer-repl)
+
+(defun cider--pin-repl-if-out-of-project (repl)
+  "Pin REPL onto the current buffer if its file is outside REPL's project.
+When jumping to a definition or resource that lives outside the
+originating session's project directory (typically a dependency's
+source), associate the buffer with REPL via `cider--ancillary-buffer-repl'
+so that CIDER commands invoked there target the session the buffer was
+navigated from.  Buffers inside the project directory are left untouched
+so they keep tracking the current session."
+  (when-let* ((repl (and (buffer-live-p repl) repl))
+              (file (buffer-file-name)))
+    (let ((proj-dir (buffer-local-value 'nrepl-project-dir repl)))
+      (when (or (null proj-dir)
+                (not (string-prefix-p (file-name-as-directory (file-truename proj-dir))
+                                      (file-truename file))))
+        (setq-local cider--ancillary-buffer-repl repl)))))
 
 (defcustom cider-jump-to-pop-to-buffer-actions
   '((display-buffer-reuse-window display-buffer-same-window))
@@ -152,47 +170,51 @@ If a cons, it specifies the position as (LINE . COLUMN).  COLUMN can be nil.
 If a symbol, `cider-jump-to' searches for something that looks like the
 symbol's definition in the file.
 If OTHER-WINDOW is non-nil don't reuse current window."
-  (with-no-warnings
-    (xref-push-marker-stack))
-  (if other-window
-      (pop-to-buffer buffer 'display-buffer-pop-up-window)
-    (pop-to-buffer buffer cider-jump-to-pop-to-buffer-actions))
-  (with-current-buffer buffer
-    (widen)
-    (goto-char (point-min))
-    (cider-mode +1)
-    (let ((status
-           (cond
-            ;; Line-column specification.
-            ((consp pos)
-             (forward-line (1- (or (car pos) 1)))
-             (if (cdr pos)
-                 (move-to-column (cdr pos))
-               (back-to-indentation)))
-            ;; Point specification.
-            ((numberp pos)
-             (goto-char pos))
-            ;; Symbol or string.
-            (pos
-             ;; Try to find (def full-name ...).
-             (if (or (save-excursion
-                       (search-forward-regexp (format "(def.*\\s-\\(%s\\)" (regexp-quote pos))
-                                              nil 'noerror))
-                     (let ((name (replace-regexp-in-string ".*/" "" pos)))
-                       ;; Try to find (def name ...).
-                       (or (save-excursion
-                             (search-forward-regexp (format "(def.*\\s-\\(%s\\)" (regexp-quote name))
-                                                    nil 'noerror))
-                           ;; Last resort, just find the first occurrence of `name'.
-                           (save-excursion
-                             (search-forward name nil 'noerror)))))
-                 (goto-char (match-beginning 0))
-               (message "Can't find %s in %s" pos (buffer-file-name))
-               'not-found))
-            (t 'not-found))))
-      (unless (eq status 'not-found)
-        ;; Make sure the location we jump to is centered within the target window
-        (recenter)))))
+  ;; Capture the originating session before `pop-to-buffer' moves us to the
+  ;; target buffer, so out-of-project targets can be pinned to it below.
+  (let ((origin-repl (ignore-errors (cider-current-repl))))
+    (with-no-warnings
+      (xref-push-marker-stack))
+    (if other-window
+        (pop-to-buffer buffer 'display-buffer-pop-up-window)
+      (pop-to-buffer buffer cider-jump-to-pop-to-buffer-actions))
+    (with-current-buffer buffer
+      (widen)
+      (goto-char (point-min))
+      (cider-mode +1)
+      (cider--pin-repl-if-out-of-project origin-repl)
+      (let ((status
+             (cond
+              ;; Line-column specification.
+              ((consp pos)
+               (forward-line (1- (or (car pos) 1)))
+               (if (cdr pos)
+                   (move-to-column (cdr pos))
+                 (back-to-indentation)))
+              ;; Point specification.
+              ((numberp pos)
+               (goto-char pos))
+              ;; Symbol or string.
+              (pos
+               ;; Try to find (def full-name ...).
+               (if (or (save-excursion
+                         (search-forward-regexp (format "(def.*\\s-\\(%s\\)" (regexp-quote pos))
+                                                nil 'noerror))
+                       (let ((name (replace-regexp-in-string ".*/" "" pos)))
+                         ;; Try to find (def name ...).
+                         (or (save-excursion
+                               (search-forward-regexp (format "(def.*\\s-\\(%s\\)" (regexp-quote name))
+                                                      nil 'noerror))
+                             ;; Last resort, just find the first occurrence of `name'.
+                             (save-excursion
+                               (search-forward name nil 'noerror)))))
+                   (goto-char (match-beginning 0))
+                 (message "Can't find %s in %s" pos (buffer-file-name))
+                 'not-found))
+              (t 'not-found))))
+        (unless (eq status 'not-found)
+          ;; Make sure the location we jump to is centered within the target window
+          (recenter))))))
 
 (defun cider--find-buffer-for-file (file)
   "Return a buffer visiting FILE.

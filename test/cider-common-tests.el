@@ -29,6 +29,7 @@
 
 (require 'buttercup)
 (require 'cider-common)
+(require 'cider-session)
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
@@ -183,3 +184,43 @@
               :to-equal /docker/ns.clj)
       (expect (cider--translate-path-to-nrepl-test `((,/docker . ,/host)) /host/ns.clj)
               :to-equal /docker/ns.clj)))
+
+(describe "cider--pin-repl-if-out-of-project"
+  :var (proj-root repl-buf)
+
+  (before-each
+    (setq proj-root (file-name-as-directory
+                     (file-truename (make-temp-file "cider-pin-test-" t)))
+          repl-buf (get-buffer-create "*cider-pin-test-repl*"))
+    (with-current-buffer repl-buf
+      (setq-local nrepl-project-dir proj-root)))
+
+  (after-each
+    (when (buffer-live-p repl-buf)
+      (kill-buffer repl-buf))
+    (when (and proj-root (file-directory-p proj-root))
+      (delete-directory proj-root t)))
+
+  (it "pins the REPL when the buffer's file is outside its project dir"
+      (with-temp-buffer
+        (setq buffer-file-name (expand-file-name "/some/dep/src/ns.clj"))
+        (cider--pin-repl-if-out-of-project repl-buf)
+        (expect cider--ancillary-buffer-repl :to-be repl-buf)))
+
+  (it "leaves the buffer untouched when its file is inside the project dir"
+      (with-temp-buffer
+        (setq buffer-file-name (concat proj-root "src/ns.clj"))
+        (cider--pin-repl-if-out-of-project repl-buf)
+        (expect cider--ancillary-buffer-repl :to-be nil)))
+
+  (it "does nothing for a dead REPL buffer"
+      (kill-buffer repl-buf)
+      (with-temp-buffer
+        (setq buffer-file-name (expand-file-name "/some/dep/src/ns.clj"))
+        (cider--pin-repl-if-out-of-project repl-buf)
+        (expect cider--ancillary-buffer-repl :to-be nil)))
+
+  (it "does nothing for a non-file buffer"
+      (with-temp-buffer
+        (cider--pin-repl-if-out-of-project repl-buf)
+        (expect cider--ancillary-buffer-repl :to-be nil))))
