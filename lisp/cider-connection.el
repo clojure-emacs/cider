@@ -263,7 +263,7 @@ See `cider-connection-capabilities'."
 (declare-function cider--debug-init-connection "cider-debug")
 (declare-function cider-repl-init "cider-repl")
 (declare-function cider-nrepl-op-supported-p "cider-client")
-(declare-function cider--precompute-friendly-session-cache "cider-repl")
+(declare-function cider--cache-session-project-dir "cider-repl")
 (defun cider--connected-handler ()
   "Handle CIDER initialization after nREPL connection has been established.
 This function is appended to `nrepl-connected-hook' in the client process
@@ -303,9 +303,9 @@ buffer."
        (when cider-repl-init-function
          (funcall cider-repl-init-function))
 
-       ;; Populate caches before `cider-enable-on-existing-clojure-buffers',
+       ;; Cache the project dir before `cider-enable-on-existing-clojure-buffers',
        ;; whose mode-line refresh path calls the friendly-session matcher.
-       (cider--precompute-friendly-session-cache)
+       (cider--cache-session-project-dir)
 
        (when cider-auto-mode
          (cider-enable-on-existing-clojure-buffers))
