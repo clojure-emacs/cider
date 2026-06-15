@@ -398,39 +398,52 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
           (expect (cider--sesman-friendly-session-p (list "a-session" b))
                   :to-be-truthy)))))
 
-  (describe "classpath matching"
-    ;; The matcher reads cached classpath/classpath-roots/ns-list from the
-    ;; REPL process.  We stub the process accessors so these tests don't
-    ;; need to spawn real subprocesses.
-    (it "matches when the buffer's directory is under a classpath entry"
+  (describe "project-dir matching"
+    ;; The matcher reads the cached, truename'd project dir from the REPL
+    ;; process.  We stub the process accessors so these tests don't need to
+    ;; spawn real subprocesses.
+    (it "matches when the buffer's file is under the cached project dir"
       (with-repl-buffer "a-session" 'clj b
-        (let ((classpath (list (concat fake-proj-root "src/"))))
-          (spy-on 'get-buffer-process :and-return-value 'fake-proc)
-          (spy-on 'process-live-p :and-return-value t)
-          (spy-on 'process-get :and-call-fake
-                  (lambda (_proc key)
-                    (pcase key (:cached-classpath classpath) (_ nil))))
-          (with-temp-buffer
-            (setq default-directory (concat fake-proj-root "src/foo/"))
-            (expect (cider--sesman-friendly-session-p (list "a-session" b))
-                    :to-be-truthy)))))
+        (spy-on 'get-buffer-process :and-return-value 'fake-proc)
+        (spy-on 'process-live-p :and-return-value t)
+        (spy-on 'process-get :and-call-fake
+                (lambda (_proc key)
+                  (pcase key (:cached-project-dir fake-proj-root) (_ nil))))
+        (with-temp-buffer
+          (setq default-directory (concat fake-proj-root "src/foo/"))
+          (expect (cider--sesman-friendly-session-p (list "a-session" b))
+                  :to-be-truthy))))
 
-    (it "uses `file-in-directory-p' for classpath roots (no spurious prefix matches)"
-      ;; A classpath root of `<root>/foo' must NOT match a file under
-      ;; `<root>/foobar/' -- the bug that `string-prefix-p' had.
+    (it "respects directory boundaries (no spurious prefix matches)"
+      ;; A project dir of `<root>/foo/' must NOT match a file under
+      ;; `<root>/foobar/' -- the trailing slash makes `string-prefix-p'
+      ;; a correct directory-boundary check.
       (with-repl-buffer "a-session" 'clj b
-        (let ((roots (list (concat fake-proj-root "foo/"))))
-          (spy-on 'get-buffer-process :and-return-value 'fake-proc)
-          (spy-on 'process-live-p :and-return-value t)
-          (spy-on 'process-get :and-call-fake
-                  (lambda (_proc key)
-                    (pcase key (:cached-classpath-roots roots) (_ nil))))
-          (with-temp-buffer
-            (setq default-directory (concat fake-proj-root "foobar/src/"))
-            (expect (cider--sesman-friendly-session-p (list "a-session" b))
-                    :not :to-be-truthy)))))
+        (spy-on 'get-buffer-process :and-return-value 'fake-proc)
+        (spy-on 'process-live-p :and-return-value t)
+        (spy-on 'process-get :and-call-fake
+                (lambda (_proc key)
+                  (pcase key
+                    (:cached-project-dir (concat fake-proj-root "foo/"))
+                    (_ nil))))
+        (with-temp-buffer
+          (setq default-directory (concat fake-proj-root "foobar/src/"))
+          (expect (cider--sesman-friendly-session-p (list "a-session" b))
+                  :not :to-be-truthy))))
 
-    (it "falls back to nrepl-project-dir when classpath misses"
+    (it "returns nil for files outside the project dir"
+      (with-repl-buffer "a-session" 'clj b
+        (spy-on 'get-buffer-process :and-return-value 'fake-proc)
+        (spy-on 'process-live-p :and-return-value t)
+        (spy-on 'process-get :and-call-fake
+                (lambda (_proc key)
+                  (pcase key (:cached-project-dir fake-proj-root) (_ nil))))
+        (with-temp-buffer
+          (setq default-directory (file-truename temporary-file-directory))
+          (expect (cider--sesman-friendly-session-p (list "a-session" b))
+                  :not :to-be-truthy))))
+
+    (it "falls back to buffer-local nrepl-project-dir when the cache is empty"
       (with-repl-buffer "a-session" 'clj b
         (with-current-buffer b
           (setq-local nrepl-project-dir fake-proj-root))

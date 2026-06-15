@@ -1882,38 +1882,25 @@ the history file is rewritten if `cider-repl-history-file' is set."
                      (mapconcat #'identity (cider-repl--available-shortcuts) ", "))))
         (error "No command selected")))))
 
-(defun cider--precompute-friendly-session-cache ()
-  "Populate friendly-session matcher caches on the current connection.
+(defun cider--cache-session-project-dir ()
+  "Cache the current connection's project directory for session matching.
 
 Called from `cider--connected-handler' once per new connection.  The
-caches are stored on the connection's process under:
-
-* `:cached-classpath' -- full classpath entries.
-* `:cached-classpath-roots' -- directory roots derived from the
-  classpath (non-JAR entries, deduplicated).
-* `:all-namespaces' -- a snapshot of the namespace list at connect
-  time, used as a fallback for ns-based matching when
-  `cider-repl-ns-cache' is empty.
-
-Errors during fetch are swallowed; an empty cache simply falls through
-to the project-dir / ns-form fallbacks in the matcher."
-  (when-let* ((proc (get-buffer-process (current-buffer))))
-    (let ((classpath (ignore-errors (cider-classpath-entries))))
-      (process-put proc :cached-classpath classpath)
-      (process-put proc :cached-classpath-roots
-                   (thread-last classpath
-                                (seq-remove (lambda (path) (string-suffix-p ".jar" path)))
-                                (mapcar #'file-name-directory)
-                                (delq nil)
-                                (seq-uniq))))
-    (when (cider-nrepl-op-supported-p "cider/ns-list")
-      (process-put proc :all-namespaces
-                   (ignore-errors (cider-sync-request:ns-list))))))
+project directory is stored on the connection's process under
+`:cached-project-dir', resolved via `file-truename' and with a trailing
+slash, so that `cider--sesman-friendly-session-p' can match buffers with
+a cheap `string-prefix-p' check on the hot redisplay path instead of
+resolving symlinks on every call."
+  (when-let* ((proc (get-buffer-process (current-buffer)))
+              (proj-dir (buffer-local-value 'nrepl-project-dir (current-buffer))))
+    (process-put proc :cached-project-dir
+                 (file-name-as-directory (file-truename proj-dir)))))
 
 (defun cider--sesman-friendly-session-p (session &optional debug)
   "Check if SESSION is a friendly session, DEBUG optionally.
 
-The checking is done as follows:
+A session is friendly to the current buffer when the buffer's file lives
+under the session's project directory.  The checking is done as follows:
 
 * If `cider-default-session' is set and the named session still
   exists, only that session is considered friendly (it serves every
@@ -1923,15 +1910,17 @@ The checking is done as follows:
   only accept the given session's repl if it equals `cider-test--current-repl'.
 * Consider if the buffer belongs to `cider-ancillary-buffers'.
 * Consider the buffer's filename, strip any Docker/TRAMP details from it.
-* Check if that filename belongs to the classpath,
-  or to the classpath roots,
-  or to the connection's project directory.
-* As a fallback, check if the buffer's ns form
-  matches any of the loaded namespaces.
+* Check whether that filename lives under the connection's project
+  directory.
 
-Classpath/namespace caches are populated eagerly at connection time
-by `cider--precompute-friendly-session-cache', so this function
-avoids blocking on classpath/ns-list fetches."
+Buffers outside the project directory (e.g. a dependency's source jumped
+to via `cider-find-var') are associated with their originating session
+explicitly through `cider--ancillary-buffer-repl', so they don't rely on
+this matcher.
+
+The project directory is cached at connection time by
+`cider--cache-session-project-dir', so this function does not block on
+any nREPL requests."
   (setcdr session (seq-filter #'buffer-live-p (cdr session)))
   (when-let ((repl (cadr session)))
     (cond
@@ -1955,52 +1944,27 @@ avoids blocking on classpath/ns-list fetches."
      (t
       (when-let* ((proc (get-buffer-process repl))
                   (file (file-truename (or (buffer-file-name) default-directory))))
-        ;; With avfs paths look like /path/to/.avfs/path/to/some.jar#uzip/path/to/file.clj
-        (when (string-match-p "#uzip" file)
-          (let ((avfs-path (directory-file-name (expand-file-name (or (getenv "AVFSBASE")  "~/.avfs/")))))
-            (setq file (replace-regexp-in-string avfs-path "" file t t))))
         (when-let ((tp (cider-tramp-prefix (current-buffer))))
           (setq file (string-remove-prefix tp file)))
         (when (process-live-p proc)
-          (let ((classpath (process-get proc :cached-classpath))
-                (classpath-roots (process-get proc :cached-classpath-roots))
-                (ns-list (process-get proc :all-namespaces))
-                (proj-dir (buffer-local-value 'nrepl-project-dir repl)))
-            ;; Classpath entries can be JAR files (matched as path prefixes of
-            ;; archive-internal paths); roots are real directories and need a
-            ;; proper directory-boundary check.
-            (or (seq-find (lambda (path) (string-prefix-p path file))
-                          classpath)
-                (seq-find (lambda (path) (file-in-directory-p file path))
-                          classpath-roots)
-                (and proj-dir (file-in-directory-p file proj-dir))
+          (let ((proj-dir (or (process-get proc :cached-project-dir)
+                              (when-let ((pd (buffer-local-value 'nrepl-project-dir repl)))
+                                (file-name-as-directory (file-truename pd))))))
+            ;; The project dir is cached as a truename-resolved directory (with
+            ;; a trailing slash), so a plain `string-prefix-p' is both a correct
+            ;; directory-boundary check and cheap enough for the redisplay hot
+            ;; path.  `file' is already resolved via `file-truename' above.
+            (or (and proj-dir (string-prefix-p proj-dir file))
+                ;; For remote (TRAMP/Docker) sessions the project dir is a remote
+                ;; path; translate the local file and match against it.
                 (when-let* ((cider-path-translations (cider--all-path-translations))
                             (translated (cider--translate-path file 'to-nrepl :return-all)))
-                  (seq-find (lambda (translated-path)
-                              (or (seq-find (lambda (path)
-                                              (string-prefix-p path translated-path))
-                                            classpath)
-                                  (seq-find (lambda (path)
-                                              (file-in-directory-p translated-path path))
-                                            classpath-roots)))
-                            translated))
-                (when-let ((ns (condition-case nil
-                                   (substring-no-properties (cider-current-ns :no-default
-                                                                              ;; important - don't query the repl,
-                                                                              ;; avoiding a recursive invocation of `cider--sesman-friendly-session-p`:
-                                                                              :no-repl-check))
-                                 (error nil))))
-                  ;; if the ns form matches with a ns of all runtime namespaces, we can consider the buffer to match
-                  ;; (this is a bit lax, but also quite useful)
-                  (with-current-buffer repl
-                    (or (when cider-repl-ns-cache ;; may be nil on repl startup
-                          (member ns (nrepl-dict-keys cider-repl-ns-cache)))
-                        (member ns ns-list))))
+                  (and proj-dir
+                       (seq-find (lambda (tp) (string-prefix-p proj-dir (file-truename tp)))
+                                 translated)))
                 (when debug
                   (list file
-                        "was not determined to belong to classpath:" classpath
-                        "or classpath-roots:" classpath-roots
-                        "or project-dir:" proj-dir))))))))))
+                        "was not determined to belong to project-dir:" proj-dir))))))))))
 
 (defun cider-debug-sesman-friendly-session-p ()
   "`message's debugging information relative to friendly sessions.
