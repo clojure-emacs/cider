@@ -162,7 +162,7 @@ It will not be used if the package hasn't been installed."
     (> (buffer-size buffer) 0)))
 
 (defun cider-log--description-clear-events-buffer ()
-  "Return the description for the set framework action."
+  "Return the description for the clear-events-buffer action."
   (format "Clear %s buffer"
           (if cider-log-buffer
               (cider-log--format-value cider-log-buffer)
@@ -412,7 +412,7 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
   (let ((table (when (cider-log-appender-attached-p)
                  (nrepl-dict-keys (cider-sync-request:log-loggers
                                    cider-log-framework cider-log-appender)))))
-    (completing-read-multiple (or "Loggers: " prompt) table nil nil initial-input history)))
+    (completing-read-multiple (or prompt "Loggers: ") table nil nil initial-input history)))
 
 (defun cider-log--read-number-N0 (&optional prompt initial-input history)
   "Read a natural number (including zero) using PROMPT, INITIAL-INPUT and HISTORY."
@@ -726,7 +726,7 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
     (cider-log--set-filters (cider-log-appender-filters appender)))
   (when consumer
     (setq cider-log-consumer consumer)
-    (cider-log--set-filters (cider-log-consumer-filters appender)))
+    (cider-log--set-filters (cider-log-consumer-filters consumer)))
   (when (and appender (not cider-log--initialized-once-p))
     (unless (cider-log-appender-reload framework appender)
       (setq cider-log-appender (cider-sync-request:log-add-appender framework appender))
@@ -798,7 +798,7 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
   "Return the log event at point."
   (get-text-property (point) :cider-log-event))
 
-;;;###autoload (autoload 'cider-log-info "cider-log-info" "Show the Cider log current log buffer, framework, appender and consumer." t)
+;;;###autoload
 (defun cider-log-info ()
   "Show the current log buffer, framework, appender and consumer."
   (interactive)
@@ -902,11 +902,6 @@ the CIDER Inspector and the CIDER stacktrace mode.
 (cl-defmethod transient-infix-value ((obj cider-log--lisp-variable))
   "Return the value of the suffix object OBJ."
   (cons (oref obj variable) (oref obj value)))
-
-(cl-defmethod transient-format-value ((obj cider-log--lisp-variable))
-  "Format OBJ's value for display and return the result."
-  (propertize (prin1-to-string (oref obj value))
-              'face 'transient-value))
 
 (cl-defmethod transient-format-value ((obj cider-log--lisp-variable))
   "Format OBJ's value for display and return the result."
@@ -1431,8 +1426,8 @@ You can jump to functions and methods directly from the printed stacktrace now."
 
 ;;;###autoload
 (defun cider-log-show ()
-  "Ensures the *cider-log* buffer is visible,
-setting up a framework, appender and consumer if necessary.
+  "Make the *cider-log* buffer visible.
+Set up a framework, appender and consumer if necessary.
 
 Honors the `cider-log-framework-name' customization variable.
 

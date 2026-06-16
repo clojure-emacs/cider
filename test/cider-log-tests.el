@@ -51,4 +51,17 @@
         (spy-on 'cider-sync-request:log-add-appender :and-return-value appender)
         (spy-on 'transient-setup)
         (cider-log framework appender)
-        (expect 'transient-setup :to-have-been-called-with 'cider-log)))))
+        (expect 'transient-setup :to-have-been-called-with 'cider-log)))
+
+    (it "applies the consumer's own filters when initializing, not the appender's."
+      ;; Regression: the consumer branch of `cider-log--ensure-initialized'
+      ;; used to read the appender's filters instead of the consumer's.
+      (let* ((appender-filters (nrepl-dict "pattern" "appender-pattern"))
+             (consumer-filters (nrepl-dict "pattern" "consumer-pattern"))
+             (appender (nrepl-dict "id" "cider-log" "filters" appender-filters))
+             (consumer (nrepl-dict "id" "consumer" "filters" consumer-filters))
+             (cider-log--initialized-once-p t)) ; skip the add-appender network path
+        (spy-on 'cider-log--set-filters)
+        (with-temp-buffer
+          (cider-log--ensure-initialized framework appender consumer))
+        (expect 'cider-log--set-filters :to-have-been-called-with consumer-filters)))))
