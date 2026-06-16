@@ -27,7 +27,6 @@
 ;;; Code:
 
 (require 'cider-doc)
-(require 'cl-lib)
 (require 'map)
 (require 'seq)
 (require 'subr-x)
@@ -602,22 +601,24 @@ With a prefix argument FLAT, represent each candidate as a full path to var."
              (var (completing-read "Select var: " vars)))
         (funcall cider-cheatsheet-default-action-function var)))))
 
-(cl-defun cider-cheatsheet--insert-hierarchy (hierarchy &optional (level 0))
-  "Insert HIERARCHY with visual indentation for LEVEL."
-  (dolist (node hierarchy)
-    (if (stringp (car node))
-        (progn
-          (insert (make-string (* level 2) ?\s) (car node) "\n")
-          (cider-cheatsheet--insert-hierarchy (cdr node) (1+ level)))
-      (dolist (var (cider-cheatsheet--expand-vars node))
-        (insert (make-string (* level 2) ?\s))
-        (insert-text-button var
-                            'var var
-                            'action (lambda (btn)
-                                      (funcall cider-cheatsheet-default-action-function
-                                               (button-get btn 'var)))
-                            'help-echo (format "Show documentation for %s" var))
-        (insert "\n")))))
+(defun cider-cheatsheet--insert-hierarchy (hierarchy &optional level)
+  "Insert HIERARCHY with visual indentation for LEVEL.
+LEVEL defaults to 0."
+  (let ((level (or level 0)))
+    (dolist (node hierarchy)
+      (if (stringp (car node))
+          (progn
+            (insert (make-string (* level 2) ?\s) (car node) "\n")
+            (cider-cheatsheet--insert-hierarchy (cdr node) (1+ level)))
+        (dolist (var (cider-cheatsheet--expand-vars node))
+          (insert (make-string (* level 2) ?\s))
+          (insert-text-button var
+                              'var var
+                              'action (lambda (btn)
+                                        (funcall cider-cheatsheet-default-action-function
+                                                 (button-get btn 'var)))
+                              'help-echo (format "Show documentation for %s" var))
+          (insert "\n"))))))
 
 (defun cider-cheatsheet--buffer-contents ()
   "Generate cheatsheet buffer contents based on the cheatsheet hierarchy."
