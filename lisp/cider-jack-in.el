@@ -269,7 +269,7 @@ The repl dependendcies are most likely to be nREPL middlewares."
   :type 'boolean
   :group 'cider
   :safe #'booleanp
-  :version '(cider . "0.11.0"))
+  :package-version '(cider . "0.11.0"))
 
 (defcustom cider-enable-nrepl-jvmti-agent nil
   "When t, add `-Djdk.attach.allowAttachSelf' to the command line arguments.
@@ -281,7 +281,7 @@ some hardened environments forbid self-attach."
   :type 'boolean
   :group 'cider
   :safe #'booleanp
-  :version '(cider . "1.15.0"))
+  :package-version '(cider . "1.15.0"))
 
 
 ;;; Jack-in dependencies
