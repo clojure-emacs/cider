@@ -120,12 +120,12 @@ as shown in overlays / the minibuffer (per `cider-use-overlays').
 
 The function takes a single arg.  You may want to use `identity',
 for leaving the message as-is."
-  :type 'boolean
+  :type 'function
   :group 'cider
   :package-version '(cider . "1.19.0"))
 
 (defun cider--shorten-error-message (err)
-  "Removes from ERR the prefix matched by `cider-clojure-compilation-regexp',
+  "Remove from ERR the prefix matched by `cider-clojure-compilation-regexp',
 and the suffix matched by `cider-module-info-regexp'."
   (thread-last err
                (replace-regexp-in-string cider-clojure-compilation-regexp
@@ -148,7 +148,7 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
     (cider--clear-compilation-highlights)))
 
 (defun cider--quit-error-window ()
-  "Buries the `cider-error-buffer' and quits its containing window."
+  "Bury the `cider-error-buffer' and quit its containing window."
   (when-let* ((error-win (get-buffer-window cider-error-buffer)))
     (save-excursion
       (quit-window nil error-win))))
@@ -159,7 +159,7 @@ When invoked with a prefix ARG the command doesn't prompt for confirmation."
 (defun cider-find-property (property &optional backward)
   "Find the next text region which has the specified PROPERTY.
 If BACKWARD is t, then search backward.
-Returns the position at which PROPERTY was found, or nil if not found."
+Return the position at which PROPERTY was found, or nil if not found."
   (let ((p (if backward
                (previous-single-char-property-change (point) property)
              (next-single-char-property-change (point) property))))
@@ -286,7 +286,8 @@ If you wish phases to be ignored, set this variable to nil instead.
 
 You can learn more about Clojure's error phases at:
 https://clojure.org/reference/repl_and_main#_at_repl"
-  :type '(repeat string)
+  :type '(choice (const :tag "Use the default phases" t)
+                 (repeat string))
   :group 'cider
   :package-version '(cider . "0.18.0"))
 
@@ -367,8 +368,8 @@ Show error overlay in BUFFER if needed."
    (lambda (causes phase) (cider--handle-stacktrace-response causes phase buffer))))
 
 (defun cider-default-err-handler (&optional buffer)
-  "This function determines how the error buffer is shown.
-It delegates the actual error content to the eval or op handler.
+  "Determine how the error buffer is shown.
+Delegate the actual error content to the eval or op handler.
 Show error overlay in BUFFER if needed."
   (cond ((cider-nrepl-op-supported-p "cider/analyze-last-stacktrace")
          (cider-default-err-op-handler buffer))
