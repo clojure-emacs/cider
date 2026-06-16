@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+- [#3919](https://github.com/clojure-emacs/cider/issues/3919): Rename the `cider-jack-in-tools` registry key `:universal-prefix-arg` to `:dispatch-prefix-arg`, to avoid clashing with the Emacs universal-argument (`C-u`) terminology.
+
 ## 1.22.0 (2026-06-16)
 
 ### New features

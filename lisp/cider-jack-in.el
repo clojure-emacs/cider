@@ -744,7 +744,7 @@ Each entry has the form (PROJECT-TYPE . PLIST), where PLIST may contain:
   returning PARAMS with REPL deps injected.  When nil, no injection is
   performed and PARAMS is used as-is.
 
-- :universal-prefix-arg numeric prefix arg for `cider-jack-in-universal'.
+- :dispatch-prefix-arg numeric prefix arg for `cider-jack-in-universal'.
   Tools without this key cannot be invoked via that command.
 
 - :jack-in-type `clj' (the default) or `cljs'; controls which jack-in
@@ -805,20 +805,20 @@ Throws an error if PROJECT-TYPE is unknown."
                              :params-var 'cider-clojure-cli-parameters
                              :project-files '("deps.edn")
                              :inject-fn #'cider--clojure-cli-inject-deps
-                             :universal-prefix-arg 1)
+                             :dispatch-prefix-arg 1)
 
 (cider-register-jack-in-tool 'lein
                              :command-var 'cider-lein-command
                              :params-var 'cider-lein-parameters
                              :project-files '("project.clj")
                              :inject-fn #'cider--lein-inject-deps
-                             :universal-prefix-arg 2)
+                             :dispatch-prefix-arg 2)
 
 (cider-register-jack-in-tool 'babashka
                              :command-var 'cider-babashka-command
                              :params-var 'cider-babashka-parameters
                              :project-files '("bb.edn")
-                             :universal-prefix-arg 3)
+                             :dispatch-prefix-arg 3)
 
 (cider-register-jack-in-tool 'shadow-cljs
                              :command-var 'cider-shadow-cljs-command
@@ -839,7 +839,7 @@ Throws an error if PROJECT-TYPE is unknown."
                              :params-var 'cider-nbb-parameters
                              :project-files '("nbb.edn")
                              :resolver #'cider--resolve-prefix-command
-                             :universal-prefix-arg 4
+                             :dispatch-prefix-arg 4
                              :jack-in-type 'cljs
                              :cljs-repl-type 'nbb)
 
@@ -847,7 +847,7 @@ Throws an error if PROJECT-TYPE is unknown."
                              :command-var 'cider-basilisp-command
                              :params-var 'cider-basilisp-parameters
                              :project-files '("basilisp.edn")
-                             :universal-prefix-arg 5)
+                             :dispatch-prefix-arg 5)
 
 
 ;;; ClojureScript jack-in helpers
@@ -1009,8 +1009,8 @@ otherwise `lein'."
 
 (defun cider--universal-jack-in-tools ()
   "Return the subset of `cider-jack-in-tools' usable by `cider-jack-in-universal'.
-Each entry is a tool that has a :universal-prefix-arg."
-  (seq-filter (lambda (entry) (plist-get (cdr entry) :universal-prefix-arg))
+Each entry is a tool that has a :dispatch-prefix-arg."
+  (seq-filter (lambda (entry) (plist-get (cdr entry) :dispatch-prefix-arg))
               cider-jack-in-tools))
 
 (defun cider--universal-jack-in-opts (project-type)
@@ -1036,7 +1036,7 @@ the project type denoted by ARG number and connect to it, even if there is
 no project for it in the current dir.
 
 The supported project tools are those in `cider-jack-in-tools' that have a
-:universal-prefix-arg key.
+:dispatch-prefix-arg key.
 
 You can pass a numeric prefix argument n with `M-n` or `C-u n`.
 
@@ -1055,7 +1055,7 @@ M-2 \\[cider-jack-in-universal]."
                            (mapcar #'car tools) nil t)))
                  (t
                   (or (car (seq-find (lambda (entry)
-                                       (eql arg (plist-get (cdr entry) :universal-prefix-arg)))
+                                       (eql arg (plist-get (cdr entry) :dispatch-prefix-arg)))
                                      tools))
                       (error ":cider-jack-in-universal :unsupported-prefix-argument %S :no-such-project"
                              arg)))))
