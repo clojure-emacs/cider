@@ -194,7 +194,7 @@ babashka REPL:
 ----
 
 The set of available tools is the subset of `cider-jack-in-tools` that
-declare a `:universal-prefix-arg`.  Each tool entry is registered via
+declare a `:dispatch-prefix-arg`.  Each tool entry is registered via
 `cider-register-jack-in-tool` and looks like this:
 
 [source,lisp]
@@ -204,7 +204,7 @@ declare a `:universal-prefix-arg`.  Each tool entry is registered via
                              :params-var 'cider-nbb-parameters
                              :project-files '("nbb.edn")
                              :resolver #'cider--resolve-prefix-command
-                             :universal-prefix-arg 4
+                             :dispatch-prefix-arg 4
                              :jack-in-type 'cljs
                              :cljs-repl-type 'nbb)
 ----
@@ -220,9 +220,9 @@ The keys in the property list:
 - `:inject-fn` -- optional, function `(PARAMS PROJECT-TYPE COMMAND)` that
   returns PARAMS with REPL deps injected.  Tools without one (e.g.
   babashka, nbb, basilisp) skip injection.
-- `:universal-prefix-arg`, `:jack-in-type`, `:cljs-repl-type` -- used by
+- `:dispatch-prefix-arg`, `:jack-in-type`, `:cljs-repl-type` -- used by
   `cider-jack-in-universal` to dispatch.  Tools without a
-  `:universal-prefix-arg` are not selectable through that command.
+  `:dispatch-prefix-arg` are not selectable through that command.
 
 You can register additional tools, or replace existing ones, with the
 same call.
