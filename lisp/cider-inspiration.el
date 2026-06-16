@@ -134,7 +134,7 @@
 (defun cider-inspire-me ()
   "Display a random inspiration message."
   (interactive)
-  (message (cider-random-words-of-inspiration)))
+  (message "%s" (cider-random-words-of-inspiration)))
 
 (defvar cider-tips
   '(;; Connection / session
@@ -237,7 +237,7 @@
 (defun cider-drink-a-sip ()
   "Show a random tip."
   (interactive)
-  (message (cider-random-tip)))
+  (message "%s" (cider-random-tip)))
 
 (provide 'cider-inspiration)
 

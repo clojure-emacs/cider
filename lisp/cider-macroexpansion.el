@@ -80,7 +80,7 @@ The default for DISPLAY-NAMESPACES is taken from
 (defun cider-macroexpand-undo (&optional arg)
   "Undo the last macroexpansion, using `undo-only'.
 ARG is passed along to `undo-only'."
-  (interactive)
+  (interactive "*P")
   (let ((inhibit-read-only t))
     (undo-only arg)))
 
