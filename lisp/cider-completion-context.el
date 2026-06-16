@@ -46,19 +46,24 @@
   "Find the end position of the symbol at point, unless inside a string."
   (cdr (cider-completion--bounds-of-non-string-symbol-at-point)))
 
+(defun cider-completion--point-in-balanced-list-p ()
+  "Return non-nil if point is inside a balanced list.
+Point is left unchanged."
+  (save-mark-and-excursion
+    (condition-case _
+        (progn
+          (up-list)
+          (check-parens)
+          t)
+      (scan-error nil)
+      (user-error nil))))
+
 (defun cider-completion-get-info-context-at-point ()
   "Extract a context at point that is suitable for eldoc and info ops.
 Note that this context is slightly different than that of
 `cider-completion-get-context-at-point': this one does not include
 the current symbol at point."
-  (when (save-mark-and-excursion
-          (condition-case _
-              (progn
-                (up-list)
-                (check-parens)
-                t)
-            (scan-error nil)
-            (user-error nil)))
+  (when (cider-completion--point-in-balanced-list-p)
     (save-excursion
       (let* ((pref-start (cider-completion-symbol-start-pos))
              (context (cider-defun-at-point))
@@ -78,14 +83,7 @@ the current symbol at point."
   "Extract the context at point.
 If point is not inside the list, return nil; otherwise return \"top-level\"
 form, with symbol at point replaced by __prefix__."
-  (when (save-mark-and-excursion
-          (condition-case _
-              (progn
-                (up-list)
-                (check-parens)
-                t)
-            (scan-error nil)
-            (user-error nil)))
+  (when (cider-completion--point-in-balanced-list-p)
     (save-excursion
       (let* ((pref-end (point))
              (pref-start (cider-completion-symbol-start-pos))

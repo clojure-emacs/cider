@@ -119,12 +119,22 @@ and be case-sensitive (based on CASE-SENSITIVE-P)."
   "Show SUMMARY and RESULTS for QUERY in a pop-up buffer, formatted for DOCS-P."
   (with-current-buffer (cider-popup-buffer cider-apropos-buffer 'select 'apropos-mode 'ancillary)
     (let ((inhibit-read-only t))
-      (if (boundp 'header-line-format)
-          (setq-local header-line-format summary)
-        (insert summary "\n\n"))
+      (setq-local header-line-format summary)
       (dolist (result results)
         (cider-apropos-result result query docs-p))
       (goto-char (point-min)))))
+
+(defun cider-apropos--read-args ()
+  "Read the arguments for `cider-apropos' and `cider-apropos-select'.
+With a prefix argument, also prompt for the namespace, whether to search
+doc strings, include private symbols, and be case-sensitive."
+  (cons (read-string "Search for Clojure symbol (a regular expression): ")
+        (when current-prefix-arg
+          (list (let ((ns (completing-read "Namespace (default is all): " (cider-sync-request:ns-list))))
+                  (if (string= ns "") nil ns))
+                (y-or-n-p "Search doc strings? ")
+                (y-or-n-p "Include private symbols? ")
+                (y-or-n-p "Case-sensitive? ")))))
 
 ;;;###autoload
 (defun cider-apropos (query &optional ns docs-p privates-p case-sensitive-p)
@@ -134,14 +144,7 @@ will be converted to a regular expression (like take.+while) automatically
 behind the scenes.  The search may be limited to the namespace NS, and may
 optionally search doc strings (based on DOCS-P), include private vars
 \(based on PRIVATES-P), and be case-sensitive (based on CASE-SENSITIVE-P)."
-  (interactive
-   (cons (read-string "Search for Clojure symbol (a regular expression): ")
-         (when current-prefix-arg
-           (list (let ((ns (completing-read "Namespace (default is all): " (cider-sync-request:ns-list))))
-                   (if (string= ns "") nil ns))
-                 (y-or-n-p "Search doc strings? ")
-                 (y-or-n-p "Include private symbols? ")
-                 (y-or-n-p "Case-sensitive? ")))))
+  (interactive (cider-apropos--read-args))
   (cider-ensure-connected)
   (cider-ensure-op-supported "cider/apropos")
   (if-let* ((summary (cider-apropos-summary
@@ -184,14 +187,7 @@ will be converted to a regular expression (like take.+while) automatically
 behind the scenes.  The search may be limited to the namespace NS, and may
 optionally search doc strings (based on DOCS-P), include private vars
 \(based on PRIVATES-P), and be case-sensitive (based on CASE-SENSITIVE-P)."
-  (interactive
-   (cons (read-string "Search for Clojure symbol (a regular expression): ")
-         (when current-prefix-arg
-           (list (let ((ns (completing-read "Namespace (default is all): " (cider-sync-request:ns-list))))
-                   (if (string= ns "") nil ns))
-                 (y-or-n-p "Search doc strings? ")
-                 (y-or-n-p "Include private symbols? ")
-                 (y-or-n-p "Case-sensitive? ")))))
+  (interactive (cider-apropos--read-args))
   (cider-ensure-connected)
   (cider-ensure-op-supported "cider/apropos")
   (if-let* ((summary (cider-apropos-summary

@@ -191,6 +191,11 @@ as in `nrepl-make-eval-handler'."
    :on-eval-error (or on-eval-error
                       (lambda () (cider-default-err-handler buffer)))))
 
+(defun cider--maybe-set-eval-register (res)
+  "Set the value of `cider-eval-register' to RES when the register is set."
+  (when cider-eval-register
+    (set-register cider-eval-register res)))
+
 (defun cider-insert-eval-handler (&optional buffer _bounds source-buffer on-success-callback)
   "Make an nREPL evaluation handler for the BUFFER,
 _BOUNDS representing the buffer bounds of the evaled input,
@@ -214,8 +219,7 @@ The handler simply inserts the result value in BUFFER."
                   ;; Don't jump
                   (cider-handle-compilation-errors err eval-buffer t))
      :on-done (lambda ()
-                (when cider-eval-register
-                  (set-register cider-eval-register res))
+                (cider--maybe-set-eval-register res)
                 (when (and (not failed) on-success-callback)
                   (funcall on-success-callback)))
      :on-eval-error (lambda ()
@@ -308,8 +312,7 @@ when `cider-auto-inspect-after-eval' is non-nil."
                              (windowp (get-buffer-window cider-inspector-buffer 'visible)))
                     (cider-inspect-last-result)
                     (select-window (get-buffer-window target))))
-                (when cider-eval-register
-                  (set-register cider-eval-register res))))))
+                (cider--maybe-set-eval-register res)))))
 
 
 (defun cider-load-file-handler (&optional buffer done-handler)
@@ -333,8 +336,7 @@ Optional argument DONE-HANDLER lambda will be run once load is complete."
                   (cider-emit-interactive-eval-err-output err)
                   (cider-handle-compilation-errors err eval-buffer))
      :on-done (lambda ()
-                (when cider-eval-register
-                  (set-register cider-eval-register res))
+                (cider--maybe-set-eval-register res)
                 (when done-handler
                   (funcall done-handler target))))))
 
@@ -368,8 +370,7 @@ comment prefix to use."
                   (save-excursion
                     (goto-char (marker-position location))
                     (insert (concat comment-prefix res "\n"))))
-                (when cider-eval-register
-                  (set-register cider-eval-register res))))))
+                (cider--maybe-set-eval-register res)))))
 
 (defun cider-maybe-insert-multiline-comment (result comment-prefix continued-prefix comment-postfix)
   "Insert eval RESULT at current location if RESULT is not empty.
@@ -409,12 +410,7 @@ COMMENT-POSTFIX is the text to output after the last line."
                     (unless (bolp) (insert "\n"))
                     (cider-maybe-insert-multiline-comment
                      res comment-prefix continued-prefix comment-postfix)))
-                (when cider-eval-register
-                  (set-register cider-eval-register res)))
-     :on-truncated (lambda ()
-                     ;; Preserve the (incidentally nil) warning the legacy
-                     ;; truncated-handler form passed through.
-                     (setq res (concat res nil))))))
+                (cider--maybe-set-eval-register res)))))
 
 (defun cider-popup-eval-handler (&optional buffer _bounds source-buffer)
   "Make a handler for printing evaluation results in popup BUFFER,

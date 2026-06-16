@@ -196,11 +196,12 @@ Display TITLE at the top and SPECS are indented underneath."
         (cider-browse-spec--render-schema-map spec-form)
       (cider-browse-spec--render-schema-vector spec-form))))
 
-(defun cider-browse-spec--render-select (spec-form)
-  "Render the s/select SPEC-FORM."
+(defun cider-browse-spec--render-keyset-op (op spec-form)
+  "Render the keyset-based OP (e.g. \"s/select\") for SPEC-FORM."
   (let ((keyset (cadr spec-form))
         (selection (caddr spec-form)))
-    (format "(s/select\n %s\n [%s])"
+    (format "(%s\n %s\n [%s])"
+            op
             (cider-browse-spec--pprint keyset)
             (string-join
              (thread-last
@@ -208,17 +209,13 @@ Display TITLE at the top and SPECS are indented underneath."
                (mapcar (lambda (s) (cider-browse-spec--pprint s))))
              "\n  "))))
 
+(defun cider-browse-spec--render-select (spec-form)
+  "Render the s/select SPEC-FORM."
+  (cider-browse-spec--render-keyset-op "s/select" spec-form))
+
 (defun cider-browse-spec--render-union (spec-form)
   "Render the s/union SPEC-FORM."
-  (let ((keyset (cadr spec-form))
-        (selection (caddr spec-form)))
-    (format "(s/union\n %s\n [%s])"
-            (cider-browse-spec--pprint keyset)
-            (string-join
-             (thread-last
-               selection
-               (mapcar (lambda (s) (cider-browse-spec--pprint s))))
-             "\n  "))))
+  (cider-browse-spec--render-keyset-op "s/union" spec-form))
 
 (defun cider-browse-spec--render-vector (spec-form)
   "Render SPEC-FORM as a vector."
@@ -434,8 +431,8 @@ property."
               (insert "\n\n")
               (insert (cider-font-lock-as-clojure example))
               (goto-char (point-min))))
-        (error (format "No example for spec %s" spec)))
-    (error "No current spec")))
+        (user-error "No example for spec %s" spec))
+    (user-error "No current spec")))
 
 (defun cider-browse-spec--example-revert-buffer-function (&rest _)
   "`revert-buffer' function for `cider-browse-spec-example-mode'.
