@@ -127,6 +127,10 @@ toggled by pressing kbd:[?].
 | `cider-inspector-tap-at-point`
 | Performs `tap>` using the inspector's current sub-value (the one at POINT) as its argument.
 
+| kbd:[?]
+| `cider-inspector-toggle-display-help`
+| Toggles the `Keybindings` help section at the bottom of the inspector buffer.
+
 |===
 
 === View modes
