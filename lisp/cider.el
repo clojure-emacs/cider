@@ -14,7 +14,7 @@
 ;; Homepage: https://www.github.com/clojure-emacs/cider
 ;; Keywords: languages, clojure, cider
 ;;
-;; Version: 1.22.0
+;; Version: 1.22.1
 ;; Package-Requires: (
 ;;     (emacs "28")
 ;;     (clojure-mode "5.19")
@@ -107,10 +107,10 @@
 (require 'seq)
 (require 'sesman)
 
-(defconst cider-version "1.22.0"
+(defconst cider-version "1.22.1"
   "The current version of CIDER.")
 
-(defconst cider-codename "Gràcia"
+(defconst cider-codename "São Miguel"
   "Codename used to denote stable releases.")
 
 (defcustom cider-connected-hook nil
