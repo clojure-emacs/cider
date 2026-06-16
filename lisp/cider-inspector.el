@@ -237,7 +237,7 @@ the text is already colored by clojure mode font-locking."
 
 ;;;###autoload
 (defun cider-inspect-last-sexp ()
-  "Inspect the result of the the expression preceding point."
+  "Inspect the result of the expression preceding point."
   (interactive)
   (cider-inspect-expr (cider-last-sexp) (cider-current-ns)))
 
@@ -302,7 +302,6 @@ In particular, it does not read `cider-sexp-at-point'."
 
 (defun cider-inspector-push (idx)
   "Inspect the value at IDX in the inspector stack and render it."
-  (interactive)
   (let ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-push"
                                                  "idx" ,idx))))
     (when (nrepl-dict-get result "value")
@@ -310,9 +309,8 @@ In particular, it does not read `cider-sexp-at-point'."
       (cider-inspector--render-value result :next-inspectable))))
 
 (defun cider-inspector-inspect-last-exception (index &optional ex-data)
-  "Inspects the exception in the cause stack identified by INDEX.
+  "Inspect the exception in the cause stack identified by INDEX.
 If EX-DATA is true, inspect ex-data of the exception instead."
-  (interactive)
   (cl-assert (numberp index))
   (let ((result (cider-nrepl-send-sync-request
                  `("op" "cider/inspect-last-exception"
@@ -359,7 +357,7 @@ Does nothing if already on the last page."
       (cider-inspector--render-value result))))
 
 (defun cider-inspector-prev-page ()
-  "Jump to the previous page when expecting a paginated sequence/map.
+  "Jump to the previous page when inspecting a paginated sequence/map.
 
 Does nothing if already on the first page."
   (interactive)
@@ -386,7 +384,7 @@ MAX-SIZE is the new value."
   (cider-inspector--refresh-with-opts "max-coll-size" max-size))
 
 (defun cider-inspector-set-max-nested-depth (max-nested-depth)
-  "Set the level of nesting for collections to display beflore truncating.
+  "Set the level of nesting for collections to display before truncating.
 MAX-NESTED-DEPTH is the new value."
   (interactive (list (read-number "Max nested depth: " cider-inspector-max-nested-depth)))
   (cider-inspector--refresh-with-opts "max-nested-depth" max-nested-depth))
@@ -443,7 +441,7 @@ you use `cider-inspector-def-current-val'."
   :package-version '(cider . "1.8.0"))
 
 (defun cider-inspector--read-var-name-from-user (ns)
-  "Reads a var name from the user, to be defined within NS.
+  "Read a var name from the user, to be defined within NS.
 Grows `cider-inspector-preferred-var-names' if the user chose a new name,
 making that new name take precedence for subsequent usages."
   (let ((v (completing-read (format "Name of the var to be defined in ns %s: " ns)
@@ -453,7 +451,7 @@ making that new name take precedence for subsequent usages."
     v))
 
 (defun cider-inspector-def-current-val (var-name ns)
-  "Defines a var with VAR-NAME in current namespace.
+  "Define a var with VAR-NAME in current namespace.
 
 Doesn't modify current page.  When called interactively NS defaults to
 current-namespace."
@@ -505,9 +503,8 @@ current-namespace."
 
 (defun cider-sync-request:inspect-expr (expr ns)
   "Evaluate EXPR in context of NS and inspect its result.
-Set the page size in paginated view to PAGE-SIZE, maximum length of atomic
-collection members to MAX-ATOM-LENGTH, and maximum size of nested collections to
-MAX-COLL-SIZE if non nil."
+The pagination and truncation options are taken from the
+`cider-inspector-*' defcustoms."
   (cider-nrepl-send-sync-request
    (append (nrepl--eval-request expr ns)
            `("inspect" "true"
