@@ -347,8 +347,14 @@ that's due to one of the following reasons:
 * You're evaluating code in a buffer from a project that hasn't started a repl
  ** You can fix this by switching instead to a project that has.
  ** You can also, simply, start a repl in the current project.
+* The buffer's file lives outside the project directory of any running REPL, so
+  CIDER can't associate it automatically.
+ ** This is expected for standalone scripts and for dependency sources opened
+    without a CIDER navigation command. Link the buffer explicitly with kbd:[C-c C-s b]
+    (`sesman-link-with-buffer`), or set a default session with `cider-set-default-session`.
+ ** See xref:usage/managing_connections.adoc#handling-trickier-situations[Handling Trickier Situations] for the full rundown.
 * There's a bug in the CIDER/Sesman integration
- ** Session linking generally works by determining whether the current buffer is related to the classpath of some REPL.
+ ** A session is considered relevant to a buffer when the buffer's file lives under the session's project directory.
  ** You can obtain debug info echoed to the `+*Messages*+` buffer by running `M-x cider-debug-sesman-friendly-session-p` on the problematic buffer.
-  *** By reading it, you might be able to determine why CIDER failed to see the relationship between `(buffer-filename)` and the classpath.
+  *** By reading it, you might be able to determine why CIDER failed to see the relationship between `(buffer-filename)` and the session's project directory.
   *** Feel free to create a detailed GitHub issue including this information.

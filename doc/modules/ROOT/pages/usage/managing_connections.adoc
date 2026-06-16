@@ -83,9 +83,8 @@ interacting properly with one another.
 In the case of using separate config files for the clj and cljs dependencies
 (e.g. clj dependencies in `deps.edn` and cljs dependencies in `shadow-cljs.edn`)
 it is currently impossible to group those two repls in the same session.
-However, this can be worked around with `cider-merge-sessions`. Setting it to
-`'host` will combine all sessions associated with the same host within a
-project. Setting it to `'project` will combine all sessions in the same project.
+However, this can be worked around with `cider-merge-sessions` - see
+<<Combining REPLs Split Across Sessions>>.
 ====
 
 === Session Life-Cycle Management
@@ -160,6 +159,23 @@ The single prefix kbd:[C-u C-c C-z], will switch to the current REPL buffer
 and set the namespace in that buffer based on namespace in the current
 Clojure(Script) buffer.
 
+=== Dispatching from `.cljc` Files
+
+`.cljc` code is potentially valid in both Clojure and ClojureScript, so when a
+session has both a `clj` and a `cljs` REPL, CIDER can't infer a single
+destination from the file type alone. The behavior is controlled by
+`cider-clojurec-eval-destination`:
+
+* `multi` (the default) - dispatch to *both* the `clj` and `cljs` REPLs of the
+  current session at once. This matches how `.cljc` code is actually loaded by
+  both runtimes, so you see results from each.
+* `clj` - always dispatch to the Clojure REPL.
+* `cljs` - always dispatch to the ClojureScript REPL.
+
+If the session only has one of the two REPL types, that one is used regardless
+of the setting; the missing half is simply skipped until a matching REPL joins
+the session.
+
 == Context Links
 
 Sessions can be linked to contexts (projects, directories and buffers)
@@ -196,6 +212,93 @@ project-directory rule described above.
 
 You can disable friendly session inference by customizing
 `sesman-use-friendly-sessions`.
+
+[#handling-trickier-situations]
+== Handling Trickier Situations
+
+The defaults work well for the common case of one project with one or two
+REPLs. This section walks through the situations where dispatch gets ambiguous
+and what you can do about them. The recurring theme: when CIDER can't infer the
+right session on its own, you make the relationship explicit with a
+<<Context Links,context link>> or a <<Default Session,default session>>.
+
+=== Working on Multiple Projects at Once
+
+Having sessions for several projects open simultaneously is fully supported.
+Each project's buffers resolve to that project's session through friendly
+matching (the file lives under the project directory), so simply switching
+between buffers switches the current REPL along with them. No manual
+bookkeeping is required as long as the projects live in separate directories.
+
+The wrinkle to be aware of is shared code. If you jump from project A into a
+dependency whose source you also happen to have open as part of project B,
+the buffer can only point at one session at a time - see
+<<Editing Dependency Sources>> below.
+
+=== Evaluating Code Outside a Project
+
+If you try to evaluate code in a buffer that doesn't belong to any project (and
+isn't otherwise linked), CIDER has nothing to dispatch to and you'll get a
+`No linked CIDER sessions` error. This commonly happens with standalone scripts,
+files opened outside any project directory, or a REPL started before you opened
+the file.
+
+You have a few options:
+
+* Link the buffer to a session explicitly with kbd:[C-c C-s b]
+  (`sesman-link-with-buffer`), or link its directory with kbd:[C-c C-s d].
+* Set a <<Default Session,default session>> so every unlinked buffer falls back
+  to it. This is the most convenient option when you routinely evaluate
+  throwaway code against a particular REPL.
+* Start a REPL for the project the file belongs to.
+
+=== Editing Dependency Sources
+
+When you navigate to a definition outside your project - typically a dependency's
+source via `cider-find-var` (kbd:[M-.]) - CIDER pins that buffer to the session
+you navigated from, so evaluation and lookups there keep targeting the REPL you
+came from.
+
+Two consequences are worth knowing:
+
+* The pin takes precedence over context links and friendly matching for that
+  buffer. If you want a pinned dependency buffer to follow a *different* session,
+  navigate to it again (e.g. another kbd:[M-.]) from a buffer belonging to that
+  other session; revisiting re-pins it to the new origin.
+* If the pinned REPL is later killed, the pin is ignored and the buffer falls
+  back to normal session resolution.
+
+Source buffers you open by other means (a plain `find-file` into a jar, a
+bookmark, etc.) are *not* pinned, because CIDER never saw which REPL they relate
+to. Link them explicitly or rely on a default session.
+
+=== Multiple REPLs of the Same Type in One Session
+
+When a session has more than one REPL of the relevant type (say, two `clj`
+REPLs), CIDER dispatches to the most recently viewed one. That's usually what
+you want, but it makes the target depend on your buffer history, which can be
+surprising.
+
+To pin dispatch to a specific REPL deterministically, link the source buffer (or
+its directory) to the session and use the `sesman-browser` (kbd:[C-c C-s w]) to
+keep track of which REPL is which. If the REPLs really belong to distinct
+contexts, consider putting them in separate sessions instead.
+
+=== Combining REPLs Split Across Sessions
+
+Sometimes related REPLs end up in *separate* sessions even though you'd like
+them treated as one - most commonly when a project's `clj` and `cljs`
+dependencies live in different config files (e.g. `deps.edn` and
+`shadow-cljs.edn`) and can't be jacked in together. `cider-merge-sessions`
+papers over this:
+
+* `host` merges all sessions for the project that share the same host.
+* `project` merges all sessions linked to the project.
+
+With merging on, smart-dispatch (including `.cljc` `multi` evaluation and
+clj/cljs toggling) sees the REPLs as a single pool. The trade-off is that
+merging widens the set of candidate REPLs, so if you have genuinely unrelated
+REPLs you may reintroduce the same-type ambiguity described above.
 
 == Displaying Session Info
 
