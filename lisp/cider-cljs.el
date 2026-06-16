@@ -87,7 +87,7 @@ Generally you should not disable this unless you run into some faulty check."
     (user-error "Figwheel-sidecar is not available.  Please check https://docs.cider.mx/cider/basics/clojurescript for details")))
 
 (defun cider-check-figwheel-main-requirements ()
-  "Check whether we can start a Figwheel ClojureScript REPL."
+  "Check whether we can start a Figwheel Main ClojureScript REPL."
   (cider-verify-piggieback-is-present)
   (unless (cider-library-present-p "figwheel.main")
     (user-error "Figwheel-main is not available.  Please check https://docs.cider.mx/cider/basics/clojurescript for details")))
@@ -134,7 +134,7 @@ Generally you should not disable this unless you run into some faulty check."
   :package-version '(cider . "0.18.0"))
 
 (defun cider--shadow-parse-builds (hash)
-  "Parses the build names of a shadow-cljs.edn HASH map.
+  "Parse the build names of a shadow-cljs.edn HASH map.
 The default options of `browser-repl' and `node-repl' are also included."
   (let* ((builds (when (hash-table-p hash)
                    (gethash :builds hash)))
@@ -320,7 +320,6 @@ you're working on."
                  (const :tag "Shadow w/o Server" shadow-select)
                  (const :tag "Krell"    krell)
                  (const :tag "Nbb"      nbb)
-                 (const :tag "Basilisp" basilisp)
                  (const :tag "Custom"   custom))
   :group 'cider
   :safe #'symbolp
@@ -335,12 +334,14 @@ DEFAULT is the default ClojureScript REPL to offer in completion."
                              nil nil nil 'cider--select-cljs-repl-history
                              (or default (car cider--select-cljs-repl-history))))))
 
+(defun cider--cljs-repl-type-entry (repl-type)
+  "Return the `cider-cljs-repl-types' entry for REPL-TYPE, or nil."
+  (seq-find (lambda (entry) (eq (car entry) repl-type))
+            cider-cljs-repl-types))
+
 (defun cider-cljs-repl-form (repl-type)
   "Get the cljs REPL form for REPL-TYPE, if any."
-  (if-let* ((repl-type-info (seq-find
-                             (lambda (entry)
-                               (eq (car entry) repl-type))
-                             cider-cljs-repl-types)))
+  (if-let* ((repl-type-info (cider--cljs-repl-type-entry repl-type)))
       (when-let ((repl-form (cadr repl-type-info)))
         ;; repl-form can be either a string or a function producing a string
         (if (symbolp repl-form)
@@ -355,16 +356,13 @@ Return REPL-TYPE if requirements are met."
                        cider-default-cljs-repl
                        (cider-select-cljs-repl))))
     (when cider-check-cljs-repl-requirements
-      (when-let* ((fun (nth 2 (seq-find
-                               (lambda (entry)
-                                 (eq (car entry) repl-type))
-                               cider-cljs-repl-types))))
+      (when-let* ((fun (nth 2 (cider--cljs-repl-type-entry repl-type))))
         (funcall fun)))
     repl-type))
 
 (defun cider--check-cljs (&optional cljs-type no-error)
   "Verify that all cljs requirements are met for CLJS-TYPE connection.
-Return REPL-TYPE of requirement are met, and throw an ‘user-error’ otherwise.
+Return CLJS-TYPE if requirements are met, and throw a ‘user-error’ otherwise.
 When NO-ERROR is non-nil, don't throw an error, issue a message and return
 nil."
   (if no-error
