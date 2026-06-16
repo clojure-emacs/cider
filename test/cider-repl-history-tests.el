@@ -111,6 +111,25 @@
       (expect (car (nth 0 out)) :to-equal 1)
       (expect (car (nth 1 out)) :to-equal 3))))
 
+(describe "cider-repl-history-target-overlay-at"
+  ;; Regression test: the overlay must be looked up at the POSITION
+  ;; argument, not always at point.  The arg used to be ignored and
+  ;; `(point)' hard-coded, so e.g. mouse insertion (which restores point
+  ;; away from the click target) could grab the wrong history entry.
+  (it "honors the POSITION argument instead of point"
+    (with-temp-buffer
+      (insert "AAAAA\nBBBBB\n")
+      (let ((ov-a (make-overlay 2 3))
+            (ov-b (make-overlay 8 9)))
+        (overlay-put ov-a 'cider-repl-history-target "entry-a")
+        (overlay-put ov-b 'cider-repl-history-target "entry-b")
+        (goto-char 2)                   ; point sits on the A overlay
+        ;; ...but we ask for the overlay at the B position
+        (expect (cider-repl-history-target-overlay-at 8) :to-be ov-b)
+        (expect (cider-repl-history-current-string 8) :to-equal "entry-b")
+        ;; a nil position falls back to point (the A overlay)
+        (expect (cider-repl-history-target-overlay-at nil) :to-be ov-a)))))
+
 (provide 'cider-repl-history-tests)
 
 ;;; cider-repl-history-tests.el ends here
