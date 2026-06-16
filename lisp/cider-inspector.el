@@ -133,9 +133,9 @@ by clicking or navigating to them by other means."
 (defun cider-inspector-open-thing-at-point ()
   "Opens the thing at point if found, without prompting."
   (interactive)
-  (if-let ((url (thing-at-point 'url)))
+  (if-let* ((url (thing-at-point 'url)))
       (browse-url url)
-    (if-let ((filename (thing-at-point 'filename)))
+    (if-let* ((filename (thing-at-point 'filename)))
         (find-file filename))))
 
 (defvar cider-inspector-mode-map
@@ -282,6 +282,8 @@ current buffer's namespace."
     (when (nrepl-dict-get result "value")
       (setq cider-inspector-location-stack nil)
       (cider-inspector--render-value result :next-inspectable))))
+
+(defvar cider-repl-prompt-function)
 
 (defun cider-inspect-expr-from-inspector ()
   "Run `cider-inspect-expr' in a way that's suitable from the Inspector itself.

@@ -1126,7 +1126,7 @@ been determined."
        (and "nREPL server started on port " (group-n 1 (+ (any "0-9"))))
        ;; babashka
        (and "Started nREPL server at "
-            (group-n 2 (+? any)) ":" (group-n 1 (+ (any "0-9"))))))
+            (group-n 2 (+? not-newline)) ":" (group-n 1 (+ (any "0-9"))))))
   "A regexp to search an nREPL's stdout for the address it is listening on.
 
 If it matches, the address components can be extracted using the following

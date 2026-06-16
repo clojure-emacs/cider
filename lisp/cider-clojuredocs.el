@@ -114,7 +114,7 @@ opposite of what that option dictates."
                   (nrepl-dict-get dict "ns")
                   (nrepl-dict-get dict "name")))
   (newline)
-  (when-let ((arglists (nrepl-dict-get dict "arglists")))
+  (when-let* ((arglists (nrepl-dict-get dict "arglists")))
     (dolist (arglist arglists)
       (insert (format " [%s]\n" arglist)))
     (newline))
@@ -127,7 +127,7 @@ opposite of what that option dictates."
   "Insert \"See Also\" section based on data from DICT."
   (insert "== See Also\n")
   (newline)
-  (if-let ((see-alsos (nrepl-dict-get dict "see-alsos")))
+  (if-let* ((see-alsos (nrepl-dict-get dict "see-alsos")))
       (dolist (see-also see-alsos)
         (insert "* ")
         (insert-text-button see-also
@@ -143,7 +143,7 @@ opposite of what that option dictates."
   "Insert \"Examples\" section based on data from DICT."
   (insert "== Examples\n")
   (newline)
-  (if-let ((examples (nrepl-dict-get dict "examples")))
+  (if-let* ((examples (nrepl-dict-get dict "examples")))
       (dolist (example examples)
         (insert (cider-font-lock-as-clojure example) "\n")
         (insert "-------------------------------------------------\n"))
@@ -154,7 +154,7 @@ opposite of what that option dictates."
   "Insert \"Notes\" section based on data from DICT."
   (insert "== Notes\n")
   (newline)
-  (if-let ((notes (nrepl-dict-get dict "notes")))
+  (if-let* ((notes (nrepl-dict-get dict "notes")))
       (dolist (note notes)
         (insert note "\n")
         (insert "-------------------------------------------------\n"))
@@ -176,7 +176,7 @@ opposite of what that option dictates."
 
 (defun cider-clojuredocs-lookup (sym)
   "Look up the ClojureDocs documentation for SYM."
-  (if-let ((docs (cider-sync-request:clojuredocs-lookup (cider-current-ns) sym)))
+  (if-let* ((docs (cider-sync-request:clojuredocs-lookup (cider-current-ns) sym)))
       (progn
         (pop-to-buffer (cider-create-clojuredocs-buffer (cider-clojuredocs--content docs)))
         ;; highlight the symbol in question in the docs buffer

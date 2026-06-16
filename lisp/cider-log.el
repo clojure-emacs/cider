@@ -158,7 +158,7 @@ It will not be used if the package hasn't been installed."
 
 (defun cider-log-buffer-clear-p (&optional buffer)
   "Return non-nil if BUFFER is not empty, otherwise nil."
-  (when-let (buffer (get-buffer (or buffer cider-log-buffer)))
+  (when-let* ((buffer (get-buffer (or buffer cider-log-buffer))))
     (> (buffer-size buffer) 0)))
 
 (defun cider-log--description-clear-events-buffer ()
@@ -362,7 +362,7 @@ It will not be used if the package hasn't been installed."
 The KEYS are used to lookup the values and are joined by SEPARATOR."
   `(:annotation-function
     ,(lambda (identifier)
-       (when-let (dict (cadr (assoc identifier minibuffer-completion-table)))
+       (when-let* ((dict (cadr (assoc identifier minibuffer-completion-table))))
          (let ((annotation (string-join (seq-map (lambda (key) (nrepl-dict-get dict key)) keys)
                                         (or separator " "))))
            (unless (string-blank-p annotation)
@@ -372,7 +372,7 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
 (defun cider-log--read-appender-id (prompt initial-input history)
   "Read a appender from the minibuffer using PROMPT, INITIAL-INPUT and HISTORY."
   (let ((table (when cider-log-framework
-                 (when-let (framework (cider-log-framework-reload cider-log-framework))
+                 (when-let* ((framework (cider-log-framework-reload cider-log-framework)))
                    (seq-map #'cider-log-appender-id (cider-log-framework-appenders framework))))))
     (completing-read (or prompt "Log appender: ") table nil nil
                      (or initial-input cider-log-appender-id)
@@ -416,12 +416,12 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
 
 (defun cider-log--read-number-N0 (&optional prompt initial-input history)
   "Read a natural number (including zero) using PROMPT, INITIAL-INPUT and HISTORY."
-  (when-let (value (transient-read-number-N0 (or prompt "Number: ") initial-input history))
+  (when-let* ((value (transient-read-number-N0 (or prompt "Number: ") initial-input history)))
     (string-to-number value)))
 
 (defun cider-log--read-number-N+ (&optional prompt initial-input history)
   "Read a natural number (excluding zero) using PROMPT, INITIAL-INPUT and HISTORY."
-  (when-let (value (transient-read-number-N+ (or prompt "Number: ") initial-input history))
+  (when-let* ((value (transient-read-number-N+ (or prompt "Number: ") initial-input history)))
     (string-to-number value)))
 
 (defun cider-log--read-threads (&optional prompt initial-input history)
@@ -493,13 +493,13 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
 
 (defun cider-log-appender-attached-p (&optional framework appender)
   "Return non-nil if the log APPENDER is attached to FRAMEWORK, otherwise nil."
-  (when-let ((framework (or framework
-                            (cider-log-framework-by-name
-                             (cider-sync-request:log-frameworks)
-                             cider-log-framework-name)))
-             (appender-id (if appender
-                              (cider-log-appender-id appender)
-                            cider-log-appender-id)))
+  (when-let* ((framework (or framework
+                             (cider-log-framework-by-name
+                              (cider-sync-request:log-frameworks)
+                              cider-log-framework-name)))
+              (appender-id (if appender
+                               (cider-log-appender-id appender)
+                             cider-log-appender-id)))
     (cider-log-framework-appender framework appender-id)))
 
 (defun cider-log-appender-consumers (appender)
@@ -534,16 +534,16 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
 
 (defun cider-log-appender-reload (framework appender)
   "Reload the APPENDER of the log FRAMEWORK."
-  (when-let (framework (cider-log-framework-reload framework))
+  (when-let* ((framework (cider-log-framework-reload framework)))
     (cider-log-framework-appender framework (cider-log-appender-id appender))))
 
 ;; Log Consumer
 
 (defun cider-log-consumer-attached-p (&optional framework appender consumer)
   "Return non-nil if the CONSUMER is attached to the APPENDER of FRAMEWORK."
-  (when-let ((framework (or framework cider-log-framework))
-             (appender (or appender cider-log-appender))
-             (consumer (or consumer cider-log-consumer)))
+  (when-let* ((framework (or framework cider-log-framework))
+              (appender (or appender cider-log-appender))
+              (consumer (or consumer cider-log-consumer)))
     (cider-log-consumer-reload framework appender consumer)))
 
 (defun cider-log-consumer-id (consumer)
@@ -569,7 +569,7 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
 
 (defun cider-log-consumer-reload (framework appender consumer)
   "Reload the CONSUMER attached to APPENDER of the log FRAMEWORK."
-  (when-let (appender (cider-log-appender-reload framework appender))
+  (when-let* ((appender (cider-log-appender-reload framework appender)))
     (cider-log-appender-consumer appender consumer)))
 
 (declare-function cider-log-mode "cider-log")
@@ -619,11 +619,11 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
 
 (defun cider-log--remove-current-buffer-consumer ()
   "Cleanup the log consumer of the current buffer."
-  (when-let ((framework cider-log-framework)
-             (appender cider-log-appender)
-             (consumer cider-log-consumer))
+  (when-let* ((framework cider-log-framework)
+              (appender cider-log-appender)
+              (consumer cider-log-consumer))
     (setq-local cider-log-consumer nil)
-    (when-let (consumer (cider-log-consumer-reload framework appender consumer))
+    (when-let* ((consumer (cider-log-consumer-reload framework appender consumer)))
       (cider-sync-request:log-remove-consumer framework appender consumer)
       consumer)))
 
@@ -655,7 +655,7 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
 
 (defun cider-log-event--pretty-print (framework appender event)
   "Format the log EVENT of FRAMEWORK and APPENDER."
-  (when-let (event (cider-sync-request:log-format-event framework appender event))
+  (when-let* ((event (cider-sync-request:log-format-event framework appender event)))
     (cider-popup-buffer cider-log-event-buffer cider-auto-select-error-buffer
                         'clojure-mode 'ancillary)
     (with-current-buffer cider-log-event-buffer
@@ -688,9 +688,9 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
   (let ((n (or n 1)))
     (forward-line n)
     (beginning-of-line)
-    (when-let ((framework cider-log-framework)
-               (appender cider-log-appender)
-               (event (cider-log-event-at-point)))
+    (when-let* ((framework cider-log-framework)
+                (appender cider-log-appender)
+                (event (cider-log-event-at-point)))
       (let ((cider-auto-select-error-buffer nil))
         (save-window-excursion
           (when (get-buffer-window cider-inspector-buffer)
@@ -735,9 +735,9 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
 (defun cider-log-kill-buffer-hook-handler ()
   "Called from `kill-buffer-hook' to remove the consumer."
   (when (eq 'cider-log-mode major-mode)
-    (when-let ((framework cider-log-framework)
-               (appender cider-log-appender)
-               (consumer cider-log-consumer))
+    (when-let* ((framework cider-log-framework)
+                (appender cider-log-appender)
+                (consumer cider-log-consumer))
       (cider-log--remove-current-buffer-consumer)
       (message "Removed %s event consumer %s from appender %s."
                (cider-log-framework-display-name framework)
@@ -810,7 +810,7 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
                     (format "Framework: %s" (cider-log--bold cider-log-framework-name)))
                   (when cider-log-appender-id
                     (format "Appender: %s" (cider-log--bold cider-log-appender-id)))
-                  (when-let (id (and cider-log-consumer (cider-log-consumer-id cider-log-consumer)))
+                  (when-let* ((id (and cider-log-consumer (cider-log-consumer-id cider-log-consumer))))
                     (format "Consumer: %s" (cider-log--bold id))))
             " ")))
 

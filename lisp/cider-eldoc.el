@@ -217,7 +217,7 @@ information."
          (symbol (cider-plist-get eldoc-info "symbol"))
          (docstring (or (cider--render-docstring-first-sentence eldoc-info)
                         (cider--render-docstring eldoc-info)
-                        (when-let (docstring (cider-plist-get eldoc-info "docstring"))
+                        (when-let* ((docstring (cider-plist-get eldoc-info "docstring")))
                           (cider-docstring--trim
                            (cider-docstring--format docstring)))))
          ;; if it's a single class (and not multiple class candidates), that's it
