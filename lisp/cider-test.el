@@ -58,7 +58,7 @@
   :package-version '(cider . "0.8.0"))
 
 (defcustom cider-auto-select-test-report-buffer t
-  "Determines if the test-report buffer should be auto-selected."
+  "Whether the test-report buffer should be auto-selected."
   :type 'boolean
   :package-version '(cider . "0.9.0"))
 
@@ -236,25 +236,26 @@ to work against the correct REPL session.")
       (switch-to-buffer report-buffer)
     (message "No test report buffer")))
 
+(defun cider-test--move-to-result (search-fn)
+  "Move point to the adjacent test result, if one exists.
+SEARCH-FN is `previous-single-property-change' or
+`next-single-property-change' and selects the direction."
+  (with-current-buffer (get-buffer cider-test-report-buffer)
+    (when-let* ((pos (funcall search-fn (point) 'type)))
+      (if (get-text-property pos 'type)
+          (goto-char pos)
+        (when-let* ((pos (funcall search-fn pos 'type)))
+          (goto-char pos))))))
+
 (defun cider-test-previous-result ()
   "Move point to the previous test result, if one exists."
   (interactive)
-  (with-current-buffer (get-buffer cider-test-report-buffer)
-    (when-let* ((pos (previous-single-property-change (point) 'type)))
-      (if (get-text-property pos 'type)
-          (goto-char pos)
-        (when-let* ((pos (previous-single-property-change pos 'type)))
-          (goto-char pos))))))
+  (cider-test--move-to-result #'previous-single-property-change))
 
 (defun cider-test-next-result ()
   "Move point to the next test result, if one exists."
   (interactive)
-  (with-current-buffer (get-buffer cider-test-report-buffer)
-    (when-let* ((pos (next-single-property-change (point) 'type)))
-      (if (get-text-property pos 'type)
-          (goto-char pos)
-        (when-let* ((pos (next-single-property-change pos 'type)))
-          (goto-char pos))))))
+  (cider-test--move-to-result #'next-single-property-change))
 
 (declare-function cider-find-var "cider-find")
 
@@ -374,7 +375,7 @@ With the actual value, the outermost `(not ...)' s-expression is removed."
   :package-version '(cider . "1.8.0"))
 
 (defun cider-test-toggle-fail-fast ()
-  "Toggles `cider-test-fail-fast' t <-> nil for the current buffer."
+  "Toggle `cider-test-fail-fast' t <-> nil for the current buffer."
   (interactive)
   (setq-local cider-test-fail-fast (not cider-test-fail-fast)))
 
@@ -414,7 +415,7 @@ If ELAPSED-TIME is provided it will be included in the summary."
       (insert "\n\n"))))
 
 (defun cider-test--string-contains-newline (input-string)
-  "Returns whether INPUT-STRING contains an escaped newline."
+  "Return non-nil if INPUT-STRING has an escaped newline."
   (when (stringp input-string)
     (and (string-match-p "\\\\n" input-string)
          t)))
@@ -886,7 +887,7 @@ See `cider-test-rerun-test'."
         cider-test-last-test-var var))
 
 (defun cider--test-var-p (ns var)
-  "Determines if the VAR in NS is a test."
+  "Return non-nil if the VAR in NS is a test."
   (if (cider-nrepl-op-supported-p "cider/get-state")
       (cider-resolve--get-in ns "interns" var "test")
     (equal "true"
