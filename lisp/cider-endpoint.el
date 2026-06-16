@@ -180,14 +180,12 @@ of remote SSH hosts."
                           (eq ?d filetype))))))
 
 (defun cider--path->path-port-pairs (path)
-  "Given PATH, returns all the possible <path, port> pairs."
+  "Return all the possible <path, port> pairs for PATH."
   (thread-last path
                cider--file-path
                nrepl-extract-ports
                (mapcar (lambda (port)
-                         (list path port)))
-               ;; remove nils that may have been returned due to permission errors:
-               (seq-filter #'identity)))
+                         (list path port)))))
 
 
 ;;; Running nREPL discovery
@@ -209,7 +207,7 @@ called from a TRAMP buffer."
     (buffer-string)))
 
 (defun cider--invoke-running-nrepl-path (f)
-  "Invokes F safely.
+  "Invoke F safely.
 
 Necessary since we run some OS-specific commands that may fail."
   (condition-case nil
@@ -305,8 +303,9 @@ Do it by looping over the open REPL buffers."
                (seq-map
                 (lambda (b)
                   (with-current-buffer b
-                    (when-let ((dir (plist-get (cider--gather-connect-params) :project-dir))
-                               (port (plist-get (cider--gather-connect-params) :port)))
+                    (when-let* ((params (cider--gather-connect-params))
+                                (dir (plist-get params :project-dir))
+                                (port (plist-get params :port)))
                       (list dir (prin1-to-string port))))))
                (seq-filter #'identity)))
 

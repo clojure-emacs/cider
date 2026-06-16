@@ -484,7 +484,10 @@ A few things still need attention when jacking in over TRAMP:
   `default-directory`.  When you invoke `cider-connect` from a TRAMP
   buffer, CIDER queries the remote host -- assuming `ps` and `lsof` are
   installed there.  If they aren't, the completion list will simply be
-  empty.
+  empty.  The scan result is cached per `default-directory` for
+  `cider-running-nrepl-paths-cache-ttl` seconds (5 by default), so
+  back-to-back completions don't re-spawn the subprocesses; call
+  `cider-clear-running-nrepl-paths-cache` to discard it on demand.
 - *Server-printed bind addresses.*  Some servers (e.g. babashka) print
   the bound address as `localhost`, `127.0.0.1`, or `0.0.0.0`.  CIDER
   treats those as wildcard/loopback and falls back to the TRAMP host so
