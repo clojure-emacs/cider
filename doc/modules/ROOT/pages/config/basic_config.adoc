@@ -154,6 +154,9 @@ you can tweak easily yourselves:
 
 Of course, it goes without saying that you can do the same with `cider-tips`.
 
+You can summon an inspirational message any time with kbd:[M-x]
+`cider-inspire-me` (and a tip with `cider-drink-a-sip`).
+
 IMPORTANT: This is probably one of the most important CIDER features. Disable
 those amazing messages at your own risk!
 

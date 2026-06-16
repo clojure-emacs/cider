@@ -133,7 +133,9 @@ Here you can see it in action:
 
 image::classpath_browser.png[Classpath Browser]
 
-Press kbd:[RET] on a classpath entry to navigate into it.
+Press kbd:[RET] on a classpath entry to navigate into it.  You can also
+jump straight to a classpath entry, selected via completion, with
+kbd:[M-x] `cider-open-classpath-entry`.
 
 == Browsing Namespaces
 
@@ -307,7 +309,7 @@ shelling out.
 Similarly to the `cljfmt` integration, CIDER also provides a convenient interface
 to format EDN using `clojure.tools.reader.edn`. The following commands are provided:
 
-* `cider-format-edn-defun`
+* `cider-format-edn-last-sexp`
 * `cider-format-edn-region`
 * `cider-format-edn-buffer`
 
@@ -354,3 +356,5 @@ By using a prefix argument when calling `cider-cheatsheet-select`, we can change
 image::cider-cheatsheet-select-3.png[Selecting path in cheatsheet]
 
 It is possible to control which function is used on a var when it is selected by customizing `cider-cheatsheet-default-action-function`. By default, documentation for a var is displayed using `cider-doc-lookup`, but it can also be set to `cider-clojuredocs-lookup` to show documentation from ClojureDocs or any other function accepting a var as an argument.
+
+By default the cheatsheet buffer is selected when it pops up.  Set `cider-cheatsheet-auto-select-buffer` to nil if you'd rather keep focus in the current buffer.
