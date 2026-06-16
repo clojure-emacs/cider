@@ -39,6 +39,27 @@
     (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
     (expect (cider-find-ns) :to-throw 'user-error)))
 
+(describe "cider-find-keyword"
+  ;; Regression test: a single `C-u' must NOT open another window; only `-'
+  ;; or a double prefix should, matching the sibling find commands and the
+  ;; docstring.  Previously the raw prefix arg was passed straight to
+  ;; `cider-jump-to', so any prefix opened another window.
+  (it "dispatches to another window only for `-' or a double prefix"
+    (spy-on 'cider-ensure-connected :and-return-value t)
+    (spy-on 'read-string :and-return-value "::foo")
+    (spy-on 'cider-symbol-at-point :and-return-value "::foo")
+    (spy-on 'cider--find-keyword-loc :and-return-value
+            (nrepl-dict "dest" (current-buffer) "dest-point" 1))
+    (spy-on 'cider-jump-to)
+    (cider-find-keyword '(4))           ; single C-u -> same window
+    (expect (nth 2 (spy-calls-args-for 'cider-jump-to 0)) :to-be nil)
+    (spy-calls-reset 'cider-jump-to)
+    (cider-find-keyword '(16))          ; double C-u -> other window
+    (expect (nth 2 (spy-calls-args-for 'cider-jump-to 0)) :to-be-truthy)
+    (spy-calls-reset 'cider-jump-to)
+    (cider-find-keyword '-)             ; negative -> other window
+    (expect (nth 2 (spy-calls-args-for 'cider-jump-to 0)) :to-be-truthy)))
+
 (describe "cider--find-keyword-loc"
   (it "finds the given keyword, discarding false positives"
     (with-clojure-buffer "(ns some.ns)
