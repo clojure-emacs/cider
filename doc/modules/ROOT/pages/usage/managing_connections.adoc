@@ -310,6 +310,13 @@ CIDER sessions. For the connection specific information use CIDER's built-in
 An interactive view of all CIDER sessions is available through the
 `sesman-browser` (kbd:[C-c C-s w]).
 
+For lower-level nREPL details there are two more commands:
+
+* `cider-describe-nrepl-session` prompts for one of the connection's nREPL
+sessions and shows its type and the ops it supports.
+* `cider-list-nrepl-middleware` lists the nREPL middleware currently loaded in
+the connection.
+
 == Customizing Session and REPL Names
 
 By default session names consist of abbreviated project name, host and port

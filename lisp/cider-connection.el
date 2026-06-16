@@ -55,7 +55,7 @@ Possible choices are `prompt', `auto', `any', and nil.
 - `prompt' means to always ask the user for a decision.
 - `auto' means to automatically reuse a dead REPL without prompting the user
   if it is the only available option.  When there are multiple buffers to
-  choose from, the user is is prompted for a choice.
+  choose from, the user is prompted for a choice.
 - `any' (or any other non-nil value) means to reuse any dead REPL buffer
   available, by default the most relevant according to various heuristics,
   and never prompt the user.
@@ -141,31 +141,31 @@ FORMAT is a format string to compile with ARGS and display on the REPL."
 (defvar cider-enlighten-mode)
 (defun cider--check-required-nrepl-version ()
   "Check whether we're using a compatible nREPL version."
-  (if-let* ((nrepl-version (cider--nrepl-version)))
-      (when (version< nrepl-version cider-required-nrepl-version)
-        (cider-emit-manual-warning "troubleshooting.html#warning-saying-you-have-to-use-newer-nrepl"
-                                   "CIDER requires nREPL %s (or newer) to work properly"
-                                   cider-required-nrepl-version))))
+  (when-let* ((nrepl-version (cider--nrepl-version)))
+    (when (version< nrepl-version cider-required-nrepl-version)
+      (cider-emit-manual-warning "troubleshooting.html#warning-saying-you-have-to-use-newer-nrepl"
+                                 "CIDER requires nREPL %s (or newer) to work properly"
+                                 cider-required-nrepl-version))))
 
 (defvar cider-minimum-clojure-version)
 (defun cider--check-clojure-version-supported ()
   "Ensure that we are meeting the minimum supported version of Clojure."
-  (if-let* ((clojure-version (cider--clojure-version))
-            ;; drop all qualifiers from the version string
-            ;; e.g. 1.10.0-master-SNAPSHOT becomes simply 1.10.0
-            (clojure-version (car (split-string clojure-version "-"))))
-      (when (version< clojure-version cider-minimum-clojure-version)
-        (cider-emit-manual-warning "basics/installation.html#prerequisites"
-                                   "Clojure version (%s) is not supported (minimum %s). CIDER will not work."
-                                   clojure-version cider-minimum-clojure-version))))
+  (when-let* ((clojure-version (cider--clojure-version))
+              ;; drop all qualifiers from the version string
+              ;; e.g. 1.10.0-master-SNAPSHOT becomes simply 1.10.0
+              (clojure-version (car (split-string clojure-version "-"))))
+    (when (version< clojure-version cider-minimum-clojure-version)
+      (cider-emit-manual-warning "basics/installation.html#prerequisites"
+                                 "Clojure version (%s) is not supported (minimum %s). CIDER will not work."
+                                 clojure-version cider-minimum-clojure-version))))
 
 (defun cider--strip-version-patch (v)
-  "Strips everything but major.minor from the version, returning a version list.
+  "Strip everything but major.minor from the version, returning a version list.
 V is the version string to strip the patch from."
   (seq-take (version-to-list v) 2))
 
 (defun cider--compatible-middleware-version-p (required-ver ver)
-  "Checks that the available middleware version is compatible with the required.
+  "Check that the available middleware version is compatible with the required.
 We look only at the major and minor components.  When the major
 version is 0, only check that the minor versions match.  When the major version
 is > 0, first check that the major version matches, then that the minor
@@ -330,37 +330,28 @@ Info contains project name, current REPL namespace, host:port endpoint and
 runtime details.  When GENERICP is non-nil, don't provide specific info
 about this buffer (like variable `cider-repl-type')."
   (with-current-buffer connection-buffer
-    (let ((info (cond
-                 ((cider--clojure-version)
-                  (format "%s%s@%s:%s (Java %s, Clojure %s, nREPL %s)"
-                          (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
-                          (or (cider--project-name nrepl-project-dir) "<no project>")
-                          (plist-get nrepl-endpoint :host)
-                          (plist-get nrepl-endpoint :port)
-                          (cider--java-version)
-                          (cider--clojure-version)
-                          (cider--nrepl-version)))
-                 ((cider--babashka-version)
-                  (format "%s%s@%s:%s (Babashka %s, babashka.nrepl %s)"
-                          (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
-                          (or (cider--project-name nrepl-project-dir) "<no project>")
-                          (plist-get nrepl-endpoint :host)
-                          (plist-get nrepl-endpoint :port)
-                          (cider--babashka-version)
-                          (cider--babashka-nrepl-version)))
-                 ((cider--let-go-version)
-                  (format "%s%s@%s:%s (let-go %s)"
-                          (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
-                          (or (cider--project-name nrepl-project-dir) "<no project>")
-                          (plist-get nrepl-endpoint :host)
-                          (plist-get nrepl-endpoint :port)
-                          (cider--let-go-version)))
-                 (t
-                  (format "%s%s@%s:%s"
-                          (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
-                          (or (cider--project-name nrepl-project-dir) "<no project>")
-                          (plist-get nrepl-endpoint :host)
-                          (plist-get nrepl-endpoint :port))))))
+    ;; The project/host/port endpoint is the same regardless of runtime; only
+    ;; the trailing version detail differs.  Build the common part once and
+    ;; append the runtime-specific suffix.
+    (let* ((endpoint (format "%s%s@%s:%s"
+                             (if genericp "" (upcase (concat (symbol-name cider-repl-type) " ")))
+                             (or (cider--project-name nrepl-project-dir) "<no project>")
+                             (plist-get nrepl-endpoint :host)
+                             (plist-get nrepl-endpoint :port)))
+           (runtime (cond
+                     ((cider--clojure-version)
+                      (format " (Java %s, Clojure %s, nREPL %s)"
+                              (cider--java-version)
+                              (cider--clojure-version)
+                              (cider--nrepl-version)))
+                     ((cider--babashka-version)
+                      (format " (Babashka %s, babashka.nrepl %s)"
+                              (cider--babashka-version)
+                              (cider--babashka-nrepl-version)))
+                     ((cider--let-go-version)
+                      (format " (let-go %s)" (cider--let-go-version)))
+                     (t "")))
+           (info (concat endpoint runtime)))
       (if cider-default-session
           (format "%s [default session: %s]" info cider-default-session)
         info))))
@@ -438,7 +429,7 @@ REPL defaults to the current REPL."
           (read-only-mode -1)
           (insert (format "Session: %s\n" session-id)
                   (format "Type: %s session\n" session-type)
-                  (format "Supported ops:\n"))
+                  "Supported ops:\n")
           (mapc (lambda (op) (insert (format "  * %s\n" op))) ops)))
       (display-buffer cider-nrepl-session-buffer))))
 
@@ -450,7 +441,7 @@ REPL defaults to the current REPL."
          (middleware (nrepl-middleware repl)))
     (with-current-buffer (cider-popup-buffer "*cider-nrepl-middleware*" 'select nil 'ancillary)
       (read-only-mode -1)
-      (insert (format "Currently loaded middleware:\n"))
+      (insert "Currently loaded middleware:\n")
       (mapc (lambda (mw) (insert (format "  * %s\n" mw))) middleware))
     (display-buffer "*cider-nrepl-middleware*")))
 
@@ -567,7 +558,7 @@ PARAMS is a plist as received by `cider-repl-create'."
   "Update BUFFER's namespace to NS if it's not a Clojure source buffer."
   (when (buffer-live-p buffer)
     (with-current-buffer buffer
-      (when (not (cider-clojure-major-mode-p))
+      (unless (cider-clojure-major-mode-p)
         (cider-set-buffer-ns ns)))))
 
 (defun cider--remove-session-on-disconnect (client-buffer kill-server-p)
