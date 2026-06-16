@@ -257,12 +257,12 @@ PARAMS is as in `nrepl-make-buffer-name'."
     (error nil)))
 
 (defun nrepl--port-string-to-number (s)
-  "Converts `S' from string to number when suitable."
+  "Convert S from string to number when suitable."
   (when (string-match "^\\([0-9]+\\)" s)
     (string-to-number (match-string 0 s))))
 
 (defun nrepl--port-from-file (file)
-  "Attempts to read port from a file named by FILE.
+  "Attempt to read port from a file named by FILE.
 
 Discards it if it can be determined that the port is not active."
   (when (file-exists-p file)
@@ -1023,7 +1023,7 @@ prefer the keyword-argument `nrepl-send-eval-request'."
   "Version of the nREPL client, sent in clone requests.")
 
 (defun nrepl-sync-request:clone (connection &optional tooling)
-  "Sent a :clone request to create a new client session.
+  "Send a :clone request to create a new client session.
 The request is dispatched via CONNECTION.
 Optional argument TOOLING Tooling is set to t if wanting the tooling session
 from CONNECTION."
@@ -1035,12 +1035,12 @@ from CONNECTION."
                       :tooling tooling))
 
 (defun nrepl-sync-request:close (connection)
-  "Sent a :close request to close CONNECTION's SESSION."
+  "Send a :close request to close CONNECTION's SESSION."
   (nrepl-sync-request '("op" "close") connection)
   (nrepl-sync-request '("op" "close") connection :tooling t)) ;; close tooling session
 
 (defun nrepl-sync-request:describe (connection)
-  "Perform :describe request for CONNECTION and SESSION."
+  "Perform a :describe request for CONNECTION."
   (nrepl-send-sync-request '("op" "describe")
                            connection))
 

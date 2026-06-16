@@ -37,7 +37,8 @@
   :prefix "cider-cheatsheet-"
   :group 'cider)
 
-(defconst cider-cheatsheet-buffer "*cider-cheatsheet*")
+(defconst cider-cheatsheet-buffer "*cider-cheatsheet*"
+  "Name of the CIDER cheatsheet buffer.")
 
 (defcustom cider-cheatsheet-auto-select-buffer t
   "Whether to auto-select the cheatsheet popup buffer."
@@ -47,8 +48,8 @@
 (defcustom cider-cheatsheet-default-action-function #'cider-doc-lookup
   "Function to use on a var when it is selected.
 
-By default, documentation for a var is displayed using `cider-doc-lookup`,
-but it can also be set to `cider-clojuredocs-lookup` to show documentation
+By default, documentation for a var is displayed using `cider-doc-lookup',
+but it can also be set to `cider-clojuredocs-lookup' to show documentation
 from ClojureDocs or any other function accepting a var as an argument."
   :type '(choice (const cider-doc-lookup)
                  (const cider-clojuredocs-lookup)

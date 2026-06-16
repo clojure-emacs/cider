@@ -39,7 +39,7 @@
 ;; xref.el was introduced in Emacs 25.1.
 ;; CIDER's xref backend was added in CIDER 1.2.
 (defun cider--xref-backend ()
-  "Used for xref integration."
+  "Return `cider' when CIDER can serve as an xref backend."
   ;; Check if `cider-nrepl` middleware is loaded. Allows fallback to other xref
   ;; backends, if cider-nrepl is not loaded.
   (when (or
@@ -54,13 +54,13 @@
   (cider-symbol-at-point 'look-back))
 
 (defun cider--xref-extract-file (dict)
-  "Extracts the best possible file path from DICT."
+  "Extract the best possible file path from DICT."
   (or (nrepl-dict-get dict "file-url") ;; This is the primary choice, it has a protocol and indicates an absolute path
       ;; fall back in case it was absent or we're running an older cider-nrepl:
       (nrepl-dict-get dict "file")))
 
 (defun cider--xref-extract-friendly-file-name (dict)
-  "Extracts the best possible friendly file name from DICT.
+  "Extract the best possible friendly file name from DICT.
 These are used for presentation purposes."
   (let* ((s (or (nrepl-dict-get dict "file") ;; these are shorter and relative, which look better in UIs.
                 (nrepl-dict-get dict "file-url")))

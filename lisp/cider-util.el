@@ -165,8 +165,8 @@ Take into consideration current major mode."
 ;;; Thing at point
 
 (defun cider--text-or-limits (bounds start end)
-  "Returns the substring or the bounds of text.
-If BOUNDS is non-nil, returns the list (START END) of character
+  "Return the substring or the bounds of text.
+If BOUNDS is non-nil, return the list (START END) of character
 positions.  Else returns the substring from START to END."
   (funcall (if bounds #'list #'buffer-substring-no-properties)
            start end))
@@ -327,7 +327,7 @@ positions before and after executing BODY."
 (put 'cider-propertize-region 'lisp-indent-function 1)
 
 (defun cider-property-bounds (prop)
-  "Return the the positions of the previous and next change to PROP.
+  "Return the positions of the previous and next change to PROP.
 PROP is the name of a text property."
   (let ((end (next-single-char-property-change (point) prop)))
     (list (previous-single-char-property-change end prop) end)))
@@ -571,7 +571,7 @@ to."
   (browse-url cider-report-bug-url))
 
 (defun cider--project-name (dir)
-  "Extracts a project name from DIR, possibly nil.
+  "Extract a project name from DIR, possibly nil.
 The project name is the final component of DIR if not nil."
   (when dir
     (file-name-nondirectory (directory-file-name dir))))

@@ -429,7 +429,7 @@ In order to work properly, this mode must be activated by
       (string-match "[[:upper:]]" (string last-command-event)))))
 
 (defun cider-debug-mode-send-reply (command &optional key force)
-  "Reply to the message that started current bufer's debugging session.
+  "Reply to the message that started current buffer's debugging session.
 COMMAND is sent as the input option.  KEY can be provided to reply to a
 specific message.  If FORCE is non-nil, send a \"force?\" argument in the
 message."

@@ -366,8 +366,8 @@ filters for the resulting machinery."
 ;;; Internal/Middleware error suppression
 
 (defun cider-stacktrace-some-suppressed-errors-p (error-types)
-  "Return intersection of ERROR-TYPES and CIDER-STACKTRACE-SUPPRESSED-ERRORS.
-I.e, Return non-nil if the seq ERROR-TYPES shares any elements with
+  "Return non-nil if ERROR-TYPES has any suppressed error type.
+I.e, return non-nil if the seq ERROR-TYPES shares any elements with
 `cider-stacktrace-suppressed-errors'.  This means that even a
 well-behaved (ie, promoted) error type will be guilty by association if
 grouped with a suppressed error type."
@@ -845,8 +845,8 @@ If EX-DATA is true, inspect ex-data of the exception instead."
     map))
 
 (defun cider-stacktrace-render-cause (buffer cause num note &optional inspect-index)
-  "Emit into BUFFER the CAUSE NUM, exception class, message, data, and NOTE,
-make INSPECT-INDEX actionable if present."
+  "Emit into BUFFER the CAUSE NUM, exception class, message, data, and NOTE.
+Make INSPECT-INDEX actionable if present."
   (with-current-buffer buffer
     (nrepl-dbind-response cause (class message data spec triage stacktrace)
       (let ((indent "   ")

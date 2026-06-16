@@ -131,8 +131,7 @@ mapping `cider-eldoc-ns-function' on it returns an empty list."
   "Format the eldoc subject defined by NS, SYMBOL, THING and TYPE.
 THING represents the thing at point which triggered eldoc.  Normally NS and
 SYMBOL are used (they are derived from THING), but when empty we fallback to
-THING (e.g. for Java methods).  Format it as a function, if FUNCTION-P
-is non-nil.  Else format it as a variable."
+THING (e.g. for Java methods).  TYPE is used to propertize the subject's name."
   (if-let* ((method-name (if (and symbol (not (string= symbol "")))
                              symbol
                            thing))
@@ -257,7 +256,7 @@ information."
             (cider-eldoc-format-arglist arglists pos))))
 
 (defun cider-highlight-args (arglist pos)
-  "Format the the function ARGLIST for eldoc.
+  "Format the function ARGLIST for eldoc.
 POS is the index of the currently highlighted argument."
   (let* ((rest-pos (cider--find-rest-args-position arglist))
          (i 0))
@@ -332,7 +331,7 @@ if the maximum number of sexps to skip is exceeded."
 
 (defun cider-eldoc-thing-type (eldoc-info)
   "Return the type of the ELDOC-INFO being displayed by eldoc.
-It can be a function or var now."
+It can be `fn', `special-form', `macro', `method' or `var'."
   (or (pcase (cider-plist-get eldoc-info "type")
         ("function" 'fn)
         ("special-form" 'special-form)

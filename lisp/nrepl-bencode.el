@@ -86,11 +86,12 @@ this list when inner object was completely decoded or grows it by one when
 new list or dict was encountered.
 
 The returned value is of the form (INFO . STACK) where INFO is
-:stub, nil, :end or :eob and STACK is either an incomplete parsing state as
-above (INFO is :stub, nil or :eob) or a list of one component representing
+:stub, nil, :e, :end or :eob and STACK is either an incomplete parsing state as
+above (INFO is :stub, nil, :e or :eob) or a list of one component representing
 the completely decoded message (INFO is :end).  INFO is nil when an
-elementary non-root object was successfully decoded.  INFO is :end when this
-object is a root list or dict."
+elementary non-root object was successfully decoded.  INFO is :e when a
+non-root list or dict was decoded.  INFO is :end when this object is a root
+list or dict."
   (cond
    ;; list
    ((eq (char-after) ?l)

@@ -79,6 +79,7 @@ Only applies to evaluation commands.  To configure the debugger overlays,
 see `cider-debug-use-overlays'."
   :type '(choice (const :tag "Display using overlays" t)
                  (const :tag "Display in echo area" nil)
+                 (const :tag "Use overlays only for errors" errors-only)
                  (const :tag "Both" both))
   :group 'cider
   :package-version '(cider . "0.10.0"))
@@ -189,8 +190,6 @@ VALUE is used as the overlay's after-string property, meaning it is
 displayed at the end of the overlay.
 Return nil if the overlay was not placed or if it might not be visible, and
 return the overlay otherwise.
-
-Return the overlay if it was placed successfully, and nil if it failed.
 
 This function takes some optional keyword arguments:
 

@@ -242,7 +242,7 @@ Display TITLE at the top and SPECS are indented underneath."
                      (string-join)))))
 
 (defun cider-browse-spec--pprint (form)
-  "Given a spec FORM builds a multi line string with a pretty render of that FORM."
+  "Build a multi-line string with a pretty render of the spec FORM."
   (cond ((stringp form)
          (if (cider--qualified-keyword-p form)
              (with-temp-buffer

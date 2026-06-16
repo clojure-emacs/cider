@@ -94,7 +94,7 @@ See `def-cider-selector-method' for defining new methods."
            (cider-selector)))))
 
 (defmacro def-cider-selector-method (key description &rest body)
-  "Define a new `cider-select' buffer selection method.
+  "Define a new `cider-selector' buffer selection method.
 KEY is the key the user will enter to choose this method.
 
 DESCRIPTION is a one-line sentence describing how the method
@@ -149,8 +149,7 @@ is chosen.  The returned buffer is selected with
   (top-level))
 
 (def-cider-selector-method ?r
-  "Current REPL buffer or as a fallback, the most recently
-visited cider-repl-mode buffer."
+  "Current REPL buffer or most recently visited REPL buffer."
   (or (cider-current-repl)
       (cider-selector--recently-visited-buffer 'cider-repl-mode)))
 

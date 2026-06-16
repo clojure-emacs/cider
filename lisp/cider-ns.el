@@ -127,9 +127,8 @@ Current options: tools.namespace and clj-reload."
   :package-version '(cider . "1.14.0"))
 
 (defun cider-ns--present-error (error)
-  "Render the `ERROR' stacktrace,
-and jump to the adequate file/line location,
-presenting the error message as an overlay."
+  "Render the ERROR stacktrace, jumping to the relevant file/line location.
+Present the error message as an overlay."
   (let* ((buf)
          (jump-args (seq-some (lambda (cause-dict) ;; a dict representing an exception cause
                                 (nrepl-dbind-response cause-dict (file-url line column)
@@ -236,7 +235,7 @@ Its behavior is controlled by `cider-ns-save-files-on-refresh' and
 
 (defun cider-ns--reload-op (op-name)
   "Return the reload operation to use.
-Based on OP-NAME and the value of cider-ns-code-reload-tool defcustom."
+Based on OP-NAME and the value of `cider-ns-code-reload-tool'."
   (if (eq cider-ns-code-reload-tool 'tools.namespace)
       (cond ((string= op-name "reload")       "cider/refresh")
             ((string= op-name "reload-all")   "cider/refresh-all")

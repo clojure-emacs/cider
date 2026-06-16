@@ -352,7 +352,7 @@ specifying the artifact ID, and the second element the version number."
 
 (defvar-local cider-jack-in-cmd nil
   "The custom command used to start a nrepl server.
-This is used by `cider-jack-in`.
+This is used by `cider-jack-in'.
 
 If this variable is set, its value will be
 used as the command to start the nrepl server
@@ -440,14 +440,14 @@ returned by this function only contains strings."
                     spec)))))
 
 (defun cider--jack-in-required-dependencies ()
-  "Returns the required CIDER deps.
+  "Return the required CIDER deps.
 They are normally added to `cider-jack-in-dependencies',
 unless it's a Lein project."
   `(("nrepl/nrepl" ,cider-injected-nrepl-version)
     ("cider/cider-nrepl" ,cider-injected-middleware-version)))
 
 (defun cider--gradle-dependency-notation (dependency)
-  "Returns Gradle's GAV dependency syntax.
+  "Return Gradle's GAV dependency syntax.
 For a \"group/artifact\" \"version\") DEPENDENCY list
 return as group:artifact:version notation."
   (let ((group-artifact (replace-regexp-in-string "/" ":" (car dependency)))
@@ -455,9 +455,9 @@ return as group:artifact:version notation."
     (format "%s:%s" group-artifact version)))
 
 (defun cider--gradle-jack-in-property (dependencies)
-  "Returns Clojurephant's dependency jack-in property.
+  "Return Clojurephant's dependency jack-in property.
 For DEPENDENCIES, translates to Gradle's dependency notation
-using `cider--gradle-dependency-notation`.''"
+using `cider--gradle-dependency-notation'."
   (if (seq-empty-p dependencies)
       ""
     (shell-quote-argument
@@ -465,7 +465,7 @@ using `cider--gradle-dependency-notation`.''"
              (mapconcat #'cider--gradle-dependency-notation dependencies ",")))))
 
 (defun cider--gradle-middleware-params (middlewares)
-  "Returns Gradle-formatted middleware params.
+  "Return Gradle-formatted middleware params.
 Given a list of MIDDLEWARES symbols, this returns
 the Gradle parameters expected by Clojurephant's
 ClojureNRepl task."
@@ -528,16 +528,16 @@ removed, LEIN-PLUGINS, LEIN-MIDDLEWARES and finally PARAMS."
    params))
 
 (defun cider--dedupe-deps (deps)
-  "Removes the duplicates in DEPS."
+  "Remove the duplicates in DEPS."
   (cl-delete-duplicates deps :test 'equal))
 
 (defun cider--jack-in-cmd-powershell-p (command)
-  "Returns whether COMMAND is PowerShell."
+  "Return non-nil if COMMAND is PowerShell."
   (or (string-equal command "powershell")
       (string-equal command "pwsh")))
 
 (defun cider--shell-quote-argument (argument &optional command)
-  "Quotes ARGUMENT like `shell-quote-argument', suitable for use with COMMAND.
+  "Quote ARGUMENT like `shell-quote-argument', suitable for use with COMMAND.
 
 Uses `shell-quote-argument' to quote the ARGUMENT, unless COMMAND is given
 and refers to PowerShell, in which case it uses (some limited) PowerShell
@@ -559,7 +559,7 @@ rules to quote it."
 
 
 (defun cider--combined-aliases ()
-  "Creates the combined ailases as stringe separated by ':'."
+  "Create the combined aliases as a string separated by ':'."
   (let ((final-cider-clojure-cli-aliases
          (cond ((and cider-clojure-cli-global-aliases cider-clojure-cli-aliases)
                 (concat cider-clojure-cli-global-aliases ":" cider-clojure-cli-aliases))

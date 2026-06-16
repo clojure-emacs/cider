@@ -32,7 +32,7 @@
 (require 'subr-x)
 
 (defsubst cider--render-pre* (dom)
-  "Render DOM nodes, formatting them them as Java if they are strings."
+  "Render DOM nodes, formatting them as Java if they are strings."
   (dolist (sub (dom-children dom))
     (if (stringp sub)
         (shr-insert (cider-font-lock-as 'java-mode sub))
@@ -106,7 +106,7 @@ Note that `cider-docstring' will trim thing smartly, for Java doc comments:
     (cider--fragments-to-s first-sentence-fragments)))
 
 (defun cider--render-docstring (eldoc-info)
-  "Renders the docstring from ELDOC-INFO based on its length and content.
+  "Render the docstring from ELDOC-INFO based on its length and content.
 Prioritize rendering as much as possible while staying within
 `cider-docstring-max-lines'."
   (let* ((first-sentence-fragments (cider-plist-get eldoc-info "doc-first-sentence-fragments"))
