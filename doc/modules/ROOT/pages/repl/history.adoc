@@ -14,6 +14,16 @@ REPL buffer.
 
 image::history_browser.png[History Browser]
 
+== Repairing a Corrupted History
+
+If a history entry with unbalanced parentheses sneaks into your saved
+history, `cider-repl-history` can fail to render with an "Unmatched
+bracket or quote" error.  The command kbd:[M-x] `cider-repl-history-doctor`
+walks the history, shows each entry whose parens don't balance in a side
+buffer, and asks whether to delete it (kbd:[y]), keep it (kbd:[n]), or
+stop reviewing (kbd:[q]).  When it finishes it rewrites
+`cider-repl-history-file`, if one is configured.
+
 == Mode
 
 The history buffer has its own major mode,

@@ -331,10 +331,9 @@ fully initialized."
      (propertize (cider-repl--help-banner) 'font-lock-face 'font-lock-comment-face))))
 
 (defun cider-repl--insert-startup-commands ()
-  "Insert the values from params specified in PARAM-TUPLES.
-PARAM-TUPLES are tuples of (param-key description) or (param-key
-description transform) where transform is called with the param-value if
-present."
+  "Insert startup details from `cider-launch-params' as REPL comments.
+This shows the jack-in command and, for ClojureScript, the REPL type and
+init form, when those parameters are present."
   (cl-flet
       ((emit-comment
         (contents)
@@ -738,7 +737,7 @@ Each functions takes a string and must return a modified string.  Also see
   "The max size of the REPL buffer.
 Setting this to nil removes the limit."
   :group 'cider
-  :type 'integer
+  :type '(choice (const :tag "No limit" nil) integer)
   :package-version '(cider . "0.26.0"))
 
 (defun cider-start-of-next-prompt (point)
@@ -918,7 +917,7 @@ SHOW-PREFIX and BOL."
   "Specifies the margin to be applied to images displayed in the REPL.
 Either a single number of pixels - interpreted as a symmetric margin, or
 pair of numbers `(x . y)' encoding an arbitrary margin."
-  :type '(choice integer (vector integer integer))
+  :type '(choice integer (cons integer integer))
   :package-version '(cider . "0.17.0"))
 
 (defun cider-repl--image (data type datap)
@@ -1193,7 +1192,7 @@ Closes all open parentheses or bracketed expressions."
            (if cider-repl-use-content-types "enabled" "disabled")))
 
 (defun cider-repl-toggle-clojure-font-lock ()
-  "Toggle pretty-printing in the REPL."
+  "Toggle Clojure font-locking in the REPL."
   (interactive)
   (setq cider-repl-use-clojure-font-lock (not cider-repl-use-clojure-font-lock))
   (message "Clojure font-locking in REPL %s."
@@ -1335,7 +1334,7 @@ mouse-over, VAR - sub-expression giving Clojure VAR to look up.  FILE is
 currently only used when VAR is nil and must be full resource path in that
 case."
   :type '(alist :key-type sexp)
-  :package-version '(cider. "0.16.0"))
+  :package-version '(cider . "0.16.0"))
 
 (defun cider--locref-at-point-1 (reg-list)
   "Workhorse for getting locref at point.
