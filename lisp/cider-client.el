@@ -25,6 +25,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'map)
 (require 'seq)
 (require 'subr-x)
@@ -163,7 +164,8 @@ than \"clj.foo.bar\"."
   :group 'cider
   :safe (lambda (value)
           (and (listp value)
-               (cl-every #'stringp value))))
+               (cl-every #'stringp value)))
+  :package-version '(cider . "1.22.0"))
 
 (defun cider--ns-from-path (path)
   "Derive a Clojure namespace from PATH using project layout heuristics.
@@ -613,8 +615,9 @@ without having to specify a Java class for the current candidate
      ,@body))
 
 (defun cider-class-choice-completing-read (prompt candidates)
-  "A completing read that can be customized with the `advice' mechanism,
-forwarding PROMPT and CANDIDATES as-is.
+  "Read a class choice, forwarding PROMPT and CANDIDATES as-is.
+This is a `completing-read' wrapper that can be customized with the
+`advice' mechanism.
 
 See also: `cider--with-temporary-ido-keys'."
   (completing-read prompt candidates))
@@ -1027,7 +1030,7 @@ side effects; only the global handlers fire (need-input, eval-error, ...)."
   (cider-make-eval-handler :buffer (current-buffer)))
 
 (defun cider-need-input (buffer)
-  "Handle an need-input request from BUFFER."
+  "Handle a need-input request from BUFFER."
   (with-current-buffer buffer
     (let ((map (make-sparse-keymap)))
       (set-keymap-parent map minibuffer-local-map)
