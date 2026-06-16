@@ -283,8 +283,7 @@ Argument FLAGS are the flags set on the stackframe, ie: clj dup, etc."
         (pos (seq-intersection pos-filters flags))
         (all (memq 'all pos-filters)))
     (cond (all nil) ;; if all filter is on then we should not hide
-          ((and pos neg) nil) ;; if hidden and "resurrected" we should not hide
-          (pos nil)
+          (pos nil) ;; if shown (even when also hidden, ie "resurrected") we should not hide
           (neg t)
           (t nil))))
 
@@ -613,27 +612,21 @@ length given by `current-column'."
 SPECIAL-FILTERS are filters that show stack certain stack frames, hiding
 others."
   (with-current-buffer buffer
-    (insert "  Show: ")
-    (dolist (filter special-filters)
-      (insert-text-button (car filter)
-                          'filter (cadr filter)
-                          'follow-link t
-                          'action #'cider-stacktrace-filter
-                          'help-echo (cider-stacktrace-tooltip
-                                      (format "Toggle %s stack frames"
-                                              (car filter))))
-      (insert " "))
-    (insert "\n")
-    (insert "  Hide: ")
-    (dolist (filter filters)
-      (insert-text-button (car filter)
-                          'filter (cadr filter)
-                          'follow-link t
-                          'action #'cider-stacktrace-filter
-                          'help-echo (cider-stacktrace-tooltip
-                                      (format "Toggle %s stack frames"
-                                              (car filter))))
-      (insert " "))
+    (cl-flet ((insert-filter-buttons (filters)
+                (dolist (filter filters)
+                  (insert-text-button (car filter)
+                                      'filter (cadr filter)
+                                      'follow-link t
+                                      'action #'cider-stacktrace-filter
+                                      'help-echo (cider-stacktrace-tooltip
+                                                  (format "Toggle %s stack frames"
+                                                          (car filter))))
+                  (insert " "))))
+      (insert "  Show: ")
+      (insert-filter-buttons special-filters)
+      (insert "\n")
+      (insert "  Hide: ")
+      (insert-filter-buttons filters))
 
     (let ((hidden (copy-sequence "(0 frames hidden)")))
       (put-text-property 0 (length hidden) 'hidden-count t hidden)
