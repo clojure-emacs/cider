@@ -52,9 +52,9 @@
     (easy-menu-define cider-clojure-interaction-mode-menu map
       "Menu for Clojure Interaction mode"
       '("Clojure Interaction"
-        (["Eval and print last sexp" #'cider-eval-print-last-sexp]
-         "--"
-         ["Reset" #'cider-scratch-reset])))
+        ["Eval and print last sexp" cider-eval-print-last-sexp]
+        "--"
+        ["Reset" cider-scratch-reset]))
     map))
 
 (defconst cider-scratch-buffer-name "*cider-scratch*")
