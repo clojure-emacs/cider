@@ -101,9 +101,8 @@ These are used for presentation purposes."
 (cl-defmethod xref-backend-identifier-completion-table ((_backend (eql cider)))
   "Return the completion table for identifiers."
   (cider-ensure-connected)
-  (when-let* ((ns (cider-current-ns))
-              (results (cider-sync-request:ns-vars ns)))
-    results))
+  (when-let* ((ns (cider-current-ns)))
+    (cider-sync-request:ns-vars ns)))
 
 (cl-defmethod xref-backend-references ((_backend (eql cider)) var)
   "Find references of VAR."
@@ -128,7 +127,7 @@ These are used for presentation purposes."
                                            (xref-make-buffer-location buf (with-current-buffer buf
                                                                             (save-excursion
                                                                               (goto-char 0)
-                                                                              (forward-line line)
+                                                                              (forward-line (1- line))
                                                                               (move-to-column (or column 0))
                                                                               (point)))))))
                                   (should-be-closed (and
