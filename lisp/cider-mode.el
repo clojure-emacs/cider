@@ -106,7 +106,7 @@ that of the namespace in the Clojure source buffer."
   "Switch to current REPL buffer, when possible in an existing window.
 The type of the REPL is inferred from the mode of current buffer.  With a
 prefix arg SET-NAMESPACE sets the namespace in the REPL buffer to that of
-the namespace in the Clojure source buffer"
+the namespace in the Clojure source buffer."
   (interactive "P")
   (cider--switch-to-repl-buffer
    (cider-current-repl 'infer 'ensure)
@@ -709,7 +709,7 @@ The result depends on the buffer CIDER connection type."
 Starts from the reader macro characters to the opening parentheses.")
 
 (defvar cider--reader-conditionals-match-data (list nil nil)
-  "Reusable list for `match-data` in reader conditionals font lock matchers.")
+  "Reusable list for `match-data' in reader conditionals font lock matchers.")
 
 (defun cider--search-reader-conditionals (limit)
   "Matcher for finding reader conditionals.
@@ -730,9 +730,9 @@ Search is done with the given LIMIT."
                 t))))))))
 
 (defun cider--anchored-search-suppressed-forms-internal (repl-types limit)
-  "Helper function for `cider--anchored-search-suppressed-forms`.
+  "Helper function for `cider--anchored-search-suppressed-forms'.
 REPL-TYPES is a list of strings repl-type strings.  LIMIT is the same as
-the LIMIT in `cider--anchored-search-suppressed-forms`"
+the LIMIT in `cider--anchored-search-suppressed-forms'."
   (when (= (length repl-types) 1)
     (let ((type (car repl-types))
           (expr (read (current-buffer)))
@@ -1135,11 +1135,10 @@ property."
     (when cider-use-xref
       (remove-hook 'xref-backend-functions #'cider--xref-backend 'local))
     (remove-hook 'font-lock-mode-hook #'cider-refresh-dynamic-font-lock 'local)
-    (font-lock-add-keywords nil cider--reader-conditionals-font-lock-keywords)
+    (font-lock-remove-keywords nil cider--reader-conditionals-font-lock-keywords)
     (font-lock-remove-keywords nil cider--dynamic-font-lock-keywords)
     (font-lock-remove-keywords nil cider--static-font-lock-keywords)
-    (font-lock-flush)
-    (remove-hook 'completion-at-point-functions #'cider-complete-at-point t)))
+    (font-lock-flush)))
 
 (defun cider-set-buffer-ns (ns)
   "Set this buffer's namespace to NS and refresh font-locking."
