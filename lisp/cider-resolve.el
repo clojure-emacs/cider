@@ -76,6 +76,15 @@
     (with-current-buffer conn
       (nrepl-dict-get-in cider-repl-ns-cache keys))))
 
+(defun cider-resolve--ns-cache ()
+  "Return the current connection's `cider-repl-ns-cache' dict, or nil.
+Resolving the connection is comparatively expensive when called from a
+source buffer (the indentation path does this), so callers performing
+several lookups should bind this once and reuse it rather than going
+through `cider-resolve--get-in' repeatedly."
+  (when-let* ((conn (cider-current-repl)))
+    (buffer-local-value 'cider-repl-ns-cache conn)))
+
 (defun cider-resolve-alias (ns alias)
   "Return the namespace that ALIAS refers to in namespace NS.
 If it doesn't point anywhere, returns ALIAS."
@@ -84,22 +93,31 @@ If it doesn't point anywhere, returns ALIAS."
 
 (defconst cider-resolve--prefix-regexp "\\`\\(?:#'\\)?\\([^/]+\\)/")
 
+(defun cider-resolve--var (cache ns var)
+  "Resolve VAR in namespace NS against the namespace CACHE dict.
+Helper for `cider-resolve-var'; recurses on CACHE instead of re-resolving
+the connection on every lookup.  See `cider-resolve-var' for the contract."
+  (let* ((var-ns (when (string-match cider-resolve--prefix-regexp var)
+                   (let ((alias (match-string 1 var)))
+                     (or (nrepl-dict-get-in cache (list ns "aliases" alias))
+                         alias))))
+         (name (replace-regexp-in-string cider-resolve--prefix-regexp "" var)))
+    (or
+     (nrepl-dict-get-in cache (list (or var-ns ns) "interns" name))
+     (unless var-ns
+       ;; If the var had no prefix, it might be referred.
+       (if-let* ((referral (nrepl-dict-get-in cache (list ns "refers" name))))
+           (cider-resolve--var cache ns referral)
+         ;; Or it might be from core.
+         (unless (equal ns "clojure.core")
+           (cider-resolve--var cache "clojure.core" name)))))))
+
 (defun cider-resolve-var (ns var)
   "Return a dict of the metadata of a clojure var VAR in namespace NS.
 VAR is a string.
 Return nil only if VAR cannot be resolved."
-  (let* ((var-ns (when (string-match cider-resolve--prefix-regexp var)
-                   (cider-resolve-alias ns (match-string 1 var))))
-         (name (replace-regexp-in-string cider-resolve--prefix-regexp "" var)))
-    (or
-     (cider-resolve--get-in (or var-ns ns) "interns" name)
-     (unless var-ns
-       ;; If the var had no prefix, it might be referred.
-       (if-let* ((referral (cider-resolve--get-in ns "refers" name)))
-           (cider-resolve-var ns referral)
-         ;; Or it might be from core.
-         (unless (equal ns "clojure.core")
-           (cider-resolve-var "clojure.core" name)))))))
+  (when-let* ((cache (cider-resolve--ns-cache)))
+    (cider-resolve--var cache ns var)))
 
 (defun cider-resolve-core-ns ()
   "Return a dict of the core namespace for current connection.
@@ -107,24 +125,26 @@ This will be clojure.core or cljs.core depending on the return value of the
 function `cider-repl-type'."
   (when-let* ((repl (cider-current-repl)))
     (with-current-buffer repl
-      (cider-resolve--get-in (if (eq cider-repl-type 'cljs)
-                                 "cljs.core"
-                               "clojure.core")))))
+      (nrepl-dict-get-in cider-repl-ns-cache
+                         (list (if (eq cider-repl-type 'cljs)
+                                   "cljs.core"
+                                 "clojure.core"))))))
 
 (defun cider-resolve-ns-symbols (ns)
   "Return a plist of all valid symbols in NS.
 Each entry's value is the metadata of the var that the symbol refers to.
 NS can be the namespace name, or a dict of the namespace itself."
-  (when-let* ((dict (if (stringp ns)
-                        (cider-resolve--get-in ns)
-                      ns)))
-    (nrepl-dbind-response dict (interns _refers aliases)
-      (append (cdr interns)
-              (nrepl-dict-flat-map (lambda (alias namespace)
-                                     (nrepl-dict-flat-map (lambda (sym meta)
-                                                            (list (concat alias "/" sym) meta))
-                                                          (cider-resolve--get-in namespace "interns")))
-                                   aliases)))))
+  (let ((cache (cider-resolve--ns-cache)))
+    (when-let* ((dict (if (stringp ns)
+                          (nrepl-dict-get cache ns)
+                        ns)))
+      (nrepl-dbind-response dict (interns _refers aliases)
+        (append (cdr interns)
+                (nrepl-dict-flat-map (lambda (alias namespace)
+                                       (nrepl-dict-flat-map (lambda (sym meta)
+                                                              (list (concat alias "/" sym) meta))
+                                                            (nrepl-dict-get-in cache (list namespace "interns"))))
+                                     aliases))))))
 
 (provide 'cider-resolve)
 ;;; cider-resolve.el ends here
