@@ -99,7 +99,7 @@ Note that `cider-docstring' will trim thing smartly, for Java doc comments:
 
 (defun cider--render-docstring-first-sentence (eldoc-info)
   "Render the first sentence of the docstring extracted from ELDOC-INFO."
-  (when-let ((first-sentence-fragments (cider-plist-get eldoc-info "doc-first-sentence-fragments")))
+  (when-let* ((first-sentence-fragments (cider-plist-get eldoc-info "doc-first-sentence-fragments")))
     (cider--fragments-to-s first-sentence-fragments)))
 
 (defun cider--render-docstring (eldoc-info)

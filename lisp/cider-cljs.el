@@ -206,7 +206,7 @@ Figwheel for details."
 (defun cider--figwheel-main-get-builds ()
   "Extract build names from the <build-id>.cljs.edn config files.
 Fetches them in the project root."
-  (when-let ((project-dir (cider-project-dir)))
+  (when-let* ((project-dir (cider-project-dir)))
     (let ((builds (directory-files project-dir nil ".*\\.cljs\\.edn")))
       (mapcar (lambda (f) (string-match "^\\(.*\\)\\.cljs\\.edn" f)
                 (match-string 1 f))
@@ -342,7 +342,7 @@ DEFAULT is the default ClojureScript REPL to offer in completion."
 (defun cider-cljs-repl-form (repl-type)
   "Get the cljs REPL form for REPL-TYPE, if any."
   (if-let* ((repl-type-info (cider--cljs-repl-type-entry repl-type)))
-      (when-let ((repl-form (cadr repl-type-info)))
+      (when-let* ((repl-form (cadr repl-type-info)))
         ;; repl-form can be either a string or a function producing a string
         (if (symbolp repl-form)
             (funcall repl-form)

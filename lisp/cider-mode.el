@@ -42,6 +42,7 @@
 (require 'cider-completion)
 (require 'cider-completion-context)
 (require 'cider-inspector)
+(require 'cider-repl)
 (require 'cider-find)
 (require 'cider-xref-backend)
 (require 'subr-x)

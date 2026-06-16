@@ -619,7 +619,7 @@ the input stream may block the whole colorization process."
          ;; sequence (aka SGR seq) though then flush it out and appended it to
          ;; the result.
          (fragment-flush?
-          (when-let (fragment (and ansi-color-context (cadr ansi-color-context)))
+          (when-let* ((fragment (and ansi-color-context (cadr ansi-color-context))))
             (save-match-data
               ;; Check if fragment is indeed an SGR seq in the making. The SGR
               ;; seq is defined as starting with ESC followed by [ followed by
@@ -978,7 +978,7 @@ nREPL ops, it may be convenient to prevent inserting a prompt.")
 
 (defun cider--maybe-get-state-cljs ()
   "Invokes `cider/get-state' when it's possible to do so."
-  (when-let ((conn (cider-current-repl 'cljs)))
+  (when-let* ((conn (cider-current-repl 'cljs)))
     (when (cider-nrepl-op-supported-p "cider/get-state" conn)
       ;; Per-response side effects happen via the global
       ;; `cider-repl--state-handler' on `nrepl-response-handler-functions',
@@ -1609,7 +1609,7 @@ The value of `cider-repl-input-history' is set by this function."
    (filename (setq cider-repl-history-file filename))
    ((equal 'per-project cider-repl-history-file)
     (make-local-variable 'cider-repl-input-history)
-    (when-let ((dir (cider-repl--find-dir-for-history)))
+    (when-let* ((dir (cider-repl--find-dir-for-history)))
       (setq-local
        cider-repl-history-file (expand-file-name ".cider-history" dir)))))
   (when cider-repl-history-file
@@ -1921,7 +1921,7 @@ The project directory is cached at connection time by
 `cider--cache-session-project-dir', so this function does not block on
 any nREPL requests."
   (setcdr session (seq-filter #'buffer-live-p (cdr session)))
-  (when-let ((repl (cadr session)))
+  (when-let* ((repl (cadr session)))
     (cond
      ;; If a default session is set and still exists, only that session is
      ;; friendly.  If the named session no longer exists we fall through to
@@ -1943,11 +1943,11 @@ any nREPL requests."
      (t
       (when-let* ((proc (get-buffer-process repl))
                   (file (file-truename (or (buffer-file-name) default-directory))))
-        (when-let ((tp (cider-tramp-prefix (current-buffer))))
+        (when-let* ((tp (cider-tramp-prefix (current-buffer))))
           (setq file (string-remove-prefix tp file)))
         (when (process-live-p proc)
           (let ((proj-dir (or (process-get proc :cached-project-dir)
-                              (when-let ((pd (buffer-local-value 'nrepl-project-dir repl)))
+                              (when-let* ((pd (buffer-local-value 'nrepl-project-dir repl)))
                                 (file-name-as-directory (file-truename pd))))))
             ;; The project dir is cached as a truename-resolved directory (with
             ;; a trailing slash), so a plain `string-prefix-p' is both a correct

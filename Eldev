@@ -1,6 +1,6 @@
 ; -*- mode: emacs-lisp; lexical-binding: t -*-
 
-(eldev-require-version "1.8.2")
+(eldev-require-version "1.11.2")
 
 (setf eldev-project-source-dirs '("lisp/"))
 (setf eldev-project-main-file "cider.el")

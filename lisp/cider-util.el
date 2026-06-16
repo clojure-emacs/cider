@@ -37,6 +37,7 @@
 (require 'seq)
 (require 'subr-x)
 (require 'thingatpt)
+(require 'project)
 
 ;; Third-party
 (require 'compat)

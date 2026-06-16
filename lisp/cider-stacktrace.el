@@ -808,7 +808,7 @@ If EX-DATA is true, inspect ex-data of the exception instead."
   "Keyboard handler.
 If EX-DATA is true, inspect ex-data of the exception instead."
   (interactive)
-  (when-let ((inspect-index (get-text-property (point) 'inspect-index)))
+  (when-let* ((inspect-index (get-text-property (point) 'inspect-index)))
     (cider-inspector-inspect-last-exception inspect-index ex-data)))
 
 (defun cider-stacktrace--inspect-ex-data-mouse (event)
@@ -915,7 +915,7 @@ Make INSPECT-INDEX actionable if present."
               (goto-char (next-single-property-change (point) 'compile-error))
             (progn
               (while (cider-stacktrace-next-cause))
-              (when-let (position (next-single-property-change (point) 'flags))
+              (when-let* ((position (next-single-property-change (point) 'flags)))
                 (goto-char position)))))))))
 
 (defun cider-stacktrace-render (buffer causes &optional error-types)

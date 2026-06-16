@@ -248,7 +248,7 @@ in the buffer."
 
 (defun cider-company-docsig (thing)
   "Return signature for THING."
-  (when-let ((eldoc-info (cider-eldoc-info thing)))
+  (when-let* ((eldoc-info (cider-eldoc-info thing)))
     (let* ((ns (cider-plist-get eldoc-info "ns"))
            (symbol (cider-plist-get eldoc-info "symbol"))
            (arglists (cider-plist-get eldoc-info "arglists")))
@@ -316,9 +316,9 @@ is `1' or nil, enables the custom completion style; if `-1', disables it."
 
 Only affects the `cider' completion category."
   (interactive)
-  (let ((found-styles (when-let ((cider (assq 'cider completion-category-overrides)))
+  (let ((found-styles (when-let* ((cider (assq 'cider completion-category-overrides)))
                         (assq 'styles cider)))
-        (found-cycle (when-let ((cider (assq 'cider completion-category-overrides)))
+        (found-cycle (when-let* ((cider (assq 'cider completion-category-overrides)))
                        (assq 'cycle cider))))
     (setq completion-category-overrides (seq-remove (lambda (x)
                                                       (equal 'cider (car x)))

@@ -72,7 +72,7 @@ by adding BUFFER-NAME to the `special-display-buffer-names' list."
         (progn
           (display-buffer buffer-name)
           (when select
-            (when-let ((window (get-buffer-window buffer-name)))
+            (when-let* ((window (get-buffer-window buffer-name)))
               (select-window window))))
       (let ((window (get-buffer-window buffer-name 'visible)))
         (when window
