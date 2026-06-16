@@ -32,7 +32,6 @@
 ;; comparison of string keys.
 
 ;;; Code:
-(require 'cl-lib)
 (require 'compat)
 
 
@@ -53,7 +52,7 @@
 
 (defun nrepl-dict (&rest key-vals)
   "Create nREPL dict from KEY-VALS."
-  (if (cl-evenp (length key-vals))
+  (if (zerop (% (length key-vals) 2))
       (cons 'dict key-vals)
     (error "An even number of KEY-VALS is needed to build a dict object")))
 

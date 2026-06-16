@@ -50,7 +50,7 @@
 
 Setting this to nil removes the fontification restriction."
   :group 'cider
-  :type 'boolean
+  :type '(choice (const :tag "No limit" nil) (integer))
   :package-version '(cider . "0.10.0"))
 
 (defun cider-util--hash-keys (hashtable)
@@ -107,7 +107,7 @@ file, walking up from the current buffer."
   :group 'cider
   :safe (lambda (value)
           (and (listp value)
-               (cl-every #'stringp value))))
+               (seq-every-p #'stringp value))))
 
 (defun cider-project-dir (&optional dir)
   "Return the absolute path of the current Clojure project root, or nil.
@@ -591,10 +591,10 @@ Any other value is just returned."
 Modern specs are lists of rules like ((:block N)) or ((:inner D))."
   (and (listp spec)
        spec
-       (cl-every (lambda (rule)
-                   (and (listp rule)
-                        (memq (car rule) '(:block :inner))))
-                 spec)))
+       (seq-every-p (lambda (rule)
+                      (and (listp rule)
+                           (memq (car rule) '(:block :inner))))
+                    spec)))
 
 (defun cider--indent-spec-to-legacy (spec)
   "Convert a modern indent SPEC to legacy format for older clojure-mode.
