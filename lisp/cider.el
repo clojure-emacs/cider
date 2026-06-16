@@ -102,12 +102,10 @@
 (require 'cider-debug)
 (require 'cider-util)
 
-(require 'cl-lib)
 (require 'tramp-sh)
 (require 'subr-x)
 (require 'seq)
 (require 'sesman)
-(require 'package)
 
 (defconst cider-version "1.22.0-snapshot"
   "The current version of CIDER.")
@@ -372,8 +370,8 @@ Params is a plist with the following keys (non-exhaustive)
           (dolist (pair (buffer-local-variables orig-buffer))
             (pcase pair
               (`(,name . ,value)        ;ignore unbound variables
-               (ignore-errors (set (make-local-variable name) value))))
-          (setq-local buffer-file-name nil))
+               (ignore-errors (set (make-local-variable name) value)))))
+          (setq-local buffer-file-name nil)
           (let ((default-directory proj-dir))
             (hack-dir-local-variables-non-file-buffer)
             (thread-first params
@@ -384,7 +382,7 @@ Params is a plist with the following keys (non-exhaustive)
   "When truthy allow the user to edit the command."
   :type 'boolean
   :safe #'booleanp
-  :version '(cider . "0.22.0"))
+  :package-version '(cider . "0.22.0"))
 
 (defvar cider--jack-in-nrepl-params-history nil
   "History list for user-specified jack-in nrepl command params.")
