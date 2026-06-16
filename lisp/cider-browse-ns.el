@@ -140,8 +140,8 @@ Available options include `private', `test', `macro', `function', and
   "Return font-lock-face for a var.
 VAR-META contains the metadata information used to decide a face.
 Presence of \"arglists\" and \"macro\" indicates a macro form.
-Only \"arglists\" indicates a function. Otherwise, its a variable.
-If the NAMESPACE is not loaded in the REPL, assume TEXT is a fn."
+Only \"arglists\" indicates a function.  Otherwise, it's a variable.
+When VAR-META is nil, default to `font-lock-function-name-face'."
   (cond
    ((not var-meta) 'font-lock-function-name-face)
    ((and (nrepl-dict-contains var-meta "arglists")
@@ -229,7 +229,7 @@ displayed."
 (defun cider-browse-ns--propertized-item (key items)
   "Return propertized line of item KEY in nrepl-dict ITEMS."
   (let* ((var-meta (nrepl-dict-get items key))
-         (face (cider-browse-ns--text-face (nrepl-dict-get items key)))
+         (face (cider-browse-ns--text-face var-meta))
          (private-p (string= (nrepl-dict-get var-meta "private") "true"))
          (test-p (nrepl-dict-contains var-meta "test"))
          (ns-p (nrepl-dict-contains var-meta "ns")))
@@ -323,7 +323,7 @@ list of items."
     (cider-browse-ns--filter flag)))
 
 (defun cider-browse-ns--group (flag)
-  "Set the group-by option to FLAG and re-renderthe buffer."
+  "Set the group-by option to FLAG and re-render the buffer."
   (setq cider-browse-ns-group-by
         (if (eql flag cider-browse-ns-group-by) nil flag))
   (cider-browse-ns--render-buffer))
@@ -444,7 +444,7 @@ var-meta map."
 
 ;;;###autoload
 (defun cider-browse-ns (namespace)
-  "List all NAMESPACE's vars in BUFFER."
+  "List all NAMESPACE's vars."
   (interactive (list (completing-read "Browse namespace: " (cider-sync-request:ns-list))))
   (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer 'select nil 'ancillary)
     (cider-browse-ns--list (current-buffer)
@@ -454,7 +454,7 @@ var-meta map."
 
 ;;;###autoload
 (defun cider-browse-ns-all ()
-  "List all loaded namespaces in BUFFER."
+  "List all loaded namespaces."
   (interactive)
   (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer 'select nil 'ancillary)
     (let ((names (cider-sync-request:ns-list)))
@@ -508,12 +508,12 @@ Return a list of the type (`ns' or `var') and the value."
   (cider-browse-ns--filter 'var))
 
 (defun cider-browse-ns-group-by-type ()
-  "Toggle visibility of var items displayed in browse-ns buffer."
+  "Group items in the browse-ns buffer by type."
   (interactive)
   (cider-browse-ns--group 'type))
 
 (defun cider-browse-ns-group-by-visibility ()
-  "Toggle visibility of var items displayed in browse-ns buffer."
+  "Group items in the browse-ns buffer by visibility."
   (interactive)
   (cider-browse-ns--group 'visibility))
 

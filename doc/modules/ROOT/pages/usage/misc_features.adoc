@@ -168,6 +168,9 @@ There are a bunch of useful keybindings that are defined in browser buffers.
 | kbd:[^]
 | Browse all namespaces.
 
+| kbd:[a]
+| Toggle showing all items (ignore active filters).
+
 | kbd:[n]
 | Go to next line.
 
