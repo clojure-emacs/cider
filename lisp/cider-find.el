@@ -38,7 +38,7 @@
 Display the results in a different window."
   (if-let* ((info (cider-var-info var)))
       (progn
-        (if line (setq info (nrepl-dict-put info "line" line)))
+        (when line (setq info (nrepl-dict-put info "line" line)))
         (cider--jump-to-loc-from-info info t))
     (user-error "Symbol `%s' not resolved" var)))
 
@@ -46,7 +46,7 @@ Display the results in a different window."
   "Find the definition of VAR, optionally at a specific LINE."
   (if-let* ((info (cider-var-info var)))
       (progn
-        (if line (setq info (nrepl-dict-put info "line" line)))
+        (when line (setq info (nrepl-dict-put info "line" line)))
         (cider--jump-to-loc-from-info info))
     (user-error "Symbol `%s' not resolved" var)))
 
@@ -116,7 +116,7 @@ inverts the meaning.  A prefix of `-' or a double prefix argument causes
 the results to be displayed in a different window.  A default value of thing
 at point is given when prompted."
   (interactive (cider--find-dwim-interactive "Jump to: "))
-  (cider--find-dwim symbol-file `cider-find-dwim
+  (cider--find-dwim symbol-file 'cider-find-dwim
                     (cider--open-other-window-p current-prefix-arg)))
 
 ;;;###autoload
@@ -157,7 +157,7 @@ This function preserves the `other-window' meaning of ARG."
       (_ 4)))) ; no-prefix -> empty
 
 (defun cider--prefix-invert-prompt-p (arg)
-  "Test prefix value ARG for its effect on `cider-prompt-for-symbol`."
+  "Test prefix value ARG for its effect on `cider-prompt-for-symbol'."
   (let ((narg (prefix-numeric-value arg)))
     (pcase narg
       (16 t) ; empty empty
@@ -193,9 +193,9 @@ the results to be displayed in a different window."
       (cider--find-ns ns (cider--open-other-window-p arg)))))
 
 (defun cider--find-keyword-in-buffer (buffer kw)
-  "Returns the point where `KW' is found in `BUFFER'.
-Returns nil of no matching keyword is found.
-Occurrences of `KW' as (or within) strings, comments, #_ forms, symbols, etc
+  "Return the point where KW is found in BUFFER.
+Return nil if no matching keyword is found.
+Occurrences of KW as (or within) strings, comments, #_ forms, symbols, etc
 are disregarded."
   (with-current-buffer buffer
     (save-excursion
@@ -215,9 +215,9 @@ are disregarded."
           current-point)))))
 
 (defun cider--find-keyword-loc (kw)
-  "Given `KW', returns an nrepl-dict with url, dest, dest-point.
+  "Return an nrepl-dict with url, dest, dest-point for KW.
 
-Returns the dict in all cases.  `dest-point' indicates success:
+Return the dict in all cases.  `dest-point' indicates success:
 integer on successful finds, nil otherwise."
   (let* ((simple-ns-qualifier (and
                                (string-match "^:\\(.+\\)/.+$" kw)
@@ -275,7 +275,7 @@ thing at point."
          (result (cider--find-keyword-loc kw)))
     (nrepl-dbind-response result (dest dest-point)
       (if dest-point
-          (cider-jump-to dest dest-point arg)
+          (cider-jump-to dest dest-point (cider--open-other-window-p arg))
         (progn
           (unless (memq dest before)
             (kill-buffer dest))
