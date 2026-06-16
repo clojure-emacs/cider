@@ -64,9 +64,7 @@
   "Convert FRAGMENTS into a concatenated string representation.
 If a given fragment is of html type, it's converted to a propertized string;
 otherwise, it's included as-is."
-  (when (and fragments
-             (> (length fragments)
-                0))
+  (when fragments
     (string-trim (seq-reduce (lambda (new-s fragment)
                                (let* ((html? (equal "html" (nrepl-dict-get fragment "type")))
                                       (v (nrepl-dict-get fragment "content")))
@@ -96,9 +94,8 @@ Note that `cider-docstring' will trim thing smartly, for Java doc comments:
 (defun cider--attempt-invalid? (attempt)
   "Check if ATTEMPT is nil or has more lines than `cider-docstring-max-lines'."
   (or (not attempt)
-      (and attempt
-           (> (length (split-string attempt "\n"))
-              cider-docstring-max-lines))))
+      (> (length (split-string attempt "\n"))
+         cider-docstring-max-lines)))
 
 (defun cider--render-docstring-first-sentence (eldoc-info)
   "Render the first sentence of the docstring extracted from ELDOC-INFO."

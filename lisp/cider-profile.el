@@ -79,12 +79,11 @@ current ns."
       (lambda (value)
         (pcase value
           ("profiled" (message "Profiling enabled for %s" ns))
-          ("unprofiled" (message "Profiling disabled for %s" ns)))))))
-  query)
+          ("unprofiled" (message "Profiling disabled for %s" ns))))))))
 
 ;;;###autoload
-(defun cider-profile-toggle (query)
-  "Toggle profiling for the given QUERY.
+(defun cider-profile-toggle (_query)
+  "Toggle profiling for a var.
 Defaults to the symbol at point.
 With prefix arg or no symbol at point, prompts for a var."
   (interactive "P")
@@ -101,13 +100,7 @@ With prefix arg or no symbol at point, prompts for a var."
          (lambda (value)
            (pcase value
              ("profiled" (message "Profiling enabled for %s/%s" ns sym))
-             ("unprofiled" (message "Profiling disabled for %s/%s" ns sym)))))))))
-  query)
-
-(defun cider-profile--send-to-inspector (summary-response)
-  "Display SUMMARY-RESPONSE using the inspector."
-  (let ((value (nrepl-dict-get summary-response "value")))
-    (cider-inspector--render-value value)))
+             ("unprofiled" (message "Profiling disabled for %s/%s" ns sym))))))))))
 
 ;;;###autoload
 (defun cider-profile-summary ()

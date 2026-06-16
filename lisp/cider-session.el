@@ -509,9 +509,7 @@ no linked session or there is no REPL of TYPE within the current session."
            (or (string= type buffer-repl-type)
                (let ((capabilities
                       (buffer-local-value 'cider-connection-capabilities buffer)))
-                 (cond ((listp type)
-                        (seq-some (lambda (it) (member it capabilities)) type))
-                       (t (member type capabilities)))))))))
+                 (member type capabilities)))))))
 
 (defun cider--get-host-from-session (session)
   "Return the host associated with SESSION."

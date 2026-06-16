@@ -91,7 +91,6 @@ the symbol found by the xref search as argument."
 
 (defun cider-xref-source (file-url line name)
   "Find source for FILE-URL, LINE and NAME."
-  (interactive)
   (if file-url
       (if-let* ((buffer (and (not (cider--tooling-file-p file-url))
                              (cider-find-file file-url))))
@@ -108,9 +107,7 @@ the symbol found by the xref search as argument."
   "Show SUMMARY and RESULTS in a pop-up buffer."
   (with-current-buffer (cider-popup-buffer cider-xref-buffer 'select 'apropos-mode 'ancillary)
     (let ((inhibit-read-only t))
-      (if (boundp 'header-line-format)
-          (setq-local header-line-format summary)
-        (insert summary "\n\n"))
+      (setq-local header-line-format summary)
       (dolist (result results)
         (cider-xref-result result))
       (goto-char (point-min)))))
