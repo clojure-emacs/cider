@@ -215,7 +215,7 @@ splits the version into separate fields rather than a `version-string`."
               (or (nrepl-dict-get lg "minor") "?")))))
 
 (defun cider-runtime ()
-  "Return the runtime of the nREPl server."
+  "Return the runtime of the nREPL server."
   (cond
    ((cider--clojure-version) 'clojure)
    ((cider--babashka-version) 'babashka)
@@ -305,7 +305,7 @@ Assume that the current buffer is a REPL."
 ;;; Connection Name Formatting
 
 (defun cider--ensure-spec-is-not-invokable (spec)
-  "Ensures SPEC cannot be invoked as a function.
+  "Ensure SPEC cannot be invoked as a function.
 
 Invokeable specs are an Emacs 29 feature
 that we don't intend to use in this context."

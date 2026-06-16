@@ -115,7 +115,7 @@ if the candidate is not namespace-qualified."
 
 (defun cider-completion--parse-candidate-map (candidate-map)
   "Get \"candidate\" from CANDIDATE-MAP.
-Put type and ns properties on the candidate"
+Put type and ns properties on the candidate."
   (let ((candidate (nrepl-dict-get candidate-map "candidate"))
         (type (nrepl-dict-get candidate-map "type"))
         (ns (nrepl-dict-get candidate-map "ns")))
@@ -156,7 +156,7 @@ completion functionality."
     (get-text-property 0 'ns symbol)))
 
 (defun cider-default-annotate-completion-function (type ns)
-  "Get completion function based on TYPE and NS."
+  "Return an annotation string built from TYPE and NS."
   (concat (when ns (format " (%s)" ns))
           (when type (format " <%s>" type))))
 
@@ -277,14 +277,14 @@ in the buffer."
                "CIDER backend-driven completion style."))
 
 (defun cider-company-enable-fuzzy-completion ()
-  "Enables `cider' completion style for CIDER in all buffers.
+  "Enable `cider' completion style for CIDER in all buffers.
 
 DEPRECATED: please use `cider-enable-cider-completion-style' instead."
   (interactive)
   (cider-enable-cider-completion-style))
 
 (defun cider-enable-cider-completion-style (&optional arg)
-  "Enables or disables `cider' completion style for CIDER in all buffers.
+  "Enable or disable `cider' completion style for CIDER in all buffers.
 
 This style supports non-prefix completion candidates returned by the
 completion backend.  Only affects the `cider' completion category.  If ARG
@@ -312,9 +312,9 @@ is `1' or nil, enables the custom completion style; if `-1', disables it."
 (make-obsolete 'cider-company-enable-fuzzy-completion 'cider-enable-cider-completion-style "1.17.0")
 
 (defun cider-enable-flex-completion ()
-  "Enables `flex' (fuzzy) completion for CIDER in all buffers.
+  "Enable `flex' (fuzzy) completion for CIDER in all buffers.
 
-Only affects the `cider' completion category.`"
+Only affects the `cider' completion category."
   (interactive)
   (let ((found-styles (when-let ((cider (assq 'cider completion-category-overrides)))
                         (assq 'styles cider)))

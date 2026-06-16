@@ -154,9 +154,10 @@ also always return a sequence (since the result will be flattened)."
     (apply #'append (nrepl-dict-map function dict))))
 
 (defun nrepl-dict-filter (function dict)
-  "For all key-values of DICT, return new dict where FUNCTION returns non-nil.
+  "Return a new dict of the key-values of DICT accepted by FUNCTION.
 
-FUNCTION should be a function taking two arguments, key and value."
+FUNCTION should be a function taking two arguments, key and value, that
+returns non-nil for the key-values to keep."
   (let ((new-map (nrepl-dict))
         (keys (nrepl-dict-keys dict)))
     (dolist (key keys)

@@ -105,7 +105,7 @@ With prefix arg or no symbol at point, prompts for a var."
   query)
 
 (defun cider-profile--send-to-inspector (summary-response)
-  "Displays SUMMARY-RESPONSE using the inspector."
+  "Display SUMMARY-RESPONSE using the inspector."
   (let ((value (nrepl-dict-get summary-response "value")))
     (cider-inspector--render-value value)))
 

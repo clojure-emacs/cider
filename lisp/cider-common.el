@@ -149,8 +149,8 @@ so they keep tracking the current session."
 
 (defcustom cider-jump-to-pop-to-buffer-actions
   '((display-buffer-reuse-window display-buffer-same-window))
-  "Determines what window `cider-jump-to` uses.
-The value is passed as the `action` argument to `pop-to-buffer`.
+  "Determine what window `cider-jump-to' uses.
+The value is passed as the `action' argument to `pop-to-buffer'.
 
 The default value means:
 
@@ -252,10 +252,10 @@ create a valid path."
       filename)))
 
 (defun cider-make-tramp-prefix (method user host &optional port)
-  "Constructs a Tramp file prefix from METHOD, USER, HOST, PORT.
-It originated from Tramp's `tramp-make-tramp-file-name'.  The original be
-forced to make full file name with `with-parsed-tramp-file-name', not providing
-prefix only option."
+  "Construct a Tramp file prefix from METHOD, USER, HOST, PORT.
+It originated from Tramp's `tramp-make-tramp-file-name'.  The original was
+forced to make a full file name with `with-parsed-tramp-file-name', with no
+prefix-only option."
   (concat tramp-prefix-format
           (unless (zerop (length method))
             (concat method tramp-postfix-method-format))
@@ -331,7 +331,7 @@ whether DIRECTION is `from-nrepl' or `to-nrepl'."
         (seq-some f cider-path-translations)))))
 
 (defun cider--all-path-translations ()
-  "Returns `cider-path-translations' if non-empty, else seeks a present value."
+  "Return `cider-path-translations' if non-empty, else seek a present value."
   (or cider-path-translations
       ;; cider-path-translations often is defined as a directory-local variable,
       ;; so after jumping to a .jar file, its value can be lost,
@@ -364,6 +364,7 @@ whether DIRECTION is `from-nrepl' or `to-nrepl'."
 (defcustom cider-prefer-local-resources nil
   "Prefer local resources to remote (tramp) ones when both are available."
   :type 'boolean
+  :package-version '(cider . "0.7.0")
   :group 'cider)
 
 (defun cider--file-path (path)

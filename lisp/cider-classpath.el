@@ -62,7 +62,7 @@
       (goto-char (point-min)))))
 
 (defun cider-classpath-properties (text)
-  "Decorate TEXT with a clickable keymap and function face."
+  "Decorate TEXT with a clickable keymap and a face based on its status."
   (let ((face (cond
                ((not (file-exists-p text)) 'font-lock-warning-face)
                ((file-directory-p text) 'dired-directory)

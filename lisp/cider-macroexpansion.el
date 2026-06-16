@@ -85,8 +85,7 @@ ARG is passed along to `undo-only'."
     (undo-only arg)))
 
 (defvar cider-last-macroexpand-expression nil
-  "Specify the last macroexpansion performed.
-This variable specifies both what was expanded and the expander.")
+  "Hold the last expression that was macroexpanded.")
 
 (defun cider-macroexpand-expr (expander expr)
   "Macroexpand, use EXPANDER, the given EXPR."
@@ -183,7 +182,7 @@ and point is placed after the expanded form."
     (define-key map (kbd "u") #'cider-macroexpand-undo)
     (define-key map [remap undo] #'cider-macroexpand-undo)
     (easy-menu-define cider-macroexpansion-mode-menu map
-      "Menu for CIDER's doc mode"
+      "Menu for CIDER's macroexpansion mode"
       '("Macroexpansion"
         ["Restart expansion" cider-macroexpand-again]
         ["Macroexpand-1" cider-macroexpand-1-inplace]

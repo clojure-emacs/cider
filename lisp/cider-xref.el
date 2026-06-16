@@ -154,7 +154,7 @@ the symbol found by the xref search as argument."
 
 ;;;###autoload
 (defun cider-xref-fn-refs-select (&optional ns symbol)
-  "Displays the references for NS and SYMBOL using completing read."
+  "Display the references for NS and SYMBOL using completing read."
   (interactive)
   (cider-ensure-connected)
   (cider-ensure-op-supported "cider/fn-refs")
@@ -167,7 +167,7 @@ the symbol found by the xref search as argument."
 
 ;;;###autoload
 (defun cider-xref-fn-deps-select (&optional ns symbol)
-  "Displays the function dependencies for  NS and SYMBOL using completing read."
+  "Display the function dependencies for NS and SYMBOL using completing read."
   (interactive)
   (cider-ensure-connected)
   (cider-ensure-op-supported "cider/fn-deps")

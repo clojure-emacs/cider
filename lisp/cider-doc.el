@@ -52,7 +52,7 @@
   :group 'cider)
 
 (defcustom cider-doc-auto-select-buffer t
-  "Controls whether to auto-select the doc popup buffer."
+  "Control whether to auto-select the doc popup buffer."
   :type 'boolean
   :group 'cider-doc
   :package-version  '(cider . "0.15.0"))
@@ -261,15 +261,15 @@ opposite of what that option dictates."
 (defconst cider-doc-buffer "*cider-doc*")
 
 (defun cider-create-doc-buffer (symbol &optional compact)
-  "Populates *cider-doc* with the documentation for SYMBOL,
-favoring a COMPACT format if specified."
+  "Populate *cider-doc* with the documentation for SYMBOL.
+Favor a COMPACT format if specified."
   (when-let* ((info (cider-var-info symbol)))
     (cider-docview-render (cider-make-popup-buffer cider-doc-buffer nil 'ancillary) symbol info compact)))
 
 (defun cider-create-compact-doc-buffer (symbol)
-  "Populates *cider-doc* with the documentation for SYMBOL.
+  "Populate *cider-doc* with the documentation for SYMBOL.
 
-Favors a compact rendering of docstrings"
+Favor a compact rendering of docstrings."
   (cider-create-doc-buffer symbol :compact))
 
 (defun cider-doc-lookup (symbol)
@@ -402,8 +402,8 @@ Same for `jar:file:...!/' segments."
       result)))
 
 (defun cider-docview-render-info (buffer info &optional compact for-tooltip)
-  "Emit into BUFFER formatted INFO for the Clojure or Java symbol,
-in a COMPACT format is specified, FOR-TOOLTIP if specified."
+  "Emit into BUFFER formatted INFO for the Clojure or Java symbol.
+Use a COMPACT format if specified, and FOR-TOOLTIP if specified."
   (let* ((ns      (nrepl-dict-get info "ns"))
          (name    (nrepl-dict-get info "name"))
          (added   (nrepl-dict-get info "added"))

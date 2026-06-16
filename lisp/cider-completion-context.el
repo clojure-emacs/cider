@@ -33,7 +33,7 @@
   :package-version '(cider . "0.7.0"))
 
 (defun cider-completion--bounds-of-non-string-symbol-at-point ()
-  "Returns the bounds of the symbol at point, unless it's inside a string."
+  "Return the bounds of the symbol at point, unless it's inside a string."
   (let ((sap (symbol-at-point)))
     (when (and sap (not (nth 3 (syntax-ppss))))
       (bounds-of-thing-at-point 'symbol))))
@@ -76,7 +76,7 @@ the current symbol at point."
 
 (defun cider-completion-get-context-at-point ()
   "Extract the context at point.
-If point is not inside the list, returns nil; otherwise return \"top-level\"
+If point is not inside the list, return nil; otherwise return \"top-level\"
 form, with symbol at point replaced by __prefix__."
   (when (save-mark-and-excursion
           (condition-case _
