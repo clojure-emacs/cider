@@ -63,7 +63,7 @@ will be displayed in the echo area after you call
 `cider-ns-refresh`. The same information will also be recorded in the
 `+*cider-ns-refresh-log*+` buffer, along with anything printed to
 `+*out*+` or `+*err*+` by `cider-ns-refresh-before-fn` and
-`cider-ns-refresh-start-fn`.
+`cider-ns-refresh-after-fn`.
 
 You can make the `+*cider-ns-refresh-log*+` buffer display automatically
 after you call `cider-ns-refresh` by setting the
