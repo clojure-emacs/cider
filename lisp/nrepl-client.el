@@ -1197,13 +1197,6 @@ up."
               (when nrepl-on-port-callback
                 (funcall nrepl-on-port-callback (process-buffer process))))))))))
 
-(defmacro emacs-bug-46284/when-27.1-windows-nt (&rest body)
-  "Only evaluate BODY when Emacs bug #46284 has been detected."
-  (when (and (eq system-type 'windows-nt)
-             (string= emacs-version "27.1"))
-    (cons 'progn body)))
-
-
 (defvar nrepl-close-connection-handler-function nil
   "Function to call to close a client connection buffer.
 Called with one argument: the REPL buffer to close.
@@ -1216,18 +1209,6 @@ signal, raise an `error'.  Additionally, if the EVENT signal is SIGHUP,
 close any existing client connections."
   ;; only interested on fatal signals.
   (unless (process-live-p process)
-    (emacs-bug-46284/when-27.1-windows-nt
-     ;; There is a bug in emacs 27.1 (since fixed) that sets all EVENT
-     ;; descriptions for signals to "unknown signal". We correct this by
-     ;; resetting it back to its canonical value.
-     (when (eq (process-status process) 'signal)
-       (pcase (process-exit-status process)
-         ;; SIGHUP==1 emacs nt/inc/ms-w32.h
-         (1 (setq event "Hangup"))
-         ;; SIGINT==2 x86_64-w64-mingw32/include/signal.h
-         (2 (setq event "Interrupt"))
-         ;; SIGKILL==9 emacs nt/inc/ms-w32.h
-         (9 (setq event "Killed")))))
     (let* ((server-buffer (process-buffer process))
            (clients (seq-filter (lambda (b)
                                   (eq (buffer-local-value 'nrepl-server-buffer b)
