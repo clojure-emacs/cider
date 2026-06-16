@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.22.0 (2026-06-16)
+
 ### New features
 
 - [#3645](https://github.com/clojure-emacs/cider/issues/3645): Show a spinner in the mode line while tests are running.
@@ -36,6 +38,12 @@
 
 ### Bugs fixed
 
+- [#3937](https://github.com/clojure-emacs/cider/pull/3937): `cider-find-keyword` no longer opens the result in another window on a single prefix argument; only `-` or a double prefix does, matching the other `cider-find-*` commands.
+- [#3938](https://github.com/clojure-emacs/cider/pull/3938): Disabling `cider-mode` now removes its reader-conditional font-lock keywords instead of re-adding them, so fontification no longer lingers and repeated toggling no longer stacks duplicate keywords.
+- [#3939](https://github.com/clojure-emacs/cider/pull/3939): Fix the malformed Clojure Interaction mode menu, where "Eval and print last sexp" rendered as an empty submenu instead of a working command.
+- [#3941](https://github.com/clojure-emacs/cider/pull/3941): REPL history insertion with the mouse no longer risks inserting the wrong entry; the overlay lookup now honors the clicked position instead of point.
+- [#3942](https://github.com/clojure-emacs/cider/pull/3942): `cider-log`: apply the consumer's own filters when initializing a session, fix the broken `cider-log-info` autoload, and honor a caller-supplied logger prompt.
+- [#3953](https://github.com/clojure-emacs/cider/pull/3953): Fix the cider-debug "Forced move out of sexp" menu entry erroring with a void variable, and an off-by-one in the cider-xref no-backing-file references fallback.
 - [#3933](https://github.com/clojure-emacs/cider/issues/3933): Fix severe editor lag in Clojure buffers when no REPL is linked.  Friendly-session matching no longer scans the project classpath (or the buffer's namespace) on every redisplay; it now just checks whether the buffer's file is under a session's project directory.  Dependency sources jumped to via `cider-find-var` are pinned to their originating session instead.
 - `cider-browse-spec-mode`, `cider-browse-spec-view-mode`, and `cider-browse-spec-example-mode` each have an `easy-menu` now, exposing the drill/browse-all/generate-example commands that previously had no menu affordance.
 - `cider-repl-history-mode` now has an `easy-menu` ("REPL History") covering insert, navigation, search/filter, refresh/delete/undo, and quit.
