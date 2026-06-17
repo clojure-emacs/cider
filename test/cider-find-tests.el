@@ -31,6 +31,17 @@
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
+(describe "cider--find-dwim-thing-at-point"
+  (it "captures Clojure symbols ending in ! or ? (#2876)"
+    (with-clojure-buffer "(teardown!|)"
+      (expect (cider--find-dwim-thing-at-point) :to-equal "teardown!"))
+    (with-clojure-buffer "(empty?| coll)"
+      (expect (cider--find-dwim-thing-at-point) :to-equal "empty?")))
+
+  (it "uses the filename inside a string, for resource paths"
+    (with-clojure-buffer "(io/resource \"foo/bar.e|dn\")"
+      (expect (cider--find-dwim-thing-at-point) :to-equal "foo/bar.edn"))))
+
 (describe "cider-find-ns"
   (it "raises a user error if cider is not connected"
     (spy-on 'cider-connected-p :and-return-value nil)
