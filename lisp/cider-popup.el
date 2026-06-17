@@ -116,7 +116,12 @@ We track them mostly to be able to clean them up on quit.")
 (defun cider-make-popup-buffer (name &optional mode ancillary)
   "Create a temporary buffer called NAME using major MODE (if specified).
 If ANCILLARY is non-nil, the buffer is added to `cider-ancillary-buffers'
-and automatically removed when killed."
+and automatically removed when killed.
+
+The buffer is pinned to the REPL of the session it is created from (via
+`cider--ancillary-buffer-repl') and adopts that session's project
+`default-directory', so its evaluations and project-aware commands target
+the originating session rather than relying on sesman re-resolution."
   ;; Resolve the originating REPL in the *calling* buffer's context (typically
   ;; the connection buffer, since popups are usually created inside async
   ;; response handlers).  We use it below to pin the popup to the session that

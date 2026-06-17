@@ -97,8 +97,7 @@ Show results in a different window if OTHER-WINDOW is true."
   "Return the var or resource path at point for `cider-find-dwim'.
 Inside a string we assume a resource path and use `thing-at-point'.
 Otherwise we use `cider-symbol-at-point', which recognizes Clojure symbol
-characters such as `?' and `!' that `thing-at-point' filename mode drops
-\(see #2876)."
+characters such as `?' and `!' that `thing-at-point' filename mode drops."
   (if (nth 3 (syntax-ppss))
       (thing-at-point 'filename)
     (or (cider-symbol-at-point) (thing-at-point 'filename))))

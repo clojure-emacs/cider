@@ -538,7 +538,11 @@ no linked session or there is no REPL of TYPE within the current session."
 If TYPE is nil or multi, return all REPLs.  If TYPE is a list of types,
 return only REPLs of type contained in the list.  If ENSURE is non-nil,
 throw an error if no linked session exists.  If REQUIRED-OPS is non-nil,
-filters out all the REPLs that do not support the designated ops."
+filters out all the REPLs that do not support the designated ops.
+
+If the buffer is pinned to a REPL via `cider--ancillary-buffer-repl', that
+REPL's session is used instead of the current one (taking precedence over
+`cider-default-session'); a stale pin falls through to normal resolution."
   (let* ((type (cond
                 ((listp type)
                  (mapcar #'cider-maybe-intern type))
