@@ -1905,16 +1905,14 @@ under the session's project directory.  The checking is done as follows:
   exists, only that session is considered friendly (it serves every
   buffer, regardless of project context).  When the named session has
   been quit/killed, fall through to the normal matching logic.
-* If the current buffer's name equals the value of `cider-test-report-buffer',
-  only accept the given session's repl if it equals `cider-test--current-repl'.
 * Consider if the buffer belongs to `cider-ancillary-buffers'.
 * Consider the buffer's filename, strip any Docker/TRAMP details from it.
 * Check whether that filename lives under the connection's project
   directory.
 
-Buffers outside the project directory (e.g. a dependency's source jumped
-to via `cider-find-var') are associated with their originating session
-explicitly through `cider--ancillary-buffer-repl', so they don't rely on
+Buffers associated with their originating session explicitly through
+`cider--ancillary-buffer-repl' (e.g. popups, or a dependency's source
+jumped to via `cider-find-var') resolve via that pin and don't rely on
 this matcher.
 
 The project directory is cached at connection time by
@@ -1929,13 +1927,6 @@ any nREPL requests."
      ((and cider-default-session
            (sesman-session 'CIDER cider-default-session))
       (equal (car session) cider-default-session))
-
-     ((equal (buffer-name)
-             cider-test-report-buffer)
-      (or (not cider-test--current-repl)
-          (not (buffer-live-p cider-test--current-repl))
-          (equal repl
-                 cider-test--current-repl)))
 
      ((member (buffer-name) cider-ancillary-buffers)
       t)

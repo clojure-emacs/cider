@@ -550,7 +550,6 @@ from stack), `:next-inspectable' (move point to next inspectable object)."
          (truncate-lines-p (when-let* ((b (get-buffer cider-inspector-buffer))
                                        (continue truncate-lines-defined))
                              (buffer-local-value 'truncate-lines b)))
-         (repl (cider-current-repl))
          (current-point (point)))
     (cider-make-popup-buffer cider-inspector-buffer 'cider-inspector-mode 'ancillary)
     (cider-inspector-render cider-inspector-buffer value
@@ -560,7 +559,7 @@ from stack), `:next-inspectable' (move point to next inspectable object)."
     (cider-popup-buffer-display cider-inspector-buffer cider-inspector-auto-select-buffer)
     (when cider-inspector-fill-frame (delete-other-windows))
     (with-current-buffer cider-inspector-buffer
-      (setq cider--ancillary-buffer-repl repl)
+      ;; The pin to the originating REPL is set by `cider-make-popup-buffer'.
       (cider-set-buffer-ns ns)
       (cond ((eq point-action nil) (goto-char current-point))
             ((eq point-action :next-inspectable) (ignore-errors (cider-inspector-next-inspectable-object 1)))
