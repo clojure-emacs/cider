@@ -401,6 +401,9 @@ COMMENT-POSTFIX is the text to output after the last line."
     (cider-make-eval-handler
      :buffer buffer
      :on-value (lambda (value) (setq res (concat res value)))
+     ;; Forward stdout to the usual interactive sink so output like the
+     ;; `time' macro's "Elapsed time" line isn't silently dropped (#3732).
+     :on-stdout #'cider-emit-interactive-eval-output
      :on-stderr (lambda (err) (setq res (concat res err)))
      :on-done (lambda ()
                 (with-current-buffer buffer
