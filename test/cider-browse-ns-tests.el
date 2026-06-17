@@ -68,6 +68,19 @@
       (goto-char (point-min))
       (expect (not (search-forward "blank" nil t))))))
 
+(describe "cider-browse-ns--thing-at-point"
+  :var (cider-browse-ns-buffer)
+  (it "treats single-segment namespaces in the all-namespaces listing as namespaces (#3221)"
+    (spy-on 'cider-sync-request:ns-list :and-return-value '("user" "clojure.core"))
+    (with-temp-buffer
+      (setq cider-browse-ns-buffer (buffer-name (current-buffer)))
+      (cider-browse-ns-all)
+      ;; point at the very start of the "user" line, on the leading whitespace
+      (goto-char (point-min))
+      (search-forward "user")
+      (beginning-of-line)
+      (expect (cider-browse-ns--thing-at-point) :to-equal '(ns "user")))))
+
 (describe "cider-browse-ns--first-doc-line"
   (it "returns Not documented if the doc string is missing"
     (expect (cider-browse-ns--first-doc-line nil)
