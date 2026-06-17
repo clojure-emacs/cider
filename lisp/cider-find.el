@@ -93,12 +93,22 @@ Show results in a different window if OTHER-WINDOW is true."
           (let ((current-prefix-arg (if current-prefix-arg nil '(4))))
             (call-interactively callback)))))))
 
+(defun cider--find-dwim-thing-at-point ()
+  "Return the var or resource path at point for `cider-find-dwim'.
+Inside a string we assume a resource path and use `thing-at-point'.
+Otherwise we use `cider-symbol-at-point', which recognizes Clojure symbol
+characters such as `?' and `!' that `thing-at-point' filename mode drops
+\(see #2876)."
+  (if (nth 3 (syntax-ppss))
+      (thing-at-point 'filename)
+    (or (cider-symbol-at-point) (thing-at-point 'filename))))
+
 (defun cider--find-dwim-interactive (prompt)
   "Get interactive arguments for jump-to functions using PROMPT as needed."
-  (if (cider--prompt-for-symbol-p current-prefix-arg)
-      (list
-       (cider-read-from-minibuffer prompt (thing-at-point 'filename)))
-    (list (or (thing-at-point 'filename) ""))))  ; No prompt.
+  (let ((thing (cider--find-dwim-thing-at-point)))
+    (if (cider--prompt-for-symbol-p current-prefix-arg)
+        (list (cider-read-from-minibuffer prompt thing))
+      (list (or thing "")))))  ; No prompt.
 
 (defun cider-find-dwim-other-window (symbol-file)
   "Jump to SYMBOL-FILE at point, place results in other window."
