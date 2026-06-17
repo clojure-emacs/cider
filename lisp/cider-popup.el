@@ -27,6 +27,9 @@
 
 (require 'subr-x)
 
+(declare-function cider-current-repl "cider-session")
+(defvar cider--ancillary-buffer-repl)
+
 (define-minor-mode cider-popup-buffer-mode
   "Mode for CIDER popup buffers."
   :lighter (" cider-tmp")
@@ -114,23 +117,36 @@ We track them mostly to be able to clean them up on quit.")
   "Create a temporary buffer called NAME using major MODE (if specified).
 If ANCILLARY is non-nil, the buffer is added to `cider-ancillary-buffers'
 and automatically removed when killed."
-  (with-current-buffer (get-buffer-create name)
-    (kill-all-local-variables)
-    (setq buffer-read-only nil)
-    (erase-buffer)
-    (when mode
-      (funcall mode))
-    (cider-popup-buffer-mode 1)
-    (setq cider-popup-output-marker (point-marker))
-    (setq buffer-read-only t)
-    (when ancillary
-      (add-to-list 'cider-ancillary-buffers name)
-      (add-hook 'kill-buffer-hook
-                (lambda ()
-                  (setq cider-ancillary-buffers
-                        (remove name cider-ancillary-buffers)))
-                nil 'local))
-    (current-buffer)))
+  ;; Resolve the originating REPL in the *calling* buffer's context (typically
+  ;; the connection buffer, since popups are usually created inside async
+  ;; response handlers).  We use it below to pin the popup to the session that
+  ;; produced it and to adopt that session's project directory.
+  (let ((repl (ignore-errors (cider-current-repl))))
+    (with-current-buffer (get-buffer-create name)
+      (kill-all-local-variables)
+      (setq buffer-read-only nil)
+      (erase-buffer)
+      (when mode
+        (funcall mode))
+      (cider-popup-buffer-mode 1)
+      (setq cider-popup-output-marker (point-marker))
+      (setq buffer-read-only t)
+      ;; Associate the popup with its originating session explicitly, instead of
+      ;; relying on sesman re-resolution from `default-directory'.  This pins
+      ;; `cider-current-repl' (see its definition) and makes project-aware
+      ;; commands (project.el, magit) operate on the session's project.
+      (when (buffer-live-p repl)
+        (setq-local cider--ancillary-buffer-repl repl)
+        (setq-local default-directory
+                    (buffer-local-value 'default-directory repl)))
+      (when ancillary
+        (add-to-list 'cider-ancillary-buffers name)
+        (add-hook 'kill-buffer-hook
+                  (lambda ()
+                    (setq cider-ancillary-buffers
+                          (remove name cider-ancillary-buffers)))
+                  nil 'local))
+      (current-buffer))))
 
 (defun cider-emit-into-popup-buffer (buffer value &optional face inhibit-indent)
   "Emit into BUFFER the provided VALUE optionally using FACE.
