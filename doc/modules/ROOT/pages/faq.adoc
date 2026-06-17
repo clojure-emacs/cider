@@ -142,17 +142,21 @@ as a workaround for that limitation.
 
 == Will CIDER eventually support the Clojure 1.8 socket REPL?
 
-Maybe. Our focus remains making the most out of nREPL, but down the road
-we might explore investing some time in adding support for additional
-REPL servers.
+Probably not. CIDER's focus is on making the most out of nREPL, and supporting
+additional REPL servers inside CIDER is no longer a goal (see our
+https://github.com/clojure-emacs/cider/blob/master/ROADMAP.md[roadmap] for the
+reasoning).
 
-TIP: There's more information about the work that needs to be done in our
-https://github.com/clojure-emacs/cider/blob/master/ROADMAP.md[roadmap] document.
+If you're after a different REPL client for Emacs, check out
+https://github.com/nrepl/neat[Neat], a language-agnostic nREPL client, and
+https://github.com/clojure-emacs/port[Port], a minimalist prepl client. Both
+came out of exactly this line of exploration.
 
 == Will CIDER eventually support the Clojure 1.10 prepl?
 
-Same answer as above. One thing is certain - prepl is much more convenient for the purposes of CIDER than
-the plain socket REPL.
+Same answer as above. One thing is certain - prepl is much more convenient for
+the purposes of a generic REPL client than the plain socket REPL, which is why
+https://github.com/clojure-emacs/port[Port] is built around it.
 
 == Is CIDER's nREPL middleware Emacs specific?
 
