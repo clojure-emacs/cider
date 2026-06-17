@@ -288,6 +288,46 @@ For the REPL type use the function `cider-repl-type'."
      ((cider-clojure-major-mode-p) 'clj)
      (cider-repl-type))))
 
+(defconst cider-eval-destinations '(clj cljs multi auto)
+  "The eval dispatch types `cider-cycle-eval-destination' cycles through.
+The `auto' entry clears `cider-repl-type-override', reverting to the
+major-mode-based inference of `cider-repl-type-for-buffer'.")
+
+(defun cider--reflect-eval-destination-in-mode-line ()
+  "Show the buffer's `cider-repl-type-override' in the mode line, if any."
+  (setq-local mode-line-process
+              (when cider-repl-type-override
+                (format " [%s]" cider-repl-type-override)))
+  (force-mode-line-update))
+
+(defun cider-set-eval-destination (type)
+  "Set the current buffer's eval dispatch (REPL type) to TYPE.
+TYPE is one of `clj', `cljs', `multi', or `auto'.  All but `auto' set
+`cider-repl-type-override' for this buffer, overriding the major-mode-based
+inference of `cider-repl-type-for-buffer' so that evaluations target the
+chosen REPL of the buffer's session; `auto' clears the override.  The choice
+is reflected in the mode line.
+
+This is handy in buffers with no inherent file type to dispatch on (e.g. the
+scratch buffer) and in `.cljc' buffers where you want to pin evaluations to a
+specific REPL."
+  (interactive (list (intern (completing-read
+                              "Eval destination: "
+                              (mapcar #'symbol-name cider-eval-destinations)
+                              nil t))))
+  (setq-local cider-repl-type-override (unless (eq type 'auto) type))
+  (cider--reflect-eval-destination-in-mode-line)
+  (message "Buffer eval destination set to `%s'" type))
+
+(defun cider-cycle-eval-destination ()
+  "Cycle the current buffer's eval dispatch through `cider-eval-destinations'.
+See `cider-set-eval-destination'."
+  (interactive)
+  (let* ((current (or cider-repl-type-override 'auto))
+         (tail (cdr (memq current cider-eval-destinations)))
+         (next (or (car tail) (car cider-eval-destinations))))
+    (cider-set-eval-destination next)))
+
 (defun cider-set-repl-type (&optional type)
   "Set REPL TYPE to clj or cljs.
 Assume that the current buffer is a REPL."
