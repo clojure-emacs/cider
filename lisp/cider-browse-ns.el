@@ -470,7 +470,11 @@ var-meta map."
 Return a list of the type (`ns' or `var') and the value."
   (let ((ns-p (get-text-property (point) 'ns))
         (line (car (split-string (string-trim (thing-at-point 'line)) " "))))
-    (if (or ns-p (string-match "\\." line))
+    ;; In the "all namespaces" listing `cider-browse-ns-current-ns' is nil and
+    ;; every line is a namespace.  Relying on the `ns' text property alone fails
+    ;; when point sits on the leading whitespace, and the `.' heuristic misses
+    ;; single-segment namespaces like `user' (#3221).
+    (if (or ns-p (null cider-browse-ns-current-ns) (string-match "\\." line))
         `(ns ,line)
       `(var ,(format "%s/%s"
                      (or (get-text-property (point) 'cider-browse-ns-current-ns)
