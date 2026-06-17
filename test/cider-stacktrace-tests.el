@@ -246,6 +246,16 @@
       (goto-char (point-min))
       (expect (cider-stacktrace-frame-p) :to-be nil))))
 
+(describe "cider-stacktrace-render-cause"
+  (it "renders a cause without a class (e.g. ClojureScript errors) instead of erroring"
+    (with-temp-buffer
+      (cider-stacktrace-render-cause
+       (current-buffer)
+       (nrepl-dict "message" "Some ClojureScript error")
+       1 "")
+      (expect (buffer-string) :to-match "Some ClojureScript error")
+      (expect (buffer-string) :to-match "Unknown exception type"))))
+
 (describe "cider-stacktrace--should-hide-p-tests"
   (it "should hide when members of the neg filters"
     (let ((hidden1 (cider-stacktrace--should-hide-p '(a b c) '() '(a)))

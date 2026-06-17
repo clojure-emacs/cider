@@ -857,7 +857,10 @@ Make INSPECT-INDEX actionable if present."
                                      ,cider-stacktrace-exception-map)
             (insert (format "%d. " num)
                     (propertize note 'font-lock-face 'font-lock-comment-face) " "
-                    (propertize class 'font-lock-face class-face 'mouse-face 'highlight)
+                    ;; ClojureScript error causes can lack a class (it's only
+                    ;; meaningful for JVM exceptions), so guard against nil.
+                    (propertize (or class "(Unknown exception type)")
+                                'font-lock-face class-face 'mouse-face 'highlight)
                     "\n"))
           ;; Detail level 1: message + ex-data
           (cider-propertize-region '(detail 1)
