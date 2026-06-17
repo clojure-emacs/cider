@@ -17,7 +17,26 @@ the REPL buffer and is very similar to Emacs's own `+*scratch*+` buffer.
 In the scratchpad, kbd:[C-j] (`cider-eval-print-last-sexp`) evaluates the
 expression before point and prints its value inline, advancing point;
 kbd:[C-u C-j] pretty-prints the result instead. `cider-scratch-reset`
-clears the buffer back to its initial state.
+clears the buffer back to its initial state (keeping its session and
+eval destination).
+
+=== Scratchpads and sessions
+
+Each CIDER session gets its own scratchpad, permanently attached to it, so
+your evaluations always go to a known session.  When you run `cider-scratch`
+from a buffer with a clear session, you land in that session's scratchpad
+(named `+*cider-scratch: SESSION*+`); when the context is ambiguous (or with
+a prefix argument), CIDER prompts you to pick one.  With no connections at
+all, you get a single, session-less `+*cider-scratch*+` buffer.  Use
+`cider-scratch-set-session` to re-attach a scratchpad to a different session.
+
+Because a scratchpad has no file extension to dispatch on, you choose where
+its evaluations go.  By default it follows `cider-clojurec-eval-destination`
+(like a `.cljc` file, i.e. both Clojure and ClojureScript REPLs of its
+session).  kbd:[C-c C-d] (`cider-scratch-cycle-eval-destination`) cycles
+between `clj`, `cljs`, and `multi`, and the current choice is shown in the
+mode line (e.g. `[multi]`).  You can also set it directly via
+`cider-scratch-set-eval-destination` or the mode menu.
 
 == Find References
 

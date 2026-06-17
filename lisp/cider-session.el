@@ -268,13 +268,21 @@ By default it assumes the connection buffer is current."
   "Return non-nil when REPL-BUFFER is currently a pending cljs repl."
   (buffer-local-value 'cider-repl-cljs-upgrade-pending repl-buffer))
 
+(defvar-local cider-repl-type-override nil
+  "When non-nil, the connection type (clj, cljs or multi) used for this buffer.
+Overrides the major-mode-based inference in `cider-repl-type-for-buffer'.
+Buffers with no inherent file type - e.g. `*cider-scratch*' - set this to
+control where their evaluations are dispatched.")
+
 (defun cider-repl-type-for-buffer (&optional buffer)
   "Return the matching connection type (clj or cljs) for BUFFER.
 BUFFER defaults to the `current-buffer'.  In cljc buffers return
-multi.  This function infers connection type based on the major mode.
+multi.  This function infers connection type based on the major mode,
+unless `cider-repl-type-override' is set.
 For the REPL type use the function `cider-repl-type'."
   (with-current-buffer (or buffer (current-buffer))
     (cond
+     (cider-repl-type-override cider-repl-type-override)
      ((cider-clojurescript-major-mode-p) 'cljs)
      ((cider-clojurec-major-mode-p) cider-clojurec-eval-destination)
      ((cider-clojure-major-mode-p) 'clj)
