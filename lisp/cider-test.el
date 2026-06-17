@@ -799,10 +799,10 @@ running them."
                             (let ((b (cider-popup-buffer
                                       cider-test-report-buffer
                                       cider-auto-select-test-report-buffer)))
-                              (with-current-buffer b
-                                ;; Change the default-directory so that it doesn't affect `sesman--linked-sessions` logic:
-                                (setq-local default-directory
-                                            (with-current-buffer "*Messages*" default-directory)))
+                              ;; `cider-make-popup-buffer' now pins the report to
+                              ;; its originating REPL and adopts that session's
+                              ;; project dir, so no `default-directory' override
+                              ;; is needed here anymore.
                               (cider-test-render-report
                                b
                                summary

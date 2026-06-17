@@ -539,33 +539,46 @@ If TYPE is nil or multi, return all REPLs.  If TYPE is a list of types,
 return only REPLs of type contained in the list.  If ENSURE is non-nil,
 throw an error if no linked session exists.  If REQUIRED-OPS is non-nil,
 filters out all the REPLs that do not support the designated ops."
-  (let ((type (cond
-               ((listp type)
-                (mapcar #'cider-maybe-intern type))
-               ((cider-maybe-intern type))))
-        ;; Gather the candidate REPLs for the current buffer.  Each branch
-        ;; produces the raw list without an `ensure' check; the single check
-        ;; below reports the absence of any linked session uniformly.
-        (repls (if cider-default-session
-                   ;; A pinned default session bypasses sesman entirely and
-                   ;; serves every buffer.  If it has been quit since being
-                   ;; pinned, warn and treat it as having no REPLs, so the
-                   ;; `ensure' check below reports the missing session.
-                   (if-let* ((session (sesman-session 'CIDER cider-default-session)))
-                       (cdr session)
-                     (message "Default CIDER session '%s' no longer exists, ignoring" cider-default-session)
-                     nil)
-                 (pcase cider-merge-sessions
-                   ;; Merge every linked session sharing the current session's
-                   ;; host into one pool of REPLs.
-                   ('host (cider--extract-connections
-                           (cider--get-sessions-with-same-host
-                            (sesman-current-session 'CIDER)
-                            (sesman-current-sessions 'CIDER))))
-                   ;; Merge all sessions linked to the current project.
-                   ('project (cider--extract-connections (sesman-current-sessions 'CIDER)))
-                   ;; No merging: use only the most relevant linked session.
-                   (_ (cdr (sesman-current-session 'CIDER)))))))
+  (let* ((type (cond
+                ((listp type)
+                 (mapcar #'cider-maybe-intern type))
+                ((cider-maybe-intern type))))
+         ;; Gather the candidate REPLs for the current buffer.  Each branch
+         ;; produces the raw list without an `ensure' check; the single check
+         ;; below reports the absence of any linked session uniformly.
+         ;; A buffer explicitly pinned to a REPL (e.g. a popup created from a
+         ;; given session) resolves against that REPL's *session*, independent
+         ;; of sesman/`default-directory'.  We resolve the session - not just the
+         ;; lone REPL - so type filtering and multi (clj+cljs) dispatch keep
+         ;; working.  Takes precedence over `cider-default-session', matching
+         ;; `cider-current-repl', which checks the pin first.  A stale pin (its
+         ;; session has been quit) falls through to normal resolution.
+         (pinned-session (and (buffer-live-p cider--ancillary-buffer-repl)
+                              (sesman-session-for-object
+                               'CIDER cider--ancillary-buffer-repl 'no-error)))
+         (repls (cond
+                 (pinned-session (cdr pinned-session))
+                 ;; A pinned default session bypasses sesman entirely and serves
+                 ;; every buffer.  If it has been quit since being pinned, warn
+                 ;; and treat it as having no REPLs, so the `ensure' check below
+                 ;; reports the missing session.
+                 (cider-default-session
+                  (if-let* ((session (sesman-session 'CIDER cider-default-session)))
+                      (cdr session)
+                    (message "Default CIDER session '%s' no longer exists, ignoring" cider-default-session)
+                    nil))
+                 (t
+                  (pcase cider-merge-sessions
+                    ;; Merge every linked session sharing the current session's
+                    ;; host into one pool of REPLs.
+                    ('host (cider--extract-connections
+                            (cider--get-sessions-with-same-host
+                             (sesman-current-session 'CIDER)
+                             (sesman-current-sessions 'CIDER))))
+                    ;; Merge all sessions linked to the current project.
+                    ('project (cider--extract-connections (sesman-current-sessions 'CIDER)))
+                    ;; No merging: use only the most relevant linked session.
+                    (_ (cdr (sesman-current-session 'CIDER))))))))
     ;; `ensure' has two distinct failure modes: no linked session at all
     ;; (reported here, matching `sesman-ensure-session') and a session that
     ;; has no REPL of the requested TYPE (reported after filtering below).
