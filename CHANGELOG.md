@@ -5,6 +5,7 @@
 ### New features
 
 - [#3964](https://github.com/clojure-emacs/cider/pull/3964): Add `cider-comment-style` to control how the eval-to-comment commands format the inserted result (`line`, `ignore` or `comment`).
+- [#3965](https://github.com/clojure-emacs/cider/pull/3965): Add `cider-send-to-comment` to copy the top-level form at point into the namespace's rich `comment` block (`C-c C-j c`), optionally evaluating it, and `cider-jump-to-comment` to visit the block (`C-c C-j v`).
 
 ## 1.22.2 (2026-06-17)
 

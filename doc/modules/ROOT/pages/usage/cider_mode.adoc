@@ -80,6 +80,14 @@ kbd:[C-c C-e]
 | kbd:[C-u C-c M-p]
 | Load the form preceding point in the REPL buffer and eval.
 
+| `cider-send-to-comment`
+| kbd:[C-c C-j c]
+| Copy the top-level form at point into the namespace's rich `comment` block (creating one if needed). With a prefix argument, also eval the form and insert its result beneath it.
+
+| `cider-jump-to-comment`
+| kbd:[C-c C-j v]
+| Move point into the namespace's rich `comment` block (creating an empty one if needed), pushing the previous location onto the mark ring.
+
 | `cider-pprint-eval-last-sexp`
 | kbd:[C-c C-v C-f e]
 | Evaluate the form preceding point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.

@@ -414,6 +414,41 @@ With `cider-eval-defun-at-point` we get:
   *e)
 ----
 
+=== Sending forms to a rich comment block
+
+The `(comment ...)` form (often called a "rich comment" or RCF) is a popular
+place to keep throwaway experiments and usage examples that live with the code
+but never run when the namespace is loaded.
+
+`cider-send-to-comment` (kbd:[C-c C-j c]) copies the top-level form at point
+into the namespace's rich `comment` block, appending it to the last top-level
+`comment` form in the buffer (or creating one at the end of the buffer if there
+isn't any). Successive entries are separated by a blank line for readability.
+Point stays where it is, so filing away an experiment never interrupts your
+editing.
+
+With a prefix argument it also evaluates the form and inserts its result
+beneath it (honoring `cider-comment-style`), turning the block into a
+self-documenting record of what you tried:
+
+[source,clojure]
+----
+(comment
+  (add 1 2)
+  ;; => 3
+  )
+----
+
+To visit the block itself, use `cider-jump-to-comment` (kbd:[C-c C-j v]). It
+moves point into the last `comment` form (creating an empty one when there is
+none), pushing your previous location onto the mark ring so kbd:[C-u C-SPC]
+takes you back.
+
+NOTE: When a namespace has more than one top-level `comment` form, both commands
+operate on the last one (rich comment blocks live at the bottom of a file by
+convention).
+
+TIP: If the rich comment workflow is new to you, https://practical.li/clojure/clojure-cli/projects/rich-comments/[Practicalli's write-up] and https://betweentwoparens.com/blog/rich-comment-blocks/[Rich Comment Blocks] are good introductions.
 
 == Keybindings
 

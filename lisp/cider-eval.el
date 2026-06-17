@@ -753,6 +753,113 @@ If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
   (interactive "P")
   (cider-pprint-form-to-comment 'cider-defun-at-point insert-before))
 
+(defun cider--last-comment-form-bounds ()
+  "Return the bounds of the last top-level `comment' form in the buffer.
+The return value is a cons (BEG . END), or nil when the buffer has no
+top-level `comment' form."
+  (save-excursion
+    (goto-char (point-max))
+    (let (beg)
+      (while (and (not beg)
+                  (re-search-backward "^(comment\\_>" nil t))
+        ;; ignore matches that sit inside a string or a line comment
+        (unless (nth 8 (syntax-ppss))
+          (setq beg (point))))
+      (when beg
+        (goto-char beg)
+        (cons beg (progn (forward-sexp) (point)))))))
+
+(defun cider--insert-in-comment (form)
+  "Append FORM to the namespace's rich `comment' block.
+Create a `comment' block at the end of the buffer when there is none.  Return
+a cons (BEG . END) of the inserted form's bounds; END is a marker so it tracks
+later insertions (the eval-to-comment handler inserts the result there)."
+  (let ((trimmed (string-trim form))
+        (bounds (cider--last-comment-form-bounds))
+        (beg (make-marker))
+        (end (make-marker)))
+    (if bounds
+        ;; append just before the closing paren of the existing block,
+        ;; preserving whether that paren hugs the last form or sits alone
+        ;; (the marker tracks the closing paren across the insertion so the
+        ;; whole, grown block gets re-indented)
+        (let ((block-end (copy-marker (cdr bounds)))
+              (after-header (save-excursion
+                              (goto-char (car bounds))
+                              (forward-char)   ; past the opening paren
+                              (forward-sexp)   ; past the `comment' symbol
+                              (point))))
+          (goto-char (1- (cdr bounds)))
+          (skip-chars-backward " \t\n")
+          ;; separate entries with a blank line for readability, but don't add
+          ;; one right after the `comment' header (i.e. when the block is empty)
+          (insert (if (> (point) after-header) "\n\n" "\n"))
+          (set-marker beg (point))
+          (insert trimmed)
+          (set-marker end (point))
+          (indent-region (car bounds) block-end))
+      ;; no block yet: create one at the end of the buffer
+      (goto-char (point-max))
+      (skip-chars-backward " \t\n")
+      (delete-region (point) (point-max))
+      (insert "\n\n")
+      (let ((block-start (point)))
+        (insert "(comment\n")
+        (set-marker beg (point))
+        (insert trimmed ")")
+        (set-marker end (1- (point)))
+        (indent-region block-start (point))))
+    (cons (marker-position beg) end)))
+
+(defun cider-send-to-comment (&optional eval)
+  "Copy the top-level form at point into the namespace's rich `comment' block.
+The form is appended to the last top-level `comment' form in the buffer,
+creating one at the end of the buffer when none exists.  Point stays where it
+is; use `cider-jump-to-comment' to visit the block.
+
+With a prefix arg EVAL, also evaluate the form and insert its result beneath
+it, honoring `cider-comment-style'."
+  (interactive "P")
+  (let ((form (cider-defun-at-point)))
+    (when (or (null form) (string-blank-p form))
+      (user-error "No top-level form at point"))
+    ;; leave point undisturbed; the eval result lands via the END marker, not
+    ;; at point, so filing a form away never moves the user
+    (save-excursion
+      (pcase-let* ((`(,_beg . ,end) (cider--insert-in-comment form))
+                   (`(,prefix ,continued ,postfix) (cider--comment-format)))
+        (when eval
+          (cider-interactive-eval
+           (string-trim form)
+           (cider-eval-pprint-with-multiline-comment-handler
+            (current-buffer) end prefix continued postfix)
+           nil
+           (cider--nrepl-print-request-plist fill-column)))))))
+
+(defun cider-jump-to-comment ()
+  "Move point into the namespace's rich `comment' block.
+Jump to the last top-level `comment' form in the buffer, creating an empty one
+at the end of the buffer when there is none.  The previous location is pushed
+onto the mark ring, so \\[universal-argument] \\[set-mark-command] returns to it."
+  (interactive)
+  (let ((bounds (cider--last-comment-form-bounds)))
+    (push-mark)
+    (if bounds
+        ;; land at the end of the block's contents, where the next experiment
+        ;; would go
+        (progn
+          (goto-char (1- (cdr bounds)))
+          (skip-chars-backward " \t\n"))
+      ;; no block yet: create an empty one and land inside it (the inserted
+      ;; text is already correctly indented)
+      (goto-char (point-max))
+      (skip-chars-backward " \t\n")
+      (delete-region (point) (point-max))
+      (insert "\n\n(comment\n  )")
+      (search-backward ")"))
+    (when (get-buffer-window (current-buffer))
+      (recenter))))
+
 (declare-function cider-switch-to-repl-buffer "cider-mode")
 
 (defun cider--eval-last-sexp-to-repl (switch-to-repl request-map)
