@@ -2,6 +2,13 @@
 
 ## master (unreleased)
 
+### Bugs fixed
+
+- [#3958](https://github.com/clojure-emacs/cider/pull/3958): Fix `cider-stacktrace` crashing on ClojureScript errors whose cause has no exception class.
+- [#3959](https://github.com/clojure-emacs/cider/pull/3959): Emit stdout (e.g. the `time` macro's "Elapsed time" line) when pretty-printing an eval result to a comment.
+- [#3960](https://github.com/clojure-emacs/cider/pull/3960): Browse single-segment namespaces (e.g. `user`) from `cider-browse-ns-all` instead of opening their docs.
+- [#3961](https://github.com/clojure-emacs/cider/pull/3961): Recognize `?` and `!` in symbols for `cider-find-dwim` (e.g. `teardown!`).
+
 ### Changes
 
 - [#3919](https://github.com/clojure-emacs/cider/issues/3919): Rename the `cider-jack-in-tools` registry key `:universal-prefix-arg` to `:dispatch-prefix-arg`, to avoid clashing with the Emacs universal-argument (`C-u`) terminology.
