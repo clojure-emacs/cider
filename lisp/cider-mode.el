@@ -202,12 +202,16 @@ With a prefix argument, prompt for function to run instead of -main."
     (define-key map (kbd "d") #'cider-insert-defun-in-repl)
     (define-key map (kbd "r") #'cider-insert-region-in-repl)
     (define-key map (kbd "n") #'cider-insert-ns-form-in-repl)
+    (define-key map (kbd "c") #'cider-send-to-comment)
+    (define-key map (kbd "v") #'cider-jump-to-comment)
 
     ;; duplicates with C- for convenience
     (define-key map (kbd "C-e") #'cider-insert-last-sexp-in-repl)
     (define-key map (kbd "C-d") #'cider-insert-defun-in-repl)
     (define-key map (kbd "C-r") #'cider-insert-region-in-repl)
     (define-key map (kbd "C-n") #'cider-insert-ns-form-in-repl)
+    (define-key map (kbd "C-c") #'cider-send-to-comment)
+    (define-key map (kbd "C-v") #'cider-jump-to-comment)
     map))
 
 (defcustom cider-switch-to-repl-on-insert t
@@ -361,6 +365,10 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ["Insert top-level sexp in REPL" cider-insert-defun-in-repl]
     ["Insert region in REPL" cider-insert-region-in-repl]
     ["Insert ns form in REPL" cider-insert-ns-form-in-repl]
+    ["Send top-level sexp to comment block" cider-send-to-comment]
+    ["Send top-level sexp to comment block and eval" (cider-send-to-comment t)
+     :keys "\\[universal-argument] \\[cider-send-to-comment]"]
+    ["Jump to comment block" cider-jump-to-comment]
     "--"
     ["Load this buffer" cider-load-buffer]
     ["Load this buffer and switch to REPL" cider-load-buffer-and-switch-to-repl-buffer]

@@ -83,6 +83,106 @@
         (cider-maybe-insert-multiline-comment "{:a 1\n :b 2}" "(comment " "" ")"))
       (expect (buffer-string) :to-equal "(comment {:a 1\n :b 2})"))))
 
+(describe "cider--last-comment-form-bounds"
+  (it "returns nil when there is no top-level comment form"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(ns foo)\n\n(defn x [] 1)\n")
+      (expect (cider--last-comment-form-bounds) :to-be nil)))
+  (it "finds the last top-level comment form"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(comment (a))\n\n(defn x [] 1)\n\n(comment (b))\n")
+      (pcase-let ((`(,beg . ,end) (cider--last-comment-form-bounds)))
+        (expect (buffer-substring-no-properties beg end) :to-equal "(comment (b))"))))
+  (it "ignores a comment form that sits inside a string"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(def s \"x\n(comment y)\")\n")
+      (expect (cider--last-comment-form-bounds) :to-be nil))))
+
+(describe "cider--insert-in-comment"
+  ;; assert via `read' so the tests don't depend on clojure-mode indentation
+  (it "creates a comment block containing the form when none exists"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(ns foo)\n\n(defn x [] 1)\n")
+      (cider--insert-in-comment "(x)")
+      (pcase-let ((`(,beg . ,end) (cider--last-comment-form-bounds)))
+        (expect (car (read-from-string (buffer-substring-no-properties beg end)))
+                :to-equal '(comment (x))))
+      ;; the original code is left intact
+      (expect (string-search "(defn x [] 1)" (buffer-string)) :not :to-be nil)))
+  (it "appends the form as the last element of an existing comment block"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(ns foo)\n\n(comment\n  (a))\n")
+      (cider--insert-in-comment "(b)")
+      (pcase-let ((`(,beg . ,end) (cider--last-comment-form-bounds)))
+        (let ((forms (car (read-from-string (buffer-substring-no-properties beg end)))))
+          (expect (car forms) :to-equal 'comment)
+          (expect (car (last forms)) :to-equal '(b))))))
+  (it "separates appended entries with a blank line"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(comment\n  (a))\n")
+      (cider--insert-in-comment "(b)")
+      (goto-char (point-min))
+      (search-forward "(a)")
+      (forward-line 1)
+      ;; the line between the two entries is blank
+      (expect (looking-at-p "[ \t]*$") :to-be-truthy)))
+  (it "returns an end marker sitting just before the block's closing paren"
+    ;; this is where the eval result is inserted (inside the block, after the form)
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(ns foo)\n\n(comment\n  (a))\n")
+      (pcase-let ((`(,_beg . ,end) (cider--insert-in-comment "(b)")))
+        (goto-char end)
+        (skip-chars-forward " \t\n")
+        (expect (char-after) :to-equal ?\)))))
+  (it "appends to the last comment form when several are present"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(comment (a))\n\n(comment (b))\n")
+      (cider--insert-in-comment "(c)")
+      ;; the first block is untouched...
+      (expect (string-search "(comment (a))" (buffer-string)) :not :to-be nil)
+      ;; ...and the form lands in the last one
+      (pcase-let ((`(,beg . ,end) (cider--last-comment-form-bounds)))
+        (let ((forms (car (read-from-string (buffer-substring-no-properties beg end)))))
+          (expect (car (last forms)) :to-equal '(c)))))))
+
+(describe "cider-jump-to-comment"
+  (it "moves point into the last comment form when one exists"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(comment (a))\n\n(defn x [] 1)\n\n(comment (b))\n")
+      (goto-char (point-min))
+      (cider-jump-to-comment)
+      (pcase-let ((`(,beg . ,end) (cider--last-comment-form-bounds)))
+        (expect (<= beg (point) end) :to-be-truthy)
+        ;; it's the last block
+        (expect (buffer-substring-no-properties beg end) :to-equal "(comment (b))"))))
+  (it "creates a comment block and moves into it when none exists"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(ns foo)\n\n(defn x [] 1)\n")
+      (goto-char (point-min))
+      (cider-jump-to-comment)
+      (pcase-let ((bounds (cider--last-comment-form-bounds)))
+        (expect bounds :not :to-be nil)
+        (expect (<= (car bounds) (point) (cdr bounds)) :to-be-truthy))))
+  (it "pushes the original location onto the mark ring"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(ns foo)\n\n(defn x [] 1)\n\n(comment (a))\n")
+      (goto-char (point-min))
+      (forward-char 4)
+      (let ((start (point)))
+        (cider-jump-to-comment)
+        (expect (marker-position (mark-marker)) :to-equal start)))))
+
 (describe "cider-extract-error-info"
   (it "Matches Clojure compilation exceptions"
     (expect (cider-extract-error-info cider-compilation-regexp "Syntax error compiling clojure.core/let at (src/haystack/analyzer.clj:18:1).\n[1] - failed: even-number-of-forms? at: [:bindings] spec: :clojure.core.specs.alpha/bindings\n")
