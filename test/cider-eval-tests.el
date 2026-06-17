@@ -41,6 +41,48 @@
         (expect 'cider-emit-interactive-eval-output
                 :to-have-been-called-with "Elapsed time: 0.042 msecs\n")))))
 
+(describe "cider--comment-format"
+  (it "returns the configured prefixes for the `line' style"
+    (let ((cider-comment-style 'line)
+          (cider-comment-prefix ";; => ")
+          (cider-comment-continued-prefix ";;    ")
+          (cider-comment-postfix ""))
+      (expect (cider--comment-format) :to-equal '(";; => " ";;    " ""))))
+  (it "wraps results in a reader ignore form for the `ignore' style"
+    (let ((cider-comment-style 'ignore))
+      (expect (cider--comment-format) :to-equal '("#_" "" ""))))
+  (it "wraps results in a comment form for the `comment' style"
+    (let ((cider-comment-style 'comment))
+      (expect (cider--comment-format) :to-equal '("(comment " "" ")")))))
+
+(describe "cider-maybe-insert-multiline-comment"
+  ;; neutralize mode-specific indentation so the assertions are deterministic
+  (it "produces a line comment for the `line' style"
+    (with-temp-buffer
+      (let ((indent-line-function #'ignore))
+        (cider-maybe-insert-multiline-comment "42" ";; => " ";;    " ""))
+      (expect (buffer-string) :to-equal ";; => 42")))
+  (it "produces a reader ignore form for the `ignore' style"
+    (with-temp-buffer
+      (let ((indent-line-function #'ignore))
+        (cider-maybe-insert-multiline-comment "42" "#_" "" ""))
+      (expect (buffer-string) :to-equal "#_42")))
+  (it "produces a comment form for the `comment' style"
+    (with-temp-buffer
+      (let ((indent-line-function #'ignore))
+        (cider-maybe-insert-multiline-comment "42" "(comment " "" ")"))
+      (expect (buffer-string) :to-equal "(comment 42)")))
+  (it "keeps a multiline result as a single navigable datum for the `ignore' style"
+    (with-temp-buffer
+      (let ((indent-line-function #'ignore))
+        (cider-maybe-insert-multiline-comment "{:a 1\n :b 2}" "#_" "" ""))
+      (expect (buffer-string) :to-equal "#_{:a 1\n :b 2}")))
+  (it "balances the closing paren for a multiline `comment' style result"
+    (with-temp-buffer
+      (let ((indent-line-function #'ignore))
+        (cider-maybe-insert-multiline-comment "{:a 1\n :b 2}" "(comment " "" ")"))
+      (expect (buffer-string) :to-equal "(comment {:a 1\n :b 2})"))))
+
 (describe "cider-extract-error-info"
   (it "Matches Clojure compilation exceptions"
     (expect (cider-extract-error-info cider-compilation-regexp "Syntax error compiling clojure.core/let at (src/haystack/analyzer.clj:18:1).\n[1] - failed: even-number-of-forms? at: [:bindings] spec: :clojure.core.specs.alpha/bindings\n")

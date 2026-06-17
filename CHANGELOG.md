@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+### New features
+
+- [#3964](https://github.com/clojure-emacs/cider/pull/3964): Add `cider-comment-style` to control how the eval-to-comment commands format the inserted result (`line`, `ignore` or `comment`).
+
 ## 1.22.2 (2026-06-17)
 
 ### Bugs fixed

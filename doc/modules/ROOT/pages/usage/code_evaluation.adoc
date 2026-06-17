@@ -302,6 +302,30 @@ prefix). By default the prefix is `=> `.
 
 To remove the prefix altogether, just set it to the empty string (`""`).
 
+=== Change the eval-to-comment style
+
+The eval-to-comment commands (e.g. `cider-eval-defun-to-comment` and
+`cider-pprint-eval-last-sexp-to-comment`) insert the evaluation result next to
+the form that produced it. The format is controlled by `cider-comment-style`:
+
+[source,lisp]
+----
+(setq cider-comment-style 'line) ;; the default
+----
+
+The available styles are:
+
+* `line` - a line comment, e.g. `+;; => 42+`. This is the default and honors the
+`cider-comment-prefix`, `cider-comment-continued-prefix` and
+`cider-comment-postfix` options.
+* `ignore` - a reader ignore form, e.g. `+#_42+`. Handy when the result is a data
+structure you want to keep as a navigable, editable Clojure datum rather than
+comment text.
+* `comment` - a `comment` form, e.g. `+(comment 42)+`.
+
+NOTE: The `ignore` and `comment` styles ignore the `cider-comment-*` prefix
+options and use their own fixed formatting.
+
 === Change the Output Destination
 
 By default CIDER will display the output produced by some evaluation in the REPL buffer, but you can also funnel the output to a dedicated buffer. You can configure this behavior via `cider-interactive-eval-output-destination`.
