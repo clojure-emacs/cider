@@ -388,6 +388,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ("REPL"
      ["Set REPL to this ns" cider-repl-set-ns]
      ["Switch to REPL" cider-switch-to-repl-buffer]
+     ["Switch to scratchpad" cider-scratch]
      ["REPL Pretty Print" cider-repl-toggle-pretty-printing
       :style toggle :selected cider-repl-use-pretty-printing]
      ["Clear latest output" cider-find-and-clear-repl-output]
@@ -395,6 +396,17 @@ If invoked with a prefix ARG eval the expression after inserting it."
       :keys "\\[universal-argument] \\[cider-find-and-clear-repl-output]"]
      "--"
      ["Configure the REPL" (customize-group 'cider-repl)])
+    ("Eval destination"
+     ["Auto (infer from major mode)" (cider-set-eval-destination 'auto)
+      :style radio :selected (null cider-repl-type-override)]
+     ["Clojure" (cider-set-eval-destination 'clj)
+      :style radio :selected (eq cider-repl-type-override 'clj)]
+     ["ClojureScript" (cider-set-eval-destination 'cljs)
+      :style radio :selected (eq cider-repl-type-override 'cljs)]
+     ["Multi (Clojure + ClojureScript)" (cider-set-eval-destination 'multi)
+      :style radio :selected (eq cider-repl-type-override 'multi)]
+     "--"
+     ["Cycle eval destination" cider-cycle-eval-destination :keys "C-c C-M-d"])
     ,cider-doc-menu
     ("Find (jump to)"
      ["Find definition" cider-find-var]
@@ -546,6 +558,7 @@ higher precedence."
     (define-key map (kbd "C-c C-t") 'cider-test-commands-map)
     (define-key map (kbd "C-c M-s") #'cider-selector)
     (define-key map (kbd "C-c M-d") #'cider-describe-connection)
+    (define-key map (kbd "C-c C-M-d") #'cider-cycle-eval-destination)
     (define-key map (kbd "C-c C-=") 'cider-profile-map)
     (define-key map (kbd "C-c C-? r") #'cider-xref-fn-refs)
     (define-key map (kbd "C-c C-? C-r") #'cider-xref-fn-refs-select)

@@ -37,9 +37,16 @@
 (require 'sesman)
 
 (defcustom cider-scratch-initial-message
-  ";; This buffer is for Clojure experiments and evaluation.\n
-;; Press C-j to evaluate the last expression.\n
-;; You can also press C-u C-j to evaluate the expression and pretty-print its result.\n\n"
+  ";; This buffer is for Clojure experiments and evaluation.
+;; It is attached to a specific CIDER session, so evaluations always
+;; target a known REPL.
+;;
+;; Press C-j to evaluate the expression before point and print its value;
+;; C-u C-j pretty-prints the result instead.
+;;
+;; Evaluations dispatch like a .cljc file by default.  Use the Clojure
+;; Interaction menu, or C-c C-M-d (`cider-cycle-eval-destination'), to send
+;; them to the Clojure, ClojureScript or both REPLs of the session.\n\n"
   "The initial message displayed in new scratch buffers."
   :type 'string
   :group 'cider
@@ -51,7 +58,6 @@
     (define-key map (kbd "C-j") #'cider-eval-print-last-sexp)
     (define-key map [remap paredit-newline] #'cider-eval-print-last-sexp)
     (define-key map [remap paredit-C-j] #'cider-eval-print-last-sexp)
-    (define-key map (kbd "C-c C-d") #'cider-scratch-cycle-eval-destination)
     (easy-menu-define cider-clojure-interaction-mode-menu map
       "Menu for Clojure Interaction mode"
       '("Clojure Interaction"
@@ -59,14 +65,17 @@
         ["Eval and pretty-print last sexp" (cider-eval-print-last-sexp '(4))
          :keys "C-u C-j"]
         "--"
-        ["Cycle eval destination" cider-scratch-cycle-eval-destination]
         ("Eval destination"
-         ["Clojure" (cider-scratch-set-eval-destination 'clj)
+         ["Auto (infer from major mode)" (cider-set-eval-destination 'auto)
+          :style radio :selected (null cider-repl-type-override)]
+         ["Clojure" (cider-set-eval-destination 'clj)
           :style radio :selected (eq cider-repl-type-override 'clj)]
-         ["ClojureScript" (cider-scratch-set-eval-destination 'cljs)
+         ["ClojureScript" (cider-set-eval-destination 'cljs)
           :style radio :selected (eq cider-repl-type-override 'cljs)]
-         ["Multi (Clojure + ClojureScript)" (cider-scratch-set-eval-destination 'multi)
-          :style radio :selected (eq cider-repl-type-override 'multi)])
+         ["Multi (Clojure + ClojureScript)" (cider-set-eval-destination 'multi)
+          :style radio :selected (eq cider-repl-type-override 'multi)]
+         "--"
+         ["Cycle eval destination" cider-cycle-eval-destination :keys "C-c C-M-d"])
         "--"
         ["Attach to session..." cider-scratch-set-session]
         ["Reset" cider-scratch-reset]))
@@ -75,9 +84,6 @@
 (defconst cider-scratch-buffer-name "*cider-scratch*"
   "Name of the session-less scratch buffer.
 Per-session scratch buffers are named `*cider-scratch: SESSION*'.")
-
-(defconst cider-scratch--eval-destinations '(clj cljs multi)
-  "The dispatch modes a scratch buffer can cycle through.")
 
 (defun cider-scratch--buffer-name (session-name)
   "Return the scratch buffer name for SESSION-NAME (nil for the session-less one)."
@@ -126,12 +132,6 @@ before point, and prints its value into the buffer, advancing point.
   "Insert the welcome message for the scratch buffer."
   (insert cider-scratch-initial-message))
 
-(defun cider-scratch--update-mode-line ()
-  "Reflect the current eval destination in the mode line."
-  (setq-local mode-line-process
-              (format " [%s]" (or cider-repl-type-override 'clj)))
-  (force-mode-line-update))
-
 (defun cider-scratch--attach (repl)
   "Associate the current scratch buffer with REPL's session.
 When REPL is a live buffer, pin the scratch to it (via
@@ -146,7 +146,7 @@ already been chosen for this buffer."
   (unless cider-repl-type-override
     ;; cljc-style dispatch by default; the user can cycle it per buffer.
     (setq-local cider-repl-type-override cider-clojurec-eval-destination))
-  (cider-scratch--update-mode-line))
+  (cider--reflect-eval-destination-in-mode-line))
 
 (defun cider-scratch--create-buffer (name repl)
   "Create scratch buffer NAME and attach it to REPL's session."
@@ -155,24 +155,6 @@ already been chosen for this buffer."
     (cider-scratch--attach repl)
     (cider-scratch--insert-welcome-message)
     (current-buffer)))
-
-(defun cider-scratch-set-eval-destination (type)
-  "Set this scratch buffer's eval dispatch to TYPE (clj, cljs or multi)."
-  (interactive (list (intern (completing-read
-                              "Scratch eval destination: "
-                              (mapcar #'symbol-name cider-scratch--eval-destinations)
-                              nil t))))
-  (setq-local cider-repl-type-override type)
-  (cider-scratch--update-mode-line)
-  (message "Scratch eval destination set to `%s'" type))
-
-(defun cider-scratch-cycle-eval-destination ()
-  "Cycle this scratch buffer's eval dispatch through clj, cljs and multi."
-  (interactive)
-  (let* ((current (or cider-repl-type-override (car cider-scratch--eval-destinations)))
-         (tail (cdr (memq current cider-scratch--eval-destinations)))
-         (next (or (car tail) (car cider-scratch--eval-destinations))))
-    (cider-scratch-set-eval-destination next)))
 
 (defun cider-scratch-set-session ()
   "Attach the current scratch buffer to an explicitly chosen session.

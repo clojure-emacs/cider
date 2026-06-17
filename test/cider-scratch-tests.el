@@ -30,33 +30,11 @@
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
-(describe "cider-repl-type-for-buffer override"
-  (it "honors a buffer-local cider-repl-type-override"
-    (with-temp-buffer
-      (cider-clojure-interaction-mode)
-      ;; a plain Clojure-interaction buffer would otherwise infer `clj'
-      (expect (cider-repl-type-for-buffer) :to-equal 'clj)
-      (setq-local cider-repl-type-override 'multi)
-      (expect (cider-repl-type-for-buffer) :to-equal 'multi))))
-
 (describe "cider-scratch--buffer-name"
   (it "is session-less without a session name"
     (expect (cider-scratch--buffer-name nil) :to-equal cider-scratch-buffer-name))
   (it "embeds the session name when given one"
     (expect (cider-scratch--buffer-name "proj@host") :to-equal "*cider-scratch: proj@host*")))
-
-(describe "cider-scratch-cycle-eval-destination"
-  (it "cycles clj -> cljs -> multi -> clj and reflects it in the mode line"
-    (with-temp-buffer
-      (cider-clojure-interaction-mode)
-      (setq-local cider-repl-type-override 'clj)
-      (cider-scratch-cycle-eval-destination)
-      (expect cider-repl-type-override :to-equal 'cljs)
-      (cider-scratch-cycle-eval-destination)
-      (expect cider-repl-type-override :to-equal 'multi)
-      (expect mode-line-process :to-equal " [multi]")
-      (cider-scratch-cycle-eval-destination)
-      (expect cider-repl-type-override :to-equal 'clj))))
 
 (describe "cider-scratch per-session attachment"
   :var (sesman-sessions-hashmap sesman-links-alist)

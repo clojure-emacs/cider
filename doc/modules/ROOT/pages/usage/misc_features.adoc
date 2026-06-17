@@ -33,10 +33,15 @@ all, you get a single, session-less `+*cider-scratch*+` buffer.  Use
 Because a scratchpad has no file extension to dispatch on, you choose where
 its evaluations go.  By default it follows `cider-clojurec-eval-destination`
 (like a `.cljc` file, i.e. both Clojure and ClojureScript REPLs of its
-session).  kbd:[C-c C-d] (`cider-scratch-cycle-eval-destination`) cycles
-between `clj`, `cljs`, and `multi`, and the current choice is shown in the
-mode line (e.g. `[multi]`).  You can also set it directly via
-`cider-scratch-set-eval-destination` or the mode menu.
+session).  kbd:[C-c C-M-d] (`cider-cycle-eval-destination`) cycles between
+`clj`, `cljs`, `multi`, and `auto` (infer from the major mode), and the
+current choice is shown in the mode line (e.g. `[multi]`).  You can also set it
+directly via `cider-set-eval-destination` or the mode menu.
+
+TIP: `cider-set-eval-destination` and `cider-cycle-eval-destination` work in any
+buffer, not just the scratchpad - they are handy in `.cljc` buffers too, when
+you want to pin evaluations to a specific REPL instead of the
+`cider-clojurec-eval-destination` default.
 
 == Find References
 
