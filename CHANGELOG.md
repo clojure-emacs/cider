@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 1.22.2 (2026-06-17)
+
 ### Bugs fixed
 
 - [#3958](https://github.com/clojure-emacs/cider/pull/3958): Fix `cider-stacktrace` crashing on ClojureScript errors whose cause has no exception class.
@@ -12,6 +14,10 @@
 ### Changes
 
 - [#3919](https://github.com/clojure-emacs/cider/issues/3919): Rename the `cider-jack-in-tools` registry key `:universal-prefix-arg` to `:dispatch-prefix-arg`, to avoid clashing with the Emacs universal-argument (`C-u`) terminology.
+
+## 1.22.1 (2026-06-16)
+
+No user-visible changes. This release was done solely to fix a problem with the docs site.
 
 ## 1.22.0 (2026-06-16)
 
