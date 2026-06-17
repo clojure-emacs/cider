@@ -31,6 +31,16 @@
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
+(describe "cider-eval-pprint-with-multiline-comment-handler"
+  (it "forwards stdout to the interactive eval output sink (#3732)"
+    (spy-on 'cider-emit-interactive-eval-output)
+    (with-temp-buffer
+      (let ((handler (cider-eval-pprint-with-multiline-comment-handler
+                      (current-buffer) (point-marker) ";; => " ";;    " "")))
+        (funcall handler (nrepl-dict "out" "Elapsed time: 0.042 msecs\n"))
+        (expect 'cider-emit-interactive-eval-output
+                :to-have-been-called-with "Elapsed time: 0.042 msecs\n")))))
+
 (describe "cider-extract-error-info"
   (it "Matches Clojure compilation exceptions"
     (expect (cider-extract-error-info cider-compilation-regexp "Syntax error compiling clojure.core/let at (src/haystack/analyzer.clj:18:1).\n[1] - failed: even-number-of-forms? at: [:bindings] spec: :clojure.core.specs.alpha/bindings\n")
