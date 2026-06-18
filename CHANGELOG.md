@@ -8,6 +8,7 @@
 - [#3965](https://github.com/clojure-emacs/cider/pull/3965): Add `cider-send-to-comment` to copy the top-level form at point into the namespace's rich `comment` block (`C-c C-j c`), optionally evaluating it, and `cider-jump-to-comment` to visit the block (`C-c C-j v`).
 - [#3963](https://github.com/clojure-emacs/cider/pull/3963): Attach `cider-scratch` buffers to a specific session (one scratchpad per session), with a configurable eval destination (cljc-style by default).
 - [#3966](https://github.com/clojure-emacs/cider/pull/3966): Add `cider-set-eval-destination` and `cider-cycle-eval-destination` (`C-c C-M-d`) to override, per buffer, which REPL type (clj, cljs or multi) evaluations dispatch to.
+- [#3969](https://github.com/clojure-emacs/cider/pull/3969): Show ClojureDocs examples inline in the `*cider-doc*` buffer, toggled with `e` (`cider-docview-clojuredocs-examples`) or shown automatically when `cider-doc-show-clojuredocs-examples` is enabled.
 
 ### Changes
 

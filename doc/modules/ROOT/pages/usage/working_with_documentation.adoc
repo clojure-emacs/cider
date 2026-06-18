@@ -86,10 +86,19 @@ results as a list in the minibuffer, so you can quickly select what you need (es
 == ClojureDocs
 
 CIDER provides integration with the popular https://clojuredocs.org/[ClojureDocs service].
-You've got two main ways of interacting with ClojureDocs:
+You've got a few ways of interacting with ClojureDocs:
 
 * displaying the documentation in a dedicated buffer in Emacs via `cider-clojuredocs` (kbd:[C-c C-d C-c])
 * opening the documentation in your default browser via `cider-clojuredocs-web` (kbd:[C-c C-d C-w])
+* showing the crowd-sourced examples right inside the `*cider-doc*` buffer
+
+In a `*cider-doc*` buffer, press kbd:[e] (`cider-docview-clojuredocs-examples`), or
+click the button at the bottom of the buffer, to toggle the ClojureDocs examples
+for the symbol you're looking at. They're fetched on first use and cached, so
+toggling them on and off is instant. Set `cider-doc-show-clojuredocs-examples` to a
+non-nil value to have them shown automatically whenever you open the doc buffer,
+and `cider-doc-clojuredocs-max-examples` to control how many are shown inline (a
+link to the full ClojureDocs entry is shown when there are more).
 
 The documentation is bundled with `cider-nrepl` as an EDN resource (or more
 precisely - with `orchard`, which is dependency of `cider-nrepl`) and it's a

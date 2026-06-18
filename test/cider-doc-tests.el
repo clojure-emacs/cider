@@ -27,8 +27,45 @@
 
 (require 'buttercup)
 (require 'cider-doc)
+(require 'nrepl-dict)
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
+(describe "cider-docview--insert-clojuredocs-examples"
+  (it "inserts the examples capped at `cider-doc-clojuredocs-max-examples'"
+    (with-temp-buffer
+      (let ((cider-doc-clojuredocs-max-examples 2))
+        (cider-docview--insert-clojuredocs-examples
+         (nrepl-dict "examples" '("(ex-a)" "(ex-b)" "(ex-c)"))))
+      (let ((contents (buffer-string)))
+        (expect (string-search "ClojureDocs Examples" contents) :not :to-be nil)
+        (expect (string-search "(ex-a)" contents) :not :to-be nil)
+        (expect (string-search "(ex-b)" contents) :not :to-be nil)
+        ;; the third example is over the cap, so only the link to the rest shows
+        (expect (string-search "(ex-c)" contents) :to-be nil)
+        (expect (string-search "1 more example" contents) :not :to-be nil))))
+  (it "inserts nothing when the symbol has no examples"
+    (with-temp-buffer
+      (cider-docview--insert-clojuredocs-examples (nrepl-dict "examples" nil))
+      (expect (buffer-string) :to-equal ""))))
+
+(describe "cider-docview--refresh-clojuredocs-footer"
+  (it "expands examples with a Hide toggle, and collapses to a Show toggle"
+    (with-temp-buffer
+      (setq-local cider-docview--clojuredocs-beg (point-marker))
+      (setq-local cider-docview--clojuredocs-data (nrepl-dict "examples" '("(ex)")))
+      ;; expanded
+      (setq-local cider-docview--clojuredocs-shown t)
+      (cider-docview--refresh-clojuredocs-footer)
+      (let ((contents (buffer-string)))
+        (expect (string-search "Hide ClojureDocs examples" contents) :not :to-be nil)
+        (expect (string-search "(ex)" contents) :not :to-be nil))
+      ;; collapsed
+      (setq-local cider-docview--clojuredocs-shown nil)
+      (cider-docview--refresh-clojuredocs-footer)
+      (let ((contents (buffer-string)))
+        (expect (string-search "Show ClojureDocs examples" contents) :not :to-be nil)
+        (expect (string-search "(ex)" contents) :to-be nil)))))
 
 (describe "cider--abbreviate-file-protocol"
   (it "Removes the file or jar part"

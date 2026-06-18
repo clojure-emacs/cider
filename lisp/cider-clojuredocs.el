@@ -52,6 +52,20 @@
                 (cider-nrepl-send-sync-request)
                 (nrepl-dict-get "status")))
 
+(defun cider-clojuredocs--lookup-async (ns sym callback)
+  "Asynchronously perform a \"clojuredocs-lookup\" for SYM in NS.
+CALLBACK is invoked with the resulting dict, or nil when there is none (e.g.
+the symbol has no ClojureDocs entry, or the middleware is unavailable)."
+  (let (result)
+    (cider-nrepl-send-request
+     `("op" "cider/clojuredocs-lookup" "ns" ,ns "sym" ,sym)
+     (lambda (response)
+       (nrepl-dbind-response response (clojuredocs status)
+         (when clojuredocs
+           (setq result clojuredocs))
+         (when (member "done" status)
+           (funcall callback result)))))))
+
 (defun cider-clojuredocs-replace-special (name)
   "Convert the dashes in NAME to a ClojureDocs friendly format.
 We need to handle \"?\", \".\", \"..\" and \"/\"."

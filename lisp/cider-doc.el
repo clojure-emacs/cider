@@ -57,6 +57,22 @@
   :group 'cider-doc
   :package-version  '(cider . "0.15.0"))
 
+(defcustom cider-doc-show-clojuredocs-examples nil
+  "Whether to show ClojureDocs examples in the doc buffer automatically.
+When non-nil, `cider-doc' fetches ClojureDocs examples for the symbol and
+appends them to the `*cider-doc*' buffer.  When nil, the buffer instead shows
+a button (and the \\`e' key) to fetch them on demand."
+  :type 'boolean
+  :group 'cider-doc
+  :package-version '(cider . "1.23.0"))
+
+(defcustom cider-doc-clojuredocs-max-examples 3
+  "Maximum number of ClojureDocs examples to show inline in the doc buffer.
+A link to the full ClojureDocs entry is shown when more examples exist."
+  :type 'integer
+  :group 'cider-doc
+  :package-version '(cider . "1.23.0"))
+
 (declare-function cider-apropos "cider-apropos")
 (declare-function cider-apropos-select "cider-apropos")
 (declare-function cider-apropos-documentation "cider-apropos")
@@ -156,6 +172,7 @@
     (define-key map "q" #'cider-popup-buffer-quit-function)
     (define-key map "g" #'cider-docview-clojuredocs)
     (define-key map "G" #'cider-docview-clojuredocs-web)
+    (define-key map "e" #'cider-docview-clojuredocs-examples)
     (define-key map "j" #'cider-docview-javadoc)
     (define-key map "s" #'cider-docview-source)
     (define-key map (kbd "<backtab>") #'backward-button)
@@ -163,6 +180,7 @@
     (easy-menu-define cider-docview-mode-menu map
       "Menu for CIDER's doc mode"
       `("CiderDoc"
+        ["Toggle ClojureDocs examples" cider-docview-clojuredocs-examples]
         ["Look up in Clojuredocs" cider-docview-clojuredocs]
         ["Look up in Clojuredocs (browser)" cider-docview-clojuredocs-web]
         ["JavaDoc in browser" cider-docview-javadoc]
@@ -176,6 +194,19 @@
 (defvar cider-docview-javadoc-url)
 (defvar cider-docview-file)
 (defvar cider-docview-line)
+
+(defvar-local cider-docview--clojuredocs-beg nil
+  "Marker at the start of the ClojureDocs footer in the doc buffer.
+Everything from this marker to the end of the buffer is managed by the
+ClojureDocs-examples machinery and rewritten as examples are toggled.")
+
+(defvar-local cider-docview--clojuredocs-data nil
+  "Cached ClojureDocs lookup result for the doc buffer's symbol.
+Nil until the examples have been fetched once; afterwards it holds the
+result dict (possibly empty), so toggling visibility never re-fetches.")
+
+(defvar-local cider-docview--clojuredocs-shown nil
+  "Whether the ClojureDocs examples are currently expanded in the doc buffer.")
 
 (define-derived-mode cider-docview-mode help-mode "Doc"
   "Major mode for displaying CIDER documentation.
@@ -257,6 +288,123 @@ opposite of what that option dictates."
   (if cider-buffer-ns
       (cider-clojuredocs-web-lookup cider-docview-symbol)
     (error "%s cannot be looked up on ClojureDocs" cider-docview-symbol)))
+
+(declare-function cider-clojuredocs--lookup-async "cider-clojuredocs")
+
+(defun cider-docview--insert-clojuredocs-toggle (label)
+  "Insert a button labeled LABEL that toggles the ClojureDocs examples."
+  (insert-text-button label
+                      'follow-link t
+                      'action (lambda (_) (cider-docview-clojuredocs-examples)))
+  (insert "\n"))
+
+(defun cider-docview--insert-clojuredocs-examples (dict)
+  "Insert the ClojureDocs examples from DICT at point.
+Show at most `cider-doc-clojuredocs-max-examples', with a link to the full
+ClojureDocs entry when more exist.  Insert nothing when DICT has no examples."
+  (when-let* ((examples (nrepl-dict-get dict "examples")))
+    (let ((shown (seq-take examples cider-doc-clojuredocs-max-examples)))
+      (insert (propertize "ClojureDocs Examples" 'font-lock-face 'font-lock-function-name-face)
+              "\n\n")
+      (dolist (example shown)
+        (insert (cider-font-lock-as-clojure example) "\n")
+        (insert (propertize (make-string 60 ?-) 'font-lock-face 'cider-docview-table-border-face)
+                "\n"))
+      (when (> (length examples) (length shown))
+        (insert-text-button (format "%d more example(s) on ClojureDocs"
+                                    (- (length examples) (length shown)))
+                            'follow-link t
+                            'action (lambda (_) (cider-docview-clojuredocs)))
+        (insert "\n")))))
+
+(defun cider-docview--refresh-clojuredocs-footer ()
+  "Redraw the ClojureDocs footer from the buffer-local shown/cache state.
+Show the examples (with a \"Hide\" toggle) when expanded, otherwise just a
+\"Show\" toggle."
+  (when (and cider-docview--clojuredocs-beg
+             (marker-position cider-docview--clojuredocs-beg))
+    (let ((inhibit-read-only t))
+      (delete-region cider-docview--clojuredocs-beg (point-max))
+      (save-excursion
+        (goto-char (point-max))
+        (if (and cider-docview--clojuredocs-shown
+                 cider-docview--clojuredocs-data
+                 (nrepl-dict-get cider-docview--clojuredocs-data "examples"))
+            (progn
+              (cider-docview--insert-clojuredocs-toggle "[ Hide ClojureDocs examples ]")
+              (insert "\n")
+              (cider-docview--insert-clojuredocs-examples cider-docview--clojuredocs-data))
+          (cider-docview--insert-clojuredocs-toggle "[ Show ClojureDocs examples ]"))))))
+
+(defun cider-docview--fetch-clojuredocs-examples ()
+  "Fetch ClojureDocs examples for the current symbol, then show them.
+Cache the result so subsequent toggles don't re-fetch."
+  (let ((buffer (current-buffer))
+        (symbol cider-docview-symbol))
+    (when (and cider-docview--clojuredocs-beg
+               (marker-position cider-docview--clojuredocs-beg))
+      (let ((inhibit-read-only t))
+        (delete-region cider-docview--clojuredocs-beg (point-max))
+        (save-excursion
+          (goto-char (point-max))
+          (insert (propertize "Fetching ClojureDocs examples..."
+                              'font-lock-face 'font-lock-comment-face)
+                  "\n"))))
+    (cider-clojuredocs--lookup-async
+     (cider-current-ns) symbol
+     (lambda (dict)
+       (when (buffer-live-p buffer)
+         (with-current-buffer buffer
+           ;; remember the result (even when empty) so we never re-fetch
+           (setq-local cider-docview--clojuredocs-data (or dict (nrepl-dict)))
+           (if (nrepl-dict-get cider-docview--clojuredocs-data "examples")
+               (setq-local cider-docview--clojuredocs-shown t)
+             (setq-local cider-docview--clojuredocs-shown nil)
+             (message "No ClojureDocs examples for %s" symbol))
+           (cider-docview--refresh-clojuredocs-footer)))))))
+
+(defun cider-docview-clojuredocs-examples ()
+  "Toggle the display of ClojureDocs examples for the current symbol.
+The examples are fetched on first use (and cached), then shown beneath the
+documentation; invoking this again hides them.  The footer's button toggles
+them too."
+  (interactive)
+  (unless cider-docview-symbol
+    (user-error "No symbol associated with this buffer"))
+  (cond
+   ;; currently expanded -> collapse
+   (cider-docview--clojuredocs-shown
+    (setq-local cider-docview--clojuredocs-shown nil)
+    (cider-docview--refresh-clojuredocs-footer))
+   ;; already fetched -> just expand (or report there's nothing to show)
+   (cider-docview--clojuredocs-data
+    (if (nrepl-dict-get cider-docview--clojuredocs-data "examples")
+        (progn
+          (setq-local cider-docview--clojuredocs-shown t)
+          (cider-docview--refresh-clojuredocs-footer))
+      (message "No ClojureDocs examples for %s" cider-docview-symbol)))
+   ;; not fetched yet -> fetch, then show
+   (t
+    (cider-docview--fetch-clojuredocs-examples))))
+
+(defun cider-docview--setup-clojuredocs-footer (info)
+  "Set up the ClojureDocs-examples footer for INFO in the current doc buffer.
+Only applies to Clojure vars (not Java members) when the ClojureDocs
+middleware is available.  When `cider-doc-show-clojuredocs-examples' is non-nil
+the examples are fetched and shown right away; otherwise the footer starts
+collapsed with a button to reveal them."
+  (when (and (nrepl-dict-get info "ns")
+             (not (nrepl-dict-get info "class"))
+             (cider-nrepl-op-supported-p "cider/clojuredocs-lookup" nil 'skip-ensure))
+    (let ((inhibit-read-only t))
+      (goto-char (point-max))
+      (insert "\n")
+      (setq-local cider-docview--clojuredocs-beg (point-marker))
+      (setq-local cider-docview--clojuredocs-data nil)
+      (setq-local cider-docview--clojuredocs-shown nil)
+      (if cider-doc-show-clojuredocs-examples
+          (cider-docview--fetch-clojuredocs-examples)
+        (cider-docview--refresh-clojuredocs-footer)))))
 
 (defconst cider-doc-buffer "*cider-doc*")
 
@@ -568,6 +716,9 @@ favoring a COMPACT format if specified, FOR-TOOLTIP if specified."
 
       (remove-overlays)
       (cider-docview-render-info buffer info compact for-tooltip)
+
+      (unless (or compact for-tooltip)
+        (cider-docview--setup-clojuredocs-footer info))
 
       (goto-char (point-min))
       (current-buffer))))
