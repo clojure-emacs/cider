@@ -32,9 +32,17 @@
 ;;; Code:
 
 (require 'cider-mode)
+(require 'pulse)
 (require 'subr-x)
 
 (defconst cider-macroexpansion-buffer "*cider-macroexpansion*")
+
+(defcustom cider-macroexpansion-highlight-expansion t
+  "Whether to briefly highlight (pulse) the expansion after expanding.
+This makes it more obvious that the buffer's contents changed."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "1.23.0"))
 
 (defcustom cider-macroexpansion-display-namespaces 'tidy
   "Determines if namespaces are displayed in the macroexpansion buffer.
@@ -169,7 +177,9 @@ If invoked with a PREFIX argument, use \\=`macroexpand\\=` instead of
     (erase-buffer)
     (insert (format "%s" expansion))
     (goto-char (point-max))
-    (font-lock-ensure)))
+    (font-lock-ensure))
+  (when cider-macroexpansion-highlight-expansion
+    (pulse-momentary-highlight-region (point-min) (point-max))))
 
 (defun cider-redraw-macroexpansion-buffer (expansion buffer start end)
   "Redraw the macroexpansion with new EXPANSION.
@@ -182,7 +192,9 @@ and point is placed after the expanded form."
       (insert (format "%s" expansion))
       (goto-char start)
       (indent-sexp)
-      (forward-sexp))))
+      (forward-sexp)
+      (when cider-macroexpansion-highlight-expansion
+        (pulse-momentary-highlight-region start (point))))))
 
 (declare-function cider-mode "cider-mode")
 

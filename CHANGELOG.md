@@ -21,6 +21,7 @@
 - [#3967](https://github.com/clojure-emacs/cider/pull/3967): Give the cheatsheet buffer a dedicated `cider-cheatsheet-mode` with fontified section headers and `TAB`/`S-TAB` navigation between entries.
 - [#3971](https://github.com/clojure-emacs/cider/pull/3971): Add `n` and `t` keys in the macroexpansion buffer to cycle namespace display (`cider-macroexpansion-display-namespaces`) and toggle metadata (`cider-macroexpansion-print-metadata`), re-expanding in place.
 - [#3971](https://github.com/clojure-emacs/cider/pull/3971): Show a header line in the macroexpansion buffer with the active expander, display options and key hints.
+- [#3972](https://github.com/clojure-emacs/cider/pull/3972): Briefly highlight (pulse) the result after macroexpanding, both in the macroexpansion buffer and with inline `cider-macrostep` (toggle via `cider-macroexpansion-highlight-expansion` / `cider-macrostep-highlight-expansion`).
 - [#3968](https://github.com/clojure-emacs/cider/pull/3968): Add a menu and per-var key bindings to the cheatsheet buffer (`d` for docs, `c` for ClojureDocs, `w` for ClojureDocs in the browser).
 
 ## 1.22.2 (2026-06-17)
