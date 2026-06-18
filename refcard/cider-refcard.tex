@@ -60,76 +60,100 @@
 
 \begin{multicols}{2}
 
+\section{Starting CIDER}
+\begin{keylist}[labelwidth=\widthof{\keyify{C-c C-x j j}}]
+  \item[C-c C-x j j] \ns{cider-jack-in}-clj
+  \item[C-c C-x j s] \ns             -cljs
+  \item[C-c C-x c j] \ns{cider-connect}-clj
+  \item[C-c C-x c s] \ns             -cljs
+  \item[C-c C-x x] cider
+  \item[C-c C-q] cider-quit
+  \item[C-c M-r] cider-restart
+\end{keylist}
+
 \section{Programming}
 \subsection{Completion}
-
-\begin{keylist}[labelwidth=\widthof{\keyify{C-c C-c}}]
+\begin{keylist}[labelwidth=\widthof{\keyify{C-c C-? r}}]
   \item[M-TAB] complete-symbol
 \end{keylist}
 
 \subsection{Navigation}
-\begin{keylist}[labelwidth=\widthof{\keyify{C-c M-.}}]
-  \item[M-,] cider-pop-back
+\begin{keylist}[labelwidth=\widthof{\keyify{C-c C-? r}}]
   \item[M-.] cider-find-var
+  \item[M-,] cider-pop-back
+  \item[C-c C-.] cider-find-ns
+  \item[C-c C-:] cider-find-keyword
   \item[C-c M-.] cider-find-resource
+  \item[C-c C-? r] \ns{cider-xref-fn}-refs
+  \item[C-c C-? d] \ns            -deps
   \item[C-c M-s] cider-selector
 \end{keylist}
 
 \subsection{Evaluation}
-\begin{keylist}[labelwidth=\widthof{\keyify{C-c RET}}]
-  \item[C-c C-k] cider-load-buffer
-  \item[C-c C-l] cider-load-file
-  \item[C-c C-M-l] cider-load-all-files
-  \item[C-c C-v] cider-eval-commands-map
-  \item[C-c C-n] cider-eval-ns-form
-  \item[C-x C-e] \ns{cider-eval-last-sexp}
-  \item[C-c C-w] \ns                     -and-replace
-  \item[C-c M-e] \ns                     -to-repl
-  \item[C-M-x]   cider-eval-defun-at-point
-\&\item[C-c C-c] cider-eval-defun-at-point
-  \item[C-c C-p] \ns{cider-pprint-eval}-last-sexp
-  \item[C-c C-f] \ns                   -at-point
-  \item[C-c M-:] cider-read-and-eval
-  \item[C-c M-i] cider-inspect
-  \item[C-c RET] \ns{cider-macroexpand}-1
-  \item[C-c M-m] \ns                   -all
+\begin{keylist}[labelwidth=\widthof{\keyify{C-c C-M-l}}]
+  \item[C-x C-e]   \ns{cider-eval-last-sexp}
+  \item[C-c M-e]   \ns                     -to-repl
+  \item[C-M-x]     cider-eval-defun-at-point
+\&\item[C-c C-c]   cider-eval-defun-at-point
+  \item[C-c C-p]   \ns{cider-pprint-eval}-last-sexp
+  \item[C-c C-f]   \ns                   -defun-at-point
+  \item[C-c M-;]   cider-eval-defun-to-comment
+  \item[C-c M-:]   cider-read-and-eval
+  \item[C-c M-i]   cider-inspect
+  \item[C-c RET]   \ns{cider-macroexpand}-1
+  \item[C-c M-m]   \ns                   -all
 \end{keylist}
 
 \columnbreak
 
-\section{Debugging \& Testing}
-\begin{keylist}[labelwidth=\widthof{\keyify{C-c C-d C-a}}]
-\item[C-u C-M-x] cider-eval-defun-at-point
-\item[C-c M-t v] \ns{cider-toggle-trace}-var
-\item[C-c M-t n] \ns                    -ns
-\item[C-c C-t t] \ns{cider-test}-run-test
-\item[C-c C-t n] \ns            -run-ns-tests
-\item[C-c C-t l] \ns            -run-loaded-tests
-\item[C-c C-t p] \ns            -run-project-tests
-\item[C-c C-t r] \ns            -rerun-tests
-\item[C-c C-t b] \ns            -show-report
+\subsection{Loading code}
+\begin{keylist}[labelwidth=\widthof{\keyify{C-c C-M-l}}]
+  \item[C-c C-k]   cider-load-buffer
+  \item[C-c C-l]   cider-load-file
+  \item[C-c C-M-l] cider-load-all-files
+\end{keylist}
+
+\section{Namespace}
+\begin{keylist}[labelwidth=\widthof{\keyify{C-c M-n n}}]
+  \item[C-c M-n n] cider-repl-set-ns
+  \item[C-c M-n e] cider-eval-ns-form
+  \item[C-c M-n r] cider-ns-refresh
+  \item[C-c M-n b] cider-browse-ns
 \end{keylist}
 
 \section{Documentation}
-\begin{keylist}[labelwidth=\widthof{\keyify{C-c C-d C-a}}]
+\begin{keylist}[labelwidth=\widthof{\keyify{C-c C-d d}}]
   \item[C-c C-d d] cider-doc
   \item[C-c C-d j] cider-javadoc
   \item[C-c C-d a] \ns{cider-apropos}
-  \item[C-c C-d f] \ns               -documentation
+  \item[C-c C-d f] \ns          -documentation
   \item[C-c C-d c] \ns{cider-clojuredocs}
-  \item[C-c C-d w] \ns                   -web
+  \item[C-c C-d w] \ns              -web
+\end{keylist}
+
+\section{Debugging \& Testing}
+\begin{keylist}[labelwidth=\widthof{\keyify{C-u C-M-x}}]
+  \item[C-u C-M-x] cider-eval-defun-at-point
+  \item[C-c M-t v] \ns{cider-toggle-trace}-var
+  \item[C-c M-t n] \ns                    -ns
+  \item[C-c C-t t] \ns{cider-test}-run-test
+  \item[C-c C-t n] \ns            -run-ns-tests
+  \item[C-c C-t s] \ns            -run-ns-tests-with-filters
+  \item[C-c C-t l] \ns            -run-loaded-tests
+  \item[C-c C-t p] \ns            -run-project-tests
+  \item[C-c C-t a] \ns            -rerun-test
+  \item[C-c C-t r] \ns            -rerun-failed-tests
+  \item[C-c C-t f] \ns            -toggle-fail-fast
+  \item[C-c C-t b] \ns            -show-report
 \end{keylist}
 
 \section{REPL control}
-\begin{keylist}[labelwidth=\widthof{\keyify{C-c M-c}}]
-  \item[C-c M-p] cider-insert-last-sexp-in-repl
+\begin{keylist}[labelwidth=\widthof{\keyify{C-c C-z}}]
   \item[C-c C-z] cider-switch-to-repl-buffer
-  \item[C-c M-o] cider-find-and-clear-repl-buffer
+  \item[C-c M-p] cider-insert-last-sexp-in-repl
+  \item[C-c C-o] cider-find-and-clear-repl-output
   \item[C-c M-d] cider-describe-connection
-  \item[C-c M-n M-n] cider-repl-set-ns
   \item[C-c C-b] cider-interrupt
-  \item[C-c M-n M-r] cider-ns-refresh
-  \item[C-c C-q] cider-quit
 \end{keylist}
 \end{multicols}
 \end{document}
