@@ -110,14 +110,15 @@
         (cider-macroexpansion-toggle-print-metadata)
         (expect cider-macroexpansion-print-metadata :to-be nil)))))
 
-(describe "cider-macroexpansion--sexp-at-point-bounds"
-  (it "returns the bounds of the enclosing list at point"
+(describe "cider-macroexpansion--form-bounds"
+  (it "returns the bounds of the sexp before point"
     (with-temp-buffer
       (clojure-mode)
       (insert "(if x (do (println y)))")
+      ;; point right after the nested form
       (goto-char (point-min))
-      (search-forward "println")
-      (pcase-let ((`(,beg . ,end) (cider-macroexpansion--sexp-at-point-bounds)))
+      (search-forward "(println y)")
+      (pcase-let ((`(,beg . ,end) (cider-macroexpansion--form-bounds)))
         (expect (buffer-substring-no-properties beg end) :to-equal "(println y)")))))
 
 (describe "cider-redraw-macroexpansion-buffer"
