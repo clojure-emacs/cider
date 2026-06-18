@@ -200,6 +200,20 @@ Cycles through `tidy', `qualified' and `none'."
            (if cider-macroexpansion-print-metadata "on" "off"))
   (cider-macroexpand-again))
 
+(defun cider-macroexpansion--header-line ()
+  "Return the header line for the macroexpansion buffer.
+It shows the active expander and display options, plus a reminder of the
+buffer's key bindings."
+  (concat
+   (propertize (format " %s" (or cider-last-macroexpand-expander "macroexpand-1"))
+               'face 'mode-line-emphasis)
+   (format "  ns: %s  meta: %s"
+           cider-macroexpansion-display-namespaces
+           (if cider-macroexpansion-print-metadata "on" "off"))
+   "    "
+   (propertize "[g]re-expand [m/a]step [n]ns [t]meta [u]ndo [q]uit"
+               'face 'shadow)))
+
 (declare-function cider-find-var "cider-find")
 
 (defvar cider-macroexpansion-mode-map
@@ -237,7 +251,9 @@ Cycles through `tidy', `qualified' and `none'."
   "Minor mode for CIDER macroexpansion.
 
 \\{cider-macroexpansion-mode-map}"
-  :lighter " Macroexpand")
+  :lighter " Macroexpand"
+  (when cider-macroexpansion-mode
+    (setq-local header-line-format '(:eval (cider-macroexpansion--header-line)))))
 
 (provide 'cider-macroexpansion)
 
