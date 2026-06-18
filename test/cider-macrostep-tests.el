@@ -1,0 +1,104 @@
+;;; cider-macrostep-tests.el  -*- lexical-binding: t; -*-
+
+;; Copyright © 2026 Bozhidar Batsov
+
+;; This file is NOT part of GNU Emacs.
+
+;; This program is free software: you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation, either version 3 of the
+;; License, or (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see `http://www.gnu.org/licenses/'.
+
+;;; Commentary:
+
+;; Tests for the inline macro-stepping engine.
+
+;;; Code:
+
+(require 'buttercup)
+(require 'clojure-mode)
+(require 'cider-macrostep)
+
+;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
+(describe "cider-macrostep--form-bounds"
+  (it "returns the bounds of the sexp before point"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(when x (foo))")
+      ;; point is at the end, right after the whole form
+      (pcase-let ((`(,beg . ,end) (cider-macrostep--form-bounds)))
+        (expect (buffer-substring-no-properties beg end) :to-equal "(when x (foo))"))))
+  (it "targets the nested form when point is right after it"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(when x (foo))")
+      (goto-char (point-min))
+      (search-forward "(foo)")           ; point right after the nested form
+      (pcase-let ((`(,beg . ,end) (cider-macrostep--form-bounds)))
+        (expect (buffer-substring-no-properties beg end) :to-equal "(foo)")))))
+
+(describe "cider-macrostep--operator"
+  (it "returns the operator symbol of a list form"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(when x y)")
+      (expect (cider-macrostep--operator (point-min)) :to-equal "when"))))
+
+(describe "cider-macrostep-mode"
+  (it "shows a header line while active and restores buffer state on exit"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(when x a)")
+      (cider-macrostep-mode 1)
+      (expect buffer-read-only :to-be t)
+      (expect header-line-format :not :to-be nil)
+      (cider-macrostep-mode -1)
+      (expect buffer-read-only :to-be nil)
+      ;; the header line is removed entirely, not left as a buffer-local nil
+      (expect (local-variable-p 'header-line-format) :to-be nil))))
+
+(describe "cider-macrostep inline expansion"
+  (it "expands a region inline and records the original on an overlay"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(when x a)")
+      (cider-macrostep--expand-region (point-min) (point-max) "(if x (do a))")
+      (expect (string-search "(if x" (buffer-string)) :not :to-be nil)
+      (expect (length cider-macrostep--overlays) :to-equal 1)))
+  (it "collapses back to the exact original text"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(when x a)")
+      (cider-macrostep--expand-region (point-min) (point-max) "(if x (do a))")
+      (cider-macrostep--collapse-overlay (car cider-macrostep--overlays))
+      (expect (buffer-string) :to-equal "(when x a)")
+      (expect cider-macrostep--overlays :to-be nil)))
+  (it "collapsing an outer expansion removes nested ones and restores the original"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(outer)")
+      (cider-macrostep--expand-region (point-min) (point-max) "(do (inner) y)")
+      ;; step into the nested `(inner)' sub-form
+      (goto-char (point-min))
+      (search-forward "(inner)")
+      (cider-macrostep--expand-region (match-beginning 0) (match-end 0) "(z)")
+      (expect (length cider-macrostep--overlays) :to-equal 2)
+      ;; collapsing the outer expansion peels everything back
+      (let ((outer (seq-find (lambda (ov) (= 1 (overlay-get ov 'priority)))
+                             cider-macrostep--overlays)))
+        (cider-macrostep--collapse-overlay outer))
+      (expect (buffer-string) :to-equal "(outer)")
+      (expect cider-macrostep--overlays :to-be nil))))
+
+(provide 'cider-macrostep-tests)
+
+;;; cider-macrostep-tests.el ends here
