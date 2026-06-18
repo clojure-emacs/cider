@@ -13,6 +13,7 @@
 
 - [#3967](https://github.com/clojure-emacs/cider/pull/3967): Refresh the embedded Clojure cheatsheet with functions added since Clojure 1.11 (`partitionv`, `partitionv-all`, `splitv-at`, `clojure.repl.deps`, `clojure.java.process`, the `clojure.core` Java-stream helpers, and more `clojure.math` members).
 - [#3967](https://github.com/clojure-emacs/cider/pull/3967): Give the cheatsheet buffer a dedicated `cider-cheatsheet-mode` with fontified section headers and `TAB`/`S-TAB` navigation between entries.
+- [#3968](https://github.com/clojure-emacs/cider/pull/3968): Add a menu and per-var key bindings to the cheatsheet buffer (`d` for docs, `c` for ClojureDocs, `w` for ClojureDocs in the browser).
 
 ## 1.22.2 (2026-06-17)
 
