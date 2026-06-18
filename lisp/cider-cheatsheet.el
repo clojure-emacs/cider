@@ -64,7 +64,7 @@ from ClojureDocs or any other function accepting a var as an argument."
      ("Numbers"
       ("Arithmetic"
        (clojure.core + - * / quot rem mod inc dec max min abs)
-       (clojure.math floor-div floor-mod ceil floor rint round pow sqrt cbrt E exp expm1 log log10 log1p PI sin cos tan asin acos atan atan2))
+       (clojure.math floor-div floor-mod ceil floor rint round pow sqrt cbrt E exp expm1 log log10 log1p PI sin cos tan asin acos atan atan2 sinh cosh tanh to-degrees to-radians hypot signum add-exact subtract-exact multiply-exact increment-exact decrement-exact negate-exact))
       ("Arbitrary Precision Arithmetic"
        (clojure.core +\' -\' *\' inc\' dec\'))
       ("Compare"
@@ -214,7 +214,7 @@ from ClojureDocs or any other function accepting a var as an argument."
       ("Head-items"
        (clojure.core take take-while butlast drop-last for))
       ("Change"
-       (clojure.core conj concat distinct flatten group-by partition partition-all partition-by split-at split-with filter remove replace shuffle))
+       (clojure.core conj concat distinct flatten group-by partition partitionv partition-all partitionv-all partition-by split-at splitv-at split-with filter remove replace shuffle))
       ("Rearrange"
        (clojure.core reverse sort sort-by compare))
       ("Process items"
@@ -409,7 +409,9 @@ from ClojureDocs or any other function accepting a var as an argument."
      ("List loaded"
       (clojure.core loaded-libs))
      ("Load misc"
-      (clojure.core load load-file load-reader load-string)))
+      (clojure.core load load-file load-reader load-string))
+     ("Hotload deps"
+      (clojure.repl.deps add-lib add-libs sync-deps)))
     ("Concurrency"
      ("Atoms"
       (clojure.core atom swap! reset! compare-and-set! swap-vals! reset-vals!))
@@ -457,6 +459,8 @@ from ClojureDocs or any other function accepting a var as an argument."
      ("General"
       (clojure.core .. doto bean comparator enumeration-seq import iterator-seq memfn class class? bases supers type gen-class gen-interface definterface)
       (:special new set!))
+     ("Java Streams"
+      (clojure.core stream-seq! stream-reduce! stream-transduce! stream-into!))
      ("Cast"
       (clojure.core boolean byte short char int long float double bigdec bigint num cast biginteger))
      ("Exceptions"
@@ -496,7 +500,7 @@ from ClojureDocs or any other function accepting a var as an argument."
       (clojure.xml parse)
       (clojure.core xml-seq))
      ("REPL"
-      (clojure.core *1 *2 *3 *e *print-dup* *print-length* *print-level* *print-meta* *print-readably*))
+      (clojure.core *1 *2 *3 *e *repl* *print-dup* *print-length* *print-level* *print-meta* *print-readably*))
      ("Code"
       (clojure.core *compile-files* *compile-path* *file* *warn-on-reflection* compile loaded-libs test))
      ("Misc"
@@ -504,6 +508,8 @@ from ClojureDocs or any other function accepting a var as an argument."
      ("Browser / Shell"
       (clojure.java.browse browse-url)
       (clojure.java.shell sh with-sh-dir with-sh-env))
+     ("Processes"
+      (clojure.java.process start exec))
      ("EDN"
       (clojure.edn read read-string))
      ("Pretty Printing"

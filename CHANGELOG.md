@@ -9,6 +9,10 @@
 - [#3963](https://github.com/clojure-emacs/cider/pull/3963): Attach `cider-scratch` buffers to a specific session (one scratchpad per session), with a configurable eval destination (cljc-style by default).
 - [#3966](https://github.com/clojure-emacs/cider/pull/3966): Add `cider-set-eval-destination` and `cider-cycle-eval-destination` (`C-c C-M-d`) to override, per buffer, which REPL type (clj, cljs or multi) evaluations dispatch to.
 
+### Changes
+
+- [#3967](https://github.com/clojure-emacs/cider/pull/3967): Refresh the embedded Clojure cheatsheet with functions added since Clojure 1.11 (`partitionv`, `partitionv-all`, `splitv-at`, `clojure.repl.deps`, `clojure.java.process`, the `clojure.core` Java-stream helpers, and more `clojure.math` members).
+
 ## 1.22.2 (2026-06-17)
 
 ### Bugs fixed
