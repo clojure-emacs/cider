@@ -36,19 +36,15 @@
   "Find the definition of VAR, optionally at a specific LINE.
 
 Display the results in a different window."
-  (if-let* ((info (cider-var-info var)))
-      (progn
-        (when line (setq info (nrepl-dict-put info "line" line)))
-        (cider--jump-to-loc-from-info info t))
-    (user-error "Symbol `%s' not resolved" var)))
+  (let ((info (cider-ensure-var-resolved var)))
+    (when line (setq info (nrepl-dict-put info "line" line)))
+    (cider--jump-to-loc-from-info info t)))
 
 (defun cider--find-var (var &optional line)
   "Find the definition of VAR, optionally at a specific LINE."
-  (if-let* ((info (cider-var-info var)))
-      (progn
-        (when line (setq info (nrepl-dict-put info "line" line)))
-        (cider--jump-to-loc-from-info info))
-    (user-error "Symbol `%s' not resolved" var)))
+  (let ((info (cider-ensure-var-resolved var)))
+    (when line (setq info (nrepl-dict-put info "line" line)))
+    (cider--jump-to-loc-from-info info)))
 
 ;;;###autoload
 (defun cider-find-var (&optional arg var line)

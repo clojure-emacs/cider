@@ -650,6 +650,23 @@ unless ALL is truthy."
   (when (and class member)
     (cider-info-request :class class :member member :context (cider-completion-get-context t))))
 
+(defun cider-ensure-var-resolved (var &optional info)
+  "Return resolved info for VAR, or signal an actionable `user-error'.
+INFO, when non-nil, is reused as a pre-fetched `cider-var-info' result
+instead of querying again.  A nil INFO is treated as \"not pre-fetched\" and
+falls through to a query.
+
+When VAR cannot be resolved this points the user at `cider-load-buffer',
+since by far the most common cause is that the var's namespace hasn't been
+loaded into the REPL yet (or has drifted out of sync with the buffer).  This
+turns the otherwise cryptic \"not resolved\" failures into a hint that
+actually tells you what to do about it."
+  (or info
+      (cider-var-info var)
+      (user-error "%s" (substitute-command-keys
+                        (format "Can't resolve `%s' - its namespace may not be loaded; try \\[cider-load-buffer] first"
+                                (or var "symbol"))))))
+
 
 ;;; Requests
 

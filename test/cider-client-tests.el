@@ -270,6 +270,24 @@
     (expect (cider-ensure-op-supported "foo")
             :to-throw 'user-error)))
 
+(describe "cider-ensure-var-resolved"
+  (it "returns the var info when the var resolves"
+    (let ((info (nrepl-dict "ns" "user" "name" "foo")))
+      (spy-on 'cider-var-info :and-return-value info)
+      (expect (cider-ensure-var-resolved "foo") :to-equal info)))
+  (it "reuses pre-fetched info without querying again"
+    (let ((info (nrepl-dict "ns" "user" "name" "foo")))
+      (spy-on 'cider-var-info)
+      (expect (cider-ensure-var-resolved "foo" info) :to-equal info)
+      (expect 'cider-var-info :not :to-have-been-called)))
+  (it "raises an actionable user-error when the var doesn't resolve"
+    (spy-on 'cider-var-info :and-return-value nil)
+    (expect (cider-ensure-var-resolved "foo") :to-throw 'user-error)
+    (expect (cider-ensure-var-resolved "foo")
+            :to-throw 'user-error
+            (list (substitute-command-keys
+                   "Can't resolve `foo' - its namespace may not be loaded; try \\[cider-load-buffer] first")))))
+
 (describe "cider--fallback-op"
   (it "returns the namespaced op when it is supported"
     (spy-on 'nrepl-op-supported-p :and-call-fake

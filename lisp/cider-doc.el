@@ -424,7 +424,8 @@ Favor a compact rendering of docstrings."
   "Look up documentation for SYMBOL."
   (if-let* ((buffer (cider-create-doc-buffer symbol)))
       (cider-popup-buffer-display buffer cider-doc-auto-select-buffer)
-    (user-error "Symbol %s not resolved" symbol)))
+    ;; no buffer means the symbol didn't resolve; give an actionable hint
+    (cider-ensure-var-resolved symbol)))
 
 (defun cider-doc (&optional arg)
   "Open Clojure documentation in a popup buffer.

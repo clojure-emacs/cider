@@ -136,12 +136,8 @@ been evaluated yet) into an actionable message."
    ((not (cider-macroexpansion--symbol-operator-p operator))
     (user-error "`%s' is not a macro" (or operator "form")))
    (t
-    (let ((info (cider-var-info operator)))
+    (let ((info (cider-ensure-var-resolved operator)))
       (cond
-       ((null info)
-        (user-error "%s" (substitute-command-keys
-                          (format "Can't resolve `%s' - its namespace may not be loaded; try \\[cider-load-buffer] first"
-                                  operator))))
        ((nrepl-dict-get info "special-form")
         (user-error "`%s' is a special form; there's nothing to macroexpand" operator))
        ((not (nrepl-dict-get info "macro"))
