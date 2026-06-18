@@ -13,6 +13,7 @@
 - [#3976](https://github.com/clojure-emacs/cider/pull/3976): Underline the further-expandable sub-forms while inline macro stepping and move between them with `n`/`p` in `cider-macrostep-mode` (`cider-macrostep-highlight-expandable`).
 - [#3977](https://github.com/clojure-emacs/cider/pull/3977): Colorize the gensyms introduced by an inline macro expansion, each distinct gensym in its own color, so an introduced binding can be tracked (`cider-macrostep-color-gensyms`).
 - [#3978](https://github.com/clojure-emacs/cider/pull/3978): Add `cider-macrostep-expand-all` (`a` in `cider-macrostep-mode`) to fully expand the form at point inline in one step, instead of stepping level by level.
+- [#3973](https://github.com/clojure-emacs/cider/pull/3973): Indicate namespace load-state: a `cider-mode` lighter (and optional fringe) marker showing when the current buffer's namespace isn't loaded into the REPL or is stale (`cider-ns-load-state-display`), and a per-form fringe marker that turns from green to amber when you edit an evaluated form (`cider-mark-stale-after-edit`).
 
 ### Bugs fixed
 
