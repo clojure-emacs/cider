@@ -33,6 +33,7 @@
 
 (require 'clojure-mode)
 (require 'cider-eval)
+(require 'cider-ns-state)
 (require 'cider-inspiration)
 (require 'cider-test) ; required only for the menu
 (require 'cider-eldoc)
@@ -71,7 +72,8 @@ Info contains the connection type, project name and host:port endpoint."
 
 ;;;###autoload
 (defcustom cider-mode-line
-  '(:eval (format " cider[%s]" (cider--modeline-info)))
+  '(:eval (concat (format " cider[%s]" (cider--modeline-info))
+                  (cider-ns-state--lighter)))
   "Mode line lighter for cider mode.
 
 The value of this variable is a mode line template as in
@@ -1125,6 +1127,7 @@ property."
       (progn
         (setq-local sesman-system 'CIDER)
         (cider-eldoc-setup)
+        (cider-ns-state-setup)
         (add-hook 'completion-at-point-functions #'cider-complete-at-point nil t)
         (font-lock-add-keywords nil cider--static-font-lock-keywords)
         (cider-refresh-dynamic-font-lock)
@@ -1148,6 +1151,7 @@ property."
         (cider-enable-cider-completion-style 1)
         (setq next-error-function #'cider-jump-to-compilation-error))
     ;; Mode cleanup
+    (cider-ns-state-teardown)
     (mapc #'kill-local-variable '(next-error-function
                                   x-gtk-use-system-tooltips
                                   font-lock-fontify-region-function

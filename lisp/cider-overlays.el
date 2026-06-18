@@ -154,9 +154,20 @@ This function also removes itself from `post-command-hook'."
   "Face used on the fringe indicator for successful evaluation."
   :group 'cider)
 
+(defface cider-fringe-stale-face
+  '((((class color) (background light)) :foreground "orange3")
+    (((class color) (background dark)) :foreground "orange"))
+  "Face used on the fringe indicator for a form edited since it was evaluated."
+  :group 'cider
+  :package-version '(cider . "1.23.0"))
+
 (defconst cider--fringe-overlay-good
   (propertize " " 'display '(left-fringe empty-line cider-fringe-good-face))
   "The before-string property that adds a green indicator on the fringe.")
+
+(defconst cider--fringe-overlay-stale
+  (propertize " " 'display '(left-fringe empty-line cider-fringe-stale-face))
+  "The before-string property that adds a stale indicator on the fringe.")
 
 (defcustom cider-use-fringe-indicators t
   "Whether to display evaluation indicators on the left fringe."
@@ -164,6 +175,26 @@ This function also removes itself from `post-command-hook'."
   :group 'cider
   :type 'boolean
   :package-version '(cider . "0.13.0"))
+
+(defcustom cider-mark-stale-after-edit t
+  "Whether editing an evaluated form marks its fringe indicator stale.
+When non-nil, editing a top-level form that carries an evaluation fringe
+indicator recolors it (`cider-fringe-stale-face') to show the form is out of
+sync with the REPL, instead of removing the indicator outright.  Re-evaluating
+the form restores the in-sync indicator."
+  :safe #'booleanp
+  :group 'cider
+  :type 'boolean
+  :package-version '(cider . "1.23.0"))
+
+(defun cider--fringe-overlay-mark-stale (ov after-p _beg _end &optional _len)
+  "Recolor fringe indicator overlay OV to the stale face once its form is edited.
+Installed on OV's `modification-hooks': it acts only after the change (when
+AFTER-P is non-nil), then stops reacting, since the form stays stale until it
+is re-evaluated."
+  (when after-p
+    (overlay-put ov 'before-string cider--fringe-overlay-stale)
+    (overlay-put ov 'modification-hooks nil)))
 
 (defun cider--make-fringe-overlay (&optional end)
   "Place an eval indicator at the fringe before a sexp.
@@ -177,9 +208,20 @@ END is the position where the sexp ends, and defaults to point."
             (goto-char end)
           (setq end (point)))
         (clojure-forward-logical-sexp -1)
+        ;; Drop any prior indicator on this form (e.g. a stale one) so a
+        ;; re-evaluation replaces it with a fresh in-sync indicator.
+        (remove-overlays (point) end 'category 'cider-fringe-indicator)
         ;; Create the green-circle overlay.
-        (cider--make-overlay (point) end 'cider-fringe-indicator
-                             'before-string cider--fringe-overlay-good)))))
+        (let ((ov (cider--make-overlay (point) end 'cider-fringe-indicator
+                                       'before-string cider--fringe-overlay-good)))
+          (when cider-mark-stale-after-edit
+            ;; `cider--make-overlay' installs a delete-on-edit hook; swap just
+            ;; that one out for mark-stale, leaving any other hooks intact.
+            (overlay-put ov 'modification-hooks
+                         (cons #'cider--fringe-overlay-mark-stale
+                               (remq #'cider--delete-overlay
+                                     (overlay-get ov 'modification-hooks)))))
+          ov)))))
 
 (cl-defun cider--make-result-overlay (value &rest props &key where duration (type 'result)
                                             (format (concat " " cider-eval-result-prefix "%s "))

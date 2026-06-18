@@ -221,6 +221,49 @@ being set that way"
         (insert "Hello")
         (expect (overlay-count) :to-be 0)))))
 
+(describe "cider--make-fringe-overlay"
+  (it "flips the indicator to stale when the evaluated form is edited"
+    (let ((cider-use-fringe-indicators t)
+          (cider-mark-stale-after-edit t))
+      (with-temp-buffer
+        (clojure-mode)
+        (insert "(def x 1)")
+        (cider--make-fringe-overlay (point))
+        (let ((ov (car (overlays-in (point-min) (point-max)))))
+          (expect (overlay-get ov 'before-string) :to-equal cider--fringe-overlay-good)
+          (goto-char (1- (point-max)))
+          (insert "0")                  ; edit inside the form
+          (expect (overlay-get ov 'before-string) :to-equal cider--fringe-overlay-stale)
+          (expect (overlay-buffer ov) :not :to-be nil)))))   ; kept, not deleted
+
+  (it "keeps the old delete-on-edit behavior when `cider-mark-stale-after-edit' is nil"
+    (let ((cider-use-fringe-indicators t)
+          (cider-mark-stale-after-edit nil))
+      (with-temp-buffer
+        (clojure-mode)
+        (insert "(def x 1)")
+        (cider--make-fringe-overlay (point))
+        (let ((ov (car (overlays-in (point-min) (point-max)))))
+          (goto-char (1- (point-max)))
+          (insert "0")
+          (expect (overlay-buffer ov) :to-be nil)))))       ; deleted
+
+  (it "replaces a prior (stale) indicator when the form is re-evaluated"
+    (let ((cider-use-fringe-indicators t)
+          (cider-mark-stale-after-edit t))
+      (with-temp-buffer
+        (clojure-mode)
+        (insert "(def x 1)")
+        (cider--make-fringe-overlay (point))
+        (goto-char (1- (point-max)))
+        (insert "0")                    ; now stale
+        (goto-char (point-max))
+        (cider--make-fringe-overlay (point))   ; re-eval
+        (let ((ovs (overlays-in (point-min) (point-max))))
+          (expect (length ovs) :to-equal 1)
+          (expect (overlay-get (car ovs) 'before-string)
+                  :to-equal cider--fringe-overlay-good))))))
+
 (describe "cider--delete-overlay"
   :var (overlay-position)
   (it "deletes overlays"

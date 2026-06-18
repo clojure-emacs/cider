@@ -270,6 +270,61 @@ next change to the buffer contents.
 (setq cider-eval-result-duration 'change)
 ----
 
+=== Evaluation and Load-State Indicators
+
+Beyond the result overlays, CIDER can show, at a glance, which code is in sync
+with the REPL.
+
+==== Per-form fringe indicators
+
+When you evaluate a top-level form, CIDER places a small green marker in the
+left fringe next to it (`cider-fringe-good-face`).  Editing a form you've already
+evaluated turns its marker amber (`cider-fringe-stale-face`) to flag that the
+form is now out of sync with what the REPL has; re-evaluating it restores the
+green marker.
+
+This is on by default.  To turn the indicators off entirely:
+
+[source,lisp]
+----
+(setq cider-use-fringe-indicators nil)
+----
+
+To keep the indicators but restore the older behavior, where editing an
+evaluated form simply removes its marker instead of marking it stale:
+
+[source,lisp]
+----
+(setq cider-mark-stale-after-edit nil)
+----
+
+==== Namespace load-state indicator
+
+CIDER can also show whether the *whole* namespace of the current buffer is
+loaded into the REPL.  By default a marker appears in the `cider-mode` mode-line
+lighter: ` not-loaded` when the runtime doesn't know the namespace yet, and
+` stale` once you've edited the buffer since it was last loaded.  Both clear once
+you load the buffer with kbd:[C-c C-k].
+
+The state comes from the same namespace tracking CIDER already maintains, so it
+costs no extra requests; it simply stays blank until the runtime has reported
+in (and when cider-nrepl isn't present).  Choose where it's shown with
+`cider-ns-load-state-display` - a list of `mode-line` and/or `fringe`:
+
+[source,lisp]
+----
+;; default: just the mode-line marker
+(setq cider-ns-load-state-display '(mode-line))
+
+;; also mark the ns form in the fringe when the namespace isn't loaded
+(setq cider-ns-load-state-display '(mode-line fringe))
+
+;; disable it entirely
+(setq cider-ns-load-state-display nil)
+----
+
+`cider-ns-refresh-load-state` re-checks the current buffer on demand.
+
 === Auto-Save Clojure Buffers on Load
 
 Normally, CIDER prompts you to save a modified Clojure buffer when you
