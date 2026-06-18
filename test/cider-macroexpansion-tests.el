@@ -141,6 +141,42 @@
     (expect (lookup-key cider-macroexpansion-mode-map "t")
             :to-equal 'cider-macroexpansion-toggle-print-metadata)))
 
+(describe "cider-macroexpansion--operator"
+  (it "returns the leading symbol of a form"
+    (expect (cider-macroexpansion--operator "(when x y)") :to-equal "when")
+    (expect (cider-macroexpansion--operator "(defn- f [])") :to-equal "defn-")
+    (expect (cider-macroexpansion--operator "(-> x f)") :to-equal "->")))
+
+(describe "cider-macroexpansion--symbol-operator-p"
+  (it "accepts plain symbols and rejects keywords/literals"
+    (expect (cider-macroexpansion--symbol-operator-p "when") :to-be-truthy)
+    (expect (cider-macroexpansion--symbol-operator-p "->") :to-be-truthy)
+    (expect (cider-macroexpansion--symbol-operator-p ":kw") :to-be nil)
+    (expect (cider-macroexpansion--symbol-operator-p "1x") :to-be nil)
+    (expect (cider-macroexpansion--symbol-operator-p "") :to-be nil)))
+
+(describe "cider-macroexpansion--ensure-macro"
+  (it "passes for a resolvable macro"
+    (cl-letf (((symbol-function 'cider-var-info)
+               (lambda (&rest _) (nrepl-dict "macro" "true"))))
+      (expect (cider-macroexpansion--ensure-macro "when") :not :to-throw)))
+  (it "hints about loading the namespace for an unresolved symbol"
+    (cl-letf (((symbol-function 'cider-var-info) (lambda (&rest _) nil)))
+      (expect (cider-macroexpansion--ensure-macro "my.ns/foo") :to-throw 'user-error)))
+  (it "rejects special forms"
+    (cl-letf (((symbol-function 'cider-var-info)
+               (lambda (&rest _) (nrepl-dict "special-form" "true"))))
+      (expect (cider-macroexpansion--ensure-macro "if") :to-throw 'user-error)))
+  (it "rejects ordinary (non-macro) vars"
+    (cl-letf (((symbol-function 'cider-var-info)
+               (lambda (&rest _) (nrepl-dict "arglists" "([coll])"))))
+      (expect (cider-macroexpansion--ensure-macro "map") :to-throw 'user-error)))
+  (it "rejects non-symbol operators without consulting the runtime"
+    (expect (cider-macroexpansion--ensure-macro ":kw") :to-throw 'user-error))
+  (it "handles an operator containing a percent sign"
+    (cl-letf (((symbol-function 'cider-var-info) (lambda (&rest _) nil)))
+      (expect (cider-macroexpansion--ensure-macro "%") :to-throw 'user-error))))
+
 (provide 'cider-macroexpansion-tests)
 
 ;;; cider-macroexpansion-tests.el ends here
