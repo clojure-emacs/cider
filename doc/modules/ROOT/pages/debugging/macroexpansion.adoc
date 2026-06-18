@@ -1,10 +1,10 @@
 = Macroexpansion
 :experimental:
 
-Typing kbd:[C-c C-m] after some form in a source buffer or the
-REPL will show you the macro expansion of the form in a new
-buffer. You'll have access to additional keybindings in the macro
-expansion buffer (which is internally using
+Typing kbd:[C-c C-m] after some form in a source buffer or the REPL will show
+you the `macroexpand-1` expansion of the form in a new buffer; kbd:[C-c M-m]
+does the same with `macroexpand-all`. You'll have access to additional
+keybindings in the macro expansion buffer (which is internally using
 `cider-macroexpansion-mode`):
 
 |===
@@ -17,11 +17,26 @@ expansion buffer (which is internally using
 | Invoke `clojure.walk/macroexpand-all` on the form at point and replace the original form with its expansion.
 
 | kbd:[g]
-| The prior macro expansion is performed again and the current contents of the macro expansion buffer are replaced with the new expansion.
+| Re-expand the original form. This picks up the latest definition of the macro as well as any change to the display options below.
+
+| kbd:[n]
+| Cycle `cider-macroexpansion-display-namespaces` between `tidy`, `qualified` and `none`, then re-expand.
+
+| kbd:[t]
+| Toggle `cider-macroexpansion-print-metadata`, then re-expand.
 
 | kbd:[C-/] +
 kbd:[u]
 | Undo the last in-place expansion performed in the macroexpansion buffer.
+
+| kbd:[.]
+| Jump to the definition of the symbol at point.
+
+| kbd:[d]
+| Display documentation for the symbol at point.
+
+| kbd:[q]
+| Quit the macroexpansion buffer.
 |===
 
 == Configuration

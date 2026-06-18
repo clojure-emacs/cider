@@ -10,10 +10,15 @@
 - [#3966](https://github.com/clojure-emacs/cider/pull/3966): Add `cider-set-eval-destination` and `cider-cycle-eval-destination` (`C-c C-M-d`) to override, per buffer, which REPL type (clj, cljs or multi) evaluations dispatch to.
 - [#3969](https://github.com/clojure-emacs/cider/pull/3969): Show ClojureDocs examples inline in the `*cider-doc*` buffer, toggled with `e` (`cider-docview-clojuredocs-examples`) or shown automatically when `cider-doc-show-clojuredocs-examples` is enabled.
 
+### Bugs fixed
+
+- [#3971](https://github.com/clojure-emacs/cider/pull/3971): Fix `cider-macroexpand-again` (`g` in the macroexpansion buffer) to actually re-expand the form instead of redisplaying the original input.
+
 ### Changes
 
 - [#3967](https://github.com/clojure-emacs/cider/pull/3967): Refresh the embedded Clojure cheatsheet with functions added since Clojure 1.11 (`partitionv`, `partitionv-all`, `splitv-at`, `clojure.repl.deps`, `clojure.java.process`, the `clojure.core` Java-stream helpers, and more `clojure.math` members).
 - [#3967](https://github.com/clojure-emacs/cider/pull/3967): Give the cheatsheet buffer a dedicated `cider-cheatsheet-mode` with fontified section headers and `TAB`/`S-TAB` navigation between entries.
+- [#3971](https://github.com/clojure-emacs/cider/pull/3971): Add `n` and `t` keys in the macroexpansion buffer to cycle namespace display (`cider-macroexpansion-display-namespaces`) and toggle metadata (`cider-macroexpansion-print-metadata`), re-expanding in place.
 - [#3968](https://github.com/clojure-emacs/cider/pull/3968): Add a menu and per-var key bindings to the cheatsheet buffer (`d` for docs, `c` for ClojureDocs, `w` for ClojureDocs in the browser).
 
 ## 1.22.2 (2026-06-17)
