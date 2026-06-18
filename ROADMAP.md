@@ -249,3 +249,12 @@ keep that momentum - finishing the decoupling odds and ends, tightening up
 callback handling
 ([#1099](https://github.com/clojure-emacs/cider/issues/1099)), and continuing
 to prefer built-ins and shed dead code as we touch each module.
+
+### Graceful handling of unloaded namespaces
+
+A lot of CIDER commands silently do nothing (or behave confusingly) when the
+current namespace hasn't been evaluated/loaded into the REPL, or when a
+referenced var is unresolved - macroexpansion is one example, but the pattern
+is broad. We should detect these cases centrally and give an actionable hint
+(e.g. "evaluate the buffer first") instead of a silent no-op, ideally via a
+shared helper rather than ad-hoc checks scattered across commands.
