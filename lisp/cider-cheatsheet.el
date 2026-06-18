@@ -55,6 +55,16 @@ from ClojureDocs or any other function accepting a var as an argument."
                  function)
   :package-version '(cider . "1.15.0"))
 
+(defface cider-cheatsheet-section
+  '((t (:inherit font-lock-keyword-face :weight bold)))
+  "Face for top-level sections in the cheatsheet buffer."
+  :package-version '(cider . "1.23.0"))
+
+(defface cider-cheatsheet-subsection
+  '((t (:weight bold)))
+  "Face for nested sections in the cheatsheet buffer."
+  :package-version '(cider . "1.23.0"))
+
 (defconst cider-cheatsheet-hierarchy
   '(("Documentation"
      ("REPL"
@@ -614,7 +624,12 @@ LEVEL defaults to 0."
     (dolist (node hierarchy)
       (if (stringp (car node))
           (progn
-            (insert (make-string (* level 2) ?\s) (car node) "\n")
+            (insert (make-string (* level 2) ?\s)
+                    (propertize (car node)
+                                'face (if (zerop level)
+                                          'cider-cheatsheet-section
+                                        'cider-cheatsheet-subsection))
+                    "\n")
             (cider-cheatsheet--insert-hierarchy (cdr node) (1+ level)))
         (dolist (var (cider-cheatsheet--expand-vars node))
           (insert (make-string (* level 2) ?\s))
@@ -632,15 +647,27 @@ LEVEL defaults to 0."
     (cider-cheatsheet--insert-hierarchy cider-cheatsheet-hierarchy)
     (buffer-string)))
 
+(defvar cider-cheatsheet-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "TAB") #'forward-button)
+    (define-key map (kbd "<backtab>") #'backward-button)
+    map)
+  "Keymap for `cider-cheatsheet-mode'.")
+
+(define-derived-mode cider-cheatsheet-mode special-mode "Cheatsheet"
+  "Major mode for displaying the Clojure cheatsheet.
+
+\\{cider-cheatsheet-mode-map}")
+
 ;;;###autoload
 (defun cider-cheatsheet ()
   "Display cheatsheet in a popup buffer."
   (interactive)
   (with-current-buffer (cider-popup-buffer cider-cheatsheet-buffer
-                                           cider-cheatsheet-auto-select-buffer)
-    (read-only-mode -1)
-    (insert (cider-cheatsheet--buffer-contents))
-    (read-only-mode 1)
+                                           cider-cheatsheet-auto-select-buffer
+                                           #'cider-cheatsheet-mode)
+    (let ((inhibit-read-only t))
+      (insert (cider-cheatsheet--buffer-contents)))
     (goto-char (point-min))))
 
 (provide 'cider-cheatsheet)
