@@ -87,24 +87,35 @@ ARG is passed along to `undo-only'."
 (defvar cider-last-macroexpand-expression nil
   "Hold the last expression that was macroexpanded.")
 
+(defvar cider-last-macroexpand-expander nil
+  "Hold the expander used for the last macroexpansion.")
+
 (defun cider-macroexpand-expr (expander expr)
   "Macroexpand, use EXPANDER, the given EXPR."
   (when-let* ((expansion (cider-sync-request:macroexpand expander expr)))
-    (setq cider-last-macroexpand-expression expr)
+    (setq cider-last-macroexpand-expression expr
+          cider-last-macroexpand-expander expander)
     (cider-initialize-macroexpansion-buffer expansion (cider-current-ns))))
 
 (defun cider-macroexpand-expr-inplace (expander)
-  "Substitute the form preceding point with its macroexpansion using EXPANDER."
-  (interactive)
+  "Substitute the form preceding point with its macroexpansion using EXPANDER.
+This is a helper invoked by the in-place expansion commands; EXPANDER is
+required, so it is not meant to be called interactively."
   (let* ((expansion (cider-sync-request:macroexpand expander (cider-last-sexp)))
          (bounds (cons (save-excursion (clojure-backward-logical-sexp 1) (point)) (point))))
     (cider-redraw-macroexpansion-buffer
      expansion (current-buffer) (car bounds) (cdr bounds))))
 
 (defun cider-macroexpand-again ()
-  "Repeat the last macroexpansion."
+  "Repeat the last macroexpansion, re-expanding the original expression.
+This picks up the latest definition of the macro and the current value of the
+display options (see `cider-macroexpansion-display-namespaces' and
+`cider-macroexpansion-print-metadata')."
   (interactive)
-  (cider-initialize-macroexpansion-buffer cider-last-macroexpand-expression (cider-current-ns)))
+  (unless cider-last-macroexpand-expression
+    (user-error "Nothing has been macroexpanded yet"))
+  (cider-macroexpand-expr (or cider-last-macroexpand-expander "macroexpand-1")
+                          cider-last-macroexpand-expression))
 
 ;;;###autoload
 (defun cider-macroexpand-1 (&optional prefix)
@@ -168,6 +179,27 @@ and point is placed after the expanded form."
     (cider-macroexpansion-mode 1)
     (current-buffer)))
 
+(defun cider-macroexpansion-cycle-display-namespaces ()
+  "Cycle `cider-macroexpansion-display-namespaces' and re-expand.
+Cycles through `tidy', `qualified' and `none'."
+  (interactive)
+  (setq cider-macroexpansion-display-namespaces
+        (pcase cider-macroexpansion-display-namespaces
+          ('tidy 'qualified)
+          ('qualified 'none)
+          (_ 'tidy)))
+  (message "Macroexpansion namespaces: %s" cider-macroexpansion-display-namespaces)
+  (cider-macroexpand-again))
+
+(defun cider-macroexpansion-toggle-print-metadata ()
+  "Toggle `cider-macroexpansion-print-metadata' and re-expand."
+  (interactive)
+  (setq cider-macroexpansion-print-metadata
+        (not cider-macroexpansion-print-metadata))
+  (message "Macroexpansion metadata: %s"
+           (if cider-macroexpansion-print-metadata "on" "off"))
+  (cider-macroexpand-again))
+
 (declare-function cider-find-var "cider-find")
 
 (defvar cider-macroexpansion-mode-map
@@ -179,15 +211,22 @@ and point is placed after the expanded form."
     (define-key map (kbd ".") #'cider-find-var)
     (define-key map (kbd "m") #'cider-macroexpand-1-inplace)
     (define-key map (kbd "a") #'cider-macroexpand-all-inplace)
+    (define-key map (kbd "n") #'cider-macroexpansion-cycle-display-namespaces)
+    (define-key map (kbd "t") #'cider-macroexpansion-toggle-print-metadata)
     (define-key map (kbd "u") #'cider-macroexpand-undo)
     (define-key map [remap undo] #'cider-macroexpand-undo)
     (easy-menu-define cider-macroexpansion-mode-menu map
       "Menu for CIDER's macroexpansion mode"
       '("Macroexpansion"
-        ["Restart expansion" cider-macroexpand-again]
+        ["Re-expand" cider-macroexpand-again]
         ["Macroexpand-1" cider-macroexpand-1-inplace]
         ["Macroexpand-all" cider-macroexpand-all-inplace]
         ["Macroexpand-undo" cider-macroexpand-undo]
+        "--"
+        ["Cycle namespace display" cider-macroexpansion-cycle-display-namespaces]
+        ["Toggle metadata" cider-macroexpansion-toggle-print-metadata
+         :style toggle :selected cider-macroexpansion-print-metadata]
+        "--"
         ["Go to source" cider-find-var]
         ["Go to doc" cider-doc]
         ["Go to Javadoc" cider-javadoc]
