@@ -27,9 +27,13 @@
 ;;; Code:
 
 (require 'cider-doc)
+(require 'easymenu)
 (require 'map)
 (require 'seq)
 (require 'subr-x)
+
+(declare-function cider-clojuredocs-lookup "cider-clojuredocs")
+(declare-function cider-clojuredocs-web-lookup "cider-clojuredocs")
 
 (defgroup cider-cheatsheet nil
   "Clojure cheatsheet in CIDER."
@@ -647,10 +651,52 @@ LEVEL defaults to 0."
     (cider-cheatsheet--insert-hierarchy cider-cheatsheet-hierarchy)
     (buffer-string)))
 
+(defun cider-cheatsheet--var-at-point ()
+  "Return the cheatsheet var on the button at point, or nil."
+  (when-let* ((button (button-at (point))))
+    (button-get button 'var)))
+
+(defun cider-cheatsheet-doc-at-point ()
+  "Display documentation for the var at point."
+  (interactive)
+  (if-let* ((var (cider-cheatsheet--var-at-point)))
+      (cider-doc-lookup var)
+    (user-error "No var at point")))
+
+(defun cider-cheatsheet-clojuredocs-at-point ()
+  "Display ClojureDocs documentation for the var at point."
+  (interactive)
+  (if-let* ((var (cider-cheatsheet--var-at-point)))
+      (cider-clojuredocs-lookup var)
+    (user-error "No var at point")))
+
+(defun cider-cheatsheet-clojuredocs-web-at-point ()
+  "Open the ClojureDocs page for the var at point in a browser."
+  (interactive)
+  (if-let* ((var (cider-cheatsheet--var-at-point)))
+      (cider-clojuredocs-web-lookup var)
+    (user-error "No var at point")))
+
 (defvar cider-cheatsheet-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "TAB") #'forward-button)
     (define-key map (kbd "<backtab>") #'backward-button)
+    (define-key map (kbd "d") #'cider-cheatsheet-doc-at-point)
+    (define-key map (kbd "c") #'cider-cheatsheet-clojuredocs-at-point)
+    (define-key map (kbd "w") #'cider-cheatsheet-clojuredocs-web-at-point)
+    (easy-menu-define cider-cheatsheet-mode-menu map
+      "Menu for CIDER's cheatsheet."
+      '("Cheatsheet"
+        ["Documentation for var" cider-cheatsheet-doc-at-point]
+        ["ClojureDocs for var" cider-cheatsheet-clojuredocs-at-point]
+        ["ClojureDocs (web) for var" cider-cheatsheet-clojuredocs-web-at-point]
+        "--"
+        ["Next entry" forward-button]
+        ["Previous entry" backward-button]
+        "--"
+        ["Search cheatsheet..." cider-cheatsheet-select]
+        "--"
+        ["Quit" quit-window]))
     map)
   "Keymap for `cider-cheatsheet-mode'.")
 
