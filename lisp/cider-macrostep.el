@@ -34,6 +34,7 @@
 
 ;;; Code:
 
+(require 'pulse)
 (require 'seq)
 (require 'subr-x)
 
@@ -55,6 +56,12 @@ Possible values are:
   :type '(choice (const :tag "Suppress namespaces" none)
                  (const :tag "Show fully-qualified namespaces" qualified)
                  (const :tag "Show namespace aliases" tidy))
+  :group 'cider
+  :package-version '(cider . "1.23.0"))
+
+(defcustom cider-macrostep-highlight-expansion t
+  "Whether to briefly highlight (pulse) a freshly inserted inline expansion."
+  :type 'boolean
   :group 'cider
   :package-version '(cider . "1.23.0"))
 
@@ -233,7 +240,9 @@ Enter `cider-macrostep-mode' when it isn't already active."
                                           1))
               (overlay-put ov 'face 'cider-macrostep-expansion-face)
               (push ov cider-macrostep--overlays))
-            (goto-char ins-beg)))))))
+            (goto-char ins-beg)
+            (when cider-macrostep-highlight-expansion
+              (pulse-momentary-highlight-region ins-beg ins-end))))))))
 
 ;;;###autoload
 (defun cider-macrostep-expand ()
