@@ -42,6 +42,8 @@ reliably would also make a huge difference.
 * Write [good commit messages][3].
 * Mention related tickets in the commit messages (e.g. `[Fix #N] Add command ...`).
 * Update the [changelog][6].
+* If you add or change keybindings, update the [quick-reference card][9]
+  (`refcard/cider-refcard.tex`) to match.
 * [Squash related commits together][5].
 * Open a [pull request][4] that relates to *only* one subject with a clear title
   and description in grammatically correct, complete sentences.
@@ -54,3 +56,4 @@ reliably would also make a huge difference.
 [6]: https://github.com/clojure-emacs/cider/blob/master/CHANGELOG.md
 [7]: http://cider.readthedocs.org/en/latest/troubleshooting/
 [8]: https://cider.readthedocs.io/en/latest/hacking_on_cider/
+[9]: https://github.com/clojure-emacs/cider/blob/master/refcard
