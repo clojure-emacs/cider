@@ -110,6 +110,16 @@
         (cider-macroexpansion-toggle-print-metadata)
         (expect cider-macroexpansion-print-metadata :to-be nil)))))
 
+(describe "cider-macroexpansion--sexp-at-point-bounds"
+  (it "returns the bounds of the enclosing list at point"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(if x (do (println y)))")
+      (goto-char (point-min))
+      (search-forward "println")
+      (pcase-let ((`(,beg . ,end) (cider-macroexpansion--sexp-at-point-bounds)))
+        (expect (buffer-substring-no-properties beg end) :to-equal "(println y)")))))
+
 (describe "cider-redraw-macroexpansion-buffer"
   (it "replaces the region from START to END with the expansion"
     (with-temp-buffer

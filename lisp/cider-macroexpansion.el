@@ -97,14 +97,28 @@ ARG is passed along to `undo-only'."
           cider-last-macroexpand-expander expander)
     (cider-initialize-macroexpansion-buffer expansion (cider-current-ns))))
 
+(defun cider-macroexpansion--sexp-at-point-bounds ()
+  "Return the bounds (BEG . END) of the list form at point, or nil."
+  (save-excursion
+    (ignore-errors
+      (unless (looking-at-p "(")
+        (backward-up-list))
+      (when (looking-at-p "(")
+        (cons (point) (save-excursion (forward-sexp) (point)))))))
+
 (defun cider-macroexpand-expr-inplace (expander)
-  "Substitute the form preceding point with its macroexpansion using EXPANDER.
+  "Substitute the form at point with its macroexpansion using EXPANDER.
 This is a helper invoked by the in-place expansion commands; EXPANDER is
-required, so it is not meant to be called interactively."
-  (let* ((expansion (cider-sync-request:macroexpand expander (cider-last-sexp)))
-         (bounds (cons (save-excursion (clojure-backward-logical-sexp 1) (point)) (point))))
-    (cider-redraw-macroexpansion-buffer
-     expansion (current-buffer) (car bounds) (cdr bounds))))
+required, so it is not meant to be called interactively.
+
+Targeting the form at point lets you drill into a nested macro call in the
+expansion: put point on it and expand just that node."
+  (pcase-let ((`(,beg . ,end) (or (cider-macroexpansion--sexp-at-point-bounds)
+                                  (user-error "No list form at point"))))
+    (let ((expansion (cider-sync-request:macroexpand
+                      expander
+                      (buffer-substring-no-properties beg end))))
+      (cider-redraw-macroexpansion-buffer expansion (current-buffer) beg end))))
 
 (defun cider-macroexpand-again ()
   "Repeat the last macroexpansion, re-expanding the original expression.
@@ -127,7 +141,7 @@ If invoked with a PREFIX argument, use \\=`macroexpand\\=` instead of
     (cider-macroexpand-expr expander (cider-last-sexp))))
 
 (defun cider-macroexpand-1-inplace (&optional prefix)
-  "Perform inplace \\=`macroexpand-1\\=` on the expression preceding point.
+  "Perform inplace \\=`macroexpand-1\\=` on the form at point.
 If invoked with a PREFIX argument, use \\=`macroexpand\\=` instead of
 \\=`macroexpand-1\\=`."
   (interactive "P")
@@ -141,7 +155,7 @@ If invoked with a PREFIX argument, use \\=`macroexpand\\=` instead of
   (cider-macroexpand-expr "macroexpand-all" (cider-last-sexp)))
 
 (defun cider-macroexpand-all-inplace ()
-  "Perform inplace \\=`macroexpand-all\\=` on the expression preceding point."
+  "Perform inplace \\=`macroexpand-all\\=` on the form at point."
   (interactive)
   (cider-macroexpand-expr-inplace "macroexpand-all"))
 
