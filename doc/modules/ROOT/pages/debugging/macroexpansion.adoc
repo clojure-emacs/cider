@@ -11,10 +11,10 @@ keybindings in the macro expansion buffer (which is internally using
 | Keyboard shortcut | Description
 
 | kbd:[m]
-| Invoke `macroexpand-1` on the form at point and replace the original form with its expansion.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
+| Invoke `macroexpand-1` on the form before point and replace the original form with its expansion.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
 
 | kbd:[a]
-| Invoke `clojure.walk/macroexpand-all` on the form at point and replace the original form with its expansion.
+| Invoke `clojure.walk/macroexpand-all` on the form before point and replace the original form with its expansion.
 
 | kbd:[g]
 | Re-expand the original form. This picks up the latest definition of the macro as well as any change to the display options below.
