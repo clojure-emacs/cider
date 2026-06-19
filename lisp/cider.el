@@ -110,7 +110,7 @@
 (defconst cider-version "1.23.0-snapshot"
   "The current version of CIDER.")
 
-(defconst cider-codename "São Miguel"
+(defconst cider-codename "Terceira"
   "Codename used to denote stable releases.")
 
 (defcustom cider-connected-hook nil
