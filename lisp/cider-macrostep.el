@@ -65,6 +65,16 @@ Possible values are:
   :group 'cider
   :package-version '(cider . "1.23.0"))
 
+(defcustom cider-macrostep-highlight-expandable t
+  "Whether to highlight the operators of further-expandable sub-forms.
+When non-nil, after each expansion the heads of nested forms that resolve to
+a macro are underlined, and `n'/`p' navigate between them.  Requires the
+`cider/classify-symbols' nREPL op; with older middleware the highlighting is
+silently skipped."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "1.23.0"))
+
 (defface cider-macrostep-expansion-face
   '((((min-colors 16777216) (background light)) :background "#eef3fb" :extend t)
     (((min-colors 16777216) (background dark)) :background "#1d2433" :extend t)
@@ -74,11 +84,21 @@ Possible values are:
   :group 'cider
   :package-version '(cider . "1.23.0"))
 
+(defface cider-macrostep-expandable-face
+  '((t :underline t :weight bold))
+  "Face for the operator of a sub-form that can be expanded further."
+  :group 'cider
+  :package-version '(cider . "1.23.0"))
+
 (defvar-local cider-macrostep--overlays nil
   "Stack of overlays for the current `cider-macrostep-mode' session.
 Each overlay spans an inline expansion and carries the original text it
 replaced in its `cider-macrostep-original-text' property, plus a `priority'
 equal to its nesting depth.")
+
+(defvar-local cider-macrostep--expandable-overlays nil
+  "Overlays underlining the operators of further-expandable sub-forms.
+Refreshed after every expansion and collapse; cleared on mode exit.")
 
 (defvar-local cider-macrostep--saved-read-only nil
   "Saved value of `buffer-read-only' from before `cider-macrostep-mode'.")
@@ -93,7 +113,7 @@ The sentinel `none' means there was no buffer-local value to restore.")
     (concat
      (propertize " CIDER Macrostep " 'face 'mode-line-emphasis)
      (format " %d expansion%s    " n (if (= n 1) "" "s"))
-     (propertize "[e]xpand [c]ollapse [q]uit" 'face 'shadow))))
+     (propertize "[e]xpand [c]ollapse [n]ext [p]rev [q]uit" 'face 'shadow))))
 
 (defun cider-macrostep--expand-1 (code)
   "Return the one-step macroexpansion of CODE in the current namespace."
@@ -202,6 +222,87 @@ their un-expanded forms, so they need no separate restoration."
     (cider-macrostep--collapse-overlay ov))
   (setq cider-macrostep--overlays nil))
 
+(defun cider-macrostep--list-heads (beg end)
+  "Return the operator of each list form within BEG..END.
+Each element is a list (OPERATOR HEAD-BEG HEAD-END) where OPERATOR is the
+symbol string in head position and HEAD-BEG..HEAD-END are its bounds.  Lists
+whose head isn't a plain symbol (and forms inside strings or comments) are
+skipped."
+  (save-excursion
+    (goto-char beg)
+    (let (heads)
+      (while (search-forward "(" end t)
+        (let ((lb (1- (point))))
+          ;; `syntax-ppss' moves point back to its parse origin, so guard it
+          ;; with `save-excursion'; otherwise the next `search-forward' would
+          ;; re-find this same paren and loop forever.
+          (unless (save-excursion
+                    (let ((ppss (syntax-ppss lb)))
+                      (or (nth 3 ppss) (nth 4 ppss))))
+            (save-excursion
+              (goto-char (1+ lb))
+              (skip-chars-forward " \t\n")
+              (when (looking-at-p "[^][(){} \t\n]")
+                (ignore-errors
+                  (let ((hb (point))
+                        (he (progn (forward-sexp) (point))))
+                    (push (list (buffer-substring-no-properties hb he) hb he)
+                          heads))))))))
+      (nreverse heads))))
+
+(defun cider-macrostep--classify (symbols)
+  "Return the classification dict for SYMBOLS resolved in the current namespace."
+  (let ((result (cider-nrepl-send-sync-request
+                 `("op" "cider/classify-symbols"
+                   "symbols" ,symbols
+                   "ns" ,(cider-current-ns)))))
+    (nrepl-dbind-response result (classification)
+      classification)))
+
+(defun cider-macrostep--clear-expandable-overlays ()
+  "Remove all expandable-operator highlight overlays."
+  (mapc #'delete-overlay cider-macrostep--expandable-overlays)
+  (setq cider-macrostep--expandable-overlays nil))
+
+(defun cider-macrostep--refresh-expandable ()
+  "Re-highlight the operators of further-expandable sub-forms.
+Scans the text of every active expansion, asks the REPL which heads resolve
+to a macro or inline function, and underlines those.  A no-op when disabled
+or when the `cider/classify-symbols' op isn't available."
+  (cider-macrostep--clear-expandable-overlays)
+  (when (and cider-macrostep-highlight-expandable
+             (cider-nrepl-op-supported-p "cider/classify-symbols"))
+    (when-let* ((heads (seq-mapcat
+                        (lambda (ov)
+                          (when (overlay-buffer ov)
+                            (cider-macrostep--list-heads (overlay-start ov)
+                                                         (overlay-end ov))))
+                        cider-macrostep--overlays)))
+      (let ((classification (cider-macrostep--classify
+                             (seq-uniq (mapcar #'car heads)))))
+        (dolist (head heads)
+          ;; Only macros are expandable today; inline functions will join once
+          ;; the expander learns to expand them (a separate effort).
+          (when (equal (nrepl-dict-get classification (car head)) "macro")
+            (let ((ov (make-overlay (nth 1 head) (nth 2 head))))
+              (overlay-put ov 'face 'cider-macrostep-expandable-face)
+              (overlay-put ov 'priority 100)
+              (push ov cider-macrostep--expandable-overlays))))))))
+
+(defun cider-macrostep--move-to-expandable (direction)
+  "Move point to the next expandable operator in DIRECTION (1 or -1), wrapping."
+  (let ((positions (sort (mapcar #'overlay-start
+                                 cider-macrostep--expandable-overlays)
+                         #'<)))
+    (unless positions
+      (user-error "No further-expandable forms"))
+    (goto-char
+     (if (> direction 0)
+         (or (seq-find (lambda (p) (> p (point))) positions)
+             (car positions))
+       (or (seq-find (lambda (p) (< p (point))) (reverse positions))
+           (car (last positions)))))))
+
 (defvar cider-macrostep-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "e") #'cider-macrostep-expand)
@@ -210,6 +311,8 @@ their un-expanded forms, so they need no separate restoration."
     (define-key map (kbd "c") #'cider-macrostep-collapse)
     (define-key map (kbd "u") #'cider-macrostep-collapse)
     (define-key map (kbd "DEL") #'cider-macrostep-collapse)
+    (define-key map (kbd "n") #'cider-macrostep-next-expandable)
+    (define-key map (kbd "p") #'cider-macrostep-previous-expandable)
     (define-key map (kbd "q") #'cider-macrostep-collapse-all)
     map)
   "Keymap for `cider-macrostep-mode'.")
@@ -230,6 +333,7 @@ removed when you collapse them or leave the mode.
         (setq cider-macrostep--saved-header-line
               (if (local-variable-p 'header-line-format) header-line-format 'none))
         (setq-local header-line-format '(:eval (cider-macrostep--header-line))))
+    (cider-macrostep--clear-expandable-overlays)
     (cider-macrostep--collapse-all-overlays)
     (setq buffer-read-only cider-macrostep--saved-read-only)
     (if (eq cider-macrostep--saved-header-line 'none)
@@ -280,7 +384,8 @@ expansions and collapses then use that mode's key bindings."
                         (buffer-substring-no-properties beg end))))
         (unless (and (stringp expansion) (not (string-blank-p expansion)))
           (user-error "No expansion returned for `%s'" operator))
-        (cider-macrostep--expand-region beg end expansion)))))
+        (cider-macrostep--expand-region beg end expansion)
+        (cider-macrostep--refresh-expandable)))))
 
 (defun cider-macrostep-collapse ()
   "Collapse the innermost expansion at point."
@@ -289,8 +394,19 @@ expansions and collapses then use that mode's key bindings."
     (unless ov
       (user-error "No expansion to collapse at point"))
     (cider-macrostep--collapse-overlay ov)
-    (unless cider-macrostep--overlays
+    (if cider-macrostep--overlays
+        (cider-macrostep--refresh-expandable)
       (cider-macrostep-mode -1))))
+
+(defun cider-macrostep-next-expandable ()
+  "Move point to the next further-expandable operator, wrapping around."
+  (interactive)
+  (cider-macrostep--move-to-expandable 1))
+
+(defun cider-macrostep-previous-expandable ()
+  "Move point to the previous further-expandable operator, wrapping around."
+  (interactive)
+  (cider-macrostep--move-to-expandable -1))
 
 (defun cider-macrostep-collapse-all ()
   "Collapse all expansions and leave `cider-macrostep-mode'."
