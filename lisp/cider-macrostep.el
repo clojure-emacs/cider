@@ -75,6 +75,24 @@ silently skipped."
   :group 'cider
   :package-version '(cider . "1.23.0"))
 
+(defcustom cider-macrostep-color-gensyms t
+  "Whether to colorize the gensyms introduced by a macro expansion.
+When non-nil, each distinct gensym (e.g. `x__42__auto__') in an inline
+expansion gets its own color from `cider-macrostep-gensym-colors', so a
+binding introduced by the macro can be tracked through the expansion."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "1.23.0"))
+
+(defcustom cider-macrostep-gensym-colors
+  '("#d33682" "#268bd2" "#859900" "#b58900" "#6c71c4" "#2aa198" "#cb4b16")
+  "Colors cycled through when coloring gensyms.
+Each distinct gensym in an expansion is assigned the next color in this
+list, wrapping around when an expansion has more gensyms than colors."
+  :type '(repeat color)
+  :group 'cider
+  :package-version '(cider . "1.23.0"))
+
 (defface cider-macrostep-expansion-face
   '((((min-colors 16777216) (background light)) :background "#eef3fb" :extend t)
     (((min-colors 16777216) (background dark)) :background "#1d2433" :extend t)
@@ -98,6 +116,10 @@ equal to its nesting depth.")
 
 (defvar-local cider-macrostep--expandable-overlays nil
   "Overlays underlining the operators of further-expandable sub-forms.
+Refreshed after every expansion and collapse; cleared on mode exit.")
+
+(defvar-local cider-macrostep--gensym-overlays nil
+  "Overlays coloring the gensyms in the current expansions.
 Refreshed after every expansion and collapse; cleared on mode exit.")
 
 (defvar-local cider-macrostep--saved-read-only nil
@@ -280,7 +302,9 @@ or when the `cider/classify-symbols' op isn't available."
                         cider-macrostep--overlays)))
       (let ((classification (cider-macrostep--classify
                              (seq-uniq (mapcar #'car heads)))))
-        (dolist (head heads)
+        ;; `seq-uniq' drops the duplicate hits that overlapping nested
+        ;; expansions produce for the same head position.
+        (dolist (head (seq-uniq heads))
           ;; Only macros are expandable today; inline functions will join once
           ;; the expander learns to expand them (a separate effort).
           (when (equal (nrepl-dict-get classification (car head)) "macro")
@@ -288,6 +312,62 @@ or when the `cider/classify-symbols' op isn't available."
               (overlay-put ov 'face 'cider-macrostep-expandable-face)
               (overlay-put ov 'priority 100)
               (push ov cider-macrostep--expandable-overlays))))))))
+
+(defconst cider-macrostep--gensym-regexp
+  "\\_<\\(?:\\(?:\\sw\\|\\s_\\)+__[0-9]+__auto__\\|G__[0-9]+\\)\\_>"
+  "Regexp matching the gensyms produced by macro expansion.
+Covers auto-gensyms (`x__42__auto__') and `gensym' output (`G__42').  Other
+prefixes (e.g. from `(gensym \"foo\")') are indistinguishable from ordinary
+symbols and are left uncolored.")
+
+(defun cider-macrostep--clear-gensym-overlays ()
+  "Remove all gensym-coloring overlays."
+  (mapc #'delete-overlay cider-macrostep--gensym-overlays)
+  (setq cider-macrostep--gensym-overlays nil))
+
+(defun cider-macrostep--refresh-gensyms ()
+  "Color each distinct gensym in the active expansions.
+All occurrences of a gensym share one color; different gensyms get different
+colors from `cider-macrostep-gensym-colors'.  A no-op when disabled."
+  (cider-macrostep--clear-gensym-overlays)
+  (when (and cider-macrostep-color-gensyms cider-macrostep-gensym-colors)
+    (let ((colors (vconcat cider-macrostep-gensym-colors))
+          (assigned (make-hash-table :test 'equal))
+          (next 0)
+          ;; Nested expansions overlap (the outer overlay still spans the inner
+          ;; text), so the same token is found once per containing overlay;
+          ;; `seq-uniq' collapses those identical (NAME BEG END) hits.
+          (matches (seq-uniq (seq-mapcat #'cider-macrostep--gensyms-in
+                                         cider-macrostep--overlays))))
+      (dolist (match matches)
+        (pcase-let ((`(,name ,beg ,end) match))
+          (let ((color (or (gethash name assigned)
+                           (let ((c (aref colors (mod next (length colors)))))
+                             (puthash name c assigned)
+                             (setq next (1+ next))
+                             c)))
+                (gov (make-overlay beg end)))
+            (overlay-put gov 'face (list :foreground color))
+            (overlay-put gov 'priority 90)
+            (push gov cider-macrostep--gensym-overlays)))))))
+
+(defun cider-macrostep--gensyms-in (overlay)
+  "Return the gensym matches (NAME BEG END) within OVERLAY's region."
+  (when (overlay-buffer overlay)
+    (save-excursion
+      (goto-char (overlay-start overlay))
+      (let (matches)
+        (while (re-search-forward cider-macrostep--gensym-regexp
+                                  (overlay-end overlay) t)
+          (push (list (match-string-no-properties 0)
+                      (match-beginning 0) (match-end 0))
+                matches))
+        (nreverse matches)))))
+
+(defun cider-macrostep--refresh-overlays ()
+  "Refresh the expandable-operator and gensym highlight overlays."
+  (cider-macrostep--refresh-expandable)
+  (cider-macrostep--refresh-gensyms))
 
 (defun cider-macrostep--move-to-expandable (direction)
   "Move point to the next expandable operator in DIRECTION (1 or -1), wrapping."
@@ -334,6 +414,7 @@ removed when you collapse them or leave the mode.
               (if (local-variable-p 'header-line-format) header-line-format 'none))
         (setq-local header-line-format '(:eval (cider-macrostep--header-line))))
     (cider-macrostep--clear-expandable-overlays)
+    (cider-macrostep--clear-gensym-overlays)
     (cider-macrostep--collapse-all-overlays)
     (setq buffer-read-only cider-macrostep--saved-read-only)
     (if (eq cider-macrostep--saved-header-line 'none)
@@ -385,7 +466,7 @@ expansions and collapses then use that mode's key bindings."
         (unless (and (stringp expansion) (not (string-blank-p expansion)))
           (user-error "No expansion returned for `%s'" operator))
         (cider-macrostep--expand-region beg end expansion)
-        (cider-macrostep--refresh-expandable)))))
+        (cider-macrostep--refresh-overlays)))))
 
 (defun cider-macrostep-collapse ()
   "Collapse the innermost expansion at point."
@@ -395,7 +476,7 @@ expansions and collapses then use that mode's key bindings."
       (user-error "No expansion to collapse at point"))
     (cider-macrostep--collapse-overlay ov)
     (if cider-macrostep--overlays
-        (cider-macrostep--refresh-expandable)
+        (cider-macrostep--refresh-overlays)
       (cider-macrostep-mode -1))))
 
 (defun cider-macrostep-next-expandable ()

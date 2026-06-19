@@ -11,6 +11,7 @@
 - [#3969](https://github.com/clojure-emacs/cider/pull/3969): Show ClojureDocs examples inline in the `*cider-doc*` buffer, toggled with `e` (`cider-docview-clojuredocs-examples`) or shown automatically when `cider-doc-show-clojuredocs-examples` is enabled.
 - [#3970](https://github.com/clojure-emacs/cider/pull/3970): Add `cider-macrostep-expand` for inline, in-place macro expansion with step-in/collapse (`cider-macrostep-mode`).
 - [#3976](https://github.com/clojure-emacs/cider/pull/3976): Underline the further-expandable sub-forms while inline macro stepping and move between them with `n`/`p` in `cider-macrostep-mode` (`cider-macrostep-highlight-expandable`).
+- [#3977](https://github.com/clojure-emacs/cider/pull/3977): Colorize the gensyms introduced by an inline macro expansion, each distinct gensym in its own color, so an introduced binding can be tracked (`cider-macrostep-color-gensyms`).
 
 ### Bugs fixed
 
