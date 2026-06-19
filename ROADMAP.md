@@ -135,10 +135,24 @@ a clickable, inspectable object you can send back to the REPL.
 ### Stepwise macroexpansion
 
 In-place, stepwise macro expansion (à la
-[macrostep](https://github.com/joddie/macrostep)) - expand one level, expand
-nested forms, collapse back - rather than only the all-at-once
-`macroexpand-1`/`macroexpand-all` we have today. See
+[macrostep](https://github.com/joddie/macrostep)) shipped in CIDER 1.23:
+`cider-macrostep-expand` expands the form at point one level inline, you can
+step into nested forms and collapse back (`cider-macrostep-mode`), the
+further-expandable heads are highlighted with `n`/`p` navigation, and the
+gensyms a macro introduces are colorized.  It builds on the
+`cider/classify-symbols` cider-nrepl op.  See
 [#1850](https://github.com/clojure-emacs/cider/issues/1850).
+
+Potential follow-ups:
+
+- Expanding inline functions / compiler macros, not just macros - the classify
+  op already tags them, but `macroexpand-1` can't expand an inline, so it needs
+  new middleware support (applying the `:inline` expander).
+- Recognizing namespace-qualified macros in the ClojureScript classifier (only
+  the common simple/referred/core cases are handled today).
+- Bringing the expandable-head highlighting (and perhaps the gensym coloring)
+  to the legacy separate-buffer macroexpansion commands, or eventually retiring
+  those in favor of the inline flow.
 
 ## REPL and evaluation UX
 
