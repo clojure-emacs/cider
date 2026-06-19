@@ -114,6 +114,81 @@
       (expect (buffer-string) :to-equal "(outer)")
       (expect cider-macrostep--overlays :to-be nil))))
 
+(describe "cider-macrostep--list-heads"
+  (it "returns the operator of each list form in order"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(when x (foo) (bar 1))")
+      (expect (mapcar #'car (cider-macrostep--list-heads (point-min) (point-max)))
+              :to-equal '("when" "foo" "bar"))))
+  (it "reports the bounds of each operator"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(foo 1)")
+      (pcase-let ((`((,op ,beg ,end)) (cider-macrostep--list-heads (point-min) (point-max))))
+        (expect op :to-equal "foo")
+        (expect (buffer-substring-no-properties beg end) :to-equal "foo"))))
+  (it "skips list-like text inside strings and comments"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(foo \"(bar)\" ; (baz)\n)")
+      (expect (mapcar #'car (cider-macrostep--list-heads (point-min) (point-max)))
+              :to-equal '("foo"))))
+  (it "skips lists whose head isn't a plain symbol"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "((foo) 1)")
+      (expect (mapcar #'car (cider-macrostep--list-heads (point-min) (point-max)))
+              :to-equal '("foo")))))
+
+(describe "cider-macrostep--refresh-expandable"
+  (it "underlines only the heads classified as macro"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(when x (inc y) (map f z))")
+      (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
+      ;; `inc' comes back as inline and `map' as a function: neither is
+      ;; expandable yet, so only `when' should be underlined.
+      (spy-on 'cider-macrostep--classify :and-return-value
+              (nrepl-dict "when" "macro" "inc" "inline" "map" "function"))
+      (setq cider-macrostep--overlays (list (make-overlay (point-min) (point-max))))
+      (cider-macrostep--refresh-expandable)
+      (expect (length cider-macrostep--expandable-overlays) :to-equal 1)
+      (expect (buffer-substring-no-properties
+               (overlay-start (car cider-macrostep--expandable-overlays))
+               (overlay-end (car cider-macrostep--expandable-overlays)))
+              :to-equal "when")))
+  (it "does nothing when the classify op is unavailable"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(when x)")
+      (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
+      (setq cider-macrostep--overlays (list (make-overlay (point-min) (point-max))))
+      (cider-macrostep--refresh-expandable)
+      (expect cider-macrostep--expandable-overlays :to-be nil))))
+
+(describe "cider-macrostep navigation"
+  (it "cycles point through the expandable heads, wrapping around"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(aaa (bbb))")
+      ;; operators `aaa' at 2..5 and `bbb' at 7..10
+      (setq cider-macrostep--expandable-overlays
+            (list (make-overlay 2 5) (make-overlay 7 10)))
+      (goto-char (point-min))
+      (cider-macrostep-next-expandable)
+      (expect (point) :to-equal 2)
+      (cider-macrostep-next-expandable)
+      (expect (point) :to-equal 7)
+      (cider-macrostep-next-expandable)     ; wrap to first
+      (expect (point) :to-equal 2)
+      (cider-macrostep-previous-expandable) ; wrap to last
+      (expect (point) :to-equal 7)))
+  (it "errors when there are no expandable forms"
+    (with-temp-buffer
+      (setq cider-macrostep--expandable-overlays nil)
+      (expect (cider-macrostep-next-expandable) :to-throw 'user-error))))
+
 (provide 'cider-macrostep-tests)
 
 ;;; cider-macrostep-tests.el ends here

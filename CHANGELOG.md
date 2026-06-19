@@ -10,6 +10,7 @@
 - [#3966](https://github.com/clojure-emacs/cider/pull/3966): Add `cider-set-eval-destination` and `cider-cycle-eval-destination` (`C-c C-M-d`) to override, per buffer, which REPL type (clj, cljs or multi) evaluations dispatch to.
 - [#3969](https://github.com/clojure-emacs/cider/pull/3969): Show ClojureDocs examples inline in the `*cider-doc*` buffer, toggled with `e` (`cider-docview-clojuredocs-examples`) or shown automatically when `cider-doc-show-clojuredocs-examples` is enabled.
 - [#3970](https://github.com/clojure-emacs/cider/pull/3970): Add `cider-macrostep-expand` for inline, in-place macro expansion with step-in/collapse (`cider-macrostep-mode`).
+- [#3976](https://github.com/clojure-emacs/cider/pull/3976): Underline the further-expandable sub-forms while inline macro stepping and move between them with `n`/`p` in `cider-macrostep-mode` (`cider-macrostep-highlight-expandable`).
 
 ### Bugs fixed
 
