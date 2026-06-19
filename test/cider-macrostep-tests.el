@@ -241,6 +241,32 @@
         (cider-macrostep--refresh-gensyms))
       (expect cider-macrostep--gensym-overlays :to-be nil))))
 
+(describe "cider-macrostep-expand-all"
+  (before-each
+    (spy-on 'cider-ensure-connected)
+    (spy-on 'cider-macrostep--refresh-overlays))
+
+  (it "fully expands the form before point inline via macroexpand-all"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(when x a)")
+      (goto-char (point-max))
+      (spy-on 'cider-macrostep--expand :and-return-value "(if x (do a))")
+      (cider-macrostep-expand-all)
+      (expect (string-search "(if x" (buffer-string)) :not :to-be nil)
+      (expect (length cider-macrostep--overlays) :to-equal 1)
+      (expect 'cider-macrostep--expand
+              :to-have-been-called-with "(when x a)" "macroexpand-all")))
+
+  (it "errors when the form has nothing to expand"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(+ 1 2)")
+      (goto-char (point-max))
+      (spy-on 'cider-macrostep--expand :and-return-value "(+ 1 2)")
+      (expect (cider-macrostep-expand-all) :to-throw 'user-error)
+      (expect cider-macrostep--overlays :to-be nil))))
+
 (provide 'cider-macrostep-tests)
 
 ;;; cider-macrostep-tests.el ends here

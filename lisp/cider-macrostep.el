@@ -135,13 +135,15 @@ The sentinel `none' means there was no buffer-local value to restore.")
     (concat
      (propertize " CIDER Macrostep " 'face 'mode-line-emphasis)
      (format " %d expansion%s    " n (if (= n 1) "" "s"))
-     (propertize "[e]xpand [c]ollapse [n]ext [p]rev [q]uit" 'face 'shadow))))
+     (propertize "[e]xpand [a]ll [c]ollapse [n]ext [p]rev [q]uit" 'face 'shadow))))
 
-(defun cider-macrostep--expand-1 (code)
-  "Return the one-step macroexpansion of CODE in the current namespace."
+(defun cider-macrostep--expand (code expander)
+  "Return the macroexpansion of CODE in the current namespace.
+EXPANDER is a `cider/macroexpand' expander name, such as \"macroexpand-1\"
+\(one level) or \"macroexpand-all\" (fully, recursively)."
   (cider-ensure-op-supported "cider/macroexpand")
   (let ((result (thread-first `("op" "cider/macroexpand"
-                                "expander" "macroexpand-1"
+                                "expander" ,expander
                                 "code" ,code
                                 "ns" ,(cider-current-ns)
                                 "display-namespaces" ,(symbol-name cider-macrostep-display-namespaces))
@@ -388,6 +390,7 @@ colors from `cider-macrostep-gensym-colors'.  A no-op when disabled."
     (define-key map (kbd "e") #'cider-macrostep-expand)
     (define-key map (kbd "=") #'cider-macrostep-expand)
     (define-key map (kbd "RET") #'cider-macrostep-expand)
+    (define-key map (kbd "a") #'cider-macrostep-expand-all)
     (define-key map (kbd "c") #'cider-macrostep-collapse)
     (define-key map (kbd "u") #'cider-macrostep-collapse)
     (define-key map (kbd "DEL") #'cider-macrostep-collapse)
@@ -461,12 +464,39 @@ expansions and collapses then use that mode's key bindings."
                                   (user-error "No sexp before point to expand"))))
     (let ((operator (cider-macrostep--operator beg)))
       (cider-macrostep--ensure-macro operator)
-      (let ((expansion (cider-macrostep--expand-1
-                        (buffer-substring-no-properties beg end))))
+      (let ((expansion (cider-macrostep--expand
+                        (buffer-substring-no-properties beg end) "macroexpand-1")))
         (unless (and (stringp expansion) (not (string-blank-p expansion)))
           (user-error "No expansion returned for `%s'" operator))
         (cider-macrostep--expand-region beg end expansion)
         (cider-macrostep--refresh-overlays)))))
+
+;;;###autoload
+(defun cider-macrostep-expand-all ()
+  "Fully expand the form before point, inline.
+Unlike `cider-macrostep-expand', which expands one level at a time, this
+expands the form all the way (`macroexpand-all'), so you needn't step through
+every level.  Place point right after the form, as with
+`\\[cider-eval-last-sexp]'.
+
+Like `cider-macrostep-expand', this starts a `cider-macrostep-mode' session
+when one isn't active.  It does not require the form's head to be a macro,
+since a fully-recursive expansion can reach macros in nested sub-forms."
+  (interactive)
+  (cider-ensure-connected)
+  (pcase-let ((`(,beg . ,end) (or (cider-macrostep--form-bounds)
+                                  (user-error "No sexp before point to expand"))))
+    (let* ((code (buffer-substring-no-properties beg end))
+           (expansion (cider-macrostep--expand code "macroexpand-all")))
+      (unless (and (stringp expansion) (not (string-blank-p expansion)))
+        (user-error "No expansion returned"))
+      ;; Compare with whitespace normalized, so the printer merely reindenting
+      ;; an already-fully-expanded form still counts as "nothing to expand".
+      (when (string= (replace-regexp-in-string "[ \t\n]+" " " (string-trim expansion))
+                     (replace-regexp-in-string "[ \t\n]+" " " (string-trim code)))
+        (user-error "Nothing to expand"))
+      (cider-macrostep--expand-region beg end expansion)
+      (cider-macrostep--refresh-overlays))))
 
 (defun cider-macrostep-collapse ()
   "Collapse the innermost expansion at point."
