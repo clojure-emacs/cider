@@ -53,3 +53,60 @@ namespaces in the macroexpansion buffer. It can be set to one of the following:
 
 The option `cider-macroexpansion-print-metadata` controls whether to print the var metadata
 in the macroexpansion buffer. It's set to `nil` by default.
+
+== Inline macroexpansion
+
+As an alternative to the separate buffer, `cider-macrostep-expand` expands
+macros *in place* in the source buffer, in the spirit of the
+https://github.com/joddie/macrostep[macrostep] package. Place point right after
+a form (as with kbd:[C-x C-e]) and run `M-x cider-macrostep-expand`: the form is
+replaced by its one-step expansion and you enter a transient, read-only
+`cider-macrostep-mode` with these keybindings:
+
+|===
+| Keyboard shortcut | Description
+
+| kbd:[e] +
+kbd:[=] +
+kbd:[RET]
+| Expand the form before point one step further. Inside an existing expansion, put point after a nested form to step into it.
+
+| kbd:[a]
+| Fully expand the form before point in one step (`macroexpand-all`), instead of stepping level by level.
+
+| kbd:[c] +
+kbd:[u] +
+kbd:[DEL]
+| Collapse the innermost expansion at point, restoring the original form.
+
+| kbd:[n] +
+kbd:[p]
+| Move to the next/previous further-expandable sub-form.
+
+| kbd:[q]
+| Collapse every expansion and leave `cider-macrostep-mode`.
+|===
+
+Each expansion remembers the exact text it replaced, so collapsing restores the
+original verbatim and nested expansions peel back in order. The operators of
+sub-forms that can be expanded further (those that resolve to a macro) are
+underlined so you can see what's left to expand, and kbd:[n]/kbd:[p] jump
+between them. The gensyms a macro introduces (e.g. `x__42__auto__`) are each
+given their own color, so a binding can be tracked through the expansion.
+
+NOTE: The expandable-head highlighting and gensym coloring rely on the
+`cider/classify-symbols` nREPL op, available in cider-nrepl 0.60 and newer.
+Without it the stepping still works, just without those visual aids.
+
+=== Configuration
+
+* `cider-macrostep-display-namespaces` - how namespaces are displayed in the
+  expansion (`tidy`, `qualified` or `none`), as for the separate-buffer flow.
+* `cider-macrostep-highlight-expansion` - briefly pulse a freshly inserted
+  expansion (on by default).
+* `cider-macrostep-highlight-expandable` - underline the operators of
+  further-expandable sub-forms (on by default).
+* `cider-macrostep-color-gensyms` - colorize the gensyms introduced by an
+  expansion (on by default).
+* `cider-macrostep-gensym-colors` - the palette cycled through when coloring
+  gensyms.
