@@ -785,6 +785,79 @@ KIND can be the symbols `ns', `var', `emph', `fn', or a face name."
              (t x)))
           menu-list))
 
+
+;;; Deprecated keybindings
+;;
+;; Emacs has `make-obsolete' for symbols, but nothing for keybindings.  As CIDER
+;; reorganizes its keymaps (grouping commands under prefixes) we want to retire
+;; bindings without yanking them out from under people's muscle memory: the old
+;; key keeps working throughout a deprecation window but, once per session,
+;; nudges you toward the replacement.  `cider-list-deprecated-keybindings' shows
+;; everything still pending removal.
+
+(defcustom cider-warn-on-deprecated-keybindings t
+  "Whether to hint when a deprecated CIDER keybinding is used.
+The command still runs either way; this only controls the one-time message
+nudging you toward the replacement binding."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "1.23.0"))
+
+(defvar cider--deprecated-keybindings nil
+  "Registry of CIDER's deprecated keybindings.
+Each entry is a plist with `:key', `:command', `:replacement' and `:since'.
+Populated by `cider--define-deprecated-key', listed by
+`cider-list-deprecated-keybindings'.")
+
+(defvar cider--deprecated-keys-warned (make-hash-table :test #'equal)
+  "Keys already warned about this session, so each warns at most once.")
+
+(defun cider--warn-deprecated-key (key replacement)
+  "Hint once per session that KEY is deprecated in favor of REPLACEMENT."
+  (when (and cider-warn-on-deprecated-keybindings
+             (not (gethash key cider--deprecated-keys-warned)))
+    (puthash key t cider--deprecated-keys-warned)
+    (message "CIDER: `%s' is deprecated; use %s instead" key replacement)))
+
+(defun cider--define-deprecated-key (map key command replacement &optional since)
+  "In keymap MAP bind KEY to COMMAND, marking it a deprecated alias.
+KEY is a `kbd' string.  Triggering it runs COMMAND as usual, but also hints
+once per session (subject to `cider-warn-on-deprecated-keybindings') that
+REPLACEMENT - a human-readable description of the new binding - should be used
+instead.  SINCE is the CIDER version the deprecation started in.
+
+This is how CIDER retires a binding gradually: the old key keeps working
+throughout the deprecation window, then is removed in a later release."
+  ;; Keyed by the key-string alone (not the map): the user-facing listing wants
+  ;; one entry per key, and today each key is deprecated in a single map.
+  (setq cider--deprecated-keybindings
+        (cons (list :key key :command command :replacement replacement :since since)
+              (seq-remove (lambda (e) (equal (plist-get e :key) key))
+                          cider--deprecated-keybindings)))
+  (define-key map (kbd key)
+    (lambda ()
+      (interactive)
+      (cider--warn-deprecated-key key replacement)
+      ;; Present the wrapped command (not this anonymous alias) as
+      ;; `this-command', so commands that inspect it see themselves.
+      (setq this-command command)
+      (call-interactively command))))
+
+(defun cider-list-deprecated-keybindings ()
+  "Display CIDER's deprecated keybindings and what to use instead."
+  (interactive)
+  (if (null cider--deprecated-keybindings)
+      (message "No deprecated CIDER keybindings")
+    (with-help-window "*cider-deprecated-keybindings*"
+      (princ "Deprecated CIDER keybindings (still working, but slated for removal):\n\n")
+      (dolist (entry (reverse cider--deprecated-keybindings))
+        (princ (format "  %-10s  use %s%s\n"
+                       (plist-get entry :key)
+                       (plist-get entry :replacement)
+                       (if-let* ((since (plist-get entry :since)))
+                           (format "  (deprecated since %s)" since)
+                         "")))))))
+
 (provide 'cider-util)
 
 ;;; cider-util.el ends here

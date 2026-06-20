@@ -548,3 +548,57 @@ and some other vars (like clojure.core/filter).
     (it "returns nil when there is neither a build-tool file nor a project"
       (spy-on 'project-current :and-return-value nil)
       (expect (cider-project-dir root) :to-be nil))))
+
+(describe "cider--define-deprecated-key"
+  (it "binds the key to a command and registers the deprecation"
+    (let ((map (make-sparse-keymap))
+          (cider--deprecated-keybindings nil))
+      (cider--define-deprecated-key map "C-c X" #'ignore "C-c C-x y" "1.23")
+      (expect (commandp (lookup-key map (kbd "C-c X"))) :to-be-truthy)
+      (let ((entry (car cider--deprecated-keybindings)))
+        (expect (plist-get entry :replacement) :to-equal "C-c C-x y")
+        (expect (plist-get entry :since) :to-equal "1.23"))))
+
+  (it "runs the underlying command when invoked"
+    (let ((map (make-sparse-keymap))
+          (cider--deprecated-keybindings nil)
+          (cider-warn-on-deprecated-keybindings nil))
+      (spy-on 'cider-jack-in-clj)
+      (cider--define-deprecated-key map "C-c X" #'cider-jack-in-clj "C-c C-x j j")
+      (call-interactively (lookup-key map (kbd "C-c X")))
+      (expect 'cider-jack-in-clj :to-have-been-called)))
+
+  (it "warns at most once per session, and not when disabled"
+    (let ((map (make-sparse-keymap))
+          (cider--deprecated-keybindings nil)
+          (cider--deprecated-keys-warned (make-hash-table :test #'equal)))
+      (cider--define-deprecated-key map "C-c X" #'ignore "C-c C-x y")
+      (let ((cmd (lookup-key map (kbd "C-c X"))))
+        (spy-on 'message)
+        (let ((cider-warn-on-deprecated-keybindings t))
+          (call-interactively cmd)
+          (call-interactively cmd))
+        (expect 'message :to-have-been-called-times 1)
+        (let ((cider-warn-on-deprecated-keybindings nil)
+              (cider--deprecated-keys-warned (make-hash-table :test #'equal)))
+          (call-interactively cmd))
+        (expect 'message :to-have-been-called-times 1)))) ; still 1, the disabled call was silent
+
+  (it "passes the prefix argument through to the underlying command"
+    (let* ((map (make-sparse-keymap))
+           (cider--deprecated-keybindings nil)
+           (cider-warn-on-deprecated-keybindings nil)
+           (seen 'unset)
+           (cmd (lambda () (interactive) (setq seen current-prefix-arg))))
+      (cider--define-deprecated-key map "C-c X" cmd "C-c C-x y")
+      (let ((current-prefix-arg '(4)))
+        (call-interactively (lookup-key map (kbd "C-c X"))))
+      (expect seen :to-equal '(4))))
+
+  (it "deduplicates the registry on re-definition of the same key"
+    (let ((map (make-sparse-keymap))
+          (cider--deprecated-keybindings nil))
+      (cider--define-deprecated-key map "C-c X" #'ignore "old")
+      (cider--define-deprecated-key map "C-c X" #'ignore "new")
+      (expect (length cider--deprecated-keybindings) :to-equal 1)
+      (expect (plist-get (car cider--deprecated-keybindings) :replacement) :to-equal "new"))))
