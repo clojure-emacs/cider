@@ -272,3 +272,10 @@ referenced var is unresolved - macroexpansion is one example, but the pattern
 is broad. We should detect these cases centrally and give an actionable hint
 (e.g. "evaluate the buffer first") instead of a silent no-op, ideally via a
 shared helper rather than ad-hoc checks scattered across commands.
+
+The shared helpers now exist in `cider-client.el` - `cider-ns-loaded-p`,
+`cider-resolution-failure-message` and `cider-ensure-macro` distinguish an
+unloaded namespace from a genuine typo/missing require, and the macroexpansion,
+`cider-find-var`, `cider-doc`, ClojureDocs, xref and `cider-browse-ns` commands
+route through them. The remaining work is to keep extending that coverage to the
+other commands that still fail quietly (e.g. inspector and completion paths).
