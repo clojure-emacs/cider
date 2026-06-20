@@ -114,6 +114,8 @@ invoke Clojure's `+(require ... :reload)+` and `+(require
 
 TIP: These commands don't depend on `cider-nrepl`, so they are always available.
 
+NOTE: After a successful `cider-ns-refresh`, `cider-ns-reload` or `cider-ns-reload-all`, CIDER refreshes the load-state indicators of the reloaded buffers (those with no unsaved edits), so they don't keep showing as stale. See xref:usage/code_evaluation.adoc#load-state-indicators[Evaluation and Load-State Indicators].
+
 == Keybindings
 
 |===

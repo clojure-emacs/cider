@@ -358,3 +358,23 @@ that's due to one of the following reasons:
  ** You can obtain debug info echoed to the `+*Messages*+` buffer by running `M-x cider-debug-sesman-friendly-session-p` on the problematic buffer.
   *** By reading it, you might be able to determine why CIDER failed to see the relationship between `(buffer-filename)` and the session's project directory.
   *** Feel free to create a detailed GitHub issue including this information.
+
+=== A command says a namespace isn't loaded, or a symbol can't be resolved
+
+Several commands resolve a symbol or namespace against the running REPL -
+macroexpansion, `cider-find-var` (kbd:[M-.]), `cider-doc`, the ClojureDocs
+lookups, `cider-xref-fn-refs`/`cider-xref-fn-deps` and `cider-browse-ns`.  When
+that resolution fails they tell you why, and the wording matters:
+
+* `The namespace ... isn't loaded yet` means just that: the buffer's namespace
+  hasn't been evaluated into the REPL.  Load it with kbd:[C-c C-k]
+  (`cider-load-buffer`) and run the command again.
+* `Can't resolve ... - check for a typo, a missing require, or a definition you
+  haven't evaluated yet` means the namespace _is_ loaded but the symbol still
+  doesn't resolve, so loading the buffer won't help.  Look for a typo, a
+  missing `require`, or a `def`/`defn` you added (or renamed) but haven't
+  re-evaluated.
+
+You can see the first case coming: the namespace load-state indicator flags an
+unloaded or stale buffer before you even run a command - see
+xref:usage/code_evaluation.adoc#load-state-indicators[Evaluation and Load-State Indicators].

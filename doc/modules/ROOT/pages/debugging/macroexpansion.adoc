@@ -39,6 +39,11 @@ kbd:[u]
 | Quit the macroexpansion buffer.
 |===
 
+NOTE: Macroexpansion resolves the macro in the running REPL, so its namespace
+has to be loaded.  If it isn't (or the form's head isn't actually a macro),
+CIDER tells you why - pointing you at kbd:[C-c C-k] when the namespace simply
+hasn't been evaluated yet - instead of silently returning the form unchanged.
+
 == Expansion levels
 
 CIDER exposes three expanders, which map one-to-one onto the underlying Clojure

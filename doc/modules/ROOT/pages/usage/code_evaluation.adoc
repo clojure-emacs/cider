@@ -270,10 +270,12 @@ next change to the buffer contents.
 (setq cider-eval-result-duration 'change)
 ----
 
+[#load-state-indicators]
 === Evaluation and Load-State Indicators
 
 Beyond the result overlays, CIDER can show, at a glance, which code is in sync
-with the REPL.
+with the REPL.  These indicators are kept up to date as you evaluate and reload
+code, including via kbd:[C-c C-k], `cider-ns-reload` and `cider-ns-refresh`.
 
 ==== Per-form fringe indicators
 

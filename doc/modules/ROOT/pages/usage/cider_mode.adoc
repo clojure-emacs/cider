@@ -36,6 +36,8 @@ NOTE: There's no need to enable it explicitly for modes derived from `clojure-mo
 Typically you'd begin your interaction with any source buffer by evaluating it with kbd:[C-c C-k].
 Afterwards you'd normally evaluate just individual forms with kbd:[C-c C-e] (evaluate preceding form) or kbd:[C-c C-c] (evaluate current top-level form).
 
+TIP: `cider-mode` shows at a glance whether the buffer is in sync with the REPL - a ` not-loaded` or ` stale` marker in the mode line, plus green/amber markers in the fringe. See xref:usage/code_evaluation.adoc#load-state-indicators[Evaluation and Load-State Indicators].
+
 From time to time some evaluation would take forever and you'd interrupt it with kbd:[C-c C-b].
 
 Jumping between source files and the REPL is as easy as pressing kbd:[C-c C-z]. If you invoke the command with a kbd:[C-u]
