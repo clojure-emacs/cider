@@ -192,31 +192,6 @@ expansion, put point after the nested form to drill into it."
     (when (looking-at-p "[^][(){} \t\n]")
       (buffer-substring-no-properties (point) (progn (forward-sexp) (point))))))
 
-(defun cider-macrostep--symbol-operator-p (operator)
-  "Return non-nil when OPERATOR could name a Clojure var (a plain symbol)."
-  (and (stringp operator)
-       (not (string-empty-p operator))
-       (not (string-match-p "\\`[][:\"(){}0-9]" operator))))
-
-(defun cider-macrostep--ensure-macro (operator)
-  "Signal a helpful `user-error' unless OPERATOR names a resolvable macro.
-This turns the silent \"nothing happens\" case (e.g. the namespace hasn't
-been evaluated yet) into an actionable message."
-  (cond
-   ((not (cider-macrostep--symbol-operator-p operator))
-    (user-error "`%s' is not a macro" (or operator "form")))
-   (t
-    (let ((info (cider-var-info operator)))
-      (cond
-       ((null info)
-        (user-error "%s" (substitute-command-keys
-                          (format "Can't resolve `%s' - its namespace may not be loaded; try \\[cider-load-buffer] first"
-                                  operator))))
-       ((nrepl-dict-get info "special-form")
-        (user-error "`%s' is a special form; there's nothing to macroexpand" operator))
-       ((not (nrepl-dict-get info "macro"))
-        (user-error "`%s' is not a macro" operator)))))))
-
 (defun cider-macrostep--collapse-overlay (ov)
   "Collapse overlay OV, restoring the text it replaced.
 Overlays nested within OV are removed first; OV's saved text already contains
@@ -463,7 +438,7 @@ expansions and collapses then use that mode's key bindings."
   (pcase-let ((`(,beg . ,end) (or (cider-macrostep--form-bounds)
                                   (user-error "No sexp before point to expand"))))
     (let ((operator (cider-macrostep--operator beg)))
-      (cider-macrostep--ensure-macro operator)
+      (cider-ensure-macro operator)
       (let ((expansion (cider-macrostep--expand
                         (buffer-substring-no-properties beg end) "macroexpand-1")))
         (unless (and (stringp expansion) (not (string-blank-p expansion)))

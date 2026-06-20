@@ -101,6 +101,71 @@
   (it "returns nil when member is nil"
     (expect (cider-member-info "java.lang.String" nil) :to-be nil)))
 
+(describe "cider--symbol-operator-p"
+  (it "accepts plain symbols and rejects keywords/literals"
+    (expect (cider--symbol-operator-p "when") :to-be-truthy)
+    (expect (cider--symbol-operator-p "->") :to-be-truthy)
+    (expect (cider--symbol-operator-p "%") :to-be-truthy)
+    (expect (cider--symbol-operator-p "my.ns/foo") :to-be-truthy)
+    (expect (cider--symbol-operator-p ":kw") :to-be nil)
+    (expect (cider--symbol-operator-p "1x") :to-be nil)
+    (expect (cider--symbol-operator-p "") :to-be nil)
+    (expect (cider--symbol-operator-p nil) :to-be nil)))
+
+(describe "cider-ns-loaded-p"
+  (it "uses the track-state cache as a free fast path"
+    (with-temp-buffer
+      (setq-local cider-repl-ns-cache (nrepl-dict "foo.bar" (nrepl-dict)))
+      (let ((repl (current-buffer)))
+        (spy-on 'cider-current-repl :and-return-value repl)
+        ;; The eval fallback must not be consulted when the cache hits.
+        (spy-on 'cider-sync-tooling-eval)
+        (expect (cider-ns-loaded-p "foo.bar") :to-be-truthy)
+        (expect 'cider-sync-tooling-eval :not :to-have-been-called))))
+  (it "falls back to a find-ns eval when the cache doesn't know (e.g. no cider-nrepl)"
+    (with-temp-buffer
+      (setq-local cider-repl-ns-cache nil)
+      (spy-on 'cider-current-repl :and-return-value (current-buffer))
+      (spy-on 'cider-sync-tooling-eval :and-return-value (nrepl-dict "value" "true"))
+      (expect (cider-ns-loaded-p "foo.bar") :to-be-truthy)
+      (spy-on 'cider-sync-tooling-eval :and-return-value (nrepl-dict "value" "false"))
+      (expect (cider-ns-loaded-p "missing.ns") :to-be nil)))
+  (it "returns nil when there's no connection"
+    (spy-on 'cider-current-repl :and-return-value nil)
+    (expect (cider-ns-loaded-p "foo.bar") :to-be nil))
+  (it "returns nil when the namespace can't be determined"
+    (spy-on 'cider-current-ns :and-return-value nil)
+    (expect (cider-ns-loaded-p) :to-be nil)))
+
+(describe "cider-resolution-failure-message"
+  (it "points at loading the buffer when the namespace isn't loaded"
+    (spy-on 'cider-current-ns :and-return-value "foo.bar")
+    (spy-on 'cider-ns-loaded-p :and-return-value nil)
+    (expect (cider-resolution-failure-message "x") :to-match "loaded yet"))
+  (it "covers typo, missing require and out-of-sync when the namespace is loaded"
+    (spy-on 'cider-current-ns :and-return-value "foo.bar")
+    (spy-on 'cider-ns-loaded-p :and-return-value t)
+    (expect (cider-resolution-failure-message "x") :to-match "haven't evaluated yet")))
+
+(describe "cider-ensure-macro"
+  (it "passes for a resolvable macro"
+    (spy-on 'cider-var-info :and-return-value (nrepl-dict "macro" "true"))
+    (expect (cider-ensure-macro "when") :not :to-throw))
+  (it "hints about resolution for an unresolved symbol"
+    (spy-on 'cider-var-info :and-return-value nil)
+    (spy-on 'cider-resolution-failure-message :and-return-value "nope")
+    (expect (cider-ensure-macro "my.ns/foo") :to-throw 'user-error))
+  (it "rejects special forms"
+    (spy-on 'cider-var-info :and-return-value (nrepl-dict "special-form" "true"))
+    (expect (cider-ensure-macro "if") :to-throw 'user-error))
+  (it "rejects ordinary (non-macro) vars"
+    (spy-on 'cider-var-info :and-return-value (nrepl-dict "arglists" "([coll])"))
+    (expect (cider-ensure-macro "map") :to-throw 'user-error))
+  (it "rejects non-symbol operators without consulting the runtime"
+    (spy-on 'cider-var-info)
+    (expect (cider-ensure-macro ":kw") :to-throw 'user-error)
+    (expect 'cider-var-info :not :to-have-been-called)))
+
 (describe "cider-classpath-entries"
   (it "uses the classpath op when available"
     (spy-on 'cider-nrepl-op-supported-p :and-return-value t)

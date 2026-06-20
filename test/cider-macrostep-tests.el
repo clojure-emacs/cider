@@ -31,19 +31,6 @@
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
-(describe "cider-macrostep--ensure-macro"
-  (it "passes for a resolvable macro"
-    (cl-letf (((symbol-function 'cider-var-info)
-               (lambda (&rest _) (nrepl-dict "macro" "true"))))
-      (expect (cider-macrostep--ensure-macro "when") :not :to-throw)))
-  (it "hints about loading the namespace for an unresolved symbol"
-    (cl-letf (((symbol-function 'cider-var-info) (lambda (&rest _) nil)))
-      (expect (cider-macrostep--ensure-macro "my.ns/foo") :to-throw 'user-error)))
-  (it "rejects non-macros"
-    (cl-letf (((symbol-function 'cider-var-info)
-               (lambda (&rest _) (nrepl-dict "arglists" "([coll])"))))
-      (expect (cider-macrostep--ensure-macro "map") :to-throw 'user-error))))
-
 (describe "cider-macrostep--form-bounds"
   (it "returns the bounds of the sexp before point"
     (with-temp-buffer

@@ -31,6 +31,7 @@
 
 ;;; Code:
 
+(require 'cider-client)
 (require 'cider-mode)
 (require 'pulse)
 (require 'subr-x)
@@ -122,31 +123,6 @@ expansion, put point after that form and expand again."
   (when (and form (string-match "\\`(\\s-*\\([^][(){} \t\n]+\\)" form))
     (match-string 1 form)))
 
-(defun cider-macroexpansion--symbol-operator-p (operator)
-  "Return non-nil when OPERATOR could name a Clojure var (a plain symbol)."
-  (and (stringp operator)
-       (not (string-empty-p operator))
-       (not (string-match-p "\\`[][:\"(){}0-9]" operator))))
-
-(defun cider-macroexpansion--ensure-macro (operator)
-  "Signal a helpful `user-error' unless OPERATOR names a resolvable macro.
-This turns the silent \"nothing happens\" case (e.g. the namespace hasn't
-been evaluated yet) into an actionable message."
-  (cond
-   ((not (cider-macroexpansion--symbol-operator-p operator))
-    (user-error "`%s' is not a macro" (or operator "form")))
-   (t
-    (let ((info (cider-var-info operator)))
-      (cond
-       ((null info)
-        (user-error "%s" (substitute-command-keys
-                          (format "Can't resolve `%s' - its namespace may not be loaded; try \\[cider-load-buffer] first"
-                                  operator))))
-       ((nrepl-dict-get info "special-form")
-        (user-error "`%s' is a special form; there's nothing to macroexpand" operator))
-       ((not (nrepl-dict-get info "macro"))
-        (user-error "`%s' is not a macro" operator)))))))
-
 (defun cider-macroexpand-expr-inplace (expander)
   "Substitute the form before point with its macroexpansion using EXPANDER.
 This is a helper invoked by the in-place expansion commands; EXPANDER is
@@ -154,7 +130,7 @@ required, so it is not meant to be called interactively."
   (pcase-let ((`(,beg . ,end) (or (cider-macroexpansion--form-bounds)
                                   (user-error "No sexp before point to expand"))))
     (let ((code (buffer-substring-no-properties beg end)))
-      (cider-macroexpansion--ensure-macro (cider-macroexpansion--operator code))
+      (cider-ensure-macro (cider-macroexpansion--operator code))
       (cider-redraw-macroexpansion-buffer
        (cider-sync-request:macroexpand expander code)
        (current-buffer) beg end))))
@@ -178,7 +154,7 @@ If invoked with a PREFIX argument, use \\=`macroexpand\\=` instead of
   (interactive "P")
   (let ((form (cider-last-sexp))
         (expander (if prefix "macroexpand" "macroexpand-1")))
-    (cider-macroexpansion--ensure-macro (cider-macroexpansion--operator form))
+    (cider-ensure-macro (cider-macroexpansion--operator form))
     (cider-macroexpand-expr expander form)))
 
 (defun cider-macroexpand-1-inplace (&optional prefix)
@@ -194,7 +170,7 @@ If invoked with a PREFIX argument, use \\=`macroexpand\\=` instead of
   "Invoke \\=`macroexpand-all\\=` on the expression preceding point."
   (interactive)
   (let ((form (cider-last-sexp)))
-    (cider-macroexpansion--ensure-macro (cider-macroexpansion--operator form))
+    (cider-ensure-macro (cider-macroexpansion--operator form))
     (cider-macroexpand-expr "macroexpand-all" form)))
 
 (defun cider-macroexpand-all-inplace ()
