@@ -39,6 +39,63 @@ kbd:[u]
 | Quit the macroexpansion buffer.
 |===
 
+== Expansion levels
+
+CIDER exposes three expanders, which map one-to-one onto the underlying Clojure
+functions. They differ in how deep they go:
+
+* `macroexpand-1` expands the form *one step*, and only when its head is a
+  macro. It doesn't re-expand the result or descend into sub-forms. This is what
+  kbd:[C-c C-m] uses.
+* `macroexpand` keeps applying `macroexpand-1` to the *head position* until the
+  head is no longer a macro. It still leaves nested macro calls in argument
+  positions untouched. Reach for it via the prefixed kbd:[C-u C-c C-m] (or
+  kbd:[m] with a prefix in the expansion buffer) - there's no separate binding.
+* `macroexpand-all` (really `clojure.walk/macroexpand-all`) walks the *whole
+  form recursively*, expanding every macro it finds, nested ones included. This
+  is what kbd:[C-c M-m] uses.
+
+`macroexpand-1` is literally a single step, so it can leave a macro behind - here
+`cond` expands one clause-pair at a time:
+
+[source,clojure]
+----
+(macroexpand-1 '(cond a 1 :else 2))
+;; => (if a 1 (clojure.core/cond :else 2))   ; note the leftover cond
+----
+
+`macroexpand` chases the head all the way down. Given a macro that expands into
+another macro, the difference from `macroexpand-1` shows:
+
+[source,clojure]
+----
+(defmacro unless [test & body]
+  `(when (not ~test) ~@body))
+
+(macroexpand-1 '(unless x a b))
+;; => (clojure.core/when (clojure.core/not x) a b)   ; head is still `when', a macro
+
+(macroexpand '(unless x a b))
+;; => (if (clojure.core/not x) (do a b))             ; kept going: unless -> when -> if
+----
+
+But `macroexpand` only follows the head. A macro sitting in an argument position
+is left alone, whereas `macroexpand-all` reaches it:
+
+[source,clojure]
+----
+(macroexpand '(when a (when b c)))
+;; => (if a (do (when b c)))            ; inner when untouched
+
+(clojure.walk/macroexpand-all '(when a (when b c)))
+;; => (if a (do (if b (do c))))         ; inner when expanded too
+----
+
+NOTE: `clojure.walk/macroexpand-all` is a plain code walk - it doesn't track
+local bindings or fully honor `quote`, so it can occasionally expand something
+the real compiler wouldn't. It's an excellent inspection tool, not a
+semantics-preserving transformation.
+
 == Configuration
 
 The option `cider-macroexpansion-display-namespaces` controls whether to display
