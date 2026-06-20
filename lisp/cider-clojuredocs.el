@@ -87,7 +87,7 @@ We need to handle \"?\", \".\", \"..\" and \"/\"."
       (let ((name (nrepl-dict-get var-info "name"))
             (ns (nrepl-dict-get var-info "ns")))
         (browse-url (cider-clojuredocs-url name ns)))
-    (error "Symbol %s not resolved" sym)))
+    (user-error "%s" (cider-resolution-failure-message sym))))
 
 ;;;###autoload
 (defun cider-clojuredocs-web (&optional arg)

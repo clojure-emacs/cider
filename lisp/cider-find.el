@@ -40,7 +40,7 @@ Display the results in a different window."
       (progn
         (when line (setq info (nrepl-dict-put info "line" line)))
         (cider--jump-to-loc-from-info info t))
-    (user-error "Symbol `%s' not resolved" var)))
+    (user-error "%s" (cider-resolution-failure-message var))))
 
 (defun cider--find-var (var &optional line)
   "Find the definition of VAR, optionally at a specific LINE."
@@ -48,7 +48,7 @@ Display the results in a different window."
       (progn
         (when line (setq info (nrepl-dict-put info "line" line)))
         (cider--jump-to-loc-from-info info))
-    (user-error "Symbol `%s' not resolved" var)))
+    (user-error "%s" (cider-resolution-failure-message var))))
 
 ;;;###autoload
 (defun cider-find-var (&optional arg var line)
@@ -89,7 +89,7 @@ Show results in a different window if OTHER-WINDOW is true."
                 (buffer (cider-find-file resource)))
           (cider-jump-to buffer 0 other-window)
         (if (cider--prompt-for-symbol-p current-prefix-arg)
-            (error "Resource or var %s not resolved" symbol-file)
+            (user-error "Resource or var %s not resolved" symbol-file)
           (let ((current-prefix-arg (if current-prefix-arg nil '(4))))
             (call-interactively callback)))))))
 
