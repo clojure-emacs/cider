@@ -112,17 +112,26 @@ the symbol found by the xref search as argument."
         (cider-xref-result result))
       (goto-char (point-min)))))
 
+(defun cider-xref--report-no-results (symbol noun)
+  "Report that no NOUN (e.g. \"references\") were found for SYMBOL.
+When SYMBOL doesn't resolve, hint at why instead - a typo or an unloaded
+namespace is a likelier cause than a var that genuinely has none."
+  (if (cider-var-info symbol)
+      (message "No %s found for %S in currently loaded namespaces" noun symbol)
+    (user-error "%s" (cider-resolution-failure-message symbol))))
+
 ;;;###autoload
 (defun cider-xref-fn-refs (&optional ns symbol)
   "Show all functions that reference the var matching NS and SYMBOL."
   (interactive)
   (cider-ensure-connected)
   (cider-ensure-op-supported "cider/fn-refs")
-  (if-let* ((ns (or ns (cider-current-ns)))
-            (symbol (or symbol (cider-symbol-at-point)))
-            (results (cider-sync-request:fn-refs ns symbol)))
-      (cider-show-xref (format "Showing %d functions that reference %s in currently loaded namespaces" (length results) symbol) results)
-    (message "No references found for %S in currently loaded namespaces" symbol)))
+  (let ((ns (or ns (cider-current-ns)))
+        (symbol (or symbol (cider-symbol-at-point))))
+    (unless symbol (user-error "No symbol at point"))
+    (if-let* ((results (cider-sync-request:fn-refs ns symbol)))
+        (cider-show-xref (format "Showing %d functions that reference %s in currently loaded namespaces" (length results) symbol) results)
+      (cider-xref--report-no-results symbol "references"))))
 
 ;;;###autoload
 (defun cider-xref-fn-deps (&optional ns symbol)
@@ -130,11 +139,12 @@ the symbol found by the xref search as argument."
   (interactive)
   (cider-ensure-connected)
   (cider-ensure-op-supported "cider/fn-deps")
-  (if-let* ((ns (or ns (cider-current-ns)))
-            (symbol (or symbol (cider-symbol-at-point)))
-            (results (cider-sync-request:fn-deps ns symbol)))
-      (cider-show-xref (format "Showing %d function dependencies for %s" (length results) symbol) results)
-    (message "No dependencies found for %S" symbol)))
+  (let ((ns (or ns (cider-current-ns)))
+        (symbol (or symbol (cider-symbol-at-point))))
+    (unless symbol (user-error "No symbol at point"))
+    (if-let* ((results (cider-sync-request:fn-deps ns symbol)))
+        (cider-show-xref (format "Showing %d function dependencies for %s" (length results) symbol) results)
+      (cider-xref--report-no-results symbol "dependencies"))))
 
 (defun cider-xref-act-on-symbol (symbol)
   "Apply selected action on SYMBOL."
@@ -155,12 +165,13 @@ the symbol found by the xref search as argument."
   (interactive)
   (cider-ensure-connected)
   (cider-ensure-op-supported "cider/fn-refs")
-  (if-let* ((ns (or ns (cider-current-ns)))
-            (symbol (or symbol (cider-symbol-at-point)))
-            (results (mapcar (lambda (d) (nrepl-dict-get d "name")) (cider-sync-request:fn-refs ns symbol)))
-            (summary (format "References for %s" symbol)))
-      (cider-xref-act-on-symbol (completing-read (concat summary ": ") results))
-    (message "No references for %S found" symbol)))
+  (let ((ns (or ns (cider-current-ns)))
+        (symbol (or symbol (cider-symbol-at-point))))
+    (unless symbol (user-error "No symbol at point"))
+    (if-let* ((results (mapcar (lambda (d) (nrepl-dict-get d "name")) (cider-sync-request:fn-refs ns symbol)))
+              (summary (format "References for %s" symbol)))
+        (cider-xref-act-on-symbol (completing-read (concat summary ": ") results))
+      (cider-xref--report-no-results symbol "references"))))
 
 ;;;###autoload
 (defun cider-xref-fn-deps-select (&optional ns symbol)
@@ -168,12 +179,13 @@ the symbol found by the xref search as argument."
   (interactive)
   (cider-ensure-connected)
   (cider-ensure-op-supported "cider/fn-deps")
-  (if-let* ((ns (or ns (cider-current-ns)))
-            (symbol (or symbol (cider-symbol-at-point)))
-            (results (mapcar (lambda (d) (nrepl-dict-get d "name")) (cider-sync-request:fn-deps ns symbol)))
-            (summary (format "Dependencies for %s" symbol)))
-      (cider-xref-act-on-symbol (completing-read (concat summary ": ") results))
-    (message "No dependencies for %S found" symbol)))
+  (let ((ns (or ns (cider-current-ns)))
+        (symbol (or symbol (cider-symbol-at-point))))
+    (unless symbol (user-error "No symbol at point"))
+    (if-let* ((results (mapcar (lambda (d) (nrepl-dict-get d "name")) (cider-sync-request:fn-deps ns symbol)))
+              (summary (format "Dependencies for %s" symbol)))
+        (cider-xref-act-on-symbol (completing-read (concat summary ": ") results))
+      (cider-xref--report-no-results symbol "dependencies"))))
 
 (provide 'cider-xref)
 

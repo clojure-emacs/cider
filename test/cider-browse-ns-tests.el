@@ -66,7 +66,13 @@
       ;; filter out the functions and ensure that blank? doesn't show up
       (cider-browse-ns-toggle-hide-function)
       (goto-char (point-min))
-      (expect (not (search-forward "blank" nil t))))))
+      (expect (not (search-forward "blank" nil t)))))
+
+  (it "hints to load the buffer when the namespace has no vars and isn't loaded"
+    (spy-on 'cider-sync-request:ns-vars-with-meta :and-return-value '(dict))
+    (spy-on 'cider-sync-request:private-ns-vars-with-meta :and-return-value '(dict))
+    (spy-on 'cider-ns-loaded-p :and-return-value nil)
+    (expect (cider-browse-ns "foo.bar") :to-throw 'user-error)))
 
 (describe "cider-browse-ns--thing-at-point"
   :var (cider-browse-ns-buffer)
