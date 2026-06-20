@@ -161,8 +161,31 @@ Present the error message as an overlay."
     (when buf
       (select-window (get-buffer-window buf)))))
 
-(defun cider-ns-refresh--handle-response (response log-buffer)
-  "Refresh LOG-BUFFER with RESPONSE."
+(defun cider-ns--mark-reloaded (namespaces)
+  "Resync the load-state indicators of open buffers in NAMESPACES.
+For each live Clojure buffer whose namespace is in NAMESPACES (a list of
+name strings) and that has no unsaved edits, refresh the evaluation fringe
+indicators and the namespace load-state marker.  Modified buffers are left
+alone, since reloading happens from disk and an unsaved buffer is genuinely
+out of sync with what was loaded.
+
+This goes through `cider-file-loaded-hook' (like `cider-load-buffer' does),
+so its other subscribers also run for the reloaded buffers - notably
+`cider-auto-test-mode' will re-run their tests."
+  (when namespaces
+    (dolist (buf (buffer-list))
+      (with-current-buffer buf
+        (when (and (derived-mode-p 'clojure-mode 'clojure-ts-mode)
+                   (not (buffer-modified-p))
+                   (member (cider-current-ns 'no-default) namespaces))
+          (cider--mark-loaded))))))
+
+(defun cider-ns-refresh--handle-response (response log-buffer &optional reloading-cell)
+  "Refresh LOG-BUFFER with RESPONSE.
+RELOADING-CELL, when given, is a one-element list (a mutable cell, private to
+a single refresh request) used to carry the set of namespaces being reloaded
+from the `reloading' response to the final `ok' response, so that concurrent
+refreshes across REPLs don't clobber each other."
   (nrepl-dbind-response response (out err reloading progress status error error-ns after before)
     (cl-flet* ((log (message &optional face)
                     (cider-emit-into-popup-buffer log-buffer message face t))
@@ -189,6 +212,7 @@ Present the error message as an overlay."
         (log-echo "Could not resolve refresh function\n" 'font-lock-string-face))
 
        (reloading
+        (when reloading-cell (setcar reloading-cell reloading))
         (log-echo (format "Reloading %s\n" reloading) 'font-lock-string-face))
 
        (progress
@@ -198,7 +222,8 @@ Present the error message as an overlay."
         (log-echo "Nothing to reload\n" 'font-lock-string-face))
 
        ((member "ok" status)
-        (log-echo "Reloading successful\n" 'font-lock-string-face))
+        (log-echo "Reloading successful\n" 'font-lock-string-face)
+        (cider-ns--mark-reloaded (car reloading-cell)))
 
        (error-ns
         (log-echo (format "Error reloading %s\n" error-ns) 'font-lock-warning-face))
@@ -245,6 +270,21 @@ Based on OP-NAME and the value of `cider-ns-code-reload-tool'."
           ((string= op-name "reload-all")   "cider.clj-reload/reload-all")
           ((string= op-name "reload-clear") "cider.clj-reload/reload-clear"))))
 
+(defun cider-ns--reload-callback (ns)
+  "Return an eval handler that resyncs NS's buffers after a successful reload.
+Wraps the standard interactive-eval handler so results and errors display as
+usual, and additionally marks NS's buffers loaded once evaluation finishes
+without an error."
+  (let ((base (cider-interactive-eval-handler))
+        (errored nil))
+    (lambda (response)
+      (funcall base response)
+      (let ((status (nrepl-dict-get response "status")))
+        (when (member "eval-error" status)
+          (setq errored t))
+        (when (and (not errored) (member "done" status))
+          (cider-ns--mark-reloaded (list ns)))))))
+
 ;;;###autoload
 (defun cider-ns-reload (&optional prompt)
   "Send a (require \\='ns :reload) to the REPL.
@@ -258,7 +298,8 @@ identified libs even if they are already loaded\"."
   (when-let* ((ns (if prompt
                       (string-remove-prefix "'" (read-from-minibuffer "Namespace: " (cider-get-ns-name)))
                     (cider-get-ns-name))))
-    (cider-interactive-eval (format "(require '%s :reload)" ns))))
+    (cider-interactive-eval (format "(require '%s :reload)" ns)
+                            (cider-ns--reload-callback ns))))
 
 ;;;###autoload
 (defun cider-ns-reload-all (&optional prompt)
@@ -274,7 +315,8 @@ indirectly load via require\"."
   (when-let* ((ns (if prompt
                       (string-remove-prefix "'" (read-from-minibuffer "Namespace: " (cider-get-ns-name)))
                     (cider-get-ns-name))))
-    (cider-interactive-eval (format "(require '%s :reload-all)" ns))))
+    (cider-interactive-eval (format "(require '%s :reload-all)" ns)
+                            (cider-ns--reload-callback ns))))
 
 ;;;###autoload
 (defun cider-ns-refresh (&optional mode)
@@ -314,19 +356,20 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
                                           t))
           (when clear?
             (cider-nrepl-send-sync-request `("op" ,(cider-ns--reload-op "reload-clear")) conn))
-          (cider-nrepl-send-request
-           `("op" ,(cider-ns--reload-op (if all? "reload-all" "reload"))
-             ,@(cider--nrepl-print-request-plist fill-column)
-             ,@(when (and (not inhibit-refresh-fns) cider-ns-refresh-before-fn)
-                 `("before" ,cider-ns-refresh-before-fn))
-             ,@(when (and (not inhibit-refresh-fns) cider-ns-refresh-after-fn)
-                 `("after" ,cider-ns-refresh-after-fn)))
-           (lambda (response)
-             (cider-ns-refresh--handle-response response log-buffer)
-             (nrepl-dbind-response response (status id)
-               (when (member "done" status)
-                 (nrepl--mark-id-completed id))))
-           conn))))))
+          (let ((reloading (list nil)))
+            (cider-nrepl-send-request
+             `("op" ,(cider-ns--reload-op (if all? "reload-all" "reload"))
+               ,@(cider--nrepl-print-request-plist fill-column)
+               ,@(when (and (not inhibit-refresh-fns) cider-ns-refresh-before-fn)
+                   `("before" ,cider-ns-refresh-before-fn))
+               ,@(when (and (not inhibit-refresh-fns) cider-ns-refresh-after-fn)
+                   `("after" ,cider-ns-refresh-after-fn)))
+             (lambda (response)
+               (cider-ns-refresh--handle-response response log-buffer reloading)
+               (nrepl-dbind-response response (status id)
+                 (when (member "done" status)
+                   (nrepl--mark-id-completed id))))
+             conn)))))))
 
 (provide 'cider-ns)
 ;;; cider-ns.el ends here

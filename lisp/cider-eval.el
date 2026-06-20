@@ -300,6 +300,16 @@ REPL buffer.  This is controlled via
             (cider--make-fringe-overlay (point)))
         (scan-error nil)))))
 
+(defun cider--mark-loaded (&optional buffer)
+  "Mark BUFFER's content as loaded into the REPL and in sync.
+Refreshes the evaluation fringe indicators across BUFFER and runs
+`cider-file-loaded-hook' (which the namespace load-state indicator hooks
+into).  BUFFER defaults to the current buffer.  Used by the load-file flow
+and by the namespace reloading commands once they finish."
+  (with-current-buffer (or buffer (current-buffer))
+    (cider--make-fringe-overlays-for-region (point-min) (point-max))
+    (run-hooks 'cider-file-loaded-hook)))
+
 
 (declare-function cider-inspect-last-result "cider-inspector")
 (defun cider-interactive-eval-handler (&optional buffer place)
@@ -359,9 +369,7 @@ Optional argument DONE-HANDLER lambda will be run once load is complete."
                  (when cider-eval-register
                    (setq res (concat res value)))
                  (when (buffer-live-p target)
-                   (with-current-buffer target
-                     (cider--make-fringe-overlays-for-region (point-min) (point-max))
-                     (run-hooks 'cider-file-loaded-hook))))
+                   (cider--mark-loaded target)))
      :on-stdout #'cider-emit-interactive-eval-output
      :on-stderr (lambda (err)
                   (cider-emit-interactive-eval-err-output err)

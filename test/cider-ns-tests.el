@@ -204,3 +204,38 @@
       (cider-ns--present-error cider-ns-tests--sample-causes)
       (when-let ((b (get-buffer "*cider-error*"))) ;; Clean it up for other tests
         (kill-buffer b)))))
+
+(describe "cider-ns--mark-reloaded"
+  (it "resyncs an unmodified buffer whose namespace was reloaded"
+    (spy-on 'cider--mark-loaded)
+    (with-clojure-buffer "(ns foo)"
+      (set-buffer-modified-p nil)
+      (cider-ns--mark-reloaded '("foo"))
+      (expect 'cider--mark-loaded :to-have-been-called)))
+  (it "skips a buffer whose namespace was not reloaded"
+    (spy-on 'cider--mark-loaded)
+    (with-clojure-buffer "(ns bar)"
+      (set-buffer-modified-p nil)
+      (cider-ns--mark-reloaded '("foo"))
+      (expect 'cider--mark-loaded :not :to-have-been-called)))
+  (it "skips a buffer with unsaved edits (out of sync with what was reloaded)"
+    (spy-on 'cider--mark-loaded)
+    (with-clojure-buffer "(ns foo)"
+      (set-buffer-modified-p t)
+      (cider-ns--mark-reloaded '("foo"))
+      (expect 'cider--mark-loaded :not :to-have-been-called))))
+
+(describe "cider-ns--reload-callback"
+  (it "resyncs the namespace once evaluation finishes without error"
+    (spy-on 'cider-interactive-eval-handler :and-return-value #'ignore)
+    (spy-on 'cider-ns--mark-reloaded)
+    (let ((cb (cider-ns--reload-callback "foo")))
+      (funcall cb (nrepl-dict "status" '("done")))
+      (expect 'cider-ns--mark-reloaded :to-have-been-called-with '("foo"))))
+  (it "does not resync when evaluation errored"
+    (spy-on 'cider-interactive-eval-handler :and-return-value #'ignore)
+    (spy-on 'cider-ns--mark-reloaded)
+    (let ((cb (cider-ns--reload-callback "foo")))
+      (funcall cb (nrepl-dict "status" '("eval-error")))
+      (funcall cb (nrepl-dict "status" '("done")))
+      (expect 'cider-ns--mark-reloaded :not :to-have-been-called))))
