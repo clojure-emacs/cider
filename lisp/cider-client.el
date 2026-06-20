@@ -650,6 +650,74 @@ unless ALL is truthy."
   (when (and class member)
     (cider-info-request :class class :member member :context (cider-completion-get-context t))))
 
+
+;;; Namespace and symbol resolution diagnostics
+;;
+;; A lot of commands resolve a symbol (via `cider-var-info' and friends) and do
+;; nothing useful when it can't be resolved - typically because the buffer's
+;; namespace hasn't been evaluated into the REPL yet.  These helpers turn that
+;; silent no-op into an actionable message, distinguishing "the namespace isn't
+;; loaded" (load the buffer) from "the symbol doesn't exist" (a typo, a missing
+;; require, or a definition that hasn't been evaluated yet).  They're meant to be
+;; called only on the failure path, so they never slow down the common case.
+
+(defvar cider-repl-ns-cache) ; defined in cider-repl.el, populated by track-state
+
+(defun cider-ns-loaded-p (&optional ns)
+  "Return non-nil when NS is loaded in the connected runtime.
+NS defaults to the current namespace.  Consults the track-state namespace
+cache first - which is free, but only populated when cider-nrepl is present -
+and otherwise falls back to a `find-ns' eval, so it works against a vanilla
+nREPL server too.  Returns nil when the namespace can't be determined."
+  (when-let* ((ns (or ns (cider-current-ns 'no-default)))
+              (repl (cider-current-repl)))
+    (or
+     ;; Fast path: track-state already knows about this namespace.
+     (and (nrepl-dict-get (buffer-local-value 'cider-repl-ns-cache repl) ns) t)
+     ;; Fallback: ask the runtime directly (works without cider-nrepl).
+     (equal "true"
+            (nrepl-dict-get
+             (cider-sync-tooling-eval (format "(some? (find-ns '%s))" ns) nil repl)
+             "value")))))
+
+(defun cider-resolution-failure-message (sym)
+  "Return an actionable message explaining why SYM failed to resolve.
+When the current namespace isn't loaded in the REPL, point the user at
+evaluating the buffer.  When it is loaded, the likely causes are a typo, a
+missing require, or a definition that hasn't been (re-)evaluated yet - the
+last one being the out-of-sync case where the namespace is loaded but stale."
+  (let ((ns (cider-current-ns 'no-default)))
+    (if (and ns (not (cider-ns-loaded-p ns)))
+        (substitute-command-keys
+         (format "Can't resolve `%s' - the namespace `%s' isn't loaded yet; evaluate the buffer with \\[cider-load-buffer] and try again"
+                 sym ns))
+      (format "Can't resolve `%s'%s - check for a typo, a missing require, or a definition you haven't evaluated yet"
+              sym (if ns (format " in `%s'" ns) "")))))
+
+(defun cider--symbol-operator-p (operator)
+  "Return non-nil when OPERATOR could name a Clojure var (a plain symbol)."
+  (and (stringp operator)
+       (not (string-empty-p operator))
+       (not (string-match-p "\\`[][:\"(){}0-9]" operator))))
+
+(defun cider-ensure-macro (operator)
+  "Signal a helpful `user-error' unless OPERATOR names a resolvable macro.
+This turns the silent \"nothing happens\" case (e.g. the namespace hasn't
+been evaluated yet) into an actionable message, distinguishing an unresolved
+symbol from a special form or an ordinary (non-macro) var."
+  (cond
+   ((not (cider--symbol-operator-p operator))
+    (user-error "`%s' is not a macro" (or operator "form")))
+   (t
+    (let ((info (cider-var-info operator)))
+      (cond
+       ((null info)
+        (user-error "%s" (cider-resolution-failure-message operator)))
+       ((nrepl-dict-get info "special-form")
+        (user-error "`%s' is a special form; there's nothing to macroexpand" operator))
+       ((not (nrepl-dict-get info "macro"))
+        (user-error "`%s' is not a macro" operator)))))))
+
 
 ;;; Requests
 
