@@ -28,6 +28,7 @@
 - [#3972](https://github.com/clojure-emacs/cider/pull/3972): Briefly highlight (pulse) the result after macroexpanding, both in the macroexpansion buffer and with inline `cider-macrostep` (toggle via `cider-macroexpansion-highlight-expansion` / `cider-macrostep-highlight-expansion`).
 - [#3972](https://github.com/clojure-emacs/cider/pull/3972): When macroexpanding an unresolved symbol (e.g. a macro whose namespace hasn't been evaluated yet), a special form, or a non-macro, the macroexpansion commands now report a helpful message instead of silently doing nothing.
 - [#3979](https://github.com/clojure-emacs/cider/pull/3979): Extend those actionable resolution hints to `cider-find-var`, `cider-doc` and the ClojureDocs commands, and tell an unloaded namespace (evaluate the buffer first) apart from a genuinely unresolved symbol (a typo or a missing require).
+- [#3979](https://github.com/clojure-emacs/cider/pull/3979): Tell "no references/dependencies found" apart from an unresolved symbol in `cider-xref-fn-refs` and `cider-xref-fn-deps`, and warn instead of showing an empty buffer when `cider-browse-ns` is pointed at a namespace that isn't loaded.
 - [#3968](https://github.com/clojure-emacs/cider/pull/3968): Add a menu and per-var key bindings to the cheatsheet buffer (`d` for docs, `c` for ClojureDocs, `w` for ClojureDocs in the browser).
 
 ## 1.22.2 (2026-06-17)

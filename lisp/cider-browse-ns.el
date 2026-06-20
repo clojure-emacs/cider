@@ -446,11 +446,14 @@ var-meta map."
 (defun cider-browse-ns (namespace)
   "List all NAMESPACE's vars."
   (interactive (list (completing-read "Browse namespace: " (cider-sync-request:ns-list))))
-  (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer 'select nil 'ancillary)
-    (cider-browse-ns--list (current-buffer)
-                           namespace
-                           (cider-browse-ns--combined-vars-with-meta namespace)
-                           namespace)))
+  (let ((vars (cider-browse-ns--combined-vars-with-meta namespace)))
+    (when (and (nrepl-dict-empty-p vars)
+               (not (cider-ns-loaded-p namespace)))
+      (user-error "%s" (substitute-command-keys
+                        (format "The namespace `%s' isn't loaded yet; evaluate it (e.g. with \\[cider-load-buffer]) and try again"
+                                namespace))))
+    (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer 'select nil 'ancillary)
+      (cider-browse-ns--list (current-buffer) namespace vars namespace))))
 
 ;;;###autoload
 (defun cider-browse-ns-all ()
