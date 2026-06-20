@@ -349,3 +349,29 @@ Clojure buffer:
 
 image::cider-which-key.png[CIDER which-key]
 ====
+
+== Deprecated Keybindings
+
+As CIDER's command set grows, some keybindings get reorganized - usually moved
+under a prefix group (like the documentation commands under kbd:[C-c C-d]).  When
+that happens the old binding isn't yanked away immediately: it keeps working for
+a deprecation window, but the first time you use it in a session it prints a
+one-time hint pointing at the replacement.
+
+List everything currently deprecated, and what to use instead, with:
+
+----
+M-x cider-list-deprecated-keybindings
+----
+
+The old bindings keep working regardless; to silence the hints set:
+
+[source,lisp]
+----
+(setq cider-warn-on-deprecated-keybindings nil)
+----
+
+For example, the REPL-only jack-in/connect keys kbd:[C-c M-j], kbd:[C-c M-J],
+kbd:[C-c M-c] and kbd:[C-c M-C] have been superseded by the shared kbd:[C-c C-x]
+start map (kbd:[C-c C-x j j], kbd:[C-c C-x j s], kbd:[C-c C-x c j],
+kbd:[C-c C-x c s]) since 0.18.0, so they now warn when used.
