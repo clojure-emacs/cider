@@ -2161,10 +2161,14 @@ in an unexpected place."
     (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-r") 'clojure-refactor-map)
     (define-key map (kbd "C-c C-v") 'cider-eval-commands-map)
-    (define-key map (kbd "C-c M-j") #'cider-jack-in-clj)
-    (define-key map (kbd "C-c M-J") #'cider-jack-in-cljs)
-    (define-key map (kbd "C-c M-c") #'cider-connect-clj)
-    (define-key map (kbd "C-c M-C") #'cider-connect-cljs)
+    ;; Deprecated REPL-only aliases; the canonical bindings live in the
+    ;; `C-c C-x' start map, shared with `cider-mode'.
+    ;; Soft-deprecated since the `C-c C-x' start map landed in 0.18.0; now
+    ;; formally warned (the warning mechanism itself arrived in 1.23.0).
+    (cider--define-deprecated-key map "C-c M-j" #'cider-jack-in-clj "C-c C-x j j" "0.18.0")
+    (cider--define-deprecated-key map "C-c M-J" #'cider-jack-in-cljs "C-c C-x j s" "0.18.0")
+    (cider--define-deprecated-key map "C-c M-c" #'cider-connect-clj "C-c C-x c j" "0.18.0")
+    (cider--define-deprecated-key map "C-c M-C" #'cider-connect-cljs "C-c C-x c s" "0.18.0")
 
     (define-key map (string cider-repl-shortcut-dispatch-char) #'cider-repl-handle-shortcut)
     (easy-menu-define cider-repl-mode-menu map
