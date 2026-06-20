@@ -21,6 +21,7 @@
 
 ### Changes
 
+- [#3980](https://github.com/clojure-emacs/cider/pull/3980): Keep the load-state indicators in sync across `cider-ns-reload`/`cider-ns-reload-all` and `cider-ns-refresh`: the reloaded namespaces' (unsaved-edit-free) buffers get their fringe and mode-line markers refreshed, instead of staying stale until the next `cider-load-buffer`. These commands now run `cider-file-loaded-hook` for the reloaded buffers, so `cider-auto-test-mode` re-runs their tests too (matching what `cider-load-buffer` already does).
 - [#3967](https://github.com/clojure-emacs/cider/pull/3967): Refresh the embedded Clojure cheatsheet with functions added since Clojure 1.11 (`partitionv`, `partitionv-all`, `splitv-at`, `clojure.repl.deps`, `clojure.java.process`, the `clojure.core` Java-stream helpers, and more `clojure.math` members).
 - [#3967](https://github.com/clojure-emacs/cider/pull/3967): Give the cheatsheet buffer a dedicated `cider-cheatsheet-mode` with fontified section headers and `TAB`/`S-TAB` navigation between entries.
 - [#3971](https://github.com/clojure-emacs/cider/pull/3971): Add `n` and `t` keys in the macroexpansion buffer to cycle namespace display (`cider-macroexpansion-display-namespaces`) and toggle metadata (`cider-macroexpansion-print-metadata`), re-expanding in place.
