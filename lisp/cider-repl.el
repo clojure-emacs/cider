@@ -328,7 +328,9 @@ fully initialized."
    (propertize (cider-repl--banner) 'font-lock-face 'font-lock-comment-face))
   (when cider-repl-display-help-banner
     (insert-before-markers
-     (propertize (cider-repl--help-banner) 'font-lock-face 'font-lock-comment-face))))
+     (propertize (cider-repl--help-hint)
+                 'font-lock-face 'font-lock-comment-face
+                 'cider-repl-help-banner t))))
 
 (defun cider-repl--insert-startup-commands ()
   "Insert startup details from `cider-launch-params' as REPL comments.
@@ -367,12 +369,6 @@ init form, when those parameters are present."
   (format ";; Connected to nREPL server - nrepl://%s:%s
 ;; CIDER %s, nREPL %s
 ;; Clojure %s, Java %s
-;;     Docs: (doc function-name)
-;;           (find-doc part-of-name)
-;;   Source: (source function-name)
-;;  Javadoc: (javadoc java-object-or-class)
-;;     Exit: <C-c C-q>
-;;  Results: Stored in vars *1, *2, *3, an exception in *e;
 "
           (plist-get nrepl-endpoint :host)
           (plist-get nrepl-endpoint :port)
@@ -386,12 +382,6 @@ init form, when those parameters are present."
   (format ";; Connected to nREPL server - nrepl://%s:%s
 ;; CIDER %s, babashka.nrepl %s
 ;; Babashka %s
-;;     Docs: (doc function-name)
-;;           (find-doc part-of-name)
-;;   Source: (source function-name)
-;;  Javadoc: (javadoc java-object-or-class)
-;;     Exit: <C-c C-q>
-;;  Results: Stored in vars *1, *2, *3, an exception in *e;
 "
           (plist-get nrepl-endpoint :host)
           (plist-get nrepl-endpoint :port)
@@ -408,42 +398,131 @@ init form, when those parameters are present."
           (plist-get nrepl-endpoint :port)
           (cider--version)))
 
-(defun cider-repl--help-banner ()
-  "Generate the help banner."
+(defun cider-repl--help-hint ()
+  "Generate the compact help hint shown below the REPL banner.
+The full getting-started help now lives in `cider-repl-help'."
   (substitute-command-keys
-   ";; ======================================================================
-;; If you're new to CIDER it is highly recommended to go through its
-;; user manual first. Type <M-x cider-view-manual> to view it.
-;; In case you're seeing any warnings you should consult the manual's
-;; \"Troubleshooting\" section.
-;;
-;; Here are a few tips to get you started:
-;;
-;; * Press <\\[describe-mode]> to see a list of the keybindings available (this
-;;   will work in every Emacs buffer)
-;; * Press <\\[cider-repl-handle-shortcut]> to quickly invoke some REPL command
-;; * Press <\\[cider-switch-to-last-clojure-buffer]> to switch between the REPL and a Clojure file
-;; * Press <\\[cider-find-var]> to jump to the source of something (e.g. a var, a
-;;   Java method)
-;; * Press <\\[cider-doc]> to view the documentation for something (e.g.
-;;   a var, a Java method)
-;; * Print CIDER's refcard and keep it close to your keyboard.
-;;
-;; CIDER is super customizable - try <M-x customize-group cider> to
-;; get a feel for this. If you're thirsty for knowledge you should try
-;; <M-x cider-drink-a-sip>.
-;;
-;; If you think you've encountered a bug (or have some suggestions for
-;; improvements) use <M-x cider-report-bug> to report it.
-;;
-;; Above all else - don't panic! In case of an emergency - procure
-;; some (hard) cider and enjoy it responsibly!
-;;
-;; You can remove this message with the <M-x cider-repl-clear-help-banner> command.
-;; You can disable it from appearing on start by setting
-;; `cider-repl-display-help-banner' to nil.
-;; ======================================================================
+   ";;
+;; New to CIDER?  \\<cider-repl-mode-map>\\[cider-repl-help] for a REPL reference, \\[cider-view-manual] for the manual.
 "))
+
+(defconst cider-repl-help-buffer "*cider-repl-help*"
+  "Name of the CIDER REPL reference buffer.")
+
+(defface cider-repl-help-heading
+  '((t :inherit bold :underline t))
+  "Face for the section headings in the `cider-repl-help' buffer."
+  :group 'cider
+  :package-version '(cider . "1.23.0"))
+
+(defvar cider-repl-help-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map special-mode-map)
+    map)
+  "Keymap for `cider-repl-help-mode'.")
+
+(define-derived-mode cider-repl-help-mode special-mode "CIDER REPL Help"
+  "Major mode for the CIDER REPL quick-help buffer.
+
+\\{cider-repl-help-mode-map}")
+
+(defun cider-repl--help-key (command keymap)
+  "Return a display key for COMMAND in KEYMAP, or an \"M-x\" form if unbound.
+KEYMAP is a symbol whose value is a keymap.  Only that keymap is searched (not
+its parents), since the refcard sections list commands bound directly in it."
+  (if-let* ((km (and (boundp keymap) (symbol-value keymap)))
+            (key (where-is-internal command (list km) t)))
+      (key-description key)
+    (format "M-x %s" command)))
+
+(defun cider-repl--help-section (title rows &optional keymap)
+  "Format a refcard section: a faced TITLE over aligned ROWS.
+Each row is a cons (KEY-OR-COMMAND . DESCRIPTION); a symbol is resolved to its
+key in KEYMAP (default `cider-repl-mode-map'), a string is shown verbatim."
+  (let* ((keymap (or keymap 'cider-repl-mode-map))
+         (cells (mapcar (lambda (row)
+                          (cons (if (symbolp (car row))
+                                    (cider-repl--help-key (car row) keymap)
+                                  (car row))
+                                (cdr row)))
+                        rows))
+         (width (apply #'max 3 (mapcar (lambda (c) (string-width (car c))) cells))))
+    (concat
+     (propertize title 'face 'cider-repl-help-heading) "\n"
+     (mapconcat (lambda (c)
+                  (format "  %s%s  %s"
+                          (car c)
+                          (make-string (- width (string-width (car c))) ?\s)
+                          (cdr c)))
+                cells "\n")
+     "\n")))
+
+(defun cider-repl--help-button (label action &optional help)
+  "Return LABEL as a text button that calls ACTION when activated.
+HELP is the `help-echo' tooltip, defaulting to LABEL."
+  (make-text-button (copy-sequence label) nil
+                    'action (lambda (_) (funcall action))
+                    'follow-link t
+                    'help-echo (or help label)))
+
+(defun cider-repl--help-contents ()
+  "Return the text shown in the `cider-repl-help' buffer.
+A compact reference for the REPL workflow: interacting at the prompt, loading
+code, switching namespaces and moving between the REPL and source."
+  (concat
+   (propertize "CIDER REPL Reference\n\n" 'face 'cider-repl-help-heading)
+   (cider-repl--help-section
+    "At the prompt"
+    '(("(doc name)"    . "documentation for a var")
+      ("(find-doc re)" . "search documentation")
+      ("(source name)" . "source of a var")
+      ("(javadoc cls)" . "Javadoc for a class or object")
+      ("*1  *2  *3"    . "the last three results")
+      ("*e"            . "the last exception")))
+   "\n"
+   (cider-repl--help-section
+    "In the REPL"
+    '((cider-repl-handle-shortcut          . "run a REPL shortcut (,help lists them)")
+      (cider-repl-history                  . "browse input history")
+      (cider-repl-previous-input           . "previous input")
+      (cider-repl-next-input               . "next input")
+      (cider-repl-clear-output             . "clear the last output")
+      (cider-interrupt                     . "interrupt evaluation")
+      (cider-repl-set-ns                   . "set the REPL ns to the current one")
+      (cider-switch-to-last-clojure-buffer . "jump to the last Clojure buffer")
+      (cider-quit                          . "quit the REPL")))
+   "\n"
+   (cider-repl--help-section
+    "From a source buffer"
+    '((cider-load-buffer                           . "load (eval) the buffer")
+      (cider-load-file                             . "load (eval) a file")
+      (cider-switch-to-repl-buffer                 . "jump to the REPL (C-u: also sync its ns)")
+      (cider-load-buffer-and-switch-to-repl-buffer . "load the buffer, then jump to the REPL"))
+    'cider-mode-map)
+   "\n"
+   "More:  "
+   (cider-repl--help-button "User manual" #'cider-view-manual
+                            "Open the CIDER user manual")
+   "    "
+   (cider-repl--help-button "Customize CIDER" (lambda () (customize-group 'cider))
+                            "Customize the cider group")
+   "    "
+   (cider-repl--help-button "Report a bug" #'cider-report-bug
+                            "Report a bug or a suggestion")
+   "\n\n"
+   "Press q to dismiss.\n"))
+
+;;;###autoload
+(defun cider-repl-help ()
+  "Display a quick REPL reference for working in the CIDER REPL."
+  (interactive)
+  (with-current-buffer (get-buffer-create cider-repl-help-buffer)
+    (cider-repl-help-mode)
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (insert (cider-repl--help-contents))
+      (goto-char (point-min))))
+  (pop-to-buffer cider-repl-help-buffer))
 
 
 ;;; REPL interaction
@@ -1260,24 +1339,14 @@ With a prefix argument CLEAR-REPL it will clear the entire REPL buffer instead."
         (cider-repl--clear-region start (1+ end))))))
 
 (defun cider-repl-clear-help-banner ()
-  "Delete the help REPL banner."
+  "Delete the help hint shown below the REPL banner."
   (interactive)
-  ;; TODO: Improve the boundaries detecting logic
-  ;; probably it should be based on text properties
-  (let ((start (save-excursion
-                 (goto-char (point-min))
-                 (search-forward ";; =")
-                 (beginning-of-line)
-                 (point)))
-        (end (save-excursion
-               (goto-char (point-min))
-               (cider-repl-next-prompt)
-               (search-backward ";; =")
-               (end-of-line)
-               (point))))
-    (when (< start end)
-      (let ((inhibit-read-only t))
-        (cider-repl--clear-region start (1+ end))))))
+  (when-let* ((start (text-property-any (point-min) (point-max)
+                                        'cider-repl-help-banner t))
+              (end (or (next-single-property-change start 'cider-repl-help-banner)
+                       (point-max))))
+    (let ((inhibit-read-only t))
+      (cider-repl--clear-region start end))))
 
 (defun cider-repl-switch-ns-handler (buffer)
   "Make an nREPL evaluation handler for the REPL BUFFER's ns switching."
@@ -1838,6 +1907,7 @@ the history file is rewritten if `cider-repl-history-file' is set."
 (cider-repl-add-shortcut "test-report" #'cider-test-show-report)
 (cider-repl-add-shortcut "run" #'cider-run)
 (cider-repl-add-shortcut "conn-info" #'cider-describe-connection)
+(cider-repl-add-shortcut "refcard" #'cider-repl-help)
 (cider-repl-add-shortcut "version" #'cider-version)
 (cider-repl-add-shortcut "require-repl-utils" #'cider-repl-require-repl-utils)
 ;; So many ways to quit :-)
@@ -2009,6 +2079,7 @@ in an unexpected place."
     (define-key map (kbd "C-<return>") #'cider-repl-closing-return)
     (define-key map (kbd "C-j") #'cider-repl-newline-and-indent)
     (define-key map (kbd "C-c C-o") #'cider-repl-clear-output)
+    (define-key map (kbd "C-c C-h") #'cider-repl-help)
     (define-key map (kbd "C-c M-n") #'cider-repl-set-ns)
     (define-key map (kbd "C-c C-u") #'cider-repl-kill-input)
     (define-key map (kbd "C-S-a") #'cider-repl-bol-mark)
