@@ -32,8 +32,15 @@ other Clojure REPLs. Some examples of such things would be:
 * You can clear the REPL buffer with kbd:[C-u C-c C-o]
 * You can jump between your source buffers and the REPL with kbd:[C-c C-z]
 * You can jump between your Clojure and ClojureScript REPLs with kbd:[C-c M-o]
+* You can pop up a quick REPL reference card with kbd:[C-c C-h] (`cider-repl-help`)
 
 On top of this the REPL is extremely configurable and you can tweak almost every aspect of it.
+
+TIP: New REPL buffers open with a compact banner and a one-line hint pointing at
+kbd:[C-c C-h] (also the `,refcard` REPL shortcut), which summons a `cider-repl-help`
+reference covering the common REPL interactions, loading code, switching
+namespaces and moving between the REPL and your source.  Set
+`cider-repl-display-help-banner` to nil to drop the hint from new REPLs.
 
 == Interrupting Evaluations
 

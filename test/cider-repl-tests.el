@@ -81,12 +81,6 @@
               ";; Connected to nREPL server - nrepl://localhost:54018
 ;; CIDER 0.12.0 (Seattle), nREPL 0.5.3
 ;; Clojure 1.8.0, Java 1.8.0_31
-;;     Docs: (doc function-name)
-;;           (find-doc part-of-name)
-;;   Source: (source function-name)
-;;  Javadoc: (javadoc java-object-or-class)
-;;     Exit: <C-c C-q>
-;;  Results: Stored in vars *1, *2, *3, an exception in *e;
 "))))
 
 (defvar cider-testing-ansi-colors-vector
@@ -454,3 +448,48 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
           (setq default-directory (concat fake-proj-root "src/"))
           (expect (cider--sesman-friendly-session-p (list "a-session" b))
                   :to-be-truthy))))))
+
+(describe "cider-repl--help-key"
+  (it "resolves a bound command to its key"
+    (expect (cider-repl--help-key 'cider-quit 'cider-repl-mode-map)
+            :not :to-match "\\`M-x"))
+  (it "falls back to an M-x form for an unbound command"
+    (expect (cider-repl--help-key 'cider-repl-tests--nope 'cider-repl-mode-map)
+            :to-equal "M-x cider-repl-tests--nope")))
+
+(describe "cider-repl--help-section"
+  (it "renders the heading over its rows, with literal and resolved keys"
+    (let ((s (substring-no-properties
+              (cider-repl--help-section
+               "Stuff" '(("(doc x)" . "docs") (cider-quit . "quit"))))))
+      (expect s :to-match "Stuff")
+      (expect s :to-match "(doc x)")
+      (expect s :to-match "docs")
+      (expect s :to-match "quit"))))
+
+(describe "cider-repl--help-contents"
+  (it "covers the REPL workflow sections and a clickable footer"
+    (let ((s (cider-repl--help-contents)))
+      (expect (substring-no-properties s) :to-match "At the prompt")
+      (expect (substring-no-properties s) :to-match "In the REPL")
+      (expect (substring-no-properties s) :to-match "From a source buffer")
+      (let ((i (string-search "User manual" s)))
+        (expect (get-text-property i 'action s) :to-be-truthy)))))
+
+(describe "cider-repl-help"
+  (it "pops up a read-only help buffer in `cider-repl-help-mode'"
+    (spy-on 'pop-to-buffer)
+    (cider-repl-help)
+    (with-current-buffer cider-repl-help-buffer
+      (expect major-mode :to-be 'cider-repl-help-mode)
+      (expect buffer-read-only :to-be-truthy))
+    (kill-buffer cider-repl-help-buffer)))
+
+(describe "cider-repl-clear-help-banner"
+  (it "removes the help hint region tagged with `cider-repl-help-banner'"
+    (with-temp-buffer
+      (insert "keep before\n")
+      (insert (propertize ";; hint line\n" 'cider-repl-help-banner t))
+      (insert "keep after\n")
+      (cider-repl-clear-help-banner)
+      (expect (buffer-string) :to-equal "keep before\nkeep after\n"))))
