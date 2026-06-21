@@ -42,28 +42,61 @@
                                (setq output (format "%s%s" output (substring-no-properties arg)))))
       (cider-repl--insert-startup-commands)
       (expect output :to-be "")))
-  (it "puts jack-in-command in same style as banner"
+  (it "no longer dumps the jack-in command into the transcript"
     (let ((output "")
           (cider-launch-params '(:jack-in-cmd "lein command")))
       (spy-on 'insert-before-markers
               :and-call-fake (lambda (arg)
                                (setq output (format "%s%s" output (substring-no-properties arg)))))
       (cider-repl--insert-startup-commands)
-      (expect output :to-equal
-              ";;  Startup: lein command\n")))
-  (it "formats output if present"
+      (expect output :to-equal "")))
+  (it "prints a single compact line for a ClojureScript REPL"
     (let ((output "")
           (cider-launch-params '(:cljs-repl-type shadow :repl-init-form "(do)")))
       (spy-on 'insert-before-markers
               :and-call-fake (lambda (arg)
                                (setq output (format "%s%s" output (substring-no-properties arg)))))
       (cider-repl--insert-startup-commands)
-      (expect output :to-equal
-              ";;
-;; ClojureScript REPL type: shadow
-;; ClojureScript REPL init form: (do)
-;;
-"))))
+      (expect output :to-equal ";; ClojureScript REPL: shadow\n"))))
+
+(describe "cider-repl-describe-startup"
+  (it "errors when no startup details are available"
+    (let ((repl (generate-new-buffer " *repl*")))
+      (unwind-protect
+          (progn
+            (with-current-buffer repl
+              (setq-local cider-launch-params nil
+                          nrepl-endpoint nil
+                          nrepl-project-dir nil
+                          cider-repl-type nil))
+            (spy-on 'cider-current-repl :and-return-value repl)
+            (expect (cider-repl-describe-startup) :to-throw 'user-error))
+        (kill-buffer repl))))
+  (it "shows the project, jack-in command and cljs details, with a copy button"
+    (let ((repl (generate-new-buffer " *repl*")))
+      (unwind-protect
+          (progn
+            (with-current-buffer repl
+              (setq-local cider-launch-params
+                          '(:project-dir "/tmp/proj" :jack-in-cmd "lein repl"
+                            :cljs-repl-type shadow :repl-init-form "(do)")
+                          nrepl-endpoint nil
+                          nrepl-project-dir nil
+                          cider-repl-type 'cljs))
+            (spy-on 'cider-current-repl :and-return-value repl)
+            (spy-on 'pop-to-buffer)
+            (cider-repl-describe-startup)
+            (with-current-buffer cider-repl-startup-buffer
+              (let ((s (buffer-string)))
+                (expect (substring-no-properties s) :to-match "/tmp/proj")
+                (expect (substring-no-properties s) :to-match "lein repl")
+                (expect (substring-no-properties s) :to-match "shadow")
+                (expect (substring-no-properties s) :to-match "(do)")
+                ;; the jack-in [copy] is a real button
+                (expect (get-text-property (string-search "[copy]" s) 'action s)
+                        :to-be-truthy)))
+            (kill-buffer cider-repl-startup-buffer))
+        (kill-buffer repl)))))
 
 (describe "cider-repl--clojure-banner"
   :var (cider-version cider-codename)
