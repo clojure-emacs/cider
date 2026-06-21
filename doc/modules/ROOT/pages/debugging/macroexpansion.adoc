@@ -160,6 +160,12 @@ NOTE: The expandable-head highlighting and gensym coloring rely on the
 `cider/classify-symbols` nREPL op, available in cider-nrepl 0.60 and newer.
 Without it the stepping still works, just without those visual aids.
 
+If you'd rather not touch the source buffer, `cider-macrostep-expand-in-buffer`
+runs the same stepping session in a dedicated `+*cider-macrostep*+` popup: it
+copies the form before point there and you step through it exactly as above,
+with the source left untouched. In the popup kbd:[q] dismisses the whole buffer
+in one step.
+
 === Configuration
 
 * `cider-macrostep-display-namespaces` - how namespaces are displayed in the
