@@ -288,11 +288,12 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
               :to-equal
               '(:type warning :highlight (22 . 100) :var nil :file "cider/inlined_deps/toolsreader/v1v2v2/clojure/tools/reader/impl/utils.clj" :line 18))))
   (it "works with compilation exceptions"
-    (insert "\nCompilerException java.lang.RuntimeException: Unable to resolve symbol: pp in this context, compiling:(/path/to/a/file.clj:575:16)")
-    (move-to-column 20)
-    (expect (cider-locref-at-point)
-            :to-equal
-            '(:type compilation :highlight (2 . 132) :var nil :file "/path/to/a/file.clj" :line 575))))
+    (with-temp-buffer
+      (insert "\nCompilerException java.lang.RuntimeException: Unable to resolve symbol: pp in this context, compiling:(/path/to/a/file.clj:575:16)")
+      (move-to-column 20)
+      (expect (cider-locref-at-point)
+              :to-equal
+              '(:type compilation :highlight (2 . 132) :var nil :file "/path/to/a/file.clj" :line 575)))))
 
 (describe "cider-repl-require-repl-utils"
   (before-each
