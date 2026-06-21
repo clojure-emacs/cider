@@ -54,6 +54,30 @@ and `cider-apropos-documentation` (kbd:[C-c C-d f] or kbd:[C-c C-d C-f]) will he
 
 Those few essential commands can get you really far in your day to day work. Keep on reading for a lot more information!
 
+== A Note on Keybinding Conventions
+
+Many of CIDER's keybindings are modeled on
+https://slime.common-lisp.dev/[SLIME] (the venerable Common Lisp environment)
+and on Emacs's own bindings for evaluating Emacs Lisp.  The essentials line up
+almost everywhere - kbd:[C-x C-e] (eval last sexp), kbd:[C-M-x] (eval
+top-level form), kbd:[C-c C-k] (load), kbd:[C-c C-m] / kbd:[C-c M-m]
+(macroexpand), kbd:[M-.] / kbd:[M-,] (jump to a definition and back),
+kbd:[C-c C-d C-d] (docs), kbd:[C-c C-z] (switch to the REPL) and kbd:[C-c C-b]
+(interrupt).  We try to diverge only rarely, so that switching between Clojure,
+Common Lisp (SLIME/Sly) and Scheme (Geiser) stays as frictionless as possible.
+
+Where CIDER does differ, it's usually for a reason:
+
+* *Inspect* is on kbd:[C-c M-i] rather than SLIME's kbd:[C-c I].  Emacs reserves
+  `C-c` followed by a plain letter for users' own bindings, so we keep to the
+  modifier-and-control space that's meant for modes.
+* *Tracing* is on the kbd:[C-c M-t] prefix rather than SLIME's kbd:[C-c C-t],
+  because CIDER uses kbd:[C-c C-t] for its test commands (something the Lisps
+  don't have).
+* CIDER has far more *evaluation* commands than the other tools, so beyond the
+  handful of familiar top-level bindings the rest live under a dedicated
+  kbd:[C-c C-v] eval prefix, rather than each claiming its own global key.
+
 == Key Reference
 
 Here's a list of the key bindings of `cider-mode`:
