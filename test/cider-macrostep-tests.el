@@ -254,6 +254,54 @@
       (expect (cider-macrostep-expand-all) :to-throw 'user-error)
       (expect cider-macrostep--overlays :to-be nil))))
 
+(describe "cider-macrostep-expand-in-buffer"
+  (after-each
+    (when (get-buffer cider-macrostep-buffer)
+      (kill-buffer cider-macrostep-buffer)))
+
+  (it "seeds a dedicated popup with the form and the originating namespace"
+    (with-current-buffer (cider-macrostep--popup-buffer "(when x a)" "fancy.ns")
+      (expect (buffer-name) :to-equal cider-macrostep-buffer)
+      (expect (string-search "(when x a)" (buffer-string)) :not :to-be nil)
+      (expect cider-buffer-ns :to-equal "fancy.ns")
+      (expect (point) :to-equal (point-max))))
+
+  (it "runs the stepping session in the popup, leaving the source untouched"
+    (spy-on 'cider-ensure-connected)
+    (spy-on 'cider-ensure-macro)
+    (spy-on 'cider-current-ns :and-return-value "user")
+    (spy-on 'cider-macrostep--expand :and-return-value "(if x (do a))")
+    (spy-on 'cider-macrostep--refresh-overlays)
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(when x a)")
+      (goto-char (point-max))
+      (cider-macrostep-expand-in-buffer)
+      ;; the source buffer is never modified
+      (expect (buffer-string) :to-equal "(when x a)")
+      (expect cider-macrostep--overlays :to-be nil))
+    ;; the expansion and its overlay live in the popup instead
+    (with-current-buffer cider-macrostep-buffer
+      (expect (string-search "(if x" (buffer-string)) :not :to-be nil)
+      (expect (length cider-macrostep--overlays) :to-equal 1)))
+
+  (it "dismisses the popup in one step via collapse-all"
+    (cider-macrostep--popup-buffer "(when x a)" "user")
+    (cider-macrostep-mode 1)
+    (with-current-buffer cider-macrostep-buffer
+      (cider-macrostep-collapse-all))
+    (expect (get-buffer cider-macrostep-buffer) :to-be nil))
+
+  (it "leaves collapse-all non-destructive inline (no popup flag)"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(when x a)")
+      (cider-macrostep-mode 1)
+      (cider-macrostep-collapse-all)
+      ;; inline: the mode exits but the buffer survives
+      (expect cider-macrostep-mode :to-be nil)
+      (expect (buffer-live-p (current-buffer)) :to-be t))))
+
 (provide 'cider-macrostep-tests)
 
 ;;; cider-macrostep-tests.el ends here

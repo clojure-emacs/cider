@@ -41,6 +41,7 @@
 (require 'clojure-mode)
 (require 'cider-client)
 (require 'cider-common)
+(require 'cider-popup)
 (require 'nrepl-dict)
 
 (defcustom cider-macrostep-display-namespaces 'tidy
@@ -128,6 +129,11 @@ Refreshed after every expansion and collapse; cleared on mode exit.")
 (defvar-local cider-macrostep--saved-header-line 'none
   "Saved `header-line-format' from before `cider-macrostep-mode'.
 The sentinel `none' means there was no buffer-local value to restore.")
+
+(defvar-local cider-macrostep--popup nil
+  "Non-nil when the current buffer is a dedicated macrostep popup.
+Set by `cider-macrostep-expand-in-buffer'; it makes `q' dismiss the whole
+popup rather than merely leave `cider-macrostep-mode' as it does inline.")
 
 (defun cider-macrostep--header-line ()
   "Return the header line shown while `cider-macrostep-mode' is active."
@@ -473,6 +479,46 @@ since a fully-recursive expansion can reach macros in nested sub-forms."
       (cider-macrostep--expand-region beg end expansion)
       (cider-macrostep--refresh-overlays))))
 
+(defconst cider-macrostep-buffer "*cider-macrostep*"
+  "Name of the dedicated buffer for out-of-place macro stepping.")
+
+(defun cider-macrostep--popup-buffer (code ns)
+  "Pop to the macrostep buffer seeded with CODE, expanded in namespace NS.
+The buffer is a `clojure-mode' popup whose `cider-buffer-ns' is NS so the
+expander resolves vars as it would in the originating buffer.  Point is left
+right after the inserted form, ready for `cider-macrostep-expand'."
+  (with-current-buffer
+      (cider-popup-buffer cider-macrostep-buffer 'select 'clojure-mode 'ancillary)
+    (setq cider-buffer-ns ns
+          cider-macrostep--popup t)
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (insert code)
+      (indent-region (point-min) (point-max))
+      (goto-char (point-max)))
+    (current-buffer)))
+
+;;;###autoload
+(defun cider-macrostep-expand-in-buffer ()
+  "Step through the macro before point in a dedicated buffer.
+Like `cider-macrostep-expand', but instead of rewriting the form in place it
+copies it into a separate `cider-macrostep-buffer' and starts the stepping
+session there, leaving the source buffer untouched.  Place point right after
+the form, as with `\\[cider-eval-last-sexp]'.
+
+The session uses the same overlay engine and key bindings as the inline
+flow, except that `q' dismisses the whole popup in one step."
+  (interactive)
+  (cider-ensure-connected)
+  (pcase-let ((`(,beg . ,end) (or (cider-macrostep--form-bounds)
+                                  (user-error "No sexp before point to expand"))))
+    (let ((operator (cider-macrostep--operator beg)))
+      (cider-ensure-macro operator)
+      (with-current-buffer (cider-macrostep--popup-buffer
+                            (buffer-substring-no-properties beg end)
+                            (cider-current-ns))
+        (cider-macrostep-expand)))))
+
 (defun cider-macrostep-collapse ()
   "Collapse the innermost expansion at point."
   (interactive)
@@ -495,9 +541,13 @@ since a fully-recursive expansion can reach macros in nested sub-forms."
   (cider-macrostep--move-to-expandable -1))
 
 (defun cider-macrostep-collapse-all ()
-  "Collapse all expansions and leave `cider-macrostep-mode'."
+  "Collapse all expansions and leave `cider-macrostep-mode'.
+In a dedicated macrostep popup (see `cider-macrostep-expand-in-buffer') this
+dismisses the popup instead, since its buffer is disposable."
   (interactive)
-  (cider-macrostep-mode -1))
+  (if cider-macrostep--popup
+      (cider-popup-buffer-quit-function 'kill)
+    (cider-macrostep-mode -1)))
 
 (provide 'cider-macrostep)
 
