@@ -42,6 +42,13 @@ reference covering the common REPL interactions, loading code, switching
 namespaces and moving between the REPL and your source.  Set
 `cider-repl-display-help-banner` to nil to drop the hint from new REPLs.
 
+TIP: Since CIDER 1.23 the REPL transcript no longer dumps the full jack-in
+command or the ClojureScript REPL init form on startup (a ClojureScript REPL
+just notes its type).  Run `cider-repl-describe-startup` (the `,startup`
+shortcut) to see those launch details - project, endpoint, the jack-in command
+and the cljs init form - on demand, with buttons to copy a command or form or to
+customize the related options.
+
 == Interrupting Evaluations
 
 If you accidentally try to evaluate something that's going to take a lot of time (if it finishes at all), you

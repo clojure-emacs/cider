@@ -333,29 +333,14 @@ fully initialized."
                  'cider-repl-help-banner t))))
 
 (defun cider-repl--insert-startup-commands ()
-  "Insert startup details from `cider-launch-params' as REPL comments.
-This shows the jack-in command and, for ClojureScript, the REPL type and
-init form, when those parameters are present."
-  (cl-flet
-      ((emit-comment
-        (contents)
-        (insert-before-markers
-         (propertize
-          (if (string-blank-p contents) ";;\n" (concat ";; " contents "\n"))
-          'font-lock-face 'font-lock-comment-face))))
-    (let ((jack-in-command (plist-get cider-launch-params :jack-in-cmd))
-          (cljs-repl-type (plist-get cider-launch-params :cljs-repl-type))
-          (cljs-init-form (plist-get cider-launch-params :repl-init-form)))
-      (when jack-in-command
-        ;; spaces to align with the banner
-        (emit-comment (concat " Startup: " jack-in-command)))
-      (when (or cljs-repl-type cljs-init-form)
-        (emit-comment "")
-        (when cljs-repl-type
-          (emit-comment (concat "ClojureScript REPL type: " (symbol-name cljs-repl-type))))
-        (when cljs-init-form
-          (emit-comment (concat "ClojureScript REPL init form: " cljs-init-form)))
-        (emit-comment "")))))
+  "Insert a compact startup note for ClojureScript REPLs.
+The full launch details - the jack-in command and the cljs init form - stay in
+`cider-launch-params' and are shown on demand by `cider-repl-describe-startup',
+rather than dumped into the REPL transcript."
+  (when-let* ((cljs-repl-type (plist-get cider-launch-params :cljs-repl-type)))
+    (insert-before-markers
+     (propertize (format ";; ClojureScript REPL: %s\n" cljs-repl-type)
+                 'font-lock-face 'font-lock-comment-face))))
 
 (defun cider-repl--banner ()
   "Generate the welcome REPL buffer banner."
@@ -523,6 +508,70 @@ code, switching namespaces and moving between the REPL and source."
       (insert (cider-repl--help-contents))
       (goto-char (point-min))))
   (pop-to-buffer cider-repl-help-buffer))
+
+(defconst cider-repl-startup-buffer "*cider-repl-startup*"
+  "Name of the buffer describing how a REPL was started.")
+
+;;;###autoload
+(defun cider-repl-describe-startup ()
+  "Describe how the current REPL was started.
+Shows the project, endpoint and REPL type, plus the jack-in command and (for
+ClojureScript) the init form used to upgrade the REPL - the launch details kept
+out of the transcript.  Offers buttons to copy a command or form to the kill
+ring (to paste into a shell or the REPL) and to customize the related options."
+  (interactive)
+  (let* ((repl (cider-current-repl 'infer 'ensure))
+         (params (buffer-local-value 'cider-launch-params repl))
+         (project (or (plist-get params :project-dir)
+                      (buffer-local-value 'nrepl-project-dir repl)))
+         (endpoint (buffer-local-value 'nrepl-endpoint repl))
+         (repl-type (buffer-local-value 'cider-repl-type repl))
+         (jack-in (plist-get params :jack-in-cmd))
+         (cljs-type (plist-get params :cljs-repl-type))
+         (cljs-form (plist-get params :repl-init-form)))
+    (unless (or project endpoint repl-type jack-in cljs-type cljs-form)
+      (user-error "No startup details available for this REPL"))
+    (with-current-buffer (get-buffer-create cider-repl-startup-buffer)
+      (cider-repl-help-mode)
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (insert (propertize "How this REPL started\n\n" 'face 'cider-repl-help-heading))
+        (when project
+          (insert (format "Project    %s\n" project)))
+        (when endpoint
+          (insert (format "Endpoint   %s:%s\n"
+                          (plist-get endpoint :host) (plist-get endpoint :port))))
+        (when repl-type
+          (insert (format "REPL type  %s\n" repl-type)))
+        (when jack-in
+          (insert "\n"
+                  (propertize "Jack-in command  " 'face 'cider-repl-help-heading)
+                  (cider-repl--help-button
+                   "[copy]"
+                   (lambda () (kill-new jack-in)
+                     (message "Jack-in command copied to the kill ring"))
+                   "Copy the jack-in command to the kill ring (paste it in a shell)")
+                  "\n  " jack-in "\n"))
+        (when (or cljs-type cljs-form)
+          (insert "\n"
+                  (propertize "ClojureScript REPL  " 'face 'cider-repl-help-heading)
+                  (cider-repl--help-button
+                   "[customize]"
+                   (lambda () (customize-variable 'cider-default-cljs-repl))
+                   "Customize cider-default-cljs-repl")
+                  "\n")
+          (when cljs-type
+            (insert (format "  type: %s\n" cljs-type)))
+          (when cljs-form
+            (insert "  init form  "
+                    (cider-repl--help-button
+                     "[copy]"
+                     (lambda () (kill-new cljs-form)
+                       (message "Init form copied to the kill ring"))
+                     "Copy the init form to the kill ring (paste it at the REPL)")
+                    "\n    " cljs-form "\n")))
+        (goto-char (point-min))))
+    (pop-to-buffer cider-repl-startup-buffer)))
 
 
 ;;; REPL interaction
@@ -1908,6 +1957,7 @@ the history file is rewritten if `cider-repl-history-file' is set."
 (cider-repl-add-shortcut "run" #'cider-run)
 (cider-repl-add-shortcut "conn-info" #'cider-describe-connection)
 (cider-repl-add-shortcut "refcard" #'cider-repl-help)
+(cider-repl-add-shortcut "startup" #'cider-repl-describe-startup)
 (cider-repl-add-shortcut "version" #'cider-version)
 (cider-repl-add-shortcut "require-repl-utils" #'cider-repl-require-repl-utils)
 ;; So many ways to quit :-)
