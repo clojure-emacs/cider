@@ -45,8 +45,8 @@
          (var-name (nrepl-dict-get trace-response "var-name"))
          (var-status (nrepl-dict-get trace-response "var-status")))
     (pcase var-status
-      ("not-found" (error "Var %s not found" (cider-propertize sym 'fn)))
-      ("not-traceable" (error "Var %s can't be traced because it's not bound to a function" (cider-propertize var-name 'fn)))
+      ("not-found" (user-error "Var %s not found" (cider-propertize sym 'fn)))
+      ("not-traceable" (user-error "Var %s can't be traced because it's not bound to a function" (cider-propertize var-name 'fn)))
       (_ (message "Var %s %s" (cider-propertize var-name 'fn) var-status)))))
 
 ;;;###autoload
@@ -82,7 +82,7 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
           (let* ((trace-response (cider-sync-request:toggle-trace-ns ns))
                  (ns-status (nrepl-dict-get trace-response "ns-status")))
             (pcase ns-status
-              ("not-found" (error "Namespace %s not found" (cider-propertize ns 'ns)))
+              ("not-found" (user-error "Namespace %s not found" (cider-propertize ns 'ns)))
               (_ (message "Namespace %s %s" (cider-propertize ns 'ns) ns-status)))))))))
 
 (provide 'cider-tracing)

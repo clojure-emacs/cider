@@ -19,6 +19,7 @@
 ### Bugs fixed
 
 - [#3971](https://github.com/clojure-emacs/cider/pull/3971): Fix `cider-macroexpand-again` (`g` in the macroexpansion buffer) to actually re-expand the form instead of redisplaying the original input.
+- [#3986](https://github.com/clojure-emacs/cider/pull/3986): Signal a `user-error` (instead of a generic `error`) when a var to trace isn't found or isn't traceable, so the failure no longer triggers a backtrace under `debug-on-error`.
 
 ### Changes
 
