@@ -1172,16 +1172,9 @@ property."
   (when (or cider-mode (derived-mode-p 'cider-repl-mode))
     (cider-refresh-dynamic-font-lock ns)))
 
-;; Enlighten is a cross-cutting feature: the mode toggle and the font-lock
-;; integration for enlightened var references live here, the debug middleware
-;; response handler (`cider--handle-enlighten') and the faces
-;; (`cider-enlightened-face', `cider-enlightened-local-face') live in
-;; cider-debug.el, and the param/eval wiring lives in cider-connection.el.
-(define-minor-mode cider-enlighten-mode
-  "Minor mode for displaying locals in debugger-instrumented evaluations."
-  :lighter (cider-mode " light")
-  :global t
-  :group 'cider)
+;; `cider-enlighten-mode' and its faces now live in cider-enlighten.el.  Only
+;; the font-lock that marks enlightened var references (see above) stays here,
+;; since it is part of cider-mode's dynamic font-locking machinery.
 
 (provide 'cider-mode)
 

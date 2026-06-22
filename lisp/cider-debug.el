@@ -32,6 +32,7 @@
 (require 'cider-browse-ns)
 (require 'cider-client)
 (require 'cider-eval)
+(require 'cider-enlighten) ; the enlighten handler dispatched below lives there
 (require 'cider-inspector)
 (require 'cider-util)
 (require 'cider-common)
@@ -56,21 +57,6 @@
   '((t :underline t :inherit font-lock-builtin-face))
   "Face used to highlight keys in the debug prompt."
   :package-version '(cider . "0.10.0"))
-
-(defface cider-enlightened-face
-  '((((class color) (background light)) :inherit cider-result-overlay-face
-     :box (:color "darkorange" :line-width -1))
-    (((class color) (background dark))  :inherit cider-result-overlay-face
-     ;; "#dd0" is a dimmer yellow.
-     :box (:color "#990" :line-width -1)))
-  "Face used to mark enlightened sexps and their return values."
-  :package-version '(cider . "0.11.0"))
-
-(defface cider-enlightened-local-face
-  '((((class color) (background light)) :weight bold :foreground "darkorange")
-    (((class color) (background dark))  :weight bold :foreground "yellow"))
-  "Face used to mark enlightened locals (not their values)."
-  :package-version '(cider . "0.11.0"))
 
 (defcustom cider-debug-prompt 'overlay
   "If and where to show the keys while debugging.
@@ -685,37 +671,6 @@ needed.  It is expected to contain at least \"key\", \"input-type\", and
       (error (cider-debug-mode-send-reply ":quit" key)
              (message "Error encountered while handling the debug message: %S" e)))))
 
-(defun cider--handle-enlighten (response)
-  "Handle an enlighten notification.
-RESPONSE is a message received from the nrepl describing the value and
-coordinates of a sexp.  Create an overlay after the specified sexp
-displaying its value."
-  (when-let* ((marker (cider--debug-find-source-position response)))
-    (with-current-buffer (marker-buffer marker)
-      (save-excursion
-        (goto-char marker)
-        (clojure-backward-logical-sexp 1)
-        (nrepl-dbind-response response (debug-value erase-previous)
-          (when erase-previous
-            (remove-overlays (point) marker 'category 'enlighten))
-          (when debug-value
-            (if (memq (char-before marker) '(?\) ?\] ?}))
-                ;; Enlightening a sexp looks like a regular return value, except
-                ;; for a different border.
-                (cider--make-result-overlay (cider-font-lock-as-clojure debug-value)
-                  :where (cons marker marker)
-                  :type 'enlighten
-                  :prepend-face 'cider-enlightened-face)
-              ;; Enlightening a symbol uses a more abbreviated format. The
-              ;; result face is the same as a regular result, but we also color
-              ;; the symbol with `cider-enlightened-local-face'.
-              (cider--make-result-overlay (cider-font-lock-as-clojure debug-value)
-                :format "%s"
-                :where (cons (point) marker)
-                :type 'enlighten
-                'face 'cider-enlightened-local-face))))))))
-
-
 ;;; Move here command
 ;; This is the inverse of `cider--debug-move-point'.  However, that algorithm is
 ;; complicated, and trying to code its inverse would probably be insane.
