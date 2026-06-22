@@ -167,12 +167,6 @@ the eval-to-comment handlers."
                     cider-comment-continued-prefix
                     cider-comment-postfix))))
 
-(defcustom cider-replace-comment t
-  "Whether to replace an existing eval comment."
-  :type 'boolean
-  :group 'cider
-  :package-version '(cider . "1.23.0"))
-
 (defcustom cider-eval-register ?e
   "The text register assigned to the most recent evaluation result.
 When non-nil, the return value of all CIDER eval commands are
@@ -470,13 +464,11 @@ COMMENT-POSTFIX is inserted after final text output."
       (indent-rigidly beg (line-end-position) col)
       (list beg (point)))))
 
-(defun cider-eval-pprint-with-multiline-comment-handler (buffer location comment-prefix continued-prefix comment-postfix
-                                                                &optional replace)
+(defun cider-eval-pprint-with-multiline-comment-handler (buffer location comment-prefix continued-prefix comment-postfix)
   "Make a handler for evaluating and inserting results in BUFFER.
 The inserted text is pretty-printed and region will be commented.
 LOCATION is the location marker at which to insert.
-If REPLACE is non-nil, delete any following region which matches the form of a
-previously inserted result.
+Any existing eval comment on the following line is replaced.
 COMMENT-PREFIX is the comment prefix for the first line of output.
 CONTINUED-PREFIX is the comment prefix to use for the remaining lines.
 COMMENT-POSTFIX is the text to output after the last line."
@@ -495,9 +487,8 @@ COMMENT-POSTFIX is the text to output after the last line."
                   (save-excursion
                     (goto-char (marker-position location))
                     ;; Replace an existing eval comment on the following line
-                    (when replace
-                      (when (eolp) (forward-line 1))
-                      (cider-maybe-delete-multiline-comment comment-prefix continued-prefix comment-postfix))
+                    (when (eolp) (forward-line 1))
+                    (cider-maybe-delete-multiline-comment comment-prefix continued-prefix comment-postfix)
                     ;; edge case: defun at eob
                     (unless (bolp) (insert "\n"))
                     (cider-maybe-insert-multiline-comment
@@ -770,7 +761,7 @@ With the prefix arg INSERT-BEFORE, insert before the form, otherwise afterwards.
                             bounds
                             (cider--nrepl-pr-request-plist))))
 
-(defun cider-pprint-form-to-comment (form-fn insert-before &optional replace)
+(defun cider-pprint-form-to-comment (form-fn insert-before)
   "Evaluate the form selected by FORM-FN and insert result as comment.
 FORM-FN can be either `cider-last-sexp' or `cider-defun-at-point'.
 
@@ -779,7 +770,7 @@ The comment style is controlled by `cider-comment-style'.  For the default
 `cider-comment-continued-prefix' and `cider-comment-postfix' options.
 
 If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards.
-If REPLACE is non-nil, attempts to replace a previous eval comment."
+Any existing eval comment is replaced."
   (pcase-let* ((bounds (funcall form-fn 'bounds))
                (insertion-point (nth (if insert-before 0 1) bounds))
                (`(,prefix ,continued ,postfix) (cider--comment-format))
@@ -792,8 +783,7 @@ If REPLACE is non-nil, attempts to replace a previous eval comment."
                              insertion-point
                              prefix
                              continued
-                             comment-postfix
-                             replace)
+                             comment-postfix)
                             bounds
                             (cider--nrepl-print-request-plist fill-column))))
 
@@ -804,7 +794,7 @@ The comment style is controlled by `cider-comment-style'.
 
 If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
   (interactive "P")
-  (cider-pprint-form-to-comment 'cider-last-sexp insert-before cider-replace-comment))
+  (cider-pprint-form-to-comment 'cider-last-sexp insert-before))
 
 (defun cider-pprint-eval-defun-to-comment (&optional insert-before)
   "Evaluate the \"top-level\" form and insert result as comment.
@@ -813,7 +803,7 @@ The comment style is controlled by `cider-comment-style'.
 
 If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
   (interactive "P")
-  (cider-pprint-form-to-comment 'cider-defun-at-point insert-before cider-replace-comment))
+  (cider-pprint-form-to-comment 'cider-defun-at-point insert-before))
 
 (defun cider--last-comment-form-bounds ()
   "Return the bounds of the last top-level `comment' form in the buffer.
