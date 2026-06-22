@@ -4,6 +4,7 @@
 
 ### New features
 
+- [#3990](https://github.com/clojure-emacs/cider/pull/3990): Add `cider-trace`, opening a dedicated `*cider-trace*` buffer that streams the calls and return values of traced functions live, instead of interleaving them into the REPL (requires a recent enough `cider-nrepl`).
 - [#3989](https://github.com/clojure-emacs/cider/pull/3989): Add `cider-list-traced` to show the vars and namespaces that are currently traced, and `cider-untrace-all` to clear all tracing at once (both require a recent enough `cider-nrepl`).
 - [#3988](https://github.com/clojure-emacs/cider/pull/3988): Add `cider-enlighten-defun-at-point` to enlighten a single top-level form without toggling the global `cider-enlighten-mode`, and `cider-enlighten-clear` to remove the enlighten overlays from a buffer.
 - [#3964](https://github.com/clojure-emacs/cider/pull/3964): Add `cider-comment-style` to control how the eval-to-comment commands format the inserted result (`line`, `ignore` or `comment`).

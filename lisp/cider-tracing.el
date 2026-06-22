@@ -131,5 +131,105 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
          (count (or (nrepl-dict-get response "untraced-count") 0)))
     (message "Untraced %d var%s" count (if (= count 1) "" "s"))))
 
+;;; Streaming trace buffer
+
+(defconst cider-trace-buffer "*cider-trace*"
+  "The name of the buffer streaming trace events.")
+
+(defvar-local cider-trace--subscription nil
+  "Id of this buffer's active trace subscription, or nil.")
+
+(defvar-local cider-trace--connection nil
+  "The REPL connection this trace buffer is subscribed through.")
+
+(defun cider-trace--indent (depth)
+  "Return the nesting indentation string for DEPTH."
+  (apply #'concat (make-list (or depth 0) "│ ")))
+
+(defun cider-trace--render-event (event)
+  "Append the trace EVENT to the current buffer, following the tail."
+  (nrepl-dbind-response event (phase name depth args value)
+    (let ((inhibit-read-only t)
+          (indent (cider-trace--indent depth))
+          (at-end (= (point) (point-max))))
+      (save-excursion
+        (goto-char (point-max))
+        (pcase phase
+          ("call"
+           (insert indent
+                   (cider-font-lock-as-clojure
+                    (format "(%s%s)" name
+                            (if args (concat " " (mapconcat #'identity args " ")) "")))
+                   "\n"))
+          ("return"
+           (insert indent "└─→ "
+                   (cider-font-lock-as-clojure (or value "nil"))
+                   "\n"))))
+      (when at-end (goto-char (point-max))))))
+
+(defun cider-trace--handle (buffer msg)
+  "Handle a trace subscription response MSG, rendering into BUFFER."
+  (when (buffer-live-p buffer)
+    (with-current-buffer buffer
+      (nrepl-dbind-response msg (cider/trace-subscribe cider/trace-event)
+        (cond (cider/trace-event
+               (cider-trace--render-event cider/trace-event))
+              (cider/trace-subscribe
+               (setq cider-trace--subscription cider/trace-subscribe)))))))
+
+(defun cider-trace--unsubscribe ()
+  "Tear down this buffer's trace subscription, if any.
+Fires a best-effort async request, since this runs from `kill-buffer-hook'."
+  (when (and cider-trace--subscription
+             (buffer-live-p cider-trace--connection))
+    (ignore-errors
+      (cider-nrepl-send-request
+       (list "op" "cider/trace-unsubscribe"
+             "subscription" cider-trace--subscription)
+       #'ignore
+       cider-trace--connection))
+    (setq cider-trace--subscription nil)))
+
+(defun cider-trace-clear ()
+  "Clear the trace buffer."
+  (interactive)
+  (let ((inhibit-read-only t))
+    (erase-buffer)))
+
+(defvar cider-trace-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "c") #'cider-trace-clear)
+    (define-key map (kbd "q") #'quit-window)
+    map)
+  "Keymap for `cider-trace-mode'.")
+
+(define-derived-mode cider-trace-mode special-mode "cider-trace"
+  "Major mode for viewing streamed trace events.
+
+\\{cider-trace-mode-map}"
+  (setq-local truncate-lines nil)
+  (add-hook 'kill-buffer-hook #'cider-trace--unsubscribe nil 'local))
+
+;;;###autoload
+(defun cider-trace ()
+  "Open a buffer that streams trace events for traced functions.
+Trace functions with `cider-toggle-trace-var' or `cider-toggle-trace-ns'
+and call them; their calls and return values stream here instead of
+cluttering the REPL.  Killing the buffer stops the streaming."
+  (interactive)
+  (cider-ensure-op-supported "cider/trace-subscribe")
+  (let ((connection (cider-current-repl nil 'ensure))
+        (buffer (get-buffer-create cider-trace-buffer)))
+    (with-current-buffer buffer
+      (unless (eq major-mode 'cider-trace-mode)
+        (cider-trace-mode))
+      (setq cider-trace--connection connection)
+      (unless cider-trace--subscription
+        (cider-nrepl-send-request
+         '("op" "cider/trace-subscribe")
+         (lambda (msg) (cider-trace--handle buffer msg))
+         connection)))
+    (pop-to-buffer buffer)))
+
 (provide 'cider-tracing)
 ;;; cider-tracing.el ends here
