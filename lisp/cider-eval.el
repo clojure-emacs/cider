@@ -497,7 +497,8 @@ Optional argument DONE-HANDLER lambda will be run once load is complete."
 LOCATION is the location marker at which to insert.  COMMENT-PREFIX is the
 comment prefix to use and COMMENT-POSTFIX (if any) is appended after the
 result."
-  (let ((res ""))
+  (let ((res "")
+        (location (copy-marker location)))
     (cider-make-eval-handler
      :buffer buffer
      :on-value (lambda (value) (setq res (concat res value)))
@@ -536,7 +537,8 @@ COMMENT-PREFIX is the comment prefix for the first line of output.
 CONTINUED-PREFIX is the comment prefix to use for the remaining lines.
 COMMENT-POSTFIX is the text to output after the last line."
   (let ((res "")
-        (stderr ""))
+        (stderr "")
+        (location (copy-marker location)))
     (cider-make-eval-handler
      :buffer buffer
      :on-value (lambda (value) (setq res (concat res value)))
@@ -825,7 +827,7 @@ With the prefix arg INSERT-BEFORE, insert before the form, otherwise afterwards.
     (cider-interactive-eval nil
                             (cider-eval-print-with-comment-handler
                              (current-buffer)
-                             (set-marker (make-marker) insertion-point)
+                             insertion-point
                              prefix
                              postfix)
                             bounds
@@ -850,7 +852,7 @@ If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
     (cider-interactive-eval nil
                             (cider-eval-pprint-with-multiline-comment-handler
                              (current-buffer)
-                             (set-marker (make-marker) insertion-point)
+                             insertion-point
                              prefix
                              continued
                              comment-postfix)
