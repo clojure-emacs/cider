@@ -453,6 +453,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
      ["Toggle Enlighten mode" cider-enlighten-mode
       :style toggle :selected cider-enlighten-mode]
      ["Clear enlighten overlays" cider-enlighten-clear]
+     ["Stop enlightening" cider-enlighten-stop]
      "--"
      ["Configure the Debugger" (customize-group 'cider-debug)])
     ,cider-profile-menu

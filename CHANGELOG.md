@@ -4,6 +4,7 @@
 
 ### New features
 
+- [#3991](https://github.com/clojure-emacs/cider/pull/3991): Add `cider-enlighten-stop` to turn off enlightenment at once - it disables `cider-enlighten-mode`, clears the overlays, and ignores any further values still streaming from previously-instrumented code, so you no longer have to re-evaluate everything just to make it stop.
 - [#3990](https://github.com/clojure-emacs/cider/pull/3990): Add `cider-trace`, opening a dedicated `*cider-trace*` buffer that streams the calls and return values of traced functions live, instead of interleaving them into the REPL (requires a recent enough `cider-nrepl`).
 - [#3989](https://github.com/clojure-emacs/cider/pull/3989): Add `cider-list-traced` to show the vars and namespaces that are currently traced, and `cider-untrace-all` to clear all tracing at once (both require a recent enough `cider-nrepl`).
 - [#3988](https://github.com/clojure-emacs/cider/pull/3988): Add `cider-enlighten-defun-at-point` to enlighten a single top-level form without toggling the global `cider-enlighten-mode`, and `cider-enlighten-clear` to remove the enlighten overlays from a buffer.

@@ -19,10 +19,13 @@ into the brilliant show of lights on the right.
 | image:enlighten_enabled.png[Enabled]
 |===
 
-To stop displaying the locals you'll have to disable `cider-enlighten-mode`
-and reevaluate the definitions you had instrumented previously.  To clear the
-overlays from a buffer without re-evaluating anything, use
-`cider-enlighten-clear`.
+When you've had enough, `cider-enlighten-stop` turns everything off at once:
+it disables `cider-enlighten-mode`, removes the overlays, and ignores any
+further values still streaming from definitions you instrumented earlier - all
+without re-evaluating anything.  (Disabling the mode on its own only stops
+_new_ instrumentation; already-instrumented definitions keep lighting up until
+you re-evaluate them clean.)  To just clear the overlays from a buffer (they
+will come back the next time the code runs), use `cider-enlighten-clear`.
 
 If you only want to enlighten a single definition, you don't have to toggle the
 global mode at all.  Put point in the form and run
