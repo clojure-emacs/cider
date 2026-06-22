@@ -32,6 +32,9 @@
 (require 'cider-util) ; for `cider-propertize'
 (require 'cider-session) ; for `cider-map-repls'
 (require 'nrepl-dict)
+(require 'text-property-search) ; for navigating the trace buffer
+
+(declare-function cider-find-var "cider-find")
 
 (defun cider-sync-request:toggle-trace-var (sym)
   "Toggle var tracing for SYM."
@@ -153,10 +156,25 @@ Holds calls whose return event hasn't arrived yet.")
   "Return the nesting indentation string for DEPTH."
   (apply #'concat (make-list (or depth 0) "│ ")))
 
+(defconst cider-trace--fold-placeholder
+  (propertize " ⋯\n" 'face 'shadow)
+  "Display string shown in place of a folded call's children.")
+
+(defvar cider-trace--fold-line-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [mouse-1] #'cider-trace-toggle-fold)
+    map)
+  "Keymap put on foldable call lines, so a click folds them.")
+
+(defun cider-trace--find-var-button (button)
+  "Jump to the definition of the traced var named by BUTTON."
+  (cider-find-var nil (button-get button 'cider-trace-fn)))
+
 (defun cider-trace--render-event (event)
   "Append the trace EVENT to the current buffer, following the tail.
 A call and its return are paired by their shared `id', so the lines
-nested between them become a foldable region (see `cider-trace-toggle-fold')."
+nested between them become a foldable region (see `cider-trace-toggle-fold').
+The operator of each call is a button that jumps to its definition."
   (unless cider-trace--open-calls
     (setq cider-trace--open-calls (make-hash-table :test 'equal)
           cider-trace--folds (make-hash-table :test 'equal)))
@@ -169,40 +187,96 @@ nested between them become a foldable region (see `cider-trace-toggle-fold')."
         (pcase phase
           ("call"
            (let ((line-start (point)))
-             (insert indent
-                     (cider-font-lock-as-clojure
-                      (format "(%s%s)" name
-                              (if args (concat " " (mapconcat #'identity args " ")) "")))
-                     "\n")
+             (insert indent "(")
+             (insert-text-button name
+                                 'cider-trace-fn name
+                                 'action #'cider-trace--find-var-button
+                                 'face 'font-lock-function-name-face
+                                 'mouse-face 'highlight
+                                 'follow-link t
+                                 'help-echo "mouse-1: jump to definition")
+             (when args
+               (insert " " (cider-font-lock-as-clojure
+                            (mapconcat #'identity args " "))))
+             (insert ")\n")
              (when id
-               ;; tag the whole call line so a fold toggle on it can find its id,
-               ;; and remember where this call's children will begin
+               ;; tag the call line so fold/jump commands on it can find their
+               ;; target, and remember the call line and where its children begin
                (put-text-property line-start (point) 'cider-trace-call-id id)
-               (puthash id (copy-marker (point)) cider-trace--open-calls))))
+               (put-text-property line-start (point) 'cider-trace-fn name)
+               (puthash id (cons (copy-marker line-start) (copy-marker (point)))
+                        cider-trace--open-calls))))
           ("return"
-           (let ((children-start (and id (gethash id cider-trace--open-calls)))
-                 (children-end (point-marker)))
+           (let* ((entry (and id (gethash id cider-trace--open-calls)))
+                  (line-start (car entry))
+                  (children-start (cdr entry))
+                  (children-end (point-marker)))
              (when id (remhash id cider-trace--open-calls))
              (insert indent "└─→ "
                      (cider-font-lock-as-clojure (or value "nil"))
                      "\n")
-             ;; if the call had nested children, make that block foldable
+             ;; if the call had nested children, make that block foldable and
+             ;; mark its call line as interactive (hover + click to fold)
              (when (and children-start (< children-start children-end))
                (let ((ov (make-overlay children-start children-end)))
                  (overlay-put ov 'evaporate t)
-                 (puthash id ov cider-trace--folds)))))))
+                 (puthash id ov cider-trace--folds))
+               (put-text-property line-start children-start 'mouse-face 'highlight)
+               (put-text-property line-start children-start
+                                  'keymap cider-trace--fold-line-map))))))
       (when at-end (goto-char (point-max))))))
 
-(defun cider-trace-toggle-fold ()
-  "Fold or unfold the children of the trace call on the current line."
-  (interactive)
+(defun cider-trace-toggle-fold (&optional event)
+  "Fold or unfold the children of the trace call on the current line.
+EVENT is the mouse event, when invoked with the mouse."
+  (interactive (list last-nonmenu-event))
+  (when (mouse-event-p event)
+    (mouse-set-point event))
   (let* ((id (get-text-property (point) 'cider-trace-call-id))
          (ov (and id cider-trace--folds (gethash id cider-trace--folds))))
     (if (not ov)
         (user-error "No foldable call on this line")
       (overlay-put ov 'display
                    (unless (overlay-get ov 'display)
-                     (propertize " ⋯\n" 'face 'shadow))))))
+                     cider-trace--fold-placeholder)))))
+
+(defun cider-trace--set-all-folds (fold)
+  "Fold every call when FOLD is non-nil, otherwise unfold every call."
+  (when cider-trace--folds
+    (maphash (lambda (_id ov)
+               (overlay-put ov 'display (and fold cider-trace--fold-placeholder)))
+             cider-trace--folds)))
+
+(defun cider-trace-fold-all ()
+  "Fold every call in the trace buffer."
+  (interactive)
+  (cider-trace--set-all-folds t))
+
+(defun cider-trace-unfold-all ()
+  "Unfold every call in the trace buffer."
+  (interactive)
+  (cider-trace--set-all-folds nil))
+
+(defun cider-trace-next-call ()
+  "Move point to the next call in the trace buffer."
+  (interactive)
+  (if-let* ((match (text-property-search-forward 'cider-trace-call-id nil nil t)))
+      (goto-char (prop-match-beginning match))
+    (user-error "No next call")))
+
+(defun cider-trace-previous-call ()
+  "Move point to the previous call in the trace buffer."
+  (interactive)
+  (if-let* ((match (text-property-search-backward 'cider-trace-call-id nil nil t)))
+      (goto-char (prop-match-beginning match))
+    (user-error "No previous call")))
+
+(defun cider-trace-find-var ()
+  "Jump to the definition of the traced function on the current line."
+  (interactive)
+  (if-let* ((fn (get-text-property (point) 'cider-trace-fn)))
+      (cider-find-var nil fn)
+    (user-error "No traced function on this line")))
 
 (defun cider-trace--handle (buffer msg)
   "Handle a trace subscription response MSG, rendering into BUFFER."
@@ -238,8 +312,27 @@ Fires a best-effort async request, since this runs from `kill-buffer-hook'."
 (defvar cider-trace-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "TAB") #'cider-trace-toggle-fold)
+    (define-key map (kbd "n") #'cider-trace-next-call)
+    (define-key map (kbd "p") #'cider-trace-previous-call)
+    (define-key map (kbd ".") #'cider-trace-find-var)
+    (define-key map (kbd "F") #'cider-trace-fold-all)
+    (define-key map (kbd "U") #'cider-trace-unfold-all)
     (define-key map (kbd "c") #'cider-trace-clear)
     (define-key map (kbd "q") #'quit-window)
+    (easy-menu-define cider-trace-mode-menu map
+      "Menu for CIDER's trace buffer."
+      '("CIDER Trace"
+        ["Next call" cider-trace-next-call]
+        ["Previous call" cider-trace-previous-call]
+        "--"
+        ["Fold/unfold call" cider-trace-toggle-fold]
+        ["Fold all" cider-trace-fold-all]
+        ["Unfold all" cider-trace-unfold-all]
+        "--"
+        ["Jump to definition" cider-trace-find-var]
+        "--"
+        ["Clear" cider-trace-clear]
+        ["Quit" quit-window]))
     map)
   "Keymap for `cider-trace-mode'.")
 
@@ -249,7 +342,9 @@ Fires a best-effort async request, since this runs from `kill-buffer-hook'."
 \\{cider-trace-mode-map}"
   (setq-local truncate-lines nil)
   (setq-local header-line-format
-              (propertize " TAB: fold call   c: clear   q: quit" 'face 'shadow))
+              (propertize
+               " n/p: move   TAB: fold   .: source   F/U: fold/unfold all   c: clear   q: quit"
+               'face 'shadow))
   (add-hook 'kill-buffer-hook #'cider-trace--unsubscribe nil 'local))
 
 ;;;###autoload

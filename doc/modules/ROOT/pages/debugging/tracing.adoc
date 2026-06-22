@@ -21,8 +21,16 @@ displays all the currently traced vars and namespaces in a buffer, and
 By default the trace output lands in the REPL, mixed in with everything else.
 `cider-trace` opens a dedicated `+*cider-trace*+` buffer instead: trace some
 functions, call them, and their calls and return values stream into that buffer
-live, indented to show the call nesting.  Press kbd:[TAB] on a call line to fold
-or unfold the nested calls between it and its return, so you can collapse the
-noise and keep just the call and its result.  Kill the buffer to stop streaming.
+live, indented to show the call nesting.  Kill the buffer to stop streaming.
+
+Inside the buffer:
+
+* kbd:[TAB] (or a click) on a call line folds or unfolds the nested calls between
+  it and its return, so you can collapse the noise and keep just the call and its
+  result; kbd:[F] and kbd:[U] fold and unfold everything at once.
+* kbd:[n] and kbd:[p] move between calls.
+* kbd:[.] (or clicking a function's name) jumps to its definition.
+
+The same actions are available from the `CIDER Trace` menu.
 
 All of these require a recent enough `cider-nrepl`.

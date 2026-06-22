@@ -136,7 +136,48 @@
       (cider-trace-mode)
       (cider-trace--render-event (nrepl-dict "id" 1 "phase" "call" "name" "leaf" "depth" 0 "args" nil))
       (goto-char (point-min))
-      (expect (cider-trace-toggle-fold) :to-throw 'user-error))))
+      (expect (cider-trace-toggle-fold) :to-throw 'user-error)))
+
+  (it "folds and unfolds every call at once"
+    (with-temp-buffer
+      (cider-trace-mode)
+      (cider-trace--render-event (nrepl-dict "id" 1 "phase" "call" "name" "outer" "depth" 0 "args" nil))
+      (cider-trace--render-event (nrepl-dict "id" 2 "phase" "call" "name" "inner" "depth" 1 "args" nil))
+      (cider-trace--render-event (nrepl-dict "id" 2 "phase" "return" "name" "inner" "depth" 1 "value" "9"))
+      (cider-trace--render-event (nrepl-dict "id" 1 "phase" "return" "name" "outer" "depth" 0 "value" "10"))
+      (cider-trace-fold-all)
+      (expect (overlay-get (gethash 1 cider-trace--folds) 'display) :not :to-be nil)
+      (cider-trace-unfold-all)
+      (expect (overlay-get (gethash 1 cider-trace--folds) 'display) :to-be nil))))
+
+(describe "cider-trace navigation"
+  (it "moves between call lines"
+    (with-temp-buffer
+      (cider-trace-mode)
+      (cider-trace--render-event (nrepl-dict "id" 1 "phase" "call" "name" "one" "depth" 0 "args" nil))
+      (cider-trace--render-event (nrepl-dict "id" 1 "phase" "return" "name" "one" "depth" 0 "value" "1"))
+      (cider-trace--render-event (nrepl-dict "id" 2 "phase" "call" "name" "two" "depth" 0 "args" nil))
+      (cider-trace--render-event (nrepl-dict "id" 2 "phase" "return" "name" "two" "depth" 0 "value" "2"))
+      (goto-char (point-min))
+      (cider-trace-next-call)
+      (expect (get-text-property (point) 'cider-trace-fn) :to-equal "two")
+      (cider-trace-previous-call)
+      (expect (get-text-property (point) 'cider-trace-fn) :to-equal "one"))))
+
+(describe "cider-trace-find-var"
+  (it "jumps to the function named on the current line"
+    (spy-on 'cider-find-var)
+    (with-temp-buffer
+      (cider-trace-mode)
+      (cider-trace--render-event (nrepl-dict "id" 1 "phase" "call" "name" "user/foo" "depth" 0 "args" nil))
+      (goto-char (point-min))
+      (cider-trace-find-var)
+      (expect 'cider-find-var :to-have-been-called-with nil "user/foo")))
+
+  (it "errors when there is no function on the line"
+    (with-temp-buffer
+      (cider-trace-mode)
+      (expect (cider-trace-find-var) :to-throw 'user-error))))
 
 (provide 'cider-tracing-tests)
 
