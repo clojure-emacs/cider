@@ -47,6 +47,38 @@
             (nrepl-dict "var-name" "user/foo" "var-status" "not-traceable"))
     (expect (cider--toggle-trace-var "foo") :to-throw 'user-error)))
 
+(describe "cider-untrace-all"
+  (it "reports the number of untraced vars"
+    (spy-on 'cider-ensure-op-supported)
+    (spy-on 'cider-nrepl-send-sync-request :and-return-value
+            (nrepl-dict "untraced-count" 3))
+    (spy-on 'message)
+    (cider-untrace-all)
+    (expect 'message :to-have-been-called-with "Untraced %d var%s" 3 "s")))
+
+(describe "cider-list-traced"
+  (after-each
+    (when (get-buffer cider-traced-buffer)
+      (kill-buffer cider-traced-buffer)))
+
+  (it "reports when nothing is traced"
+    (spy-on 'cider-ensure-op-supported)
+    (spy-on 'cider-sync-request:list-traced :and-return-value
+            (nrepl-dict "traced-vars" nil "traced-nses" nil))
+    (spy-on 'message)
+    (cider-list-traced)
+    (expect 'message :to-have-been-called)
+    (expect (get-buffer cider-traced-buffer) :to-be nil))
+
+  (it "renders the traced vars and namespaces in a buffer"
+    (spy-on 'cider-ensure-op-supported)
+    (spy-on 'cider-sync-request:list-traced :and-return-value
+            (nrepl-dict "traced-vars" '("#'foo/bar") "traced-nses" '("baz.ns")))
+    (cider-list-traced)
+    (with-current-buffer cider-traced-buffer
+      (expect (string-search "#'foo/bar" (buffer-string)) :not :to-be nil)
+      (expect (string-search "baz.ns" (buffer-string)) :not :to-be nil))))
+
 (provide 'cider-tracing-tests)
 
 ;;; cider-tracing-tests.el ends here
