@@ -142,13 +142,25 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
 (defvar-local cider-trace--connection nil
   "The REPL connection this trace buffer is subscribed through.")
 
+(defvar-local cider-trace--open-calls nil
+  "Hash table of call id -> marker at the start of that call's children.
+Holds calls whose return event hasn't arrived yet.")
+
+(defvar-local cider-trace--folds nil
+  "Hash table of call id -> the overlay covering that call's children.")
+
 (defun cider-trace--indent (depth)
   "Return the nesting indentation string for DEPTH."
   (apply #'concat (make-list (or depth 0) "│ ")))
 
 (defun cider-trace--render-event (event)
-  "Append the trace EVENT to the current buffer, following the tail."
-  (nrepl-dbind-response event (phase name depth args value)
+  "Append the trace EVENT to the current buffer, following the tail.
+A call and its return are paired by their shared `id', so the lines
+nested between them become a foldable region (see `cider-trace-toggle-fold')."
+  (unless cider-trace--open-calls
+    (setq cider-trace--open-calls (make-hash-table :test 'equal)
+          cider-trace--folds (make-hash-table :test 'equal)))
+  (nrepl-dbind-response event (id phase name depth args value)
     (let ((inhibit-read-only t)
           (indent (cider-trace--indent depth))
           (at-end (= (point) (point-max))))
@@ -156,16 +168,41 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
         (goto-char (point-max))
         (pcase phase
           ("call"
-           (insert indent
-                   (cider-font-lock-as-clojure
-                    (format "(%s%s)" name
-                            (if args (concat " " (mapconcat #'identity args " ")) "")))
-                   "\n"))
+           (let ((line-start (point)))
+             (insert indent
+                     (cider-font-lock-as-clojure
+                      (format "(%s%s)" name
+                              (if args (concat " " (mapconcat #'identity args " ")) "")))
+                     "\n")
+             (when id
+               ;; tag the whole call line so a fold toggle on it can find its id,
+               ;; and remember where this call's children will begin
+               (put-text-property line-start (point) 'cider-trace-call-id id)
+               (puthash id (copy-marker (point)) cider-trace--open-calls))))
           ("return"
-           (insert indent "└─→ "
-                   (cider-font-lock-as-clojure (or value "nil"))
-                   "\n"))))
+           (let ((children-start (and id (gethash id cider-trace--open-calls)))
+                 (children-end (point-marker)))
+             (when id (remhash id cider-trace--open-calls))
+             (insert indent "└─→ "
+                     (cider-font-lock-as-clojure (or value "nil"))
+                     "\n")
+             ;; if the call had nested children, make that block foldable
+             (when (and children-start (< children-start children-end))
+               (let ((ov (make-overlay children-start children-end)))
+                 (overlay-put ov 'evaporate t)
+                 (puthash id ov cider-trace--folds)))))))
       (when at-end (goto-char (point-max))))))
+
+(defun cider-trace-toggle-fold ()
+  "Fold or unfold the children of the trace call on the current line."
+  (interactive)
+  (let* ((id (get-text-property (point) 'cider-trace-call-id))
+         (ov (and id cider-trace--folds (gethash id cider-trace--folds))))
+    (if (not ov)
+        (user-error "No foldable call on this line")
+      (overlay-put ov 'display
+                   (unless (overlay-get ov 'display)
+                     (propertize " ⋯\n" 'face 'shadow))))))
 
 (defun cider-trace--handle (buffer msg)
   "Handle a trace subscription response MSG, rendering into BUFFER."
@@ -194,10 +231,13 @@ Fires a best-effort async request, since this runs from `kill-buffer-hook'."
   "Clear the trace buffer."
   (interactive)
   (let ((inhibit-read-only t))
-    (erase-buffer)))
+    (erase-buffer))
+  (when cider-trace--open-calls (clrhash cider-trace--open-calls))
+  (when cider-trace--folds (clrhash cider-trace--folds)))
 
 (defvar cider-trace-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "TAB") #'cider-trace-toggle-fold)
     (define-key map (kbd "c") #'cider-trace-clear)
     (define-key map (kbd "q") #'quit-window)
     map)
@@ -208,6 +248,8 @@ Fires a best-effort async request, since this runs from `kill-buffer-hook'."
 
 \\{cider-trace-mode-map}"
   (setq-local truncate-lines nil)
+  (setq-local header-line-format
+              (propertize " TAB: fold call   c: clear   q: quit" 'face 'shadow))
   (add-hook 'kill-buffer-hook #'cider-trace--unsubscribe nil 'local))
 
 ;;;###autoload

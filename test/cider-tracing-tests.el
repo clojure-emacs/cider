@@ -111,6 +111,33 @@
                    (nrepl-dict "phase" "call" "name" "user/foo" "depth" 0 "args" nil)))
       (expect (string-search "foo" (buffer-string)) :not :to-be nil))))
 
+(describe "cider-trace folding"
+  (it "makes a call with children foldable and toggles it"
+    (with-temp-buffer
+      (cider-trace-mode)
+      ;; outer call (1) wrapping a nested call+return (2), then outer return (1)
+      (cider-trace--render-event (nrepl-dict "id" 1 "phase" "call" "name" "outer" "depth" 0 "args" nil))
+      (cider-trace--render-event (nrepl-dict "id" 2 "phase" "call" "name" "inner" "depth" 1 "args" nil))
+      (cider-trace--render-event (nrepl-dict "id" 2 "phase" "return" "name" "inner" "depth" 1 "value" "9"))
+      (cider-trace--render-event (nrepl-dict "id" 1 "phase" "return" "name" "outer" "depth" 0 "value" "10"))
+      ;; the outer call got a fold overlay; the leaf inner call did not
+      (let ((ov (gethash 1 cider-trace--folds)))
+        (expect ov :not :to-be nil)
+        (expect (gethash 2 cider-trace--folds) :to-be nil)
+        ;; folding from the outer call line sets the overlay's display, unfolding clears it
+        (goto-char (point-min))
+        (cider-trace-toggle-fold)
+        (expect (overlay-get ov 'display) :not :to-be nil)
+        (cider-trace-toggle-fold)
+        (expect (overlay-get ov 'display) :to-be nil))))
+
+  (it "errors on a line with nothing to fold"
+    (with-temp-buffer
+      (cider-trace-mode)
+      (cider-trace--render-event (nrepl-dict "id" 1 "phase" "call" "name" "leaf" "depth" 0 "args" nil))
+      (goto-char (point-min))
+      (expect (cider-trace-toggle-fold) :to-throw 'user-error))))
+
 (provide 'cider-tracing-tests)
 
 ;;; cider-tracing-tests.el ends here

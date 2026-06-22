@@ -27,6 +27,7 @@
 
 ### Changes
 
+- [#3992](https://github.com/clojure-emacs/cider/pull/3992): Make `*cider-trace*` calls foldable - `TAB` on a call line collapses or expands the nested calls between it and its return.
 - [#3984](https://github.com/clojure-emacs/cider/pull/3984): Stop dumping the full jack-in command and the ClojureScript REPL init form into the REPL transcript on startup (a ClojureScript REPL now just notes its type). The launch details are available on demand via `cider-repl-describe-startup` (the `,startup` REPL shortcut).
 - [#3983](https://github.com/clojure-emacs/cider/pull/3983): Slim down the REPL welcome banner - the long help banner is gone, replaced by a one-line hint, and the getting-started content now lives in a summonable `cider-repl-help` reference card (`C-c C-h`, or the `,refcard` REPL shortcut). `cider-repl-display-help-banner` now toggles the hint.
 - [#3982](https://github.com/clojure-emacs/cider/pull/3982): Warn (once per session) when a deprecated CIDER keybinding is used, starting with the REPL-only jack-in/connect keys `C-c M-j`/`M-J`/`M-c`/`M-C` (superseded by the `C-c C-x` start map back in 0.18.0). They still work; toggle with `cider-warn-on-deprecated-keybindings`, list pending removals with `M-x cider-list-deprecated-keybindings`.
