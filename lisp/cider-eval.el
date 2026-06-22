@@ -167,6 +167,12 @@ the eval-to-comment handlers."
                     cider-comment-continued-prefix
                     cider-comment-postfix))))
 
+(defcustom cider-replace-comment t
+  "Whether to replace an existing eval comment."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "1.23.0"))
+
 (defcustom cider-eval-register ?e
   "The text register assigned to the most recent evaluation result.
 When non-nil, the return value of all CIDER eval commands are
@@ -798,7 +804,7 @@ The comment style is controlled by `cider-comment-style'.
 
 If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
   (interactive "P")
-  (cider-pprint-form-to-comment 'cider-last-sexp insert-before))
+  (cider-pprint-form-to-comment 'cider-last-sexp insert-before cider-replace-comment))
 
 (defun cider-pprint-eval-defun-to-comment (&optional insert-before)
   "Evaluate the \"top-level\" form and insert result as comment.
@@ -807,7 +813,7 @@ The comment style is controlled by `cider-comment-style'.
 
 If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
   (interactive "P")
-  (cider-pprint-form-to-comment 'cider-defun-at-point insert-before))
+  (cider-pprint-form-to-comment 'cider-defun-at-point insert-before cider-replace-comment))
 
 (defun cider--last-comment-form-bounds ()
   "Return the bounds of the last top-level `comment' form in the buffer.
