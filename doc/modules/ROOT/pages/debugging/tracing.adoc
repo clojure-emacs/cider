@@ -13,3 +13,8 @@ in the function being untraced.
 
 You can also use kbd:[C-c M-t n] to toggle tracing on and off for
 an entire namespace.
+
+Since it's easy to lose track of what you've traced, `cider-list-traced`
+displays all the currently traced vars and namespaces in a buffer, and
+`cider-untrace-all` clears every trace at once.  Both require a recent enough
+`cider-nrepl`.

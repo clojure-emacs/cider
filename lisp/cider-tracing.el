@@ -28,6 +28,7 @@
 
 (require 'cider-client)
 (require 'cider-common) ; for `cider-prompt-for-symbol-function'
+(require 'cider-popup) ; for `cider-popup-buffer'
 (require 'cider-util) ; for `cider-propertize'
 (require 'cider-session) ; for `cider-map-repls'
 (require 'nrepl-dict)
@@ -84,6 +85,51 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
             (pcase ns-status
               ("not-found" (user-error "Namespace %s not found" (cider-propertize ns 'ns)))
               (_ (message "Namespace %s %s" (cider-propertize ns 'ns) ns-status)))))))))
+
+(defconst cider-traced-buffer "*cider-traced*"
+  "The name of the buffer listing the currently traced vars and namespaces.")
+
+(defun cider-sync-request:list-traced ()
+  "Return the vars and namespaces that are currently traced."
+  (thread-first `("op" "cider/list-traced")
+                (cider-nrepl-send-sync-request)))
+
+(defun cider-list-traced--render (nses vars)
+  "Render the traced NSES and VARS in `cider-traced-buffer'."
+  (with-current-buffer (cider-popup-buffer cider-traced-buffer 'select 'clojure-mode)
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (when nses
+        (insert ";; Traced namespaces\n")
+        (dolist (ns (sort (copy-sequence nses) #'string<))
+          (insert ns "\n"))
+        (insert "\n"))
+      (when vars
+        (insert ";; Traced vars\n")
+        (dolist (var (sort (copy-sequence vars) #'string<))
+          (insert var "\n")))
+      (goto-char (point-min)))))
+
+;;;###autoload
+(defun cider-list-traced ()
+  "Display the vars and namespaces that are currently traced."
+  (interactive)
+  (cider-ensure-op-supported "cider/list-traced")
+  (let* ((response (cider-sync-request:list-traced))
+         (vars (nrepl-dict-get response "traced-vars"))
+         (nses (nrepl-dict-get response "traced-nses")))
+    (if (and (null vars) (null nses))
+        (message "Nothing is currently traced")
+      (cider-list-traced--render nses vars))))
+
+;;;###autoload
+(defun cider-untrace-all ()
+  "Untrace all currently traced vars and namespaces."
+  (interactive)
+  (cider-ensure-op-supported "cider/untrace-all")
+  (let* ((response (cider-nrepl-send-sync-request '("op" "cider/untrace-all")))
+         (count (or (nrepl-dict-get response "untraced-count") 0)))
+    (message "Untraced %d var%s" count (if (= count 1) "" "s"))))
 
 (provide 'cider-tracing)
 ;;; cider-tracing.el ends here
