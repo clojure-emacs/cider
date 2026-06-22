@@ -79,6 +79,38 @@
       (expect (string-search "#'foo/bar" (buffer-string)) :not :to-be nil)
       (expect (string-search "baz.ns" (buffer-string)) :not :to-be nil))))
 
+(describe "cider-trace--render-event"
+  (it "renders a call event indented by depth"
+    (with-temp-buffer
+      (cider-trace--render-event
+       (nrepl-dict "phase" "call" "name" "user/foo" "depth" 1 "args" '("1" "2")))
+      (expect (string-search "foo" (buffer-string)) :not :to-be nil)
+      (expect (string-search "│ " (buffer-string)) :not :to-be nil)))
+
+  (it "renders a return event with its value"
+    (with-temp-buffer
+      (cider-trace--render-event
+       (nrepl-dict "phase" "return" "name" "user/foo" "depth" 0 "value" "42"))
+      (expect (string-search "└─→" (buffer-string)) :not :to-be nil)
+      (expect (string-search "42" (buffer-string)) :not :to-be nil))))
+
+(describe "cider-trace--handle"
+  (it "stores the subscription id from the initial reply"
+    (with-temp-buffer
+      (cider-trace-mode)
+      (cider-trace--handle (current-buffer)
+                           (nrepl-dict "cider/trace-subscribe" "sub-1"))
+      (expect cider-trace--subscription :to-equal "sub-1")))
+
+  (it "renders streamed trace events into the buffer"
+    (with-temp-buffer
+      (cider-trace-mode)
+      (cider-trace--handle
+       (current-buffer)
+       (nrepl-dict "cider/trace-event"
+                   (nrepl-dict "phase" "call" "name" "user/foo" "depth" 0 "args" nil)))
+      (expect (string-search "foo" (buffer-string)) :not :to-be nil))))
+
 (provide 'cider-tracing-tests)
 
 ;;; cider-tracing-tests.el ends here

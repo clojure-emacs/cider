@@ -443,6 +443,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
      ["Toggle ns tracing" cider-toggle-trace-ns]
      ["List traced" cider-list-traced]
      ["Untrace all" cider-untrace-all]
+     ["Trace events buffer" cider-trace]
      "--"
      ["Debug top-level form" cider-debug-defun-at-point
       :keys "\\[universal-argument] \\[cider-eval-defun-at-point]"]

@@ -16,5 +16,11 @@ an entire namespace.
 
 Since it's easy to lose track of what you've traced, `cider-list-traced`
 displays all the currently traced vars and namespaces in a buffer, and
-`cider-untrace-all` clears every trace at once.  Both require a recent enough
-`cider-nrepl`.
+`cider-untrace-all` clears every trace at once.
+
+By default the trace output lands in the REPL, mixed in with everything else.
+`cider-trace` opens a dedicated `+*cider-trace*+` buffer instead: trace some
+functions, call them, and their calls and return values stream into that buffer
+live, indented to show the call nesting.  Kill the buffer to stop streaming.
+
+All of these require a recent enough `cider-nrepl`.
