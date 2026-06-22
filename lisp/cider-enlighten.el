@@ -40,6 +40,7 @@
 
 (defvar cider-mode) ; for the lighter; the variable lives in cider-mode.el
 (declare-function cider--debug-find-source-position "cider-debug")
+(declare-function cider-eval-defun-at-point "cider-eval")
 
 (defface cider-enlightened-face
   '((((class color) (background light)) :inherit cider-result-overlay-face
@@ -93,6 +94,21 @@ displaying its value."
   :lighter (cider-mode " light")
   :global t
   :group 'cider)
+
+;;;###autoload
+(defun cider-enlighten-defun-at-point ()
+  "Evaluate the top-level form at point with enlightenment enabled.
+This is like enabling `cider-enlighten-mode' and evaluating the form, but
+scoped to this single evaluation, so you needn't toggle the global mode on
+and off (and re-evaluate everything) just to light up one definition."
+  (interactive)
+  (let ((cider-enlighten-mode t))
+    (cider-eval-defun-at-point)))
+
+(defun cider-enlighten-clear ()
+  "Remove all enlighten value overlays from the current buffer."
+  (interactive)
+  (remove-overlays nil nil 'category 'enlighten))
 
 (provide 'cider-enlighten)
 

@@ -56,6 +56,28 @@
         (expect ov :not :to-be nil)
         (expect (overlay-get ov 'face) :to-equal 'cider-enlightened-local-face)))))
 
+(describe "cider-enlighten-defun-at-point"
+  (it "evaluates the form with the enlighten mode bound on, then restores it"
+    (let ((mode-during 'unset))
+      (spy-on 'cider-eval-defun-at-point :and-call-fake
+              (lambda (&rest _) (setq mode-during cider-enlighten-mode)))
+      (let ((cider-enlighten-mode nil))
+        (cider-enlighten-defun-at-point)
+        (expect 'cider-eval-defun-at-point :to-have-been-called)
+        ;; the eval saw the mode enabled...
+        (expect mode-during :to-be t)
+        ;; ...but the global mode is left as it was afterwards
+        (expect cider-enlighten-mode :to-be nil)))))
+
+(describe "cider-enlighten-clear"
+  (it "removes enlighten overlays from the buffer"
+    (with-temp-buffer
+      (insert "(foo)")
+      (overlay-put (make-overlay (point-min) (point-max)) 'category 'enlighten)
+      (expect (length (cider-enlighten-tests--overlays)) :to-equal 1)
+      (cider-enlighten-clear)
+      (expect (cider-enlighten-tests--overlays) :to-be nil))))
+
 (provide 'cider-enlighten-tests)
 
 ;;; cider-enlighten-tests.el ends here

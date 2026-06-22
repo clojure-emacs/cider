@@ -20,8 +20,12 @@ into the brilliant show of lights on the right.
 |===
 
 To stop displaying the locals you'll have to disable `cider-enlighten-mode`
-and reevaluate the definitions you had instrumented previously.
+and reevaluate the definitions you had instrumented previously.  To clear the
+overlays from a buffer without re-evaluating anything, use
+`cider-enlighten-clear`.
 
-You can also trigger this on specific functions (without having to turn on the
-minor mode) by writing `#light` before the `(def` and re-evaluating
-it.
+If you only want to enlighten a single definition, you don't have to toggle the
+global mode at all.  Put point in the form and run
+`cider-enlighten-defun-at-point`: it evaluates just that top-level form with
+enlightenment enabled, leaving the global mode untouched.  You can also write
+`#light` before the `(def` and re-evaluate it.
