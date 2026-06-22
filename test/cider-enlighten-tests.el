@@ -54,7 +54,16 @@
       (cider--handle-enlighten (nrepl-dict "debug-value" "42"))
       (let ((ov (car (cider-enlighten-tests--overlays))))
         (expect ov :not :to-be nil)
-        (expect (overlay-get ov 'face) :to-equal 'cider-enlightened-local-face)))))
+        (expect (overlay-get ov 'face) :to-equal 'cider-enlightened-local-face))))
+
+  (it "renders nothing while suppressed"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(+ 1 2)")
+      (spy-on 'cider--debug-find-source-position :and-return-value (point-marker))
+      (let ((cider-enlighten--suppress t))
+        (cider--handle-enlighten (nrepl-dict "debug-value" "3")))
+      (expect (cider-enlighten-tests--overlays) :to-be nil))))
 
 (describe "cider-enlighten-defun-at-point"
   (it "evaluates the form with the enlighten mode bound on, then restores it"
@@ -77,6 +86,25 @@
       (expect (length (cider-enlighten-tests--overlays)) :to-equal 1)
       (cider-enlighten-clear)
       (expect (cider-enlighten-tests--overlays) :to-be nil))))
+
+(describe "cider-enlighten-stop"
+  (it "mutes rendering, disables the mode, and clears overlays"
+    (with-temp-buffer
+      (insert "(foo)")
+      (overlay-put (make-overlay (point-min) (point-max)) 'category 'enlighten)
+      (let ((cider-enlighten--suppress nil))
+        (cider-enlighten-mode 1)
+        (cider-enlighten-stop)
+        (expect cider-enlighten--suppress :to-be t)
+        (expect cider-enlighten-mode :to-be nil)
+        (expect (cider-enlighten-tests--overlays) :to-be nil)))))
+
+(describe "cider-enlighten-mode"
+  (it "clears the suppression flag when re-enabled"
+    (let ((cider-enlighten--suppress t))
+      (cider-enlighten-mode 1)
+      (expect cider-enlighten--suppress :to-be nil)
+      (cider-enlighten-mode -1))))
 
 (provide 'cider-enlighten-tests)
 

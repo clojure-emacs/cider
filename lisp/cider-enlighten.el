@@ -42,6 +42,12 @@
 (declare-function cider--debug-find-source-position "cider-debug")
 (declare-function cider-eval-defun-at-point "cider-eval")
 
+(defvar cider-enlighten--suppress nil
+  "When non-nil, drop incoming enlighten values instead of rendering them.
+Previously-instrumented code keeps streaming values even after you stop
+caring; this lets `cider-enlighten-stop' quiet the overlays at once, without
+re-evaluating everything.  Resuming enlightenment clears it.")
+
 (defface cider-enlightened-face
   '((((class color) (background light)) :inherit cider-result-overlay-face
      :box (:color "darkorange" :line-width -1))
@@ -63,8 +69,9 @@
   "Handle an enlighten notification.
 RESPONSE is a message received from the nrepl describing the value and
 coordinates of a sexp.  Create an overlay after the specified sexp
-displaying its value."
-  (when-let* ((marker (cider--debug-find-source-position response)))
+displaying its value.  Does nothing while `cider-enlighten--suppress' is set."
+  (unless cider-enlighten--suppress
+    (when-let* ((marker (cider--debug-find-source-position response)))
     (with-current-buffer (marker-buffer marker)
       (save-excursion
         (goto-char marker)
@@ -87,13 +94,16 @@ displaying its value."
                 :format "%s"
                 :where (cons (point) marker)
                 :type 'enlighten
-                'face 'cider-enlightened-local-face))))))))
+                'face 'cider-enlightened-local-face)))))))))
 
 (define-minor-mode cider-enlighten-mode
   "Minor mode for displaying locals in debugger-instrumented evaluations."
   :lighter (cider-mode " light")
   :global t
-  :group 'cider)
+  :group 'cider
+  (when cider-enlighten-mode
+    ;; resuming enlightenment un-mutes the renderer
+    (setq cider-enlighten--suppress nil)))
 
 ;;;###autoload
 (defun cider-enlighten-defun-at-point ()
@@ -102,6 +112,7 @@ This is like enabling `cider-enlighten-mode' and evaluating the form, but
 scoped to this single evaluation, so you needn't toggle the global mode on
 and off (and re-evaluate everything) just to light up one definition."
   (interactive)
+  (setq cider-enlighten--suppress nil)
   (let ((cider-enlighten-mode t))
     (cider-eval-defun-at-point)))
 
@@ -109,6 +120,22 @@ and off (and re-evaluate everything) just to light up one definition."
   "Remove all enlighten value overlays from the current buffer."
   (interactive)
   (remove-overlays nil nil 'category 'enlighten))
+
+;;;###autoload
+(defun cider-enlighten-stop ()
+  "Stop displaying enlighten overlays, without re-evaluating anything.
+Turn off `cider-enlighten-mode', remove the existing overlays, and ignore
+any further enlighten values still streaming from previously-instrumented
+code.  This quiets things down at once - unlike disabling the mode alone,
+which leaves already-instrumented definitions lighting up every time they
+run.  Re-enabling the mode (or `cider-enlighten-defun-at-point') resumes
+display."
+  (interactive)
+  (setq cider-enlighten--suppress t)
+  (cider-enlighten-mode -1)
+  (dolist (buffer (buffer-list))
+    (with-current-buffer buffer
+      (remove-overlays nil nil 'category 'enlighten))))
 
 (provide 'cider-enlighten)
 
