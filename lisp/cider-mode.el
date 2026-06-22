@@ -446,6 +446,11 @@ If invoked with a prefix ARG eval the expression after inserting it."
       :keys "\\[universal-argument] \\[cider-eval-defun-at-point]"]
      ["List instrumented defs" cider-browse-instrumented-defs]
      "--"
+     ["Enlighten top-level form" cider-enlighten-defun-at-point]
+     ["Toggle Enlighten mode" cider-enlighten-mode
+      :style toggle :selected cider-enlighten-mode]
+     ["Clear enlighten overlays" cider-enlighten-clear]
+     "--"
      ["Configure the Debugger" (customize-group 'cider-debug)])
     ,cider-profile-menu
     ("Misc"
