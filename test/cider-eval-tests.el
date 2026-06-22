@@ -41,6 +41,24 @@
         (expect 'cider-emit-interactive-eval-output
                 :to-have-been-called-with "Elapsed time: 0.042 msecs\n"))))
 
+  (it "tracks async buffer edits using markers (#2607)"
+    (with-temp-buffer
+      (setq-local nrepl-pending-requests (make-hash-table :test 'equal))
+      (insert "(+ 1 2)")
+      (let* ((indent-line-function #'ignore)
+             (insertion-point (point-max))
+             (handler (cider-eval-pprint-with-multiline-comment-handler
+                       (current-buffer) insertion-point ";; => " ";;    " "")))
+        ;; simulate user editing BEFORE the eval result arrives:
+        (goto-char 1)
+        (insert "(ns repro)\n\n")
+        (funcall handler (nrepl-dict "value" "3"))
+        (funcall handler (nrepl-dict "status" '("done")))
+        (expect (string-trim (buffer-string)) :to-equal
+                (concat "(ns repro)\n\n"
+                        "(+ 1 2)\n"
+                        ";; => 3")))))
+
   ;; When eval produces both a value and stderr output (e.g. a reflection warning),
   ;; the two must not be interleaved in the inserted comment.
   (it "keeps value and stderr separate when both are present"
