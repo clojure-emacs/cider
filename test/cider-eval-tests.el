@@ -98,7 +98,49 @@
         (funcall handler (nrepl-dict "status" '("done")))
         (expect (string-trim (buffer-string)) :to-equal
                 (concat ";; => Syntax error compiling at (user.clj:5:1)\n"
-                        ";;    Unable to resolve symbol: oops in this context"))))))
+                        ";;    Unable to resolve symbol: oops in this context")))))
+
+  (it "replaces an existing multiline comment on re-eval"
+    (with-temp-buffer
+      (setq-local nrepl-pending-requests (make-hash-table :test 'equal))
+      (let ((indent-line-function #'ignore))
+        (insert "(inc 0)")
+        (let ((h (cider-eval-pprint-with-multiline-comment-handler
+                  (current-buffer) (point) ";; => " ";;    " "")))
+          (funcall h (nrepl-dict "value" "1"))
+          (funcall h (nrepl-dict "status" '("done")))
+          (expect (buffer-string) :to-equal "(inc 0)\n;; => 1"))
+        ;; Simulate an edit and re-eval
+        (goto-char (point-min))
+        (kill-line)
+        (insert "(dec 3)")
+        (let ((h (cider-eval-pprint-with-multiline-comment-handler
+                  (current-buffer) (point) ";; => " ";;    " "")))
+          (funcall h (nrepl-dict "value" "2"))
+          (funcall h (nrepl-dict "status" '("done")))
+          (expect (buffer-string) :to-equal "(dec 3)\n;; => 2")))))
+
+  (it "replaces a single-line comment with a multiline result"
+    (with-temp-buffer
+      (setq-local nrepl-pending-requests (make-hash-table :test 'equal))
+      (let ((indent-line-function #'ignore)
+            loc)
+        (insert "(range 3)")
+        (setq loc (point))
+        (let ((h1 (cider-eval-pprint-with-multiline-comment-handler
+                   (current-buffer) loc ";; => " ";;    " "")))
+          (funcall h1 (nrepl-dict "value" "(0 1 2)"))
+          (funcall h1 (nrepl-dict "status" '("done")))
+          (expect (buffer-string) :to-equal "(range 3)\n;; => (0 1 2)"))
+        (let ((h2 (cider-eval-pprint-with-multiline-comment-handler
+                   (current-buffer) loc ";; => " ";;    " "")))
+          (funcall h2 (nrepl-dict "value" "(0\n 1\n 2)"))
+          (funcall h2 (nrepl-dict "status" '("done")))
+          (expect (buffer-string) :to-equal
+                  (concat "(range 3)\n"
+                          ";; => (0\n"
+                          ";;     1\n"
+                          ";;     2)")))))))
 
 (describe "cider--comment-format"
   (it "returns the configured prefixes for the `line' style"
