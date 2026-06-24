@@ -35,11 +35,13 @@
 
 (require 'cider-client)
 (require 'cider-popup)
+(require 'cider-xref-source)
 (require 'nrepl-dict)
 
 (require 'clojure-mode)
 (require 'apropos)
 (require 'button)
+(require 'xref)
 
 (defconst cider-xref-buffer "*cider-xref*")
 
@@ -132,6 +134,26 @@ namespace is a likelier cause than a var that genuinely has none."
     (if-let* ((results (cider-sync-request:fn-refs ns symbol)))
         (cider-show-xref (format "Showing %d functions that reference %s in currently loaded namespaces" (length results) symbol) results)
       (cider-xref--report-no-results symbol "references"))))
+
+;;;###autoload
+(defun cider-xref-fn-refs-in-source (&optional symbol)
+  "Show references to SYMBOL found by scanning the project's source files.
+Unlike `cider-xref-fn-refs', which introspects the runtime and only sees loaded
+namespaces, this scans the files on disk, so it also finds references in code
+that hasn't been evaluated yet.  When a REPL is connected SYMBOL is resolved to
+its canonical namespace first; otherwise the search falls back to matching the
+bare name and is correspondingly more approximate.
+
+The results are textual matches and can include false positives such as
+shadowing locals or same-named vars from a different namespace."
+  (interactive)
+  (let* ((symbol (or symbol (cider-symbol-at-point) (read-string "Find references in source for: ")))
+         (xrefs (cider-xref--var-source-references symbol)))
+    (if xrefs
+        (funcall xref-show-xrefs-function
+                 (lambda () xrefs)
+                 `((window . ,(selected-window))))
+      (user-error "No source references found for %s" symbol))))
 
 ;;;###autoload
 (defun cider-xref-fn-deps (&optional ns symbol)

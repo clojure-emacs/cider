@@ -419,6 +419,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ("Xref"
      ["Find fn references" cider-xref-fn-refs]
      ["Find fn references and select" cider-xref-fn-refs-select]
+     ["Find fn references in source" cider-xref-fn-refs-in-source]
      ["Find fn dependencies" cider-xref-fn-deps]
      ["Find fn dependencies and select" cider-xref-fn-deps-select])
     ("Browse"
@@ -500,6 +501,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (declare-function cider-find-var "cider-find")
 (declare-function cider-find-dwim-at-mouse "cider-find")
 (declare-function cider-xref-fn-refs "cider-xref")
+(declare-function cider-xref-fn-refs-in-source "cider-xref")
 (declare-function cider-xref-fn-refs-select "cider-xref")
 (declare-function cider-xref-fn-deps "cider-xref")
 (declare-function cider-xref-fn-deps-select "cider-xref")
@@ -573,6 +575,7 @@ higher precedence."
     (define-key map (kbd "C-c C-=") 'cider-profile-map)
     (define-key map (kbd "C-c C-? r") #'cider-xref-fn-refs)
     (define-key map (kbd "C-c C-? C-r") #'cider-xref-fn-refs-select)
+    (define-key map (kbd "C-c C-? s") #'cider-xref-fn-refs-in-source)
     (define-key map (kbd "C-c C-? d") #'cider-xref-fn-deps)
     (define-key map (kbd "C-c C-? C-d") #'cider-xref-fn-deps-select)
     (define-key map (kbd "C-c C-q") #'cider-quit)
