@@ -99,3 +99,24 @@
       (expect (bufferp buf) :to-be-truthy)
       (expect (with-current-buffer buf (buffer-string)) :to-match "s/union")
       (kill-buffer buf))))
+
+(describe "cider-browse-spec--subspecs"
+  (it "collects the distinct namespaced specs referenced in a form"
+    (expect (cider-browse-spec--subspecs
+             cider-browse-spec-tests--company-addr-response)
+            :to-equal '(":test/addr" ":test/company" ":test/suite")))
+
+  (it "returns nil when the form references no specs"
+    (expect (cider-browse-spec--subspecs '("clojure.core/string?")) :to-be nil)))
+
+(describe "cider-browse-spec--tree-node"
+  (it "expands lazily into one node per referenced sub-spec"
+    (cider-browse-spec-tests--setup-spec-form
+     cider-browse-spec-tests--company-addr-response)
+    (let* ((node (cider-browse-spec--tree-node ":user/company-addr" nil))
+           (children (funcall (cider-tree-view-node-children-fn node))))
+      (expect (length children) :to-equal 3)))
+
+  (it "makes a recursive spec a leaf so expansion can't loop"
+    (let ((node (cider-browse-spec--tree-node ":my/tree" '(":my/tree"))))
+      (expect (cider-tree-view-node-children-fn node) :to-be nil))))
