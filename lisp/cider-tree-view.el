@@ -40,6 +40,7 @@
 
 (require 'cl-lib)
 (require 'subr-x)
+(require 'text-property-search)
 
 (cl-defstruct (cider-tree-view-node (:constructor cider-tree-view-node-create)
                                     (:copier nil))
@@ -48,15 +49,23 @@ LABEL is the (already fontified) string shown for the node.  ON-VISIT, when
 non-nil, is a function of no arguments run as the node's primary action.
 CHILDREN-FN, when non-nil, is a function of no arguments returning a list of
 child `cider-tree-view-node's; its presence is what makes a node expandable.
+VALUE is an arbitrary payload a consumer can attach and read back via
+`cider-tree-view-node-at-point' (e.g. to act on the thing the node names).
 The remaining slots are display state managed by this module."
   label
   on-visit
   children-fn
+  value
   (expanded nil)
   (children 'unloaded))
 
 (defvar-local cider-tree-view--roots nil
   "The list of root `cider-tree-view-node's rendered in this buffer.")
+
+(defvar-local cider-tree-view--header-fn nil
+  "When non-nil, a function of no arguments that inserts content above the tree.
+It runs on every (re-)render, so a consumer can show controls - filter toggles,
+say - that survive expand/collapse.")
 
 (defun cider-tree-view-node-expandable-p (node)
   "Return non-nil when NODE can have children.
@@ -75,7 +84,7 @@ returned nothing, at which point it is known to be a leaf."
             (funcall fn))))
   (cider-tree-view-node-children node))
 
-(defun cider-tree-view--node-at-point ()
+(defun cider-tree-view-node-at-point ()
   "Return the `cider-tree-view-node' on the current line, or nil."
   (get-text-property (point) 'cider-tree-view-node))
 
@@ -109,6 +118,8 @@ returned nothing, at which point it is known to be a leaf."
   "Redraw the whole tree from `cider-tree-view--roots'."
   (let ((inhibit-read-only t))
     (erase-buffer)
+    (when cider-tree-view--header-fn
+      (funcall cider-tree-view--header-fn))
     (dolist (root cider-tree-view--roots)
       (cider-tree-view--insert-node root 0))))
 
@@ -123,7 +134,7 @@ returned nothing, at which point it is known to be a leaf."
 Expanding realizes the node's children on first use; a node that turns out to
 have none is demoted to a leaf rather than expanding into nothing."
   (interactive)
-  (let ((node (cider-tree-view--node-at-point)))
+  (let ((node (cider-tree-view-node-at-point)))
     (cond
      ((null node) (user-error "No node here"))
      ((not (cider-tree-view-node-expandable-p node)) (user-error "Node is a leaf"))
@@ -142,7 +153,7 @@ EVENT is the mouse event, when invoked with the mouse."
   (interactive (list last-nonmenu-event))
   (when (mouse-event-p event)
     (mouse-set-point event))
-  (let ((node (cider-tree-view--node-at-point)))
+  (let ((node (cider-tree-view-node-at-point)))
     (cond
      ((null node) (user-error "No node here"))
      ((cider-tree-view-node-on-visit node) (funcall (cider-tree-view-node-on-visit node)))
@@ -179,19 +190,23 @@ EVENT is the mouse event, when invoked with the mouse."
 \\{cider-tree-view-mode-map}"
   (setq-local truncate-lines t))
 
-(defun cider-tree-view-render (roots title)
+(defun cider-tree-view-render (roots title &optional header-fn)
   "Render ROOTS in the current buffer, which must be in `cider-tree-view-mode'.
-TITLE is shown in the header line; point is left on the first node.  Callers are
-expected to have created and displayed the buffer (e.g. via `cider-popup-buffer')
-before handing it here."
+TITLE is shown in the header line; point is left on the first node.  HEADER-FN,
+when non-nil, is a function of no arguments inserting content above the tree on
+every render (e.g. filter controls).  Callers are expected to have created and
+displayed the buffer (e.g. via `cider-popup-buffer') before handing it here."
   (setq cider-tree-view--roots roots)
+  (setq-local cider-tree-view--header-fn header-fn)
   (setq-local header-line-format
               (concat (propertize (format " %s" title) 'face 'bold)
                       (propertize
                        "   n/p: move   TAB: expand   RET/.: visit   q: quit"
                        'face 'shadow)))
   (cider-tree-view--render)
-  (goto-char (point-min)))
+  (goto-char (point-min))
+  (unless (cider-tree-view-node-at-point)
+    (ignore-errors (cider-tree-view-next-node))))
 
 (provide 'cider-tree-view)
 ;;; cider-tree-view.el ends here

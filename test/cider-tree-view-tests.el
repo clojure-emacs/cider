@@ -99,15 +99,40 @@
         ;; from the root, n moves to the child line
         (goto-char (point-min))
         (cider-tree-view-next-node)
-        (expect (cider-tree-view-node-label (cider-tree-view--node-at-point))
+        (expect (cider-tree-view-node-label (cider-tree-view-node-at-point))
                 :to-equal "child")
         ;; visiting the child fires its action
         (cider-tree-view-visit)
         (expect visited :to-equal "child")
         ;; p moves back to the root
         (cider-tree-view-previous-node)
-        (expect (cider-tree-view-node-label (cider-tree-view--node-at-point))
+        (expect (cider-tree-view-node-label (cider-tree-view-node-at-point))
                 :to-equal "root")))))
+
+(describe "cider-tree-view payload and header"
+  (it "round-trips a node's value via cider-tree-view-node-at-point"
+    (with-temp-buffer
+      (cider-tree-view-tests--render
+       (list (cider-tree-view-node-create :label "x" :value '(var "a/b"))))
+      (goto-char (point-min))
+      (expect (cider-tree-view-node-value (cider-tree-view-node-at-point))
+              :to-equal '(var "a/b"))))
+
+  (it "renders a header above the tree and keeps it across re-renders"
+    (with-temp-buffer
+      (cider-tree-view-mode)
+      (let ((root (cider-tree-view-node-create
+                   :label "root" :expanded t
+                   :children-fn (lambda ()
+                                  (list (cider-tree-view-node-create :label "kid"))))))
+        (cider-tree-view-render (list root) "test" (lambda () (insert "CONTROLS\n")))
+        (expect (buffer-string) :to-match "\\`CONTROLS")
+        ;; point lands on the first node, not on the header line
+        (expect (cider-tree-view-node-at-point) :not :to-be nil)
+        ;; collapsing re-renders, and the header is drawn again
+        (cider-tree-view--goto-node root)
+        (cider-tree-view-toggle)
+        (expect (buffer-string) :to-match "\\`CONTROLS")))))
 
 (provide 'cider-tree-view-tests)
 
