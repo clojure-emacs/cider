@@ -28,6 +28,7 @@
 
 ### Bugs fixed
 
+- [#4006](https://github.com/clojure-emacs/cider/pull/4006): Fix a doubled colon when both `cider-clojure-cli-global-aliases` and `cider-clojure-cli-aliases` are set in the documented `:foo:bar` form, which produced a malformed `-M:global::local:cider/nrepl` jack-in invocation.
 - [#3971](https://github.com/clojure-emacs/cider/pull/3971): Fix `cider-macroexpand-again` (`g` in the macroexpansion buffer) to actually re-expand the form instead of redisplaying the original input.
 - [#3986](https://github.com/clojure-emacs/cider/pull/3986): Signal a `user-error` (instead of a generic `error`) when a var to trace isn't found or isn't traceable, so the failure no longer triggers a backtrace under `debug-on-error`.
 

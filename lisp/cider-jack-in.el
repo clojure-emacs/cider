@@ -562,7 +562,11 @@ rules to quote it."
   "Create the combined aliases as a string separated by ':'."
   (let ((final-cider-clojure-cli-aliases
          (cond ((and cider-clojure-cli-global-aliases cider-clojure-cli-aliases)
-                (concat cider-clojure-cli-global-aliases ":" cider-clojure-cli-aliases))
+                ;; both are documented to be of the `:foo:bar' form, so drop a
+                ;; leading colon from the local aliases before joining, lest the
+                ;; junction end up with a `::' (a malformed alias keyword).
+                (concat cider-clojure-cli-global-aliases ":"
+                        (string-remove-prefix ":" cider-clojure-cli-aliases)))
                (cider-clojure-cli-global-aliases cider-clojure-cli-global-aliases)
                (t cider-clojure-cli-aliases))))
     (if final-cider-clojure-cli-aliases
