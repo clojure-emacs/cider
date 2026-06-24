@@ -86,9 +86,11 @@
     (spy-on 'cider-sync-tooling-eval :and-return-value (nrepl-dict))
     (expect (cider-xref-tree--implements "my.ns/whatever") :to-be nil)))
 
-(describe "cider-who-implements"
+(describe "cider-who-implements (eval fallback)"
   (before-each
     (spy-on 'cider-ensure-connected)
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
+    (spy-on 'cider-current-ns :and-return-value "my.ns")
     (spy-on 'cider-var-info :and-return-value
             (nrepl-dict "ns" "my.ns" "name" "Greet")))
 
@@ -103,6 +105,45 @@
   (it "reports a distinct error when introspection yields nothing"
     (spy-on 'cider-xref-tree--implements :and-return-value nil)
     (expect (cider-who-implements "my.ns/Greet") :to-throw 'user-error)))
+
+(describe "cider-xref-tree--implements-op-plan"
+  (before-each
+    (spy-on 'cider-current-ns :and-return-value "my.ns"))
+
+  (it "builds an impl node per protocol implementation"
+    (spy-on 'cider-sync-request:who-implements :and-return-value
+            (nrepl-dict "kind" "protocol"
+                        "impls" (list (nrepl-dict "name" "my.ns.Foo"
+                                                  "file-url" "file:///x.clj"
+                                                  "line" 5)
+                                      (nrepl-dict "name" "java.lang.String"))))
+    (let ((plan (cider-xref-tree--implements-op-plan "my.ns/Greet")))
+      (expect (plist-get plan :kind) :to-equal "protocol")
+      (expect (length (plist-get plan :nodes)) :to-equal 2)))
+
+  (it "builds a node per multimethod dispatch value"
+    (spy-on 'cider-sync-request:who-implements :and-return-value
+            (nrepl-dict "kind" "multimethod"
+                        "dispatch-values" (list ":circle" ":square")))
+    (let ((plan (cider-xref-tree--implements-op-plan "my.ns/area")))
+      (expect (plist-get plan :kind) :to-equal "multimethod")
+      (expect (length (plist-get plan :nodes)) :to-equal 2)))
+
+  (it "classifies a plain function as other"
+    (spy-on 'cider-sync-request:who-implements :and-return-value
+            (nrepl-dict "kind" "other"))
+    (expect (plist-get (cider-xref-tree--implements-op-plan "my.ns/x") :kind)
+            :to-equal "other")))
+
+(describe "cider-xref-tree--impl-node"
+  (it "produces a jumpable node when the op resolved a real location"
+    (let ((node (cider-xref-tree--impl-node
+                 (nrepl-dict "name" "my.ns.Foo" "file-url" "file:///x.clj" "line" 5))))
+      (expect (cider-tree-view-node-on-visit node) :to-be-truthy)))
+
+  (it "falls back to a name lookup when the impl has no file"
+    (let ((node (cider-xref-tree--impl-node (nrepl-dict "name" "java.lang.String"))))
+      (expect (cider-tree-view-node-on-visit node) :to-be-truthy))))
 
 (provide 'cider-xref-tree-tests)
 

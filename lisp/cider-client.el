@@ -1063,6 +1063,18 @@ The result entries are relative to the classpath."
                 (cider-nrepl-send-sync-request)
                 (nrepl-dict-get "fn-deps")))
 
+(defun cider-sync-request:who-implements (ns sym)
+  "Return the implementations of the protocol or multimethod NS and SYM.
+The result is a dict with a \"kind\" of \"protocol\", \"multimethod\" or
+\"other\"; for a protocol an \"impls\" list, for a multimethod a
+\"dispatch-values\" list."
+  (cider-ensure-op-supported "cider/who-implements")
+  (thread-first `("op" "cider/who-implements"
+                  "ns" ,ns
+                  "sym" ,sym)
+                (cider-nrepl-send-sync-request)
+                (nrepl-dict-get "who-implements")))
+
 (defun cider-sync-request:format-code (code &optional format-options)
   "Perform nREPL \"format-code\" op with CODE.
 FORMAT-OPTIONS is an optional configuration map for cljfmt."
