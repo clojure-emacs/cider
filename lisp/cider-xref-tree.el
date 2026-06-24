@@ -255,6 +255,102 @@ values only.  Clojure-on-the-JVM only."
       ("other" (user-error "%s is not a protocol or multimethod" var))
       (_ (cider-xref-tree--show-implements var plan)))))
 
+
+;;; Protocol exploration - reverse lookup and method search.
+;;
+;; Both scan the loaded protocols (a protocol var derefs to a map with an
+;; `:on-interface') and report the matches as qualified names, jumping to each
+;; protocol's definition.  Client-side eval is enough here: the answers are
+;; protocols, which are ordinary locatable vars.  Loaded JVM Clojure only.
+
+(defconst cider-xref-tree--type-protocols-code
+  "(let [sym '%s
+         r (try (resolve sym) (catch Throwable _ nil))
+         c (cond (class? r) r
+                 (and (var? r) (class? (deref r))) (deref r)
+                 (var? r) (class (deref r))
+                 :else (try (Class/forName (str sym)) (catch Throwable _ nil)))]
+     (when c
+       (vec (sort (for [ns (all-ns)
+                        [s v] (ns-publics ns)
+                        :let [val (try (deref v) (catch Throwable _ nil))]
+                        :when (and (map? val) (:on-interface val)
+                                   (or (extends? val c)
+                                       (.isAssignableFrom ^Class (:on-interface val) c)))]
+                    (str (symbol (str ns) (str s))))))))"
+  "Clojure form (with a `%s' for the type) listing the protocols it implements.
+Covers both `extend'-style and inline `defrecord'/`deftype' implementations.")
+
+(defconst cider-xref-tree--protocols-with-method-code
+  "(vec (sort (for [ns (all-ns)
+                    [s v] (ns-publics ns)
+                    :let [val (try (deref v) (catch Throwable _ nil))]
+                    :when (and (map? val) (:on-interface val)
+                               (some #(= \"%s\" (name %%)) (keys (:sigs val))))]
+                (str (symbol (str ns) (str s))))))"
+  "Clojure form (with a `%s' for a method name) listing protocols declaring it.")
+
+(defun cider-xref-tree--protocol-names (code arg)
+  "Evaluate CODE with ARG spliced in and return its list of protocol names.
+CODE must yield a vector of qualified-name strings; returns nil on failure."
+  (when-let* ((result (cider-sync-tooling-eval
+                       (format code arg) (cider-current-ns)))
+              (value (nrepl-dict-get result "value"))
+              (vec (ignore-errors (parseedn-read-str value))))
+    (when (vectorp vec)
+      (append vec nil))))
+
+(defun cider-xref-tree--show-protocols (root-label title names empty-msg)
+  "Render protocol NAMES as a tree under ROOT-LABEL in a popup titled TITLE.
+Each name jumps to its definition.  Signal EMPTY-MSG when NAMES is empty."
+  (unless names
+    (user-error "%s" empty-msg))
+  (let ((root (cider-tree-view-node-create
+               :label root-label
+               :expanded t
+               :children-fn (lambda () (mapcar #'cider-xref-tree--name-node names)))))
+    (with-current-buffer (cider-popup-buffer "*cider-protocols*" 'select
+                                             'cider-tree-view-mode 'ancillary)
+      (cider-tree-view-render (list root) title))))
+
+;;;###autoload
+(defun cider-type-protocols (&optional symbol)
+  "Browse the protocols implemented by the type SYMBOL.
+Covers both `extend'-style and inline `defrecord'/`deftype' implementations.
+Point should be on a type's name (a record/class) or a dotted class name; only
+loaded Clojure-on-the-JVM code is visible."
+  (interactive)
+  (cider-ensure-connected)
+  (let* ((symbol (or symbol (cider-symbol-at-point)
+                     (read-string "Protocols of type: ")))
+         (names (cider-xref-tree--protocol-names
+                 cider-xref-tree--type-protocols-code symbol)))
+    (cider-xref-tree--show-protocols
+     (cider-font-lock-as-clojure symbol)
+     (format "Protocols implemented by %s" symbol)
+     names
+     (format "No protocols found for %s; is it a loaded type?" symbol))))
+
+;;;###autoload
+(defun cider-protocols-with-method (&optional method)
+  "Browse the protocols that declare a method named METHOD.
+With no argument, uses the (unqualified) name at point.  Only loaded
+Clojure-on-the-JVM code is visible."
+  (interactive)
+  (cider-ensure-connected)
+  (let* ((method (or method (cider-symbol-at-point)
+                     (read-string "Protocols with method: ")))
+         ;; drop a namespace qualifier (m/area -> area) but keep a bare `/'
+         (method (let ((parts (split-string method "/" t)))
+                   (if (cdr parts) (car (last parts)) method)))
+         (names (cider-xref-tree--protocol-names
+                 cider-xref-tree--protocols-with-method-code method)))
+    (cider-xref-tree--show-protocols
+     (cider-font-lock-as-clojure method)
+     (format "Protocols with a method named %s" method)
+     names
+     (format "No protocol declares a method named %s" method))))
+
 ;;;###autoload (autoload 'cider-who-map "cider-xref-tree" "CIDER call-graph keymap." nil 'keymap)
 (defvar cider-who-map
   (let ((map (define-prefix-command 'cider-who-map)))
@@ -266,10 +362,16 @@ values only.  Clojure-on-the-JVM only."
     (define-key map (kbd "C-m") #'cider-who-macroexpands)
     (define-key map (kbd "i") #'cider-who-implements)
     (define-key map (kbd "C-i") #'cider-who-implements)
+    (define-key map (kbd "t") #'cider-type-protocols)
+    (define-key map (kbd "C-t") #'cider-type-protocols)
+    (define-key map (kbd "p") #'cider-protocols-with-method)
+    (define-key map (kbd "C-p") #'cider-protocols-with-method)
     map)
-  "CIDER call-graph (\"who calls\") keymap.
+  "CIDER relationship-query (\"who calls\") keymap.
 The letters mirror SLIME's who-map: `c' for callers, `d' for callees, `m' for a
-macro's use sites, and `i' for a protocol's or multimethod's implementations.")
+macro's use sites, and `i' for a protocol's or multimethod's implementations.
+The protocol-exploration commands extend it, on keys t and p: the protocols a
+type implements, and the protocols declaring a given method.")
 
 (provide 'cider-xref-tree)
 ;;; cider-xref-tree.el ends here

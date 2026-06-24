@@ -426,7 +426,9 @@ If invoked with a prefix ARG eval the expression after inserting it."
      ["Who calls (tree)" cider-who-calls]
      ["Who is called (tree)" cider-who-is-called]
      ["Who macroexpands (source)" cider-who-macroexpands]
-     ["Who implements (protocol/multimethod)" cider-who-implements])
+     ["Who implements (protocol/multimethod)" cider-who-implements]
+     ["Protocols implemented by type" cider-type-protocols]
+     ["Protocols declaring a method" cider-protocols-with-method])
     ("Browse"
      ["Browse namespace" cider-browse-ns]
      ["Browse all namespaces" cider-browse-ns-all]
@@ -514,6 +516,8 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (declare-function cider-who-calls "cider-xref-tree")
 (declare-function cider-who-is-called "cider-xref-tree")
 (declare-function cider-who-implements "cider-xref-tree")
+(declare-function cider-type-protocols "cider-xref-tree")
+(declare-function cider-protocols-with-method "cider-xref-tree")
 
 (defconst cider--has-many-mouse-buttons (not (memq window-system '(mac ns)))
   "Non-nil if system binds forward and back buttons to <mouse-8> and <mouse-9>.

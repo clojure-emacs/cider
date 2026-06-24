@@ -145,6 +145,60 @@
     (let ((node (cider-xref-tree--impl-node (nrepl-dict "name" "java.lang.String"))))
       (expect (cider-tree-view-node-on-visit node) :to-be-truthy))))
 
+(describe "cider-xref-tree--protocol-names"
+  (before-each
+    (spy-on 'cider-current-ns :and-return-value "user"))
+
+  (it "parses the eval result into a list of names"
+    (spy-on 'cider-sync-tooling-eval :and-return-value
+            (nrepl-dict "value" "[\"user/Shape\" \"user/Drawable\"]"))
+    (expect (cider-xref-tree--protocol-names "%s" "Square")
+            :to-equal '("user/Shape" "user/Drawable")))
+
+  (it "returns nil when the eval yields no value"
+    (spy-on 'cider-sync-tooling-eval :and-return-value (nrepl-dict))
+    (expect (cider-xref-tree--protocol-names "%s" "x") :to-be nil)))
+
+(describe "cider-type-protocols"
+  (before-each
+    (spy-on 'cider-ensure-connected)
+    (spy-on 'cider-current-ns :and-return-value "user"))
+
+  (it "errors when the type implements no protocols"
+    (spy-on 'cider-xref-tree--protocol-names :and-return-value nil)
+    (expect (cider-type-protocols "Plain") :to-throw 'user-error))
+
+  (it "renders the protocols the type implements"
+    (spy-on 'cider-xref-tree--protocol-names :and-return-value '("user/Shape"))
+    (spy-on 'cider-popup-buffer :and-call-fake
+            (lambda (name &rest _) (get-buffer-create name)))
+    (cider-type-protocols "Square")
+    (with-current-buffer "*cider-protocols*"
+      (expect (buffer-string) :to-match "Shape"))))
+
+(describe "cider-protocols-with-method"
+  (before-each
+    (spy-on 'cider-ensure-connected)
+    (spy-on 'cider-current-ns :and-return-value "user"))
+
+  (it "strips a namespace qualifier before searching by method name"
+    (let (captured)
+      (spy-on 'cider-xref-tree--protocol-names :and-call-fake
+              (lambda (_code arg) (setq captured arg) '("user/Shape")))
+      (spy-on 'cider-popup-buffer :and-call-fake
+              (lambda (name &rest _) (get-buffer-create name)))
+      (cider-protocols-with-method "m/area")
+      (expect captured :to-equal "area")))
+
+  (it "keeps a bare slash method name intact"
+    (let (captured)
+      (spy-on 'cider-xref-tree--protocol-names :and-call-fake
+              (lambda (_code arg) (setq captured arg) '("user/Arith")))
+      (spy-on 'cider-popup-buffer :and-call-fake
+              (lambda (name &rest _) (get-buffer-create name)))
+      (cider-protocols-with-method "/")
+      (expect captured :to-equal "/"))))
+
 (provide 'cider-xref-tree-tests)
 
 ;;; cider-xref-tree-tests.el ends here
