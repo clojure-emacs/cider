@@ -150,6 +150,12 @@ Like the flat `cider-xref-fn-refs`, these browsers are powered by the runtime
 evaluated, or ClojureScript.
 ====
 
+Macros are a special case: they're expanded away at compile time, so the runtime
+ops never see their call sites and `cider-who-calls` comes up empty for them.
+`cider-who-macroexpands` (kbd:[C-c C-w m]) finds a macro's use sites by searching
+the project's source instead (the same mechanism as
+`cider-xref-fn-refs-in-source`).
+
 The bindings are also available under the kbd:[C-c C-?] xref prefix, as
 kbd:[C-c C-? R] and kbd:[C-c C-? D].
 

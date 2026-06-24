@@ -4,6 +4,7 @@
 
 ### New features
 
+- [#3996](https://github.com/clojure-emacs/cider/pull/3996): Add `cider-who-macroexpands` (`C-c C-w m`), which finds a macro's use sites by searching the project's source - the runtime ops can't see them, since macros are expanded away at compile time.
 - [#3995](https://github.com/clojure-emacs/cider/pull/3995): Add `cider-who-calls` (`C-c C-w c`) and `cider-who-is-called` (`C-c C-w d`), SLIME-style call-graph browsers that present a function's callers/callees as an interactive tree you can expand a level at a time.
 - [#3994](https://github.com/clojure-emacs/cider/pull/3994): Find references by searching the project's source files, covering code that hasn't been loaded into the REPL yet: `xref-find-references` (`M-?`) now uses this source search by default (configurable via `cider-xref-references-mode`, which can also fold in the runtime references), and `cider-xref-fn-refs-in-source` (`C-c C-? s`) runs it explicitly.
 - [#3991](https://github.com/clojure-emacs/cider/pull/3991): Add `cider-enlighten-stop` to turn off enlightenment at once - it disables `cider-enlighten-mode`, clears the overlays, and ignores any further values still streaming from previously-instrumented code, so you no longer have to re-evaluate everything just to make it stop.

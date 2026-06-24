@@ -353,6 +353,10 @@ kbd:[C-c C-t C-b]
 | kbd:[C-c C-w d] (also kbd:[C-c C-? D])
 | Browse a function's callees as an expandable call-graph tree.
 
+| `cider-who-macroexpands`
+| kbd:[C-c C-w m]
+| Find a macro's use sites by searching the project's source.
+
 | `cider-pop-back`
 | kbd:[M-,]
 | Return to your pre-jump location.
