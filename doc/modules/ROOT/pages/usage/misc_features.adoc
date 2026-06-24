@@ -348,6 +348,12 @@ a regex and will filter out all the spec names that don't match.
 
 image::spec_browser_all.png[Spec Browser]
 
+To explore how a spec is composed, kbd:[M-x] `cider-browse-spec-tree` shows the
+spec and the specs it references as an expandable tree: kbd:[TAB] on a node
+reveals the namespaced specs that spec depends on (fetched a level at a time),
+and kbd:[RET] opens that spec's full definition in the regular browser. A spec
+that recurs onto its own path is shown as a leaf, so the tree never loops.
+
 Once in the browser you can use your mouse or the keybindings below to
 navigate deeper.
 
