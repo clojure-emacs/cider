@@ -443,7 +443,11 @@ If invoked with a prefix ARG eval the expression after inserting it."
      ["Format EDN buffer" cider-format-edn-buffer])
     ("Macroexpand"
      ["Macroexpand-1" cider-macroexpand-1]
-     ["Macroexpand-all" cider-macroexpand-all])
+     ["Macroexpand-all" cider-macroexpand-all]
+     "--"
+     ["Macrostep expand (inline)" cider-macrostep-expand]
+     ["Macrostep expand all (inline)" cider-macrostep-expand-all]
+     ["Macrostep in a buffer" cider-macrostep-expand-in-buffer])
     ,cider-test-menu
     ("Debug"
      ["Inspect" cider-inspect]
@@ -500,6 +504,9 @@ If invoked with a prefix ARG eval the expression after inserting it."
 ;; used. That optimizes CIDER's initial load time.
 (declare-function cider-macroexpand-1 "cider-macroexpansion")
 (declare-function cider-macroexpand-all "cider-macroexpansion")
+(declare-function cider-macrostep-expand "cider-macrostep")
+(declare-function cider-macrostep-expand-all "cider-macrostep")
+(declare-function cider-macrostep-expand-in-buffer "cider-macrostep")
 (declare-function cider-selector "cider-selector")
 (declare-function cider-toggle-trace-ns "cider-tracing")
 (declare-function cider-toggle-trace-var "cider-tracing")
@@ -568,7 +575,7 @@ higher precedence."
     (define-key map (kbd "C-c C-u") #'cider-undef)
     (define-key map (kbd "C-c C-M-u") #'cider-undef-all)
     (define-key map (kbd "C-c C-m") #'cider-macroexpand-1)
-    (define-key map (kbd "C-c M-m") #'cider-macroexpand-all)
+    (define-key map (kbd "C-c M-m") 'cider-macroexpand-map)
     (define-key map (kbd "C-c M-n") 'cider-ns-map)
     (define-key map (kbd "C-c M-i") #'cider-inspect)
     (define-key map (kbd "C-c M-t v") #'cider-toggle-trace-var)

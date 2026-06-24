@@ -292,6 +292,24 @@ buffer's key bindings."
   (when cider-macroexpansion-mode
     (setq-local header-line-format '(:eval (cider-macroexpansion--header-line)))))
 
+(declare-function cider-macrostep-expand "cider-macrostep")
+(declare-function cider-macrostep-expand-all "cider-macrostep")
+(declare-function cider-macrostep-expand-in-buffer "cider-macrostep")
+
+;;;###autoload (autoload 'cider-macroexpand-map "cider-macroexpansion" "CIDER macroexpansion keymap." nil 'keymap)
+(defvar cider-macroexpand-map
+  (let ((map (define-prefix-command 'cider-macroexpand-map)))
+    (define-key map (kbd "1") #'cider-macroexpand-1)
+    (define-key map (kbd "a") #'cider-macroexpand-all)
+    (define-key map (kbd "e") #'cider-macrostep-expand)
+    (define-key map (kbd "E") #'cider-macrostep-expand-all)
+    (define-key map (kbd "b") #'cider-macrostep-expand-in-buffer)
+    map)
+  "CIDER macroexpansion keymap, grouping the form-expanding commands.
+Keys 1 and a open the macroexpansion buffer on one level or the full expansion;
+e and E expand inline (a single step, or all the way) via `cider-macrostep'; b
+runs an inline-style stepping session in a dedicated popup buffer.")
+
 (provide 'cider-macroexpansion)
 
 ;;; cider-macroexpansion.el ends here
