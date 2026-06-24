@@ -36,6 +36,7 @@
 
 (require 'cider-client)
 (require 'cider-popup)
+(require 'cider-tree-view)
 (require 'cider-util)
 (require 'nrepl-dict)
 (require 'seq)
@@ -471,6 +472,55 @@ With a prefix argument ARG, prompts for a regexp to filter specs.
 No filter applied if the regexp is the empty string."
   (interactive "P")
   (cider-browse-spec-regex (if arg (read-string "Filter regex: ") "")))
+
+
+;;; Spec tree - explore a spec's referenced sub-specs as an expandable tree.
+
+(defun cider-browse-spec--collect-keywords (form acc)
+  "Collect the namespaced-keyword strings in spec FORM into ACC, returning it."
+  (cond ((and (stringp form) (cider--qualified-keyword-p form))
+         (cons form acc))
+        ((listp form)
+         (dolist (x form acc)
+           (setq acc (cider-browse-spec--collect-keywords x acc))))
+        (t acc)))
+
+(defun cider-browse-spec--subspecs (form)
+  "Return the distinct namespaced specs referenced in spec FORM, in order."
+  (seq-uniq (nreverse (cider-browse-spec--collect-keywords form nil))))
+
+(defun cider-browse-spec--tree-node (spec ancestors)
+  "Return a `cider-tree-view' node for SPEC.
+ANCESTORS is the list of specs on the path from the root; a SPEC that recurs
+onto its own path is rendered as a leaf, so expansion can't loop on a recursive
+spec.  Visiting a node shows that spec's full definition."
+  (let ((recursive (member spec ancestors)))
+    (cider-tree-view-node-create
+     :label (concat (cider-font-lock-as-clojure spec)
+                    (when recursive (propertize "  (recursive)" 'face 'shadow)))
+     :on-visit (lambda () (cider-browse-spec--browse spec))
+     :children-fn (unless recursive
+                    (lambda ()
+                      (mapcar (lambda (s)
+                                (cider-browse-spec--tree-node s (cons spec ancestors)))
+                              (cider-browse-spec--subspecs
+                               (cider-sync-request:spec-form spec))))))))
+
+;;;###autoload
+(defun cider-browse-spec-tree (spec)
+  "Browse SPEC and the specs it references as an interactive tree.
+Each node expands to the namespaced specs that spec depends on - fetched a level
+at a time - so you can walk a spec's structure in place; \\<cider-tree-view-mode-map>\\[cider-tree-view-visit] on a node
+shows that spec's full definition."
+  (interactive (list (completing-read "Browse spec tree: "
+                                      (cider-sync-request:spec-list))))
+  (cider-ensure-connected)
+  (cider-ensure-op-supported "cider/spec-form")
+  (let ((root (cider-browse-spec--tree-node spec nil)))
+    (setf (cider-tree-view-node-expanded root) t)
+    (with-current-buffer (cider-popup-buffer "*cider-spec-tree*" 'select
+                                             'cider-tree-view-mode 'ancillary)
+      (cider-tree-view-render (list root) (format "Spec tree: %s" spec)))))
 
 (provide 'cider-browse-spec)
 

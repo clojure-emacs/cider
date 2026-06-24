@@ -433,6 +433,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
      ["Browse namespace" cider-browse-ns]
      ["Browse all namespaces" cider-browse-ns-all]
      ["Browse spec" cider-browse-spec]
+     ["Browse spec tree" cider-browse-spec-tree]
      ["Browse all specs" cider-browse-spec-all]
      ["Browse REPL input history" cider-repl-history]
      ["Browse classpath" cider-classpath]
