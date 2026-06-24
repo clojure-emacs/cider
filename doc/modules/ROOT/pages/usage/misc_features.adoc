@@ -74,6 +74,53 @@ The functionality is not perfect, but at least it's there if you need it. As a b
 all of the functions used by some function using `cider-xref-fn-deps` (kbd:[C-c C-? d]) and `cider-xref-fn-deps-select` (kbd:[C-c C-? C-d]).
 Those are pretty handy if you don't want to jump to the source of some function to see what functions it refers to (uses) internally.
 
+=== Searching the project source
+
+The runtime analysis only sees namespaces that have been loaded into the REPL,
+and each reference it reports points at the referring function's definition
+rather than the exact call site. To also cover code that hasn't been evaluated
+yet, CIDER can search the project's source files on disk. It uses the
+lightweight `info`/`lookup` op (a single, cheap round-trip) to resolve the
+symbol at point to its canonical namespace and name, then scans the project's
+files with a Clojure-aware text search, taking each file's namespace aliases and
+``:refer``s into account and pinpointing every occurrence.
+
+`cider-xref-fn-refs-in-source` (kbd:[C-c C-? s]) runs this search directly and
+shows the results in the standard `xref` buffer. When no REPL is connected it
+falls back to matching the bare name, which is less precise but still useful.
+
+By default, `xref-find-references` (kbd:[M-?]) uses this source search, since it
+reports the exact occurrences across the whole project, including code that
+hasn't been loaded. The `cider-xref-references-mode` variable lets you fold in
+the runtime references too:
+
+[source,lisp]
+----
+;; source matches only (the default)
+(setq cider-xref-references-mode 'source)
+;; runtime references only (the historical behavior)
+(setq cider-xref-references-mode 'runtime)
+;; both, combined
+(setq cider-xref-references-mode 'both)
+----
+
+The two answer slightly different questions: the source search finds every
+occurrence (in any Clojure dialect), while the runtime search reports the
+calling functions (each hit points at the caller's definition rather than the
+call site) and is limited to Clojure on the JVM and to loaded project
+namespaces. In `both` mode the source matches lead, and runtime hits for files
+the source search already scanned are dropped, so a loaded reference isn't
+reported twice at two different granularities; what survives is mainly
+references the compiler generated from macros, which leave no textual trace.
+
+Because the source search is textual, it's a smart heuristic rather than a
+resolved index. It only looks at the project's own source files, so it won't
+find references that live in dependencies. It can include false positives such
+as shadowing locals or a same-named var referred from a different namespace, and
+it can miss references hidden in `.cljc` reader-conditional branches or built
+from strings at runtime. A faster search program helps on large projects; set
+`xref-search-program` to `ripgrep` if you have it installed.
+
 Don't forget you also have a couple of third-party alternatives:
 
 - The much more sophisticated AST-powered "find usages" provided by `clj-refactor.el`

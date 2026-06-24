@@ -333,6 +333,10 @@ kbd:[C-c C-t C-b]
 | kbd:[C-c C-? C-r]
 | Display function usages across loaded namespaces in a minibuffer selector.
 
+| `cider-xref-fn-refs-in-source`
+| kbd:[C-c C-? s]
+| Display function usages found by searching the project's source files.
+
 | `cider-xref-fn-deps`
 | kbd:[C-c C-? d]
 | Display function deps (other functions used by it) in a dedicated buffer.
