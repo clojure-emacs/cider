@@ -319,18 +319,40 @@ CODE must yield a vector of qualified-name strings; returns nil on failure."
     (when (vectorp vec)
       (append vec nil))))
 
-(defun cider-xref-tree--show-protocols (root-label title names empty-msg)
-  "Render protocol NAMES as a tree under ROOT-LABEL in a popup titled TITLE.
-Each name jumps to its definition.  Signal EMPTY-MSG when NAMES is empty."
-  (unless names
+(defun cider-xref-tree--show-protocols (root-label title nodes empty-msg)
+  "Render protocol NODES as a tree under ROOT-LABEL in a popup titled TITLE.
+Signal EMPTY-MSG when NODES is empty."
+  (unless nodes
     (user-error "%s" empty-msg))
   (let ((root (cider-tree-view-node-create
                :label root-label
                :expanded t
-               :children-fn (lambda () (mapcar #'cider-xref-tree--name-node names)))))
+               :children-fn (lambda () nodes))))
     (with-current-buffer (cider-popup-buffer "*cider-protocols*" 'select
                                              'cider-tree-view-mode 'ancillary)
       (cider-tree-view-render (list root) title))))
+
+(defun cider-xref-tree--type-protocol-nodes (symbol)
+  "Return tree nodes for the protocols implemented by the type SYMBOL.
+Uses the `cider/type-protocols' op when available (so each jumps straight to its
+source), else the client-side tooling eval."
+  (if (cider-nrepl-op-supported-p "cider/type-protocols")
+      (mapcar #'cider-xref-tree--impl-node
+              (cider-sync-request:type-protocols (cider-current-ns) symbol))
+    (mapcar #'cider-xref-tree--name-node
+            (cider-xref-tree--protocol-names
+             cider-xref-tree--type-protocols-code symbol))))
+
+(defun cider-xref-tree--method-protocol-nodes (method)
+  "Return tree nodes for the protocols declaring a method named METHOD.
+Uses the `cider/protocols-with-method' op when available, else the client-side
+tooling eval."
+  (if (cider-nrepl-op-supported-p "cider/protocols-with-method")
+      (mapcar #'cider-xref-tree--impl-node
+              (cider-sync-request:protocols-with-method method))
+    (mapcar #'cider-xref-tree--name-node
+            (cider-xref-tree--protocol-names
+             cider-xref-tree--protocols-with-method-code method))))
 
 ;;;###autoload
 (defun cider-type-protocols (&optional symbol)
@@ -340,14 +362,12 @@ Point should be on a type's name (a record/class) or a dotted class name; only
 loaded Clojure-on-the-JVM code is visible."
   (interactive)
   (cider-ensure-connected)
-  (let* ((symbol (or symbol (cider-symbol-at-point)
-                     (read-string "Protocols of type: ")))
-         (names (cider-xref-tree--protocol-names
-                 cider-xref-tree--type-protocols-code symbol)))
+  (let ((symbol (or symbol (cider-symbol-at-point)
+                    (read-string "Protocols of type: "))))
     (cider-xref-tree--show-protocols
      (cider-font-lock-as-clojure symbol)
      (format "Protocols implemented by %s" symbol)
-     names
+     (cider-xref-tree--type-protocol-nodes symbol)
      (format "No protocols found for %s; is it a loaded type?" symbol))))
 
 ;;;###autoload
@@ -361,13 +381,11 @@ Clojure-on-the-JVM code is visible."
                      (read-string "Protocols with method: ")))
          ;; drop a namespace qualifier (m/area -> area) but keep a bare `/'
          (method (let ((parts (split-string method "/" t)))
-                   (if (cdr parts) (car (last parts)) method)))
-         (names (cider-xref-tree--protocol-names
-                 cider-xref-tree--protocols-with-method-code method)))
+                   (if (cdr parts) (car (last parts)) method))))
     (cider-xref-tree--show-protocols
      (cider-font-lock-as-clojure method)
      (format "Protocols with a method named %s" method)
-     names
+     (cider-xref-tree--method-protocol-nodes method)
      (format "No protocol declares a method named %s" method))))
 
 ;;;###autoload (autoload 'cider-who-map "cider-xref-tree" "CIDER call-graph keymap." nil 'keymap)

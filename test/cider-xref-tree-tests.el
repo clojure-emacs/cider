@@ -175,9 +175,27 @@
     (spy-on 'cider-sync-tooling-eval :and-return-value (nrepl-dict))
     (expect (cider-xref-tree--protocol-names "%s" "x") :to-be nil)))
 
+(describe "cider-xref-tree--type-protocol-nodes"
+  (before-each
+    (spy-on 'cider-current-ns :and-return-value "user"))
+
+  (it "builds jumpable nodes from the op when it is supported"
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
+    (spy-on 'cider-sync-request:type-protocols :and-return-value
+            (list (nrepl-dict "name" "my.ns/P" "file-url" "file:///x.clj" "line" 3)))
+    (let ((nodes (cider-xref-tree--type-protocol-nodes "Square")))
+      (expect (length nodes) :to-equal 1)
+      (expect (cider-tree-view-node-on-visit (car nodes)) :to-be-truthy)))
+
+  (it "falls back to the client eval when the op is unsupported"
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
+    (spy-on 'cider-xref-tree--protocol-names :and-return-value '("my.ns/P"))
+    (expect (length (cider-xref-tree--type-protocol-nodes "Square")) :to-equal 1)))
+
 (describe "cider-type-protocols"
   (before-each
     (spy-on 'cider-ensure-connected)
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
     (spy-on 'cider-current-ns :and-return-value "user"))
 
   (it "errors when the type implements no protocols"
@@ -195,6 +213,7 @@
 (describe "cider-protocols-with-method"
   (before-each
     (spy-on 'cider-ensure-connected)
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
     (spy-on 'cider-current-ns :and-return-value "user"))
 
   (it "strips a namespace qualifier before searching by method name"
