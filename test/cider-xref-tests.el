@@ -42,6 +42,40 @@
     (spy-on 'cider-resolution-failure-message :and-return-value "nope")
     (expect (cider-xref--report-no-results "foo" "references") :to-throw 'user-error)))
 
+(describe "cider-who-macroexpands"
+  (it "shows the macro's source references"
+    (spy-on 'cider-var-info :and-return-value (nrepl-dict "macro" "true"))
+    (spy-on 'cider-xref--var-source-references :and-return-value '(ref))
+    (let* ((shown nil)
+           (xref-show-xrefs-function (lambda (fetcher _alist)
+                                       (setq shown (funcall fetcher)))))
+      (cider-who-macroexpands "my.ns/when-let")
+      (expect 'cider-xref--var-source-references :to-have-been-called-with "my.ns/when-let")
+      (expect shown :to-equal '(ref))))
+
+  (it "notes when the symbol isn't a macro but still searches"
+    (spy-on 'cider-var-info :and-return-value (nrepl-dict "macro" "false"))
+    (spy-on 'cider-xref--var-source-references :and-return-value '(ref))
+    (spy-on 'message)
+    (let ((xref-show-xrefs-function (lambda (&rest _) nil)))
+      (cider-who-macroexpands "my.ns/inc")
+      (expect 'message :to-have-been-called)
+      (expect 'cider-xref--var-source-references :to-have-been-called)))
+
+  (it "still searches when the symbol doesn't resolve"
+    (spy-on 'cider-var-info :and-return-value nil)
+    (spy-on 'cider-xref--var-source-references :and-return-value '(ref))
+    (spy-on 'message)
+    (let ((xref-show-xrefs-function (lambda (&rest _) nil)))
+      (cider-who-macroexpands "my.ns/unloaded")
+      (expect 'message :not :to-have-been-called)
+      (expect 'cider-xref--var-source-references :to-have-been-called)))
+
+  (it "errors when there are no source references"
+    (spy-on 'cider-var-info :and-return-value (nrepl-dict "macro" "true"))
+    (spy-on 'cider-xref--var-source-references :and-return-value nil)
+    (expect (cider-who-macroexpands "my.ns/nope") :to-throw 'user-error)))
+
 (provide 'cider-xref-tests)
 
 ;;; cider-xref-tests.el ends here

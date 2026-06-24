@@ -424,7 +424,8 @@ If invoked with a prefix ARG eval the expression after inserting it."
      ["Find fn dependencies and select" cider-xref-fn-deps-select]
      "--"
      ["Who calls (tree)" cider-who-calls]
-     ["Who is called (tree)" cider-who-is-called])
+     ["Who is called (tree)" cider-who-is-called]
+     ["Who macroexpands (source)" cider-who-macroexpands])
     ("Browse"
      ["Browse namespace" cider-browse-ns]
      ["Browse all namespaces" cider-browse-ns-all]
@@ -508,6 +509,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (declare-function cider-xref-fn-refs-select "cider-xref")
 (declare-function cider-xref-fn-deps "cider-xref")
 (declare-function cider-xref-fn-deps-select "cider-xref")
+(declare-function cider-who-macroexpands "cider-xref")
 (declare-function cider-who-calls "cider-xref-tree")
 (declare-function cider-who-is-called "cider-xref-tree")
 
