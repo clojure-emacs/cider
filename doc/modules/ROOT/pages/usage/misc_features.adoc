@@ -281,10 +281,11 @@ image::ns_browser.png[Namespace Browser]
 You can also browse all available namespaces with kbd:[M-x]
 `cider-browse-ns-all`.
 
-The UI contains buttons in the header which allow you to control how
-the buffer is displayed (see below for keybindings).  You may also
-configure the `cider-browse-ns-default-filters` variable to a list of
-the element types you want to be hidden by default.
+The contents are shown as a navigable tree: when you group them (see below)
+each group is a foldable node you can collapse with kbd:[TAB].  The header
+contains buttons which let you control how the buffer is displayed (see below
+for keybindings).  You may also configure the `cider-browse-ns-default-filters`
+variable to a list of the element types you want to be hidden by default.
 
 There are a bunch of useful keybindings that are defined in browser buffers.
 
@@ -307,7 +308,10 @@ There are a bunch of useful keybindings that are defined in browser buffers.
 | Toggle showing all items (ignore active filters).
 
 | kbd:[n]
-| Go to next line.
+| Go to the next node.
+
+| kbd:[TAB]
+| Fold or unfold the group at point.
 
 | kbd:[h p]
 | Toggle visibility of private items.
@@ -331,7 +335,7 @@ There are a bunch of useful keybindings that are defined in browser buffers.
 | Group items by visibility (public vs. private).
 
 | kbd:[p]
-| Go to previous line.
+| Go to the previous node.
 |===
 
 == Browsing the Clojure Spec Registry
