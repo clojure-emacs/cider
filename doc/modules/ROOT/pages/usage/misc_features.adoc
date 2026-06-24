@@ -172,6 +172,15 @@ extending it) and offers no per-implementation jumps.  Either way, only loaded
 Clojure-on-the-JVM code is visible.
 ====
 
+Two more protocol-oriented commands round out the family. `cider-type-protocols`
+(kbd:[C-c C-w t]) is the reverse of `cider-who-implements`: point it at a type
+(a record or class) and it lists the protocols that type implements, including
+inline `defrecord`/`deftype` implementations. `cider-protocols-with-method`
+(kbd:[C-c C-w p]) takes a method name (by default the one at point) and lists the
+protocols that declare it - handy when you spot a bare method call and want to
+know which protocol it belongs to. Both jump to the matching protocol's
+definition, and both see loaded Clojure-on-the-JVM code only.
+
 The call-graph bindings are also available under the kbd:[C-c C-?] xref prefix,
 as kbd:[C-c C-? R] and kbd:[C-c C-? D].
 
