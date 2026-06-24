@@ -32,6 +32,7 @@
 
 ### Changes
 
+- [#4005](https://github.com/clojure-emacs/cider/pull/4005): Render the namespace browser (`cider-browse-ns`) on the `cider-tree-view` widget: groups (by type or visibility) are now foldable with `TAB`, and `n`/`p` move between entries.
 - [#4003](https://github.com/clojure-emacs/cider/pull/4003): Turn `C-c M-m` into a prefix map (`cider-macroexpand-map`) grouping all the macro-expanding commands - `macroexpand-1`/`macroexpand-all` into a buffer (`1`/`a`) and the inline `cider-macrostep` commands (`e`/`E`/`b`). `cider-macroexpand-all` thus moves from `C-c M-m` to `C-c M-m a`; `C-c C-m` still runs `macroexpand-1` directly.
 - [#4002](https://github.com/clojure-emacs/cider/pull/4002): Bump the injected `cider-nrepl` to 0.60.0, which provides the `cider/who-implements`, `cider/type-protocols` and `cider/protocols-with-method` ops backing the protocol-exploration commands.
 - [#4001](https://github.com/clojure-emacs/cider/pull/4001): `cider-type-protocols` and `cider-protocols-with-method` now use cider-nrepl's `cider/type-protocols` and `cider/protocols-with-method` ops when available, falling back to the previous client-side query otherwise.
