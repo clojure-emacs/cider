@@ -57,8 +57,7 @@
     (with-temp-buffer
       (setq cider-browse-ns-buffer (buffer-name (current-buffer)))
       (cider-browse-ns "clojure.string")
-      (search-forward "clojure")
-      (expect (get-text-property (point) 'face) :to-equal 'font-lock-type-face)
+      ;; the namespace name is shown in the header line, not the buffer body
       (search-forward "blank")
       (expect (get-text-property (point) 'font-lock-face) :to-equal 'font-lock-function-name-face)
       (search-forward "True")
@@ -73,6 +72,28 @@
     (spy-on 'cider-sync-request:private-ns-vars-with-meta :and-return-value '(dict))
     (spy-on 'cider-ns-loaded-p :and-return-value nil)
     (expect (cider-browse-ns "foo.bar") :to-throw 'user-error)))
+
+(describe "cider-browse-ns grouping"
+  :var (cider-browse-ns-buffer)
+  (it "groups vars under expandable type headers and tags var nodes"
+    (spy-on 'cider-sync-request:ns-vars-with-meta :and-return-value
+            '(dict "afn" (dict "arglists" "([x])")
+                   "amacro" (dict "arglists" "([x])" "macro" "true")))
+    (spy-on 'cider-sync-request:private-ns-vars-with-meta :and-return-value '(dict))
+    (with-temp-buffer
+      (setq cider-browse-ns-buffer (buffer-name (current-buffer)))
+      (cider-browse-ns "my.ns")
+      ;; each var node carries a fully-qualified payload
+      (goto-char (point-min))
+      (search-forward "afn")
+      (expect (cider-browse-ns--thing-at-point) :to-equal '(var "my.ns/afn"))
+      ;; grouping by type yields counted headers with the vars nested under them
+      (cider-browse-ns-group-by-type)
+      (goto-char (point-min))
+      (expect (re-search-forward "Functions (1)" nil t) :to-be-truthy)
+      (expect (re-search-forward "afn" nil t) :to-be-truthy)
+      (goto-char (point-min))
+      (expect (re-search-forward "Macros (1)" nil t) :to-be-truthy))))
 
 (describe "cider-browse-ns--thing-at-point"
   :var (cider-browse-ns-buffer)

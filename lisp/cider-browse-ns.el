@@ -37,6 +37,7 @@
 
 (require 'cider-client)
 (require 'cider-popup)
+(require 'cider-tree-view)
 (require 'cider-util)
 (require 'nrepl-dict)
 
@@ -81,13 +82,12 @@ Available options include `private', `test', `macro', `function', and
 
 (defvar cider-browse-ns-mode-map
   (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map cider-popup-buffer-mode-map)
+    ;; `cider-tree-view-mode' (the parent) already provides n/p navigation,
+    ;; TAB to fold a group, and RET/. to act on the var at point; we only add
+    ;; the browser-specific commands on top.
     (define-key map "d" #'cider-browse-ns-doc-at-point)
     (define-key map "s" #'cider-browse-ns-find-at-point)
-    (define-key map (kbd "RET") #'cider-browse-ns-operate-at-point)
     (define-key map "^" #'cider-browse-ns-all)
-    (define-key map "n" #'next-line)
-    (define-key map "p" #'previous-line)
 
     (define-key map "a" #'cider-browse-ns-toggle-all)
 
@@ -121,19 +121,12 @@ Available options include `private', `test', `macro', `function', and
          ["Visibility" cider-browse-ns-group-by-visibility])))
     map))
 
-(defvar cider-browse-ns-mouse-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-1] #'cider-browse-ns-handle-mouse)
-    map))
-
-(define-derived-mode cider-browse-ns-mode special-mode "browse-ns"
+(define-derived-mode cider-browse-ns-mode cider-tree-view-mode "browse-ns"
   "Major mode for browsing Clojure namespaces.
 
 \\{cider-browse-ns-mode-map}"
   (setq-local electric-indent-chars nil)
   (setq-local sesman-system 'CIDER)
-  (when cider-special-mode-truncate-lines
-    (setq-local truncate-lines t))
   (setq-local cider-browse-ns-current-ns nil))
 
 (defun cider-browse-ns--text-face (var-meta)
@@ -150,20 +143,10 @@ When VAR-META is nil, default to `font-lock-function-name-face'."
    ((nrepl-dict-contains var-meta "arglists") 'font-lock-function-name-face)
    (t 'font-lock-variable-name-face)))
 
-(defun cider-browse-ns--properties (var var-meta)
-  "Decorate VAR with a clickable keymap and a face.
-VAR-META is used to decide a font-lock face."
-  (let ((face (cider-browse-ns--text-face var-meta)))
-    (propertize var
-                'font-lock-face face
-                'mouse-face 'highlight
-                'keymap cider-browse-ns-mouse-map)))
-
 (defun cider-browse-ns--ns-list (buffer title nss)
   "List the namespaces NSS in BUFFER.
 
-Buffer is rendered with TITLE at the top and lists ITEMS filtered according
-to user settings."
+Buffer is rendered with TITLE at the top and lists the namespaces as a tree."
   (let ((dict (nrepl-dict)))
     (dolist (ns nss)
       (nrepl-dict-put dict ns (nrepl-dict "ns" "true")))
@@ -226,88 +209,82 @@ displayed."
                    (and var-p var-filter-p)
                    (and private-p private-filter-p)))))))
 
-(defun cider-browse-ns--propertized-item (key items)
-  "Return propertized line of item KEY in nrepl-dict ITEMS."
+(defun cider-browse-ns--node-label (key items)
+  "Build the fontified tree label for item KEY in nrepl-dict ITEMS.
+When a namespace is being browsed, the var's first doc line is appended."
   (let* ((var-meta (nrepl-dict-get items key))
          (face (cider-browse-ns--text-face var-meta))
-         (private-p (string= (nrepl-dict-get var-meta "private") "true"))
-         (test-p (nrepl-dict-contains var-meta "test"))
-         (ns-p (nrepl-dict-contains var-meta "ns")))
+         (private-p (cider-browse-ns--meta-private-p var-meta))
+         (test-p (cider-browse-ns--meta-test-p var-meta)))
     (concat
-     (propertize key
-                 'font-lock-face face
-                 'ns ns-p)
-     " "
+     (propertize key 'font-lock-face face)
      (cond
-      (test-p (propertize "(test) " 'face 'cider-browse-ns-extra-info-face))
-      (private-p (propertize "(-) " 'face 'cider-browse-ns-extra-info-face))
-      (t "")))))
+      (test-p (propertize " (test)" 'face 'cider-browse-ns-extra-info-face))
+      (private-p (propertize " (-)" 'face 'cider-browse-ns-extra-info-face))
+      (t ""))
+     (when cider-browse-ns-current-ns
+       (let* ((doc (nrepl-dict-get-in items (list key "doc")))
+              (doc (when doc (ignore-errors (read doc)))))
+         (concat "  " (propertize (cider-browse-ns--first-doc-line doc)
+                                  'font-lock-face 'font-lock-doc-face)))))))
 
-(defun cider-browse-ns--display-list (keys items max-length &optional label)
-  "Render the items of KEYS as contained in the nrepl-dict ITEMS.
+(defun cider-browse-ns--var-node (key items)
+  "Build a `cider-tree-view' node for item KEY in nrepl-dict ITEMS.
+The node carries a (TYPE VALUE) payload read back by
+`cider-browse-ns--thing-at-point' so RET/`d'/`s' can act on it.  When a
+namespace is being browsed KEY is one of its vars; otherwise (the all-namespaces
+listing) KEY is itself a namespace."
+  (let ((value (if cider-browse-ns-current-ns
+                   (list 'var (format "%s/%s" cider-browse-ns-current-ns key))
+                 (list 'ns key))))
+    (cider-tree-view-node-create
+     :label (cider-browse-ns--node-label key items)
+     :value value
+     :on-visit #'cider-browse-ns-operate-at-point)))
 
-Pad the row to be MAX-LENGTH+1.  If LABEL is non-nil, add a header to the
-list of items."
+(defun cider-browse-ns--group-node (label keys items)
+  "Build an expandable group node titled LABEL over var KEYS in ITEMS.
+Return nil when KEYS is empty, so empty groups are dropped."
   (when keys
-    (when label
-      (insert "  " label ":\n"))
-    (dolist (key keys)
-      (let* ((doc (nrepl-dict-get-in items (list key "doc")))
-             (doc (when doc (read doc)))
-             (first-doc-line (cider-browse-ns--first-doc-line doc))
-             (item-line (cider-browse-ns--propertized-item key items)))
-        (insert "  ")
-        (insert-text-button item-line
-                            'action (lambda (_) (cider-browse-ns-operate-at-point))
-                            'face (cider-browse-ns--text-face (nrepl-dict-get items key)))
-        (when cider-browse-ns-current-ns
-          (insert (make-string (+ (- max-length (string-width item-line)) 1) ?·))
-          (insert " " (propertize first-doc-line 'font-lock-face 'font-lock-doc-face)))
-        (insert "\n")))
-    (insert "\n")))
+    (let ((node (cider-tree-view-node-create
+                 :label (propertize (format "%s (%d)" label (length keys)) 'face 'bold)
+                 :children-fn (lambda ()
+                                (mapcar (lambda (key)
+                                          (cider-browse-ns--var-node key items))
+                                        keys)))))
+      (setf (cider-tree-view-node-expanded node) t)
+      node)))
 
-(defun cider-browse-ns--column-width (items)
-  "Determine the display width of displayed ITEMS."
-  (let* ((propertized-lines
-          (seq-map (lambda (key)
-                     (cider-browse-ns--propertized-item key items))
-                   (nrepl-dict-keys items))))
-    (if propertized-lines
-        (apply #'max (seq-map (lambda (entry) (string-width entry))
-                              propertized-lines))
-      0)))
-
-(defun cider-browse-ns--render-items (items)
-  "Render the nrepl-dict ITEMS to the browse-ns buffer."
-  (let* ((max-length (cider-browse-ns--column-width items)))
-    (cl-flet
-        ((keys-from-pred
-          (pred items)
-          (nrepl-dict-keys (nrepl-dict-filter (lambda (_ var-meta)
-                                                (funcall pred var-meta))
-                                              items))))
-      (cond
-       ((eql cider-browse-ns-group-by 'type)
-        (let* ((func-keys (keys-from-pred #'cider-browse-ns--meta-function-p items))
-               (macro-keys (keys-from-pred #'cider-browse-ns--meta-macro-p items))
-               (var-keys (keys-from-pred #'cider-browse-ns--meta-var-p items))
-               (test-keys (keys-from-pred #'cider-browse-ns--meta-test-p items)))
-          (cider-browse-ns--display-list func-keys items max-length "Functions")
-          (cider-browse-ns--display-list macro-keys items max-length "Macros")
-          (cider-browse-ns--display-list var-keys items max-length "Vars")
-          (cider-browse-ns--display-list test-keys items max-length "Tests")))
-       ((eql cider-browse-ns-group-by 'visibility)
-        (let* ((public-keys
-                (keys-from-pred
-                 (lambda (var-meta)
-                   (not (cider-browse-ns--meta-private-p var-meta)))
-                 items))
-               (private-keys (keys-from-pred #'cider-browse-ns--meta-private-p items)))
-          (cider-browse-ns--display-list public-keys items max-length "Public")
-          (cider-browse-ns--display-list private-keys items max-length "Private")))
-       (t
-        (cider-browse-ns--display-list
-         (nrepl-dict-keys items) items max-length))))))
+(defun cider-browse-ns--roots (items)
+  "Build the `cider-tree-view' roots for nrepl-dict ITEMS per the grouping."
+  (cl-flet
+      ((keys-from-pred
+        (pred)
+        (nrepl-dict-keys (nrepl-dict-filter (lambda (_ var-meta)
+                                              (funcall pred var-meta))
+                                            items))))
+    (cond
+     ((eql cider-browse-ns-group-by 'type)
+      (delq nil
+            (list (cider-browse-ns--group-node
+                   "Functions" (keys-from-pred #'cider-browse-ns--meta-function-p) items)
+                  (cider-browse-ns--group-node
+                   "Macros" (keys-from-pred #'cider-browse-ns--meta-macro-p) items)
+                  (cider-browse-ns--group-node
+                   "Vars" (keys-from-pred #'cider-browse-ns--meta-var-p) items)
+                  (cider-browse-ns--group-node
+                   "Tests" (keys-from-pred #'cider-browse-ns--meta-test-p) items))))
+     ((eql cider-browse-ns-group-by 'visibility)
+      (delq nil
+            (list (cider-browse-ns--group-node
+                   "Public"
+                   (keys-from-pred (lambda (m) (not (cider-browse-ns--meta-private-p m))))
+                   items)
+                  (cider-browse-ns--group-node
+                   "Private" (keys-from-pred #'cider-browse-ns--meta-private-p) items))))
+     (t
+      (mapcar (lambda (key) (cider-browse-ns--var-node key items))
+              (nrepl-dict-keys items))))))
 
 (defun cider-browse-ns--filter (flag)
   "Toggle the filter indicated by FLAG and re-render the buffer."
@@ -394,23 +371,22 @@ are being filtered."
   (insert "\n\n"))
 
 (defun cider-browse-ns--render-buffer (&optional buffer)
-  "Render the sections of the browse-ns buffer.
+  "Render the browse-ns BUFFER as a `cider-tree-view'.
 
-Render occurs in BUFFER if non-nil.  This function is the main entrypoint
-for redisplaying the buffer when filters change."
+Render occurs in BUFFER if non-nil.  This is the main entrypoint for
+redisplaying the buffer when filters or grouping change."
   (with-current-buffer (or buffer (current-buffer))
-    (let* ((inhibit-read-only t)
-           (point (point))
-           (filtered-items (nrepl-dict-filter #'cider-browse-ns--item-filter
+    (let* ((filtered-items (nrepl-dict-filter #'cider-browse-ns--item-filter
                                               cider-browse-ns-items))
            (filtered-item-ct (- (length (nrepl-dict-keys cider-browse-ns-items))
                                 (length (nrepl-dict-keys filtered-items)))))
-      (erase-buffer)
-      (insert (propertize (cider-propertize cider-browse-ns-title 'ns) 'ns t) "\n")
-      (when cider-browse-ns-current-ns
-        (cider-browse-ns--render-header filtered-item-ct))
-      (cider-browse-ns--render-items filtered-items)
-      (goto-char point))))
+      (cider-tree-view-render
+       (cider-browse-ns--roots filtered-items)
+       cider-browse-ns-title
+       ;; The filter/group controls only make sense for a single namespace's
+       ;; vars, not the flat "all namespaces" listing.
+       (when cider-browse-ns-current-ns
+         (lambda () (cider-browse-ns--render-header filtered-item-ct)))))))
 
 (defun cider-browse-ns--first-doc-line (doc)
   "Return the first line of the given DOC string.
@@ -464,25 +440,14 @@ var-meta map."
       (cider-browse-ns--ns-list
        (current-buffer)
        "All loaded namespaces"
-       (mapcar (lambda (name)
-                 (cider-browse-ns--properties name nil))
-               names)))))
+       names))))
 
 (defun cider-browse-ns--thing-at-point ()
   "Get the thing at point.
-Return a list of the type (`ns' or `var') and the value."
-  (let ((ns-p (get-text-property (point) 'ns))
-        (line (car (split-string (string-trim (thing-at-point 'line)) " "))))
-    ;; In the "all namespaces" listing `cider-browse-ns-current-ns' is nil and
-    ;; every line is a namespace.  Relying on the `ns' text property alone fails
-    ;; when point sits on the leading whitespace, and the `.' heuristic misses
-    ;; single-segment namespaces like `user' (#3221).
-    (if (or ns-p (null cider-browse-ns-current-ns) (string-match "\\." line))
-        `(ns ,line)
-      `(var ,(format "%s/%s"
-                     (or (get-text-property (point) 'cider-browse-ns-current-ns)
-                         cider-browse-ns-current-ns)
-                     line)))))
+Return a list of the type (`ns' or `var') and the value, or nil if point is
+not on a var or namespace node (e.g. on a group header or the controls)."
+  (when-let* ((node (cider-tree-view-node-at-point)))
+    (cider-tree-view-node-value node)))
 
 (defun cider-browse-ns-toggle-all ()
   "Toggle showing all of the items in the browse-ns buffer."
@@ -530,10 +495,9 @@ Return a list of the type (`ns' or `var') and the value."
 (defun cider-browse-ns-doc-at-point ()
   "Show the documentation for the thing at current point."
   (interactive)
-  (let* ((thing (cider-browse-ns--thing-at-point))
-         (value (cadr thing)))
+  (when-let* ((thing (cider-browse-ns--thing-at-point)))
     ;; value is either some ns or a var
-    (cider-doc-lookup value)))
+    (cider-doc-lookup (cadr thing))))
 
 (defun cider-browse-ns-operate-at-point ()
   "Expand browser according to thing at current point.
@@ -541,12 +505,10 @@ If the thing at point is a ns it will be browsed,
 and if the thing at point is some var - its documentation will
 be displayed."
   (interactive)
-  (let* ((thing (cider-browse-ns--thing-at-point))
-         (type (car thing))
-         (value (cadr thing)))
-    (if (eq type 'ns)
-        (cider-browse-ns value)
-      (cider-doc-lookup value))))
+  (when-let* ((thing (cider-browse-ns--thing-at-point)))
+    (if (eq (car thing) 'ns)
+        (cider-browse-ns (cadr thing))
+      (cider-doc-lookup (cadr thing)))))
 
 (declare-function cider-find-ns "cider-find")
 (declare-function cider-find-var "cider-find")
@@ -554,17 +516,10 @@ be displayed."
 (defun cider-browse-ns-find-at-point ()
   "Find the definition of the thing at point."
   (interactive)
-  (let* ((thing (cider-browse-ns--thing-at-point))
-         (type (car thing))
-         (value (cadr thing)))
-    (if (eq type 'ns)
-        (cider-find-ns nil value)
-      (cider-find-var current-prefix-arg value))))
-
-(defun cider-browse-ns-handle-mouse (_event)
-  "Handle mouse click EVENT."
-  (interactive "e")
-  (cider-browse-ns-operate-at-point))
+  (when-let* ((thing (cider-browse-ns--thing-at-point)))
+    (if (eq (car thing) 'ns)
+        (cider-find-ns nil (cadr thing))
+      (cider-find-var current-prefix-arg (cadr thing)))))
 
 (provide 'cider-browse-ns)
 
