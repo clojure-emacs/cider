@@ -158,6 +158,43 @@ context, and scanned - exercising the whole non-REPL half of the engine."
                         (xref-make-match "y" loc-b 3))))
       (expect (length (cider-xref--dedupe items)) :to-equal 2))))
 
+(defun cider-xref-source-tests--defmethods (content target-ns name)
+  "Return the dispatch values of (defmethod NAME ...) sites in CONTENT."
+  (with-temp-buffer
+    (insert content)
+    (delay-mode-hooks (clojure-mode))
+    (let* ((context (cider-xref--ns-context target-ns name))
+           (regexp (cider-xref--defmethod-regexp target-ns name context)))
+      (when regexp
+        (mapcar (lambda (site) (plist-get site :dispatch))
+                (cider-xref--scan-defmethods regexp "test.clj"))))))
+
+(describe "cider-xref--defmethod scanning"
+  (it "finds defmethod sites and reads their dispatch values, ignoring plain calls"
+    (expect (cider-xref-source-tests--defmethods
+             (concat "(ns my.app (:require [my.ns :as m]))\n"
+                     "(defmethod m/area :circle [_] 1)\n"
+                     "(defmethod m/area :square [_] 2)\n"
+                     "(m/area x)\n")
+             "my.ns" "area")
+            :to-equal '(":circle" ":square")))
+
+  (it "reads a vector dispatch value as written"
+    (expect (cider-xref-source-tests--defmethods
+             (concat "(ns my.ns)\n"
+                     "(defmethod area [:a :b] [_] 1)\n")
+             "my.ns" "area")
+            :to-equal '("[:a :b]")))
+
+  (it "skips defmethods inside strings and comments"
+    (expect (cider-xref-source-tests--defmethods
+             (concat "(ns my.ns)\n"
+                     "(defmethod area :real [_] 1)\n"
+                     "\"(defmethod area :in-string [_] 1)\"\n"
+                     ";; (defmethod area :in-comment [_] 1)\n")
+             "my.ns" "area")
+            :to-equal '(":real"))))
+
 (provide 'cider-xref-source-tests)
 
 ;;; cider-xref-source-tests.el ends here

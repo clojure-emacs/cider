@@ -167,10 +167,10 @@ TARGET-NS is nil only bare matching applies, so `:referred' is forced on."
       (list :this-ns this-ns :alias alias :referred referred
             :ns-beg ns-beg :ns-end ns-end))))
 
-(defun cider-xref--reference-regexp (target-ns name context)
-  "Build a regexp matching references to TARGET-NS/NAME licensed by CONTEXT.
-Group 1 captures the symbol token itself (so its bounds are the match bounds).
-CONTEXT is a plist as returned by `cider-xref--ns-context'."
+(defun cider-xref--name-alts (target-ns name context)
+  "Return the regexp alternatives matching TARGET-NS/NAME as licensed by CONTEXT.
+Each alt is a `regexp-quote'd qualified, aliased, or bare form of NAME, per the
+file's `(ns ...)' form; CONTEXT is a plist as returned by `cider-xref--ns-context'."
   (let* ((qname (regexp-quote name))
          ;; The bare name is an alt only when this file licenses unqualified use.
          (alts (when (plist-get context :referred) (list qname))))
@@ -178,11 +178,17 @@ CONTEXT is a plist as returned by `cider-xref--ns-context'."
       (push (concat (regexp-quote target-ns) "/" qname) alts))
     (when-let* ((alias (plist-get context :alias)))
       (push (concat (regexp-quote alias) "/" qname) alts))
-    (when alts
-      (concat "\\(?:^\\|[^" cider-xref--symbol-chars "]\\)"  ; left boundary
-              "\\(?:#'\\|[#'@`]\\)?"                          ; optional reader prefix
-              "\\(" (mapconcat #'identity alts "\\|") "\\)"   ; the symbol token
-              "\\(?:$\\|[^" cider-xref--symbol-chars "]\\)")))) ; right boundary
+    alts))
+
+(defun cider-xref--reference-regexp (target-ns name context)
+  "Build a regexp matching references to TARGET-NS/NAME licensed by CONTEXT.
+Group 1 captures the symbol token itself (so its bounds are the match bounds).
+CONTEXT is a plist as returned by `cider-xref--ns-context'."
+  (when-let* ((alts (cider-xref--name-alts target-ns name context)))
+    (concat "\\(?:^\\|[^" cider-xref--symbol-chars "]\\)"  ; left boundary
+            "\\(?:#'\\|[#'@`]\\)?"                          ; optional reader prefix
+            "\\(" (mapconcat #'identity alts "\\|") "\\)"   ; the symbol token
+            "\\(?:$\\|[^" cider-xref--symbol-chars "]\\)"))) ; right boundary
 
 (defun cider-xref--scan-buffer (regexp file &optional exclude)
   "Collect references matching REGEXP in the current buffer as xref match items.
@@ -276,6 +282,84 @@ matching VAR's bare name."
   (if-let* ((resolved (and (cider-connected-p) (cider-xref--resolve-var var))))
       (cider-xref--source-references (car resolved) (cdr resolved))
     (cider-xref--source-references nil (cider-xref--short-name var))))
+
+(defun cider-xref--defmethod-regexp (target-ns name context)
+  "Build a regexp matching `(defmethod NAME ...)' forms for TARGET-NS/NAME.
+NAME is matched per CONTEXT (qualified, aliased, or bare).  Group 1 captures the
+method-name token; the dispatch value follows it."
+  (when-let* ((alts (cider-xref--name-alts target-ns name context)))
+    (concat "(" cider-xref--ws "*defmethod" cider-xref--ws "+"
+            "\\(" (mapconcat #'identity alts "\\|") "\\)"
+            "\\(?:$\\|[^" cider-xref--symbol-chars "]\\)")))
+
+(defun cider-xref--scan-defmethods (regexp file)
+  "Collect `(defmethod ...)' sites matching REGEXP in the current buffer.
+FILE is the path the locations point at.  Each result is a plist with the
+method's `:dispatch' value (as written), `:file', `:line' and `:column'.
+Matches inside strings and comments are skipped."
+  (let ((line 1)
+        (counted (point-min))
+        results)
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward regexp nil t)
+        (let ((name-beg (match-beginning 1))
+              (name-end (match-end 1)))
+          (goto-char name-end)
+          (unless (nth 8 (syntax-ppss name-beg))   ; skip strings and comments
+            (setq line (+ line (save-excursion
+                                 (goto-char counted)
+                                 (let ((n 0))
+                                   (while (search-forward "\n" name-beg t)
+                                     (setq n (1+ n)))
+                                   n)))
+                  counted name-beg)
+            (let ((dispatch (save-excursion
+                              (goto-char name-end)
+                              (skip-chars-forward " \t\r\n\f")
+                              (ignore-errors
+                                (let ((beg (point)))
+                                  (forward-sexp)
+                                  (string-trim
+                                   (buffer-substring-no-properties beg (point)))))))
+                  (col (save-excursion
+                         (goto-char name-beg)
+                         (- name-beg (line-beginning-position)))))
+              (push (list :dispatch (or dispatch "?")
+                          :file file :line line :column col)
+                    results))))))
+    (nreverse results)))
+
+(defun cider-xref--defmethods-in-file (file target-ns name)
+  "Return the `(defmethod TARGET-NS/NAME ...)' sites in FILE as plists.
+A buffer opened solely to perform the scan is killed afterwards."
+  (let* ((existing (find-buffer-visiting file))
+         (buffer (or existing
+                     (let ((find-file-hook nil)
+                           (inhibit-message t))
+                       (find-file-noselect file t)))))
+    (unwind-protect
+        (with-current-buffer buffer
+          (when-let* ((context (cider-xref--ns-context target-ns name))
+                      (regexp (cider-xref--defmethod-regexp target-ns name context)))
+            (cider-xref--scan-defmethods regexp file)))
+      (unless existing
+        (kill-buffer buffer)))))
+
+(defun cider-xref--defmethod-sites (var)
+  "Return the `(defmethod VAR ...)' sites across the project source.
+VAR is the multimethod, resolved via the REPL when possible (else matched by
+bare name).  Each element is a plist with `:dispatch', `:file', `:line' and
+`:column' - locating the `defmethod's the runtime can't, since their method
+functions carry no source metadata."
+  (let* ((resolved (and (cider-connected-p) (cider-xref--resolve-var var)))
+         (target-ns (car resolved))
+         (name (or (cdr resolved) (cider-xref--short-name var))))
+    (when-let* ((files (cider-xref--project-source-files))
+                (candidates (cider-xref--candidate-files name files)))
+      (seq-mapcat (lambda (file)
+                    (cider-xref--defmethods-in-file file target-ns name))
+                  candidates))))
 
 (defun cider-xref--dedupe (items)
   "Remove xref ITEMS that point at the same file, line and column."
