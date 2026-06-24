@@ -156,8 +156,22 @@ ops never see their call sites and `cider-who-calls` comes up empty for them.
 the project's source instead (the same mechanism as
 `cider-xref-fn-refs-in-source`).
 
-The bindings are also available under the kbd:[C-c C-?] xref prefix, as
-kbd:[C-c C-? R] and kbd:[C-c C-? D].
+`cider-who-implements` (kbd:[C-c C-w i]) goes the other way around: point it at a
+protocol and it lists the types that extend it; point it at a multimethod and it
+lists its dispatch values, all on the same expandable tree.
+
+[NOTE]
+====
+`cider-who-implements` is currently a client-side approximation.  It sees the
+types registered via `extend`/`extend-type`/`extend-protocol`, but not inline
+`defrecord`/`deftype`/`reify` implementers (those implement the protocol's
+generated interface rather than extending it), and it can't yet jump to an
+individual `defmethod`, since those methods carry no source metadata at runtime.
+Rounding this out is slated for a follow-up that adds the necessary middleware.
+====
+
+The call-graph bindings are also available under the kbd:[C-c C-?] xref prefix,
+as kbd:[C-c C-? R] and kbd:[C-c C-? D].
 
 == CIDER Selector
 
