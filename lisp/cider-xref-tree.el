@@ -35,6 +35,7 @@
 ;;; Code:
 
 (require 'cider-client)
+(require 'cider-common)
 (require 'cider-find)
 (require 'cider-popup)
 (require 'cider-tree-view)
@@ -110,12 +111,14 @@ Uses the runtime `fn-deps' op, so it covers loaded Clojure-on-the-JVM code."
 
 ;;; who-implements - protocol/multimethod implementations.
 ;;
-;; This is a client-side approximation: it evaluates a little introspection form
-;; to read a protocol's `extenders' or a multimethod's dispatch values.  It can't
-;; see inline `defrecord'/`deftype'/`reify' implementers (they implement the
-;; protocol's generated interface, not via `extend'), nor per-`defmethod' source
-;; locations (the methods are anonymous fns with no metadata) - those need richer
-;; introspection than the runtime exposes, slated for a follow-up middleware op.
+;; When cider-nrepl provides the `cider/who-implements' op we use it: it sees
+;; inline `defrecord'/`deftype' implementers (not just `extend' targets) and
+;; carries a source location for each, so every implementation is a jump target.
+;;
+;; Without the op we fall back to a client-side approximation - evaluating a
+;; little introspection form to read a protocol's `extenders' or a multimethod's
+;; dispatch values.  That can't see inline implementers and has no per-impl
+;; locations, but it keeps the command useful against older middleware.
 
 (defconst cider-xref-tree--implements-code
   "(let [v (resolve '%s) x (when v (deref v))]
@@ -144,41 +147,99 @@ of implementation strings, or nil when the eval yields nothing."
       (let ((items (append vec nil)))
         (cons (car items) (cdr items))))))
 
-(defun cider-xref-tree--show-implements (var impls title-fmt noun jumpable)
-  "Render IMPLS of VAR in a popup titled by TITLE-FMT.
-NOUN names the implementations for the empty-result message; when JUMPABLE,
-each implementation node jumps to its own definition (protocol extenders are
-types; multimethod dispatch values are plain data with nowhere to jump)."
-  (unless impls
-    (user-error "No %s found for %s%s" noun var
-                (if jumpable
-                    " (inline defrecord/deftype/reify impls aren't visible yet)"
-                  "")))
-  (let ((root (cider-tree-view-node-create
-               :label (cider-font-lock-as-clojure var)
-               :on-visit (lambda () (cider-find-var nil var))
-               :expanded t
-               :children-fn
-               (lambda ()
-                 (mapcar (lambda (impl)
-                           (cider-tree-view-node-create
-                            :label (cider-font-lock-as-clojure impl)
-                            :on-visit (when jumpable
-                                        (lambda () (cider-find-var nil impl)))))
-                         impls)))))
-    (with-current-buffer (cider-popup-buffer "*cider-who-implements*" 'select
-                                             'cider-tree-view-mode 'ancillary)
-      (cider-tree-view-render (list root) (format title-fmt var)))))
+(defun cider-xref-tree--leaf-node (label)
+  "Return a display-only tree node showing LABEL (no jump)."
+  (cider-tree-view-node-create :label (cider-font-lock-as-clojure label)))
+
+(defun cider-xref-tree--name-node (name)
+  "Return a tree node labelled NAME that jumps to NAME's definition."
+  (cider-tree-view-node-create
+   :label (cider-font-lock-as-clojure name)
+   :on-visit (lambda () (cider-find-var nil name))))
+
+(defun cider-xref-tree--jump-to-file (file line)
+  "Visit FILE and move to LINE."
+  (if-let* ((buffer (cider-find-file file)))
+      (cider-jump-to buffer (when line (cons line nil)))
+    (user-error "Can't find source file %s" file)))
+
+(defun cider-xref-tree--impl-node (dict)
+  "Return a tree node for one protocol-impl DICT from the op.
+Jumps to the impl's own source location when the op resolved a real one, else
+falls back to looking the name up via `cider-find-var'."
+  (let ((name (nrepl-dict-get dict "name"))
+        (file (nrepl-dict-get dict "file-url"))
+        (line (nrepl-dict-get dict "line")))
+    (if (and file (not (cider--tooling-file-p file)))
+        (cider-tree-view-node-create
+         :label (cider-font-lock-as-clojure name)
+         :on-visit (lambda () (cider-xref-tree--jump-to-file file line)))
+      (cider-xref-tree--name-node name))))
+
+(defun cider-xref-tree--implements-op-plan (var)
+  "Build an implementations plan for VAR via the `cider/who-implements' op."
+  (let* ((result (cider-sync-request:who-implements (cider-current-ns) var))
+         (kind (and result (nrepl-dict-get result "kind"))))
+    (pcase kind
+      ('nil (list :kind nil))
+      ("protocol"
+       (list :kind "protocol"
+             :title (format "Implementations of %s" var)
+             :empty-noun "implementations"
+             :nodes (mapcar #'cider-xref-tree--impl-node
+                            (nrepl-dict-get result "impls"))))
+      ("multimethod"
+       (list :kind "multimethod"
+             :title (format "Methods of %s" var)
+             :empty-noun "dispatch values"
+             :nodes (mapcar #'cider-xref-tree--leaf-node
+                            (nrepl-dict-get result "dispatch-values"))))
+      (_ (list :kind "other")))))
+
+(defun cider-xref-tree--implements-eval-plan (var)
+  "Build an implementations plan for VAR via the client-side tooling eval."
+  (let ((result (cider-xref-tree--implements var)))
+    (pcase (car result)
+      ('nil (list :kind nil))
+      ("protocol"
+       (list :kind "protocol"
+             :title (format "Implementations of %s" var)
+             :empty-noun "extenders"
+             :empty-hint (concat " (inline defrecord/deftype impls need"
+                                 " cider-nrepl's who-implements op)")
+             :nodes (mapcar #'cider-xref-tree--name-node (cdr result))))
+      ("multimethod"
+       (list :kind "multimethod"
+             :title (format "Methods of %s" var)
+             :empty-noun "dispatch values"
+             :nodes (mapcar #'cider-xref-tree--leaf-node (cdr result))))
+      (_ (list :kind "other")))))
+
+(defun cider-xref-tree--show-implements (var plan)
+  "Render the implementations PLAN for VAR in a popup tree."
+  (let ((nodes (plist-get plan :nodes)))
+    (unless nodes
+      (user-error "No %s found for %s%s" (plist-get plan :empty-noun) var
+                  (or (plist-get plan :empty-hint) "")))
+    (let ((root (cider-tree-view-node-create
+                 :label (cider-font-lock-as-clojure var)
+                 :on-visit (lambda () (cider-find-var nil var))
+                 :expanded t
+                 :children-fn (lambda () nodes))))
+      (with-current-buffer (cider-popup-buffer "*cider-who-implements*" 'select
+                                               'cider-tree-view-mode 'ancillary)
+        (cider-tree-view-render (list root) (plist-get plan :title))))))
 
 ;;;###autoload
 (defun cider-who-implements (&optional symbol)
   "Browse the implementations of the protocol or multimethod SYMBOL.
-For a protocol, lists the types that extend it via `extend'/`extend-type'/
-`extend-protocol'; for a multimethod, lists its dispatch values.
+For a protocol, lists the types that implement it; for a multimethod, lists its
+dispatch values - on an expandable tree.
 
-This is a client-side approximation - inline `defrecord'/`deftype'/`reify'
-implementers and per-`defmethod' source locations aren't shown yet, as they need
-introspection the runtime doesn't expose.  Clojure-on-the-JVM only."
+With cider-nrepl's `cider/who-implements' op this includes inline
+`defrecord'/`deftype' implementers and jumps to each implementation's source.
+Without it, a client-side fallback lists `extend'-style targets and dispatch
+values only.  Clojure-on-the-JVM only."
   (interactive)
   (cider-ensure-connected)
   (let* ((symbol (or symbol (cider-symbol-at-point)
@@ -186,16 +247,13 @@ introspection the runtime doesn't expose.  Clojure-on-the-JVM only."
          (info (or (cider-var-info symbol)
                    (user-error "%s" (cider-resolution-failure-message symbol))))
          (var (concat (nrepl-dict-get info "ns") "/" (nrepl-dict-get info "name")))
-         (result (cider-xref-tree--implements var)))
-    (pcase (car result)
+         (plan (if (cider-nrepl-op-supported-p "cider/who-implements")
+                   (cider-xref-tree--implements-op-plan var)
+                 (cider-xref-tree--implements-eval-plan var))))
+    (pcase (plist-get plan :kind)
       ('nil (user-error "Couldn't introspect %s; is its namespace loaded?" var))
-      ("protocol"
-       (cider-xref-tree--show-implements var (cdr result) "Implementations of %s"
-                                         "extenders" t))
-      ("multimethod"
-       (cider-xref-tree--show-implements var (cdr result) "Methods of %s"
-                                         "dispatch values" nil))
-      (_ (user-error "%s is not a protocol or multimethod" var)))))
+      ("other" (user-error "%s is not a protocol or multimethod" var))
+      (_ (cider-xref-tree--show-implements var plan)))))
 
 ;;;###autoload (autoload 'cider-who-map "cider-xref-tree" "CIDER call-graph keymap." nil 'keymap)
 (defvar cider-who-map
