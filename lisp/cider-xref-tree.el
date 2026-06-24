@@ -40,6 +40,7 @@
 (require 'cider-tree-view)
 (require 'cider-util)
 (require 'nrepl-dict)
+(require 'parseedn)
 
 ;; bound in `cider-who-map' below, but defined in cider-xref.el
 (declare-function cider-who-macroexpands "cider-xref")
@@ -106,6 +107,96 @@ Uses the runtime `fn-deps' op, so it covers loaded Clojure-on-the-JVM code."
   (cider-xref-tree--browse symbol #'cider-sync-request:fn-deps "cider/fn-deps"
                            "*cider-who-is-called*" "Called by %s" "What is called by"))
 
+
+;;; who-implements - protocol/multimethod implementations.
+;;
+;; This is a client-side approximation: it evaluates a little introspection form
+;; to read a protocol's `extenders' or a multimethod's dispatch values.  It can't
+;; see inline `defrecord'/`deftype'/`reify' implementers (they implement the
+;; protocol's generated interface, not via `extend'), nor per-`defmethod' source
+;; locations (the methods are anonymous fns with no metadata) - those need richer
+;; introspection than the runtime exposes, slated for a follow-up middleware op.
+
+(defconst cider-xref-tree--implements-code
+  "(let [v (resolve '%s) x (when v (deref v))]
+     (into [(cond (instance? clojure.lang.MultiFn x) \"multimethod\"
+                  (and (map? x) (:on-interface x)) \"protocol\"
+                  :else \"other\")]
+           (cond (instance? clojure.lang.MultiFn x)
+                 (mapv pr-str (sort-by str (keys (methods x))))
+                 (and (map? x) (:on-interface x))
+                 (sort (mapv #(.getName ^Class %%) (extenders x)))
+                 :else [])))"
+  "Clojure form (with a `%s' for the var) classifying it and listing its impls.
+Returns a vector whose head is \"protocol\", \"multimethod\" or \"other\" and
+whose tail is the implementation names (extender classes or dispatch values).")
+
+(defun cider-xref-tree--implements (var)
+  "Classify VAR and list its implementations via a tooling eval.
+Return a cons of the kind (\"protocol\"/\"multimethod\"/\"other\") and the list
+of implementation strings, or nil when the eval yields nothing."
+  (when-let* ((result (cider-sync-tooling-eval
+                       (format cider-xref-tree--implements-code var)
+                       (cider-current-ns)))
+              (value (nrepl-dict-get result "value"))
+              (vec (ignore-errors (parseedn-read-str value))))
+    (when (and (vectorp vec) (> (length vec) 0))
+      (let ((items (append vec nil)))
+        (cons (car items) (cdr items))))))
+
+(defun cider-xref-tree--show-implements (var impls title-fmt noun jumpable)
+  "Render IMPLS of VAR in a popup titled by TITLE-FMT.
+NOUN names the implementations for the empty-result message; when JUMPABLE,
+each implementation node jumps to its own definition (protocol extenders are
+types; multimethod dispatch values are plain data with nowhere to jump)."
+  (unless impls
+    (user-error "No %s found for %s%s" noun var
+                (if jumpable
+                    " (inline defrecord/deftype/reify impls aren't visible yet)"
+                  "")))
+  (let ((root (cider-tree-view-node-create
+               :label (cider-font-lock-as-clojure var)
+               :on-visit (lambda () (cider-find-var nil var))
+               :expanded t
+               :children-fn
+               (lambda ()
+                 (mapcar (lambda (impl)
+                           (cider-tree-view-node-create
+                            :label (cider-font-lock-as-clojure impl)
+                            :on-visit (when jumpable
+                                        (lambda () (cider-find-var nil impl)))))
+                         impls)))))
+    (with-current-buffer (cider-popup-buffer "*cider-who-implements*" 'select
+                                             'cider-tree-view-mode 'ancillary)
+      (cider-tree-view-render (list root) (format title-fmt var)))))
+
+;;;###autoload
+(defun cider-who-implements (&optional symbol)
+  "Browse the implementations of the protocol or multimethod SYMBOL.
+For a protocol, lists the types that extend it via `extend'/`extend-type'/
+`extend-protocol'; for a multimethod, lists its dispatch values.
+
+This is a client-side approximation - inline `defrecord'/`deftype'/`reify'
+implementers and per-`defmethod' source locations aren't shown yet, as they need
+introspection the runtime doesn't expose.  Clojure-on-the-JVM only."
+  (interactive)
+  (cider-ensure-connected)
+  (let* ((symbol (or symbol (cider-symbol-at-point)
+                     (read-string "Implementations of: ")))
+         (info (or (cider-var-info symbol)
+                   (user-error "%s" (cider-resolution-failure-message symbol))))
+         (var (concat (nrepl-dict-get info "ns") "/" (nrepl-dict-get info "name")))
+         (result (cider-xref-tree--implements var)))
+    (pcase (car result)
+      ('nil (user-error "Couldn't introspect %s; is its namespace loaded?" var))
+      ("protocol"
+       (cider-xref-tree--show-implements var (cdr result) "Implementations of %s"
+                                         "extenders" t))
+      ("multimethod"
+       (cider-xref-tree--show-implements var (cdr result) "Methods of %s"
+                                         "dispatch values" nil))
+      (_ (user-error "%s is not a protocol or multimethod" var)))))
+
 ;;;###autoload (autoload 'cider-who-map "cider-xref-tree" "CIDER call-graph keymap." nil 'keymap)
 (defvar cider-who-map
   (let ((map (define-prefix-command 'cider-who-map)))
@@ -115,11 +206,12 @@ Uses the runtime `fn-deps' op, so it covers loaded Clojure-on-the-JVM code."
     (define-key map (kbd "C-d") #'cider-who-is-called)
     (define-key map (kbd "m") #'cider-who-macroexpands)
     (define-key map (kbd "C-m") #'cider-who-macroexpands)
+    (define-key map (kbd "i") #'cider-who-implements)
+    (define-key map (kbd "C-i") #'cider-who-implements)
     map)
   "CIDER call-graph (\"who calls\") keymap.
-The letters mirror SLIME's who-map: `c' for callers, `d' for callees, and `m'
-for a macro's use sites.  The letter `i' (protocol/multimethod implementations)
-is left free for a future view.")
+The letters mirror SLIME's who-map: `c' for callers, `d' for callees, `m' for a
+macro's use sites, and `i' for a protocol's or multimethod's implementations.")
 
 (provide 'cider-xref-tree)
 ;;; cider-xref-tree.el ends here

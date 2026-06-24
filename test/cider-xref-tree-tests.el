@@ -66,6 +66,44 @@
       (expect (length (seq-filter #'cider-tree-view-node-expandable-p grandkids))
               :to-equal 1))))
 
+(describe "cider-xref-tree--implements"
+  (before-each
+    (spy-on 'cider-current-ns :and-return-value "my.ns"))
+
+  (it "parses a protocol's extenders"
+    (spy-on 'cider-sync-tooling-eval :and-return-value
+            (nrepl-dict "value" "[\"protocol\" \"my.ns.Foo\" \"my.ns.Bar\"]"))
+    (expect (cider-xref-tree--implements "my.ns/Greet")
+            :to-equal '("protocol" "my.ns.Foo" "my.ns.Bar")))
+
+  (it "parses a multimethod's dispatch values"
+    (spy-on 'cider-sync-tooling-eval :and-return-value
+            (nrepl-dict "value" "[\"multimethod\" \":circle\" \":square\"]"))
+    (expect (cider-xref-tree--implements "my.ns/area")
+            :to-equal '("multimethod" ":circle" ":square")))
+
+  (it "returns nil when the eval yields no value"
+    (spy-on 'cider-sync-tooling-eval :and-return-value (nrepl-dict))
+    (expect (cider-xref-tree--implements "my.ns/whatever") :to-be nil)))
+
+(describe "cider-who-implements"
+  (before-each
+    (spy-on 'cider-ensure-connected)
+    (spy-on 'cider-var-info :and-return-value
+            (nrepl-dict "ns" "my.ns" "name" "Greet")))
+
+  (it "rejects a symbol that is neither protocol nor multimethod"
+    (spy-on 'cider-xref-tree--implements :and-return-value '("other"))
+    (expect (cider-who-implements "my.ns/Greet") :to-throw 'user-error))
+
+  (it "reports when a protocol has no visible extenders"
+    (spy-on 'cider-xref-tree--implements :and-return-value '("protocol"))
+    (expect (cider-who-implements "my.ns/Greet") :to-throw 'user-error))
+
+  (it "reports a distinct error when introspection yields nothing"
+    (spy-on 'cider-xref-tree--implements :and-return-value nil)
+    (expect (cider-who-implements "my.ns/Greet") :to-throw 'user-error)))
+
 (provide 'cider-xref-tree-tests)
 
 ;;; cider-xref-tree-tests.el ends here
