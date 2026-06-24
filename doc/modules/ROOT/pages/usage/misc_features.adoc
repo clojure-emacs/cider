@@ -126,6 +126,33 @@ Don't forget you also have a couple of third-party alternatives:
 - The much more sophisticated AST-powered "find usages" provided by `clj-refactor.el`
 - https://github.com/bbatsov/projectile[Projectile's] "grep in project" (`projectile-grep`, typically bound to kbd:[C-c p g])
 
+=== Browsing the call graph
+
+The flat commands above answer "who uses this, right here". To explore further -
+"who calls the callers, and who calls them" - CIDER offers two SLIME-style
+browsers that present the same runtime data as an interactive tree:
+
+- `cider-who-calls` (kbd:[C-c C-w c]) shows the callers of the function at point
+- `cider-who-is-called` (kbd:[C-c C-w d]) shows what the function at point calls
+
+Each node can be expanded with kbd:[TAB] to reveal the next level of the graph,
+so you walk it one step at a time rather than computing the whole thing up
+front; every level is a single round trip, taken only when you ask for it.
+kbd:[n] and kbd:[p] move between nodes, kbd:[RET] (or kbd:[.]) jumps to a node's
+definition, and a function that calls back onto its own path is shown as a leaf
+so expansion can't loop forever.
+
+[NOTE]
+====
+Like the flat `cider-xref-fn-refs`, these browsers are powered by the runtime
+`fn-refs`/`fn-deps` ops, so they cover loaded Clojure-on-the-JVM code only.  Use
+`cider-xref-fn-refs-in-source` when you need to reach code that hasn't been
+evaluated, or ClojureScript.
+====
+
+The bindings are also available under the kbd:[C-c C-?] xref prefix, as
+kbd:[C-c C-? R] and kbd:[C-c C-? D].
+
 == CIDER Selector
 
 The `cider-selector` (kbd:[C-c M-s]) command allows you to quickly navigate to
