@@ -32,6 +32,7 @@
 
 ### Changes
 
+- [#4003](https://github.com/clojure-emacs/cider/pull/4003): Turn `C-c M-m` into a prefix map (`cider-macroexpand-map`) grouping all the macro-expanding commands - `macroexpand-1`/`macroexpand-all` into a buffer (`1`/`a`) and the inline `cider-macrostep` commands (`e`/`E`/`b`). `cider-macroexpand-all` thus moves from `C-c M-m` to `C-c M-m a`; `C-c C-m` still runs `macroexpand-1` directly.
 - [#4002](https://github.com/clojure-emacs/cider/pull/4002): Bump the injected `cider-nrepl` to 0.60.0, which provides the `cider/who-implements`, `cider/type-protocols` and `cider/protocols-with-method` ops backing the protocol-exploration commands.
 - [#4001](https://github.com/clojure-emacs/cider/pull/4001): `cider-type-protocols` and `cider-protocols-with-method` now use cider-nrepl's `cider/type-protocols` and `cider/protocols-with-method` ops when available, falling back to the previous client-side query otherwise.
 - [#4000](https://github.com/clojure-emacs/cider/pull/4000): `cider-who-implements` now makes a multimethod's methods jump to their `defmethod` definitions, located by searching the project's source (the method functions carry no source metadata at runtime, so there's nothing for the runtime to point at).

@@ -160,12 +160,24 @@ kbd:[C-u C-c C-c]
 | Interrupt any pending evaluations.
 
 | `cider-macroexpand-1`
-| kbd:[C-c C-m]
+| kbd:[C-c C-m] (also kbd:[C-c M-m 1])
 | Invoke `macroexpand-1` on the form at point and display the result in a macroexpansion buffer.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
 
 | `cider-macroexpand-all`
-| kbd:[C-c M-m]
+| kbd:[C-c M-m a]
 | Invoke `clojure.walk/macroexpand-all` on the form at point and display the result in a macroexpansion buffer.
+
+| `cider-macrostep-expand`
+| kbd:[C-c M-m e]
+| Expand the macro at point one step, inline in the source buffer.
+
+| `cider-macrostep-expand-all`
+| kbd:[C-c M-m E]
+| Fully expand the macro at point, inline in the source buffer.
+
+| `cider-macrostep-expand-in-buffer`
+| kbd:[C-c M-m b]
+| Run an inline-style macro-stepping session in a dedicated popup buffer.
 
 | `cider-eval-ns-form`
 | kbd:[C-c C-v n]
