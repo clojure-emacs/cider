@@ -32,6 +32,7 @@
 
 ### Changes
 
+- [#4002](https://github.com/clojure-emacs/cider/pull/4002): Bump the injected `cider-nrepl` to 0.60.0, which provides the `cider/who-implements`, `cider/type-protocols` and `cider/protocols-with-method` ops backing the protocol-exploration commands.
 - [#4001](https://github.com/clojure-emacs/cider/pull/4001): `cider-type-protocols` and `cider-protocols-with-method` now use cider-nrepl's `cider/type-protocols` and `cider/protocols-with-method` ops when available, falling back to the previous client-side query otherwise.
 - [#4000](https://github.com/clojure-emacs/cider/pull/4000): `cider-who-implements` now makes a multimethod's methods jump to their `defmethod` definitions, located by searching the project's source (the method functions carry no source metadata at runtime, so there's nothing for the runtime to point at).
 - [#3998](https://github.com/clojure-emacs/cider/pull/3998): `cider-who-implements` now uses cider-nrepl's `cider/who-implements` op when available, so it also lists inline `defrecord`/`deftype` implementers and jumps to each implementation's source; it falls back to the previous client-side approximation otherwise.
