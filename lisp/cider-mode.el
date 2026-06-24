@@ -421,7 +421,10 @@ If invoked with a prefix ARG eval the expression after inserting it."
      ["Find fn references and select" cider-xref-fn-refs-select]
      ["Find fn references in source" cider-xref-fn-refs-in-source]
      ["Find fn dependencies" cider-xref-fn-deps]
-     ["Find fn dependencies and select" cider-xref-fn-deps-select])
+     ["Find fn dependencies and select" cider-xref-fn-deps-select]
+     "--"
+     ["Who calls (tree)" cider-who-calls]
+     ["Who is called (tree)" cider-who-is-called])
     ("Browse"
      ["Browse namespace" cider-browse-ns]
      ["Browse all namespaces" cider-browse-ns-all]
@@ -505,6 +508,8 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (declare-function cider-xref-fn-refs-select "cider-xref")
 (declare-function cider-xref-fn-deps "cider-xref")
 (declare-function cider-xref-fn-deps-select "cider-xref")
+(declare-function cider-who-calls "cider-xref-tree")
+(declare-function cider-who-is-called "cider-xref-tree")
 
 (defconst cider--has-many-mouse-buttons (not (memq window-system '(mac ns)))
   "Non-nil if system binds forward and back buttons to <mouse-8> and <mouse-9>.
@@ -578,6 +583,9 @@ higher precedence."
     (define-key map (kbd "C-c C-? s") #'cider-xref-fn-refs-in-source)
     (define-key map (kbd "C-c C-? d") #'cider-xref-fn-deps)
     (define-key map (kbd "C-c C-? C-d") #'cider-xref-fn-deps-select)
+    (define-key map (kbd "C-c C-? R") #'cider-who-calls)
+    (define-key map (kbd "C-c C-? D") #'cider-who-is-called)
+    (define-key map (kbd "C-c C-w") 'cider-who-map)
     (define-key map (kbd "C-c C-q") #'cider-quit)
     (define-key map (kbd "C-c M-r") #'cider-restart)
     ;; NOTE: all cider-log* vars are autoloaded. Please do not add a require.
