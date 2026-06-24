@@ -181,7 +181,9 @@ inline `defrecord`/`deftype` implementations. `cider-protocols-with-method`
 (kbd:[C-c C-w p]) takes a method name (by default the one at point) and lists the
 protocols that declare it - handy when you spot a bare method call and want to
 know which protocol it belongs to. Both jump to the matching protocol's
-definition, and both see loaded Clojure-on-the-JVM code only.
+definition, and both see loaded Clojure-on-the-JVM code only. With a recent
+enough `cider-nrepl` they use a dedicated middleware op; otherwise they fall back
+to a client-side query that works against any nREPL.
 
 The call-graph bindings are also available under the kbd:[C-c C-?] xref prefix,
 as kbd:[C-c C-? R] and kbd:[C-c C-? D].
