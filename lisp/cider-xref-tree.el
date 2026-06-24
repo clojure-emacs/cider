@@ -41,6 +41,9 @@
 (require 'cider-util)
 (require 'nrepl-dict)
 
+;; bound in `cider-who-map' below, but defined in cider-xref.el
+(declare-function cider-who-macroexpands "cider-xref")
+
 (defun cider-xref-tree--children (var op ns ancestors)
   "Build child nodes of VAR by calling OP in namespace NS.
 OP is `cider-sync-request:fn-refs' (callers) or `cider-sync-request:fn-deps'
@@ -110,11 +113,13 @@ Uses the runtime `fn-deps' op, so it covers loaded Clojure-on-the-JVM code."
     (define-key map (kbd "C-c") #'cider-who-calls)
     (define-key map (kbd "d") #'cider-who-is-called)
     (define-key map (kbd "C-d") #'cider-who-is-called)
+    (define-key map (kbd "m") #'cider-who-macroexpands)
+    (define-key map (kbd "C-m") #'cider-who-macroexpands)
     map)
   "CIDER call-graph (\"who calls\") keymap.
-The letters mirror SLIME's who-map: `c' for callers and `d' for callees.  The
-letters `m' (macro use sites) and `i' (protocol/multimethod implementations)
-are left free for future views.")
+The letters mirror SLIME's who-map: `c' for callers, `d' for callees, and `m'
+for a macro's use sites.  The letter `i' (protocol/multimethod implementations)
+is left free for a future view.")
 
 (provide 'cider-xref-tree)
 ;;; cider-xref-tree.el ends here

@@ -147,13 +147,33 @@ bare name and is correspondingly more approximate.
 The results are textual matches and can include false positives such as
 shadowing locals or same-named vars from a different namespace."
   (interactive)
-  (let* ((symbol (or symbol (cider-symbol-at-point) (read-string "Find references in source for: ")))
-         (xrefs (cider-xref--var-source-references symbol)))
-    (if xrefs
-        (funcall xref-show-xrefs-function
-                 (lambda () xrefs)
-                 `((window . ,(selected-window))))
-      (user-error "No source references found for %s" symbol))))
+  (let ((symbol (or symbol (cider-symbol-at-point)
+                    (read-string "Find references in source for: "))))
+    (cider-xref--show-source-references symbol)))
+
+(defun cider-xref--show-source-references (symbol)
+  "Show SYMBOL's project-source references via xref, or report none found."
+  (if-let* ((xrefs (cider-xref--var-source-references symbol)))
+      (funcall xref-show-xrefs-function
+               (lambda () xrefs)
+               `((window . ,(selected-window))))
+    (user-error "No source references found for %s" symbol)))
+
+;;;###autoload
+(defun cider-who-macroexpands (&optional symbol)
+  "Show the use sites of the macro SYMBOL by scanning the project's source.
+Macro calls are expanded away at compile time, so the runtime `fn-refs' op (and
+hence `cider-who-calls') can't see them; this finds them textually instead, the
+same way `cider-xref-fn-refs-in-source' does.  It works for any var, but for a
+function `cider-who-calls' is usually the better tool."
+  (interactive)
+  (let ((symbol (or symbol (cider-symbol-at-point)
+                    (read-string "Macro use sites of: "))))
+    (when-let* ((info (cider-var-info symbol)))
+      (unless (string= (nrepl-dict-get info "macro") "true")
+        (message "%s doesn't look like a macro; showing its source references anyway"
+                 symbol)))
+    (cider-xref--show-source-references symbol)))
 
 ;;;###autoload
 (defun cider-xref-fn-deps (&optional ns symbol)
