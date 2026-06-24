@@ -31,6 +31,7 @@
 
 ### Changes
 
+- [#3998](https://github.com/clojure-emacs/cider/pull/3998): `cider-who-implements` now uses cider-nrepl's `cider/who-implements` op when available, so it also lists inline `defrecord`/`deftype` implementers and jumps to each implementation's source; it falls back to the previous client-side approximation otherwise.
 - [#3993](https://github.com/clojure-emacs/cider/pull/3993): Round out the `*cider-trace*` buffer: navigate between calls with `n`/`p`, jump to a function's definition (`.` or click its name), fold or unfold every call at once (`F`/`U`), click a call line to fold it, and a `CIDER Trace` menu.
 - [#3992](https://github.com/clojure-emacs/cider/pull/3992): Make `*cider-trace*` calls foldable - `TAB` on a call line collapses or expands the nested calls between it and its return.
 - [#3984](https://github.com/clojure-emacs/cider/pull/3984): Stop dumping the full jack-in command and the ClojureScript REPL init form into the REPL transcript on startup (a ClojureScript REPL now just notes its type). The launch details are available on demand via `cider-repl-describe-startup` (the `,startup` REPL shortcut).
