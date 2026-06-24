@@ -1075,6 +1075,25 @@ The result is a dict with a \"kind\" of \"protocol\", \"multimethod\" or
                 (cider-nrepl-send-sync-request)
                 (nrepl-dict-get "who-implements")))
 
+(defun cider-sync-request:type-protocols (ns sym)
+  "Return the protocols implemented by the type NS and SYM.
+Each is a dict with a \"name\" and source location."
+  (cider-ensure-op-supported "cider/type-protocols")
+  (thread-first `("op" "cider/type-protocols"
+                  "ns" ,ns
+                  "sym" ,sym)
+                (cider-nrepl-send-sync-request)
+                (nrepl-dict-get "type-protocols")))
+
+(defun cider-sync-request:protocols-with-method (method)
+  "Return the protocols declaring a method named METHOD.
+Each is a dict with a \"name\" and source location."
+  (cider-ensure-op-supported "cider/protocols-with-method")
+  (thread-first `("op" "cider/protocols-with-method"
+                  "method" ,method)
+                (cider-nrepl-send-sync-request)
+                (nrepl-dict-get "protocols-with-method")))
+
 (defun cider-sync-request:format-code (code &optional format-options)
   "Perform nREPL \"format-code\" op with CODE.
 FORMAT-OPTIONS is an optional configuration map for cljfmt."
