@@ -145,6 +145,22 @@
     (let ((node (cider-xref-tree--impl-node (nrepl-dict "name" "java.lang.String"))))
       (expect (cider-tree-view-node-on-visit node) :to-be-truthy))))
 
+(describe "cider-xref-tree--multimethod-nodes"
+  (it "builds jumpable nodes from defmethod sites when found"
+    (spy-on 'cider-xref--defmethod-sites :and-return-value
+            (list (list :dispatch ":circle" :file "/x.clj" :line 5)
+                  (list :dispatch ":square" :file "/x.clj" :line 6)))
+    (let ((nodes (cider-xref-tree--multimethod-nodes "my.ns/area" '(":other"))))
+      (expect (length nodes) :to-equal 2)
+      (expect (cider-tree-view-node-on-visit (car nodes)) :to-be-truthy)))
+
+  (it "falls back to display-only dispatch values when no sites are found"
+    (spy-on 'cider-xref--defmethod-sites :and-return-value nil)
+    (let ((nodes (cider-xref-tree--multimethod-nodes
+                  "my.ns/area" '(":circle" ":square"))))
+      (expect (length nodes) :to-equal 2)
+      (expect (cider-tree-view-node-on-visit (car nodes)) :not :to-be-truthy))))
+
 (describe "cider-xref-tree--protocol-names"
   (before-each
     (spy-on 'cider-current-ns :and-return-value "user"))
