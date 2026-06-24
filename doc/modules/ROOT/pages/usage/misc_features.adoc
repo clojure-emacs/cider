@@ -158,9 +158,11 @@ the project's source instead (the same mechanism as
 
 `cider-who-implements` (kbd:[C-c C-w i]) goes the other way around: point it at a
 protocol and it lists the types that implement it; point it at a multimethod and
-it lists its dispatch values, all on the same expandable tree. With a recent
-enough `cider-nrepl` it covers inline `defrecord`/`deftype` implementers too and
-jumps straight to each implementation's source.
+it lists its methods, all on the same expandable tree. With a recent enough
+`cider-nrepl` it covers inline `defrecord`/`deftype` implementers too and jumps
+straight to each implementation's source. For a multimethod, each method jumps to
+its `defmethod` - found by searching the project's source, since the method
+functions themselves carry no source metadata at runtime.
 
 [NOTE]
 ====
@@ -168,8 +170,8 @@ When the `cider/who-implements` middleware op isn't available, the command falls
 back to a client-side approximation: it sees only the types registered via
 `extend`/`extend-type`/`extend-protocol` (not inline `defrecord`/`deftype`
 implementers, which implement the protocol's generated interface rather than
-extending it) and offers no per-implementation jumps.  Either way, only loaded
-Clojure-on-the-JVM code is visible.
+extending it). The multimethod side works either way, as it's source-driven.
+Only loaded Clojure-on-the-JVM code is visible.
 ====
 
 Two more protocol-oriented commands round out the family. `cider-type-protocols`

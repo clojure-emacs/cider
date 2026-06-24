@@ -40,6 +40,7 @@
 (require 'cider-popup)
 (require 'cider-tree-view)
 (require 'cider-util)
+(require 'cider-xref-source)
 (require 'nrepl-dict)
 (require 'parseedn)
 
@@ -176,6 +177,24 @@ falls back to looking the name up via `cider-find-var'."
          :on-visit (lambda () (cider-xref-tree--jump-to-file file line)))
       (cider-xref-tree--name-node name))))
 
+(defun cider-xref-tree--defmethod-node (site)
+  "Return a tree node for a `defmethod' SITE plist, jumping to its source."
+  (let ((dispatch (plist-get site :dispatch))
+        (file (plist-get site :file))
+        (line (plist-get site :line)))
+    (cider-tree-view-node-create
+     :label (cider-font-lock-as-clojure dispatch)
+     :on-visit (lambda () (cider-xref-tree--jump-to-file file line)))))
+
+(defun cider-xref-tree--multimethod-nodes (var dispatch-values)
+  "Build the child nodes for multimethod VAR.
+Prefer source `(defmethod ...)' sites, so each method jumps to its own
+definition; fall back to the runtime DISPATCH-VALUES as display-only leaves when
+no sites are found (no project source, or methods added dynamically)."
+  (if-let* ((sites (cider-xref--defmethod-sites var)))
+      (mapcar #'cider-xref-tree--defmethod-node sites)
+    (mapcar #'cider-xref-tree--leaf-node dispatch-values)))
+
 (defun cider-xref-tree--implements-op-plan (var)
   "Build an implementations plan for VAR via the `cider/who-implements' op."
   (let* ((result (cider-sync-request:who-implements (cider-current-ns) var))
@@ -192,8 +211,8 @@ falls back to looking the name up via `cider-find-var'."
        (list :kind "multimethod"
              :title (format "Methods of %s" var)
              :empty-noun "dispatch values"
-             :nodes (mapcar #'cider-xref-tree--leaf-node
-                            (nrepl-dict-get result "dispatch-values"))))
+             :nodes (cider-xref-tree--multimethod-nodes
+                     var (nrepl-dict-get result "dispatch-values"))))
       (_ (list :kind "other")))))
 
 (defun cider-xref-tree--implements-eval-plan (var)
@@ -212,7 +231,7 @@ falls back to looking the name up via `cider-find-var'."
        (list :kind "multimethod"
              :title (format "Methods of %s" var)
              :empty-noun "dispatch values"
-             :nodes (mapcar #'cider-xref-tree--leaf-node (cdr result))))
+             :nodes (cider-xref-tree--multimethod-nodes var (cdr result))))
       (_ (list :kind "other")))))
 
 (defun cider-xref-tree--show-implements (var plan)
