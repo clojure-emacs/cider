@@ -65,3 +65,77 @@
         (with-temp-buffer
           (cider-log--ensure-initialized framework appender consumer))
         (expect 'cider-log--set-filters :to-have-been-called-with consumer-filters)))))
+
+(describe "cider-log--format-value"
+  (it "renders nil as an empty string"
+    (expect (cider-log--format-value nil) :to-equal ""))
+  (it "renders a scalar as its printed form"
+    (expect (substring-no-properties (cider-log--format-value "x")) :to-equal "x"))
+  (it "joins a list or vector with commas"
+    (expect (substring-no-properties (cider-log--format-value '("a" "b"))) :to-equal "a, b")
+    (expect (substring-no-properties (cider-log--format-value ["a" "b"])) :to-equal "a, b")))
+
+(describe "cider-log--strip-whitespace"
+  (it "collapses runs of spaces and newlines into a single space"
+    (expect (cider-log--strip-whitespace "a  b\nc") :to-equal "a b c")))
+
+(describe "cider-log--format-time"
+  (it "formats a time in ISO8601"
+    (expect (cider-log--format-time (encode-time 0 0 12 1 1 2021))
+            :to-match "\\`[0-9]\\{4\\}-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9][-+][0-9]\\{4\\}\\'")))
+
+(describe "cider-log-event--format-logback"
+  (it "renders the thread, level, logger and message (timezone-independent tail)"
+    (expect (substring-no-properties
+             (cider-log-event--format-logback
+              (nrepl-dict "level" "info" "logger" "my.log" "message" "hello"
+                          "thread" "main" "timestamp" 1609459200000)))
+            :to-match " \\[main\\] INFO my\\.log - hello\n\\'"))
+  (it "truncates the message to cider-log-max-message-length"
+    (let ((cider-log-max-message-length 3))
+      (expect (substring-no-properties
+               (cider-log-event--format-logback
+                (nrepl-dict "level" "warn" "logger" "l" "message" "hello"
+                            "thread" "t" "timestamp" "ts")))
+              :to-equal "ts [t] WARN l - hel\n"))))
+
+(describe "cider-log framework/appender accessors and finders"
+  (it "reads framework id, name and level names"
+    (let ((fw (nrepl-dict "id" "logback" "name" "Logback"
+                          "levels" (list (nrepl-dict "name" "DEBUG")
+                                         (nrepl-dict "name" "INFO")))))
+      (expect (cider-log-framework-id fw) :to-equal "logback")
+      (expect (cider-log-framework-name fw) :to-equal "Logback")
+      (expect (cider-log-framework-level-names fw) :to-equal '("DEBUG" "INFO"))))
+
+  (it "finds a framework by id, or nil when absent"
+    (let ((fws (list (nrepl-dict "id" "jul") (nrepl-dict "id" "logback"))))
+      (expect (cider-log-framework-id (cider-log-framework-by-id fws "logback"))
+              :to-equal "logback")
+      (expect (cider-log-framework-by-id fws "nope") :to-be nil)))
+
+  (it "finds an appender on a framework by id"
+    (let ((fw (nrepl-dict "appenders" (list (nrepl-dict "id" "cider-log")))))
+      (expect (cider-log-appender-id (cider-log-framework-appender fw "cider-log"))
+              :to-equal "cider-log")
+      (expect (cider-log-framework-appender fw "nope") :to-be nil))))
+
+(describe "cider-log event accessors"
+  (it "reads the event id and exception"
+    (let ((ev (nrepl-dict "id" "ev-42" "exception" "NullPointerException")))
+      (expect (cider-log-event-id ev) :to-equal "ev-42")
+      (expect (cider-log-event-exception ev) :to-equal "NullPointerException"))))
+
+(describe "cider-log--filters"
+  (it "collects the filter variables into a dict"
+    (let ((cider-log--level-filter "INFO")
+          (cider-log--pattern-filter "foo")
+          (cider-log--end-time-filter nil)
+          (cider-log--exceptions-filter nil)
+          (cider-log--loggers-filter nil)
+          (cider-log--start-time-filter nil)
+          (cider-log--threads-filter nil))
+      (let ((filters (cider-log--filters)))
+        (expect (nrepl-dict-get filters "level") :to-equal "INFO")
+        (expect (nrepl-dict-get filters "pattern") :to-equal "foo")
+        (expect (nrepl-dict-get filters "threads") :to-be nil)))))
