@@ -437,6 +437,43 @@
                (message ":nrepl-lifecycle/error %s" (buffer-string))))
            (error error-details))))))
 
+(describe "nrepl eval round-trip against the mock server"
+  (it "establishes a session and returns the value the mock echoes back"
+    (let* ((server-buffer (get-buffer-create ":nrepl-eval/server"))
+           (server-endpoint nil)
+           (server-process (nrepl-start-server-process
+                            default-directory
+                            (nrepl-server-mock-invocation-string)
+                            (lambda (_endpoint)
+                              (setq server-endpoint nrepl-endpoint)
+                              server-buffer))))
+      (unwind-protect
+          (progn
+            (nrepl-tests-poll-until (eq (process-status server-process) 'run) 2)
+            (nrepl-tests-poll-until server-endpoint 2)
+            (let* ((client-buffer (get-buffer-create ":nrepl-eval/client"))
+                   (client-proc (nrepl-start-client-process
+                                 (plist-get server-endpoint :host)
+                                 (plist-get server-endpoint :port)
+                                 server-process
+                                 (lambda (_endpoint) client-buffer)
+                                 (plist-get server-endpoint :socket-file))))
+              (unwind-protect
+                  (with-current-buffer (process-buffer client-proc)
+                    ;; the connect handshake cloned a session against the mock
+                    (expect nrepl-session :not :to-be nil)
+                    ;; a full eval request round-trips: encode -> socket -> mock
+                    ;; -> value response -> decode -> joined sync response
+                    (let ((response (nrepl-send-sync-request
+                                     '("op" "eval" "code" "(+ 1 2)")
+                                     (current-buffer))))
+                      (expect (nrepl-dict-get response "value") :to-equal "(+ 1 2)")
+                      (expect (nrepl-dict-get response "ns") :to-equal "user")
+                      (expect (nrepl-dict-get response "status") :to-contain "done")))
+                (when (process-live-p client-proc) (delete-process client-proc)))))
+        (when (process-live-p server-process) (delete-process server-process))
+        (when (buffer-live-p server-buffer) (kill-buffer server-buffer))))))
+
 (describe "nrepl-make-response-handler legacy shim"
   ;; Makes sure the obsolete shim still consults the global handler hooks
   ;; and emits the legacy status messages, so extension code that targeted
