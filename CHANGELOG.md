@@ -31,6 +31,7 @@
 
 ### Bugs fixed
 
+- [#4026](https://github.com/clojure-emacs/cider/pull/4026): `cider-macroexpand-1` and friends now work in ClojureScript for user-defined macros (fixed in `cider-nrepl`, delivered via the 0.61.0-alpha1 bump) ([#2099](https://github.com/clojure-emacs/cider/issues/2099)).
 - [#4016](https://github.com/clojure-emacs/cider/pull/4016): Show the REPL prompt right away when a server (e.g. jank) sends `value` and `("done")` in the same response, instead of only after the next keypress ([#3869](https://github.com/clojure-emacs/cider/issues/3869)).
 - [#4019](https://github.com/clojure-emacs/cider/pull/4019): Stop the dynamic local-variable font-locking from mistaking a `def`'s value for an arglist, which tagged literals, function names and other non-locals as locals (`cider-locals` false positives) ([#3657](https://github.com/clojure-emacs/cider/issues/3657)).
 - [#4021](https://github.com/clojure-emacs/cider/pull/4021): Stop unbalanced parentheses in REPL output (e.g. printed strings or shadow-cljs warnings) from breaking sexp navigation and paredit in the REPL buffer ([#3102](https://github.com/clojure-emacs/cider/issues/3102)).
@@ -41,6 +42,7 @@
 
 ### Changes
 
+- [#4026](https://github.com/clojure-emacs/cider/pull/4026): Bump the injected `cider-nrepl` to 0.61.0-alpha1, which provides ClojureScript test support, the `clojure-only` op signal and the ClojureScript macroexpansion fix.
 - [#4026](https://github.com/clojure-emacs/cider/pull/4026): Show a clear message when a Clojure-only operation (apropos, xref, trace, profile, refresh, reload, undef, spec) is invoked under a ClojureScript REPL, instead of failing confusingly or returning JVM-only results (requires a recent enough `cider-nrepl`) ([#2198](https://github.com/clojure-emacs/cider/issues/2198)).
 - [#4022](https://github.com/clojure-emacs/cider/pull/4022): `cider-inspect-last-sexp` now inspects the tagged class when point is on a type tag (e.g. `^String`), instead of the form the tag applies to ([#3679](https://github.com/clojure-emacs/cider/issues/3679)).
 - [#4024](https://github.com/clojure-emacs/cider/pull/4024): The `*cider-ns-refresh-log*` buffer now supports `r`/`g`/`C-c M-n r` to re-run the refresh from within it ([#2798](https://github.com/clojure-emacs/cider/issues/2798)).
