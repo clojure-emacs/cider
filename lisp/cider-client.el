@@ -663,6 +663,16 @@ unless ALL is truthy."
 
 (defvar cider-repl-ns-cache) ; defined in cider-repl.el, populated by track-state
 
+(defun cider-ns-load-cache (&optional repl)
+  "Return the track-state namespace cache dict for REPL, or nil.
+REPL defaults to the current connection (function `cider-current-repl').
+This is the low-level accessor for `cider-repl-ns-cache' - a buffer-local
+in the REPL buffer kept up to date by the track-state middleware.  Readers
+layer their own policy (membership, full-dict lookup, the unknown-versus-not-
+loaded distinction) on top of this single access point."
+  (when-let* ((repl (or repl (cider-current-repl))))
+    (buffer-local-value 'cider-repl-ns-cache repl)))
+
 (defun cider-ns-loaded-p (&optional ns)
   "Return non-nil when NS is loaded in the connected runtime.
 NS defaults to the current namespace.  Consults the track-state namespace
@@ -673,7 +683,7 @@ nREPL server too.  Returns nil when the namespace can't be determined."
               (repl (cider-current-repl)))
     (or
      ;; Fast path: track-state already knows about this namespace.
-     (and (nrepl-dict-get (buffer-local-value 'cider-repl-ns-cache repl) ns) t)
+     (and (nrepl-dict-get (cider-ns-load-cache repl) ns) t)
      ;; Fallback: ask the runtime directly (works without cider-nrepl).
      (equal "true"
             (nrepl-dict-get

@@ -112,6 +112,23 @@
     (expect (cider--symbol-operator-p "") :to-be nil)
     (expect (cider--symbol-operator-p nil) :to-be nil)))
 
+(describe "cider-ns-load-cache"
+  (it "returns the REPL buffer's track-state cache"
+    (with-temp-buffer
+      (setq-local cider-repl-ns-cache (nrepl-dict "foo.bar" (nrepl-dict)))
+      (let ((repl (current-buffer)))
+        (expect (cider-ns-load-cache repl) :to-equal
+                (nrepl-dict "foo.bar" (nrepl-dict))))))
+  (it "defaults to the current connection when no REPL is given"
+    (with-temp-buffer
+      (setq-local cider-repl-ns-cache (nrepl-dict "foo.bar" (nrepl-dict)))
+      (spy-on 'cider-current-repl :and-return-value (current-buffer))
+      (expect (cider-ns-load-cache) :to-equal
+              (nrepl-dict "foo.bar" (nrepl-dict)))))
+  (it "returns nil when there's no connection"
+    (spy-on 'cider-current-repl :and-return-value nil)
+    (expect (cider-ns-load-cache) :to-be nil)))
+
 (describe "cider-ns-loaded-p"
   (it "uses the track-state cache as a free fast path"
     (with-temp-buffer
