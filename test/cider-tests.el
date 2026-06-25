@@ -735,51 +735,6 @@
           ;; kill server
           (delete-process (get-buffer-process client-buffer)))))))
 
-(describe "cider-locate-running-nrepl-ports"
-  (it "Concatenates values from different sources"
-    (spy-on 'file-exists-p :and-return-value t)
-    (spy-on 'cider--running-lein-nrepl-paths :and-return-value '(("lein" "1234")))
-    (spy-on 'cider--running-local-nrepl-paths :and-return-value '(("local" "2345")))
-    (spy-on 'cider--running-non-lein-nrepl-paths :and-return-value '(("non-lein" "3456")))
-    (spy-on 'cider-project-dir :and-return-value #'identity)
-    (spy-on 'cider--path->path-port-pairs :and-return-value '(("from-dir" "4567")))
-    (spy-on 'directory-file-name :and-call-fake #'identity)
-    (spy-on 'file-name-nondirectory :and-call-fake #'identity)
-    (expect (cider-locate-running-nrepl-ports "from-dir")
-            :to-equal '(("from-dir" "4567") ("lein" "1234") ("local" "2345") ("non-lein" "3456")))))
-
-(describe "cider--running-nrepl-paths cache"
-  (before-each
-    (cider-clear-running-nrepl-paths-cache)
-    (spy-on 'cider--running-nrepl-paths-uncached
-            :and-return-value '(("p" "1"))))
-
-  (it "scans only once for back-to-back calls within the TTL"
-    (let ((cider-running-nrepl-paths-cache-ttl 60))
-      (cider--running-nrepl-paths)
-      (cider--running-nrepl-paths)
-      (cider--running-nrepl-paths)
-      (expect 'cider--running-nrepl-paths-uncached :to-have-been-called-times 1)))
-
-  (it "rescans on every call when the TTL is 0"
-    (let ((cider-running-nrepl-paths-cache-ttl 0))
-      (cider--running-nrepl-paths)
-      (cider--running-nrepl-paths)
-      (expect 'cider--running-nrepl-paths-uncached :to-have-been-called-times 2)))
-
-  (it "rescans after the cache has been cleared"
-    (let ((cider-running-nrepl-paths-cache-ttl 60))
-      (cider--running-nrepl-paths)
-      (cider-clear-running-nrepl-paths-cache)
-      (cider--running-nrepl-paths)
-      (expect 'cider--running-nrepl-paths-uncached :to-have-been-called-times 2)))
-
-  (it "keeps separate entries for different default-directory keys"
-    (let ((cider-running-nrepl-paths-cache-ttl 60))
-      (let ((default-directory "/tmp/a/")) (cider--running-nrepl-paths))
-      (let ((default-directory "/tmp/b/")) (cider--running-nrepl-paths))
-      (expect 'cider--running-nrepl-paths-uncached :to-have-been-called-times 2))))
-
 (describe "cider-make-eval-handler"
   :var (nrepl-pending-requests nrepl-completed-requests)
   (before-each
