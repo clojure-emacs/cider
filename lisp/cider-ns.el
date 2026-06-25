@@ -57,6 +57,7 @@
 
 ;;; Code:
 
+(require 'easymenu)
 (require 'map)
 (require 'seq)
 (require 'subr-x)
@@ -89,6 +90,29 @@ If t, all buffers visiting files on the classpath might be saved."
   :package-version '(cider . "0.21.0"))
 
 (defconst cider-ns-refresh-log-buffer "*cider-ns-refresh-log*")
+
+(defvar cider-ns-refresh-log-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "g") #'cider-ns-refresh)
+    (define-key map (kbd "r") #'cider-ns-refresh)
+    (define-key map (kbd "C-c M-n r") #'cider-ns-refresh)
+    (easy-menu-define cider-ns-refresh-log-mode-menu map
+      "Menu for CIDER's namespace refresh log."
+      '("Refresh Log"
+        ["Refresh modified namespaces" cider-ns-refresh]
+        ["Refresh all namespaces" (cider-ns-refresh 'refresh-all)]
+        ["Clear tracker and refresh" (cider-ns-refresh 'clear)]
+        "--"
+        ["Quit" cider-popup-buffer-quit-function]))
+    map)
+  "Keymap for `cider-ns-refresh-log-mode'.")
+
+(define-derived-mode cider-ns-refresh-log-mode special-mode "Refresh Log"
+  "Major mode for the `*cider-ns-refresh-log*' buffer.
+
+\\{cider-ns-refresh-log-mode-map}"
+  ;; the buffer is populated asynchronously; don't ask to confirm a revert
+  (setq-local revert-buffer-function (lambda (&rest _) (cider-ns-refresh))))
 
 (defcustom cider-ns-refresh-show-log-buffer nil
   "Controls when to display the refresh log buffer.
@@ -346,7 +370,8 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
         (cider-ns-refresh--save-modified-buffers conn)
         ;; Inside the lambda, so the buffer is not created if we error out.
         (let ((log-buffer (or (get-buffer cider-ns-refresh-log-buffer)
-                              (cider-make-popup-buffer cider-ns-refresh-log-buffer))))
+                              (cider-make-popup-buffer cider-ns-refresh-log-buffer
+                                                       #'cider-ns-refresh-log-mode))))
           (when cider-ns-refresh-show-log-buffer
             (cider-popup-buffer-display log-buffer))
           (when inhibit-refresh-fns

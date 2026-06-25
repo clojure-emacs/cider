@@ -239,3 +239,14 @@
       (funcall cb (nrepl-dict "status" '("eval-error")))
       (funcall cb (nrepl-dict "status" '("done")))
       (expect 'cider-ns--mark-reloaded :not :to-have-been-called))))
+
+(describe "cider-ns-refresh-log-mode"
+  (it "binds the refresh keys to cider-ns-refresh (#2798)"
+    (expect (lookup-key cider-ns-refresh-log-mode-map (kbd "r"))
+            :to-equal 'cider-ns-refresh)
+    (expect (lookup-key cider-ns-refresh-log-mode-map (kbd "g"))
+            :to-equal 'cider-ns-refresh)
+    (expect (lookup-key cider-ns-refresh-log-mode-map (kbd "C-c M-n r"))
+            :to-equal 'cider-ns-refresh))
+  (it "provides a menu (#2798)"
+    (expect (lookup-key cider-ns-refresh-log-mode-map [menu-bar]) :to-be-truthy)))
