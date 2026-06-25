@@ -239,10 +239,37 @@ Signal an error if it is not supported."
   (unless (cider-nrepl-op-supported-p op connection)
     (user-error "`%s' requires the nREPL op \"%s\" (provided by cider-nrepl)" this-command op)))
 
+(defvar cider--skip-op-ensure nil
+  "When non-nil, skip the automatic op-support check in CIDER's nREPL senders.
+Background or best-effort callers that should degrade silently when an op
+isn't available (instead of signaling) can bind this around their sends.
+Note that callers which already probe `cider-nrepl-op-supported-p' before
+sending never reach the check, so they don't need this.")
+
+(defun cider--ensure-request-op-supported (request connection)
+  "Signal a `user-error' when REQUEST's op isn't supported by CONNECTION.
+Only namespaced middleware ops (those containing a \"/\", e.g.
+\"cider/apropos\") are checked; core nREPL ops pass through.  Does nothing
+when `cider--skip-op-ensure' is non-nil.
+
+This is the central enforcement that lets interactive commands omit explicit
+`cider-ensure-op-supported' calls: every CIDER-level send routes through
+`cider--resolve-op-in-request', so an unsupported op fails uniformly with a
+clear message no matter which command sent it."
+  (let ((op (cider-plist-get request "op")))
+    (when (and op
+               (not cider--skip-op-ensure)
+               (string-search "/" op)
+               (not (cider-nrepl-op-supported-p op connection 'skip-ensure)))
+      (user-error "`%s' requires the nREPL op \"%s\" (provided by cider-nrepl)"
+                  (or this-command "This request") op))))
+
 (defun cider--resolve-op-in-request (request connection)
   "Resolve the op in REQUEST to a name supported by CONNECTION.
 Falls back to the unprefixed legacy op name when the server
-doesn't support namespaced ops."
+doesn't support namespaced ops.  Signals a `user-error' when the op isn't
+available at all (see `cider--ensure-request-op-supported')."
+  (cider--ensure-request-op-supported request connection)
   (let* ((op (cider-plist-get request "op"))
          (effective (cider--fallback-op op connection)))
     (if (equal op effective)
