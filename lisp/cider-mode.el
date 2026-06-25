@@ -1023,6 +1023,14 @@ before point."
                                 end 'noerror)
     (goto-char (match-beginning 0))
     (let ((sym (match-string 1))
+          ;; The regexp only captures the `def' prefix, so read the full
+          ;; head symbol to tell value-binding forms apart from
+          ;; function-defining ones (see the `def' branch below).
+          (head (save-excursion
+                  (ignore-errors
+                    (forward-char 1)
+                    (buffer-substring-no-properties
+                     (point) (progn (forward-sexp 1) (point))))))
           (sexp-end (save-excursion
                       (or (ignore-errors (forward-sexp 1)
                                          (point))
@@ -1036,7 +1044,15 @@ before point."
         (forward-sexp 1)
         (let ((locals (append outer-locals
                               (pcase sym
-                                ((or "fn" "def" "") (cider--read-locals-from-arglist))
+                                ;; #3657: plain value-binding `def' forms
+                                ;; (`def', `defonce') have no arglist -
+                                ;; reading their value as one slurps the
+                                ;; whole value in as bogus locals.  Only
+                                ;; function-defining forms (`defn',
+                                ;; `defmacro', ...) carry an arglist.
+                                ("def" (unless (member head '("def" "defonce"))
+                                         (cider--read-locals-from-arglist)))
+                                ((or "fn" "") (cider--read-locals-from-arglist))
                                 (_ (cider--read-locals-from-bindings-vector))))))
           (add-text-properties (point) sexp-end (list 'cider-locals locals))
           (clojure-forward-logical-sexp 1)
