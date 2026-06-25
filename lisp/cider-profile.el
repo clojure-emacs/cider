@@ -67,7 +67,6 @@ current buffer, is used by the global nREPL handlers (e.g. error)."
 If optional argument QUERY is non-nil, prompt for ns.  Otherwise use
 current ns."
   (interactive "P")
-  (cider-ensure-op-supported "cider/profile-toggle-ns")
   (let ((ns (if query
                 (completing-read "Toggle profiling for ns: "
                                  (cider-sync-request:ns-list))

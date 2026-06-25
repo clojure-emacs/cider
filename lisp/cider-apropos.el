@@ -146,7 +146,6 @@ optionally search doc strings (based on DOCS-P), include private vars
 \(based on PRIVATES-P), and be case-sensitive (based on CASE-SENSITIVE-P)."
   (interactive (cider-apropos--read-args))
   (cider-ensure-connected)
-  (cider-ensure-op-supported "cider/apropos")
   (if-let* ((summary (cider-apropos-summary
                       query ns docs-p privates-p case-sensitive-p))
             (results (cider-apropos-request query
@@ -162,7 +161,6 @@ optionally search doc strings (based on DOCS-P), include private vars
   "Shortcut for (cider-apropos <query> nil t)."
   (interactive)
   (cider-ensure-connected)
-  (cider-ensure-op-supported "cider/apropos")
   (cider-apropos (read-string "Search for Clojure documentation (a regular expression): ") nil t))
 
 (defun cider-apropos-act-on-symbol (symbol)
@@ -189,7 +187,6 @@ optionally search doc strings (based on DOCS-P), include private vars
 \(based on PRIVATES-P), and be case-sensitive (based on CASE-SENSITIVE-P)."
   (interactive (cider-apropos--read-args))
   (cider-ensure-connected)
-  (cider-ensure-op-supported "cider/apropos")
   (if-let* ((summary (cider-apropos-summary
                       query ns docs-p privates-p case-sensitive-p))
             (results (mapcar (lambda (r) (nrepl-dict-get r "name"))
@@ -206,7 +203,6 @@ optionally search doc strings (based on DOCS-P), include private vars
   "Shortcut for (cider-apropos-select <query> nil t)."
   (interactive)
   (cider-ensure-connected)
-  (cider-ensure-op-supported "cider/apropos")
   (cider-apropos-select (read-string "Search for Clojure documentation (a regular expression): ") nil t))
 
 (provide 'cider-apropos)

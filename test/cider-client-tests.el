@@ -372,6 +372,10 @@
     (expect (cider--fallback-op "completions" :fake-conn) :to-equal "completions")))
 
 (describe "cider--resolve-op-in-request"
+  (before-each
+    ;; the op-support check now runs first; treat ops as supported here
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value t))
+
   (it "rewrites the op in the request when falling back"
     (spy-on 'cider--fallback-op :and-return-value "info")
     (let ((result (cider--resolve-op-in-request '("op" "cider/info" "ns" "user") :fake-conn)))
@@ -383,6 +387,28 @@
     (let* ((request '("op" "cider/info" "ns" "user"))
            (result (cider--resolve-op-in-request request :fake-conn)))
       (expect result :to-equal request))))
+
+(describe "cider--ensure-request-op-supported"
+  (it "signals a user-error when a namespaced op isn't supported"
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
+    (expect (cider--ensure-request-op-supported '("op" "cider/apropos") :conn)
+            :to-throw 'user-error))
+
+  (it "passes when the op is supported"
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
+    (expect (cider--ensure-request-op-supported '("op" "cider/apropos") :conn)
+            :not :to-throw))
+
+  (it "ignores core (non-namespaced) ops"
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
+    (expect (cider--ensure-request-op-supported '("op" "eval") :conn)
+            :not :to-throw))
+
+  (it "is bypassed by `cider--skip-op-ensure'"
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
+    (let ((cider--skip-op-ensure t))
+      (expect (cider--ensure-request-op-supported '("op" "cider/apropos") :conn)
+              :not :to-throw))))
 
 (describe "cider-ns-form-p"
   (it "doesn't match ns in a string"

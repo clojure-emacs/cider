@@ -68,7 +68,10 @@
     (expect (cider-browse-spec--browse ":example/customer") :to-throw 'user-error))
 
   (it "raises user-error when the `spec-form' op is not supported."
+    ;; Op support is now enforced centrally by the nREPL senders, so the
+    ;; connection resolves and the check fires when the send is attempted.
     (spy-on 'sesman-current-session :and-return-value t)
+    (spy-on 'cider-current-repl :and-return-value (current-buffer))
     (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
     (expect (cider-browse-spec--browse ":example/customer") :to-throw 'user-error))
 
