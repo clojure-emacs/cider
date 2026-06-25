@@ -34,6 +34,7 @@
 
 ### Changes
 
+- [#4022](https://github.com/clojure-emacs/cider/pull/4022): `cider-inspect-last-sexp` now inspects the tagged class when point is on a type tag (e.g. `^String`), instead of the form the tag applies to ([#3679](https://github.com/clojure-emacs/cider/issues/3679)).
 - [#4005](https://github.com/clojure-emacs/cider/pull/4005): Render the namespace browser (`cider-browse-ns`) on the `cider-tree-view` widget: groups (by type or visibility) are now foldable with `TAB`, and `n`/`p` move between entries.
 - [#4003](https://github.com/clojure-emacs/cider/pull/4003): Turn `C-c M-m` into a prefix map (`cider-macroexpand-map`) grouping all the macro-expanding commands - `macroexpand-1`/`macroexpand-all` into a buffer (`1`/`a`) and the inline `cider-macrostep` commands (`e`/`E`/`b`). `cider-macroexpand-all` thus moves from `C-c M-m` to `C-c M-m a`; `C-c C-m` still runs `macroexpand-1` directly.
 - [#4002](https://github.com/clojure-emacs/cider/pull/4002): Bump the injected `cider-nrepl` to 0.60.0, which provides the `cider/who-implements`, `cider/type-protocols` and `cider/protocols-with-method` ops backing the protocol-exploration commands.

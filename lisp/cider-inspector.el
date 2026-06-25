@@ -236,10 +236,25 @@ the text is already colored by clojure mode font-locking."
                          'face 'font-lock-warning-face))))
 
 ;;;###autoload
+(defun cider--type-tag-at-point ()
+  "Return the class name of the type tag at point, or nil.
+A type tag is a symbol preceded by `^', e.g. the `String' in `^String x'.
+This lets the inspector act on the tagged class directly, the way
+`cider-doc' does, instead of reading the form the tag applies to (#3679)."
+  (when-let* ((sym (cider-symbol-at-point)))
+    (save-excursion
+      (skip-syntax-backward "w_")
+      (when (eq (char-before) ?^)
+        sym))))
+
 (defun cider-inspect-last-sexp ()
-  "Inspect the result of the expression preceding point."
+  "Inspect the result of the expression preceding point.
+When point is on a type tag (e.g. `^String'), inspect the tagged class
+itself rather than the form it applies to."
   (interactive)
-  (cider-inspect-expr (cider-last-sexp) (cider-current-ns)))
+  (cider-inspect-expr (or (cider--type-tag-at-point)
+                          (cider-last-sexp))
+                      (cider-current-ns)))
 
 ;;;###autoload
 (defun cider-inspect-defun-at-point ()
