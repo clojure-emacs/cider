@@ -746,6 +746,8 @@ Sub-handlers, all optional:
                                                  value ns out err status id)
       (when (and ns on-ns)
         (funcall on-ns ns))
+      ;; The value/output slots are mutually exclusive within a single
+      ;; message, so they stay in a `cond'.
       (cond ((and content-type on-content-type)
              (funcall on-content-type
                       (if (string= content-transfer-encoding "base64")
@@ -757,17 +759,21 @@ Sub-handlers, all optional:
             (out
              (when on-stdout (funcall on-stdout out)))
             (err
-             (when on-stderr (funcall on-stderr err)))
-            (status
-             (when on-status (funcall on-status status response))
-             (when (and on-truncated
-                        (member "nrepl.middleware.print/truncated" status))
-               (funcall on-truncated))
-             (when (and on-eval-error (member "eval-error" status))
-               (funcall on-eval-error))
-             (when (member "done" status)
-               (nrepl--mark-id-completed id)
-               (when on-done (funcall on-done))))))))
+             (when on-stderr (funcall on-stderr err))))
+      ;; A `status' can accompany any of the slots above in the same
+      ;; message -- e.g. jank sends `value' and `("done")' together -- so
+      ;; it has to be handled independently rather than as a `cond' branch,
+      ;; otherwise the prompt is never refreshed on such responses (#3869).
+      (when status
+        (when on-status (funcall on-status status response))
+        (when (and on-truncated
+                   (member "nrepl.middleware.print/truncated" status))
+          (funcall on-truncated))
+        (when (and on-eval-error (member "eval-error" status))
+          (funcall on-eval-error))
+        (when (member "done" status)
+          (nrepl--mark-id-completed id)
+          (when on-done (funcall on-done)))))))
 
 (defun nrepl-make-response-handler (buffer value-handler stdout-handler
                                            stderr-handler done-handler

@@ -240,6 +240,17 @@
       (funcall handler '(dict "id" "1" "status" ("done")))
       (expect called :to-be t)))
 
+  (it "handles a status alongside a value in the same message (#3869)"
+    ;; Some servers (e.g. jank) send `value' and `("done")' in a single
+    ;; response.  Both sub-handlers must fire, not just the value one.
+    (let* (value-received done-called
+           (handler (nrepl-make-eval-handler
+                     :on-value (lambda (v) (setq value-received v))
+                     :on-done  (lambda () (setq done-called t)))))
+      (funcall handler '(dict "id" "1" "value" "nil" "status" ("done")))
+      (expect value-received :to-equal "nil")
+      (expect done-called :to-be t)))
+
   (it "calls :on-eval-error with no args on eval-error status"
     (let* (called
            (handler (nrepl-make-eval-handler
