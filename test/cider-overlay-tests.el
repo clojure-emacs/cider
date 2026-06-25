@@ -221,7 +221,32 @@ being set that way"
         (insert "Hello")
         (expect (overlay-count) :to-be 0)))))
 
+(describe "cider--use-fringe-indicators-p"
+  (it "treats t as all kinds enabled"
+    (let ((cider-use-fringe-indicators t))
+      (expect (cider--use-fringe-indicators-p 'eval) :to-be-truthy)
+      (expect (cider--use-fringe-indicators-p 'test) :to-be-truthy)))
+  (it "treats nil as nothing enabled"
+    (let ((cider-use-fringe-indicators nil))
+      (expect (cider--use-fringe-indicators-p 'eval) :not :to-be-truthy)
+      (expect (cider--use-fringe-indicators-p 'test) :not :to-be-truthy)))
+  (it "treats a list as only the listed kinds"
+    (let ((cider-use-fringe-indicators '(eval)))
+      (expect (cider--use-fringe-indicators-p 'eval) :to-be-truthy)
+      (expect (cider--use-fringe-indicators-p 'test) :not :to-be-truthy))
+    (let ((cider-use-fringe-indicators '(eval test)))
+      (expect (cider--use-fringe-indicators-p 'eval) :to-be-truthy)
+      (expect (cider--use-fringe-indicators-p 'test) :to-be-truthy))))
+
 (describe "cider--make-fringe-overlay"
+  (it "doesn't place an eval indicator when eval indicators are disabled"
+    (let ((cider-use-fringe-indicators '(test)))
+      (with-temp-buffer
+        (clojure-mode)
+        (insert "(def x 1)")
+        (cider--make-fringe-overlay (point))
+        (expect (overlays-in (point-min) (point-max)) :to-be nil))))
+
   (it "flips the indicator to stale when the evaluated form is edited"
     (let ((cider-use-fringe-indicators t)
           (cider-mark-stale-after-edit t))
