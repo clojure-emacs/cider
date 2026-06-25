@@ -214,6 +214,18 @@
           (cider-inspector-buffer (current-buffer)))
       (cider-repl--auto-inspect-last-result (current-buffer))
       (expect 'cider-inspect-last-result :not :to-have-been-called))))
+(describe "cider-repl--emit-output syntax (#3102)"
+  (it "neutralizes output syntax so unbalanced parens don't break sexp scanning"
+    (with-temp-buffer
+      (clojure-mode)                    ; clojure syntax table: parens are parens
+      (setq-local parse-sexp-lookup-properties t)
+      (cider-repl-reset-markers)
+      (cider-repl--emit-output (current-buffer) ")))))" 'cider-repl-stdout-face)
+      ;; the output parens carry punctuation syntax, not close-paren syntax
+      (expect (get-text-property (point-min) 'syntax-table)
+              :to-equal (string-to-syntax "."))
+      ;; so scanning backwards across them no longer raises a scan-error
+      (expect (ignore-errors (scan-sexps (point-max) -1) t) :to-be-truthy))))
 
 (defun simulate-cider-output (s property)
   "Return S's properties from `cider-repl--emit-output'.
