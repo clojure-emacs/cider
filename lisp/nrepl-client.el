@@ -324,6 +324,16 @@ later responses on the floor."
               (with-demoted-errors "Error in nREPL response dispatch: %s"
                 (nrepl--dispatch-response response)))))))))
 
+(defun nrepl--clojure-only-error (response)
+  "Return RESPONSE's Clojure-only message, or nil.
+Non-nil when RESPONSE's status reports the op as `clojure-only' - i.e. the
+server (cider-nrepl) declined to run it because a ClojureScript REPL is
+active (see clojure-emacs/cider#2198).  Falls back to a generic message when
+the server didn't supply one."
+  (when (member "clojure-only" (nrepl-dict-get response "status"))
+    (string-trim (or (nrepl-dict-get response "err")
+                     "This operation isn't available in a ClojureScript REPL."))))
+
 (defun nrepl--dispatch-response (response)
   "Dispatch the RESPONSE to associated callback.
 First we check the callbacks of pending requests.  If no callback was found,
@@ -336,6 +346,11 @@ dispatcher to do, and signaling here used to abort processing of any
 later responses sitting in the queue."
   (nrepl-dbind-response response (id)
     (nrepl-log-message response 'response)
+    ;; Surface a Clojure-only rejection for asynchronous ops.  Synchronous
+    ;; requests get a `user-error' from `nrepl-sync-request' so the calling
+    ;; command aborts cleanly instead of reporting empty results.
+    (when-let* ((msg (nrepl--clojure-only-error response)))
+      (message "%s" msg))
     (let ((callback (or (gethash id nrepl-pending-requests)
                         (gethash id nrepl-completed-requests))))
       (if callback
@@ -928,6 +943,10 @@ positional shim retained for backward compatibility."
         (when id
           (with-current-buffer connection
             (nrepl--mark-id-completed id)))
+        ;; The op was declined because a ClojureScript REPL is active; abort
+        ;; the calling command with a clear message (clojure-emacs/cider#2198).
+        (when-let* ((msg (nrepl--clojure-only-error response)))
+          (user-error "%s" msg))
         response))))
 
 (defun nrepl-send-sync-request (request connection &optional abort-on-input

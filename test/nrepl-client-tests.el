@@ -352,7 +352,28 @@
     ;; spec just locks the contract: the dispatcher itself doesn't add
     ;; its own protection -- protection is at the filter layer.
     (expect (nrepl--dispatch-response '(dict "id" "1" "value" "v"))
-            :to-throw 'error)))
+            :to-throw 'error))
+
+  (it "surfaces a clojure-only rejection via a message (#2198)"
+    (spy-on 'message)
+    (puthash "1" #'ignore nrepl-pending-requests)
+    (nrepl--dispatch-response '(dict "id" "1"
+                                     "status" ("done" "clojure-only")
+                                     "err" "nope\n"))
+    (expect 'message :to-have-been-called-with "%s" "nope")))
+
+(describe "nrepl--clojure-only-error"
+  (it "returns the trimmed server message for a clojure-only response"
+    (expect (nrepl--clojure-only-error
+             '(dict "status" ("done" "clojure-only")
+                    "err" "The \"cider/apropos\" op is Clojure-only.\n"))
+            :to-equal "The \"cider/apropos\" op is Clojure-only."))
+  (it "falls back to a generic message when no err is supplied"
+    (expect (nrepl--clojure-only-error '(dict "status" ("done" "clojure-only")))
+            :to-equal "This operation isn't available in a ClojureScript REPL."))
+  (it "returns nil for an ordinary response"
+    (expect (nrepl--clojure-only-error '(dict "status" ("done") "value" "42"))
+            :to-be nil)))
 
 (describe "nrepl--mark-id-completed cap"
   :var (nrepl-pending-requests nrepl-completed-requests
