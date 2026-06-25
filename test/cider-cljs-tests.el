@@ -145,6 +145,31 @@
                 :to-equal
                 "(do (require '[shadow.cljs.devtools.api :as shadow]) (shadow/watch :client-build) (shadow/watch :other-build) (shadow/nrepl-select :client-build))")))))
 
+(describe "cider--cljs-repl-type-entry"
+  (it "returns the entry for a known repl type"
+    (expect (car (cider--cljs-repl-type-entry 'node)) :to-be 'node))
+  (it "returns nil for an unknown repl type"
+    (expect (cider--cljs-repl-type-entry 'no-such-repl) :to-be nil)))
+
+(describe "cider-cljs-repl-form"
+  (it "returns the init form string for a repl type"
+    (expect (cider-cljs-repl-form 'browser)
+            :to-equal "(do (require 'cljs.repl.browser) (cider.piggieback/cljs-repl (cljs.repl.browser/repl-env)))"))
+  (it "returns nil for a native repl type with no form (e.g. nbb)"
+    (expect (cider-cljs-repl-form 'nbb) :to-be nil))
+  (it "errors for an unknown repl type"
+    (expect (cider-cljs-repl-form 'no-such-repl) :to-throw 'user-error)))
+
+(describe "cider-register-cljs-repl-type"
+  (it "rejects a non-symbol type"
+    (expect (cider-register-cljs-repl-type "node") :to-throw 'user-error))
+  (it "rejects an init form that is neither a string, symbol nor nil"
+    (expect (cider-register-cljs-repl-type 'my-repl 42) :to-throw 'user-error))
+  (it "registers a new repl type usable by cider-cljs-repl-form"
+    (let ((cider-cljs-repl-types (copy-sequence cider-cljs-repl-types)))
+      (cider-register-cljs-repl-type 'my-repl "(my-form)")
+      (expect (cider-cljs-repl-form 'my-repl) :to-equal "(my-form)"))))
+
 (provide 'cider-cljs-tests)
 
 ;;; cider-cljs-tests.el ends here
