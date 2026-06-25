@@ -68,22 +68,19 @@
 (require 'nrepl-dict)
 (require 'cider-util)
 
-(defvar cider-repl-ns-cache)
-
 (defun cider-resolve--get-in (&rest keys)
-  "Return (nrepl-dict-get-in cider-repl-ns-cache KEYS)."
-  (when-let* ((conn (cider-current-repl)))
-    (with-current-buffer conn
-      (nrepl-dict-get-in cider-repl-ns-cache keys))))
+  "Return the track-state cache value at KEYS for the current connection."
+  (when-let* ((cache (cider-ns-load-cache)))
+    (nrepl-dict-get-in cache keys)))
 
 (defun cider-resolve--ns-cache ()
-  "Return the current connection's `cider-repl-ns-cache' dict, or nil.
-Resolving the connection is comparatively expensive when called from a
-source buffer (the indentation path does this), so callers performing
-several lookups should bind this once and reuse it rather than going
-through `cider-resolve--get-in' repeatedly."
-  (when-let* ((conn (cider-current-repl)))
-    (buffer-local-value 'cider-repl-ns-cache conn)))
+  "Return the current connection's track-state namespace cache dict, or nil.
+Thin wrapper over `cider-ns-load-cache'.  Resolving the connection is
+comparatively expensive when called from a source buffer (the indentation
+path does this), so callers performing several lookups should bind this
+once and reuse it rather than going through `cider-resolve--get-in'
+repeatedly."
+  (cider-ns-load-cache))
 
 (defun cider-resolve-alias (ns alias)
   "Return the namespace that ALIAS refers to in namespace NS.
@@ -125,7 +122,7 @@ This will be clojure.core or cljs.core depending on the return value of the
 function `cider-repl-type'."
   (when-let* ((repl (cider-current-repl)))
     (with-current-buffer repl
-      (nrepl-dict-get-in cider-repl-ns-cache
+      (nrepl-dict-get-in (cider-ns-load-cache repl)
                          (list (if (eq cider-repl-type 'cljs)
                                    "cljs.core"
                                  "clojure.core"))))))

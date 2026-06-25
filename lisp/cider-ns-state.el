@@ -41,8 +41,6 @@
 (require 'cider-eval)
 (require 'nrepl-dict)
 
-(defvar cider-repl-ns-cache) ; defined in cider-repl.el, populated by track-state
-
 (defcustom cider-ns-load-state-display '(mode-line)
   "Where to surface the current buffer's namespace load-state.
 A list of presentations to enable (an empty list disables the indicator):
@@ -151,14 +149,15 @@ staleness is surfaced separately, by the evaluation fringe indicators."
 
 (defun cider-ns-state--refresh (&optional buffer)
   "Refresh the cached namespace load-state for BUFFER from track-state.
-BUFFER defaults to the current buffer.  Reads `cider-repl-ns-cache', which the
-track-state middleware keeps up to date, so it issues no request of its own.
-An empty cache means \"not yet reported\" (left unknown), not \"nothing
-loaded\".  Does nothing without a connection or a namespace."
+BUFFER defaults to the current buffer.  Reads the track-state namespace cache
+via `cider-ns-load-cache', which the middleware keeps up to date, so it issues
+no request of its own.  An empty cache means \"not yet reported\" (left
+unknown), not \"nothing loaded\".  Does nothing without a connection or a
+namespace."
   (with-current-buffer (or buffer (current-buffer))
     (when-let* ((repl (and (cider-connected-p) (cider-current-repl)))
                 (ns (cider-current-ns 'no-default))
-                (cache (buffer-local-value 'cider-repl-ns-cache repl)))
+                (cache (cider-ns-load-cache repl)))
       (unless (nrepl-dict-empty-p cache)
         (setq-local cider-ns-state--loaded
                     (if (nrepl-dict-get cache ns) t 'not-loaded))
