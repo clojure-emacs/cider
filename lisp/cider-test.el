@@ -779,7 +779,9 @@ running them."
              (cider-test--prompt-for-selectors
               "Test selectors to exclude (space separated): ")
            cider-test-default-exclude-selectors)))
-    (cider-map-repls :clj-strict
+    ;; ClojureScript tests run too, via cider-nrepl's cljs.test support
+    ;; (clojure-emacs/cider#555); cljc files dispatch to both REPLs.
+    (cider-map-repls :auto
       (lambda (conn)
         (unless silent
           (if (and tests (= (length tests) 1))
