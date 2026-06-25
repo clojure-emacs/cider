@@ -279,6 +279,44 @@
     (:newline)
     "  " "class"))
 
+(describe "cider--type-tag-at-point"
+  (it "returns the class name when point is on a type tag"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(defn f [^String x] x)")
+      (goto-char (point-min))
+      (search-forward "String")
+      (backward-char 1)
+      (expect (cider--type-tag-at-point) :to-equal "String")))
+  (it "returns nil for an ordinary symbol that isn't a type tag"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(defn f [^String x] x)")
+      (goto-char (point-max))
+      (search-backward "x")
+      (expect (cider--type-tag-at-point) :to-be nil))))
+
+(describe "cider-inspect-last-sexp"
+  (it "inspects the tagged class when point is on a type tag (#3679)"
+    (spy-on 'cider-inspect-expr)
+    (spy-on 'cider-current-ns :and-return-value "user")
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(defn f [^String x] x)")
+      (goto-char (point-min))
+      (search-forward "String")
+      (backward-char 1)
+      (cider-inspect-last-sexp)
+      (expect 'cider-inspect-expr :to-have-been-called-with "String" "user")))
+  (it "falls back to the preceding sexp otherwise"
+    (spy-on 'cider-inspect-expr)
+    (spy-on 'cider-current-ns :and-return-value "user")
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(+ 1 2)")
+      (cider-inspect-last-sexp)
+      (expect 'cider-inspect-expr :to-have-been-called-with "(+ 1 2)" "user"))))
+
 (describe "cider-inspector-render*"
   (it "Produces a well-known string without errors"
     (expect
