@@ -5,6 +5,7 @@
 ### New features
 
 - [#4023](https://github.com/clojure-emacs/cider/pull/4023): `cider-auto-inspect-after-eval` now accepts `interactive`, `repl` or `all` (in addition to `t`/`nil`), so a visible inspector can also be refreshed after REPL evaluations ([#3636](https://github.com/clojure-emacs/cider/issues/3636)).
+- [#4025](https://github.com/clojure-emacs/cider/pull/4025): Mark each `deftest` with a green (passed) or red (failed) left-fringe indicator after a test run. `cider-use-fringe-indicators` now accepts a list of kinds (`eval`, `test`) for finer control, in addition to `t`/`nil` ([#3721](https://github.com/clojure-emacs/cider/issues/3721)).
 - [#4004](https://github.com/clojure-emacs/cider/pull/4004): Add `cider-browse-spec-tree`, which browses a spec and the specs it references as an expandable tree - expand a node to reveal its sub-specs (a level at a time), `RET` to open a spec's full definition.
 - [#3999](https://github.com/clojure-emacs/cider/pull/3999): Add `cider-type-protocols` (`C-c C-w t`), listing the protocols a type implements (the reverse of `cider-who-implements`), and `cider-protocols-with-method` (`C-c C-w p`), listing the protocols that declare a given method.
 - [#3997](https://github.com/clojure-emacs/cider/pull/3997): Add `cider-who-implements` (`C-c C-w i`), which browses a protocol's implementing types or a multimethod's dispatch values on an expandable tree. (Currently a client-side approximation; inline `defrecord`/`deftype` impls and per-`defmethod` jumps await a follow-up middleware op.)

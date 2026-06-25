@@ -277,6 +277,7 @@ Beyond the result overlays, CIDER can show, at a glance, which code is in sync
 with the REPL.  These indicators are kept up to date as you evaluate and reload
 code, including via kbd:[C-c C-k], `cider-ns-reload` and `cider-ns-refresh`.
 
+[#per-form-fringe-indicators]
 ==== Per-form fringe indicators
 
 When you evaluate a top-level form, CIDER places a small green marker in the
@@ -290,6 +291,17 @@ This is on by default.  To turn the indicators off entirely:
 [source,lisp]
 ----
 (setq cider-use-fringe-indicators nil)
+----
+
+`cider-use-fringe-indicators` also accepts a list of the indicator kinds to
+show, so you can enable some but not others.  The recognized kinds are `eval`
+(the per-form evaluation markers described here) and `test` (the
+xref:testing/running_tests.adoc#test-fringe-indicators[test pass/fail markers]).
+For example, to keep only the evaluation markers:
+
+[source,lisp]
+----
+(setq cider-use-fringe-indicators '(eval))
 ----
 
 To keep the indicators but restore the older behavior, where editing an

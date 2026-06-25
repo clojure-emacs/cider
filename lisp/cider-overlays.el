@@ -169,12 +169,44 @@ This function also removes itself from `post-command-hook'."
   (propertize " " 'display '(left-fringe empty-line cider-fringe-stale-face))
   "The before-string property that adds a stale indicator on the fringe.")
 
-(defcustom cider-use-fringe-indicators t
-  "Whether to display evaluation indicators on the left fringe."
-  :safe #'booleanp
+(defface cider-fringe-bad-face
+  '((((class color) (background light)) :foreground "red3")
+    (((class color) (background dark)) :foreground "red1"))
+  "Face used on the fringe indicator for a failing test."
   :group 'cider
-  :type 'boolean
+  :package-version '(cider . "1.23.0"))
+
+(defconst cider--fringe-overlay-bad
+  (propertize " " 'display '(left-fringe empty-line cider-fringe-bad-face))
+  "The before-string property that adds a red indicator on the fringe.")
+
+(defcustom cider-use-fringe-indicators t
+  "Whether to display indicators on the left fringe.
+The value selects which kinds of indicators are shown:
+  t      - all kinds (the default);
+  nil    - none;
+  a list - only the listed kinds, e.g. (eval) or (eval test).
+
+Recognized kinds:
+  `eval' - a marker on each evaluated top-level form;
+  `test' - a green/red marker on each `deftest' after a test run."
+  :safe (lambda (x) (or (booleanp x)
+                        (and (listp x) (seq-every-p #'symbolp x))))
+  :group 'cider
+  :type '(choice (const :tag "All kinds" t)
+                 (const :tag "None" nil)
+                 (set :tag "Selected kinds"
+                      (const :tag "Evaluated forms" eval)
+                      (const :tag "Test results" test)))
   :package-version '(cider . "0.13.0"))
+
+(defun cider--use-fringe-indicators-p (kind)
+  "Return non-nil when fringe indicators are enabled for KIND.
+KIND is `eval' or `test'.  See `cider-use-fringe-indicators'."
+  (cond ((null cider-use-fringe-indicators) nil)
+        ((listp cider-use-fringe-indicators)
+         (memq kind cider-use-fringe-indicators))
+        (t t)))
 
 (defcustom cider-mark-stale-after-edit t
   "Whether editing an evaluated form marks its fringe indicator stale.
@@ -199,7 +231,7 @@ is re-evaluated."
 (defun cider--make-fringe-overlay (&optional end)
   "Place an eval indicator at the fringe before a sexp.
 END is the position where the sexp ends, and defaults to point."
-  (when cider-use-fringe-indicators
+  (when (cider--use-fringe-indicators-p 'eval)
     (with-current-buffer (if (markerp end)
                              (marker-buffer end)
                            (current-buffer))

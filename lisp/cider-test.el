@@ -650,17 +650,49 @@ Or nil if not found."
               (file (nrepl-dict-get info "file")))
     (cider-find-file file)))
 
+(defun cider-test--var-passed-p (tests)
+  "Return non-nil when every assertion in TESTS has passed."
+  (seq-every-p (lambda (test)
+                 (equal "pass" (nrepl-dict-get test "type")))
+               tests))
+
+(defun cider-test--add-fringe-indicator (buffer line passed)
+  "Put a pass/fail test fringe indicator on the form at LINE in BUFFER.
+PASSED selects the green (success) or red (failure) marker.  Does nothing
+when LINE is nil."
+  (when line
+    (with-current-buffer buffer
+      (save-excursion
+        (goto-char (point-min))
+        (forward-line (1- line))
+        (cider--make-overlay (line-beginning-position) (line-end-position)
+                             'cider-test-fringe-indicator
+                             'before-string (if passed
+                                                cider--fringe-overlay-good
+                                              cider--fringe-overlay-bad))))))
+
 (defun cider-test-highlight-problems (results)
-  "Highlight all non-passing tests in the test RESULTS."
+  "Highlight all non-passing tests in the test RESULTS.
+When `cider-use-fringe-indicators' enables them for tests, also mark every
+tested var with a green (all passed) or red (any failure) fringe indicator."
   (nrepl-dict-map
    (lambda (ns vars)
      (nrepl-dict-map
       (lambda (var tests)
-        (when-let* ((buffer (cider-find-var-file ns var)))
+        ;; Resolve the var once: `cider-find-var-file' would re-query, but we
+        ;; also need the definition line for the fringe indicator.
+        (when-let* ((info (cider-var-info (concat ns "/" var)))
+                    (file (nrepl-dict-get info "file"))
+                    (buffer (cider-find-file file)))
           (dolist (test tests)
             (nrepl-dbind-response test (type)
               (unless (equal "pass" type)
-                (cider-test-highlight-problem buffer test))))))
+                (cider-test-highlight-problem buffer test))))
+          (when (cider--use-fringe-indicators-p 'test)
+            (cider-test--add-fringe-indicator
+             buffer
+             (nrepl-dict-get info "line")
+             (cider-test--var-passed-p tests)))))
       vars))
    results))
 
@@ -673,7 +705,8 @@ Or nil if not found."
        (dolist (var (nrepl-dict-keys vars))
          (when-let* ((buffer (cider-find-var-file ns var)))
            (with-current-buffer buffer
-             (remove-overlays nil nil 'category 'cider-test)))))
+             (remove-overlays nil nil 'category 'cider-test)
+             (remove-overlays nil nil 'category 'cider-test-fringe-indicator)))))
      cider-test-last-results)))
 
 

@@ -132,3 +132,33 @@
             :to-equal "{:a 1}")
     (expect (cider-test--extract-from-actual "(not (= {:a 1} {:a 2}))" 2)
             :to-equal "{:a 2}")))
+
+(describe "cider-test--var-passed-p"
+  (it "is true only when every assertion passed"
+    (expect (cider-test--var-passed-p (list (nrepl-dict "type" "pass")
+                                            (nrepl-dict "type" "pass")))
+            :to-be-truthy)
+    (expect (cider-test--var-passed-p (list (nrepl-dict "type" "pass")
+                                            (nrepl-dict "type" "fail")))
+            :not :to-be-truthy)
+    (expect (cider-test--var-passed-p (list (nrepl-dict "type" "error")))
+            :not :to-be-truthy)))
+
+(describe "cider-test--add-fringe-indicator (#3721)"
+  (it "uses the success fringe for a passing var and the failure fringe for a failing one"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(deftest foo (is true))\n(deftest bar (is false))\n")
+      (cider-test--add-fringe-indicator (current-buffer) 1 t)
+      (cider-test--add-fringe-indicator (current-buffer) 2 nil)
+      (goto-char (point-min))
+      (expect (overlay-get (car (overlays-at (line-beginning-position))) 'before-string)
+              :to-equal cider--fringe-overlay-good)
+      (forward-line 1)
+      (expect (overlay-get (car (overlays-at (line-beginning-position))) 'before-string)
+              :to-equal cider--fringe-overlay-bad)))
+  (it "does nothing when the line is nil"
+    (with-temp-buffer
+      (insert "x")
+      (cider-test--add-fringe-indicator (current-buffer) nil t)
+      (expect (overlays-in (point-min) (point-max)) :to-be nil))))
