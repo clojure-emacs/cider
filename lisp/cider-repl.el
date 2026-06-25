@@ -912,6 +912,14 @@ Before inserting, run `cider-repl-preoutput-hook' on STRING."
                                  'font-lock-face face
                                  'rear-nonsticky '(font-lock-face)))
         (setq string (cider-run-chained-hook 'cider-repl-preoutput-hook string))
+        ;; #3102: give output punctuation syntax so unbalanced parens, brackets
+        ;; or quotes in it don't break sexp navigation or paredit in the REPL.
+        ;; Applied after the preoutput hooks (e.g. ANSI coloring) so it survives
+        ;; on the final string.  Relies on `parse-sexp-lookup-properties', set
+        ;; in `cider-repl-mode'.
+        (add-text-properties 0 (length string)
+                             '(syntax-table (1) rear-nonsticky (font-lock-face syntax-table))
+                             string)
         (insert-before-markers string))
       (when (and (= (point) cider-repl-prompt-start-mark)
                  (not (bolp)))
@@ -2294,6 +2302,9 @@ in an unexpected place."
   (setq-local font-lock-unfontify-region-function
               (cider-repl-wrap-fontify-function font-lock-unfontify-region-function))
   (set-syntax-table cider-repl-mode-syntax-table)
+  ;; #3102: honor the `syntax-table' text property that `cider-repl--emit-output'
+  ;; puts on output, so unbalanced parens in output don't break sexp commands.
+  (setq-local parse-sexp-lookup-properties t)
   (cider-eldoc-setup)
   ;; At the REPL, we define beginning-of-defun and end-of-defun to be
   ;; the start of the previous prompt or next prompt respectively.
