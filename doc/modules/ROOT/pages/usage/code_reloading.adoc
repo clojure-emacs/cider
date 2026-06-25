@@ -76,6 +76,11 @@ the echo area.
 (setq cider-ns-refresh-show-log-buffer t)
 ----
 
+From within the `+*cider-ns-refresh-log*+` buffer you can re-run the
+refresh without leaving it: kbd:[r], kbd:[g] or kbd:[C-c M-n r] all
+invoke `cider-ns-refresh` again (there's also a `Refresh Log` menu with
+the same actions).
+
 By default, CIDER will prompt for whether to save all modified `clojure-mode`
 buffers visiting files on the classpath. You can customize this behavior with
 `cider-ns-save-files-on-refresh` and `cider-ns-save-files-on-refresh-modes`.
