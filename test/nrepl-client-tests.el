@@ -436,3 +436,37 @@
              (with-current-buffer nrepl-error-buffer
                (message ":nrepl-lifecycle/error %s" (buffer-string))))
            (error error-details))))))
+
+(describe "nrepl-make-response-handler legacy shim"
+  ;; Makes sure the obsolete shim still consults the global handler hooks
+  ;; and emits the legacy status messages, so extension code that targeted
+  ;; the old API sees no behavior change.
+  :var (nrepl-namespace-handler-function
+        nrepl-err-handler-function
+        nrepl-need-input-handler-function
+        nrepl-pending-requests
+        nrepl-completed-requests)
+  (before-each
+    (setq nrepl-namespace-handler-function nil
+          nrepl-err-handler-function nil
+          nrepl-need-input-handler-function nil
+          nrepl-pending-requests (make-hash-table :test 'equal)
+          nrepl-completed-requests (make-hash-table :test 'equal)))
+
+  (it "still consults nrepl-namespace-handler-function for ns updates"
+    (let (seen-buffer seen-ns)
+      (setq nrepl-namespace-handler-function
+            (lambda (b ns) (setq seen-buffer b seen-ns ns)))
+      (with-suppressed-warnings ((obsolete nrepl-make-response-handler))
+        (funcall (nrepl-make-response-handler 'shim-buf nil nil nil nil)
+                 '(dict "id" "1" "value" "42" "ns" "user")))
+      (expect seen-buffer :to-be 'shim-buf)
+      (expect seen-ns :to-equal "user")))
+
+  (it "still falls back to nrepl-err-handler-function on eval-error"
+    (let (seen)
+      (setq nrepl-err-handler-function (lambda (b) (setq seen b)))
+      (with-suppressed-warnings ((obsolete nrepl-make-response-handler))
+        (funcall (nrepl-make-response-handler 'shim-buf nil nil nil nil)
+                 '(dict "id" "1" "status" ("eval-error"))))
+      (expect seen :to-be 'shim-buf))))

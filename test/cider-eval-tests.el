@@ -263,3 +263,47 @@
   (it "returns empty string when not inside a let"
     (with-clojure-buffer "(defn foo [] |)"
       (expect (cider--guess-eval-context) :to-equal ""))))
+
+(describe "cider-make-eval-handler"
+  :var (nrepl-pending-requests nrepl-completed-requests)
+  (before-each
+    (setq nrepl-pending-requests (make-hash-table :test 'equal)
+          nrepl-completed-requests (make-hash-table :test 'equal))
+    ;; ns tracking calls into cider--update-buffer-ns; stub it so we don't
+    ;; depend on the real connection-side behavior here.
+    (spy-on 'cider--update-buffer-ns))
+
+  (it "tracks ns by delegating to cider--update-buffer-ns"
+    (let ((handler (cider-make-eval-handler :buffer 'sentinel-buf)))
+      (funcall handler '(dict "id" "1" "value" "42" "ns" "user")))
+    (expect 'cider--update-buffer-ns :to-have-been-called-with 'sentinel-buf "user"))
+
+  (it "defaults :on-eval-error to cider-default-err-handler"
+    (spy-on 'cider-default-err-handler)
+    (let ((handler (cider-make-eval-handler :buffer 'sentinel-buf)))
+      (funcall handler '(dict "id" "1" "status" ("eval-error"))))
+    (expect 'cider-default-err-handler :to-have-been-called-with 'sentinel-buf))
+
+  (it "honors a user-supplied :on-eval-error over the default"
+    (spy-on 'cider-default-err-handler)
+    (let ((custom-called nil))
+      (let ((handler (cider-make-eval-handler
+                      :buffer 'sentinel-buf
+                      :on-eval-error (lambda () (setq custom-called t)))))
+        (funcall handler '(dict "id" "1" "status" ("eval-error"))))
+      (expect custom-called :to-be t)
+      (expect 'cider-default-err-handler :not :to-have-been-called)))
+
+  (it "prompts via cider-need-input on need-input status"
+    (spy-on 'cider-need-input)
+    (let ((handler (cider-make-eval-handler :buffer 'sentinel-buf)))
+      (funcall handler '(dict "id" "1" "status" ("need-input"))))
+    (expect 'cider-need-input :to-have-been-called-with 'sentinel-buf))
+
+  (it "prints a message on namespace-not-found status, with the ns name"
+    (spy-on 'message)
+    (let ((handler (cider-make-eval-handler :buffer 'sentinel-buf)))
+      (funcall handler '(dict "id" "1"
+                              "status" ("namespace-not-found")
+                              "ns" "missing.ns")))
+    (expect 'message :to-have-been-called-with "Namespace `%s' not found." "missing.ns")))
