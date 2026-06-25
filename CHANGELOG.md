@@ -40,6 +40,7 @@
 
 ### Changes
 
+- [#4026](https://github.com/clojure-emacs/cider/pull/4026): Show a clear message when a Clojure-only operation (apropos, xref, trace, profile, refresh, reload, undef, spec) is invoked under a ClojureScript REPL, instead of failing confusingly or returning JVM-only results (requires a recent enough `cider-nrepl`) ([#2198](https://github.com/clojure-emacs/cider/issues/2198)).
 - [#4022](https://github.com/clojure-emacs/cider/pull/4022): `cider-inspect-last-sexp` now inspects the tagged class when point is on a type tag (e.g. `^String`), instead of the form the tag applies to ([#3679](https://github.com/clojure-emacs/cider/issues/3679)).
 - [#4024](https://github.com/clojure-emacs/cider/pull/4024): The `*cider-ns-refresh-log*` buffer now supports `r`/`g`/`C-c M-n r` to re-run the refresh from within it ([#2798](https://github.com/clojure-emacs/cider/issues/2798)).
 - [#4005](https://github.com/clojure-emacs/cider/pull/4005): Render the namespace browser (`cider-browse-ns`) on the `cider-tree-view` widget: groups (by type or visibility) are now foldable with `TAB`, and `n`/`p` move between entries.
