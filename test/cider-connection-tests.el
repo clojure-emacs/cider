@@ -32,6 +32,8 @@
 (require 'sesman)
 (require 'cider-connection)
 (require 'cider-connection-test-utils "test/utils/cider-connection-test-utils")
+;; the `sesman' specs drive a mock nREPL server via these helpers
+(require 'nrepl-tests-utils "test/utils/nrepl-tests-utils")
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
@@ -633,3 +635,34 @@
         (setq cider-default-session nil)
         (expect (cider--connection-info (current-buffer))
                 :to-equal "CLJ proj@localhost:4005 (Java 1.7, Clojure 1.7.0, nREPL 0.2.1)")))))
+
+(describe "sesman"
+  (it "can restart session"
+    (with-temp-buffer
+      (let* ((server-process (nrepl-start-mock-server-process))
+             (server-buffer (process-buffer server-process)))
+        ;; wait for the connection to be established
+        (nrepl-tests-poll-until (local-variable-p 'nrepl-endpoint server-buffer) 5)
+        (let ((client-buffer (cider-connect-sibling-clj
+                              `(:repl-buffer ,(current-buffer))
+                              server-buffer))
+              (endpoint-bef)
+              (endpoint-aft))
+          (expect (buffer-local-value 'cider-repl-type client-buffer)
+                  :to-equal 'clj)
+
+          (with-current-buffer (cider-current-repl)
+            (setq endpoint-bef nrepl-endpoint))
+
+          (sesman-restart)
+          ;; wait until a new server is brought up by continuously checking that
+          ;; the port has changed. If it remains the same, an exception is
+          ;; thrown, causing the test to fail.
+          (nrepl-tests-poll-until (when-let ((repl (cider-current-repl)))
+                                    (with-current-buffer repl
+                                      (setq endpoint-aft nrepl-endpoint)
+                                      ;; (message ":endpoints %S %S" endpoint-bef endpoint-aft)
+                                      (not (= (plist-get endpoint-bef :port) (plist-get endpoint-aft :port)))))
+                                  5)
+          ;; kill server
+          (delete-process (get-buffer-process client-buffer)))))))
