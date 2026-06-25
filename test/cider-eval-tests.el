@@ -41,6 +41,25 @@
         (expect 'cider-emit-interactive-eval-output
                 :to-have-been-called-with "Elapsed time: 0.042 msecs\n")))))
 
+(describe "cider--auto-inspect-after-eval-p"
+  (it "treats t and `interactive' as interactive-only (back-compat)"
+    (dolist (val '(t interactive))
+      (let ((cider-auto-inspect-after-eval val))
+        (expect (cider--auto-inspect-after-eval-p 'interactive) :to-be-truthy)
+        (expect (cider--auto-inspect-after-eval-p 'repl) :not :to-be-truthy))))
+  (it "treats `repl' as repl-only"
+    (let ((cider-auto-inspect-after-eval 'repl))
+      (expect (cider--auto-inspect-after-eval-p 'repl) :to-be-truthy)
+      (expect (cider--auto-inspect-after-eval-p 'interactive) :not :to-be-truthy)))
+  (it "treats `all' as both contexts"
+    (let ((cider-auto-inspect-after-eval 'all))
+      (expect (cider--auto-inspect-after-eval-p 'interactive) :to-be-truthy)
+      (expect (cider--auto-inspect-after-eval-p 'repl) :to-be-truthy)))
+  (it "treats nil as never"
+    (let ((cider-auto-inspect-after-eval nil))
+      (expect (cider--auto-inspect-after-eval-p 'interactive) :not :to-be-truthy)
+      (expect (cider--auto-inspect-after-eval-p 'repl) :not :to-be-truthy))))
+
 (describe "cider--comment-format"
   (it "returns the configured prefixes for the `line' style"
     (let ((cider-comment-style 'line)

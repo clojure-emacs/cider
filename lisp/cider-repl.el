@@ -53,7 +53,9 @@
 (require 'cider-resolve)
 
 (declare-function cider-inspect "cider-inspector")
+(declare-function cider-inspect-last-result "cider-inspector")
 (declare-function cider-make-eval-handler "cider-eval")
+(declare-function cider--auto-inspect-after-eval-p "cider-eval")
 (declare-function cider-quit "cider-connection")
 (declare-function cider-restart "cider-connection")
 (declare-function cider-describe-connection "cider-connection")
@@ -1166,6 +1168,20 @@ and responding to them.")
 (defvar cider--repl-done-functions (list #'cider--shadow-cljs-handle-done)
   "Functions to be invoked each time a given REPL interaction is complete.")
 
+(defvar cider-inspector-buffer)
+
+(defun cider-repl--auto-inspect-last-result (buffer)
+  "Refresh the inspector with the last REPL value when configured.
+Acts only when `cider-auto-inspect-after-eval' enables it for REPL evals
+and the inspector buffer is currently visible, and keeps focus on the
+REPL BUFFER rather than popping to the inspector (#3636)."
+  (when (and (cider--auto-inspect-after-eval-p 'repl)
+             (boundp 'cider-inspector-buffer)
+             (windowp (get-buffer-window cider-inspector-buffer 'visible)))
+    (cider-inspect-last-result)
+    (when-let* ((win (get-buffer-window buffer)))
+      (select-window win))))
+
 (defun cider-repl-handler (buffer)
   "Make an nREPL evaluation handler for the REPL BUFFER."
   (let ((show-prompt t))
@@ -1186,6 +1202,7 @@ and responding to them.")
                   (cider-repl-emit-prompt buffer))
                 (when cider-repl-buffer-size-limit
                   (cider-repl-maybe-trim-buffer buffer))
+                (cider-repl--auto-inspect-last-result buffer)
                 (dolist (f cider--repl-done-functions)
                   (funcall f buffer)))
      :on-content-type (lambda (value content-type)

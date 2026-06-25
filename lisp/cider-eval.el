@@ -87,10 +87,29 @@ ns forms manually themselves."
 
 (defcustom cider-auto-inspect-after-eval t
   "Controls whether to auto-update the inspector buffer after eval.
-Only applies when the *cider-inspect* buffer is currently visible."
-  :type 'boolean
+Only applies when the *cider-inspect* buffer is currently visible.
+
+The value selects which evaluations trigger the refresh:
+  t or `interactive' - only interactive evaluations (the default);
+  `repl'             - only REPL evaluations;
+  `all'              - both interactive and REPL evaluations;
+  nil                - never."
+  :type '(choice (const :tag "Interactive evaluations (default)" t)
+                 (const :tag "Interactive evaluations" interactive)
+                 (const :tag "REPL evaluations" repl)
+                 (const :tag "All evaluations" all)
+                 (const :tag "Never" nil))
   :group 'cider
   :package-version '(cider . "0.25.0"))
+
+(defun cider--auto-inspect-after-eval-p (context)
+  "Return non-nil when the inspector should refresh after a CONTEXT eval.
+CONTEXT is `interactive' or `repl'.  See `cider-auto-inspect-after-eval'."
+  (pcase cider-auto-inspect-after-eval
+    ('all t)
+    ('repl (eq context 'repl))
+    ((or 't 'interactive) (eq context 'interactive))
+    (_ nil)))
 
 (defcustom cider-save-file-on-load 'prompt
   "Controls whether to prompt to save the file when loading a buffer.
@@ -348,7 +367,7 @@ when `cider-auto-inspect-after-eval' is non-nil."
                       (setq fringed t))
                   (cider--make-fringe-overlay end))
                 (let ((target (or buffer eval-buffer)))
-                  (when (and cider-auto-inspect-after-eval
+                  (when (and (cider--auto-inspect-after-eval-p 'interactive)
                              (boundp 'cider-inspector-buffer)
                              (windowp (get-buffer-window cider-inspector-buffer 'visible)))
                     (cider-inspect-last-result)

@@ -198,6 +198,23 @@
                 :to-equal (text-property-make "green3" italic))
         ))))
 
+(describe "cider-repl--auto-inspect-last-result (#3636)"
+  (it "refreshes the inspector after a repl eval when enabled and visible"
+    (spy-on 'cider-inspect-last-result)
+    (spy-on 'get-buffer-window :and-return-value (selected-window))
+    (spy-on 'select-window)
+    (let ((cider-auto-inspect-after-eval 'repl)
+          (cider-inspector-buffer (current-buffer)))
+      (cider-repl--auto-inspect-last-result (current-buffer))
+      (expect 'cider-inspect-last-result :to-have-been-called)))
+  (it "does nothing when repl auto-inspect isn't enabled"
+    (spy-on 'cider-inspect-last-result)
+    (spy-on 'get-buffer-window :and-return-value (selected-window))
+    (let ((cider-auto-inspect-after-eval t) ; interactive only
+          (cider-inspector-buffer (current-buffer)))
+      (cider-repl--auto-inspect-last-result (current-buffer))
+      (expect 'cider-inspect-last-result :not :to-have-been-called))))
+
 (defun simulate-cider-output (s property)
   "Return S's properties from `cider-repl--emit-output'.
 PROPERTY should be a symbol of either 'text, 'ansi-context or
