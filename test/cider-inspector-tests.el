@@ -371,3 +371,68 @@
 
 --- Path:
   class")))
+
+(describe "cider-inspector-render-el*"
+  (it "renders a symbol as its name"
+    (expect (with-temp-buffer (cider-inspector-render-el* 'foo) (buffer-string))
+            :to-equal "foo"))
+  (it "renders a :newline element as a newline"
+    (expect (with-temp-buffer (cider-inspector-render-el* '(:newline)) (buffer-string))
+            :to-equal "\n"))
+  (it "strips the <non-inspectable value> marker out of strings"
+    (expect (with-temp-buffer
+              (cider-inspector-render-el* "a <non-inspectable value> b")
+              (substring-no-properties (buffer-string)))
+            :to-equal "a  b"))
+  (it "renders a :value element with its index as a text property"
+    (expect (with-temp-buffer
+              (cider-inspector-render-el* '(:value "42" 7))
+              (get-text-property (point-min) 'cider-value-idx))
+            :to-equal 7)))
+
+(describe "cider-inspector-render-value"
+  (it "tags the rendered value with its cider-value-idx"
+    (expect (with-temp-buffer
+              (cider-inspector-render-value "42" 7)
+              (get-text-property (point-min) 'cider-value-idx))
+            :to-equal 7)))
+
+(describe "cider-inspector-property-at-point"
+  (it "returns the inspectable property under point"
+    (expect (with-temp-buffer
+              (insert "xx")
+              (put-text-property 1 3 'cider-value-idx 5)
+              (goto-char 1)
+              (cider-inspector-property-at-point))
+            :to-equal '(cider-value-idx 5)))
+  (it "looks one character back when point is just past the property"
+    (expect (with-temp-buffer
+              (insert "xy")
+              (put-text-property 1 2 'cider-action-number 9)
+              (goto-char 2)
+              (cider-inspector-property-at-point))
+            :to-equal '(cider-action-number 9)))
+  (it "returns nil when there is no inspectable property nearby"
+    (expect (with-temp-buffer
+              (insert "plain")
+              (goto-char (point-max))
+              (cider-inspector-property-at-point))
+            :to-be nil)))
+
+(describe "cider-find-inspectable-object"
+  (it "returns the position and t when an object is found forward"
+    (expect (with-temp-buffer
+              (insert "abcde")
+              (put-text-property 3 4 'cider-value-idx 1)
+              (goto-char (point-min))
+              (cider-find-inspectable-object 'next (point-max)))
+            :to-equal '(3 t)))
+  (it "returns the limit and nil when nothing is found"
+    (expect (with-temp-buffer
+              (insert "abc")
+              (goto-char (point-min))
+              (cider-find-inspectable-object 'next (point-max)))
+            :to-equal '(4 nil)))
+  (it "errors on an invalid direction"
+    (expect (with-temp-buffer (cider-find-inspectable-object 'sideways (point-max)))
+            :to-throw 'error)))
