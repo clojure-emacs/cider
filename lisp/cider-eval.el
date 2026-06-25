@@ -572,6 +572,12 @@ arguments and only proceed with evaluation if it returns nil."
                    (wrong-number-of-arguments
                     ;; fallback for backward compatibility
                     (funcall cider-interactive-eval-override form callback bounds))))
+      ;; #3028: `cider-map-repls' with `:auto' is intentionally lenient (it
+      ;; doesn't error when there's no matching REPL, so multi-file loads
+      ;; can skip missing REPL types).  That made every `cider-eval-*'
+      ;; command fail silently with no connection at all, so guard the
+      ;; dispatch with an explicit connection check.
+      (cider-ensure-connected)
       (cider-map-repls :auto
         (lambda (connection)
           (cider--prep-interactive-eval form connection)

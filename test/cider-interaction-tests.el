@@ -100,6 +100,11 @@
 (describe "cider-interactive-eval"
   (it "works as expected in empty Clojure buffers"
     (spy-on 'cider-nrepl-send-eval-request :and-return-value nil)
+    ;; This exercises the eval dispatch with a connection present; the
+    ;; no-connection path is covered in cider-eval-tests.el.  Stub the
+    ;; connection check so the test doesn't depend on resolving the session
+    ;; from an unlinked temp buffer (which is platform-dependent).
+    (spy-on 'cider-ensure-connected)
     (let ((default-directory "/tmp/a-dir"))
       (with-repl-buffer "interaction-session" 'clj _b
         (with-temp-buffer
