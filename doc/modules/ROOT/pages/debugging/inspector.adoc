@@ -17,7 +17,9 @@ Alternatively, after a regular eval command, you can inspect the last
 evaluated value using `cider-inspect-last-result`. When an inspector
 buffer is visible in the background, it is automatically updated with
 the last result. This behavior can be controlled with the variable
-`cider-auto-inspect-after-eval`.
+`cider-auto-inspect-after-eval`, which selects which evaluations trigger
+the refresh: `t` or `interactive` (interactive evaluations only, the
+default), `repl` (REPL evaluations only), `all` (both), or `nil` (never).
 
 TIP: The inspector can also be invoked in the middle of a debugging
 session, see xref:debugging/debugger.adoc[here] for more details.
