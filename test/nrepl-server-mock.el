@@ -31,25 +31,36 @@
 (require 'nrepl-client)
 (require 'nrepl-tests-utils "test/utils/nrepl-tests-utils")
 (require 'queue)
-(require 'cl)
 
-(defun nrepl-server-mock--get-keys (dict keys)
-  "Get the values for KEYS from nrepl-dict DICT.
-Get them as a list, so they can be easily consumed by
-`cl-destructuring-bind`."
-  (mapcar (lambda (k) (nrepl-dict-get dict k)) keys))
+(defun nrepl-server-mock--response (op msg msg-id msg-session)
+  "Return the canned response dict for nREPL operation OP, or nil if unsupported.
+MSG is the decoded request; MSG-ID and MSG-SESSION are its `id' and `session'.
+Responses are deliberately minimal - just enough for clients to exercise the
+request/response plumbing.  The `eval' op echoes the request's `code' back as
+the `value', so the full eval round-trip (request -> value response) can be
+tested against the mock."
+  (pcase op
+    ("clone"
+     `(dict "id" ,msg-id "session" "a-session"
+            "status" ("done") "new-session" "a-new-session"))
+    ("describe"
+     `(dict "id" ,msg-id "session" ,msg-session "status" ("done")))
+    ("eval"
+     `(dict "id" ,msg-id "session" ,msg-session
+            "value" ,(or (nrepl-dict-get msg "code") "")
+            "ns" "user"
+            "status" ("done")))
+    ("interrupt"
+     `(dict "id" ,msg-id "session" ,msg-session "status" ("done" "interrupted")))
+    ("close"
+     `(dict "id" ,msg-id "session" ,msg-session "status" ("done")))))
 
 (defun nrepl-server-mock-filter (proc output)
   "Handle the nREPL message found in OUTPUT sent by the client PROC.
 Minimal implementation, just enough for fulfilling clients' testing
-requirements.
-
-Additional complexity is added by the fact that bencoded dictionaries
-must have their keys in sorted order.  But we don't want to have to
-remember to write them down as such in the test values here (because
-there is ample room for mistakes that are harder to debug)."
+requirements.  Dispatches on the request's `op' via
+`nrepl-server-mock--response'."
   ;; (mock/log! ":mock.filter/output %s :msg %s" proc output)
-
   (condition-case error-details
       (let* ((msg (queue-dequeue (cdr (nrepl-bdecode output))))
              (_ (mock/log! ":mock.filter/msg :in %S" msg))
@@ -57,43 +68,8 @@ there is ample room for mistakes that are harder to debug)."
              ;; messages and responses. Get them once here.
              (msg-id (nrepl-dict-get msg "id"))
              (msg-session (nrepl-dict-get msg "session"))
-             (response (pcase msg
-                         ((pred (lambda (msg)
-                                  (equal "clone" (nrepl-dict-get msg "op"))))
-                          `(dict "id" ,msg-id
-                                 "session" "a-session"
-                                 "status" ("done")
-                                 "new-session" "a-new-session"))
-
-                         ((pred (bencodable-obj-equal? `(dict "op" "describe"
-                                                              "id" ,msg-id
-                                                              "session" ,msg-session)))
-                          `(dict "id" ,msg-id
-                                 "session" ,msg-session
-                                 "status" ("done")))
-
-                         ;; Eval op can include other fields in addition to the
-                         ;; code, we only need the signature and the session and
-                         ;; id fields.
-                         ((pred (lambda (msg)
-                                  (let ((keys '("op")))
-                                    (cl-destructuring-bind (op) (nrepl-server-mock--get-keys msg keys)
-                                      (bencodable-obj-equal? `(dict "op" ,op
-                                                                    "id" ,msg-id
-                                                                    "session" ,msg-session)
-                                                             `(dict "op" "eval"
-                                                                    "id" ,msg-id
-                                                                    "session" ,msg-session))))))
-                          `(dict "id" ,msg-id
-                                 "session" ,msg-session
-                                 "status" ("done")))
-
-                         ((pred (bencodable-obj-equal? `(dict "op" "close"
-                                                              "id" ,msg-id
-                                                              "session" ,msg-session)))
-                          `(dict "id" ,msg-id
-                                 "session" ,msg-session
-                                 "status" ("done"))))))
+             (op (nrepl-dict-get msg "op"))
+             (response (nrepl-server-mock--response op msg msg-id msg-session)))
 
         (mock/log! ":mock.filter/msg :out %S" response)
         (if (not response)
@@ -108,10 +84,7 @@ there is ample room for mistakes that are harder to debug)."
 
     (error
      (mock/log! ":mock.filter/fatal-error %s" error-details)
-     (error error-details))
-
-
-    ))
+     (error error-details))))
 
 (defun nrepl-server-mock-start ()
   "Start a mock nREPL server process.
