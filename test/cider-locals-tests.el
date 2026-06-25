@@ -142,4 +142,44 @@
         ("a" "b" "the-ns")
       (cider--read-locals-from-arglist))))
 
+
+(describe "cider--parse-and-apply-locals"
+  (it "does not slurp a `def' value vector as an arglist (#3657)"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(def foo-routes
+  [[\"/foos\"
+    {:get {:handler (fn [{{{:keys [archived]} :query} :parameters
+                          :keys [sub]
+                          :as req}]
+                      (let [foo (reduce + (range 4))]
+                        {:status 200}))}}]])")
+      (goto-char (point-min))
+      (cider--parse-and-apply-locals (point-max))
+      ;; The def's value - literals, function names, route strings - must
+      ;; not be mistaken for locals.
+      (goto-char (point-min))
+      (search-forward "range")
+      (let ((locals (get-text-property (1- (point)) 'cider-locals)))
+        (dolist (false-positive '("range" "reduce" "+" "200" "4" "foos" "let" "fn"))
+          (expect locals :not :to-contain false-positive)))
+      ;; The genuine fn params are still detected in the body.
+      (goto-char (point-min))
+      (search-forward ":status")
+      (let ((locals (get-text-property (1- (point)) 'cider-locals)))
+        (expect locals :to-contain "sub")
+        (expect locals :to-contain "req"))))
+
+  (it "still reads the arglist of function-defining def forms"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(defn foo [a b] (+ a b))")
+      (goto-char (point-min))
+      (cider--parse-and-apply-locals (point-max))
+      (goto-char (point-min))
+      (search-forward "(+ a b)")
+      (let ((locals (get-text-property (1- (point)) 'cider-locals)))
+        (expect locals :to-contain "a")
+        (expect locals :to-contain "b")))))
+
 ;;; cider-locals-tests.el ends here
