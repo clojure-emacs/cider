@@ -198,20 +198,26 @@
             :to-be nil)))
 
 (describe "nrepl--ssh-tunnel-args"
-  (it "returns the bare minimum when only host is set"
-    (expect (nrepl--ssh-tunnel-args "/ssh:host:~/x" 12345)
-            :to-equal (list "-v" "-N" "-L" "12345:localhost:12345" "host")))
+  (it "forwards the local port to the (possibly different) remote port"
+    (expect (nrepl--ssh-tunnel-args "/ssh:host:~/x" 23456 12345)
+            :to-equal (list "-v" "-N" "-L" "23456:localhost:12345" "host")))
   (it "passes user via -l and ssh port via -p"
-    (expect (nrepl--ssh-tunnel-args "/ssh:user@host#2222:~/x" 9999)
-            :to-equal (list "-v" "-N" "-L" "9999:localhost:9999"
+    (expect (nrepl--ssh-tunnel-args "/ssh:user@host#2222:~/x" 5555 9999)
+            :to-equal (list "-v" "-N" "-L" "5555:localhost:9999"
                             "-l" "user"
                             "-p" "2222"
                             "host")))
   (it "passes hyphenated user/host through unmodified (no shell quoting)"
-    (expect (nrepl--ssh-tunnel-args "/ssh:my-user@my-host:~/x" 4242)
-            :to-equal (list "-v" "-N" "-L" "4242:localhost:4242"
+    (expect (nrepl--ssh-tunnel-args "/ssh:my-user@my-host:~/x" 4242 4243)
+            :to-equal (list "-v" "-N" "-L" "4242:localhost:4243"
                             "-l" "my-user"
                             "my-host"))))
+
+(describe "nrepl--available-local-port"
+  (it "returns a free integer port in the valid TCP range"
+    (let ((port (nrepl--available-local-port)))
+      (expect (integerp port) :to-be-truthy)
+      (expect (and (>= port 1024) (<= port 65535)) :to-be-truthy))))
 
 (describe "nrepl-make-eval-handler"
   :var (nrepl-pending-requests nrepl-completed-requests)

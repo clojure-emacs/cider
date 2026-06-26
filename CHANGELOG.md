@@ -31,6 +31,7 @@
 
 ### Bugs fixed
 
+- [#4038](https://github.com/clojure-emacs/cider/pull/4038): SSH tunneling now forwards a free local port to the remote nREPL port instead of reusing the remote port number, so connecting to several remote REPLs that share a port no longer collide on localhost and a stale tunnel is no longer reused when you later connect to a local REPL on the same port ([#3730](https://github.com/clojure-emacs/cider/issues/3730), [#3561](https://github.com/clojure-emacs/cider/issues/3561), [#3085](https://github.com/clojure-emacs/cider/issues/3085)). Tunnel readiness is now detected by probing the forwarded port (bounded by the new `nrepl-ssh-tunnel-timeout`) instead of scraping `ssh` output.
 - [#4026](https://github.com/clojure-emacs/cider/pull/4026): `cider-macroexpand-1` and friends now work in ClojureScript for user-defined macros (fixed in `cider-nrepl`, delivered via the 0.61.0-alpha1 bump) ([#2099](https://github.com/clojure-emacs/cider/issues/2099)).
 - [#4016](https://github.com/clojure-emacs/cider/pull/4016): Show the REPL prompt right away when a server (e.g. jank) sends `value` and `("done")` in the same response, instead of only after the next keypress ([#3869](https://github.com/clojure-emacs/cider/issues/3869)).
 - [#4019](https://github.com/clojure-emacs/cider/pull/4019): Stop the dynamic local-variable font-locking from mistaking a `def`'s value for an arglist, which tagged literals, function names and other non-locals as locals (`cider-locals` false positives) ([#3657](https://github.com/clojure-emacs/cider/issues/3657)).
