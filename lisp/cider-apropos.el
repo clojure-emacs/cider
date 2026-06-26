@@ -145,7 +145,6 @@ behind the scenes.  The search may be limited to the namespace NS, and may
 optionally search doc strings (based on DOCS-P), include private vars
 \(based on PRIVATES-P), and be case-sensitive (based on CASE-SENSITIVE-P)."
   (interactive (cider-apropos--read-args))
-  (cider-ensure-connected)
   (if-let* ((summary (cider-apropos-summary
                       query ns docs-p privates-p case-sensitive-p))
             (results (cider-apropos-request query
@@ -186,7 +185,6 @@ behind the scenes.  The search may be limited to the namespace NS, and may
 optionally search doc strings (based on DOCS-P), include private vars
 \(based on PRIVATES-P), and be case-sensitive (based on CASE-SENSITIVE-P)."
   (interactive (cider-apropos--read-args))
-  (cider-ensure-connected)
   (if-let* ((summary (cider-apropos-summary
                       query ns docs-p privates-p case-sensitive-p))
             (results (mapcar (lambda (r) (nrepl-dict-get r "name"))

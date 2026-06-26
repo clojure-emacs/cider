@@ -419,8 +419,6 @@ property."
 (defun cider-browse-spec--print-curr-spec-example ()
   "Generate and print an example of the current spec."
   (interactive)
-  (cider-ensure-connected)
-  (cider-ensure-op-supported "cider/spec-example")
   (if-let* ((spec cider-browse-spec--current-spec))
       (if-let* ((example (cider-sync-request:spec-example spec)))
           (with-current-buffer (cider-popup-buffer cider-browse-spec-example-buffer 'select #'cider-browse-spec-example-mode 'ancillary)
@@ -452,7 +450,6 @@ Generates a new example for the current spec."
   "Open the list of specs that matches REGEX in a popup buffer.
 Displays all specs when REGEX is nil."
   (cider-ensure-connected)
-  (cider-ensure-op-supported "cider/spec-list")
   (let ((filter-regex (or regex "")))
     (with-current-buffer (cider-popup-buffer cider-browse-spec-buffer 'select nil 'ancillary)
       (let ((specs (cider-sync-request:spec-list filter-regex)))
@@ -512,8 +509,6 @@ at a time - so you can walk a spec's structure in place; \\<cider-tree-view-mode
 shows that spec's full definition."
   (interactive (list (completing-read "Browse spec tree: "
                                       (cider-sync-request:spec-list))))
-  (cider-ensure-connected)
-  (cider-ensure-op-supported "cider/spec-form")
   (let ((root (cider-browse-spec--tree-node spec nil)))
     (setf (cider-tree-view-node-expanded root) t)
     (with-current-buffer (cider-popup-buffer "*cider-spec-tree*" 'select

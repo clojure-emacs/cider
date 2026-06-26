@@ -71,13 +71,12 @@ loop forever."
                     (lambda ()
                       (cider-xref-tree--children var op ns (cons var ancestors)))))))
 
-(defun cider-xref-tree--browse (symbol op op-name buffer-name title-fmt noun)
+(defun cider-xref-tree--browse (symbol op buffer-name title-fmt noun)
   "Open a call-graph tree rooted at SYMBOL, expanding via OP.
-OP-NAME is the nREPL op SYMBOL's children come from; BUFFER-NAME and TITLE-FMT
-name and describe the buffer; NOUN names the search for the prompt.  Resolves
-SYMBOL up front, signalling a typo/unloaded-namespace hint when it can't be."
+BUFFER-NAME and TITLE-FMT name and describe the buffer; NOUN names the search
+for the prompt.  Resolves SYMBOL up front, signalling a typo/unloaded-namespace
+hint when it can't be.  OP's availability is enforced by the sender when sent."
   (cider-ensure-connected)
-  (cider-ensure-op-supported op-name)
   (let* ((symbol (or symbol (cider-symbol-at-point)
                      (read-string (format "%s: " noun))))
          (info (or (cider-var-info symbol)
@@ -97,7 +96,7 @@ SYMBOL up front, signalling a typo/unloaded-namespace hint when it can't be."
 Expand a node to reveal its own callers and walk the call graph upward.  Uses
 the runtime `fn-refs' op, so it covers loaded Clojure-on-the-JVM code."
   (interactive)
-  (cider-xref-tree--browse symbol #'cider-sync-request:fn-refs "cider/fn-refs"
+  (cider-xref-tree--browse symbol #'cider-sync-request:fn-refs
                            "*cider-who-calls*" "Callers of %s" "Who calls"))
 
 ;;;###autoload
@@ -106,7 +105,7 @@ the runtime `fn-refs' op, so it covers loaded Clojure-on-the-JVM code."
 Expand a node to reveal what it calls in turn and walk the call graph downward.
 Uses the runtime `fn-deps' op, so it covers loaded Clojure-on-the-JVM code."
   (interactive)
-  (cider-xref-tree--browse symbol #'cider-sync-request:fn-deps "cider/fn-deps"
+  (cider-xref-tree--browse symbol #'cider-sync-request:fn-deps
                            "*cider-who-is-called*" "Called by %s" "What is called by"))
 
 

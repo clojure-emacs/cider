@@ -60,7 +60,6 @@ Prompts for the symbol to use, or uses the symbol at point, depending on
 the value of `cider-prompt-for-symbol'.  With prefix arg ARG, does the
 opposite of what that option dictates."
   (interactive "P")
-  (cider-ensure-op-supported "cider/toggle-trace-var")
   (funcall (cider-prompt-for-symbol-function arg)
            "Toggle trace for var"
            #'cider--toggle-trace-var))
@@ -117,7 +116,6 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
 (defun cider-list-traced ()
   "Display the vars and namespaces that are currently traced."
   (interactive)
-  (cider-ensure-op-supported "cider/list-traced")
   (let* ((response (cider-sync-request:list-traced))
          (vars (nrepl-dict-get response "traced-vars"))
          (nses (nrepl-dict-get response "traced-nses")))
@@ -129,7 +127,6 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
 (defun cider-untrace-all ()
   "Untrace all currently traced vars and namespaces."
   (interactive)
-  (cider-ensure-op-supported "cider/untrace-all")
   (let* ((response (cider-nrepl-send-sync-request '("op" "cider/untrace-all")))
          (count (or (nrepl-dict-get response "untraced-count") 0)))
     (message "Untraced %d var%s" count (if (= count 1) "" "s"))))
@@ -354,7 +351,6 @@ Trace functions with `cider-toggle-trace-var' or `cider-toggle-trace-ns'
 and call them; their calls and return values stream here instead of
 cluttering the REPL.  Killing the buffer stops the streaming."
   (interactive)
-  (cider-ensure-op-supported "cider/trace-subscribe")
   (let ((connection (cider-current-repl nil 'ensure))
         (buffer (get-buffer-create cider-trace-buffer)))
     (with-current-buffer buffer

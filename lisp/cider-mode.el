@@ -177,7 +177,6 @@ VAR is a fully qualified Clojure variable name as a string."
   "Run -main or FUNCTION, prompting for its namespace if necessary.
 With a prefix argument, prompt for function to run instead of -main."
   (interactive (list (when current-prefix-arg (read-string "Function name: "))))
-  (cider-ensure-connected)
   (let ((name (or function "-main")))
     (when-let* ((response (cider-nrepl-send-sync-request
                            `("op" "cider/ns-list-vars-by-name"

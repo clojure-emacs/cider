@@ -126,8 +126,6 @@ namespace is a likelier cause than a var that genuinely has none."
 (defun cider-xref-fn-refs (&optional ns symbol)
   "Show all functions that reference the var matching NS and SYMBOL."
   (interactive)
-  (cider-ensure-connected)
-  (cider-ensure-op-supported "cider/fn-refs")
   (let ((ns (or ns (cider-current-ns)))
         (symbol (or symbol (cider-symbol-at-point))))
     (unless symbol (user-error "No symbol at point"))
@@ -179,8 +177,6 @@ function `cider-who-calls' is usually the better tool."
 (defun cider-xref-fn-deps (&optional ns symbol)
   "Show all functions referenced by the var matching NS and SYMBOL."
   (interactive)
-  (cider-ensure-connected)
-  (cider-ensure-op-supported "cider/fn-deps")
   (let ((ns (or ns (cider-current-ns)))
         (symbol (or symbol (cider-symbol-at-point))))
     (unless symbol (user-error "No symbol at point"))
@@ -205,8 +201,6 @@ function `cider-who-calls' is usually the better tool."
 (defun cider-xref-fn-refs-select (&optional ns symbol)
   "Display the references for NS and SYMBOL using completing read."
   (interactive)
-  (cider-ensure-connected)
-  (cider-ensure-op-supported "cider/fn-refs")
   (let ((ns (or ns (cider-current-ns)))
         (symbol (or symbol (cider-symbol-at-point))))
     (unless symbol (user-error "No symbol at point"))
@@ -219,8 +213,6 @@ function `cider-who-calls' is usually the better tool."
 (defun cider-xref-fn-deps-select (&optional ns symbol)
   "Display the function dependencies for NS and SYMBOL using completing read."
   (interactive)
-  (cider-ensure-connected)
-  (cider-ensure-op-supported "cider/fn-deps")
   (let ((ns (or ns (cider-current-ns)))
         (symbol (or symbol (cider-symbol-at-point))))
     (unless symbol (user-error "No symbol at point"))

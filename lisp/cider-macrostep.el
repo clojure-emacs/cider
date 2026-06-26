@@ -147,7 +147,6 @@ popup rather than merely leave `cider-macrostep-mode' as it does inline.")
   "Return the macroexpansion of CODE in the current namespace.
 EXPANDER is a `cider/macroexpand' expander name, such as \"macroexpand-1\"
 \(one level) or \"macroexpand-all\" (fully, recursively)."
-  (cider-ensure-op-supported "cider/macroexpand")
   (let ((result (thread-first `("op" "cider/macroexpand"
                                 "expander" ,expander
                                 "code" ,code
