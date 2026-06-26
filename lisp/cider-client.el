@@ -850,7 +850,7 @@ prefer the keyword-argument `cider-apropos-request'."
   "Return a list of classpath entries for CONNECTION."
   (thread-first
     '("op" "cider/classpath")
-    (cider-nrepl-sync-request connection)
+    (cider-nrepl-sync-request :connection connection)
     (nrepl-dict-get "classpath")))
 
 (defun cider--get-abs-path (path project)
@@ -950,7 +950,7 @@ prefer the keyword-argument `cider-info-request'."
                                   "ns" ,(cider-current-ns)
                                   ,@(when symbol `("sym" ,symbol))
                                   ,@(when lookup-fn `("lookup-fn" ,lookup-fn)))
-                                (cider-nrepl-sync-request (cider-current-repl)))))
+                                (cider-nrepl-sync-request :connection (cider-current-repl)))))
     (if (member "lookup-error" (nrepl-dict-get var-info "status"))
         nil
       (nrepl-dict-get var-info "info"))))
