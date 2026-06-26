@@ -60,3 +60,16 @@
   (it "leaves unqualified symbols unchanged"
       (expect (cider-clojuredocs--strip-ns "/") :to-equal "/")
       (expect (cider-clojuredocs--strip-ns "subs") :to-equal "subs")))
+
+(describe "cider-clojuredocs--lookup-async"
+  (it "marks the request completed and invokes the callback with the result on done"
+    (let (handler cb-result)
+      (spy-on 'cider-nrepl-send-request :and-call-fake
+              (lambda (_request callback) (setq handler callback)))
+      (spy-on 'nrepl--mark-id-completed)
+      (cider-clojuredocs--lookup-async "clojure.core" "map"
+                                       (lambda (r) (setq cb-result r)))
+      (funcall handler (nrepl-dict "id" "7" "clojuredocs" (nrepl-dict "name" "map")))
+      (funcall handler (nrepl-dict "id" "7" "status" '("done")))
+      (expect 'nrepl--mark-id-completed :to-have-been-called-with "7")
+      (expect cb-result :to-equal (nrepl-dict "name" "map")))))

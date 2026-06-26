@@ -60,10 +60,11 @@ the symbol has no ClojureDocs entry, or the middleware is unavailable)."
     (cider-nrepl-send-request
      `("op" "cider/clojuredocs-lookup" "ns" ,ns "sym" ,sym)
      (lambda (response)
-       (nrepl-dbind-response response (clojuredocs status)
+       (nrepl-dbind-response response (clojuredocs status id)
          (when clojuredocs
            (setq result clojuredocs))
          (when (member "done" status)
+           (nrepl--mark-id-completed id)
            (funcall callback result)))))))
 
 (defun cider-clojuredocs-replace-special (name)
