@@ -485,7 +485,6 @@ current-namespace."
   "Print the current value of the inspector."
   (interactive)
   (cider-ensure-connected)
-  (cider-ensure-op-supported "cider/inspect-print-current-value")
   (let ((buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode 'ancillary)))
     (cider-nrepl-send-request
      `("op" "cider/inspect-print-current-value"

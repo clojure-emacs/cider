@@ -839,7 +839,6 @@ prefer the keyword-argument `cider-apropos-request'."
 
 (defun cider-sync-request:classpath (&optional connection)
   "Return a list of classpath entries for CONNECTION."
-  (cider-ensure-op-supported "cider/classpath" connection)
   (thread-first
     '("op" "cider/classpath")
     (cider-nrepl-send-sync-request connection)
@@ -1084,7 +1083,6 @@ The result entries are relative to the classpath."
 
 (defun cider-sync-request:fn-refs (ns sym)
   "Return a list of functions that reference the function identified by NS and SYM."
-  (cider-ensure-op-supported "cider/fn-refs")
   (thread-first `("op" "cider/fn-refs"
                   "ns" ,ns
                   "sym" ,sym)
@@ -1093,7 +1091,6 @@ The result entries are relative to the classpath."
 
 (defun cider-sync-request:fn-deps (ns sym)
   "Return a list of function deps for the function identified by NS and SYM."
-  (cider-ensure-op-supported "cider/fn-deps")
   (thread-first `("op" "cider/fn-deps"
                   "ns" ,ns
                   "sym" ,sym)
@@ -1105,7 +1102,6 @@ The result entries are relative to the classpath."
 The result is a dict with a \"kind\" of \"protocol\", \"multimethod\" or
 \"other\"; for a protocol an \"impls\" list, for a multimethod a
 \"dispatch-values\" list."
-  (cider-ensure-op-supported "cider/who-implements")
   (thread-first `("op" "cider/who-implements"
                   "ns" ,ns
                   "sym" ,sym)
@@ -1115,7 +1111,6 @@ The result is a dict with a \"kind\" of \"protocol\", \"multimethod\" or
 (defun cider-sync-request:type-protocols (ns sym)
   "Return the protocols implemented by the type NS and SYM.
 Each is a dict with a \"name\" and source location."
-  (cider-ensure-op-supported "cider/type-protocols")
   (thread-first `("op" "cider/type-protocols"
                   "ns" ,ns
                   "sym" ,sym)
@@ -1125,7 +1120,6 @@ Each is a dict with a \"name\" and source location."
 (defun cider-sync-request:protocols-with-method (method)
   "Return the protocols declaring a method named METHOD.
 Each is a dict with a \"name\" and source location."
-  (cider-ensure-op-supported "cider/protocols-with-method")
   (thread-first `("op" "cider/protocols-with-method"
                   "method" ,method)
                 (cider-nrepl-send-sync-request)

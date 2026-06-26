@@ -95,13 +95,11 @@ These are used for presentation purposes."
 
 (cl-defmethod xref-backend-definitions ((_backend (eql cider)) var)
   "Find definitions of VAR."
-  (cider-ensure-connected)
   (when-let* ((loc (cider--var-to-xref-location var)))
     (list (xref-make var loc))))
 
 (cl-defmethod xref-backend-identifier-completion-table ((_backend (eql cider)))
   "Return the completion table for identifiers."
-  (cider-ensure-connected)
   (when-let* ((ns (cider-current-ns)))
     (cider-sync-request:ns-vars ns)))
 
@@ -199,11 +197,6 @@ compiler generated from macros, which leave no textual trace for the scan."
 The runtime side (the `fn-refs' op) only sees loaded namespaces; the source
 side covers code on disk that hasn't been evaluated yet.  In `both' mode the
 two are combined, with runtime hits the source search already covers dropped."
-  (cider-ensure-connected)
-  ;; Without the source search the `fn-refs' op is the only source of results,
-  ;; so insist on it; otherwise the search degrades gracefully without it.
-  (when (eq cider-xref-references-mode 'runtime)
-    (cider-ensure-op-supported "cider/fn-refs"))
   (let* ((ns (cider-current-ns))
          (source (when (memq cider-xref-references-mode '(source both))
                    (cider-xref--var-source-references var)))
@@ -215,8 +208,6 @@ two are combined, with runtime hits the source search already covers dropped."
 
 (cl-defmethod xref-backend-apropos ((_backend (eql cider)) pattern)
   "Find all symbols that match regexp PATTERN."
-  (cider-ensure-connected)
-  (cider-ensure-op-supported "cider/apropos")
   (when-let* ((ns (cider-current-ns))
               (results (cider-apropos-request pattern
                                               :search-ns ns

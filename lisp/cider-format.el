@@ -83,7 +83,6 @@ Uses the following heuristic to try to maintain point position:
   "Format the Clojure code in the current region.
 START and END represent the region's boundaries."
   (interactive "r")
-  (cider-ensure-connected)
   (cider--format-region start end
                         (lambda (buf)
                           (cider-sync-request:format-code buf cider-format-code-options))))
@@ -95,7 +94,6 @@ START and END represent the region's boundaries."
 (defun cider-format-defun ()
   "Format the code in the current defun."
   (interactive)
-  (cider-ensure-connected)
   (let ((defun-bounds (cider-defun-at-point 't)))
     (cider-format-region (car defun-bounds) (cadr defun-bounds))))
 
@@ -114,7 +112,6 @@ of the buffer into a formatted string."
   "Format the Clojure code in the current buffer."
   (interactive)
   (check-parens)
-  (cider-ensure-connected)
   (cider--format-buffer (lambda (buf)
                           (cider-sync-request:format-code buf cider-format-code-options))))
 
@@ -126,7 +123,6 @@ of the buffer into a formatted string."
   "Format the EDN data in the current buffer."
   (interactive)
   (check-parens)
-  (cider-ensure-connected)
   (cider--format-buffer (lambda (edn)
                           (cider-sync-request:format-edn edn fill-column))))
 
@@ -135,7 +131,6 @@ of the buffer into a formatted string."
   "Format the EDN data in the current region.
 START and END represent the region's boundaries."
   (interactive "r")
-  (cider-ensure-connected)
   (let* ((start-column (save-excursion (goto-char start) (current-column)))
          (right-margin (- fill-column start-column)))
     (cider--format-region start end

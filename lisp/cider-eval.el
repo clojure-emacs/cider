@@ -1127,7 +1127,6 @@ passing arguments."
 (defun cider-undef ()
   "Undefine a symbol from the current ns."
   (interactive)
-  (cider-ensure-op-supported "cider/undef")
   (cider-read-symbol-name
    "Undefine symbol: "
    (lambda (sym)
@@ -1140,7 +1139,6 @@ passing arguments."
 (defun cider-undef-all (&optional ns)
   "Undefine all symbols and aliases from the namespace NS."
   (interactive)
-  (cider-ensure-op-supported "cider/undef-all")
   (cider-nrepl-send-sync-request
    `("op" "cider/undef-all"
      "ns" ,(or ns (cider-current-ns)))))
@@ -1309,7 +1307,6 @@ all ns aliases and var mappings from the namespaces being reloaded"
   "Load all namespaces in the current project."
   (interactive)
   (cider-ensure-connected)
-  (cider-ensure-op-supported "cider/ns-load-all")
   (when (y-or-n-p "Are you sure you want to load all namespaces in the project? ")
     (message "Loading all project namespaces...")
     (let ((loaded-ns-count (length (cider-sync-request:ns-load-all))))

@@ -361,7 +361,6 @@ With a negative prefix argument, or if MODE is `inhibit-fns', prevent any
 refresh functions (defined in `cider-ns-refresh-before-fn' and
 `cider-ns-refresh-after-fn') from being invoked."
   (interactive "p")
-  (cider-ensure-connected)
   (let ((clear? (member mode '(clear 16)))
         (all? (member mode '(refresh-all 4)))
         (inhibit-refresh-fns (member mode '(inhibit-fns -1))))

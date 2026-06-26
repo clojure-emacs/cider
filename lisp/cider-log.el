@@ -209,7 +209,6 @@ It will not be used if the package hasn't been installed."
 
 (defun cider-request:log-add-consumer (framework appender consumer &optional callback)
   "Add CONSUMER to the APPENDER of FRAMEWORK and call CALLBACK on log events."
-  (cider-ensure-op-supported "cider/log-add-consumer")
   (thread-first `("op" "cider/log-add-consumer"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender)
@@ -218,7 +217,6 @@ It will not be used if the package hasn't been installed."
 
 (defun cider-sync-request:log-update-consumer (framework appender consumer)
   "Add CONSUMER to the APPENDER of FRAMEWORK and call CALLBACK on log events."
-  (cider-ensure-op-supported "cider/log-update-consumer")
   (thread-first `("op" "cider/log-update-consumer"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender)
@@ -229,7 +227,6 @@ It will not be used if the package hasn't been installed."
 
 (defun cider-sync-request:log-add-appender (framework appender)
   "Add the APPENDER to the log FRAMEWORK."
-  (cider-ensure-op-supported "cider/log-add-appender")
   (thread-first `("op" "cider/log-add-appender"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender)
@@ -241,7 +238,6 @@ It will not be used if the package hasn't been installed."
 
 (defun cider-sync-request:log-update-appender (framework appender)
   "Update the APPENDER of the log FRAMEWORK."
-  (cider-ensure-op-supported "cider/log-update-appender")
   (thread-first `("op" "cider/log-update-appender"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender)
@@ -253,7 +249,6 @@ It will not be used if the package hasn't been installed."
 
 (defun cider-sync-request:log-clear (framework appender)
   "Clear the log events for FRAMEWORK and APPENDER."
-  (cider-ensure-op-supported "cider/log-clear-appender")
   (thread-first `("op" "cider/log-clear-appender"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender))
@@ -262,7 +257,6 @@ It will not be used if the package hasn't been installed."
 
 (defun cider-sync-request:log-inspect-event (framework appender event)
   "Inspect the log event with the ID in the APPENDER of the log FRAMEWORK."
-  (cider-ensure-op-supported "cider/log-inspect-event")
   (thread-first `("op" "cider/log-inspect-event"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender)
@@ -272,7 +266,6 @@ It will not be used if the package hasn't been installed."
 
 (defun cider-sync-request:log-format-event (framework appender event)
   "Format the log EVENT from the APPENDER of the log FRAMEWORK."
-  (cider-ensure-op-supported "cider/log-format-event")
   (thread-first
     `("op" "cider/log-format-event"
       "framework" ,(cider-log-framework-id framework)
@@ -284,14 +277,12 @@ It will not be used if the package hasn't been installed."
 
 (defun cider-sync-request:log-frameworks ()
   "Return the available log frameworks."
-  (cider-ensure-op-supported "cider/log-frameworks")
   (thread-first `("op" "cider/log-frameworks")
                 (cider-nrepl-send-sync-request)
                 (nrepl-dict-get "cider/log-frameworks")))
 
 (cl-defun cider-sync-request:log-search (framework appender &key filters limit offset)
   "Search log events of FRAMEWORK and APPENDER using FILTERS, LIMIT and OFFSET."
-  (cider-ensure-op-supported "cider/log-search")
   (thread-first `("op" "cider/log-search"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender)
@@ -303,7 +294,6 @@ It will not be used if the package hasn't been installed."
 
 (defun cider-sync-request:log-exceptions (framework appender)
   "Return the Cider log exceptions for FRAMEWORK and APPENDER."
-  (cider-ensure-op-supported "cider/log-exceptions")
   (thread-first `("op" "cider/log-exceptions"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender))
@@ -312,7 +302,6 @@ It will not be used if the package hasn't been installed."
 
 (defun cider-sync-request:log-levels (framework appender)
   "Return the Cider log levels for FRAMEWORK and APPENDER."
-  (cider-ensure-op-supported "cider/log-levels")
   (thread-first `("op" "cider/log-levels"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender))
@@ -321,7 +310,6 @@ It will not be used if the package hasn't been installed."
 
 (defun cider-sync-request:log-loggers (framework appender)
   "Return the Cider loggers for FRAMEWORK and APPENDER."
-  (cider-ensure-op-supported "cider/log-loggers")
   (thread-first `("op" "cider/log-loggers"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender))
@@ -330,7 +318,6 @@ It will not be used if the package hasn't been installed."
 
 (defun cider-sync-request:log-remove-appender (framework appender)
   "Remove the APPENDER from the log FRAMEWORK."
-  (cider-ensure-op-supported "cider/log-remove-appender")
   (thread-first `("op" "cider/log-remove-appender"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender))
@@ -339,7 +326,6 @@ It will not be used if the package hasn't been installed."
 
 (defun cider-sync-request:log-remove-consumer (framework appender consumer)
   "Remove the CONSUMER from the APPENDER of the log FRAMEWORK."
-  (cider-ensure-op-supported "cider/log-remove-consumer")
   (thread-first `("op" "cider/log-remove-consumer"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender)
@@ -349,7 +335,6 @@ It will not be used if the package hasn't been installed."
 
 (defun cider-sync-request:log-threads (framework appender)
   "Return the threads for FRAMEWORK and APPENDER."
-  (cider-ensure-op-supported "cider/log-threads")
   (thread-first `("op" "cider/log-threads"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender))

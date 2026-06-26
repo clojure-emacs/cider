@@ -86,7 +86,6 @@ current ns."
 Defaults to the symbol at point.
 With prefix arg or no symbol at point, prompts for a var."
   (interactive "P")
-  (cider-ensure-op-supported "cider/profile-toggle-var")
   (cider-read-symbol-name
    "Toggle profiling for var: "
    (lambda (sym)
@@ -105,7 +104,6 @@ With prefix arg or no symbol at point, prompts for a var."
 (defun cider-profile-summary ()
   "Display a summary of currently collected profile data."
   (interactive)
-  (cider-ensure-op-supported "cider/profile-summary")
   (cider-inspector--render-value
    (cider-nrepl-send-sync-request '("op" "cider/profile-summary"))))
 
@@ -113,7 +111,6 @@ With prefix arg or no symbol at point, prompts for a var."
 (defun cider-profile-clear ()
   "Clear any collected profile data."
   (interactive)
-  (cider-ensure-op-supported "cider/profile-clear")
   (cider-nrepl-send-request
    '("op" "cider/profile-clear")
    (cider-profile--make-response-handler
