@@ -687,12 +687,17 @@ session."
            (repls (cider-repls type ensure required-ops)))
       (mapcar function repls))))
 
-;; REPLs double as connections in CIDER, so it's useful to be able to refer to
-;; them as connections in certain contexts.
+;; Legacy aliases from before the connection->REPL terminology change.  They have
+;; no remaining users in CIDER itself; keep them working but steer code to the
+;; `cider-repl' names.
 (defalias 'cider-current-connection #'cider-current-repl)
 (defalias 'cider-connections #'cider-repls)
 (defalias 'cider-map-connections #'cider-map-repls)
 (defalias 'cider-connection-type-for-buffer #'cider-repl-type-for-buffer)
+(make-obsolete 'cider-current-connection #'cider-current-repl "1.23.0")
+(make-obsolete 'cider-connections #'cider-repls "1.23.0")
+(make-obsolete 'cider-map-connections #'cider-map-repls "1.23.0")
+(make-obsolete 'cider-connection-type-for-buffer #'cider-repl-type-for-buffer "1.23.0")
 
 
 (provide 'cider-session)
