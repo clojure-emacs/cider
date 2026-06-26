@@ -101,6 +101,13 @@ It will attempt to connect via ssh to remote hosts when unable to connect
 directly."
   :type 'boolean)
 
+(defcustom nrepl-ssh-tunnel-timeout 30
+  "Maximum number of seconds to wait for an SSH tunnel's forwarding to come up.
+The countdown resets whenever the ssh process produces output, so an
+interactive password or 2FA prompt won't trip the timeout."
+  :type 'integer
+  :package-version '(cider . "1.23.0"))
+
 (defcustom nrepl-sync-request-timeout 10
   "The number of seconds to wait for a sync response.
 Setting this to nil disables the timeout functionality."
@@ -471,8 +478,35 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
                  (error msg))
                nil)))))
 
+(defun nrepl--port-open-p (host port)
+  "Return non-nil if a TCP connection to HOST:PORT can be established."
+  (condition-case nil
+      (let ((proc (open-network-stream "nrepl-port-check" nil host port)))
+        (delete-process proc)
+        t)
+    (error nil)))
+
+(defun nrepl--available-local-port ()
+  "Return a TCP port on localhost that currently has no listener.
+Used to pick the local end of an SSH tunnel.  Random ports are probed with
+`nrepl--port-open-p' rather than binding a throwaway server socket, which
+keeps the check portable (notably to MS-Windows, where reading back a
+system-assigned port is unreliable)."
+  (let ((port nil)
+        (tries 0))
+    (while (and (not port) (< tries 100))
+      (let ((candidate (+ 1024 (random (- 65536 1024)))))
+        (unless (nrepl--port-open-p "localhost" candidate)
+          (setq port candidate)))
+      (setq tries (1+ tries)))
+    (or port
+        (error "[nREPL] Could not find a free local port for the SSH tunnel"))))
+
 (defun nrepl--ssh-tunnel-connect (host port)
-  "Connect to a remote machine identified by HOST and PORT through SSH tunnel."
+  "Connect to a remote machine identified by HOST and PORT through an SSH tunnel.
+A free local port is forwarded to PORT on the remote host and the connection
+is made to that local port, so several remote REPLs that happen to share the
+same remote port don't collide on localhost."
   (message "[nREPL] Establishing SSH tunneled connection to %s:%s ..." host port)
   (let* ((file-name (or (buffer-file-name) nrepl-project-dir))
          (remote-dir (cond
@@ -486,57 +520,72 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
                       (t default-directory)))
          (ssh (or (executable-find "ssh")
                   (error "[nREPL] Cannot locate 'ssh' executable")))
-         (args (nrepl--ssh-tunnel-args remote-dir port))
+         (local-port (nrepl--available-local-port))
+         (args (nrepl--ssh-tunnel-args remote-dir local-port port))
          (tunnel-buf (nrepl-tunnel-buffer-name
                       `((:host ,host) (:port ,port))))
-         (tunnel (apply #'start-process "nrepl-tunnel" tunnel-buf ssh args)))
-    (process-put tunnel :waiting-for-port t)
-    (set-process-filter tunnel (nrepl--ssh-tunnel-filter port))
-    (while (and (process-live-p tunnel)
-                (process-get tunnel :waiting-for-port))
-      (accept-process-output nil 0.005))
-    (if (not (process-live-p tunnel))
-        (error "[nREPL] SSH port forwarding failed.  Check the '%s' buffer" tunnel-buf)
-      (message "[nREPL] SSH port forwarding established to localhost:%s" port)
-      (let ((endpoint (nrepl--direct-connect "localhost" port)))
+         (tunnel (apply #'start-process "nrepl-tunnel" tunnel-buf ssh args))
+         (deadline (time-add (current-time) nrepl-ssh-tunnel-timeout))
+         (ready nil))
+    (set-process-filter tunnel #'nrepl--ssh-tunnel-filter)
+    ;; Wait for the forwarded port to start accepting connections.  We probe by
+    ;; actually connecting, which is robust across ssh versions and locales --
+    ;; unlike scraping ssh's diagnostic output.  The deadline is pushed back
+    ;; whenever ssh emits output, so an interactive password or 2FA prompt
+    ;; doesn't trip the timeout.
+    (while (and (not ready)
+                (process-live-p tunnel)
+                (time-less-p (current-time) deadline))
+      (if (nrepl--port-open-p "localhost" local-port)
+          (setq ready t)
+        (when (accept-process-output tunnel 0.2)
+          (setq deadline (time-add (current-time) nrepl-ssh-tunnel-timeout)))))
+    (let ((endpoint (and ready
+                         (nrepl--direct-connect "localhost" local-port 'no-error))))
+      (cond
+       (endpoint
+        (message "[nREPL] SSH tunnel established (localhost:%s -> %s:%s)"
+                 local-port host port)
         (thread-first
           endpoint
           (plist-put :tunnel tunnel)
-          (plist-put :remote-host host))))))
+          (plist-put :remote-host host)))
+       (t
+        (when (process-live-p tunnel)
+          (nrepl--kill-process tunnel))
+        (error "[nREPL] SSH tunnel to %s:%s failed or timed out; check the '%s' buffer"
+               host port tunnel-buf))))))
 
-(defun nrepl--ssh-tunnel-args (dir port)
-  "Build the ssh program-args list for forwarding PORT from DIR's host.
+(defun nrepl--ssh-tunnel-args (dir local-port remote-port)
+  "Build ssh program-args forwarding LOCAL-PORT to REMOTE-PORT via DIR's host.
 Returns the args as a list so the caller can pass them to `start-process'
 without shell intermediation -- this avoids any quoting hazards in the
 host, user or port components.
 
-The -v option is requested because we synchronize on diagnostic output
-to know when port forwarding is up before attempting to connect."
+The -v option is kept so the tunnel buffer carries ssh's diagnostic
+output, which is handy when a forwarding attempt fails."
   (with-parsed-tramp-file-name dir v
     (append (list "-v" "-N"
-                  "-L" (format "%s:localhost:%s" port port))
+                  "-L" (format "%s:localhost:%s" local-port remote-port))
             (when v-user (list "-l" v-user))
             (when v-port (list "-p" v-port))
             (list v-host))))
 
 (autoload 'comint-watch-for-password-prompt "comint"  "(autoload).")
 
-(defun nrepl--ssh-tunnel-filter (port)
-  "Return a process filter that waits for PORT to appear in process output."
-  (let ((port-string (format "LOCALHOST:%s" port)))
-    (lambda (proc string)
-      (when (string-match-p port-string string)
-        (process-put proc :waiting-for-port nil))
-      (when (and (process-live-p proc)
-                 (buffer-live-p (process-buffer proc)))
-        (with-current-buffer (process-buffer proc)
-          (let ((moving (= (point) (process-mark proc))))
-            (save-excursion
-              (goto-char (process-mark proc))
-              (insert string)
-              (set-marker (process-mark proc) (point))
-              (comint-watch-for-password-prompt string))
-            (if moving (goto-char (process-mark proc)))))))))
+(defun nrepl--ssh-tunnel-filter (proc string)
+  "Process filter for the ssh tunnel PROC handling STRING.
+Echo ssh's output into the tunnel buffer and answer password prompts."
+  (when (and (process-live-p proc)
+             (buffer-live-p (process-buffer proc)))
+    (with-current-buffer (process-buffer proc)
+      (let ((moving (= (point) (process-mark proc))))
+        (save-excursion
+          (goto-char (process-mark proc))
+          (insert string)
+          (set-marker (process-mark proc) (point))
+          (comint-watch-for-password-prompt string))
+        (if moving (goto-char (process-mark proc)))))))
 
 ;;; Client: Process Handling
 
