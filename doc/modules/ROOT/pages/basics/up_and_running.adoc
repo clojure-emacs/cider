@@ -438,38 +438,80 @@ Note that the universal argument kbd:[C-u] can be used before a command to overr
 
 == Working with Remote Hosts
 
-While most of the time you'd be connecting to a locally running nREPL
-server, that was started manually or via `cider-jack-in-\*`, there's
-also the option to connect to remote nREPL hosts. For the sake of security
-CIDER has the ability to tunnel a connection over SSH in such cases.
-This behavior is controlled by
-`nrepl-use-ssh-fallback-for-remote-hosts`: when true, CIDER will attempt to
-connect via ssh to remote hosts when unable to connect directly. It's
-`nil` by default.
+Most of the time you'll connect to an nREPL server running on your own
+machine, started manually or via `cider-jack-in-\*`. Sometimes, though, the
+server lives elsewhere - another host on your network, a container, or even a
+production box.
 
-There's also `nrepl-force-ssh-for-remote-hosts` which will force the use
-of ssh for remote connection unconditionally.
+[IMPORTANT]
+====
+nREPL connections are completely insecure by default - there's no
+authentication, and anyone who can reach the port gets arbitrary code
+execution inside your process. *Never expose an nREPL port directly to a
+network you don't fully trust.*
 
-WARNING: As nREPL connections are insecure by default, you're encouraged to use only SSH
-tunneling when connecting to servers running outside of your network.
+For any non-local server - and *especially* a production one - SSH tunneling
+is the way to go: keep nREPL bound to the remote's own `localhost`, and reach
+it through an encrypted SSH tunnel that piggybacks on your existing SSH
+credentials. CIDER can set up that tunnel for you.
+====
 
-There's another case in which CIDER may optionally leverage the `ssh` command - when
-trying to figure out potential target hosts and ports when you're doing `cider-connect-\*`.
-If `cider-infer-remote-nrepl-ports` is true, CIDER will use ssh to try to infer
-nREPL ports on remote hosts (for a direct connection). That option is also set to `nil`
-by default.
+There are two ways to get there.
 
-NOTE: Enabling either of these causes CIDER to use
-https://www.gnu.org/software/tramp/[TRAMP] for some SSH operations, which parses
-config files such as `~/.ssh/config` and `~/.ssh/known_hosts`. This is known to
-cause problems with complex or nonstandard ssh configs.
+The first is to start the nREPL server yourself and point `cider-connect` (or
+`cider-connect-cljs`) at the remote host and port. For remote hosts CIDER can
+tunnel the connection over SSH rather than connecting directly:
 
-You can run `cider-jack-in-\*` while working with remote files over TRAMP. CIDER
-will reuse existing SSH connection's parameters (like port and username) for establishing a SSH tunnel.
-The same will happen if you try to `cider-connect-\*` to a host that matches the one you're currently
-connected to.
+* `nrepl-use-ssh-fallback-for-remote-hosts` (default `nil`) - fall back to an
+  SSH tunnel when a direct connection to a remote host fails.
+* `nrepl-force-ssh-for-remote-hosts` (default `nil`) - skip the direct attempt
+  and always tunnel. This is the right setting when the nREPL port is bound
+  only to the remote's `localhost`, which is what you want for anything
+  reachable from an untrusted network.
 
-==== Known TRAMP caveats
+CIDER forwards a free _local_ port to the nREPL port on the remote and
+connects to that local port, so tunnels to several remote servers that happen
+to use the same nREPL port don't collide. If the forwarding doesn't come up
+within `nrepl-ssh-tunnel-timeout` seconds CIDER gives up with an error rather
+than hanging - the countdown resets while ssh is producing output, so password
+or 2FA prompts won't trip it, and the tunnel's buffer holds ssh's diagnostics
+if you need to investigate.
+
+CIDER can also use `ssh` merely to _discover_ which nREPL ports are listening
+on a remote host when you run `cider-connect-\*` - set
+`cider-infer-remote-nrepl-ports` to `t` (default `nil`).
+
+The second way is to run `cider-jack-in-\*` while editing remote files over
+https://www.gnu.org/software/tramp/[TRAMP] (e.g. a file opened as
+`/ssh:my-box:/path/to/project`). CIDER then starts the build tool and the
+nREPL server _on the remote host_, reuses the TRAMP connection's parameters
+(host, port, user) to establish the SSH tunnel, and connects back through it.
+The same tunnel reuse happens when you `cider-connect-\*` to a host you're
+already editing over TRAMP.
+
+NOTE: Enabling the SSH options above, or jacking in over TRAMP, makes CIDER
+lean on TRAMP for some SSH operations, which parses config files such as
+`~/.ssh/config` and `~/.ssh/known_hosts`. Complex or nonstandard ssh configs
+can trip this up - the tips below help.
+
+=== SSH config tips
+
+Remote work goes a lot more smoothly when you let your `~/.ssh/config` do the
+heavy lifting; CIDER, TRAMP and plain `ssh` then all share one definition of
+how to reach a host:
+
+* *Host aliases* keep the `cider-connect` prompts short.
+* *Connection sharing* (`ControlMaster auto`, `ControlPath`, `ControlPersist`)
+  reuses a single SSH connection for subsequent operations, which dramatically
+  cuts the per-request latency you'd otherwise pay over TRAMP.
+* *Bastion / jump hosts* are handled by `ProxyJump`.
+
+WARNING: If you go through a bastion host, beware that TRAMP injects its own
+connection-sharing options, which can conflict with a `ProxyJump` (or
+`ProxyCommand`) in your ssh config. Set `tramp-use-connection-share` to `nil`
+(or `suppress`) so TRAMP defers to your `~/.ssh/config`.
+
+=== Known TRAMP caveats
 
 A few things still need attention when jacking in over TRAMP:
 
