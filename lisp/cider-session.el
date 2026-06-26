@@ -100,7 +100,7 @@ Set interactively with `cider-set-default-session'.")
   "Return t if CIDER is currently connected, nil otherwise."
   (process-live-p (get-buffer-process (cider-current-repl))))
 
-(defun cider-ensure-connected ()
+(defun cider-ensure-session ()
   "Signal a `user-error' unless there is a linked CIDER session.
 The CIDER-level nREPL senders (e.g. `cider-nrepl-send-request',
 `cider-nrepl-sync-request') already ensure a connection - they resolve the
@@ -108,6 +108,8 @@ REPL with `cider-current-repl' ENSURE - so commands don't need this for
 correctness.  Use it only to fail fast, before doing interactive or
 side-effecting work, rather than at the point of the first request."
   (sesman-ensure-session 'CIDER))
+
+(define-obsolete-function-alias 'cider-ensure-connected #'cider-ensure-session "1.23.0")
 
 
 ;;; Connection Parameters

@@ -20,7 +20,7 @@
 ;; A source lint, not a behavior test.  Commands talk to nREPL through the
 ;; cider-level senders (`cider-nrepl-send-request' and friends), which ensure a
 ;; connection and op support centrally (so commands need no explicit
-;; `cider-ensure-connected' / `cider-ensure-op-supported').  Reaching for the
+;; `cider-ensure-session' / `cider-ensure-op-supported').  Reaching for the
 ;; low-level `nrepl-*' senders bypasses that enforcement.  This keeps such usage
 ;; confined to the transport layer plus a small, reviewed allowlist, so new
 ;; bypasses are caught.

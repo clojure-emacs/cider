@@ -56,7 +56,7 @@
   ;; docstring.  Previously the raw prefix arg was passed straight to
   ;; `cider-jump-to', so any prefix opened another window.
   (it "dispatches to another window only for `-' or a double prefix"
-    (spy-on 'cider-ensure-connected :and-return-value t)
+    (spy-on 'cider-ensure-session :and-return-value t)
     (spy-on 'read-string :and-return-value "::foo")
     (spy-on 'cider-symbol-at-point :and-return-value "::foo")
     (spy-on 'cider--find-keyword-loc :and-return-value
@@ -85,7 +85,7 @@
 more
 stuff"
       (let* ((sample-buffer (current-buffer)))
-        (spy-on 'cider-ensure-connected :and-return-value t)
+        (spy-on 'cider-ensure-session :and-return-value t)
         (spy-on 'cider-sync-request:ns-path :and-call-fake (lambda (kw-ns _)
                                                              kw-ns))
         (spy-on 'cider-resolve-alias :and-call-fake (lambda (_ns ns-qualifier)

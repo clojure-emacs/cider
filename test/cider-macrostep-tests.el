@@ -230,7 +230,7 @@
 
 (describe "cider-macrostep-expand-all"
   (before-each
-    (spy-on 'cider-ensure-connected)
+    (spy-on 'cider-ensure-session)
     (spy-on 'cider-macrostep--refresh-overlays))
 
   (it "fully expands the form before point inline via macroexpand-all"
@@ -267,7 +267,7 @@
       (expect (point) :to-equal (point-max))))
 
   (it "runs the stepping session in the popup, leaving the source untouched"
-    (spy-on 'cider-ensure-connected)
+    (spy-on 'cider-ensure-session)
     (spy-on 'cider-ensure-macro)
     (spy-on 'cider-current-ns :and-return-value "user")
     (spy-on 'cider-macrostep--expand :and-return-value "(if x (do a))")

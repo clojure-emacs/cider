@@ -88,7 +88,7 @@
 
 (describe "cider-who-implements (eval fallback)"
   (before-each
-    (spy-on 'cider-ensure-connected)
+    (spy-on 'cider-ensure-session)
     (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
     (spy-on 'cider-current-ns :and-return-value "my.ns")
     (spy-on 'cider-var-info :and-return-value
@@ -194,7 +194,7 @@
 
 (describe "cider-type-protocols"
   (before-each
-    (spy-on 'cider-ensure-connected)
+    (spy-on 'cider-ensure-session)
     (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
     (spy-on 'cider-current-ns :and-return-value "user"))
 
@@ -212,7 +212,7 @@
 
 (describe "cider-protocols-with-method"
   (before-each
-    (spy-on 'cider-ensure-connected)
+    (spy-on 'cider-ensure-session)
     (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
     (spy-on 'cider-current-ns :and-return-value "user"))
 

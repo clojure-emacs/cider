@@ -76,7 +76,7 @@ loop forever."
 BUFFER-NAME and TITLE-FMT name and describe the buffer; NOUN names the search
 for the prompt.  Resolves SYMBOL up front, signalling a typo/unloaded-namespace
 hint when it can't be.  OP's availability is enforced by the sender when sent."
-  (cider-ensure-connected)
+  (cider-ensure-session)
   (let* ((symbol (or symbol (cider-symbol-at-point)
                      (read-string (format "%s: " noun))))
          (info (or (cider-var-info symbol)
@@ -259,7 +259,7 @@ With cider-nrepl's `cider/who-implements' op this includes inline
 Without it, a client-side fallback lists `extend'-style targets and dispatch
 values only.  Clojure-on-the-JVM only."
   (interactive)
-  (cider-ensure-connected)
+  (cider-ensure-session)
   (let* ((symbol (or symbol (cider-symbol-at-point)
                      (read-string "Implementations of: ")))
          (info (or (cider-var-info symbol)
@@ -360,7 +360,7 @@ Covers both `extend'-style and inline `defrecord'/`deftype' implementations.
 Point should be on a type's name (a record/class) or a dotted class name; only
 loaded Clojure-on-the-JVM code is visible."
   (interactive)
-  (cider-ensure-connected)
+  (cider-ensure-session)
   (let ((symbol (or symbol (cider-symbol-at-point)
                     (read-string "Protocols of type: "))))
     (cider-xref-tree--show-protocols
@@ -375,7 +375,7 @@ loaded Clojure-on-the-JVM code is visible."
 With no argument, uses the (unqualified) name at point.  Only loaded
 Clojure-on-the-JVM code is visible."
   (interactive)
-  (cider-ensure-connected)
+  (cider-ensure-session)
   (let* ((method (or method (cider-symbol-at-point)
                      (read-string "Protocols with method: ")))
          ;; drop a namespace qualifier (m/area -> area) but keep a bare `/'
