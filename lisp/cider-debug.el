@@ -88,7 +88,7 @@ configure `cider-debug-prompt' instead."
 (defun cider-browse-instrumented-defs ()
   "List all instrumented definitions."
   (interactive)
-  (if-let* ((all (thread-first (cider-nrepl-send-sync-request '("op" "cider/debug-instrumented-defs"))
+  (if-let* ((all (thread-first (cider-nrepl-sync-request '("op" "cider/debug-instrumented-defs"))
                                (nrepl-dict-get "list"))))
       (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
         (let ((inhibit-read-only t))

@@ -1139,7 +1139,7 @@ passing arguments."
 (defun cider-undef-all (&optional ns)
   "Undefine all symbols and aliases from the namespace NS."
   (interactive)
-  (cider-nrepl-send-sync-request
+  (cider-nrepl-sync-request
    `("op" "cider/undef-all"
      "ns" ,(or ns (cider-current-ns)))))
 

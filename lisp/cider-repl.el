@@ -264,7 +264,7 @@ This cache is stored in the connection buffer.")
   (interactive)
   (let* ((current-repl (cider-current-repl 'infer 'ensure))
          (require-code (cdr (assoc (cider-repl-type current-repl) cider-repl-require-repl-utils-code))))
-    (nrepl-send-sync-request
+    (nrepl-sync-request
      (cider-plist-put
       (nrepl--eval-request require-code (cider-current-ns))
       "inhibit-cider-middleware" "true")
@@ -1452,7 +1452,7 @@ command will prompt for the name of the namespace to switch to."
                           (with-current-buffer connection
                             cider-repl-type))
                    ;; For cljs, don't use cider-tooling-eval, because Piggieback will later change the ns (issue #3503):
-                   #'cider-nrepl-request:eval
+                   #'cider-nrepl-send-eval-request
                  ;; When possible, favor cider-tooling-eval because it preserves *1, etc (commit 5f705b):
                  #'cider-tooling-eval)))
         (funcall f (format "(in-ns '%s)" ns)

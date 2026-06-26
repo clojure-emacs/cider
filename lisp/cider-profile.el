@@ -105,7 +105,7 @@ With prefix arg or no symbol at point, prompts for a var."
   "Display a summary of currently collected profile data."
   (interactive)
   (cider-inspector--render-value
-   (cider-nrepl-send-sync-request '("op" "cider/profile-summary"))))
+   (cider-nrepl-sync-request '("op" "cider/profile-summary"))))
 
 ;;;###autoload
 (defun cider-profile-clear ()

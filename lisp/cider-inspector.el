@@ -313,13 +313,13 @@ In particular, it does not read `cider-sexp-at-point'."
 (defun cider-inspector-pop ()
   "Pop the last value off the inspector stack and render it."
   (interactive)
-  (let ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-pop"))))
+  (let ((result (cider-nrepl-sync-request `("op" "cider/inspect-pop"))))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result :pop))))
 
 (defun cider-inspector-push (idx)
   "Inspect the value at IDX in the inspector stack and render it."
-  (let ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-push"
+  (let ((result (cider-nrepl-sync-request `("op" "cider/inspect-push"
                                                  "idx" ,idx))))
     (when (nrepl-dict-get result "value")
       (push (point) cider-inspector-location-stack)
@@ -329,7 +329,7 @@ In particular, it does not read `cider-sexp-at-point'."
   "Inspect the exception in the cause stack identified by INDEX.
 If EX-DATA is true, inspect ex-data of the exception instead."
   (cl-assert (numberp index))
-  (let ((result (cider-nrepl-send-sync-request
+  (let ((result (cider-nrepl-sync-request
                  `("op" "cider/inspect-last-exception"
                    "index" ,index
                    ,@(when ex-data
@@ -341,21 +341,21 @@ If EX-DATA is true, inspect ex-data of the exception instead."
 (defun cider-inspector-previous-sibling ()
   "Inspect the previous sibling value within a sequential parent."
   (interactive)
-  (let ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-previous-sibling"))))
+  (let ((result (cider-nrepl-sync-request `("op" "cider/inspect-previous-sibling"))))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result))))
 
 (defun cider-inspector-next-sibling ()
   "Inspect the next sibling value within a sequential parent."
   (interactive)
-  (let ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-next-sibling"))))
+  (let ((result (cider-nrepl-sync-request `("op" "cider/inspect-next-sibling"))))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result))))
 
 (defun cider-inspector--refresh-with-opts (&rest opts)
   "Invokes `inspect-refresh' op with supplied extra OPTS.
 Re-renders the currently inspected value."
-  (let ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-refresh" ,@opts))))
+  (let ((result (cider-nrepl-sync-request `("op" "cider/inspect-refresh" ,@opts))))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result))))
 
@@ -369,7 +369,7 @@ Re-renders the currently inspected value."
 
 Does nothing if already on the last page."
   (interactive)
-  (let ((result (cider-nrepl-send-sync-request '("op" "cider/inspect-next-page"))))
+  (let ((result (cider-nrepl-sync-request '("op" "cider/inspect-next-page"))))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result))))
 
@@ -378,7 +378,7 @@ Does nothing if already on the last page."
 
 Does nothing if already on the first page."
   (interactive)
-  (let ((result (cider-nrepl-send-sync-request '("op" "cider/inspect-prev-page"))))
+  (let ((result (cider-nrepl-sync-request '("op" "cider/inspect-prev-page"))))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result))))
 
@@ -409,7 +409,7 @@ MAX-NESTED-DEPTH is the new value."
 (defun cider-inspector-display-analytics ()
   "Toggle the display of analytics for the inspected object."
   (interactive)
-  (let ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-display-analytics"))))
+  (let ((result (cider-nrepl-sync-request `("op" "cider/inspect-display-analytics"))))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result :next-inspectable))))
 
@@ -443,7 +443,7 @@ MAX-NESTED-DEPTH is the new value."
 (defun cider-inspector-toggle-view-mode ()
   "Toggle the view mode of the inspector between normal and object view mode."
   (interactive)
-  (let ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-toggle-view-mode"))))
+  (let ((result (cider-nrepl-sync-request `("op" "cider/inspect-toggle-view-mode"))))
     (when (nrepl-dict-get result "value")
       (cider-inspector--render-value result :next-inspectable))))
 
@@ -475,7 +475,7 @@ current-namespace."
   (interactive (let ((ns (cider-current-ns)))
                  (list (cider-inspector--read-var-name-from-user ns)
                        ns)))
-  (when-let* ((result (cider-nrepl-send-sync-request `("op" "cider/inspect-def-current-value"
+  (when-let* ((result (cider-nrepl-sync-request `("op" "cider/inspect-def-current-value"
                                                        "ns" ,ns
                                                        "var-name" ,var-name))))
     (cider-inspector--render-value result)
@@ -494,7 +494,7 @@ current-namespace."
 (defun cider-inspector-tap-current-val ()
   "Sends the current Inspector current value to `tap>'."
   (interactive)
-  (let ((response (cider-nrepl-send-sync-request '("op" "cider/inspect-tap-current-value"))))
+  (let ((response (cider-nrepl-sync-request '("op" "cider/inspect-tap-current-value"))))
     (nrepl-dbind-response response (value err)
       (if value
           (message "Successfully tapped the current Inspector value")
@@ -507,7 +507,7 @@ current-namespace."
     (pcase property
       (`cider-value-idx
        (cl-assert value)
-       (nrepl-dbind-response (cider-nrepl-send-sync-request `("op" "cider/inspect-tap-indexed"
+       (nrepl-dbind-response (cider-nrepl-sync-request `("op" "cider/inspect-tap-indexed"
                                                               "idx" ,value))
            (value err)
          (if value
@@ -521,7 +521,7 @@ current-namespace."
   "Evaluate EXPR in context of NS and inspect its result.
 The pagination and truncation options are taken from the
 `cider-inspector-*' defcustoms."
-  (cider-nrepl-send-sync-request
+  (cider-nrepl-sync-request
    (append (nrepl--eval-request expr ns)
            `("inspect" "true"
              ,@(when cider-inspector-page-size

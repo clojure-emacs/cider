@@ -971,6 +971,8 @@ prefer the keyword-argument `nrepl-sync-request'."
                       :tooling tooling
                       :callback callback))
 
+(make-obsolete 'nrepl-send-sync-request 'nrepl-sync-request "1.23.0")
+
 (defun nrepl-request:stdin (input callback connection)
   "Send a :stdin request with INPUT using CONNECTION.
 Register CALLBACK as the response handler."
@@ -1041,6 +1043,8 @@ prefer the keyword-argument `nrepl-send-eval-request'."
                            :ns ns :line line :column column
                            :additional-params additional-params :tooling tooling))
 
+(make-obsolete 'nrepl-request:eval 'nrepl-send-eval-request "1.23.0")
+
 (defvar nrepl-client-name "nrepl.el"
   "Name of the nREPL client, sent in clone requests.")
 
@@ -1066,16 +1070,16 @@ from CONNECTION."
 
 (defun nrepl-sync-request:describe (connection)
   "Perform a :describe request for CONNECTION."
-  (nrepl-send-sync-request '("op" "describe")
+  (nrepl-sync-request '("op" "describe")
                            connection))
 
 (defun nrepl-sync-request:ls-sessions (connection)
   "Perform :ls-sessions request for CONNECTION."
-  (nrepl-send-sync-request '("op" "ls-sessions") connection))
+  (nrepl-sync-request '("op" "ls-sessions") connection))
 
 (defun nrepl-sync-request:ls-middleware (connection)
   "Perform :ls-middleware request for CONNECTION."
-  (nrepl-send-sync-request '("op" "ls-middleware") connection))
+  (nrepl-sync-request '("op" "ls-middleware") connection))
 
 (defun nrepl-sync-request:eval (input connection &optional ns tooling)
   "Send the INPUT to the nREPL server synchronously.
