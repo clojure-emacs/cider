@@ -40,7 +40,7 @@
 more
 stuff"
       (let* ((sample-buffer (current-buffer)))
-        (spy-on 'cider-ensure-connected :and-return-value t)
+        (spy-on 'cider-ensure-session :and-return-value t)
         (spy-on 'cider-sync-request:ns-path :and-call-fake (lambda (kw-ns _)
                                                              kw-ns))
         (spy-on 'cider-resolve-alias :and-call-fake (lambda (_ns ns-qualifier)

@@ -577,7 +577,7 @@ arguments and only proceed with evaluation if it returns nil."
       ;; can skip missing REPL types).  That made every `cider-eval-*'
       ;; command fail silently with no connection at all, so guard the
       ;; dispatch with an explicit connection check.
-      (cider-ensure-connected)
+      (cider-ensure-session)
       (cider-map-repls :auto
         (lambda (connection)
           (cider--prep-interactive-eval form connection)
@@ -1306,7 +1306,7 @@ all ns aliases and var mappings from the namespaces being reloaded"
 (defun cider-load-all-project-ns ()
   "Load all namespaces in the current project."
   (interactive)
-  (cider-ensure-connected)
+  (cider-ensure-session)
   (when (y-or-n-p "Are you sure you want to load all namespaces in the project? ")
     (message "Loading all project namespaces...")
     (let ((loaded-ns-count (length (cider-sync-request:ns-load-all))))

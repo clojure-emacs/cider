@@ -191,7 +191,7 @@ Optionally open it in a different window if OTHER-WINDOW is truthy."
 A prefix ARG of `-` or a double prefix argument causes
 the results to be displayed in a different window."
   (interactive "P")
-  (cider-ensure-connected)
+  (cider-ensure-session)
   (if ns
       (cider--find-ns ns)
     (let* ((namespaces (cider-sync-request:ns-list))
@@ -270,7 +270,7 @@ A single or double prefix argument inverts the meaning of
 the results to be displayed in a different window.  The default value is
 thing at point."
   (interactive "P")
-  (cider-ensure-connected)
+  (cider-ensure-session)
   (let* ((kw (let ((kw-at-point (cider-symbol-at-point 'look-back)))
                (if (or cider-prompt-for-symbol arg)
                    (read-string

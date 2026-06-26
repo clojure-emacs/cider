@@ -104,7 +104,7 @@
     ;; no-connection path is covered in cider-eval-tests.el.  Stub the
     ;; connection check so the test doesn't depend on resolving the session
     ;; from an unlinked temp buffer (which is platform-dependent).
-    (spy-on 'cider-ensure-connected)
+    (spy-on 'cider-ensure-session)
     (let ((default-directory "/tmp/a-dir"))
       (with-repl-buffer "interaction-session" 'clj _b
         (with-temp-buffer

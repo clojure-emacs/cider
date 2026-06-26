@@ -414,7 +414,7 @@ REPL defaults to the current REPL."
 (defun cider-describe-nrepl-session ()
   "Describe an nREPL session."
   (interactive)
-  (cider-ensure-connected)
+  (cider-ensure-session)
   (let* ((repl (cider-current-repl 'infer 'ensure))
          (selected-session (completing-read "Describe nREPL session: " (nrepl-sessions repl))))
     (when (and selected-session (not (equal selected-session "")))
@@ -436,7 +436,7 @@ REPL defaults to the current REPL."
 (defun cider-list-nrepl-middleware ()
   "List the loaded nREPL middleware."
   (interactive)
-  (cider-ensure-connected)
+  (cider-ensure-session)
   (let* ((repl (cider-current-repl 'infer 'ensure))
          (middleware (nrepl-middleware repl)))
     (with-current-buffer (cider-popup-buffer "*cider-nrepl-middleware*" 'select nil 'ancillary)

@@ -61,14 +61,14 @@
       (expect (cider--auto-inspect-after-eval-p 'repl) :not :to-be-truthy))))
 (describe "cider-interactive-eval"
   (it "ensures a connection before dispatching to REPLs (#3028)"
-    (spy-on 'cider-ensure-connected)
+    (spy-on 'cider-ensure-session)
     (spy-on 'cider-map-repls)
     (cider-interactive-eval "42")
-    (expect 'cider-ensure-connected :to-have-been-called))
+    (expect 'cider-ensure-session :to-have-been-called))
 
   (it "doesn't dispatch when there's no connection (#3028)"
     ;; Before this guard, `cider-eval-*' commands failed silently with no REPL.
-    (spy-on 'cider-ensure-connected :and-call-fake
+    (spy-on 'cider-ensure-session :and-call-fake
             (lambda () (user-error "No linked CIDER sessions")))
     (spy-on 'cider-map-repls)
     (expect (cider-interactive-eval "42") :to-throw 'user-error)

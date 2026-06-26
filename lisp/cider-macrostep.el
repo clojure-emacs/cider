@@ -439,7 +439,7 @@ Place point right after the form, as with `\\[cider-eval-last-sexp]'.
 Start a `cider-macrostep-mode' session when one isn't active; further
 expansions and collapses then use that mode's key bindings."
   (interactive)
-  (cider-ensure-connected)
+  (cider-ensure-session)
   (pcase-let ((`(,beg . ,end) (or (cider-macrostep--form-bounds)
                                   (user-error "No sexp before point to expand"))))
     (let ((operator (cider-macrostep--operator beg)))
@@ -463,7 +463,7 @@ Like `cider-macrostep-expand', this starts a `cider-macrostep-mode' session
 when one isn't active.  It does not require the form's head to be a macro,
 since a fully-recursive expansion can reach macros in nested sub-forms."
   (interactive)
-  (cider-ensure-connected)
+  (cider-ensure-session)
   (pcase-let ((`(,beg . ,end) (or (cider-macrostep--form-bounds)
                                   (user-error "No sexp before point to expand"))))
     (let* ((code (buffer-substring-no-properties beg end))
@@ -508,7 +508,7 @@ the form, as with `\\[cider-eval-last-sexp]'.
 The session uses the same overlay engine and key bindings as the inline
 flow, except that `q' dismisses the whole popup in one step."
   (interactive)
-  (cider-ensure-connected)
+  (cider-ensure-session)
   (pcase-let ((`(,beg . ,end) (or (cider-macrostep--form-bounds)
                                   (user-error "No sexp before point to expand"))))
     (let ((operator (cider-macrostep--operator beg)))

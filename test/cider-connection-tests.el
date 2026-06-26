@@ -37,7 +37,7 @@
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
-(describe "cider-ensure-connected"
+(describe "cider-ensure-session"
   :var (sesman-sessions-hashmap sesman-links-alist ses-name ses-name2)
 
   (before-each
@@ -49,11 +49,11 @@
   (it "returns nil when a cider connection is available"
     (let ((default-directory (expand-file-name "/tmp/a-dir")))
       (with-repl-buffer "cider-ensure-session" 'clj b
-        (expect (cider-ensure-connected) :to-equal
+        (expect (cider-ensure-session) :to-equal
                 (list "cider-ensure-session" b)))))
 
   (it "raises a user-error in the absence of a connection"
-    (expect (cider-ensure-connected) :to-throw 'user-error)))
+    (expect (cider-ensure-session) :to-throw 'user-error)))
 
 (describe "cider-current-repl"
 

@@ -449,7 +449,7 @@ Generates a new example for the current spec."
 (defun cider-browse-spec-regex (regex)
   "Open the list of specs that matches REGEX in a popup buffer.
 Displays all specs when REGEX is nil."
-  (cider-ensure-connected)
+  (cider-ensure-session)
   (let ((filter-regex (or regex "")))
     (with-current-buffer (cider-popup-buffer cider-browse-spec-buffer 'select nil 'ancillary)
       (let ((specs (cider-sync-request:spec-list filter-regex)))

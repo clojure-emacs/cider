@@ -29,7 +29,7 @@
 (require 'cider-find) ; for cider--find-var
 (require 'cider-util)
 (require 'subr-x)
-(require 'cider-session) ; for cider-ensure-connected
+(require 'cider-session) ; for cider-ensure-session
 
 (require 'cider-client)
 (require 'cider-popup)
@@ -159,7 +159,7 @@ optionally search doc strings (based on DOCS-P), include private vars
 (defun cider-apropos-documentation ()
   "Shortcut for (cider-apropos <query> nil t)."
   (interactive)
-  (cider-ensure-connected)
+  (cider-ensure-session)
   (cider-apropos (read-string "Search for Clojure documentation (a regular expression): ") nil t))
 
 (defun cider-apropos-act-on-symbol (symbol)
@@ -200,7 +200,7 @@ optionally search doc strings (based on DOCS-P), include private vars
 (defun cider-apropos-documentation-select ()
   "Shortcut for (cider-apropos-select <query> nil t)."
   (interactive)
-  (cider-ensure-connected)
+  (cider-ensure-session)
   (cider-apropos-select (read-string "Search for Clojure documentation (a regular expression): ") nil t))
 
 (provide 'cider-apropos)
