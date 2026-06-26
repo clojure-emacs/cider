@@ -239,6 +239,11 @@ Signal an error if it is not supported."
   (unless (cider-nrepl-op-supported-p op connection)
     (user-error "`%s' requires the nREPL op \"%s\" (provided by cider-nrepl)" this-command op)))
 
+(make-obsolete 'cider-ensure-op-supported
+               "op support is now enforced automatically by the nREPL senders, \
+so commands no longer need an explicit check."
+               "1.23.0")
+
 (defvar cider--skip-op-ensure nil
   "When non-nil, skip the automatic op-support check in CIDER's nREPL senders.
 Background or best-effort callers that should degrade silently when an op

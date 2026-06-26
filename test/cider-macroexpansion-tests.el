@@ -34,8 +34,7 @@
 (describe "cider-sync-request:macroexpand"
   (it "sends the expander, code and namespace and returns the expansion"
     (let (captured)
-      (cl-letf (((symbol-function 'cider-ensure-op-supported) #'ignore)
-                ((symbol-function 'cider-current-ns) (lambda () "user"))
+      (cl-letf (((symbol-function 'cider-current-ns) (lambda () "user"))
                 ((symbol-function 'cider-nrepl-send-sync-request)
                  (lambda (request)
                    (setq captured request)
@@ -53,8 +52,7 @@
 
   (it "requests metadata when `cider-macroexpansion-print-metadata' is on"
     (let (captured)
-      (cl-letf (((symbol-function 'cider-ensure-op-supported) #'ignore)
-                ((symbol-function 'cider-current-ns) (lambda () "user"))
+      (cl-letf (((symbol-function 'cider-current-ns) (lambda () "user"))
                 ((symbol-function 'cider-nrepl-send-sync-request)
                  (lambda (request)
                    (setq captured request)
@@ -64,8 +62,7 @@
           (expect (cadr (member "print-meta" captured)) :to-equal "true")))))
 
   (it "signals a user-error when the middleware reports a macroexpand-error"
-    (cl-letf (((symbol-function 'cider-ensure-op-supported) #'ignore)
-              ((symbol-function 'cider-current-ns) (lambda () "user"))
+    (cl-letf (((symbol-function 'cider-current-ns) (lambda () "user"))
               ((symbol-function 'cider-nrepl-send-sync-request)
                (lambda (_request) (nrepl-dict "status" '("macroexpand-error")))))
       (expect (cider-sync-request:macroexpand "macroexpand-1" "(boom)")
@@ -74,8 +71,7 @@
 (describe "cider-macroexpand-again"
   (it "re-expands the stored expression instead of redisplaying the input"
     (let (codes)
-      (cl-letf (((symbol-function 'cider-ensure-op-supported) #'ignore)
-                ((symbol-function 'cider-current-ns) (lambda () "user"))
+      (cl-letf (((symbol-function 'cider-current-ns) (lambda () "user"))
                 ((symbol-function 'cider-initialize-macroexpansion-buffer) #'ignore)
                 ((symbol-function 'cider-nrepl-send-sync-request)
                  (lambda (request)

@@ -343,14 +343,8 @@
         (expect (plist-get kwargs :connection) :to-be :fake-conn)
         (expect (plist-get kwargs :callback) :to-be #'ignore)))))
 
-(describe "cider-ensure-op-supported"
-  (it "returns nil when the op is supported"
-    (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
-    (expect (cider-ensure-op-supported "foo") :to-be nil))
-  (it "raises a user-error if the op is not supported"
-    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
-    (expect (cider-ensure-op-supported "foo")
-            :to-throw 'user-error)))
+;; `cider-ensure-op-supported' is deprecated - op support is enforced centrally
+;; by the senders, covered by the `cider--ensure-request-op-supported' specs.
 
 (describe "cider--fallback-op"
   (it "returns the namespaced op when it is supported"
