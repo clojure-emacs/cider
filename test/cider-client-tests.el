@@ -332,6 +332,24 @@
         (expect (plist-get kwargs :privates-p) :to-be t)
         (expect (plist-get kwargs :case-sensitive-p) :to-be t)))))
 
+(describe "cider-sync-request:classpath"
+  ;; Regression: the connection must be passed as the :connection keyword, not
+  ;; positionally (the keyword-form `cider-nrepl-sync-request' takes it as a key).
+  (it "passes the connection as a keyword argument"
+    (spy-on 'cider-nrepl-sync-request :and-return-value (nrepl-dict "classpath" '("a")))
+    (cider-sync-request:classpath 'fake-conn)
+    (expect 'cider-nrepl-sync-request :to-have-been-called-with
+            '("op" "cider/classpath") :connection 'fake-conn)))
+
+(describe "cider-sync-request:lookup"
+  (it "passes the connection as a keyword argument"
+    (spy-on 'cider-current-repl :and-return-value 'fake-conn)
+    (spy-on 'cider-current-ns :and-return-value "user")
+    (spy-on 'cider-nrepl-sync-request :and-return-value (nrepl-dict "info" (nrepl-dict)))
+    (cider-sync-request:lookup "foo")
+    (expect 'cider-nrepl-sync-request :to-have-been-called-with
+            '("op" "lookup" "ns" "user" "sym" "foo") :connection 'fake-conn)))
+
 (describe "cider-request:load-file"
   (it "delegates to cider-load-file-request with positional args mapped to keywords"
     (let (captured)
