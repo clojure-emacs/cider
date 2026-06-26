@@ -274,17 +274,17 @@ By default it assumes the connection buffer is current."
   (buffer-local-value 'cider-repl-cljs-upgrade-pending repl-buffer))
 
 (defvar-local cider-repl-type-override nil
-  "When non-nil, the connection type (clj, cljs or multi) used for this buffer.
+  "When non-nil, the REPL type (clj, cljs or multi) used for this buffer.
 Overrides the major-mode-based inference in `cider-repl-type-for-buffer'.
 Buffers with no inherent file type - e.g. `*cider-scratch*' - set this to
 control where their evaluations are dispatched.")
 
 (defun cider-repl-type-for-buffer (&optional buffer)
-  "Return the matching connection type (clj or cljs) for BUFFER.
+  "Return the matching REPL type (clj or cljs) for BUFFER.
 BUFFER defaults to the `current-buffer'.  In cljc buffers return
-multi.  This function infers connection type based on the major mode,
+multi.  This function infers the REPL type based on the major mode,
 unless `cider-repl-type-override' is set.
-For the REPL type use the function `cider-repl-type'."
+To get a REPL buffer's own type use the function `cider-repl-type'."
   (with-current-buffer (or buffer (current-buffer))
     (cond
      (cider-repl-type-override cider-repl-type-override)
@@ -578,7 +578,7 @@ no linked session or there is no REPL of TYPE within the current session."
                 sessions)))
 
 (defun cider--extract-connections (sessions)
-  "Return a flattened list of all session buffers in SESSIONS."
+  "Return a flattened list of all REPL buffers in SESSIONS."
   (seq-reduce (lambda (x y)
                 (append x (cdr y)))
               sessions
@@ -655,10 +655,10 @@ REPL's session is used instead of the current one (taking precedence over
 (defun cider-map-repls (which function)
   "Call FUNCTION once for each appropriate REPL as indicated by WHICH.
 The function is called with one argument, the REPL buffer.  The appropriate
-connections are found by inspecting the current buffer.  WHICH is either one of
+REPLs are found by inspecting the current buffer.  WHICH is either one of
 the following keywords or a list starting with one of them followed by names of
 operations that the REPL is expected to support:
- :auto - Act on the connections whose type matches the current buffer.  In
+ :auto - Act on the REPLs whose type matches the current buffer.  In
      `cljc' files, mapping happens over both types of REPLs.
  :clj (:cljs) - Map over clj (cljs)) REPLs only.
  :clj-strict (:cljs-strict) - Map over clj (cljs) REPLs but signal a

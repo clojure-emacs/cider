@@ -139,8 +139,8 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
 (defvar-local cider-trace--subscription nil
   "Id of this buffer's active trace subscription, or nil.")
 
-(defvar-local cider-trace--connection nil
-  "The REPL connection this trace buffer is subscribed through.")
+(defvar-local cider-trace--repl nil
+  "The REPL buffer this trace buffer is subscribed through.")
 
 (defvar-local cider-trace--open-calls nil
   "Hash table of call id -> marker at the start of that call's children.
@@ -289,13 +289,13 @@ EVENT is the mouse event, when invoked with the mouse."
   "Tear down this buffer's trace subscription, if any.
 Fires a best-effort async request, since this runs from `kill-buffer-hook'."
   (when (and cider-trace--subscription
-             (buffer-live-p cider-trace--connection))
+             (buffer-live-p cider-trace--repl))
     (ignore-errors
       (cider-nrepl-send-request
        (list "op" "cider/trace-unsubscribe"
              "subscription" cider-trace--subscription)
        #'ignore
-       cider-trace--connection))
+       cider-trace--repl))
     (setq cider-trace--subscription nil)))
 
 (defun cider-trace-clear ()
@@ -356,7 +356,7 @@ cluttering the REPL.  Killing the buffer stops the streaming."
     (with-current-buffer buffer
       (unless (eq major-mode 'cider-trace-mode)
         (cider-trace-mode))
-      (setq cider-trace--connection connection)
+      (setq cider-trace--repl connection)
       (unless cider-trace--subscription
         (cider-nrepl-send-request
          '("op" "cider/trace-subscribe")
