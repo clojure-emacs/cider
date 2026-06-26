@@ -315,8 +315,9 @@
         (nrepl-send-eval-request "(+ 1 1)" cb :fake-conn
                                  :ns "user" :line 1 :column 2
                                  :additional-params '("foo" "bar") :tooling 'tooling)
-        (nrepl-request:eval "(+ 1 1)" cb :fake-conn
-                            "user" 1 2 '("foo" "bar") 'tooling))
+        (with-suppressed-warnings ((obsolete nrepl-request:eval))
+          (nrepl-request:eval "(+ 1 1)" cb :fake-conn
+                              "user" 1 2 '("foo" "bar") 'tooling)))
       (expect (length calls) :to-equal 2)
       (expect (nth 0 calls) :to-equal (nth 1 calls)))))
 
@@ -326,7 +327,8 @@
       (spy-on 'nrepl-sync-request :and-call-fake
               (lambda (request connection &rest kwargs)
                 (setq captured (list request connection kwargs))))
-      (nrepl-send-sync-request '("op" "x") :fake-conn 'abort 'tooling #'ignore)
+      (with-suppressed-warnings ((obsolete nrepl-send-sync-request))
+        (nrepl-send-sync-request '("op" "x") :fake-conn 'abort 'tooling #'ignore))
       (cl-destructuring-bind (request connection kwargs) captured
         (expect request :to-equal '("op" "x"))
         (expect connection :to-be :fake-conn)

@@ -45,7 +45,7 @@
                       "nrepl-send-eval-request"))
            ;; (FILE . SENDER) sites allowed to bypass the cider layer.  Each one
            ;; resolves and ensures its own connection before the low-level send.
-           (allowlist '(("cider-repl.el" . "nrepl-send-sync-request")))
+           (allowlist '(("cider-repl.el" . "nrepl-sync-request")))
            (found '()))
       (expect (file-directory-p "lisp") :to-be-truthy)
       (dolist (file (directory-files "lisp" t "\\.el\\'"))

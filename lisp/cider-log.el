@@ -222,7 +222,7 @@ It will not be used if the package hasn't been installed."
                   "appender" ,(cider-log-appender-id appender)
                   "consumer" ,(cider-log-consumer-id consumer)
                   "filters" ,(cider-log-consumer-filters consumer))
-                (cider-nrepl-send-sync-request)
+                (cider-nrepl-sync-request)
                 (nrepl-dict-get "cider/log-update-consumer")))
 
 (defun cider-sync-request:log-add-appender (framework appender)
@@ -233,7 +233,7 @@ It will not be used if the package hasn't been installed."
                   "filters" ,(cider-log-appender-filters appender)
                   "size" ,(cider-log-appender-size appender)
                   "threshold" ,(cider-log-appender-threshold appender))
-                (cider-nrepl-send-sync-request)
+                (cider-nrepl-sync-request)
                 (nrepl-dict-get "cider/log-add-appender")))
 
 (defun cider-sync-request:log-update-appender (framework appender)
@@ -244,7 +244,7 @@ It will not be used if the package hasn't been installed."
                   "filters" ,(cider-log-appender-filters appender)
                   "size" ,(cider-log-appender-size appender)
                   "threshold" ,(cider-log-appender-threshold appender))
-                (cider-nrepl-send-sync-request)
+                (cider-nrepl-sync-request)
                 (nrepl-dict-get "cider/log-update-appender")))
 
 (defun cider-sync-request:log-clear (framework appender)
@@ -252,7 +252,7 @@ It will not be used if the package hasn't been installed."
   (thread-first `("op" "cider/log-clear-appender"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender))
-                (cider-nrepl-send-sync-request)
+                (cider-nrepl-sync-request)
                 (nrepl-dict-get "cider/log-clear-appender")))
 
 (defun cider-sync-request:log-inspect-event (framework appender event)
@@ -261,7 +261,7 @@ It will not be used if the package hasn't been installed."
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender)
                   "event" ,(cider-log-event-id event))
-                (cider-nrepl-send-sync-request)
+                (cider-nrepl-sync-request)
                 (nrepl-dict-get "value")))
 
 (defun cider-sync-request:log-format-event (framework appender event)
@@ -272,13 +272,13 @@ It will not be used if the package hasn't been installed."
       "appender" ,(cider-log-appender-id appender)
       "event" ,(cider-log-event-id event)
       ,@(cider--nrepl-print-request-plist fill-column))
-    (cider-nrepl-send-sync-request)
+    (cider-nrepl-sync-request)
     (nrepl-dict-get "cider/log-format-event")))
 
 (defun cider-sync-request:log-frameworks ()
   "Return the available log frameworks."
   (thread-first `("op" "cider/log-frameworks")
-                (cider-nrepl-send-sync-request)
+                (cider-nrepl-sync-request)
                 (nrepl-dict-get "cider/log-frameworks")))
 
 (cl-defun cider-sync-request:log-search (framework appender &key filters limit offset)
@@ -289,7 +289,7 @@ It will not be used if the package hasn't been installed."
                   "filters" ,filters
                   "limit" ,limit
                   "offset" ,offset)
-                (cider-nrepl-send-sync-request)
+                (cider-nrepl-sync-request)
                 (nrepl-dict-get "cider/log-search")))
 
 (defun cider-sync-request:log-exceptions (framework appender)
@@ -297,7 +297,7 @@ It will not be used if the package hasn't been installed."
   (thread-first `("op" "cider/log-exceptions"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender))
-                (cider-nrepl-send-sync-request)
+                (cider-nrepl-sync-request)
                 (nrepl-dict-get "cider/log-exceptions")))
 
 (defun cider-sync-request:log-levels (framework appender)
@@ -305,7 +305,7 @@ It will not be used if the package hasn't been installed."
   (thread-first `("op" "cider/log-levels"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender))
-                (cider-nrepl-send-sync-request)
+                (cider-nrepl-sync-request)
                 (nrepl-dict-get "cider/log-levels")))
 
 (defun cider-sync-request:log-loggers (framework appender)
@@ -313,7 +313,7 @@ It will not be used if the package hasn't been installed."
   (thread-first `("op" "cider/log-loggers"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender))
-                (cider-nrepl-send-sync-request)
+                (cider-nrepl-sync-request)
                 (nrepl-dict-get "cider/log-loggers")))
 
 (defun cider-sync-request:log-remove-appender (framework appender)
@@ -321,7 +321,7 @@ It will not be used if the package hasn't been installed."
   (thread-first `("op" "cider/log-remove-appender"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender))
-                (cider-nrepl-send-sync-request)
+                (cider-nrepl-sync-request)
                 (nrepl-dict-get "cider/log-remove-appender")))
 
 (defun cider-sync-request:log-remove-consumer (framework appender consumer)
@@ -330,7 +330,7 @@ It will not be used if the package hasn't been installed."
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender)
                   "consumer" ,(cider-log-consumer-id consumer))
-                (cider-nrepl-send-sync-request)
+                (cider-nrepl-sync-request)
                 (nrepl-dict-get "cider/log-remove-consumer")))
 
 (defun cider-sync-request:log-threads (framework appender)
@@ -338,7 +338,7 @@ It will not be used if the package hasn't been installed."
   (thread-first `("op" "cider/log-threads"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender))
-                (cider-nrepl-send-sync-request)
+                (cider-nrepl-sync-request)
                 (nrepl-dict-get "cider/log-threads")))
 
 (defun cider-log--completion-extra-properties (keys &optional separator)

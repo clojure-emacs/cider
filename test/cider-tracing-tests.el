@@ -49,7 +49,7 @@
 
 (describe "cider-untrace-all"
   (it "reports the number of untraced vars"
-    (spy-on 'cider-nrepl-send-sync-request :and-return-value
+    (spy-on 'cider-nrepl-sync-request :and-return-value
             (nrepl-dict "untraced-count" 3))
     (spy-on 'message)
     (cider-untrace-all)

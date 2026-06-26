@@ -152,7 +152,7 @@ EXPANDER is a `cider/macroexpand' expander name, such as \"macroexpand-1\"
                                 "code" ,code
                                 "ns" ,(cider-current-ns)
                                 "display-namespaces" ,(symbol-name cider-macrostep-display-namespaces))
-                              (cider-nrepl-send-sync-request))))
+                              (cider-nrepl-sync-request))))
     (nrepl-dbind-response result (expansion status)
       (if (member "macroexpand-error" status)
           (user-error "Macroexpansion failed.  Check *cider-error* for more details")
@@ -256,7 +256,7 @@ skipped."
 
 (defun cider-macrostep--classify (symbols)
   "Return the classification dict for SYMBOLS resolved in the current namespace."
-  (let ((result (cider-nrepl-send-sync-request
+  (let ((result (cider-nrepl-sync-request
                  `("op" "cider/classify-symbols"
                    "symbols" ,symbols
                    "ns" ,(cider-current-ns)))))

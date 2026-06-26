@@ -379,7 +379,7 @@ refresh functions (defined in `cider-ns-refresh-before-fn' and
                                           nil
                                           t))
           (when clear?
-            (cider-nrepl-send-sync-request `("op" ,(cider-ns--reload-op "reload-clear")) conn))
+            (cider-nrepl-sync-request `("op" ,(cider-ns--reload-op "reload-clear")) :connection conn))
           (let ((reloading (list nil)))
             (cider-nrepl-send-request
              `("op" ,(cider-ns--reload-op (if all? "reload-all" "reload"))

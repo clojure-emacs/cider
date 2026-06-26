@@ -275,8 +275,9 @@
                                      :ns "user" :line 1 :column 2
                                      :additional-params '("a" "b")
                                      :connection :fake-conn)
-      (cider-nrepl-request:eval "(+ 1 1)" #'ignore
-                                "user" 1 2 '("a" "b") :fake-conn)
+      (with-suppressed-warnings ((obsolete cider-nrepl-request:eval))
+        (cider-nrepl-request:eval "(+ 1 1)" #'ignore
+                                  "user" 1 2 '("a" "b") :fake-conn))
       (expect (length calls) :to-equal 2)
       ;; the wrapped callback is a fresh closure each call, so compare
       ;; everything except it: the input and the connection + keyword args
@@ -288,7 +289,8 @@
     (let (captured)
       (spy-on 'cider-nrepl-sync-request :and-call-fake
               (lambda (request &rest kwargs) (setq captured (list request kwargs))))
-      (cider-nrepl-send-sync-request '("op" "x") :fake-conn 'abort #'ignore)
+      (with-suppressed-warnings ((obsolete cider-nrepl-send-sync-request))
+        (cider-nrepl-send-sync-request '("op" "x") :fake-conn 'abort #'ignore))
       (cl-destructuring-bind (request kwargs) captured
         (expect request :to-equal '("op" "x"))
         (expect (plist-get kwargs :connection) :to-be :fake-conn)

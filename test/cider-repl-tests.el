@@ -328,7 +328,7 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
   (before-each
     (spy-on 'cider-current-repl :and-return-value nil)
     (spy-on 'nrepl--eval-request)
-    (spy-on 'nrepl-send-sync-request :and-return-value nil))
+    (spy-on 'nrepl-sync-request :and-return-value nil))
   (it "requires clj utils in a clj buffer"
     (spy-on 'cider-repl-type :and-return-value 'clj)
     (cider-repl-require-repl-utils)

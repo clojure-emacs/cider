@@ -35,7 +35,7 @@
   (it "sends the expander, code and namespace and returns the expansion"
     (let (captured)
       (cl-letf (((symbol-function 'cider-current-ns) (lambda () "user"))
-                ((symbol-function 'cider-nrepl-send-sync-request)
+                ((symbol-function 'cider-nrepl-sync-request)
                  (lambda (request)
                    (setq captured request)
                    (nrepl-dict "expansion" "(if x (do y))" "status" '("done")))))
@@ -53,7 +53,7 @@
   (it "requests metadata when `cider-macroexpansion-print-metadata' is on"
     (let (captured)
       (cl-letf (((symbol-function 'cider-current-ns) (lambda () "user"))
-                ((symbol-function 'cider-nrepl-send-sync-request)
+                ((symbol-function 'cider-nrepl-sync-request)
                  (lambda (request)
                    (setq captured request)
                    (nrepl-dict "expansion" "x" "status" '("done")))))
@@ -63,7 +63,7 @@
 
   (it "signals a user-error when the middleware reports a macroexpand-error"
     (cl-letf (((symbol-function 'cider-current-ns) (lambda () "user"))
-              ((symbol-function 'cider-nrepl-send-sync-request)
+              ((symbol-function 'cider-nrepl-sync-request)
                (lambda (_request) (nrepl-dict "status" '("macroexpand-error")))))
       (expect (cider-sync-request:macroexpand "macroexpand-1" "(boom)")
               :to-throw 'user-error))))
@@ -73,7 +73,7 @@
     (let (codes)
       (cl-letf (((symbol-function 'cider-current-ns) (lambda () "user"))
                 ((symbol-function 'cider-initialize-macroexpansion-buffer) #'ignore)
-                ((symbol-function 'cider-nrepl-send-sync-request)
+                ((symbol-function 'cider-nrepl-sync-request)
                  (lambda (request)
                    (push (cadr (member "code" request)) codes)
                    (nrepl-dict "expansion" "EXPANDED" "status" '("done")))))

@@ -41,7 +41,7 @@
   (thread-first `("op" "cider/toggle-trace-var"
                   "ns" ,(cider-current-ns)
                   "sym" ,sym)
-                (cider-nrepl-send-sync-request)))
+                (cider-nrepl-sync-request)))
 
 (defun cider--toggle-trace-var (sym)
   "Toggle var tracing for SYM."
@@ -68,7 +68,7 @@ opposite of what that option dictates."
   "Toggle namespace tracing for NS."
   (thread-first `("op" "cider/toggle-trace-ns"
                   "ns" ,ns)
-                (cider-nrepl-send-sync-request)))
+                (cider-nrepl-sync-request)))
 
 ;;;###autoload
 (defun cider-toggle-trace-ns (query)
@@ -94,7 +94,7 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
 (defun cider-sync-request:list-traced ()
   "Return the vars and namespaces that are currently traced."
   (thread-first `("op" "cider/list-traced")
-                (cider-nrepl-send-sync-request)))
+                (cider-nrepl-sync-request)))
 
 (defun cider-list-traced--render (nses vars)
   "Render the traced NSES and VARS in `cider-traced-buffer'."
@@ -127,7 +127,7 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
 (defun cider-untrace-all ()
   "Untrace all currently traced vars and namespaces."
   (interactive)
-  (let* ((response (cider-nrepl-send-sync-request '("op" "cider/untrace-all")))
+  (let* ((response (cider-nrepl-sync-request '("op" "cider/untrace-all")))
          (count (or (nrepl-dict-get response "untraced-count") 0)))
     (message "Untraced %d var%s" count (if (= count 1) "" "s"))))
 

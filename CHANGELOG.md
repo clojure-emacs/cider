@@ -42,6 +42,7 @@
 
 ### Changes
 
+- [#4029](https://github.com/clojure-emacs/cider/pull/4029): Finish migrating to the keyword-argument request APIs and deprecate the positional shims: `cider-nrepl-send-sync-request` -> `cider-nrepl-sync-request`, `cider-nrepl-request:eval` -> `cider-nrepl-send-eval-request`, `nrepl-send-sync-request` -> `nrepl-sync-request`, `nrepl-request:eval` -> `nrepl-send-eval-request`.
 - [#4028](https://github.com/clojure-emacs/cider/pull/4028): Deprecate `cider-ensure-op-supported`; op support is now enforced automatically by the nREPL senders, so commands no longer need an explicit check.
 - [#4026](https://github.com/clojure-emacs/cider/pull/4026): Bump the injected `cider-nrepl` to 0.61.0-alpha1, which provides ClojureScript test support, the `clojure-only` op signal and the ClojureScript macroexpansion fix.
 - [#4026](https://github.com/clojure-emacs/cider/pull/4026): Show a clear message when a Clojure-only operation (apropos, xref, trace, profile, refresh, reload, undef, spec) is invoked under a ClojureScript REPL, instead of failing confusingly or returning JVM-only results (requires a recent enough `cider-nrepl`) ([#2198](https://github.com/clojure-emacs/cider/issues/2198)).
