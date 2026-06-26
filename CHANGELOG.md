@@ -42,6 +42,7 @@
 
 ### Changes
 
+- [#4028](https://github.com/clojure-emacs/cider/pull/4028): Deprecate `cider-ensure-op-supported`; op support is now enforced automatically by the nREPL senders, so commands no longer need an explicit check.
 - [#4026](https://github.com/clojure-emacs/cider/pull/4026): Bump the injected `cider-nrepl` to 0.61.0-alpha1, which provides ClojureScript test support, the `clojure-only` op signal and the ClojureScript macroexpansion fix.
 - [#4026](https://github.com/clojure-emacs/cider/pull/4026): Show a clear message when a Clojure-only operation (apropos, xref, trace, profile, refresh, reload, undef, spec) is invoked under a ClojureScript REPL, instead of failing confusingly or returning JVM-only results (requires a recent enough `cider-nrepl`) ([#2198](https://github.com/clojure-emacs/cider/issues/2198)).
 - [#4022](https://github.com/clojure-emacs/cider/pull/4022): `cider-inspect-last-sexp` now inspects the tagged class when point is on a type tag (e.g. `^String`), instead of the form the tag applies to ([#3679](https://github.com/clojure-emacs/cider/issues/3679)).
