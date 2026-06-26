@@ -391,7 +391,6 @@ a more user friendly representation of SPEC-FORM."
 
 (defun cider-browse-spec--browse (spec)
   "Browse SPEC."
-  (cider-ensure-connected)
   ;; Expand auto-resolved keywords
   (when-let* ((val (and (string-match-p "^::.+" spec)
                         (nrepl-dict-get (cider-sync-tooling-eval spec (cider-current-ns)) "value"))))
