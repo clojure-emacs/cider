@@ -43,6 +43,31 @@ sessions. Each session is a collection of connections which share the same nREPL
 server. You can, however, have multiple sessions sharing the same nREPL server (although you're unlikely to
 ever need this).
 
+The picture below shows a typical session holding both a Clojure and a
+ClojureScript REPL. Remember that a connection and a REPL buffer are the same
+thing (see the note at the top of this page), and that each connection is in turn
+segregated into two nREPL sessions of its own: an *eval* session that backs the
+REPL and a separate *tooling* session that CIDER uses for background requests so
+they don't clobber REPL state such as `+*1+`, `+*2+` and `+*3+`.
+
+....
+             "current session"  (a Sesman session, tied to a context)
+ +----------------------------------------------------------------------+
+ |                                                                      |
+ |    clj REPL buffer                        cljs REPL buffer           |
+ |    = nREPL connection                     = nREPL connection         |
+ |    (eval + tooling                        (eval + tooling            |
+ |     nREPL sessions)                        nREPL sessions)           |
+ |             |                                      |                 |
+ +-------------|--------------------------------------|-----------------+
+               |                                      |
+               +-------------------+------------------+
+                                   |
+                           +-----------------+
+                           |   nREPL server  |   (shared by the session)
+                           +-----------------+
+....
+
 === Starting New Sessions
 
 You can start new sessions with the following commands:
@@ -107,7 +132,52 @@ To quit or restart individual connections use CIDER commands
 == Current Session
 
 All CIDER commands (evaluation, completion, switching to REPL etc.) operate on
-the relevant REPL within the current session. The current session is the most
+the relevant REPL within the current session. At a glance, here's how CIDER turns
+an operation in a source buffer into a target REPL. The sections that follow
+explain each step in detail.
+
+....
+   operation in a source buffer (eval, completion, ...)
+                      |
+                      v
+   +--------------------------------------------------+
+   | 1. Is the buffer pinned to a REPL?               |--yes--> use that REPL's
+   |    (e.g. a dependency source visited via M-.)     |         session
+   +--------------------------------------------------+
+                      | no
+                      v
+   +--------------------------------------------------+
+   | 2. Is a default session set?                     |--yes--> use it
+   |    (cider-set-default-session)                    |
+   +--------------------------------------------------+
+                      | no
+                      v
+   +--------------------------------------------------+
+   | 3. Ask Sesman: linked sessions, else friendly    |
+   |    ones (file under the project dir).            |
+   |    cider-merge-sessions may pool several.        |
+   |    -> the most relevant session                  |
+   +--------------------------------------------------+
+                      |
+                      v   pick a REPL from that session:
+   +--------------------------------------------------+
+   | 4. Filter by the source buffer's type:           |
+   |      clj  buffer -> clj  REPLs                    |
+   |      cljs buffer -> cljs REPLs                    |
+   |      cljc buffer -> both (multi dispatch)         |
+   +--------------------------------------------------+
+                      |
+                      v
+   +--------------------------------------------------+
+   | 5. More than one of that type?                   |
+   |    -> the most recently viewed REPL              |
+   +--------------------------------------------------+
+                      |
+                      v
+                target REPL(s)
+....
+
+The current session is the most
 relevant session among all linked sessions (or friendly sessions when no links
 exist). Session relevance is decided by the specificity of the linked contexts
 and recency of the REPL buffers.
