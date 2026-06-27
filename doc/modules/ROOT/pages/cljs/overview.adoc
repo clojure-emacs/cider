@@ -1,9 +1,10 @@
 = ClojureScript
 :experimental:
 
-NOTE: CIDER works well with ClojureScript, but not all CIDER features are
-available in ClojureScript (yet). For instance, the test runner and
-debugger are currently Clojure-only features.
+NOTE: CIDER works well with ClojureScript, but ClojureScript's
+compile-on-the-JVM, run-in-a-JavaScript-runtime model means a few Clojure
+features can't apply to it. See <<Feature support>> below for what works,
+what doesn't, and what to reach for instead.
 
 Unlike the Clojure ecosystem that is dominated by a single REPL, the
 ClojureScript ecosystem has a number of different choices for REPLs
@@ -33,6 +34,61 @@ REPLs in a single nREPL connection! This opens up all sorts of interesting possi
 that we'll discuss later on.
 
 NOTE: `shadow-cljs`'s REPL is implemented in a very similar fashion, but its mechanism is provided by its own nREPL middleware - not Piggieback.
+
+== Feature support
+
+ClojureScript compiles on the JVM but evaluates in a separate JavaScript
+runtime (a browser tab, Node, React Native, and so on).  Features that read the
+*compiler/analyzer* therefore work much like they do for Clojure, while
+features that need to *instrument running code, rebind vars at runtime, or
+inspect the JVM* have nothing to attach to in a JavaScript runtime.
+
+The following work in a ClojureScript REPL:
+
+* evaluation and loading files
+* code completion
+* `eldoc` (argument lists) and documentation lookup (`cider-doc`)
+* jump to definition
+* macroexpansion
+* namespace operations (listing namespaces and their vars)
+* the test runner (via `cljs.test`)
+* code formatting
+
+The following are *not* available for ClojureScript, and aren't planned,
+because they can't work over nREPL against a JavaScript runtime - reach for the
+suggested alternative instead:
+
+[cols="1,3"]
+|===
+| Feature | Why, and what to use instead
+
+| Debugger / stepping
+| The debugger instruments forms and pauses a JVM thread.  For ClojureScript
+  use https://github.com/flow-storm/cider-storm[Cider Storm] (time-travel
+  debugging), or your browser/Node DevTools together with source maps.
+
+| Enlighten
+| Built on the same instrumentation as the debugger.
+
+| Tracing
+| Wraps JVM vars; ClojureScript vars compile to static JavaScript.
+
+| Profiling
+| Relies on JVM instrumentation; use the runtime's own profiler (e.g. the
+  browser's performance tools).
+
+| `apropos`, find references / who-calls
+| Runtime introspection of Clojure vars.  For static navigation and
+  find-references across ClojureScript, use https://clojure-lsp.io[clojure-lsp]
+  alongside CIDER.
+|===
+
+When you invoke one of these in a ClojureScript REPL, CIDER tells you it isn't
+available rather than failing obscurely.
+
+TIP: For inspecting values, the ClojureScript ecosystem leans on `tap>`-based
+tools such as shadow-cljs Inspect, https://github.com/djblue/portal[Portal] and
+cljs-devtools, which complement CIDER nicely.
 
 == Piggieback differences with the Standard ClojureScript REPL
 
@@ -115,8 +171,8 @@ Another unsupported REPL is Rhino. Supporting in it Piggieback required a lot of
 and eventually it was decided we were better off without Rhino. Given the abundance
 of better solutions today, I doubt anyone's going to miss Rhino anyways.
 
-Additionally, as noted earlier on this page - many of CIDER's advanced features are
-currently not available for ClojureScript.
+Additionally, some of CIDER's features can't apply to ClojureScript at all -
+see <<Feature support>> above for the details and the recommended alternatives.
 
 == Next
 
