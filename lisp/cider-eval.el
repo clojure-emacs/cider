@@ -996,8 +996,8 @@ command `cider-debug-defun-at-point'."
   (let ((inline-debug (eq 16 (car-safe debug-it))))
     (when debug-it
       (when (cider-clojurescript-major-mode-p)
-        (when (y-or-n-p "The debugger doesn't support ClojureScript yet, and we need help with that.  \nWould you like to read the Feature Request?")
-          (browse-url "https://github.com/clojure-emacs/cider/issues/1416"))
+        (when (y-or-n-p "The debugger isn't available for ClojureScript.  Read about the alternatives (Cider Storm, browser DevTools)? ")
+          (browse-url "https://docs.cider.mx/cider/cljs/overview.html"))
         (user-error "The debugger does not support ClojureScript"))
       (when inline-debug
         (cider--prompt-and-insert-inline-dbg)))
