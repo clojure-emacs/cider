@@ -4,6 +4,7 @@
 
 ### New features
 
+- [#4044](https://github.com/clojure-emacs/cider/pull/4044): Add `cider-tap`, a buffer that streams the values sent to `tap>` and lets you inspect any of them with `RET` (reusing the inspector). Requires a recent enough `cider-nrepl` (with the `tap` middleware); Clojure-only for now.
 - [#4026](https://github.com/clojure-emacs/cider/pull/4026): Run ClojureScript tests with the regular test commands (e.g. `cider-test-run-ns-tests`) when a ClojureScript REPL is active, instead of refusing them; requires a recent enough `cider-nrepl` (asynchronous `cljs.test/async` tests included).
 - [#4023](https://github.com/clojure-emacs/cider/pull/4023): `cider-auto-inspect-after-eval` now accepts `interactive`, `repl` or `all` (in addition to `t`/`nil`), so a visible inspector can also be refreshed after REPL evaluations ([#3636](https://github.com/clojure-emacs/cider/issues/3636)).
 - [#4025](https://github.com/clojure-emacs/cider/pull/4025): Mark each `deftest` with a green (passed) or red (failed) left-fringe indicator after a test run. `cider-use-fringe-indicators` now accepts a list of kinds (`eval`, `test`) for finer control, in addition to `t`/`nil` ([#3721](https://github.com/clojure-emacs/cider/issues/3721)).
