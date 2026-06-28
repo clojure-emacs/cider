@@ -44,6 +44,7 @@
 
 ### Changes
 
+- [#4047](https://github.com/clojure-emacs/cider/pull/4047): Render the doc buffer's "See also" section as a bulleted list (one entry per line) instead of an inline space-separated run, matching the ClojureDocs buffer.
 - [#4046](https://github.com/clojure-emacs/cider/pull/4046): Make eldoc asynchronous - the arglist/var lookup no longer blocks Emacs on an nREPL round-trip as you move the cursor (it uses eldoc's callback protocol and delivers the result when it arrives). Declines the eldoc slot when CIDER has nothing, so other sources (e.g. clojure-lsp) compose cleanly.
 - [#4035](https://github.com/clojure-emacs/cider/pull/4035): Rename `cider-ensure-connected` to `cider-ensure-session` (it ensures a linked CIDER session); the old name remains as an obsolete alias.
 - [#4033](https://github.com/clojure-emacs/cider/pull/4033): Deprecate the legacy connection-named aliases `cider-current-connection`, `cider-connections`, `cider-map-connections` and `cider-connection-type-for-buffer` in favor of their `cider-repl` counterparts.
