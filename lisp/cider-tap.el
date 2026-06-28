@@ -44,8 +44,10 @@
 
 (defun cider-tap--render-value (event)
   "Append the tapped value EVENT to the current buffer, following the tail.
-Each entry is tagged with its `idx' so `cider-tap-inspect-at-point' can
-inspect the retained value behind it."
+Each entry is tagged so navigation finds it.  Clojure entries also carry an
+`idx' so `cider-tap-inspect-at-point' can inspect the retained value behind
+them; ClojureScript entries have none, since their value lives in the JS
+runtime."
   (nrepl-dbind-response event (idx summary type count)
     (let ((inhibit-read-only t)
           (at-end (= (point) (point-max))))
@@ -59,6 +61,7 @@ inspect the retained value behind it."
                                       (if count (format ", %s" count) ""))
                               'face 'shadow))
           (insert "\n")
+          (put-text-property start (point) 'cider-tap-entry t)
           ;; `idx' can be 0, which is a valid (non-nil) property value.
           (when idx
             (put-text-property start (point) 'cider-tap-idx idx))))
@@ -68,28 +71,32 @@ inspect the retained value behind it."
   "Open the tapped value on the current line in the inspector."
   (interactive)
   (let ((idx (get-text-property (point) 'cider-tap-idx)))
-    (unless idx
-      (user-error "No tapped value on this line"))
-    (let ((result (cider-nrepl-sync-request
-                   (list "op" "cider/tap-inspect" "idx" (number-to-string idx))
-                   :connection cider-tap--repl)))
-      (if (nrepl-dict-get result "value")
-          (progn
-            (setq cider-inspector-location-stack nil)
-            (cider-inspector--render-value result :next-inspectable))
-        (user-error "That tapped value is no longer retained")))))
+    (cond
+     (idx
+      (let ((result (cider-nrepl-sync-request
+                     (list "op" "cider/tap-inspect" "idx" (number-to-string idx))
+                     :connection cider-tap--repl)))
+        (if (nrepl-dict-get result "value")
+            (progn
+              (setq cider-inspector-location-stack nil)
+              (cider-inspector--render-value result :next-inspectable))
+          (user-error "That tapped value is no longer retained"))))
+     ((get-text-property (point) 'cider-tap-entry)
+      (user-error "ClojureScript tapped values can't be inspected yet"))
+     (t
+      (user-error "No tapped value on this line")))))
 
 (defun cider-tap-next ()
   "Move point to the next tapped value."
   (interactive)
-  (if-let* ((match (text-property-search-forward 'cider-tap-idx nil nil t)))
+  (if-let* ((match (text-property-search-forward 'cider-tap-entry nil nil t)))
       (goto-char (prop-match-beginning match))
     (user-error "No next tapped value")))
 
 (defun cider-tap-previous ()
   "Move point to the previous tapped value."
   (interactive)
-  (if-let* ((match (text-property-search-backward 'cider-tap-idx nil nil t)))
+  (if-let* ((match (text-property-search-backward 'cider-tap-entry nil nil t)))
       (goto-char (prop-match-beginning match))
     (user-error "No previous tapped value")))
 
