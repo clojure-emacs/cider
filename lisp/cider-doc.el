@@ -673,19 +673,19 @@ Use a COMPACT format if specified, and FOR-TOOLTIP if specified."
             (insert "Definition location unavailable.")))
         (when (and (not compact)
                    see-also)
-          (insert "\n\n Also see: ")
-          (mapc (lambda (ns-sym)
-                  (let* ((ns-sym-split (split-string ns-sym "/"))
-                         (see-also-ns (car ns-sym-split))
-                         (see-also-sym (cadr ns-sym-split))
-                         ;; if the var belongs to the same namespace,
-                         ;; we omit the namespace to save some screen space
-                         (symbol (if (equal ns see-also-ns) see-also-sym ns-sym)))
-                    (insert-text-button symbol
-                                        'type 'help-xref
-                                        'help-function (apply-partially #'cider-doc-lookup symbol)))
-                  (insert " "))
-                see-also))
+          (insert "\n\nSee also:\n")
+          (dolist (ns-sym see-also)
+            (let* ((ns-sym-split (split-string ns-sym "/"))
+                   (see-also-ns (car ns-sym-split))
+                   (see-also-sym (cadr ns-sym-split))
+                   ;; if the var belongs to the same namespace,
+                   ;; we omit the namespace to save some screen space
+                   (symbol (if (equal ns see-also-ns) see-also-sym ns-sym)))
+              (insert "  * ")
+              (insert-text-button symbol
+                                  'type 'help-xref
+                                  'help-function (apply-partially #'cider-doc-lookup symbol))
+              (insert "\n"))))
         (unless compact
           (cider--doc-make-xrefs))
         (let ((beg (point-min))
