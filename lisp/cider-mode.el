@@ -451,6 +451,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ,cider-test-menu
     ("Debug"
      ["Inspect" cider-inspect]
+     ["Tap values buffer" cider-tap]
      ["Toggle var tracing" cider-toggle-trace-var]
      ["Toggle ns tracing" cider-toggle-trace-ns]
      ["List traced" cider-list-traced]
