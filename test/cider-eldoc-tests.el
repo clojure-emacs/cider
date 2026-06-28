@@ -195,14 +195,21 @@
     (expect (cider--eldoc-remove-dot "map")
             :to-equal "map")))
 
+(defun cider-eldoc-tests--current-sexp ()
+  "Synchronously resolve `cider-eldoc-info-in-current-sexp' for tests.
+Relies on the spied `cider-eldoc-info-async' invoking its callback synchronously."
+  (let (captured)
+    (cider-eldoc-info-in-current-sexp (lambda (result) (setq captured result)))
+    captured))
+
 (describe "cider-eldoc-info-in-current-sexp"
   (before-each
     (spy-on 'cider-connected-p :and-return-value t)
-    (spy-on 'cider-eldoc-info :and-call-fake
-            (lambda (thing)
-              (pcase thing
-                ("map" '("clojure.core" "map" (("f") ("f" "coll"))))
-                ("inc" '("clojure.core" "inc" (("x"))))))))
+    (spy-on 'cider-eldoc-info-async :and-call-fake
+            (lambda (thing k)
+              (funcall k (pcase thing
+                           ("map" '("clojure.core" "map" (("f") ("f" "coll"))))
+                           ("inc" '("clojure.core" "inc" (("x")))))))))
 
   (it "considers sym-at-point before the sym-at-sexp-beginning"
     (with-temp-buffer
@@ -210,18 +217,18 @@
       (save-excursion (insert "(map inc [1 2 3])"))
       ;; when cursor is on map, display its eldoc
       (search-forward "map")
-      (expect (cider-eldoc-info-in-current-sexp) :to-equal
+      (expect (cider-eldoc-tests--current-sexp) :to-equal
               '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 0))
       ;; when cursor is on inc, display its eldoc
       (search-forward "inc")
-      (expect (cider-eldoc-info-in-current-sexp) :to-equal
+      (expect (cider-eldoc-tests--current-sexp) :to-equal
               '("eldoc-info" ("clojure.core" "inc" (("x"))) "thing" "inc" "pos" 0))
       ;; eldoc can be nil
       (search-forward "1")
-      (expect (cider-eldoc-info-in-current-sexp) :to-be nil)
+      (expect (cider-eldoc-tests--current-sexp) :to-be nil)
       ;; when cursor is at the end of sexp, display eldoc of first symbol
       (search-forward "]")
-      (expect (cider-eldoc-info-in-current-sexp) :to-equal
+      (expect (cider-eldoc-tests--current-sexp) :to-equal
               '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 2))))
 
   (it "respects the value of `cider-eldoc-display-for-symbol-at-point'"
@@ -231,28 +238,28 @@
         (save-excursion (insert "(map inc [1 2 3])"))
         ;; when cursor is on map, display its eldoc
         (search-forward "map")
-        (expect (cider-eldoc-info-in-current-sexp) :to-equal
+        (expect (cider-eldoc-tests--current-sexp) :to-equal
                 '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 0))
         ;; when cursor is on inc, still display eldoc of map
         (search-forward "inc")
-        (expect (cider-eldoc-info-in-current-sexp) :to-equal
+        (expect (cider-eldoc-tests--current-sexp) :to-equal
                 '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 1))
         ;; eldoc can be nil
         (search-forward "1")
-        (expect (cider-eldoc-info-in-current-sexp) :to-be nil)
+        (expect (cider-eldoc-tests--current-sexp) :to-be nil)
         ;; when cursor is at the end of sexp, display eldoc of first symbol
         (search-forward "]")
-        (expect (cider-eldoc-info-in-current-sexp) :to-equal
+        (expect (cider-eldoc-tests--current-sexp) :to-equal
                 '("eldoc-info" ("clojure.core" "map" (("f") ("f" "coll"))) "thing" "map" "pos" 2)))))
 
   (describe "interop forms"
     (before-each
       (spy-on 'cider-connected-p :and-return-value t)
-      (spy-on 'cider-eldoc-info :and-call-fake
-              (lambda (thing)
-                (pcase thing
-                  (".length" '(("java.lang.String" "java.lang.StringBuffer" "java.lang.CharSequence" "java.lang.StringBuilder") ".length" (("this"))))
-                  ("java.lang.String/length" '(("java.lang.String") ".length" (("this"))))))))
+      (spy-on 'cider-eldoc-info-async :and-call-fake
+              (lambda (thing k)
+                (funcall k (pcase thing
+                             (".length" '(("java.lang.String" "java.lang.StringBuffer" "java.lang.CharSequence" "java.lang.StringBuilder") ".length" (("this"))))
+                             ("java.lang.String/length" '(("java.lang.String") ".length" (("this")))))))))
 
     (describe "when class name is not given before interop forms"
       (it "includes all possible class names in eldoc"
@@ -260,7 +267,7 @@
           (clojure-mode)
           (save-excursion (insert "(.length \"abc\")"))
           (search-forward ".length")
-          (expect (cider-eldoc-info-in-current-sexp) :to-equal
+          (expect (cider-eldoc-tests--current-sexp) :to-equal
                   '("eldoc-info" (("java.lang.String" "java.lang.StringBuffer" "java.lang.CharSequence" "java.lang.StringBuilder") ".length" (("this"))) "thing" ".length" "pos" 0)))))
 
     (describe "when class name is given before interop forms"
@@ -269,39 +276,43 @@
           (clojure-mode)
           (save-excursion (insert "(java.lang.String/.length \"abc\")"))
           (search-forward ".length")
-          (expect (cider-eldoc-info-in-current-sexp) :to-equal
+          (expect (cider-eldoc-tests--current-sexp) :to-equal
                   '("eldoc-info" (("java.lang.String") ".length" (("this"))) "thing" "java.lang.String/.length" "pos" 0)))))))
 
 (describe "cider-eldoc"
   (before-each
     (spy-on 'cider-connected-p :and-return-value t)
-    (spy-on 'cider-eldoc--edn-file-p :and-return-value nil))
+    (spy-on 'cider--eldoc-edn-file-p :and-return-value nil))
   (it "Should call cider-eldoc-format-variable for vars"
     (let* ((info '("ns" "clojure.core" "symbol" "foo" "type" "variable" "docstring" "test docstring")))
-      (spy-on 'cider-eldoc-info-in-current-sexp :and-return-value `("thing" "foo" "pos" 0 "eldoc-info" ,info))
+      (spy-on 'cider-eldoc-info-in-current-sexp :and-call-fake
+              (lambda (k) (funcall k `("thing" "foo" "pos" 0 "eldoc-info" ,info))))
       (spy-on 'cider-eldoc-format-variable)
-      (cider-eldoc)
+      (cider-eldoc #'ignore)
       (expect 'cider-eldoc-format-variable :to-have-been-called-with "foo" info)))
 
   (it "Should call cider-eldoc-format-special-form for special forms"
     (let* ((info '("ns" "clojure.core" "symbol" "if" "type" "special-form" "arglists" ("special form arglist"))))
-      (spy-on 'cider-eldoc-info-in-current-sexp :and-return-value `("thing" "if" "pos" 0 "eldoc-info" ,info))
+      (spy-on 'cider-eldoc-info-in-current-sexp :and-call-fake
+              (lambda (k) (funcall k `("thing" "if" "pos" 0 "eldoc-info" ,info))))
       (spy-on 'cider-eldoc-format-special-form)
-      (cider-eldoc)
+      (cider-eldoc #'ignore)
       (expect 'cider-eldoc-format-special-form :to-have-been-called-with "if" 0 info)))
 
   (it "Should call cider-eldoc-format-function for functions"
     (let* ((info '("ns" "foo.bar" "symbol" "a-fn" "type" "function" "arglists" ("function arglist"))))
-      (spy-on 'cider-eldoc-info-in-current-sexp :and-return-value `("thing" "a-fn" "pos" 0 "eldoc-info" ,info))
+      (spy-on 'cider-eldoc-info-in-current-sexp :and-call-fake
+              (lambda (k) (funcall k `("thing" "a-fn" "pos" 0 "eldoc-info" ,info))))
       (spy-on 'cider-eldoc-format-function)
-      (cider-eldoc)
+      (cider-eldoc #'ignore)
       (expect 'cider-eldoc-format-function :to-have-been-called-with "a-fn" 0 info)))
 
   (it "Should call cider-eldoc-format-function for macros"
     (let* ((info '("ns" "clojure.core" "symbol" "a-macro" "type" "macro" "arglists" ("macro arglist"))))
-      (spy-on 'cider-eldoc-info-in-current-sexp :and-return-value `("thing" "a-macro" "pos" 0 "eldoc-info" ,info))
+      (spy-on 'cider-eldoc-info-in-current-sexp :and-call-fake
+              (lambda (k) (funcall k `("thing" "a-macro" "pos" 0 "eldoc-info" ,info))))
       (spy-on 'cider-eldoc-format-function)
-      (cider-eldoc)
+      (cider-eldoc #'ignore)
       (expect 'cider-eldoc-format-function :to-have-been-called-with "a-macro" 0 info))))
 
 (describe "cider-eldoc-format-sym-doc"

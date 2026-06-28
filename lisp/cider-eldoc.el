@@ -340,46 +340,59 @@ It can be `fn', `special-form', `macro', `method' or `var'."
         ("variable" 'var))
       'fn))
 
-(defun cider-eldoc-info-at-point ()
-  "Return eldoc info at point.
+(defun cider-eldoc-info-at-point (k)
+  "Compute eldoc info at point and call K with the sexp-eldoc plist (or nil).
 First go to the beginning of the sexp and check if the eldoc is to be
 considered (i.e sexp is a method call) and not a map or vector literal.
-Then go back to the point and return its eldoc."
+Then go back to the point and look up its eldoc."
   (save-excursion
-    (unless (cider-in-comment-p)
-      (let* ((current-point (point)))
+    (if (cider-in-comment-p)
+        (funcall k nil)
+      (let ((current-point (point)))
         (cider-eldoc-beginning-of-sexp)
-        (unless (member (or (char-before (point)) 0) '(?\" ?\{ ?\[))
+        (if (member (or (char-before (point)) 0) '(?\" ?\{ ?\[))
+            (funcall k nil)
           (goto-char current-point)
-          (when-let* ((eldoc-info (cider-eldoc-info
-                                   (cider--eldoc-remove-dot (cider-symbol-at-point)))))
-            `("eldoc-info" ,eldoc-info
-              "thing" ,(cider-symbol-at-point)
-              "pos" 0)))))))
+          (let ((thing (cider-symbol-at-point)))
+            (cider-eldoc-info-async
+             (cider--eldoc-remove-dot thing)
+             (lambda (eldoc-info)
+               (funcall k (when eldoc-info
+                            `("eldoc-info" ,eldoc-info
+                              "thing" ,thing
+                              "pos" 0)))))))))))
 
-(defun cider-eldoc-info-at-sexp-beginning ()
-  "Return eldoc info for first symbol in the sexp."
+(defun cider-eldoc-info-at-sexp-beginning (k)
+  "Compute eldoc info for the first symbol in the sexp; call K with it (or nil)."
   (save-excursion
-    (when-let* ((beginning-of-sexp (cider-eldoc-beginning-of-sexp))
-                ;; If we are at the beginning of function name, this will be -1
-                (argument-index (max 0 (1- beginning-of-sexp))))
-      (unless (or (memq (or (char-before (point)) 0)
-                        '(?\" ?\{ ?\[))
+    (let ((beginning-of-sexp (cider-eldoc-beginning-of-sexp)))
+      (if (not beginning-of-sexp)
+          (funcall k nil)
+        ;; If we are at the beginning of function name, this will be -1
+        (let ((argument-index (max 0 (1- beginning-of-sexp))))
+          (if (or (memq (or (char-before (point)) 0) '(?\" ?\{ ?\[))
                   (cider-in-comment-p))
-        (when-let* ((eldoc-info (cider-eldoc-info
-                                 (cider--eldoc-remove-dot (cider-symbol-at-point)))))
-          `("eldoc-info" ,eldoc-info
-            "thing" ,(cider-symbol-at-point)
-            "pos" ,argument-index))))))
+              (funcall k nil)
+            (let ((thing (cider-symbol-at-point)))
+              (cider-eldoc-info-async
+               (cider--eldoc-remove-dot thing)
+               (lambda (eldoc-info)
+                 (funcall k (when eldoc-info
+                              `("eldoc-info" ,eldoc-info
+                                "thing" ,thing
+                                "pos" ,argument-index))))))))))))
 
-(defun cider-eldoc-info-in-current-sexp ()
-  "Return eldoc information from the sexp.
-If `cider-eldoc-display-for-symbol-at-point' is non-nil and
-the symbol at point has a valid eldoc available, return that.
-Otherwise return the eldoc of the first symbol of the sexp."
-  (or (when cider-eldoc-display-for-symbol-at-point
-        (cider-eldoc-info-at-point))
-      (cider-eldoc-info-at-sexp-beginning)))
+(defun cider-eldoc-info-in-current-sexp (k)
+  "Compute eldoc information from the sexp and call K with the plist (or nil).
+If `cider-eldoc-display-for-symbol-at-point' is non-nil and the symbol at
+point has a valid eldoc, use that; otherwise use the first symbol of the sexp."
+  (if cider-eldoc-display-for-symbol-at-point
+      (cider-eldoc-info-at-point
+       (lambda (info)
+         (if info
+             (funcall k info)
+           (cider-eldoc-info-at-sexp-beginning k))))
+    (cider-eldoc-info-at-sexp-beginning k)))
 
 (defun cider-eldoc--convert-ns-keywords (thing)
   "Convert THING values that match ns macro keywords to function names."
@@ -390,78 +403,131 @@ Otherwise return the eldoc of the first symbol of the sexp."
     (":refer" "clojure.core/refer")
     (_ thing)))
 
+(defun cider-eldoc--lookup-applicable-p (thing)
+  "Return non-nil when an eldoc lookup makes sense for THING."
+  (and (cider-nrepl-op-supported-p "cider/eldoc")
+       thing
+       ;; ignore blank things
+       (not (string-blank-p thing))
+       ;; ignore string literals
+       (not (string-prefix-p "\"" thing))
+       ;; ignore regular expressions
+       (not (string-prefix-p "#" thing))
+       ;; ignore chars
+       (not (string-prefix-p "\\" thing))
+       ;; ignore numbers
+       (not (string-match-p "^[0-9]" thing))))
+
+(defun cider-eldoc--local-info (thing)
+  "Return a locally-computed eldoc plist for THING, without an nREPL round-trip.
+Handles map-access keywords, `Classname.' constructors, and the cached last
+symbol.  Returns nil when a server lookup is needed."
+  (cond
+   ;; handle keywords for map access
+   ((string-prefix-p ":" thing)
+    (list "symbol" thing "type" "function"
+          "arglists" '(("map") ("map" "not-found"))))
+   ;; handle Classname. by displaying the eldoc for new
+   ((string-match-p "^[A-Z].+\\.$" thing)
+    (list "symbol" thing "type" "function"
+          "arglists" '(("args*"))))
+   ;; reuse the cached lookup (see `cider-eldoc--build-info')
+   ((equal thing (car cider-eldoc-last-symbol))
+    (cadr cider-eldoc-last-symbol))))
+
+(defun cider-eldoc--build-info (thing eldoc-info)
+  "Build (and cache) the eldoc plist for THING from the ELDOC-INFO response dict."
+  (let* ((arglists (nrepl-dict-get eldoc-info "eldoc"))
+         (docstring (nrepl-dict-get eldoc-info "docstring"))
+         (type (nrepl-dict-get eldoc-info "type"))
+         (ns (nrepl-dict-get eldoc-info "ns"))
+         (class (nrepl-dict-get eldoc-info "class"))
+         (name (nrepl-dict-get eldoc-info "name"))
+         (member (nrepl-dict-get eldoc-info "member"))
+         (ns-or-class (if (and ns (not (string= ns "")))
+                          ns
+                        class))
+         (name-or-member (if (and name (not (string= name "")))
+                             name
+                           (format ".%s" member)))
+         (eldoc-plist (list "ns" ns-or-class
+                            "class" class
+                            "symbol" name-or-member
+                            "arglists" arglists
+                            "docstring" docstring
+                            "doc-fragments" (nrepl-dict-get eldoc-info "doc-fragments")
+                            "doc-first-sentence-fragments" (nrepl-dict-get eldoc-info
+                                                                           "doc-first-sentence-fragments")
+                            "doc-block-tags-fragments" (nrepl-dict-get eldoc-info
+                                                                       "doc-block-tags-fragments")
+                            "type" type)))
+    ;; add context dependent args if requested by defcustom
+    ;; do not cache this eldoc info to avoid showing info
+    ;; of the previous context
+    (if cider-eldoc-display-context-dependent-info
+        (cond
+         ;; add inputs of datomic query
+         ((and (equal ns-or-class "datomic.api")
+               (equal name-or-member "q"))
+          (cider-plist-put eldoc-plist "arglists"
+                           (cider--eldoc-add-datomic-query-inputs-to-arglists
+                            (cider-plist-get eldoc-plist "arglists"))))
+         ;; if none of the clauses is successful, do cache the eldoc
+         (t (setq cider-eldoc-last-symbol (list thing eldoc-plist))))
+      ;; middleware eldoc lookups are expensive, so we cache the last lookup.
+      ;; This eliminates the need for extra middleware requests within the same sexp.
+      (setq cider-eldoc-last-symbol (list thing eldoc-plist)))
+    eldoc-plist))
+
 (defun cider-eldoc-info (thing)
-  "Return the info for THING (as string).
-This includes the arglist and ns and symbol name (if available)."
+  "Return the eldoc info plist for THING, synchronously.
+This includes the arglist and ns and symbol name (if available).  On the
+eldoc hot path prefer `cider-eldoc-info-async', which doesn't block; this
+synchronous variant is kept for callers like company's docsig that need an
+immediate result."
   (let ((thing (cider-eldoc--convert-ns-keywords thing)))
-    (when (and (cider-nrepl-op-supported-p "cider/eldoc")
-               thing
-               ;; ignore blank things
-               (not (string-blank-p thing))
-               ;; ignore string literals
-               (not (string-prefix-p "\"" thing))
-               ;; ignore regular expressions
-               (not (string-prefix-p "#" thing))
-               ;; ignore chars
-               (not (string-prefix-p "\\" thing))
-               ;; ignore numbers
-               (not (string-match-p "^[0-9]" thing)))
-      ;; check if we can used the cached eldoc info
-      (cond
-       ;; handle keywords for map access
-       ((string-prefix-p ":" thing) (list "symbol" thing
-                                          "type" "function"
-                                          "arglists" '(("map") ("map" "not-found"))))
-       ;; handle Classname. by displaying the eldoc for new
-       ((string-match-p "^[A-Z].+\\.$" thing) (list "symbol" thing
-                                                    "type" "function"
-                                                    "arglists" '(("args*"))))
-       ;; generic case
-       (t (if (equal thing (car cider-eldoc-last-symbol))
-              (cadr cider-eldoc-last-symbol)
-            (when-let* ((eldoc-info (cider-eldoc-request :sym thing :context (cider-completion-get-context t))))
-              (let* ((arglists (nrepl-dict-get eldoc-info "eldoc"))
-                     (docstring (nrepl-dict-get eldoc-info "docstring"))
-                     (type (nrepl-dict-get eldoc-info "type"))
-                     (ns (nrepl-dict-get eldoc-info "ns"))
-                     (class (nrepl-dict-get eldoc-info "class"))
-                     (name (nrepl-dict-get eldoc-info "name"))
-                     (member (nrepl-dict-get eldoc-info "member"))
-                     (ns-or-class (if (and ns (not (string= ns "")))
-                                      ns
-                                    class))
-                     (name-or-member (if (and name (not (string= name "")))
-                                         name
-                                       (format ".%s" member)))
-                     (eldoc-plist (list "ns" ns-or-class
-                                        "class" class
-                                        "symbol" name-or-member
-                                        "arglists" arglists
-                                        "docstring" docstring
-                                        "doc-fragments" (nrepl-dict-get eldoc-info "doc-fragments")
-                                        "doc-first-sentence-fragments" (nrepl-dict-get eldoc-info
-                                                                                       "doc-first-sentence-fragments")
-                                        "doc-block-tags-fragments" (nrepl-dict-get eldoc-info
-                                                                                   "doc-block-tags-fragments")
-                                        "type" type)))
-                ;; add context dependent args if requested by defcustom
-                ;; do not cache this eldoc info to avoid showing info
-                ;; of the previous context
-                (if cider-eldoc-display-context-dependent-info
-                    (cond
-                     ;; add inputs of datomic query
-                     ((and (equal ns-or-class "datomic.api")
-                           (equal name-or-member "q"))
-                      (let ((arglists (cider-plist-get eldoc-plist "arglists")))
-                        (cider-plist-put eldoc-plist "arglists"
-                                         (cider--eldoc-add-datomic-query-inputs-to-arglists arglists))))
-                     ;; if none of the clauses is successful, do cache the eldoc
-                     (t (setq cider-eldoc-last-symbol (list thing eldoc-plist))))
-                  ;; middleware eldoc lookups are expensive, so we
-                  ;; cache the last lookup.  This eliminates the need
-                  ;; for extra middleware requests within the same sexp.
-                  (setq cider-eldoc-last-symbol (list thing eldoc-plist)))
-                eldoc-plist))))))))
+    (when (cider-eldoc--lookup-applicable-p thing)
+      (or (cider-eldoc--local-info thing)
+          (when-let* ((eldoc-info (cider-eldoc-request
+                                   :sym thing
+                                   :context (cider-completion-get-context t))))
+            (cider-eldoc--build-info thing eldoc-info))))))
+
+(defun cider-eldoc--request-async (thing k)
+  "Request `cider/eldoc' for THING asynchronously and call K with the dict or nil.
+Unlike the synchronous path this never blocks Emacs, so it needs no
+`abort-on-input'."
+  (if-let* ((connection (cider-current-repl)))
+      (let ((accumulated nil))
+        (cider-nrepl-send-request
+         `("op" "cider/eldoc"
+           "ns" ,(cider-current-ns)
+           "sym" ,thing
+           "context" ,(cider-completion-get-context t))
+         (lambda (response)
+           (setq accumulated (if accumulated
+                                 (nrepl-dict-merge accumulated response)
+                               response))
+           (when (member "done" (nrepl-dict-get response "status"))
+             (funcall k accumulated)))
+         connection))
+    (funcall k nil)))
+
+(defun cider-eldoc-info-async (thing k)
+  "Asynchronously compute the eldoc info plist for THING and call K with it.
+K receives the plist, or nil when there's nothing to show.  It may be called
+synchronously (for local/cached cases) or later, once the nREPL response
+arrives, so this never blocks the eldoc hot path."
+  (let ((thing (cider-eldoc--convert-ns-keywords thing)))
+    (if (not (cider-eldoc--lookup-applicable-p thing))
+        (funcall k nil)
+      (if-let* ((local (cider-eldoc--local-info thing)))
+          (funcall k local)
+        (cider-eldoc--request-async
+         thing
+         (lambda (eldoc-info)
+           (funcall k (when eldoc-info
+                        (cider-eldoc--build-info thing eldoc-info)))))))))
 
 (defun cider--eldoc-remove-dot (sym)
   "Remove the preceding \".\" from a namespace qualified SYM and return sym.
@@ -490,17 +556,12 @@ Only useful for interop forms.  Clojure forms would be returned unchanged."
           arglists))
     arglists))
 
-(defun cider-eldoc (&rest _ignored)
-  "Backend function for eldoc to show argument list in the echo area."
-  (when (and (cider-connected-p)
-             ;; don't clobber an error message in the minibuffer
-             (not (member last-command '(next-error previous-error)))
-             ;; don't try to provide eldoc in EDN buffers
-             (not (cider--eldoc-edn-file-p buffer-file-name)))
-    (let* ((sexp-eldoc-info (cider-eldoc-info-in-current-sexp))
-           (eldoc-info (cider-plist-get sexp-eldoc-info "eldoc-info"))
-           (pos (cider-plist-get sexp-eldoc-info "pos"))
-           (thing (cider-plist-get sexp-eldoc-info "thing")))
+(defun cider-eldoc--render (sexp-eldoc-info)
+  "Render SEXP-ELDOC-INFO into an eldoc string, or nil when there's nothing."
+  (when sexp-eldoc-info
+    (let ((eldoc-info (cider-plist-get sexp-eldoc-info "eldoc-info"))
+          (pos (cider-plist-get sexp-eldoc-info "pos"))
+          (thing (cider-plist-get sexp-eldoc-info "thing")))
       (when eldoc-info
         (cond
          ((eq (cider-eldoc-thing-type eldoc-info) 'var)
@@ -509,14 +570,26 @@ Only useful for interop forms.  Clojure forms would be returned unchanged."
           (cider-eldoc-format-special-form thing pos eldoc-info))
          (t (cider-eldoc-format-function thing pos eldoc-info)))))))
 
+(defun cider-eldoc (callback &rest _ignored)
+  "Backend for `eldoc-documentation-functions' showing the arglist in the echo area.
+The doc is fetched asynchronously and handed to CALLBACK, so moving the cursor
+never blocks on an nREPL round-trip.  Returns nil (declining the slot) when
+CIDER can't help, so other eldoc sources still get a turn."
+  (when (and (cider-connected-p)
+             ;; don't clobber an error message in the minibuffer
+             (not (member last-command '(next-error previous-error)))
+             ;; don't try to provide eldoc in EDN buffers
+             (not (cider--eldoc-edn-file-p buffer-file-name)))
+    (cider-eldoc-info-in-current-sexp
+     (lambda (sexp-eldoc-info)
+       (funcall callback (cider-eldoc--render sexp-eldoc-info))))
+    ;; tell eldoc the result will arrive (possibly nil) via the callback
+    t))
+
 (defun cider-eldoc-setup ()
   "Setup eldoc in the current buffer.
 eldoc mode has to be enabled for this to have any effect."
-  ;; Emacs 28.1 changes the way eldoc is setup.
-  ;; There you can have multiple eldoc functions.
-  (if (boundp 'eldoc-documentation-functions)
-      (add-hook 'eldoc-documentation-functions #'cider-eldoc nil t)
-    (setq-local eldoc-documentation-function #'cider-eldoc))
+  (add-hook 'eldoc-documentation-functions #'cider-eldoc nil t)
   (apply #'eldoc-add-command cider-extra-eldoc-commands))
 
 (provide 'cider-eldoc)

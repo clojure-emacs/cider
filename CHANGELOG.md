@@ -44,6 +44,7 @@
 
 ### Changes
 
+- [#4046](https://github.com/clojure-emacs/cider/pull/4046): Make eldoc asynchronous - the arglist/var lookup no longer blocks Emacs on an nREPL round-trip as you move the cursor (it uses eldoc's callback protocol and delivers the result when it arrives). Declines the eldoc slot when CIDER has nothing, so other sources (e.g. clojure-lsp) compose cleanly.
 - [#4035](https://github.com/clojure-emacs/cider/pull/4035): Rename `cider-ensure-connected` to `cider-ensure-session` (it ensures a linked CIDER session); the old name remains as an obsolete alias.
 - [#4033](https://github.com/clojure-emacs/cider/pull/4033): Deprecate the legacy connection-named aliases `cider-current-connection`, `cider-connections`, `cider-map-connections` and `cider-connection-type-for-buffer` in favor of their `cider-repl` counterparts.
 - [#4029](https://github.com/clojure-emacs/cider/pull/4029): Finish migrating to the keyword-argument request APIs and deprecate the positional shims: `cider-nrepl-send-sync-request` -> `cider-nrepl-sync-request`, `cider-nrepl-request:eval` -> `cider-nrepl-send-eval-request`, `nrepl-send-sync-request` -> `nrepl-sync-request`, `nrepl-request:eval` -> `nrepl-send-eval-request`.
