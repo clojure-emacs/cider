@@ -48,6 +48,7 @@
 (require 'subr-x)
 
 (require 'clojure-mode)
+(require 'transient)
 
 (require 'nrepl-client)
 (require 'nrepl-dict)
@@ -1210,6 +1211,81 @@ passing arguments."
     (define-key map (kbd "C-p") #'cider-eval-print-last-sexp)
     (define-key map (kbd "C-f") 'cider-eval-pprint-commands-map)
     map))
+
+
+;;; Transient menu
+
+;; A transient mirror of `cider-eval-commands-map'.  The eval group is by far
+;; CIDER's largest prefix map (~20 commands plus a nested pretty-print map),
+;; which makes it the hardest to remember and the biggest beneficiary of a
+;; documented, grouped menu.  The existing sub-keys are preserved verbatim,
+;; including the C-<letter> duplicates (hidden from the menu), so muscle memory
+;; like C-c C-v C-r keeps working unchanged.
+
+;;;###autoload (autoload 'cider-eval-pprint-menu "cider-eval" "Menu for CIDER's pretty-printing eval commands." t)
+(transient-define-prefix cider-eval-pprint-menu ()
+  "Transient menu for CIDER's pretty-printing eval commands."
+  [["Pretty-print"
+    ("e" "Last sexp" cider-pprint-eval-last-sexp)
+    ("d" "Defun at point" cider-pprint-eval-defun-at-point)]
+   ["Send pretty-printed value to"
+    ("c" "Comment (last sexp)" cider-pprint-eval-last-sexp-to-comment)
+    ("D" "Comment (defun)" cider-pprint-eval-defun-to-comment)
+    ("r" "REPL (last sexp)" cider-pprint-eval-last-sexp-to-repl)]]
+  [:hide (lambda () t)
+   ("C-e" "Last sexp" cider-pprint-eval-last-sexp)
+   ("C-d" "Defun at point" cider-pprint-eval-defun-at-point)])
+
+;;;###autoload (autoload 'cider-eval-menu "cider-eval" "Menu for CIDER's evaluation commands." t)
+(transient-define-prefix cider-eval-menu ()
+  "Transient menu for CIDER's evaluation commands."
+  [["Evaluate"
+    ("s" "Dwim (region or defun)" cider-eval-dwim)
+    ("e" "Last sexp" cider-eval-last-sexp)
+    ("d" "Defun at point" cider-eval-defun-at-point)
+    ("v" "Sexp at point" cider-eval-sexp-at-point)
+    ("l" "List at point" cider-eval-list-at-point)
+    ("r" "Region" cider-eval-region)
+    ("n" "Namespace form" cider-eval-ns-form)]
+   ["Up to point / in context"
+    ("o" "Sexp up to point" cider-eval-sexp-up-to-point)
+    ("z" "Defun up to point" cider-eval-defun-up-to-point)
+    ("c" "Last sexp in context" cider-eval-last-sexp-in-context)
+    ("b" "Sexp at point in context" cider-eval-sexp-at-point-in-context)]
+   ["Send result to"
+    ("j" "REPL" cider-eval-last-sexp-to-repl)
+    ("p" "Print inline" cider-eval-print-last-sexp)
+    (";" "Comment" cider-eval-defun-to-comment)
+    ("w" "Replace form with value" cider-eval-last-sexp-and-replace)
+    ("k" "Kill last result" cider-kill-last-result)]
+   ["More"
+    ("q" "Tap last sexp" cider-tap-last-sexp)
+    ("t" "Tap sexp at point" cider-tap-sexp-at-point)
+    (":" "Read & eval (minibuffer)" cider-read-and-eval)
+    ("." "Read & eval defun at point" cider-read-and-eval-defun-at-point)
+    ("f" "Pretty-print..." cider-eval-pprint-menu)]]
+  ;; Control-variant duplicates, hidden from the menu, so that existing muscle
+  ;; memory (e.g. the doubled C-c C-v C-r) keeps working unchanged.
+  [:hide (lambda () t)
+   ("C-s" "Dwim" cider-eval-dwim)
+   ("C-e" "Last sexp" cider-eval-last-sexp)
+   ("C-d" "Defun at point" cider-eval-defun-at-point)
+   ("C-v" "Sexp at point" cider-eval-sexp-at-point)
+   ("C-l" "List at point" cider-eval-list-at-point)
+   ("C-r" "Region" cider-eval-region)
+   ("C-n" "Namespace form" cider-eval-ns-form)
+   ("C-o" "Sexp up to point" cider-eval-sexp-up-to-point)
+   ("C-z" "Defun up to point" cider-eval-defun-up-to-point)
+   ("C-c" "Last sexp in context" cider-eval-last-sexp-in-context)
+   ("C-b" "Sexp at point in context" cider-eval-sexp-at-point-in-context)
+   ("C-j" "REPL" cider-eval-last-sexp-to-repl)
+   ("C-p" "Print inline" cider-eval-print-last-sexp)
+   ("C-w" "Replace form with value" cider-eval-last-sexp-and-replace)
+   ("C-k" "Kill last result" cider-kill-last-result)
+   ("C-q" "Tap last sexp" cider-tap-last-sexp)
+   ("C-t" "Tap sexp at point" cider-tap-sexp-at-point)
+   ("C-." "Read & eval defun at point" cider-read-and-eval-defun-at-point)
+   ("C-f" "Pretty-print..." cider-eval-pprint-menu)])
 
 (defun cider--file-string (file)
   "Read the contents of a FILE and return as a string."
