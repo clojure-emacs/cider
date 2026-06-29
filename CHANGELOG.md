@@ -4,6 +4,7 @@
 
 ### New features
 
+- [#4048](https://github.com/clojure-emacs/cider/pull/4048): Open a transient menu for each command group instead of a bare prefix keymap (`cider-eval-menu` at `C-c C-v`, `cider-doc-menu` at `C-c C-d`, and likewise for test, ns, insert, macroexpand, profile, trace and references), plus a top-level `cider-menu` dispatch. Existing keybindings are preserved; the menus just make the commands discoverable.
 - [#4044](https://github.com/clojure-emacs/cider/pull/4044): Add `cider-tap`, a buffer that streams the values sent to `tap>` and lets you inspect Clojure values with `RET` (reusing the inspector). ClojureScript taps stream too ([#4045](https://github.com/clojure-emacs/cider/pull/4045)) but aren't inspectable (their value lives in the JS runtime). Requires a recent enough `cider-nrepl` (with the `tap` middleware).
 - [#4026](https://github.com/clojure-emacs/cider/pull/4026): Run ClojureScript tests with the regular test commands (e.g. `cider-test-run-ns-tests`) when a ClojureScript REPL is active, instead of refusing them; requires a recent enough `cider-nrepl` (asynchronous `cljs.test/async` tests included).
 - [#4023](https://github.com/clojure-emacs/cider/pull/4023): `cider-auto-inspect-after-eval` now accepts `interactive`, `repl` or `all` (in addition to `t`/`nil`), so a visible inspector can also be refreshed after REPL evaluations ([#3636](https://github.com/clojure-emacs/cider/issues/3636)).
