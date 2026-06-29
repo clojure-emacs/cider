@@ -29,6 +29,7 @@
 (require 'cider-popup)
 (require 'cider-eval)
 (require 'cider-inspector)
+(require 'transient)
 
 (defvar cider-profile-map
   (let ((map (define-prefix-command 'cider-profile-map)))
@@ -43,14 +44,29 @@
     map)
   "CIDER profiler keymap.")
 
-(defconst cider-profile-menu
+(defconst cider-profile-easy-menu
   '("Profile"
     ["Toggle var profiling" cider-profile-toggle]
     ["Toggle namespace profiling" cider-profile-ns-toggle]
     "--"
     ["Display summary" cider-profile-summary]
     ["Clear data" cider-profile-clear])
-  "CIDER profiling submenu.")
+  "CIDER profiling submenu (for the menu bar).")
+
+;;;###autoload (autoload 'cider-profile-menu "cider-profile" "Menu for CIDER's profiling commands." t)
+(transient-define-prefix cider-profile-menu ()
+  "Transient menu for CIDER's profiling commands."
+  [["Profile"
+    ("t" "Toggle var profiling" cider-profile-toggle)
+    ("n" "Toggle namespace profiling" cider-profile-ns-toggle)]
+   ["Data"
+    ("s" "Display summary" cider-profile-summary)
+    ("c" "Clear data" cider-profile-clear)]]
+  [:hide (lambda () t)
+   ("C-t" "Toggle var profiling" cider-profile-toggle)
+   ("C-n" "Toggle namespace profiling" cider-profile-ns-toggle)
+   ("C-s" "Display summary" cider-profile-summary)
+   ("C-c" "Clear data" cider-profile-clear)])
 
 (defun cider-profile--make-response-handler (handler &optional buffer)
   "Make a response handler that calls HANDLER with the response value.

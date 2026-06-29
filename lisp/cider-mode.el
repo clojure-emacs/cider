@@ -32,6 +32,7 @@
 ;;; Code:
 
 (require 'clojure-mode)
+(require 'transient)
 (require 'cider-eval)
 (require 'cider-ns-state)
 (require 'cider-inspiration)
@@ -214,6 +215,25 @@ With a prefix argument, prompt for function to run instead of -main."
     (define-key map (kbd "C-c") #'cider-send-to-comment)
     (define-key map (kbd "C-v") #'cider-jump-to-comment)
     map))
+
+;;;###autoload (autoload 'cider-insert-menu "cider-mode" "Menu for inserting forms into the REPL." t)
+(transient-define-prefix cider-insert-menu ()
+  "Transient menu for inserting forms into the REPL."
+  [["Insert into REPL"
+    ("e" "Last sexp" cider-insert-last-sexp-in-repl)
+    ("d" "Defun at point" cider-insert-defun-in-repl)
+    ("r" "Region" cider-insert-region-in-repl)
+    ("n" "Namespace form" cider-insert-ns-form-in-repl)]
+   ["Rich comment"
+    ("c" "Send to comment" cider-send-to-comment)
+    ("v" "Jump to comment" cider-jump-to-comment)]]
+  [:hide (lambda () t)
+   ("C-e" "Last sexp" cider-insert-last-sexp-in-repl)
+   ("C-d" "Defun at point" cider-insert-defun-in-repl)
+   ("C-r" "Region" cider-insert-region-in-repl)
+   ("C-n" "Namespace form" cider-insert-ns-form-in-repl)
+   ("C-c" "Send to comment" cider-send-to-comment)
+   ("C-v" "Jump to comment" cider-jump-to-comment)])
 
 (defcustom cider-switch-to-repl-on-insert t
   "Whether to switch to the REPL when inserting a form into the REPL."
@@ -448,7 +468,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
      ["Macrostep expand (inline)" cider-macrostep-expand]
      ["Macrostep expand all (inline)" cider-macrostep-expand-all]
      ["Macrostep in a buffer" cider-macrostep-expand-in-buffer])
-    ,cider-test-menu
+    ,cider-test-easy-menu
     ("Debug"
      ["Inspect" cider-inspect]
      ["Tap values buffer" cider-tap]
@@ -469,7 +489,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
      ["Stop enlightening" cider-enlighten-stop]
      "--"
      ["Configure the Debugger" (customize-group 'cider-debug)])
-    ,cider-profile-menu
+    ,cider-profile-easy-menu
     ("Misc"
      ["Clojure Cheatsheet" cider-cheatsheet]
      ["Flush completion cache" cider-completion-flush-caches]))
@@ -501,10 +521,32 @@ If invoked with a prefix ARG eval the expression after inserting it."
     map)
   "CIDER NS keymap.")
 
+;;;###autoload (autoload 'cider-ns-menu "cider-mode" "Menu for CIDER's namespace commands." t)
+(transient-define-prefix cider-ns-menu ()
+  "Transient menu for CIDER's namespace commands."
+  [["Namespace"
+    ("b" "Browse namespace" cider-browse-ns)
+    ("f" "Find namespace" cider-find-ns)
+    ("n" "Set REPL namespace" cider-repl-set-ns)
+    ("e" "Eval namespace form" cider-eval-ns-form)]
+   ["Reload"
+    ("r" "Refresh (smart reload)" cider-ns-refresh)
+    ("l" "Require and reload" cider-ns-reload)
+    ("L" "Require and reload all" cider-ns-reload-all)]]
+  ;; Meta-variant duplicates, hidden from the menu, preserving muscle memory.
+  [:hide (lambda () t)
+   ("M-b" "Browse namespace" cider-browse-ns)
+   ("M-f" "Find namespace" cider-find-ns)
+   ("M-n" "Set REPL namespace" cider-repl-set-ns)
+   ("M-e" "Eval namespace form" cider-eval-ns-form)
+   ("M-r" "Refresh (smart reload)" cider-ns-refresh)
+   ("M-l" "Require and reload all" cider-ns-reload-all)])
+
 ;; Those declares are needed, because we autoload all those commands when first
 ;; used. That optimizes CIDER's initial load time.
 (declare-function cider-macroexpand-1 "cider-macroexpansion")
 (declare-function cider-macroexpand-all "cider-macroexpansion")
+(declare-function cider-macroexpand-menu "cider-macroexpansion")
 (declare-function cider-macrostep-expand "cider-macrostep")
 (declare-function cider-macrostep-expand-all "cider-macrostep")
 (declare-function cider-macrostep-expand-in-buffer "cider-macrostep")
@@ -568,7 +610,7 @@ higher precedence."
     (define-key map (kbd "C-c C-p") #'cider-pprint-eval-last-sexp)
     (define-key map (kbd "C-c C-f") #'cider-pprint-eval-defun-at-point)
     (define-key map (kbd "C-c C-v") #'cider-eval-menu)
-    (define-key map (kbd "C-c C-j") 'cider-insert-commands-map)
+    (define-key map (kbd "C-c C-j") #'cider-insert-menu)
     (define-key map (kbd "C-c M-;") #'cider-eval-defun-to-comment)
     (define-key map (kbd "C-c M-e") #'cider-eval-last-sexp-to-repl)
     (define-key map (kbd "C-c M-p") #'cider-insert-last-sexp-in-repl)
@@ -576,8 +618,8 @@ higher precedence."
     (define-key map (kbd "C-c C-u") #'cider-undef)
     (define-key map (kbd "C-c C-M-u") #'cider-undef-all)
     (define-key map (kbd "C-c C-m") #'cider-macroexpand-1)
-    (define-key map (kbd "C-c M-m") 'cider-macroexpand-map)
-    (define-key map (kbd "C-c M-n") 'cider-ns-map)
+    (define-key map (kbd "C-c M-m") #'cider-macroexpand-menu)
+    (define-key map (kbd "C-c M-n") #'cider-ns-menu)
     (define-key map (kbd "C-c M-i") #'cider-inspect)
     (define-key map (kbd "C-c M-t v") #'cider-toggle-trace-var)
     (define-key map (kbd "C-c M-t n") #'cider-toggle-trace-ns)
@@ -588,12 +630,12 @@ higher precedence."
     (define-key map (kbd "C-c C-l") #'cider-load-file)
     (define-key map (kbd "C-c C-M-l") #'cider-load-all-files)
     (define-key map (kbd "C-c C-b") #'cider-interrupt)
-    (define-key map (kbd "C-c ,")   'cider-test-commands-map)
-    (define-key map (kbd "C-c C-t") 'cider-test-commands-map)
+    (define-key map (kbd "C-c ,")   #'cider-test-menu)
+    (define-key map (kbd "C-c C-t") #'cider-test-menu)
     (define-key map (kbd "C-c M-s") #'cider-selector)
     (define-key map (kbd "C-c M-d") #'cider-describe-connection)
     (define-key map (kbd "C-c C-M-d") #'cider-cycle-eval-destination)
-    (define-key map (kbd "C-c C-=") 'cider-profile-map)
+    (define-key map (kbd "C-c C-=") #'cider-profile-menu)
     (define-key map (kbd "C-c C-? r") #'cider-xref-fn-refs)
     (define-key map (kbd "C-c C-? C-r") #'cider-xref-fn-refs-select)
     (define-key map (kbd "C-c C-? s") #'cider-xref-fn-refs-in-source)

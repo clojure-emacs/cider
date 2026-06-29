@@ -35,6 +35,7 @@
 (require 'cider-mode)
 (require 'pulse)
 (require 'subr-x)
+(require 'transient)
 
 (defconst cider-macroexpansion-buffer "*cider-macroexpansion*")
 
@@ -308,6 +309,17 @@ buffer's key bindings."
 Keys 1 and a open the macroexpansion buffer on one level or the full expansion;
 e and E expand inline (a single step, or all the way) via `cider-macrostep'; b
 runs an inline-style stepping session in a dedicated popup buffer.")
+
+;;;###autoload (autoload 'cider-macroexpand-menu "cider-macroexpansion" "Menu for CIDER's macroexpansion commands." t)
+(transient-define-prefix cider-macroexpand-menu ()
+  "Transient menu for CIDER's macroexpansion commands."
+  [["Macroexpand (popup buffer)"
+    ("1" "Macroexpand-1" cider-macroexpand-1)
+    ("a" "Macroexpand all" cider-macroexpand-all)]
+   ["Inline (macrostep)"
+    ("e" "Expand-1 inline" cider-macrostep-expand)
+    ("E" "Expand all inline" cider-macrostep-expand-all)
+    ("b" "Stepping session in popup" cider-macrostep-expand-in-buffer)]])
 
 (provide 'cider-macroexpansion)
 
