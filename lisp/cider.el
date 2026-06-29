@@ -89,6 +89,7 @@
 
 (require 'cider-client)
 (require 'cider-cljs)
+(require 'transient)
 (require 'cider-eldoc)
 (require 'cider-endpoint)
 (require 'cider-inspiration)
@@ -167,6 +168,25 @@
     (define-key map (kbd "C-s C-s") #'cider-connect-sibling-cljs)
     map)
   "CIDER jack-in and connect keymap.")
+
+;;;###autoload (autoload 'cider-start-menu "cider" "Menu for starting CIDER sessions." t)
+(transient-define-prefix cider-start-menu ()
+  "Transient menu for starting CIDER sessions (jack-in and connect)."
+  [["Jack-in (start server + connect)"
+    ("jj" "Clojure" cider-jack-in-clj)
+    ("js" "ClojureScript" cider-jack-in-cljs)
+    ("jm" "Clojure + ClojureScript" cider-jack-in-clj&cljs)
+    ("ju" "Universal (by project type)" cider-jack-in-universal)
+    ("jn" "Start server only" cider-start-nrepl-server)]
+   ["Connect (to a running server)"
+    ("cj" "Clojure" cider-connect-clj)
+    ("cs" "ClojureScript" cider-connect-cljs)
+    ("cm" "Clojure + ClojureScript" cider-connect-clj&cljs)]
+   ["Connect sibling (share a server)"
+    ("sj" "Clojure" cider-connect-sibling-clj)
+    ("ss" "ClojureScript" cider-connect-sibling-cljs)]
+   ["Other"
+    ("x" "Choose connection command..." cider)]])
 
 (defun cider--update-params (params)
   "Fill-in the passed in PARAMS plist needed to start an nREPL server.
@@ -554,7 +574,7 @@ alternative to the default is `cider-random-tip'."
   (define-key mode-map (kbd "C-c M-J") #'cider-jack-in-cljs)
   (define-key mode-map (kbd "C-c M-c") #'cider-connect-clj)
   (define-key mode-map (kbd "C-c M-C") #'cider-connect-cljs)
-  (define-key mode-map (kbd "C-c C-x") 'cider-start-map)
+  (define-key mode-map (kbd "C-c C-x") #'cider-start-menu)
   (define-key mode-map (kbd "C-c C-s") 'sesman-map)
   (require 'sesman)
   (sesman-install-menu mode-map)
