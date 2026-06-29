@@ -43,6 +43,7 @@
 (require 'cider-xref-source)
 (require 'nrepl-dict)
 (require 'parseedn)
+(require 'transient)
 
 ;; bound in `cider-who-map' below, but defined in cider-xref.el
 (declare-function cider-who-macroexpands "cider-xref")
@@ -408,6 +409,41 @@ The letters mirror SLIME's who-map: `c' for callers, `d' for callees, `m' for a
 macro's use sites, and `i' for a protocol's or multimethod's implementations.
 The protocol-exploration commands extend it, on keys t and p: the protocols a
 type implements, and the protocols declaring a given method.")
+
+
+;;; Transient menu
+
+;; A unified menu for CIDER's relationship queries.  It merges the lazy
+;; tree-view \"who\" commands (this file) with the flat-list and source-scan
+;; cross-reference commands from cider-xref.el, which previously lived under a
+;; separate `C-c C-?' prefix.  The who-map letters (c/d/m/i/t/p) are preserved.
+
+(declare-function cider-xref-fn-refs "cider-xref")
+(declare-function cider-xref-fn-deps "cider-xref")
+(declare-function cider-xref-fn-refs-in-source "cider-xref")
+
+;;;###autoload (autoload 'cider-references-menu "cider-xref-tree" "Menu for CIDER's reference and call-graph queries." t)
+(transient-define-prefix cider-references-menu ()
+  "Transient menu for CIDER's reference and call-graph queries."
+  [["Callers & callees"
+    ("c" "Callers (tree)" cider-who-calls)
+    ("d" "Callees (tree)" cider-who-is-called)
+    ("r" "Callers (flat list)" cider-xref-fn-refs)
+    ("R" "Callees (flat list)" cider-xref-fn-deps)
+    ("s" "Callers in source (text scan)" cider-xref-fn-refs-in-source)]
+   ["Macros & protocols"
+    ("m" "Macro use sites" cider-who-macroexpands)
+    ("i" "Protocol/multimethod implementations" cider-who-implements)
+    ("t" "Protocols a type implements" cider-type-protocols)
+    ("p" "Protocols declaring a method" cider-protocols-with-method)]]
+  ;; Control-variant duplicates of the who-map letters, hidden from the menu.
+  [:hide (lambda () t)
+   ("C-c" "Callers (tree)" cider-who-calls)
+   ("C-d" "Callees (tree)" cider-who-is-called)
+   ("C-m" "Macro use sites" cider-who-macroexpands)
+   ("C-i" "Protocol/multimethod implementations" cider-who-implements)
+   ("C-t" "Protocols a type implements" cider-type-protocols)
+   ("C-p" "Protocols declaring a method" cider-protocols-with-method)])
 
 (provide 'cider-xref-tree)
 ;;; cider-xref-tree.el ends here
