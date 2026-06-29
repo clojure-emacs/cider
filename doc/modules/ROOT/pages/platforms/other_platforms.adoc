@@ -2,29 +2,27 @@
 
 == Overview
 
-Here "other platforms" essentially means any (Clojure) platforms that haven't
-been mentioned specifically earlier in a dedicated section of the documentation.
-
-As noted earlier in the documentation, down the road CIDER might support non-Clojure
-platforms as well. As things stand today, however, that's not particularly high on our
-list of priorities.
+Here "other platforms" means any Clojure-like runtime that ships an nREPL
+server but doesn't have a dedicated section of its own earlier in this
+documentation. These runtimes typically implement only the core nREPL protocol,
+without the `cider-nrepl` middleware, so you get evaluation, loading and the
+other core-nREPL basics, but not CIDER's `cider-nrepl`-powered features. See the
+xref:platforms/overview.adoc[overview] for the bigger picture.
 
 == Usage
 
-As of CIDER 1.6, the default CIDER connection command `cider-connect-clj` is
-capable of connecting to any nREPL server that implements the core nREPL
-protocol interface. So, all you need to do is the following:
+The default connection command `cider-connect-clj` can connect to any nREPL
+server that implements the core nREPL protocol, so all you need to do is:
 
-* Start an nREPL server (the project's README  usually has a section
-on starting a nREPL server).
+* Start the runtime's nREPL server (its README usually explains how).
 * kbd:[M-x `cider-connect-clj` <RET>]
 
-And that's it! You'll get every feature that's implemented by the nREPL server
-you're using.
+That's it. You'll get every feature the nREPL server you're connecting to
+implements.
 
-== Supported Platform
+== Supported platforms
 
-Here's an incomplete list of Clojure platforms that you can use as described above.
+Here's an incomplete list of Clojure-like runtimes you can use as described above:
 
 * https://github.com/babashka/nbb[nbb]
 * https://github.com/babashka/scittle[scittle]
@@ -33,8 +31,9 @@ Here's an incomplete list of Clojure platforms that you can use as described abo
 
 NOTE: For `nbb` you can alternatively connect via `cider-connect-cljs`, see xref:platforms/nbb.adoc[nbb].
 
-== Limitations & Caveats
+== Limitations & caveats
 
-* Everything will be treated as a Clojure connection, regardless of the underlying platform.
-* Errors will be displayed only as overlays. (The default CIDER error buffer is not implemented currently).
-* The amount of functionality you'll get will be dependent on how well the nREPL server you're using implements the core nREPL protocol.
+* Everything is treated as a Clojure connection, regardless of the underlying runtime.
+* Errors are displayed only as overlays (the dedicated CIDER error buffer isn't wired up for these connections).
+* How much functionality you get depends on how completely the runtime implements the core nREPL protocol.
+* Advanced, `cider-nrepl`-powered features (debugger, inspector, test runner, tracing, profiling, and so on) are unavailable unless the runtime bundles a compatible middleware.

@@ -48,22 +48,14 @@ documentation lookup, the namespace browser, and macroexpansion).
 
 TIP: For more information on Weasel you should consult its https://github.com/nrepl/weasel/blob/master/README.md[documentation].
 
-== nbb (node.js babashka)
+== Node-based ClojureScript runtimes
 
-CIDER has built-in support for `nbb`. You can either jack in to an nbb project with `M-x clojure-jack-in-cljs`.
+Some ClojureScript runtimes - such as xref:platforms/nbb.adoc[nbb] - run on
+Node and bring their own nREPL server, so they don't go through Piggieback.
+They're still reached through the ClojureScript commands: jack in with
+kbd:[M-x] `cider-jack-in-cljs`, or connect to an already-running server with
+kbd:[M-x] `cider-connect-cljs`.
 
-or start its bundled nREPL server:
-
-  $ nbb nrepl-server
-
-and connect to it afterwards using `M-x cider-connect-cljs`.
-
-See the xref:platforms/nbb.adoc[dedicated page] for more details.
-
-== Other Self-hosted REPLs
-
-For all other self-hosted REPLs you can follow the instructions xref:platforms/other_platforms.adoc[here]. This will work fine with any well-behaved nREPL implementation, like those of:
-
-* https://github.com/babashka/nbb[nbb]
-* https://github.com/babashka/scittle[scittle]
-* https://github.com/BetterThanTomorrow/joyride[joyride]
+These runtimes live in the xref:platforms/overview.adoc[Alternative Platforms]
+section of this manual, since they're full Clojure-like runtimes rather than
+just another ClojureScript REPL flavor.

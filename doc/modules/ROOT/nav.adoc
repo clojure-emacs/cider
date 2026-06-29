@@ -9,12 +9,14 @@
 ** xref:cljs/configuration.adoc[Configuration]
 ** xref:cljs/figwheel.adoc[Using Figwheel]
 ** xref:cljs/shadow-cljs.adoc[Using shadow-cljs]
+** xref:cljs/krell.adoc[Using Krell]
 ** xref:cljs/other_repls.adoc[Using Other REPLs]
 * Alternative Platforms
 ** xref:platforms/overview.adoc[Overview]
 ** xref:platforms/babashka.adoc[Babashka]
 ** xref:platforms/nbb.adoc[Nbb]
 ** xref:platforms/basilisp.adoc[Basilisp]
+** xref:platforms/clojureclr.adoc[ClojureCLR]
 ** xref:platforms/other_platforms.adoc[Other Platforms]
 * Using CIDER
 ** xref:usage/interactive_programming.adoc[Interactive Programming]

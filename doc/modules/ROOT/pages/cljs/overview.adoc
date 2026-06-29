@@ -6,14 +6,11 @@ compile-on-the-JVM, run-in-a-JavaScript-runtime model means a few Clojure
 features can't apply to it. See <<Feature support>> below for what works,
 what doesn't, and what to reach for instead.
 
-Unlike the Clojure ecosystem that is dominated by a single REPL, the
-ClojureScript ecosystem has a number of different choices for REPLs
-(e.g. `browser`, `node`, `weasel`, `figwheel` and `shadow-cljs`). You'll have to
-decide which one you want to run and how you want CIDER to interact with it.
-
-In this section we'll take a look at how ClojureScript support is implemented in CIDER,
-and in the subsequent sections we'll discuss how to launch a ClojureScript REPL
-and how to setup the most popular ClojureScript REPLs.
+Unlike the Clojure ecosystem, which is dominated by a single REPL, the
+ClojureScript ecosystem offers several different REPLs (e.g. `browser`, `node`,
+`weasel`, `figwheel` and `shadow-cljs`). This section explains how ClojureScript
+support is implemented in CIDER and helps you pick one; the subsequent sections
+cover launching and configuring the most popular ones.
 
 == nREPL and ClojureScript
 
@@ -29,11 +26,49 @@ Piggieback works in the following manner:
 This means that jacking-in is a two-fold process for ClojureScript, compared to Clojure,
 as now we have the extra REPL "upgrade" step.
 
-On the bright side - this also means that you can host side by side Clojure and ClojureScript
-REPLs in a single nREPL connection! This opens up all sorts of interesting possibilities
-that we'll discuss later on.
+On the bright side - this also means that a single CIDER session can hold both a
+Clojure and a ClojureScript REPL at once, sharing one nREPL connection. That's
+the reason commands like `cider-jack-in-clj&cljs` and the "sibling" connection
+commands exist: they set up both REPLs together, and CIDER routes each
+evaluation to the right one. See xref:usage/managing_connections.adoc[Managing
+Connections] for how sessions group these REPLs and how to control where code
+gets evaluated.
 
 NOTE: `shadow-cljs`'s REPL is implemented in a very similar fashion, but its mechanism is provided by its own nREPL middleware - not Piggieback.
+
+== Choosing a ClojureScript REPL
+
+You'll have to decide which ClojureScript REPL to run and how you want CIDER to
+interact with it. Here's a quick map of the most common choices:
+
+[cols="1,2,1"]
+|===
+| REPL | How CIDER drives it | Setup
+
+| `browser` / `node`
+| Vanilla ClojureScript REPLs upgraded in place via Piggieback. `node` evaluates
+  in a Node.js process; `browser` waits for a browser tab to connect.
+| xref:cljs/other_repls.adoc[Other REPLs]
+
+| https://figwheel.org[Figwheel Main]
+| A Piggieback-style upgrade, with Figwheel's hot-reloading and build tooling on
+  top. CIDER checks that Figwheel is on the classpath before upgrading.
+| xref:cljs/figwheel.adoc[Using Figwheel]
+
+| https://github.com/thheller/shadow-cljs[shadow-cljs]
+| Uses shadow-cljs's own nREPL middleware rather than Piggieback; CIDER prompts
+  for the build to connect to.
+| xref:cljs/shadow-cljs.adoc[Using shadow-cljs]
+
+| https://github.com/nrepl/weasel[Weasel]
+| A browser-connected REPL over a WebSocket, upgraded via Piggieback. Maintained
+  under the nREPL org, alongside CIDER.
+| xref:cljs/other_repls.adoc[Other REPLs]
+|===
+
+TIP: Node-based ClojureScript runtimes such as xref:platforms/nbb.adoc[nbb] are
+reached through the same ClojureScript commands, even though they aren't
+Piggieback-based.
 
 == Feature support
 
