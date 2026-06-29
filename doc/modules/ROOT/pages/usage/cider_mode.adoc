@@ -78,6 +78,52 @@ Where CIDER does differ, it's usually for a reason:
   handful of familiar top-level bindings the rest live under a dedicated
   kbd:[C-c C-v] eval prefix, rather than each claiming its own global key.
 
+== Command Menus
+
+Each of CIDER's command prefixes opens a
+https://github.com/magit/transient[transient] menu that lists the commands in
+that group, grouped and labelled, so you can discover them without memorizing
+every key.  For example, kbd:[C-c C-d] opens the documentation menu, kbd:[C-c
+C-v] the (large) evaluation menu, kbd:[C-c C-t] the test menu, and so on.
+
+This is *not* a modal change: the menus reuse the same sub-keys as before, so
+typing a full sequence still fires instantly without the menu ever popping up.
+kbd:[C-c C-d C-d] runs `cider-doc` immediately; the menu only appears if you
+*pause* after the prefix.  There's also a top-level `cider-menu` command (not
+bound by default) that dispatches into all of the group menus, magit-style.
+
+[[opting-out-of-the-transient-menus]]
+=== Opting out of the transient menus
+
+If you'd rather keep the old behavior - a bare prefix keymap, e.g. for use with
+https://github.com/justbur/emacs-which-key[which-key] or because you've added
+your own bindings under one of these prefixes - the original keymaps are still
+defined.  Just rebind the prefix key back to its keymap:
+
+[source,lisp]
+----
+(with-eval-after-load 'cider-mode
+  (keymap-set cider-mode-map "C-c C-d" 'cider-doc-map)            ; documentation
+  (keymap-set cider-mode-map "C-c C-v" 'cider-eval-commands-map)  ; evaluation
+  (keymap-set cider-mode-map "C-c C-t" 'cider-test-commands-map)  ; test
+  (keymap-set cider-mode-map "C-c M-n" 'cider-ns-map)             ; namespace
+  (keymap-set cider-mode-map "C-c C-j" 'cider-insert-commands-map) ; insert in REPL
+  (keymap-set cider-mode-map "C-c M-m" 'cider-macroexpand-map)    ; macroexpansion
+  (keymap-set cider-mode-map "C-c C-=" 'cider-profile-map)        ; profiling
+  (keymap-set cider-mode-map "C-c C-w" 'cider-who-map))           ; call-graph queries
+----
+
+A couple of groups don't map one-to-one onto an old keymap:
+
+* The jack-in/connect prefix kbd:[C-c C-x] is bound on `clojure-mode-map` (and
+  the REPL), not `cider-mode-map`; rebind it to `cider-start-map` there to
+  restore the old prefix.
+* Tracing (kbd:[C-c M-t]) never had a dedicated keymap - it was just kbd:[C-c
+  M-t v] and kbd:[C-c M-t n].  Its menu is purely additive (it also exposes
+  `cider-list-traced`, `cider-untrace-all` and the trace buffer), so there's
+  nothing to revert; rebind those two keys directly if you want the flat
+  bindings back.
+
 == Key Reference
 
 Here's a list of the key bindings of `cider-mode`:
