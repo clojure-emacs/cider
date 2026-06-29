@@ -566,6 +566,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (declare-function cider-who-macroexpands "cider-xref")
 (declare-function cider-who-calls "cider-xref-tree")
 (declare-function cider-who-is-called "cider-xref-tree")
+(declare-function cider-references-menu "cider-xref-tree")
 (declare-function cider-who-implements "cider-xref-tree")
 (declare-function cider-type-protocols "cider-xref-tree")
 (declare-function cider-protocols-with-method "cider-xref-tree")
@@ -643,7 +644,7 @@ higher precedence."
     (define-key map (kbd "C-c C-? C-d") #'cider-xref-fn-deps-select)
     (define-key map (kbd "C-c C-? R") #'cider-who-calls)
     (define-key map (kbd "C-c C-? D") #'cider-who-is-called)
-    (define-key map (kbd "C-c C-w") 'cider-who-map)
+    (define-key map (kbd "C-c C-w") #'cider-references-menu)
     (define-key map (kbd "C-c C-q") #'cider-quit)
     (define-key map (kbd "C-c M-r") #'cider-restart)
     ;; NOTE: all cider-log* vars are autoloaded. Please do not add a require.
