@@ -35,6 +35,7 @@
 (require 'nrepl-dict)
 (require 'button)
 (require 'easymenu)
+(require 'transient)
 (require 'cider-browse-spec)
 
 ;; we defer loading those, as org-table is a big library
@@ -100,7 +101,7 @@ A link to the full ClojureDocs entry is shown when more examples exist."
     cider-doc-map)
   "CIDER documentation keymap.")
 
-(defconst cider-doc-menu
+(defconst cider-doc-easy-menu
   '("Documentation"
     ["CiderDoc" cider-doc]
     ["JavaDoc in browser" cider-javadoc]
@@ -115,7 +116,76 @@ A link to the full ClojureDocs entry is shown when more examples exist."
     ["Search documentation & select" cider-apropos-documentation-select]
     "--"
     ["Configure Doc buffer" (customize-group 'cider-docview-mode)])
-  "CIDER documentation submenu.")
+  "CIDER documentation submenu (for the menu bar).")
+
+
+;;; Transient menu
+
+;; The apropos search exposes several knobs (search doc strings, include
+;; private symbols, case-sensitivity, a namespace filter) that were previously
+;; reachable only via a prefix argument and a chain of `y-or-n-p' prompts, or
+;; via dedicated `cider-apropos-documentation' commands.  As transient
+;; arguments they become visible, persistent toggles, which lets a single pair
+;; of search commands replace the old four-way apropos matrix.
+
+(declare-function cider-sync-request:ns-list "cider-client")
+
+(defun cider-doc--read-apropos-ns (prompt initial-input history)
+  "Read a namespace to limit an apropos search to.
+PROMPT, INITIAL-INPUT and HISTORY are passed to `completing-read'."
+  (let ((ns (completing-read (or prompt "Namespace (default is all): ")
+                             (cider-sync-request:ns-list)
+                             nil nil initial-input history)))
+    (unless (string-empty-p ns) ns)))
+
+(defun cider-doc--apropos-args (args)
+  "Translate transient ARGS into arguments for `cider-apropos'.
+Return a list of (NS DOCS-P PRIVATES-P CASE-SENSITIVE-P)."
+  (list (transient-arg-value "--ns=" args)
+        (and (member "--docs" args) t)
+        (and (member "--private" args) t)
+        (and (member "--case-sensitive" args) t)))
+
+(transient-define-suffix cider-doc-apropos (query &optional args)
+  "Search for Clojure symbols matching QUERY and show them in a pop-up.
+ARGS are the transient arguments controlling the apropos search."
+  (interactive (list (read-string "Search for Clojure symbol (a regular expression): ")
+                     (transient-args 'cider-doc-menu)))
+  (apply #'cider-apropos query (cider-doc--apropos-args args)))
+
+(transient-define-suffix cider-doc-apropos-select (query &optional args)
+  "Search for Clojure symbols matching QUERY and pick one via `completing-read'.
+ARGS are the transient arguments controlling the apropos search."
+  (interactive (list (read-string "Search for Clojure symbol (a regular expression): ")
+                     (transient-args 'cider-doc-menu)))
+  (apply #'cider-apropos-select query (cider-doc--apropos-args args)))
+
+;;;###autoload (autoload 'cider-doc-menu "cider-doc" "Menu for CIDER's documentation commands." t)
+(transient-define-prefix cider-doc-menu ()
+  "Transient menu for CIDER's documentation commands."
+  [["Lookup symbol"
+    ("d" "CiderDoc" cider-doc)
+    ("j" "JavaDoc in browser" cider-javadoc)
+    ("c" "ClojureDocs" cider-clojuredocs)
+    ("w" "ClojureDocs in browser" cider-clojuredocs-web)
+    ("C" "Refresh ClojureDocs cache" cider-clojuredocs-refresh-cache)]
+   ["Apropos"
+    ("a" "Search symbols" cider-doc-apropos)
+    ("s" "Search & select" cider-doc-apropos-select)]
+   ["Apropos arguments"
+    ("-d" "Search doc strings" "--docs")
+    ("-p" "Include private symbols" "--private")
+    ("-c" "Case-sensitive" "--case-sensitive")
+    ("-n" "Limit to namespace" "--ns=" :reader cider-doc--read-apropos-ns)]]
+  ;; Control-variant duplicates, hidden from the menu, so that existing muscle
+  ;; memory (e.g. the doubled `C-c C-d C-d') keeps working unchanged.
+  [:hide (lambda () t)
+   ("C-d" "CiderDoc" cider-doc)
+   ("C-j" "JavaDoc in browser" cider-javadoc)
+   ("C-c" "ClojureDocs" cider-clojuredocs)
+   ("C-w" "ClojureDocs in browser" cider-clojuredocs-web)
+   ("C-a" "Search symbols" cider-doc-apropos)
+   ("C-s" "Search & select" cider-doc-apropos-select)])
 
 
 ;;; cider-docview-mode

@@ -408,7 +408,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
       :style radio :selected (eq cider-repl-type-override 'multi)]
      "--"
      ["Cycle eval destination" cider-cycle-eval-destination :keys "C-c C-M-d"])
-    ,cider-doc-menu
+    ,cider-doc-easy-menu
     ("Find (jump to)"
      ["Find definition" cider-find-var]
      ["Find namespace" cider-find-ns]
@@ -550,7 +550,7 @@ higher precedence."
 
 (defconst cider-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-d") 'cider-doc-map)
+    (define-key map (kbd "C-c C-d") #'cider-doc-menu)
     (unless cider-use-xref
       (define-key map (kbd "M-.") #'cider-find-var)
       (define-key map (kbd "M-,") #'cider-pop-back))
