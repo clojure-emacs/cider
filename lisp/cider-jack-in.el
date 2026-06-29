@@ -303,7 +303,7 @@ your version of Leiningen is bundling an older one."
   "List of dependencies where elements are lists of artifact name and version.
 Added to `cider-jack-in-dependencies' when doing `cider-jack-in-cljs'.")
 (put 'cider-jack-in-cljs-dependencies 'risky-local-variable t)
-(cider-add-to-alist 'cider-jack-in-cljs-dependencies "cider/piggieback" "0.6.1")
+(cider-add-to-alist 'cider-jack-in-cljs-dependencies "cider/piggieback" "0.6.2")
 
 (defvar cider-jack-in-dependencies-exclusions nil
   "List of exclusions for jack in dependencies.
@@ -322,7 +322,7 @@ the artifact.")
 
 Used when `cider-jack-in-auto-inject-clojure' is set to `latest'.")
 
-(defconst cider-required-middleware-version "0.61.0-alpha1"
+(defconst cider-required-middleware-version "0.61.0"
   "The CIDER nREPL version that's known to work properly with CIDER.")
 
 (defcustom cider-injected-middleware-version cider-required-middleware-version
