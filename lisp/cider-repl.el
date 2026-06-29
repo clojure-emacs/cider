@@ -2181,7 +2181,7 @@ in an unexpected place."
     (define-key map (kbd "C-c M-i") #'cider-inspect)
     (define-key map (kbd "C-c M-p") #'cider-repl-history)
     (define-key map (kbd "C-c M-t") #'cider-trace-menu)
-    (define-key map (kbd "C-c C-x") 'cider-start-map)
+    (define-key map (kbd "C-c C-x") #'cider-start-menu)
     (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-r") 'clojure-refactor-map)
     (define-key map (kbd "C-c C-v") #'cider-eval-menu)
