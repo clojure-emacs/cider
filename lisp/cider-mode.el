@@ -542,6 +542,29 @@ If invoked with a prefix ARG eval the expression after inserting it."
    ("M-r" "Refresh (smart reload)" cider-ns-refresh)
    ("M-l" "Require and reload all" cider-ns-reload-all)])
 
+;;;###autoload (autoload 'cider-menu "cider-mode" "Top-level transient menu for CIDER." t)
+(transient-define-prefix cider-menu ()
+  "Top-level transient menu for CIDER, dispatching to the per-group menus.
+This command is not bound to a key by default; invoke it with
+\\[execute-extended-command] cider-menu, or bind it yourself, e.g.
+
+    (keymap-set cider-mode-map \"C-c m\" #\\='cider-menu)"
+  [["Evaluate"
+    ("e" "Eval..." cider-eval-menu)
+    ("m" "Macroexpand..." cider-macroexpand-menu)
+    ("d" "Documentation..." cider-doc-menu)]
+   ["Code"
+    ("t" "Test..." cider-test-menu)
+    ("n" "Namespace..." cider-ns-menu)
+    ("w" "References..." cider-references-menu)]
+   ["REPL & session"
+    ("j" "Insert into REPL..." cider-insert-menu)
+    ("x" "Jack-in / connect..." cider-start-menu)]
+   ["Diagnostics"
+    ("r" "Trace..." cider-trace-menu)
+    ("p" "Profile..." cider-profile-menu)
+    ("l" "Log..." cider-log)]])
+
 ;; Those declares are needed, because we autoload all those commands when first
 ;; used. That optimizes CIDER's initial load time.
 (declare-function cider-macroexpand-1 "cider-macroexpansion")
@@ -567,6 +590,8 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (declare-function cider-who-calls "cider-xref-tree")
 (declare-function cider-who-is-called "cider-xref-tree")
 (declare-function cider-references-menu "cider-xref-tree")
+(declare-function cider-start-menu "cider")
+(declare-function cider-log "cider-log")
 (declare-function cider-who-implements "cider-xref-tree")
 (declare-function cider-type-protocols "cider-xref-tree")
 (declare-function cider-protocols-with-method "cider-xref-tree")
