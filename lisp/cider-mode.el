@@ -567,7 +567,7 @@ higher precedence."
     (define-key map (kbd "C-c C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-p") #'cider-pprint-eval-last-sexp)
     (define-key map (kbd "C-c C-f") #'cider-pprint-eval-defun-at-point)
-    (define-key map (kbd "C-c C-v") 'cider-eval-commands-map)
+    (define-key map (kbd "C-c C-v") #'cider-eval-menu)
     (define-key map (kbd "C-c C-j") 'cider-insert-commands-map)
     (define-key map (kbd "C-c M-;") #'cider-eval-defun-to-comment)
     (define-key map (kbd "C-c M-e") #'cider-eval-last-sexp-to-repl)

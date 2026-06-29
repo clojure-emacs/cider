@@ -2185,7 +2185,7 @@ in an unexpected place."
     (define-key map (kbd "C-c C-x") 'cider-start-map)
     (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-r") 'clojure-refactor-map)
-    (define-key map (kbd "C-c C-v") 'cider-eval-commands-map)
+    (define-key map (kbd "C-c C-v") #'cider-eval-menu)
     ;; Deprecated REPL-only aliases; the canonical bindings live in the
     ;; `C-c C-x' start map, shared with `cider-mode'.
     ;; Soft-deprecated since the `C-c C-x' start map landed in 0.18.0; now
