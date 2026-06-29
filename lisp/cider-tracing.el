@@ -33,6 +33,7 @@
 (require 'cider-session) ; for `cider-map-repls'
 (require 'nrepl-dict)
 (require 'text-property-search) ; for navigating the trace buffer
+(require 'transient)
 
 (declare-function cider-find-var "cider-find")
 
@@ -363,6 +364,20 @@ cluttering the REPL.  Killing the buffer stops the streaming."
          (lambda (msg) (cider-trace--handle buffer msg))
          connection)))
     (pop-to-buffer buffer)))
+
+
+;;; Transient menu
+
+;;;###autoload (autoload 'cider-trace-menu "cider-tracing" "Menu for CIDER's tracing commands." t)
+(transient-define-prefix cider-trace-menu ()
+  "Transient menu for CIDER's tracing commands."
+  [["Trace"
+    ("v" "Toggle trace var" cider-toggle-trace-var)
+    ("n" "Toggle trace namespace" cider-toggle-trace-ns)]
+   ["Manage"
+    ("l" "List traced" cider-list-traced)
+    ("u" "Untrace all" cider-untrace-all)
+    ("b" "Trace events buffer" cider-trace)]])
 
 (provide 'cider-tracing)
 ;;; cider-tracing.el ends here
