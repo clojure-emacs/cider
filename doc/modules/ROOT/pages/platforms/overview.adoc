@@ -1,42 +1,64 @@
 = Overview
 
-NOTE: This section is work in progress.
+CIDER is first and foremost a *Clojure* programming environment. Because all of
+its interaction with a running program goes through https://nrepl.org[nREPL],
+it also works well with *ClojureScript* (see the xref:cljs/overview.adoc[ClojureScript]
+section) and reasonably well with other *Clojure-like* languages that ship an
+nREPL server - babashka, nbb, Basilisp, ClojureCLR, scittle, joyride and so on.
 
-While CIDER was created to serve as a Clojure(Script) programming environment, due to the flexibility of the nREPL
-protocol it can actually be used with other programming languages/platforms as well.
+This section covers those other Clojure-like runtimes. ClojureScript, being a
+much bigger and more deeply integrated story, has a xref:cljs/overview.adoc[section of its own].
 
-== Challenges
+== Scope
 
-The biggest problem with supporting multiple programming languages are the assumptions that CIDER has that it's being
-used together with Clojure. In practice this translates to CIDER evaluating Clojure code in some cases to power its
-functionality. One simple example here would be switching the REPL's namespace - CIDER simply evals `in-ns` behind the curtains to achieve this.
+CIDER is *not* a universal nREPL client. Its focus is Clojure and Clojure-like
+languages; supporting arbitrary nREPL runtimes (or other REPL protocols such as
+the Clojure socket REPL and prepl) is an explicit non-goal.
 
-You also have to keep in mind that much of the advanced functionality (e.g. everything related to debugging) is not part
-of the core nREPL protocol and is provided by the `cider-nrepl` middleware. Other platforms will need to provide
-compatible implementation of that functionality, so that CIDER would work with.
+If you're after a language-agnostic nREPL client, reach for
+https://github.com/nrepl/neat[Neat], a sibling project that came out of exactly
+this line of exploration. (For prepl there's also
+https://github.com/clojure-emacs/port[Port], a minimalist prepl client.)
 
-Another problem is that some of the functionality is specific to Clojure and doesn't make much sense in other languages, but that's
-something that functionality can be simply ignored when non-applicable. There's also some coupling with `clojure-mode`, but that's
-not that hard to overcome. Some examples here would be the REPL (which uses `clojure-mode` syntax table and indentation rules),
-the logic for finding the current namespace (which uses `clojure-find-ns`), and so on. All such instances will need to be replaced
-eventually with more generic versions that dispatch on the type of the nREPL connection (e.g. Clojure, Racket, Fennel, etc).
+NOTE: This wasn't always the case. Older versions of CIDER's roadmap had a
+prominent "make CIDER somewhat Clojure-agnostic" goal, but that itch was
+ultimately scratched by Neat and Port. That left CIDER free to focus on what
+it's always been best at: a deep, opinionated nREPL-based IDE for Clojure and
+Clojure-like languages.
 
-== Current Status
+== How much works
 
-Right now CIDER supports to some extent the following:
+How much of CIDER lights up depends on what the runtime implements:
+
+* *Clojure* runs the full `cider-nrepl` middleware, so you get every advanced,
+  tooling-heavy feature - the debugger, the inspector, the test runner,
+  tracing, profiling, and so on.
+* *ClojureScript* also runs `cider-nrepl`, so it gets the editor-facing features
+  (completion, documentation lookup, navigation, the test runner,
+  macroexpansion), but the features that instrument or introspect a JVM at
+  runtime have nothing to attach to in a JavaScript runtime. See the
+  xref:cljs/overview.adoc[ClojureScript feature-support matrix] for the specifics.
+* *Most other runtimes* expose only *core nREPL* operations (evaluation, loading
+  code, and sometimes completion). You get a solid interactive-programming
+  experience, but the `cider-nrepl`-powered features are unavailable - unless
+  the runtime bundles a compatible middleware. Babashka, for instance, ships a
+  curated subset of `cider-nrepl`, so it lights up more of CIDER than a bare
+  core-nREPL server would.
+
+In short: the closer a runtime is to Clojure - and the more of `cider-nrepl` it
+can run - the more of CIDER you get. When you invoke a command a runtime can't
+support, CIDER aims to tell you so rather than fail obscurely.
+
+== Supported runtimes
+
+CIDER has dedicated support and documentation for the following Clojure-like runtimes:
 
 * xref:platforms/babashka.adoc[Babashka]
 * xref:platforms/nbb.adoc[nbb]
-* xref:platforms/clojureclr.adoc[ClojureCLR]
-* xref:platforms/other_platforms.adoc[scittle, joyride & friends]
 * xref:platforms/basilisp.adoc[Basilisp]
+* xref:platforms/clojureclr.adoc[ClojureCLR]
+* xref:platforms/other_platforms.adoc[scittle, joyride and other core-nREPL runtimes]
 
-All of them are derived from Clojure, so supporting them didn't really require much work.
-
-== Future Plans
-
-While not a very high priority, making CIDER usable with any nREPL server is certainly on the project's roadmap.
-https://github.com/clojure-emacs/cider/issues/2848[Here] you can find a discussion about the changes needed to
-get CIDER to work with Fennel, plus a couple of commits that illustrate them.
-
-Any help on that front would be greatly appreciated!
+NOTE: ClojureScript runtimes that happen to run on Node (like nbb) are reachable
+through the ClojureScript jack-in/connect commands as well; see the
+xref:cljs/overview.adoc[ClojureScript] section.
