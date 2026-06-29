@@ -2142,8 +2142,8 @@ in an unexpected place."
 (defvar cider-repl-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-d") #'cider-doc-menu)
-    (define-key map (kbd "C-c ,")   'cider-test-commands-map)
-    (define-key map (kbd "C-c C-t") 'cider-test-commands-map)
+    (define-key map (kbd "C-c ,")   #'cider-test-menu)
+    (define-key map (kbd "C-c C-t") #'cider-test-menu)
     (define-key map (kbd "M-.") #'cider-find-var)
     (define-key map (kbd "C-c C-.") #'cider-find-ns)
     (define-key map (kbd "C-c C-:") #'cider-find-keyword)
@@ -2217,7 +2217,7 @@ in an unexpected place."
          ["Macroexpand-1" cider-macroexpand-1]
          ["Macroexpand-all" cider-macroexpand-all])
         "--"
-        ,cider-test-menu
+        ,cider-test-easy-menu
         "--"
         ["Run project (-main function)" cider-run]
         ["Inspect" cider-inspect]

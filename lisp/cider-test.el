@@ -35,6 +35,7 @@
 (require 'map)
 (require 'seq)
 (require 'subr-x)
+(require 'transient)
 
 (require 'cider-common)
 (require 'cider-client)
@@ -150,7 +151,7 @@ to work against the correct REPL session.")
     (define-key map (kbd "f")   #'cider-test-toggle-fail-fast)
     map))
 
-(defconst cider-test-menu
+(defconst cider-test-easy-menu
   '("Test"
     ["Run test" cider-test-run-test]
     ["Run namespace tests" cider-test-run-ns-tests]
@@ -170,12 +171,38 @@ to work against the correct REPL session.")
     ["Show test report" cider-test-show-report]
     "--"
     ["Configure testing" (customize-group 'cider-test)])
-  "CIDER test submenu.")
+  "CIDER test submenu (for the menu bar).")
+
+;;;###autoload (autoload 'cider-test-menu "cider-test" "Menu for CIDER's test commands." t)
+(transient-define-prefix cider-test-menu ()
+  "Transient menu for CIDER's test commands."
+  [["Run"
+    ("t" "Test at point" cider-test-run-test)
+    ("n" "Namespace tests" cider-test-run-ns-tests)
+    ("s" "Namespace tests (filtered)" cider-test-run-ns-tests-with-filters)
+    ("l" "Loaded tests" cider-test-run-loaded-tests)
+    ("p" "Project tests" cider-test-run-project-tests)]
+   ["Rerun / report"
+    ("r" "Rerun failed" cider-test-rerun-failed-tests)
+    ("a" "Rerun last test" cider-test-rerun-test)
+    ("b" "Show report" cider-test-show-report)
+    ("f" "Toggle fail-fast" cider-test-toggle-fail-fast)]]
+  ;; Control-variant duplicates, hidden from the menu, preserving muscle memory.
+  [:hide (lambda () t)
+   ("C-t" "Test at point" cider-test-run-test)
+   ("C-n" "Namespace tests" cider-test-run-ns-tests)
+   ("C-s" "Namespace tests (filtered)" cider-test-run-ns-tests-with-filters)
+   ("C-l" "Loaded tests" cider-test-run-loaded-tests)
+   ("C-p" "Project tests" cider-test-run-project-tests)
+   ("C-r" "Rerun failed" cider-test-rerun-failed-tests)
+   ("C-a" "Rerun last test" cider-test-rerun-test)
+   ("C-b" "Show report" cider-test-show-report)
+   ("C-f" "Toggle fail-fast" cider-test-toggle-fail-fast)])
 
 (defvar cider-test-report-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c ,")   'cider-test-commands-map)
-    (define-key map (kbd "C-c C-t") 'cider-test-commands-map)
+    (define-key map (kbd "C-c ,")   #'cider-test-menu)
+    (define-key map (kbd "C-c C-t") #'cider-test-menu)
     (define-key map (kbd "M-p") #'cider-test-previous-result)
     (define-key map (kbd "M-n") #'cider-test-next-result)
     (define-key map (kbd "M-.") #'cider-test-jump)
