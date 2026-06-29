@@ -435,7 +435,9 @@ defaults to the equivalent of \\=`clojure.core/pr\\=`.
 
 `pr' – to use the equivalent of \\=`clojure.core/pr\\=`.
 
-`pprint' – to use \\=`clojure.pprint/pprint\\=` (this is the default).
+`pprint' – to use cider-nrepl's bundled pretty-printer, which is backed by
+\\=`orchard.pp\\=` (as of cider-nrepl 0.61.0; it used \\=`clojure.pprint/pprint\\=`
+before).  This is the default.
 
 `fipp' – to use the Fast Idiomatic Pretty Printer, approximately 5-10x
 faster than \\=`clojure.core/pprint\\=`.
