@@ -227,6 +227,82 @@
       ;; so scanning backwards across them no longer raises a scan-error
       (expect (ignore-errors (scan-sexps (point-max) -1) t) :to-be-truthy))))
 
+(describe "cider-repl-emit-result with streamed (chunked) values"
+  (it "font-locks a value streamed in several chunks as one whole form"
+    (with-temp-buffer
+      (let ((cider-repl-use-clojure-font-lock t)
+            (cider-repl-result-prefix ""))
+        (cider-repl-reset-markers)
+        ;; A string literal split mid-value; no single chunk is itself a
+        ;; complete, balanced form, so per-chunk font-locking would fail.
+        (cider-repl-emit-result (current-buffer) "\"ab a" t)
+        (cider-repl-emit-result (current-buffer) "b ab " t)
+        (cider-repl-emit-result (current-buffer) "ab\"" t)
+        (cider-repl--finalize-result (current-buffer))
+        (expect (buffer-substring-no-properties (point-min) (point-max))
+                :to-equal "\"ab ab ab ab\"")
+        ;; the entire assembled string carries the Clojure string face
+        (expect (get-text-property (point-min) 'face)
+                :to-equal 'font-lock-string-face)
+        (expect (get-text-property (/ (point-max) 2) 'face)
+                :to-equal 'font-lock-string-face)
+        (expect (get-text-property (1- (point-max)) 'face)
+                :to-equal 'font-lock-string-face))))
+
+  (it "inserts the result prefix only once for a chunked result"
+    (with-temp-buffer
+      (let ((cider-repl-use-clojure-font-lock t)
+            (cider-repl-result-prefix "=> "))
+        (cider-repl-reset-markers)
+        (cider-repl-emit-result (current-buffer) "\"ab a" t)
+        (cider-repl-emit-result (current-buffer) "b\"" t)
+        (cider-repl--finalize-result (current-buffer))
+        (expect (buffer-substring-no-properties (point-min) (point-max))
+                :to-equal "=> \"ab ab\"")
+        (expect (count-matches "=> " (point-min) (point-max)) :to-equal 1))))
+
+  (it "leaves a value that is unbalanced as a whole untouched, without error"
+    (with-temp-buffer
+      (let ((cider-repl-use-clojure-font-lock t)
+            (cider-repl-result-prefix ""))
+        (cider-repl-reset-markers)
+        (cider-repl-emit-result (current-buffer) "((" t)
+        (cider-repl-emit-result (current-buffer) "(" t)
+        ;; finalize must not raise even though the value can't be parsed
+        (cider-repl--finalize-result (current-buffer))
+        (expect (buffer-substring-no-properties (point-min) (point-max))
+                :to-equal "(((")
+        ;; it keeps the base result face rather than Clojure faces
+        (expect (get-text-property (point-min) 'font-lock-face)
+                :to-equal 'cider-repl-result-face))))
+
+  (it "font-locks a multi-line value split at a newline boundary"
+    ;; This is exactly how nREPL 1.5.0's newline-flushing chunks a value.
+    (with-temp-buffer
+      (let ((cider-repl-use-clojure-font-lock t)
+            (cider-repl-result-prefix ""))
+        (cider-repl-reset-markers)
+        (cider-repl-emit-result (current-buffer) "{:a 1\n" t)
+        (cider-repl-emit-result (current-buffer) " :b 2}" t)
+        (cider-repl--finalize-result (current-buffer))
+        (expect (buffer-substring-no-properties (point-min) (point-max))
+                :to-equal "{:a 1\n :b 2}")
+        ;; the keyword in the post-newline chunk is fontified as part of the
+        ;; whole, balanced map (per-chunk font-locking would leave it plain)
+        (goto-char (point-min))
+        (expect (search-forward ":b" nil t) :to-be-truthy)
+        (expect (get-text-property (- (point) 2) 'face) :not :to-be nil))))
+
+  (it "clears the result markers after finalizing"
+    (with-temp-buffer
+      (let ((cider-repl-use-clojure-font-lock t))
+        (cider-repl-reset-markers)
+        (cider-repl-emit-result (current-buffer) "42" t)
+        (expect (markerp cider-repl--result-start) :to-be-truthy)
+        (cider-repl--finalize-result (current-buffer))
+        (expect cider-repl--result-start :to-be nil)
+        (expect cider-repl--result-end :to-be nil)))))
+
 (defun simulate-cider-output (s property)
   "Return S's properties from `cider-repl--emit-output'.
 PROPERTY should be a symbol of either 'text, 'ansi-context or

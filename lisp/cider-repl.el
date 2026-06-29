@@ -202,6 +202,16 @@ Currently its only purpose is to facilitate `cider-repl-clear-buffer'.")
   "Marker for the end of output.
 Currently its only purpose is to facilitate `cider-repl-clear-buffer'.")
 
+(defvar-local cider-repl--result-start nil
+  "Marker at the start of the current, possibly chunked, result value.
+It is set when the first chunk of a result is emitted and cleared by
+`cider-repl--finalize-result', which uses it together with
+`cider-repl--result-end' to Clojure-font-lock the assembled value once it is
+complete.  See `cider-repl-emit-result'.")
+
+(defvar-local cider-repl--result-end nil
+  "Marker just after the last emitted chunk of the current result value.")
+
 (defun cider-repl-tab ()
   "Invoked on TAB keystrokes in `cider-repl-mode' buffers."
   (interactive)
@@ -965,20 +975,76 @@ Before inserting, run `cider-repl-preoutput-hook' on STRING."
 (defun cider-repl-emit-result (buffer string show-prefix &optional bol)
   "Emit into BUFFER the result STRING and mark it as an evaluation result.
 If SHOW-PREFIX is non-nil insert `cider-repl-result-prefix' at the beginning
-of the line.  If BOL is non-nil insert at the beginning of the line."
+of the line.  If BOL is non-nil insert at the beginning of the line.
+
+STRING is inserted raw, with only the base `cider-repl-result-face' applied.
+When `cider-repl-use-clojure-font-lock' is enabled the assembled value is
+Clojure-font-locked as a whole by `cider-repl--finalize-result' once it is
+complete (i.e. on the `done' status).  This keeps highlighting correct even
+when nREPL streams the value in several chunks, none of which is on its own a
+balanced, font-lockable form.  Only the first chunk of a result is given the
+prefix; `cider-repl--result-start'/`cider-repl--result-end' track the span."
   (with-current-buffer buffer
     (save-excursion
       (cider-save-marker cider-repl-output-start
         (goto-char cider-repl-output-end)
         (when (and bol (not (bolp)))
           (insert-before-markers "\n"))
-        (when show-prefix
-          (insert-before-markers (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
-        (if cider-repl-use-clojure-font-lock
-            (insert-before-markers (cider-font-lock-as-clojure string))
+        (when (and show-prefix (not cider-repl--result-start))
+          (insert-before-markers
+           (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
+        (let ((value-start (point)))
           (cider-propertize-region
               '(font-lock-face cider-repl-result-face rear-nonsticky (font-lock-face))
-            (insert-before-markers string)))))))
+            (insert-before-markers string))
+          (unless cider-repl--result-start
+            (setq cider-repl--result-start (copy-marker value-start)))
+          (if cider-repl--result-end
+              (set-marker cider-repl--result-end (point))
+            (setq cider-repl--result-end (copy-marker (point)))))))))
+
+(defun cider-repl--font-lock-result-region (beg end)
+  "Overlay Clojure font-lock faces on the result text between BEG and END.
+The text is already inserted; this fontifies the now-complete value in a
+single pass and copies the resulting faces back in place, so a value that
+nREPL split across several chunks is highlighted as one balanced form.
+Unbalanced or over-long values (see `cider-font-lock-max-length') are left
+untouched, matching `cider-font-lock-as-clojure'."
+  (let* ((raw (buffer-substring-no-properties beg end))
+         (fontified (cider-font-lock-as-clojure raw)))
+    ;; `cider-font-lock-as-clojure' returns RAW unchanged (`eq') when it bails
+    ;; out (unbalanced or too long); only rewrite faces when it actually ran,
+    ;; and only when lengths line up so offsets map 1:1.
+    (when (and (not (eq fontified raw))
+               (= (length fontified) (length raw)))
+      (with-silent-modifications
+        ;; Drop the base result face, then transfer the Clojure faces.
+        (remove-text-properties beg end '(font-lock-face nil))
+        (let ((i 0) (n (length fontified)))
+          (while (< i n)
+            (let ((next (or (next-single-property-change i 'face fontified) n))
+                  (face (get-text-property i 'face fontified)))
+              (when face
+                (put-text-property (+ beg i) (+ beg next) 'face face))
+              (setq i next))))))))
+
+(defun cider-repl--finalize-result (buffer)
+  "Clojure-font-lock the assembled result in BUFFER and reset result markers.
+Called once a result is complete (on the nREPL `done' status)."
+  (with-current-buffer buffer
+    (when (and cider-repl-use-clojure-font-lock
+               (markerp cider-repl--result-start)
+               (markerp cider-repl--result-end))
+      (let ((beg (marker-position cider-repl--result-start))
+            (end (marker-position cider-repl--result-end)))
+        (when (and beg end (< beg end))
+          (cider-repl--font-lock-result-region beg end))))
+    (when (markerp cider-repl--result-start)
+      (set-marker cider-repl--result-start nil))
+    (when (markerp cider-repl--result-end)
+      (set-marker cider-repl--result-end nil))
+    (setq cider-repl--result-start nil
+          cider-repl--result-end nil)))
 
 (defun cider-repl-newline-and-indent ()
   "Insert a newline, then indent the next line.
@@ -1206,6 +1272,7 @@ REPL BUFFER rather than popping to the inspector (#3636)."
                     (funcall f buffer err))
                   (cider-repl-emit-stderr buffer err))
      :on-done (lambda ()
+                (cider-repl--finalize-result buffer)
                 (when show-prompt
                   (cider-repl-emit-prompt buffer))
                 (when cider-repl-buffer-size-limit
