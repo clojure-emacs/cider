@@ -700,7 +700,7 @@ when LINE is nil."
 
 (defun cider-test-highlight-problems (results)
   "Highlight all non-passing tests in the test RESULTS.
-When `cider-use-fringe-indicators' enables them for tests, also mark every
+When `cider-fringe-indicators' enables them for tests, also mark every
 tested var with a green (all passed) or red (any failure) fringe indicator."
   (nrepl-dict-map
    (lambda (ns vars)

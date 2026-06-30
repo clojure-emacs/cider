@@ -52,7 +52,7 @@ A list of presentations to enable (an empty list disables the indicator):
                 namespace isn't loaded.
 
 For per-form staleness, use the evaluation fringe indicators instead (see
-`cider-use-fringe-indicators' and `cider-mark-stale-after-edit')."
+`cider-fringe-indicators' and `cider-mark-stale-after-edit')."
   :type '(set (const :tag "Mode-line marker" mode-line)
               (const :tag "Fringe marker" fringe))
   :group 'cider

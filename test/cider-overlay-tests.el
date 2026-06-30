@@ -223,24 +223,47 @@ being set that way"
 
 (describe "cider--use-fringe-indicators-p"
   (it "treats t as all kinds enabled"
-    (let ((cider-use-fringe-indicators t))
+    (let ((cider-fringe-indicators t))
       (expect (cider--use-fringe-indicators-p 'eval) :to-be-truthy)
       (expect (cider--use-fringe-indicators-p 'test) :to-be-truthy)))
   (it "treats nil as nothing enabled"
-    (let ((cider-use-fringe-indicators nil))
+    (let ((cider-fringe-indicators nil))
       (expect (cider--use-fringe-indicators-p 'eval) :not :to-be-truthy)
       (expect (cider--use-fringe-indicators-p 'test) :not :to-be-truthy)))
   (it "treats a list as only the listed kinds"
-    (let ((cider-use-fringe-indicators '(eval)))
+    (let ((cider-fringe-indicators '(eval)))
       (expect (cider--use-fringe-indicators-p 'eval) :to-be-truthy)
       (expect (cider--use-fringe-indicators-p 'test) :not :to-be-truthy))
-    (let ((cider-use-fringe-indicators '(eval test)))
+    (let ((cider-fringe-indicators '(eval test)))
       (expect (cider--use-fringe-indicators-p 'eval) :to-be-truthy)
       (expect (cider--use-fringe-indicators-p 'test) :to-be-truthy))))
 
+(describe "cider--eval-result-display"
+  (it "passes the canonical values through unchanged"
+    (dolist (mode '(overlay echo both errors-only))
+      (let ((cider-eval-result-display mode))
+        (expect (cider--eval-result-display) :to-be mode))))
+  (it "maps the legacy t/nil values to overlay/echo"
+    (let ((cider-eval-result-display t))
+      (expect (cider--eval-result-display) :to-be 'overlay))
+    (let ((cider-eval-result-display nil))
+      (expect (cider--eval-result-display) :to-be 'echo))))
+
+(describe "renamed eval-result options (back-compat aliases)"
+  (it "routes the obsolete display/font-lock/fringe vars to their replacements"
+    (let ((cider-eval-result-display 'both))
+      (with-no-warnings (setq cider-use-overlays 'errors-only))
+      (expect cider-eval-result-display :to-be 'errors-only))
+    (let ((cider-eval-result-font-lock 'clojure))
+      (with-no-warnings (setq cider-result-use-clojure-font-lock nil))
+      (expect cider-eval-result-font-lock :to-be nil))
+    (let ((cider-fringe-indicators t))
+      (with-no-warnings (setq cider-use-fringe-indicators '(eval)))
+      (expect cider-fringe-indicators :to-equal '(eval)))))
+
 (describe "cider--make-fringe-overlay"
   (it "doesn't place an eval indicator when eval indicators are disabled"
-    (let ((cider-use-fringe-indicators '(test)))
+    (let ((cider-fringe-indicators '(test)))
       (with-temp-buffer
         (clojure-mode)
         (insert "(def x 1)")
@@ -248,7 +271,7 @@ being set that way"
         (expect (overlays-in (point-min) (point-max)) :to-be nil))))
 
   (it "flips the indicator to stale when the evaluated form is edited"
-    (let ((cider-use-fringe-indicators t)
+    (let ((cider-fringe-indicators t)
           (cider-mark-stale-after-edit t))
       (with-temp-buffer
         (clojure-mode)
@@ -262,7 +285,7 @@ being set that way"
           (expect (overlay-buffer ov) :not :to-be nil)))))   ; kept, not deleted
 
   (it "keeps the old delete-on-edit behavior when `cider-mark-stale-after-edit' is nil"
-    (let ((cider-use-fringe-indicators t)
+    (let ((cider-fringe-indicators t)
           (cider-mark-stale-after-edit nil))
       (with-temp-buffer
         (clojure-mode)
@@ -274,7 +297,7 @@ being set that way"
           (expect (overlay-buffer ov) :to-be nil)))))       ; deleted
 
   (it "replaces a prior (stale) indicator when the form is re-evaluated"
-    (let ((cider-use-fringe-indicators t)
+    (let ((cider-fringe-indicators t)
           (cider-mark-stale-after-edit t))
       (with-temp-buffer
         (clojure-mode)

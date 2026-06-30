@@ -116,7 +116,7 @@ When set to nil, don't jump at all."
 
 (defcustom cider-inline-error-message-function #'cider--shorten-error-message
   "A function that will shorten a given error message,
-as shown in overlays / the minibuffer (per `cider-use-overlays').
+as shown in overlays / the minibuffer (per `cider-eval-result-display').
 
 The function takes a single arg.  You may want to use `identity',
 for leaving the message as-is."
@@ -299,7 +299,7 @@ https://clojure.org/reference/repl_and_main#_at_repl"
 
 (defun cider--display-error-unobtrusively (buffer err)
   "Display ERR as a minibuffer message and/or as a temporary overlay in BUFFER."
-  (let ((cider-result-use-clojure-font-lock nil)
+  (let ((cider-eval-result-font-lock nil)
         (trimmed-err (funcall cider-inline-error-message-function err)))
     (with-current-buffer buffer
       (cider--display-interactive-eval-result trimmed-err

@@ -185,25 +185,23 @@ NOTE: CIDER uses internally the excellent package https://github.com/Malabarba/s
 
 === Syntax Highlighting of Results
 
-By default the results of interactive evaluation (both those displayed in the minibuffer and in overlays) are font-locked as Clojure code.
-You can disable this by tweaking the configuration option `cider-result-use-clojure-font-lock`:
+By default the results of interactive evaluation (both those shown in the echo
+area and in overlays) are font-locked as Clojure code.  You can turn that off
+with `cider-eval-result-font-lock`, in which case results are shown using the
+plain `cider-result-overlay-face` instead of being syntax-highlighted:
 
 [source,lisp]
 ----
-(setq cider-result-use-clojure-font-lock nil)
+(setq cider-eval-result-font-lock nil)
 ----
+
+NOTE: This option replaces the older `cider-result-use-clojure-font-lock` and
+`cider-overlays-use-font-lock`, which together controlled the same thing.
 
 === Overlays
 
 When you evaluate code in Clojure files, the result is displayed in the buffer
-itself, in an overlay right after the evaluated code.  If you want this overlay
-to be font-locked (syntax-highlighted) like Clojure code, set the following
-variable.
-
-[source,lisp]
-----
-(setq cider-overlays-use-font-lock t)
-----
+itself, in an overlay right after the evaluated code.
 
 Overlays will be shown for errors,
 as long as they are not already displayed by `cider-stacktrace-mode`.
@@ -218,19 +216,19 @@ please customize:
 If you only want to see overlays for errors (and not for successful evaluations),
 you can restrict overlays to only be shown for errors
 (and display non-error results in the echo area at the bottom)
-by customizing the `cider-use-overlays` variable:
+by customizing the `cider-eval-result-display` variable:
 
 [source,lisp]
 ----
-(setq cider-use-overlays 'errors-only)
+(setq cider-eval-result-display 'errors-only)
 ----
 
 You can disable overlays entirely (and display results in the echo area at the
-bottom) with the `cider-use-overlays` variable:
+bottom) with the same variable:
 
 [source,lisp]
 ----
-(setq cider-use-overlays nil)
+(setq cider-eval-result-display 'echo)
 ----
 
 Overlays that indicate errors are by default trimmed of file/line/phase information.
@@ -245,13 +243,13 @@ You can prevent any trimming by customizing instead:
 ----
 
 By default, result overlays are displayed at the end of the line. You can set
-the variable `cider-result-overlay-position` to display results at the end of
+the variable `cider-eval-result-position` to display results at the end of
 their respective forms instead.
 Note that this also affects the position of debugger overlays.
 
 [source,lisp]
 ----
-(setq cider-result-overlay-position 'at-point)
+(setq cider-eval-result-position 'at-point)
 ----
 
 You can also customize how overlays are persisted using the variable
@@ -290,10 +288,10 @@ This is on by default.  To turn the indicators off entirely:
 
 [source,lisp]
 ----
-(setq cider-use-fringe-indicators nil)
+(setq cider-fringe-indicators nil)
 ----
 
-`cider-use-fringe-indicators` also accepts a list of the indicator kinds to
+`cider-fringe-indicators` also accepts a list of the indicator kinds to
 show, so you can enable some but not others.  The recognized kinds are `eval`
 (the per-form evaluation markers described here) and `test` (the
 xref:testing/running_tests.adoc#test-fringe-indicators[test pass/fail markers]).
@@ -301,7 +299,7 @@ For example, to keep only the evaluation markers:
 
 [source,lisp]
 ----
-(setq cider-use-fringe-indicators '(eval))
+(setq cider-fringe-indicators '(eval))
 ----
 
 To keep the indicators but restore the older behavior, where editing an
@@ -397,11 +395,11 @@ options and use their own fixed formatting.
 
 === Change the Output Destination
 
-By default CIDER will display the output produced by some evaluation in the REPL buffer, but you can also funnel the output to a dedicated buffer. You can configure this behavior via `cider-interactive-eval-output-destination`.
+By default CIDER will display the output produced by some evaluation in the REPL buffer, but you can also funnel the output to a dedicated buffer. You can configure this behavior via `cider-eval-output-destination`.
 
 [source,lisp]
 ----
-(setq cider-interactive-eval-output-destination 'output-buffer)
+(setq cider-eval-output-destination 'output-buffer)
 ----
 
 Additionally, there's the variable `cider-redirect-server-output-to-repl` that captures output that would normally end up in the `\*nrepl-server*` buffer (provided it has been started via `cider-jack-in`) and redirects it to the REPL buffer. You can disable this redirection like this:
@@ -553,7 +551,7 @@ Below is a listing of most keybindings for evaluation commands:
 | `cider-eval-last-sexp`
 | kbd:[C-x C-e] +
 kbd:[C-c C-e]
-| Evaluate the form preceding point and display the result in the echo area and/or in a buffer overlay (according to `cider-use-overlays`).  If invoked with a prefix argument, insert the result into the current buffer.
+| Evaluate the form preceding point and display the result in the echo area and/or in a buffer overlay (according to `cider-eval-result-display`).  If invoked with a prefix argument, insert the result into the current buffer.
 
 | `cider-tap-last-sexp`
 | kbd:[C-c C-v q] +

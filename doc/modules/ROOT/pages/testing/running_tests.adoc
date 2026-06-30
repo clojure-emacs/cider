@@ -161,14 +161,14 @@ in the left fringe: green (`cider-fringe-good-face`) when all of the var's
 assertions passed, red (`cider-fringe-bad-face`) when any failed or errored.
 The markers are cleared when you re-run the tests.
 
-These are governed by `cider-use-fringe-indicators` (the same option used for
+These are governed by `cider-fringe-indicators` (the same option used for
 the xref:usage/code_evaluation.adoc#per-form-fringe-indicators[evaluation
 markers]), which is `t` by default. To keep the evaluation markers but turn the
 test ones off, set it to a list of the kinds you want:
 
 [source,lisp]
 ----
-(setq cider-use-fringe-indicators '(eval))
+(setq cider-fringe-indicators '(eval))
 ----
 
 === Running a callback on errors
