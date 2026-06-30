@@ -72,8 +72,8 @@ If nil, don't list available keys at all."
 
 (defcustom cider-debug-use-overlays t
   "Whether to highlight debugging information with overlays.
-Takes the same possible values as `cider-use-overlays', but only applies to
-values displayed during debugging sessions.
+Takes the same possible values as `cider-eval-result-display', but only applies
+to values displayed during debugging sessions.
 To control the overlay that lists possible keys above the current function,
 configure `cider-debug-prompt' instead."
   :type '(choice (const :tag "End of line" t)

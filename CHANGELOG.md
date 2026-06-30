@@ -46,6 +46,7 @@
 
 ### Changes
 
+- [#4052](https://github.com/clojure-emacs/cider/pull/4052): Rename the inline evaluation-result options into a consistent `cider-eval-result-*` family: `cider-use-overlays` -> `cider-eval-result-display`, `cider-result-overlay-position` -> `cider-eval-result-position`, `cider-result-use-clojure-font-lock` and `cider-overlays-use-font-lock` -> `cider-eval-result-font-lock`, `cider-interactive-eval-output-destination` -> `cider-eval-output-destination`, and `cider-use-fringe-indicators` -> `cider-fringe-indicators`. The old names remain as obsolete aliases.
 - [#4050](https://github.com/clojure-emacs/cider/pull/4050): Bump the injected `cider-nrepl` to 0.61.0 (and `piggieback` to 0.6.2). Code formatting now honors the project's cljfmt configuration, and the default `pprint` printer is backed by `orchard.pp`.
 - [#4047](https://github.com/clojure-emacs/cider/pull/4047): Render the doc buffer's "See also" section as a bulleted list (one entry per line) instead of an inline space-separated run, matching the ClojureDocs buffer.
 - [#4046](https://github.com/clojure-emacs/cider/pull/4046): Make eldoc asynchronous - the arglist/var lookup no longer blocks Emacs on an nREPL round-trip as you move the cursor (it uses eldoc's callback protocol and delivers the result when it arrives). Declines the eldoc slot when CIDER has nothing, so other sources (e.g. clojure-lsp) compose cleanly.

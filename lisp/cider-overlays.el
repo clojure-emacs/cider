@@ -37,8 +37,8 @@
     (((class color) (background dark))
      :background "grey10" :box (:line-width -1 :color "black")))
   "Face used to display evaluation results at the end of line.
-If `cider-overlays-use-font-lock' is non-nil, this face is
-applied with lower priority than the syntax highlighting."
+When `cider-eval-result-font-lock' is `clojure', this face is applied with
+lower priority than the syntax highlighting."
   :group 'cider
   :package-version '(cider "0.9.1"))
 
@@ -53,48 +53,59 @@ applied with lower priority than the syntax highlighting."
   :group 'cider
   :package-version '(cider "0.25.0"))
 
-(defcustom cider-result-use-clojure-font-lock t
-  "If non-nil, interactive eval results are font-locked as Clojure code."
-  :group 'cider
-  :type 'boolean
-  :package-version '(cider . "0.10.0"))
+(define-obsolete-variable-alias 'cider-result-use-clojure-font-lock 'cider-eval-result-font-lock "1.23.0")
+(define-obsolete-variable-alias 'cider-overlays-use-font-lock 'cider-eval-result-font-lock "1.23.0")
+(define-obsolete-variable-alias 'cider-use-overlays 'cider-eval-result-display "1.23.0")
+(define-obsolete-variable-alias 'cider-result-overlay-position 'cider-eval-result-position "1.23.0")
 
-(defcustom cider-overlays-use-font-lock t
-  "If non-nil, results overlays are font-locked as Clojure code.
-If nil, apply `cider-result-overlay-face' to the entire overlay instead of
-font-locking it."
-  :group 'cider
-  :type 'boolean
-  :package-version '(cider . "0.10.0"))
+(defcustom cider-eval-result-font-lock 'clojure
+  "How to highlight interactive evaluation results.
+If `clojure' (the default), the result is font-locked as Clojure code, both in
+the echo area and in the result overlay (where the syntax highlighting shows
+beneath `cider-result-overlay-face').
+If nil, the result is not syntax-highlighted: the overlay is shown using
+`cider-result-overlay-face' and the echo-area result is shown as plain text.
 
-(defcustom cider-use-overlays 'both
-  "Whether to display evaluation results with overlays.
-If t, use overlays determined by `cider-result-overlay-position'.
-If `errors-only', use overlays determined by `cider-result-overlay-position',
-but only for error messages - other messages will be displayed on the echo area.
-If nil, display on the echo area.
-If `both', display on both places.
+This replaces the older `cider-result-use-clojure-font-lock' and
+`cider-overlays-use-font-lock' options, which together covered the same ground."
+  :group 'cider
+  :type '(choice (const :tag "Highlight as Clojure" clojure)
+                 (const :tag "Use the result overlay face" nil))
+  :package-version '(cider . "1.23.0"))
+
+(defcustom cider-eval-result-display 'both
+  "Where to display interactive evaluation results.
+If `overlay', show the result in an overlay (positioned per
+`cider-eval-result-position').
+If `echo', show it in the echo area.
+If `both' (the default), show it in both places.
+If `errors-only', use an overlay only for error results and the echo area for
+everything else.
+
+For backward compatibility the legacy values t (overlay) and nil (echo) are
+still accepted.
 
 Only applies to evaluation commands.  To configure the debugger overlays,
 see `cider-debug-use-overlays'."
-  :type '(choice (const :tag "Display using overlays" t)
-                 (const :tag "Display in echo area" nil)
-                 (const :tag "Use overlays only for errors" errors-only)
-                 (const :tag "Both" both))
+  :type '(choice (const :tag "Overlay" overlay)
+                 (const :tag "Echo area" echo)
+                 (const :tag "Both" both)
+                 (const :tag "Overlay for errors only" errors-only))
   :group 'cider
-  :package-version '(cider . "0.10.0"))
+  :package-version '(cider . "1.23.0"))
 
-(defcustom cider-result-overlay-position 'at-eol
-  "Where to display result overlays for inline evaluation and the debugger.
-If `at-eol', display at the end of the line.
-If `at-point', display at the end of the respective sexp."
+(defcustom cider-eval-result-position 'at-eol
+  "Where to place result overlays for inline evaluation and the debugger.
+If `at-eol', place at the end of the line.
+If `at-point', place at the end of the evaluated sexp."
   :group 'cider
   :type '(choice (const :tag "End of line" at-eol)
                  (const :tag "End of sexp" at-point))
-  :package-version '(cider . "0.23.0"))
+  :package-version '(cider . "1.23.0"))
 
 (defcustom cider-eval-result-prefix "=> "
-  "The prefix displayed in the minibuffer before a result value."
+  "The prefix displayed before an interactive evaluation result.
+Used both in the echo area and in result overlays."
   :type 'string
   :group 'cider
   :package-version '(cider . "0.5.0"))
@@ -104,13 +115,20 @@ If `at-point', display at the end of the respective sexp."
 If nil, overlays last indefinitely.
 If the symbol `command', they're erased after the next command.
 If the symbol `change', they last until the next change to the buffer.
-Also see `cider-use-overlays'."
+Also see `cider-eval-result-display'."
   :type '(choice (integer :tag "Duration in seconds")
                  (const :tag "Until next command" command)
                  (const :tag "Until next buffer change" change)
                  (const :tag "Last indefinitely" nil))
   :group 'cider
   :package-version '(cider . "0.10.0"))
+
+(defun cider--eval-result-display ()
+  "Return `cider-eval-result-display', normalizing the legacy t/nil values."
+  (pcase cider-eval-result-display
+    ('t 'overlay)
+    ('nil 'echo)
+    (value value)))
 
 
 ;;; Overlay logic
@@ -180,7 +198,9 @@ This function also removes itself from `post-command-hook'."
   (propertize " " 'display '(left-fringe empty-line cider-fringe-bad-face))
   "The before-string property that adds a red indicator on the fringe.")
 
-(defcustom cider-use-fringe-indicators t
+(define-obsolete-variable-alias 'cider-use-fringe-indicators 'cider-fringe-indicators "1.23.0")
+
+(defcustom cider-fringe-indicators t
   "Whether to display indicators on the left fringe.
 The value selects which kinds of indicators are shown:
   t      - all kinds (the default);
@@ -198,14 +218,14 @@ Recognized kinds:
                  (set :tag "Selected kinds"
                       (const :tag "Evaluated forms" eval)
                       (const :tag "Test results" test)))
-  :package-version '(cider . "0.13.0"))
+  :package-version '(cider . "1.23.0"))
 
 (defun cider--use-fringe-indicators-p (kind)
   "Return non-nil when fringe indicators are enabled for KIND.
-KIND is `eval' or `test'.  See `cider-use-fringe-indicators'."
-  (cond ((null cider-use-fringe-indicators) nil)
-        ((listp cider-use-fringe-indicators)
-         (memq kind cider-use-fringe-indicators))
+KIND is `eval' or `test'.  See `cider-fringe-indicators'."
+  (cond ((null cider-fringe-indicators) nil)
+        ((listp cider-fringe-indicators)
+         (memq kind cider-fringe-indicators))
         (t t)))
 
 (defcustom cider-mark-stale-after-edit t
@@ -268,7 +288,7 @@ return the overlay otherwise.
 This function takes some optional keyword arguments:
 
   If WHERE is a number or a marker, apply the overlay as determined by
-  `cider-result-overlay-position'.  If it is a cons cell, the car and cdr
+  `cider-eval-result-position'.  If it is a cons cell, the car and cdr
   determine the start and end of the overlay.
   DURATION takes the same possible values as the
   `cider-eval-result-duration' variable.
@@ -299,7 +319,7 @@ overlay."
                         (point))))
                (end (if (consp where)
                         (cdr where)
-                      (pcase cider-result-overlay-position
+                      (pcase cider-eval-result-position
                         ('at-eol (line-end-position))
                         ('at-point (point)))))
                ;; Specify `default' face, otherwise unformatted text will
@@ -311,7 +331,7 @@ overlay."
           ;; Remove any overlay at the position we're creating a new one, if it
           ;; exists.
           (remove-overlays beg end 'category type)
-          (funcall (if cider-overlays-use-font-lock
+          (funcall (if cider-eval-result-font-lock
                        #'font-lock-prepend-text-property
                      #'put-text-property)
                    0 (length display-string)
@@ -378,21 +398,21 @@ VALUE is syntax-highlighted and displayed in the echo area.
 VALUE-TYPE is one of: `value', `error'.
 OVERLAY-FACE is the face applied to the overlay, which defaults to
 `cider-result-overlay-face' if nil.
-If POINT and `cider-use-overlays' are non-nil, it is also displayed in an
-overlay at the end of the line containing POINT.
+If POINT is non-nil and `cider-eval-result-display' calls for an overlay, the
+result is also displayed in an overlay at the end of the line containing POINT.
 Note that, while POINT can be a number, it's preferable to be a marker, as
 that will better handle some corner cases where the original buffer is not
 focused."
   (cl-assert (symbolp value-type)) ;; We assert because for avoiding confusion with the optional args.
   (let* ((value (string-trim-right value))
-         (font-value (if cider-result-use-clojure-font-lock
+         (font-value (if cider-eval-result-font-lock
                          (cider-font-lock-as-clojure value)
                        value))
+         (display-mode (cider--eval-result-display))
          (used-overlay (when (and point
-                                  cider-use-overlays
                                   (if (equal 'error value-type)
-                                      t
-                                    (not (equal 'errors-only cider-use-overlays))))
+                                      (memq display-mode '(overlay both errors-only))
+                                    (memq display-mode '(overlay both))))
                          (cider--make-result-overlay font-value
                            :where point
                            :duration cider-eval-result-duration
@@ -410,7 +430,7 @@ focused."
                  ;; displays it in the Messages buffer. We only hide the message
                  ;; if the user wants to AND if the overlay succeeded.
                  'invisible (and used-overlay
-                                 (not (eq cider-use-overlays 'both)))))))
+                                 (not (eq display-mode 'both)))))))
 
 
 ;;; Fragile buttons

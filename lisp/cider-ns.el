@@ -171,7 +171,7 @@ Present the error message as an overlay."
                                     ;; `reverse' the causes as the first one typically is a CompilerException, which the second one is the actual exception:
                                     (reverse error))))
         (with-current-buffer buf
-          (let ((cider-result-use-clojure-font-lock nil)
+          (let ((cider-eval-result-font-lock nil)
                 (trimmed-err (funcall cider-inline-error-message-function message)))
             (cider--display-interactive-eval-result trimmed-err
                                                     'error

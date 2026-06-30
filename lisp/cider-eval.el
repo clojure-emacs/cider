@@ -131,12 +131,16 @@ If t, save the file without confirmation."
 
 (defconst cider-output-buffer "*cider-out*")
 
-(defcustom cider-interactive-eval-output-destination 'repl-buffer
-  "The destination for stdout and stderr produced from interactive evaluation."
-  :type '(choice (const output-buffer)
-                 (const repl-buffer))
+(define-obsolete-variable-alias 'cider-interactive-eval-output-destination 'cider-eval-output-destination "1.23.0")
+
+(defcustom cider-eval-output-destination 'repl-buffer
+  "The destination for stdout and stderr produced from interactive evaluation.
+If `repl-buffer' (the default), the output is sent to the current REPL buffer.
+If `output-buffer', it's sent to a dedicated `*cider-out*' buffer."
+  :type '(choice (const :tag "REPL buffer" repl-buffer)
+                 (const :tag "Dedicated output buffer" output-buffer))
   :group 'cider
-  :package-version '(cider . "0.7.0"))
+  :package-version '(cider . "1.23.0"))
 
 (defcustom cider-comment-prefix ";; => "
   "The prefix to insert before the first line of commented output."
@@ -280,29 +284,29 @@ The handler simply inserts the result value in BUFFER."
 (defun cider--emit-interactive-eval-output (output repl-emit-function)
   "Emit output resulting from interactive code evaluation.
 The OUTPUT can be sent to either a dedicated output buffer or the current
-REPL buffer.  This is controlled by `cider-interactive-eval-output-destination'.
+REPL buffer.  This is controlled by `cider-eval-output-destination'.
 REPL-EMIT-FUNCTION emits the OUTPUT."
-  (pcase cider-interactive-eval-output-destination
+  (pcase cider-eval-output-destination
     (`output-buffer (let ((output-buffer (or (get-buffer cider-output-buffer)
                                              (cider-popup-buffer cider-output-buffer t))))
                       (cider-emit-into-popup-buffer output-buffer output)
                       (pop-to-buffer output-buffer)))
     (`repl-buffer (funcall repl-emit-function output))
-    (_ (error "Unsupported value %s for `cider-interactive-eval-output-destination'"
-              cider-interactive-eval-output-destination))))
+    (_ (error "Unsupported value %s for `cider-eval-output-destination'"
+              cider-eval-output-destination))))
 
 (defun cider-emit-interactive-eval-output (output)
   "Emit OUTPUT resulting from interactive code evaluation.
 The output can be send to either a dedicated output buffer or the current
 REPL buffer.  This is controlled via
-`cider-interactive-eval-output-destination'."
+`cider-eval-output-destination'."
   (cider--emit-interactive-eval-output output 'cider-repl-emit-interactive-stdout))
 
 (defun cider-emit-interactive-eval-err-output (output)
   "Emit err OUTPUT resulting from interactive code evaluation.
 The output can be send to either a dedicated output buffer or the current
 REPL buffer.  This is controlled via
-`cider-interactive-eval-output-destination'."
+`cider-eval-output-destination'."
   (cider--emit-interactive-eval-output output 'cider-repl-emit-interactive-stderr))
 
 (defun cider--make-fringe-overlays-for-region (beg end)
