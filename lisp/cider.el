@@ -169,15 +169,80 @@
     map)
   "CIDER jack-in and connect keymap.")
 
+(defun cider-start-menu--read-aliases (prompt initial-input history)
+  "Read Clojure CLI aliases for the jack-in transient.
+PROMPT, INITIAL-INPUT and HISTORY are as for `read-string'."
+  (read-string (or prompt "Aliases (e.g. :dev:test): ")
+               (or initial-input
+                   (and (stringp cider-clojure-cli-aliases)
+                        cider-clojure-cli-aliases))
+               history))
+
+(defun cider-start-menu--read-cljs-repl (prompt initial-input history)
+  "Read a ClojureScript REPL type for the jack-in transient.
+PROMPT, INITIAL-INPUT and HISTORY are as for `completing-read'."
+  (completing-read (or prompt "ClojureScript REPL type: ")
+                   (mapcar (lambda (type) (symbol-name (car type)))
+                           cider-cljs-repl-types)
+                   nil t initial-input history))
+
+(defun cider-start-menu--apply-args (args command)
+  "Call jack-in COMMAND with the `cider-start-menu' ARGS applied.
+Each active argument is translated into a `let'-binding of the matching
+option, so the underlying commands stay usable outside the transient."
+  (let ((cider-clojure-cli-aliases
+         (or (transient-arg-value "--aliases=" args)
+             cider-clojure-cli-aliases))
+        (cider-default-cljs-repl
+         (if-let* ((repl (transient-arg-value "--cljs-repl=" args)))
+             (intern repl)
+           cider-default-cljs-repl))
+        (cider-edit-jack-in-command
+         (or (and (member "--edit-command" args) t)
+             cider-edit-jack-in-command)))
+    (funcall command nil)))
+
+(transient-define-suffix cider-start-menu--jack-in-clj (args)
+  "Jack in to a Clojure REPL, applying the menu's ARGS."
+  (interactive (list (transient-args 'cider-start-menu)))
+  (cider-start-menu--apply-args args #'cider-jack-in-clj))
+
+(transient-define-suffix cider-start-menu--jack-in-cljs (args)
+  "Jack in to a ClojureScript REPL, applying the menu's ARGS."
+  (interactive (list (transient-args 'cider-start-menu)))
+  (cider-start-menu--apply-args args #'cider-jack-in-cljs))
+
+(transient-define-suffix cider-start-menu--jack-in-clj&cljs (args)
+  "Jack in to a Clojure and a ClojureScript REPL, applying the menu's ARGS."
+  (interactive (list (transient-args 'cider-start-menu)))
+  (cider-start-menu--apply-args args #'cider-jack-in-clj&cljs))
+
+(transient-define-suffix cider-start-menu--jack-in-universal (args)
+  "Jack in based on the project type, applying the menu's ARGS."
+  (interactive (list (transient-args 'cider-start-menu)))
+  (cider-start-menu--apply-args args #'cider-jack-in-universal))
+
+(transient-define-suffix cider-start-menu--start-nrepl-server (args)
+  "Start an nREPL server without connecting, applying the menu's ARGS."
+  (interactive (list (transient-args 'cider-start-menu)))
+  (cider-start-menu--apply-args args #'cider-start-nrepl-server))
+
 ;;;###autoload (autoload 'cider-start-menu "cider" "Menu for starting CIDER sessions." t)
 (transient-define-prefix cider-start-menu ()
-  "Transient menu for starting CIDER sessions (jack-in and connect)."
+  "Transient menu for starting CIDER sessions (jack-in and connect).
+The arguments at the top apply to the jack-in commands: set aliases, pick
+a ClojureScript REPL type, or opt to edit the final command before it
+runs.  They only affect this invocation, not your saved configuration."
+  ["Arguments"
+   ("-a" "Aliases" "--aliases=" :reader cider-start-menu--read-aliases)
+   ("-l" "ClojureScript REPL type" "--cljs-repl=" :reader cider-start-menu--read-cljs-repl)
+   ("-e" "Edit command before running" "--edit-command")]
   [["Jack-in (start server + connect)"
-    ("jj" "Clojure" cider-jack-in-clj)
-    ("js" "ClojureScript" cider-jack-in-cljs)
-    ("jm" "Clojure + ClojureScript" cider-jack-in-clj&cljs)
-    ("ju" "Universal (by project type)" cider-jack-in-universal)
-    ("jn" "Start server only" cider-start-nrepl-server)]
+    ("jj" "Clojure" cider-start-menu--jack-in-clj)
+    ("js" "ClojureScript" cider-start-menu--jack-in-cljs)
+    ("jm" "Clojure + ClojureScript" cider-start-menu--jack-in-clj&cljs)
+    ("ju" "Universal (by project type)" cider-start-menu--jack-in-universal)
+    ("jn" "Start server only" cider-start-menu--start-nrepl-server)]
    ["Connect (to a running server)"
     ("cj" "Clojure" cider-connect-clj)
     ("cs" "ClojureScript" cider-connect-cljs)
