@@ -549,4 +549,13 @@
               ;; the originating (source) buffer, not the connection.
               (cider-nrepl-send-eval-request "(+ 1 1)" #'ignore :connection repl)
               (expect 'cider-spinner-start :to-have-been-called-with source)))
+        (kill-buffer repl))))
+
+  (it "skips the mode-line spinner when it is inhibited"
+    (let ((repl (generate-new-buffer " *repl*"))
+          (cider--eval-spinner-inhibit-mode-line t))
+      (unwind-protect
+          (with-temp-buffer
+            (cider-nrepl-send-eval-request "(+ 1 1)" #'ignore :connection repl)
+            (expect 'cider-spinner-start :not :to-have-been-called))
         (kill-buffer repl)))))

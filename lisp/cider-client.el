@@ -64,6 +64,11 @@ Value is a symbol.  The possible values are the symbols in the
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
+(defvar cider--eval-spinner-inhibit-mode-line nil
+  "When non-nil, `cider-nrepl-send-eval-request' skips the mode-line spinner.
+Bound by `cider-interactive-eval' when it shows a spinner overlay at the
+evaluated form instead, so a single evaluation never spins in two places.")
+
 (defcustom cider-spinner-delay 1
   "Amount of time, in seconds, after which the spinner will be shown."
   :type 'integer
@@ -373,7 +378,8 @@ positional shim retained for backward compatibility."
                              connection
                              :ns ns :line line :column column
                              :additional-params additional-params)
-    (cider-spinner-start eval-buffer)))
+    (unless cider--eval-spinner-inhibit-mode-line
+      (cider-spinner-start eval-buffer))))
 
 (defun cider-nrepl-request:eval (input callback &optional ns line column additional-params connection)
   "Send the request INPUT and register the CALLBACK as the response handler.
