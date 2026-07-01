@@ -48,6 +48,7 @@
 (require 'subr-x)
 
 (require 'clojure-mode)
+(require 'spinner)
 (require 'transient)
 
 (require 'nrepl-client)
@@ -335,6 +336,71 @@ and by the namespace reloading commands once they finish."
     (run-hooks 'cider-file-loaded-hook)))
 
 
+;;; Pending-evaluation spinner overlay
+(defvar-local cider--eval-pending-overlays nil
+  "List of pending-evaluation spinner overlays in the current buffer.")
+
+(defun cider--eval-pending-spinner-frames ()
+  "Return the animation frames for the pending-evaluation spinner overlay.
+Reuse `cider-spinner-type', falling back to `progress-bar'."
+  (or (alist-get cider-spinner-type spinner-types)
+      (alist-get 'progress-bar spinner-types)))
+
+(defun cider--eval-pending-overlay-p (callback end)
+  "Return non-nil if a spinner overlay should mark a pending evaluation.
+Only when the spinner is enabled, the result is bound for an overlay (see
+`cider-eval-result-display'), the default handler is in use (CALLBACK is
+nil) and the form's END position is known."
+  (and cider-show-spinner
+       (null callback)
+       (number-or-marker-p end)
+       (memq (cider--eval-result-display) '(overlay both))))
+
+(defun cider--eval-pending-overlay-start (end)
+  "Show a spinner overlay where the result of the form ending at END will go.
+The spinner appears after `cider-spinner-delay' seconds, at the position
+dictated by `cider-eval-result-position', and animates until
+`cider--eval-pending-overlay-remove' clears it.  Return the overlay."
+  (let* ((frames (cider--eval-pending-spinner-frames))
+         (buffer (current-buffer))
+         (pos (save-excursion
+                (goto-char end)
+                (skip-chars-backward "\r\n[:blank:]")
+                (pcase cider-eval-result-position
+                  ('at-eol (line-end-position))
+                  (_ (point)))))
+         (ov (make-overlay pos pos))
+         (index 0)
+         timer)
+    (overlay-put ov 'category 'cider-eval-pending)
+    (overlay-put ov 'cider-temporary t)
+    (setq timer
+          (run-at-time
+           cider-spinner-delay (/ 1.0 10)
+           (lambda ()
+             (if (not (overlay-buffer ov))
+                 (cancel-timer timer)
+               (overlay-put
+                ov 'after-string
+                (propertize (concat " " cider-eval-result-prefix
+                                    (aref frames (% index (length frames))))
+                            'face 'cider-result-overlay-face))
+               (setq index (1+ index))))))
+    (overlay-put ov 'cider-pending-timer timer)
+    (with-current-buffer buffer
+      (push ov cider--eval-pending-overlays))
+    ov))
+
+(defun cider--eval-pending-overlay-remove ()
+  "Clear the pending-evaluation spinner overlays in the current buffer.
+Cancel their animation timers and delete the overlays."
+  (dolist (ov cider--eval-pending-overlays)
+    (when-let* ((timer (overlay-get ov 'cider-pending-timer)))
+      (cancel-timer timer))
+    (when (overlay-buffer ov)
+      (delete-overlay ov)))
+  (setq cider--eval-pending-overlays nil))
+
 (declare-function cider-inspect-last-result "cider-inspector")
 (defun cider-interactive-eval-handler (&optional buffer place)
   "Make an interactive eval handler for BUFFER.
@@ -354,6 +420,9 @@ when `cider-auto-inspect-after-eval' is non-nil."
     (cider-make-eval-handler
      :buffer (or buffer eval-buffer)
      :on-value (lambda (value)
+                 (when (buffer-live-p eval-buffer)
+                   (with-current-buffer eval-buffer
+                     (cider--eval-pending-overlay-remove)))
                  (setq res (concat res value))
                  (cider--display-interactive-eval-result res 'value end))
      :on-stdout #'cider-emit-interactive-eval-output
@@ -366,6 +435,11 @@ when `cider-auto-inspect-after-eval' is non-nil."
                    ;; jump brings us to the beginning of the same form anyway.
                    t))
      :on-done (lambda ()
+                ;; Clear the spinner overlay for evaluations that finish
+                ;; without a value (e.g. side-effecting forms or errors).
+                (when (buffer-live-p eval-buffer)
+                  (with-current-buffer eval-buffer
+                    (cider--eval-pending-overlay-remove)))
                 (if beg
                     (unless fringed
                       (cider--make-fringe-overlays-for-region beg end)
@@ -583,19 +657,24 @@ arguments and only proceed with evaluation if it returns nil."
       ;; command fail silently with no connection at all, so guard the
       ;; dispatch with an explicit connection check.
       (cider-ensure-session)
-      (cider-map-repls :auto
-        (lambda (connection)
-          (cider--prep-interactive-eval form connection)
-          (cider-nrepl-send-eval-request
-           form
-           (or callback (cider-interactive-eval-handler nil bounds))
-           ;; always eval ns forms in the user namespace
-           ;; otherwise trying to eval ns form for the first time will produce an error
-           :ns (if (cider-ns-form-p form) "user" (cider-current-ns))
-           :line (when start (line-number-at-pos start))
-           :column (when start (cider-column-number-at-pos start))
-           :additional-params additional-params
-           :connection connection))))))
+      ;; Mark the form with a spinner overlay while the evaluation is pending,
+      ;; and suppress the mode-line spinner so it doesn't spin in two places.
+      (let* ((pending (when (cider--eval-pending-overlay-p callback end)
+                        (cider--eval-pending-overlay-start end)))
+             (cider--eval-spinner-inhibit-mode-line (and pending t)))
+        (cider-map-repls :auto
+          (lambda (connection)
+            (cider--prep-interactive-eval form connection)
+            (cider-nrepl-send-eval-request
+             form
+             (or callback (cider-interactive-eval-handler nil bounds))
+             ;; always eval ns forms in the user namespace
+             ;; otherwise trying to eval ns form for the first time will produce an error
+             :ns (if (cider-ns-form-p form) "user" (cider-current-ns))
+             :line (when start (line-number-at-pos start))
+             :column (when start (cider-column-number-at-pos start))
+             :additional-params additional-params
+             :connection connection)))))))
 
 (defun cider-eval-region (start end)
   "Evaluate the region between START and END."

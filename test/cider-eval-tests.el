@@ -340,3 +340,44 @@
                               "status" ("namespace-not-found")
                               "ns" "missing.ns")))
     (expect 'message :to-have-been-called-with "Namespace `%s' not found." "missing.ns")))
+
+(describe "cider--eval-pending-overlay-p"
+  (it "is non-nil for an overlay-bound result with the default handler"
+    (let ((cider-show-spinner t)
+          (cider-eval-result-display 'both))
+      (expect (cider--eval-pending-overlay-p nil 10) :to-be-truthy))
+    (let ((cider-show-spinner t)
+          (cider-eval-result-display 'overlay))
+      (expect (cider--eval-pending-overlay-p nil 10) :to-be-truthy)))
+
+  (it "is nil when the spinner is disabled"
+    (let ((cider-show-spinner nil)
+          (cider-eval-result-display 'both))
+      (expect (cider--eval-pending-overlay-p nil 10) :to-be nil)))
+
+  (it "is nil when the result only goes to the echo area"
+    (let ((cider-show-spinner t)
+          (cider-eval-result-display 'echo))
+      (expect (cider--eval-pending-overlay-p nil 10) :to-be nil)))
+
+  (it "is nil with a custom callback or an unknown position"
+    (let ((cider-show-spinner t)
+          (cider-eval-result-display 'both))
+      (expect (cider--eval-pending-overlay-p #'ignore 10) :to-be nil)
+      (expect (cider--eval-pending-overlay-p nil nil) :to-be nil))))
+
+(describe "cider--eval-pending-overlay-start / -remove"
+  (it "registers a spinner overlay and clears it on removal"
+    (with-temp-buffer
+      (insert "(+ 1 1)")
+      (let* ((cider-spinner-delay 1)
+             (ov (cider--eval-pending-overlay-start (point-max))))
+        (expect (overlayp ov) :to-be-truthy)
+        (expect (memq ov cider--eval-pending-overlays) :to-be-truthy)
+        (expect (timerp (overlay-get ov 'cider-pending-timer)) :to-be-truthy)
+        (cider--eval-pending-overlay-remove)
+        (expect cider--eval-pending-overlays :to-be nil)
+        (expect (overlay-buffer ov) :to-be nil)
+        ;; the animation timer is cancelled (no longer scheduled)
+        (expect (memq (overlay-get ov 'cider-pending-timer) timer-list)
+                :to-be nil)))))
