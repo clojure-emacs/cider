@@ -501,7 +501,21 @@
     (expect (cider--powershell-encode-command "\"cmd-params\"")
             :to-equal (concat "-encodedCommand "
                               ;; Eval to reproduce reference string below: (base64-encode-string (encode-coding-string "clojure "\"cmd-params\""" 'utf-16le) t)
-                              "JABQAFMATgBhAHQAaQB2AGUAQwBvAG0AbQBhAG4AZABBAHIAZwB1AG0AZQBuAHQAUABhAHMAcwBpAG4AZwAgAD0AIAAnAEwAZQBnAGEAYwB5ACcAOwAgAGMAbABvAGoAdQByAGUAIAAiAGMAbQBkAC0AcABhAHIAYQBtAHMAIgA="))))
+                              "JABQAFMATgBhAHQAaQB2AGUAQwBvAG0AbQBhAG4AZABBAHIAZwB1AG0AZQBuAHQAUABhAHMAcwBpAG4AZwAgAD0AIAAnAEwAZQBnAGEAYwB5ACcAOwAgAGMAbABvAGoAdQByAGUAIAAiAGMAbQBkAC0AcABhAHIAYQBtAHMAIgA=")))
+
+  (it "prepends the configured options before -encodedCommand"
+    (let ((cider-clojure-cli-powershell-options "-noprofile -executionpolicy bypass"))
+      (expect (cider--powershell-encode-command "cmd-params")
+              :to-match
+              (rx string-start "-noprofile -executionpolicy bypass -encodedCommand "))))
+
+  (it "leaves the encoded payload unchanged when options are set"
+    (expect (let ((cider-clojure-cli-powershell-options "-noprofile"))
+              (string-remove-prefix
+               "-noprofile " (cider--powershell-encode-command "cmd-params")))
+            :to-equal
+            (let ((cider-clojure-cli-powershell-options nil))
+              (cider--powershell-encode-command "cmd-params")))))
 
 (describe "cider--resolve-command"
   (it "passes the TRAMP host to `executable-find' when default-directory is remote"

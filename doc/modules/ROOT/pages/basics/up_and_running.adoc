@@ -270,6 +270,11 @@ platforms. Using `PowerShell` will Base64 encode the clojure launch
 command before passing it to PowerShell and avoids shell-escaping
 issues.
 
+Set `cider-clojure-cli-powershell-options` to pass extra options to the
+PowerShell executable itself (inserted before the encoded command). For
+example, `-noprofile -executionpolicy bypass` skips the user profile and
+works around a https://github.com/clojure/tools.deps.alpha/wiki/clj-on-Windows#install-fails-due-to-permission-errors[restrictive execution policy].
+
 The functionality of `cider-clojure-cli-command` has been verified
 with the following alternatives
 
