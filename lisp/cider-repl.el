@@ -2176,7 +2176,10 @@ in an unexpected place."
   (interactive)
   (message (prin1-to-string (mapcar (lambda (session)
                                       (cider--sesman-friendly-session-p session t))
-                                    (sesman--all-system-sessions 'CIDER)))))
+                                    ;; `cider-sessions' wraps the public
+                                    ;; `sesman-sessions', which returns the same
+                                    ;; set as the private `sesman--all-system-sessions'.
+                                    (cider-sessions)))))
 
 (cl-defmethod sesman-friendly-session-p ((_system (eql CIDER)) session)
   "Check if SESSION is a friendly session."

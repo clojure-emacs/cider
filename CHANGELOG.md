@@ -51,6 +51,7 @@
 
 ### Changes
 
+- [#4059](https://github.com/clojure-emacs/cider/pull/4059): Use the public `sesman-sessions` (via `cider-sessions`) instead of a private sesman function in `cider-debug-sesman-friendly-session-p` ([#4037](https://github.com/clojure-emacs/cider/issues/4037)).
 - [#4056](https://github.com/clojure-emacs/cider/pull/4056): Show the interactive-evaluation spinner in the buffer you evaluated from (the source buffer, or the REPL when evaluating at its prompt) instead of always in the REPL buffer, which is often not even visible ([#3516](https://github.com/clojure-emacs/cider/issues/3516)).
 - [#4052](https://github.com/clojure-emacs/cider/pull/4052): Rename the inline evaluation-result options into a consistent `cider-eval-result-*` family: `cider-use-overlays` -> `cider-eval-result-display`, `cider-result-overlay-position` -> `cider-eval-result-position`, `cider-result-use-clojure-font-lock` and `cider-overlays-use-font-lock` -> `cider-eval-result-font-lock`, `cider-interactive-eval-output-destination` -> `cider-eval-output-destination`, and `cider-use-fringe-indicators` -> `cider-fringe-indicators`. The old names remain as obsolete aliases.
 - [#4050](https://github.com/clojure-emacs/cider/pull/4050): Bump the injected `cider-nrepl` to 0.61.0 (and `piggieback` to 0.6.2). Code formatting now honors the project's cljfmt configuration, and the default `pprint` printer is backed by `orchard.pp`.

@@ -632,3 +632,12 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
       (insert "keep after\n")
       (cider-repl-clear-help-banner)
       (expect (buffer-string) :to-equal "keep before\nkeep after\n"))))
+
+(describe "cider-debug-sesman-friendly-session-p"
+  (it "queries sessions through the public `cider-sessions'"
+    (spy-on 'cider-sessions :and-return-value '(session-a session-b))
+    (spy-on 'cider--sesman-friendly-session-p :and-return-value t)
+    (spy-on 'message)
+    (cider-debug-sesman-friendly-session-p)
+    (expect 'cider-sessions :to-have-been-called)
+    (expect 'cider--sesman-friendly-session-p :to-have-been-called-times 2)))
