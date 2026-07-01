@@ -497,3 +497,41 @@
     (spy-on 'cider-connected-p :and-return-value nil)
     (expect (cider-expected-ns "/cider--proj/src/foo/bar.clj") :to-equal
             "foo.bar")))
+
+(describe "cider-interrupt-repl"
+  (it "interrupts every pending request, dispatched on the given REPL"
+    (spy-on 'nrepl-request:interrupt)
+    (with-temp-buffer
+      (setq-local nrepl-pending-requests (make-hash-table :test 'equal))
+      (puthash "id-1" t nrepl-pending-requests)
+      (puthash "id-2" t nrepl-pending-requests)
+      (let* ((repl (current-buffer)))
+        (cider-interrupt-repl repl)
+        (expect 'nrepl-request:interrupt :to-have-been-called-times 2)
+        (let ((calls (spy-calls-all-args 'nrepl-request:interrupt)))
+          (expect (mapcar #'car calls) :to-have-same-items-as '("id-1" "id-2"))
+          ;; every interrupt is dispatched on REPL
+          (expect (mapcar (lambda (c) (nth 2 c)) calls) :to-equal (list repl repl)))))))
+
+(describe "cider-interrupt"
+  (it "interrupts every REPL evaluations are dispatched to (both in a cljc buffer)"
+    (let ((clj-repl (generate-new-buffer " *clj-repl*"))
+          (cljs-repl (generate-new-buffer " *cljs-repl*")))
+      (unwind-protect
+          (progn
+            (dolist (buffer (list clj-repl cljs-repl))
+              (with-current-buffer buffer
+                (setq-local nrepl-pending-requests (make-hash-table :test 'equal))
+                (puthash "id" t nrepl-pending-requests)))
+            ;; Stand in for a cljc buffer whose `:auto' dispatch hits both REPLs.
+            (spy-on 'cider-map-repls :and-call-fake
+                    (lambda (_which function) (mapcar function (list clj-repl cljs-repl))))
+            (spy-on 'nrepl-request:interrupt)
+            (cider-interrupt)
+            (expect 'cider-map-repls :to-have-been-called-with :auto #'cider-interrupt-repl)
+            (expect 'nrepl-request:interrupt :to-have-been-called-times 2)
+            (let ((conns (mapcar (lambda (c) (nth 2 c))
+                                 (spy-calls-all-args 'nrepl-request:interrupt))))
+              (expect conns :to-have-same-items-as (list clj-repl cljs-repl))))
+        (kill-buffer clj-repl)
+        (kill-buffer cljs-repl)))))
