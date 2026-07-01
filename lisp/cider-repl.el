@@ -410,7 +410,7 @@ The full getting-started help now lives in `cider-repl-help'."
   '((t :inherit bold :underline t))
   "Face for the section headings in the `cider-repl-help' buffer."
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defvar cider-repl-help-mode-map
   (let ((map (make-sparse-keymap)))
@@ -2258,7 +2258,7 @@ in an unexpected place."
     ;; Deprecated REPL-only aliases; the canonical bindings live in the
     ;; `C-c C-x' start map, shared with `cider-mode'.
     ;; Soft-deprecated since the `C-c C-x' start map landed in 0.18.0; now
-    ;; formally warned (the warning mechanism itself arrived in 1.23.0).
+    ;; formally warned (the warning mechanism itself arrived in 2.0.0).
     (cider--define-deprecated-key map "C-c M-j" #'cider-jack-in-clj "C-c C-x j j" "0.18.0")
     (cider--define-deprecated-key map "C-c M-J" #'cider-jack-in-cljs "C-c C-x j s" "0.18.0")
     (cider--define-deprecated-key map "C-c M-c" #'cider-connect-clj "C-c C-x c j" "0.18.0")

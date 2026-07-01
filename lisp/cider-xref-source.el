@@ -62,7 +62,7 @@
 Each entry is an extension without the leading dot."
   :type '(repeat string)
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defconst cider-xref--symbol-chars "[:alnum:]_'*+!?<>=&$%./:-"
   "The Clojure symbol-constituent characters, as the body of a bracket expression.

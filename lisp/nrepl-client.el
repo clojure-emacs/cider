@@ -106,7 +106,7 @@ directly."
 The countdown resets whenever the ssh process produces output, so an
 interactive password or 2FA prompt won't trip the timeout."
   :type 'integer
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defcustom nrepl-sync-request-timeout 10
   "The number of seconds to wait for a sync response.
@@ -1020,7 +1020,7 @@ prefer the keyword-argument `nrepl-sync-request'."
                       :tooling tooling
                       :callback callback))
 
-(make-obsolete 'nrepl-send-sync-request 'nrepl-sync-request "1.23.0")
+(make-obsolete 'nrepl-send-sync-request 'nrepl-sync-request "2.0.0")
 
 (defun nrepl-request:stdin (input callback connection)
   "Send a :stdin request with INPUT using CONNECTION.
@@ -1092,7 +1092,7 @@ prefer the keyword-argument `nrepl-send-eval-request'."
                            :ns ns :line line :column column
                            :additional-params additional-params :tooling tooling))
 
-(make-obsolete 'nrepl-request:eval 'nrepl-send-eval-request "1.23.0")
+(make-obsolete 'nrepl-request:eval 'nrepl-send-eval-request "2.0.0")
 
 (defvar nrepl-client-name "nrepl.el"
   "Name of the nREPL client, sent in clone requests.")

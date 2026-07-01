@@ -135,7 +135,7 @@ a clickable, inspectable object you can send back to the REPL.
 ### Stepwise macroexpansion
 
 In-place, stepwise macro expansion (à la
-[macrostep](https://github.com/joddie/macrostep)) shipped in CIDER 1.23:
+[macrostep](https://github.com/joddie/macrostep)) shipped in CIDER 2.0:
 `cider-macrostep-expand` expands the form at point one level inline, you can
 step into nested forms and collapse back (`cider-macrostep-mode`), the
 further-expandable heads are highlighted with `n`/`p` navigation, and the

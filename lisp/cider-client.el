@@ -247,7 +247,7 @@ Signal an error if it is not supported."
 (make-obsolete 'cider-ensure-op-supported
                "op support is now enforced automatically by the nREPL senders, \
 so commands no longer need an explicit check."
-               "1.23.0")
+               "2.0.0")
 
 (defvar cider--skip-op-ensure nil
   "When non-nil, skip the automatic op-support check in CIDER's nREPL senders.
@@ -338,7 +338,7 @@ prefer the keyword-argument `cider-nrepl-sync-request'."
                            :abort-on-input abort-on-input
                            :callback callback))
 
-(make-obsolete 'cider-nrepl-send-sync-request 'cider-nrepl-sync-request "1.23.0")
+(make-obsolete 'cider-nrepl-send-sync-request 'cider-nrepl-sync-request "2.0.0")
 
 (defun cider-nrepl-send-unhandled-request (request &optional connection)
   "Send REQUEST to the nREPL CONNECTION and ignore any responses.
@@ -395,7 +395,7 @@ prefer the keyword-argument `cider-nrepl-send-eval-request'."
                                  :additional-params additional-params
                                  :connection connection))
 
-(make-obsolete 'cider-nrepl-request:eval 'cider-nrepl-send-eval-request "1.23.0")
+(make-obsolete 'cider-nrepl-request:eval 'cider-nrepl-send-eval-request "2.0.0")
 
 (defun cider-nrepl-sync-request:eval (input &optional connection ns)
   "Send the INPUT to the nREPL CONNECTION synchronously.

@@ -801,7 +801,7 @@ The command still runs either way; this only controls the one-time message
 nudging you toward the replacement binding."
   :type 'boolean
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defvar cider--deprecated-keybindings nil
   "Registry of CIDER's deprecated keybindings.

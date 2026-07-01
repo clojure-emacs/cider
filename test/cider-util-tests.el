@@ -553,11 +553,11 @@ and some other vars (like clojure.core/filter).
   (it "binds the key to a command and registers the deprecation"
     (let ((map (make-sparse-keymap))
           (cider--deprecated-keybindings nil))
-      (cider--define-deprecated-key map "C-c X" #'ignore "C-c C-x y" "1.23")
+      (cider--define-deprecated-key map "C-c X" #'ignore "C-c C-x y" "2.0")
       (expect (commandp (lookup-key map (kbd "C-c X"))) :to-be-truthy)
       (let ((entry (car cider--deprecated-keybindings)))
         (expect (plist-get entry :replacement) :to-equal "C-c C-x y")
-        (expect (plist-get entry :since) :to-equal "1.23"))))
+        (expect (plist-get entry :since) :to-equal "2.0"))))
 
   (it "runs the underlying command when invoked"
     (let ((map (make-sparse-keymap))

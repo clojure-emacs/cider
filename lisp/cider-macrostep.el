@@ -58,13 +58,13 @@ Possible values are:
                  (const :tag "Show fully-qualified namespaces" qualified)
                  (const :tag "Show namespace aliases" tidy))
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defcustom cider-macrostep-highlight-expansion t
   "Whether to briefly highlight (pulse) a freshly inserted inline expansion."
   :type 'boolean
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defcustom cider-macrostep-highlight-expandable t
   "Whether to highlight the operators of further-expandable sub-forms.
@@ -74,7 +74,7 @@ a macro are underlined, and `n'/`p' navigate between them.  Requires the
 silently skipped."
   :type 'boolean
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defcustom cider-macrostep-color-gensyms t
   "Whether to colorize the gensyms introduced by a macro expansion.
@@ -83,7 +83,7 @@ expansion gets its own color from `cider-macrostep-gensym-colors', so a
 binding introduced by the macro can be tracked through the expansion."
   :type 'boolean
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defcustom cider-macrostep-gensym-colors
   '("#d33682" "#268bd2" "#859900" "#b58900" "#6c71c4" "#2aa198" "#cb4b16")
@@ -92,7 +92,7 @@ Each distinct gensym in an expansion is assigned the next color in this
 list, wrapping around when an expansion has more gensyms than colors."
   :type '(repeat color)
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defface cider-macrostep-expansion-face
   '((((min-colors 16777216) (background light)) :background "#eef3fb" :extend t)
@@ -101,13 +101,13 @@ list, wrapping around when an expansion has more gensyms than colors."
     (((background dark)) :background "gray22" :extend t))
   "Face for the background of an inline macro expansion."
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defface cider-macrostep-expandable-face
   '((t :underline t :weight bold))
   "Face for the operator of a sub-form that can be expanded further."
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defvar-local cider-macrostep--overlays nil
   "Stack of overlays for the current `cider-macrostep-mode' session.

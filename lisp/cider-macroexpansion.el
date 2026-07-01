@@ -44,7 +44,7 @@
 This makes it more obvious that the buffer's contents changed."
   :type 'boolean
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defcustom cider-macroexpansion-display-namespaces 'tidy
   "Determines if namespaces are displayed in the macroexpansion buffer.

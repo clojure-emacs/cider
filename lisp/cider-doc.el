@@ -65,14 +65,14 @@ appends them to the `*cider-doc*' buffer.  When nil, the buffer instead shows
 a button (and the \\`e' key) to fetch them on demand."
   :type 'boolean
   :group 'cider-doc
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defcustom cider-doc-clojuredocs-max-examples 3
   "Maximum number of ClojureDocs examples to show inline in the doc buffer.
 A link to the full ClojureDocs entry is shown when more examples exist."
   :type 'integer
   :group 'cider-doc
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (declare-function cider-apropos "cider-apropos")
 (declare-function cider-apropos-select "cider-apropos")
