@@ -4,6 +4,7 @@
 
 ### New features
 
+- [#4063](https://github.com/clojure-emacs/cider/pull/4063): Add test-selector flags to the test transient menu (`cider-test-menu`): `--include=` and `--exclude=`, so a selector filter can be set once and reused across the namespace/loaded/project run commands.
 - [#4062](https://github.com/clojure-emacs/cider/pull/4062): Add refresh-mode flags to the namespace transient menu (`cider-ns-menu`): `--all`, `--clear` and `--inhibit-fns`, making `cider-ns-refresh`'s otherwise prefix-argument-only modes explicit and combinable.
 - [#4062](https://github.com/clojure-emacs/cider/pull/4062): Add display flags to the macroexpand transient menu (`cider-macroexpand-menu`): `--ns=` (tidy/qualified/none) and `--meta`, to control the popup expansion's rendering per invocation.
 - [#4061](https://github.com/clojure-emacs/cider/pull/4061): The jack-in/connect keybindings are now a transient menu (`cider-start-menu`, `C-c C-x`), with argument flags for the settings that vary per session: aliases (`-a`), the ClojureScript REPL type (`-l`) and editing the command before running (`-e`) ([#3317](https://github.com/clojure-emacs/cider/issues/3317)).

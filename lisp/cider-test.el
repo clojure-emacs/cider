@@ -173,15 +173,60 @@ to work against the correct REPL session.")
     ["Configure testing" (customize-group 'cider-test)])
   "CIDER test submenu (for the menu bar).")
 
+(defun cider-test-menu--read-selectors (prompt initial-input history)
+  "Read space-separated test selectors for the test transient.
+PROMPT, INITIAL-INPUT and HISTORY are as for `read-string'."
+  (read-string (or prompt "Selectors (space separated, e.g. :integration): ")
+               initial-input history))
+
+(defun cider-test-menu--selectors (value)
+  "Split VALUE into a list of selector strings, stripping leading colons.
+Return nil when VALUE is nil."
+  (when value
+    (mapcar (lambda (selector) (replace-regexp-in-string "\\`:+" "" selector))
+            (split-string value))))
+
+(defun cider-test-menu--apply-args (args thunk)
+  "Call THUNK with the `cider-test-menu' selector ARGS applied.
+The include/exclude selectors are `let'-bound around the call, so the run
+commands filter by them for this invocation only."
+  (let ((cider-test-default-include-selectors
+         (or (cider-test-menu--selectors (transient-arg-value "--include=" args))
+             cider-test-default-include-selectors))
+        (cider-test-default-exclude-selectors
+         (or (cider-test-menu--selectors (transient-arg-value "--exclude=" args))
+             cider-test-default-exclude-selectors)))
+    (funcall thunk)))
+
+(transient-define-suffix cider-test-menu--run-ns (args)
+  "Run the current namespace's tests, applying the menu's selector ARGS."
+  (interactive (list (transient-args 'cider-test-menu)))
+  (cider-test-menu--apply-args args (lambda () (cider-test-run-ns-tests nil))))
+
+(transient-define-suffix cider-test-menu--run-loaded (args)
+  "Run the loaded namespaces' tests, applying the menu's selector ARGS."
+  (interactive (list (transient-args 'cider-test-menu)))
+  (cider-test-menu--apply-args args (lambda () (cider-test-run-loaded-tests nil))))
+
+(transient-define-suffix cider-test-menu--run-project (args)
+  "Run the project's tests, applying the menu's selector ARGS."
+  (interactive (list (transient-args 'cider-test-menu)))
+  (cider-test-menu--apply-args args (lambda () (cider-test-run-project-tests nil))))
+
 ;;;###autoload (autoload 'cider-test-menu "cider-test" "Menu for CIDER's test commands." t)
 (transient-define-prefix cider-test-menu ()
-  "Transient menu for CIDER's test commands."
+  "Transient menu for CIDER's test commands.
+The selector arguments filter which tests the namespace, loaded and
+project run commands execute, without prompting."
+  ["Selectors"
+   ("-i" "Include" "--include=" :reader cider-test-menu--read-selectors)
+   ("-x" "Exclude" "--exclude=" :reader cider-test-menu--read-selectors)]
   [["Run"
     ("t" "Test at point" cider-test-run-test)
-    ("n" "Namespace tests" cider-test-run-ns-tests)
-    ("s" "Namespace tests (filtered)" cider-test-run-ns-tests-with-filters)
-    ("l" "Loaded tests" cider-test-run-loaded-tests)
-    ("p" "Project tests" cider-test-run-project-tests)]
+    ("n" "Namespace tests" cider-test-menu--run-ns)
+    ("s" "Namespace tests (prompt for filters)" cider-test-run-ns-tests-with-filters)
+    ("l" "Loaded tests" cider-test-menu--run-loaded)
+    ("p" "Project tests" cider-test-menu--run-project)]
    ["Rerun / report"
     ("r" "Rerun failed" cider-test-rerun-failed-tests)
     ("a" "Rerun last test" cider-test-rerun-test)
@@ -190,10 +235,10 @@ to work against the correct REPL session.")
   ;; Control-variant duplicates, hidden from the menu, preserving muscle memory.
   [:hide (lambda () t)
    ("C-t" "Test at point" cider-test-run-test)
-   ("C-n" "Namespace tests" cider-test-run-ns-tests)
-   ("C-s" "Namespace tests (filtered)" cider-test-run-ns-tests-with-filters)
-   ("C-l" "Loaded tests" cider-test-run-loaded-tests)
-   ("C-p" "Project tests" cider-test-run-project-tests)
+   ("C-n" "Namespace tests" cider-test-menu--run-ns)
+   ("C-s" "Namespace tests (prompt for filters)" cider-test-run-ns-tests-with-filters)
+   ("C-l" "Loaded tests" cider-test-menu--run-loaded)
+   ("C-p" "Project tests" cider-test-menu--run-project)
    ("C-r" "Rerun failed" cider-test-rerun-failed-tests)
    ("C-a" "Rerun last test" cider-test-rerun-test)
    ("C-b" "Show report" cider-test-show-report)
