@@ -267,3 +267,35 @@
               :to-be-truthy)
       (expect (or both shown1 shown2)
               :to-be nil))))
+
+(describe "cider-stacktrace-navigate"
+  (it "jumps via the frame's file-url without re-resolving the var (#3157)"
+    (spy-on 'cider--jump-to-loc-from-info)
+    (spy-on 'cider-var-info)
+    (with-temp-buffer
+      ;; An anonymous-fn frame: the var `repro/fn' would misresolve to
+      ;; `clojure.core/fn', but the frame carries a resolved file-url + line.
+      (let ((button (insert-text-button "frame"
+                                        'var "repro/fn"
+                                        'file-url "file:/tmp/repro.clj"
+                                        'file "repro.clj"
+                                        'line 12)))
+        (cider-stacktrace-navigate button)
+        (expect 'cider-var-info :not :to-have-been-called)
+        (let ((info (car (car (spy-calls-all-args 'cider--jump-to-loc-from-info)))))
+          (expect (nrepl-dict-get info "file") :to-equal "file:/tmp/repro.clj")
+          (expect (nrepl-dict-get info "line") :to-equal 12)))))
+
+  (it "falls back to var resolution when the frame has no file-url"
+    (spy-on 'cider--jump-to-loc-from-info)
+    (spy-on 'cider-var-info :and-return-value
+            (nrepl-dict "file" "file:/tmp/core.clj" "line" 100))
+    (with-temp-buffer
+      (let ((button (insert-text-button "frame"
+                                        'var "repro/named"
+                                        'file-url nil
+                                        'file "repro.clj"
+                                        'line 12)))
+        (cider-stacktrace-navigate button)
+        (expect 'cider-var-info :to-have-been-called-with "repro/named")
+        (expect 'cider--jump-to-loc-from-info :to-have-been-called)))))
