@@ -143,6 +143,31 @@
     (expect (cider-macroexpansion--operator "(defn- f [])") :to-equal "defn-")
     (expect (cider-macroexpansion--operator "(-> x f)") :to-equal "->")))
 
+(describe "cider-macroexpand-menu--apply-args"
+  (it "binds the namespace display style from --ns="
+    (let (captured)
+      (cider-macroexpand-menu--apply-args
+       '("--ns=qualified")
+       (lambda () (setq captured cider-macroexpansion-display-namespaces)))
+      (expect captured :to-equal 'qualified)))
+
+  (it "enables metadata printing from --meta"
+    (let (captured)
+      (cider-macroexpand-menu--apply-args
+       '("--meta")
+       (lambda () (setq captured cider-macroexpansion-print-metadata)))
+      (expect captured :to-be-truthy)))
+
+  (it "keeps the configured defaults when no arguments are set"
+    (let ((cider-macroexpansion-display-namespaces 'tidy)
+          (cider-macroexpansion-print-metadata nil)
+          captured)
+      (cider-macroexpand-menu--apply-args
+       nil
+       (lambda () (setq captured (list cider-macroexpansion-display-namespaces
+                                       cider-macroexpansion-print-metadata))))
+      (expect captured :to-equal '(tidy nil)))))
+
 (provide 'cider-macroexpansion-tests)
 
 ;;; cider-macroexpansion-tests.el ends here

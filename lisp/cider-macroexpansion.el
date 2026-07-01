@@ -310,12 +310,47 @@ Keys 1 and a open the macroexpansion buffer on one level or the full expansion;
 e and E expand inline (a single step, or all the way) via `cider-macrostep'; b
 runs an inline-style stepping session in a dedicated popup buffer.")
 
+(defun cider-macroexpand-menu--read-display-ns (prompt initial-input history)
+  "Read a namespace-display style for the macroexpand transient.
+PROMPT, INITIAL-INPUT and HISTORY are as for `completing-read'."
+  (completing-read (or prompt "Namespace display: ")
+                   '("tidy" "qualified" "none") nil t initial-input history))
+
+(defun cider-macroexpand-menu--apply-args (args command)
+  "Call macroexpand COMMAND with the `cider-macroexpand-menu' ARGS applied.
+The display arguments are `let'-bound around the call, so the popup
+macroexpansion honors them for this invocation only."
+  (let ((cider-macroexpansion-display-namespaces
+         (if-let* ((ns (transient-arg-value "--ns=" args)))
+             (intern ns)
+           cider-macroexpansion-display-namespaces))
+        (cider-macroexpansion-print-metadata
+         (or (and (member "--meta" args) t)
+             cider-macroexpansion-print-metadata)))
+    (funcall command)))
+
+(transient-define-suffix cider-macroexpand-menu--expand-1 (args)
+  "Macroexpand-1 into a popup buffer, applying the menu's ARGS."
+  (interactive (list (transient-args 'cider-macroexpand-menu)))
+  (cider-macroexpand-menu--apply-args args #'cider-macroexpand-1))
+
+(transient-define-suffix cider-macroexpand-menu--expand-all (args)
+  "Fully macroexpand into a popup buffer, applying the menu's ARGS."
+  (interactive (list (transient-args 'cider-macroexpand-menu)))
+  (cider-macroexpand-menu--apply-args args #'cider-macroexpand-all))
+
 ;;;###autoload (autoload 'cider-macroexpand-menu "cider-macroexpansion" "Menu for CIDER's macroexpansion commands." t)
 (transient-define-prefix cider-macroexpand-menu ()
-  "Transient menu for CIDER's macroexpansion commands."
+  "Transient menu for CIDER's macroexpansion commands.
+The display arguments control how the popup macroexpansion renders
+namespaces and metadata for this invocation."
+  ["Display"
+   ("-n" "Namespaces (tidy/qualified/none)" "--ns="
+    :reader cider-macroexpand-menu--read-display-ns)
+   ("-m" "Include metadata" "--meta")]
   [["Macroexpand (popup buffer)"
-    ("1" "Macroexpand-1" cider-macroexpand-1)
-    ("a" "Macroexpand all" cider-macroexpand-all)]
+    ("1" "Macroexpand-1" cider-macroexpand-menu--expand-1)
+    ("a" "Macroexpand all" cider-macroexpand-menu--expand-all)]
    ["Inline (macrostep)"
     ("e" "Expand-1 inline" cider-macrostep-expand)
     ("E" "Expand all inline" cider-macrostep-expand-all)
