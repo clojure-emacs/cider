@@ -359,11 +359,15 @@ unloaded.
 
 With a negative prefix argument, or if MODE is `inhibit-fns', prevent any
 refresh functions (defined in `cider-ns-refresh-before-fn' and
-`cider-ns-refresh-after-fn') from being invoked."
+`cider-ns-refresh-after-fn') from being invoked.
+
+MODE may also be a list combining these symbols (e.g. \\='(refresh-all
+inhibit-fns)), which is how `cider-ns-menu' passes its arguments."
   (interactive "p")
-  (let ((clear? (member mode '(clear 16)))
-        (all? (member mode '(refresh-all 4)))
-        (inhibit-refresh-fns (member mode '(inhibit-fns -1))))
+  (let* ((modes (if (listp mode) mode (list mode)))
+         (clear? (or (memq 'clear modes) (memq 16 modes)))
+         (all? (or (memq 'refresh-all modes) (memq 4 modes)))
+         (inhibit-refresh-fns (or (memq 'inhibit-fns modes) (memq -1 modes))))
     (cider-map-repls '(:clj "cider/refresh" "cider.clj-reload/reload")
       (lambda (conn)
         (cider-ns-refresh--save-modified-buffers conn)
