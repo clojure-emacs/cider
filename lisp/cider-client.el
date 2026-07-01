@@ -356,12 +356,15 @@ buffer, defaults to (cider-current-repl).
 This is the keyword-argument form; `cider-nrepl-request:eval' is the legacy
 positional shim retained for backward compatibility."
   (let ((connection (or connection (cider-current-repl 'infer 'ensure)))
+        ;; Show the spinner in the buffer the evaluation was initiated from
+        ;; (the source buffer, or the REPL when evaluating at its prompt),
+        ;; rather than always in the REPL, which is often not even visible.
         (eval-buffer (current-buffer)))
     (run-hooks 'cider-before-eval-hook)
     (nrepl-send-eval-request input
                              (lambda (response)
                                (when cider-show-spinner
-                                 (cider-eval-spinner connection response))
+                                 (cider-eval-spinner eval-buffer response))
                                (when (and (buffer-live-p eval-buffer)
                                           (member "done" (nrepl-dict-get response "status")))
                                  (with-current-buffer eval-buffer
@@ -370,7 +373,7 @@ positional shim retained for backward compatibility."
                              connection
                              :ns ns :line line :column column
                              :additional-params additional-params)
-    (cider-spinner-start connection)))
+    (cider-spinner-start eval-buffer)))
 
 (defun cider-nrepl-request:eval (input callback &optional ns line column additional-params connection)
   "Send the request INPUT and register the CALLBACK as the response handler.
