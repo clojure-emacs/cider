@@ -162,3 +162,30 @@
       (insert "x")
       (cider-test--add-fringe-indicator (current-buffer) nil t)
       (expect (overlays-in (point-min) (point-max)) :to-be nil))))
+
+(describe "cider-test-menu--selectors"
+  (it "splits on whitespace and strips leading colons"
+    (expect (cider-test-menu--selectors ":integration :slow")
+            :to-equal '("integration" "slow")))
+  (it "returns nil when given nil"
+    (expect (cider-test-menu--selectors nil) :to-be nil)))
+
+(describe "cider-test-menu--apply-args"
+  (it "binds the include and exclude selectors from the args"
+    (let (include exclude)
+      (cider-test-menu--apply-args
+       '("--include=:integration" "--exclude=:slow :flaky")
+       (lambda () (setq include cider-test-default-include-selectors
+                        exclude cider-test-default-exclude-selectors)))
+      (expect include :to-equal '("integration"))
+      (expect exclude :to-equal '("slow" "flaky"))))
+
+  (it "keeps the configured defaults when no selector args are set"
+    (let ((cider-test-default-include-selectors '("keep"))
+          (cider-test-default-exclude-selectors '("skip"))
+          captured)
+      (cider-test-menu--apply-args
+       nil
+       (lambda () (setq captured (list cider-test-default-include-selectors
+                                       cider-test-default-exclude-selectors))))
+      (expect captured :to-equal '(("keep") ("skip"))))))
