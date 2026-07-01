@@ -27,6 +27,7 @@
 
 (require 'buttercup)
 (require 'cider-ns)
+(require 'cider-mode) ; for `cider-ns-menu--refresh'
 (require 'cider-test-utils "test/utils/cider-test-utils")
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
@@ -250,3 +251,18 @@
             :to-equal 'cider-ns-refresh))
   (it "provides a menu (#2798)"
     (expect (lookup-key cider-ns-refresh-log-mode-map [menu-bar]) :to-be-truthy)))
+
+(describe "cider-ns-menu--refresh"
+  (before-each (spy-on 'cider-ns-refresh))
+
+  (it "translates the menu switches into a list of refresh modes"
+    (cider-ns-menu--refresh '("--all" "--inhibit-fns"))
+    (expect 'cider-ns-refresh :to-have-been-called-with '(refresh-all inhibit-fns)))
+
+  (it "passes clear on its own"
+    (cider-ns-menu--refresh '("--clear"))
+    (expect 'cider-ns-refresh :to-have-been-called-with '(clear)))
+
+  (it "passes nil for a plain smart reload when no switches are set"
+    (cider-ns-menu--refresh nil)
+    (expect 'cider-ns-refresh :to-have-been-called-with nil)))

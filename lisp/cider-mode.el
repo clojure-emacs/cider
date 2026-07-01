@@ -522,15 +522,31 @@ If invoked with a prefix ARG eval the expression after inserting it."
   "CIDER NS keymap.")
 
 ;;;###autoload (autoload 'cider-ns-menu "cider-mode" "Menu for CIDER's namespace commands." t)
+(transient-define-suffix cider-ns-menu--refresh (args)
+  "Refresh namespaces, applying the menu's refresh ARGS.
+`--all', `--clear' and `--inhibit-fns' map to the corresponding
+`cider-ns-refresh' modes; with none set it does a smart reload."
+  (interactive (list (transient-args 'cider-ns-menu)))
+  (cider-ns-refresh
+   (delq nil (list (and (member "--all" args) 'refresh-all)
+                   (and (member "--clear" args) 'clear)
+                   (and (member "--inhibit-fns" args) 'inhibit-fns)))))
+
 (transient-define-prefix cider-ns-menu ()
-  "Transient menu for CIDER's namespace commands."
+  "Transient menu for CIDER's namespace commands.
+The refresh arguments make `cider-ns-refresh's modes (otherwise reached
+via prefix arguments) explicit toggles."
+  ["Refresh arguments"
+   ("-a" "Reload all (unconditionally)" "--all")
+   ("-c" "Clear the tracker first" "--clear")
+   ("-i" "Inhibit refresh functions" "--inhibit-fns")]
   [["Namespace"
     ("b" "Browse namespace" cider-browse-ns)
     ("f" "Find namespace" cider-find-ns)
     ("n" "Set REPL namespace" cider-repl-set-ns)
     ("e" "Eval namespace form" cider-eval-ns-form)]
    ["Reload"
-    ("r" "Refresh (smart reload)" cider-ns-refresh)
+    ("r" "Refresh (smart reload)" cider-ns-menu--refresh)
     ("l" "Require and reload" cider-ns-reload)
     ("L" "Require and reload all" cider-ns-reload-all)]]
   ;; Meta-variant duplicates, hidden from the menu, preserving muscle memory.
@@ -539,7 +555,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
    ("M-f" "Find namespace" cider-find-ns)
    ("M-n" "Set REPL namespace" cider-repl-set-ns)
    ("M-e" "Eval namespace form" cider-eval-ns-form)
-   ("M-r" "Refresh (smart reload)" cider-ns-refresh)
+   ("M-r" "Refresh (smart reload)" cider-ns-menu--refresh)
    ("M-l" "Require and reload all" cider-ns-reload-all)])
 
 ;;;###autoload (autoload 'cider-menu "cider-mode" "Top-level transient menu for CIDER." t)
