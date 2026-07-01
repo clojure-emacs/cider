@@ -543,25 +543,38 @@ Achieved by destructively manipulating `cider-stacktrace-suppressed-errors'."
 
 (defun cider-stacktrace-navigate (button)
   "Navigate to the stack frame source represented by the BUTTON."
-  (let* ((var (button-get button 'var))
-         (class (button-get button 'class))
-         (method (button-get button 'method))
-         (info (or (and var (cider-var-info var))
-                   (and class method (cider-member-info class method))
-                   (nrepl-dict)))
-         ;; Stacktrace returns more accurate line numbers, but if the function's
-         ;; line was unreliable, then so is the stacktrace by the same amount.
-         ;; Set `line-shift' to the number of lines from the beginning of defn.
-         (line-shift (- (or (button-get button 'line) 0)
-                        (or (nrepl-dict-get info "line") 1)))
-         (file (or
-                (nrepl-dict-get info "file")
-                (button-get button 'file)))
-         ;; give priority to `info` files as `info` returns full paths.
-         (info (nrepl-dict-put info "file" file)))
-    (cider--jump-to-loc-from-info info cider-stacktrace-navigate-to-other-window)
-    (forward-line line-shift)
-    (back-to-indentation)))
+  (let ((file-url (button-get button 'file-url))
+        (line (button-get button 'line)))
+    (if (and file-url line)
+        ;; The middleware resolves file-url to an absolute path with an
+        ;; accurate line, even for top-level anonymous functions.  Trust it
+        ;; directly rather than re-resolving the var: for an anonymous
+        ;; `.../fn' frame `cider-var-info' would misresolve `fn' to
+        ;; `clojure.core/fn' and jump there instead (#3157).
+        (cider--jump-to-loc-from-info
+         (nrepl-dict "file" file-url "line" line)
+         cider-stacktrace-navigate-to-other-window)
+      ;; No file-url (e.g. a REPL frame with NO_SOURCE_FILE): fall back to
+      ;; resolving the var or class member.
+      (let* ((var (button-get button 'var))
+             (class (button-get button 'class))
+             (method (button-get button 'method))
+             (info (or (and var (cider-var-info var))
+                       (and class method (cider-member-info class method))
+                       (nrepl-dict)))
+             ;; Stacktrace returns more accurate line numbers, but if the
+             ;; function's line was unreliable, then so is the stacktrace by the
+             ;; same amount.  Set `line-shift' to the number of lines from the
+             ;; beginning of defn.
+             (line-shift (- (or line 0)
+                            (or (nrepl-dict-get info "line") 1)))
+             (file (or (nrepl-dict-get info "file")
+                       (button-get button 'file)))
+             ;; give priority to `info` files as `info` returns full paths.
+             (info (nrepl-dict-put info "file" file)))
+        (cider--jump-to-loc-from-info info cider-stacktrace-navigate-to-other-window)
+        (forward-line line-shift)
+        (back-to-indentation)))))
 
 (declare-function cider-find-var "cider-find")
 
@@ -677,7 +690,7 @@ This associates text properties to enable filtering and source navigation."
                               'url url
                               'follow-link t
                               'action (lambda (x) (browse-url (button-get x 'url)))))
-      (nrepl-dbind-response frame (file line flags class method name var ns fn)
+      (nrepl-dbind-response frame (file file-url line flags class method name var ns fn)
         (when (or class file fn method ns name)
           (let ((flags (mapcar #'intern flags))) ; strings -> symbols
             (insert-text-button (format "%26s:%5d  %s/%s"
@@ -685,7 +698,7 @@ This associates text properties to enable filtering and source navigation."
                                         (if (member 'clj flags) ns class)
                                         (if (member 'clj flags) fn method))
                                 'var var 'class class 'method method
-                                'name name 'file file 'line line
+                                'name name 'file file 'file-url file-url 'line line
                                 'flags flags 'follow-link t
                                 'action #'cider-stacktrace-navigate
                                 'help-echo (cider-stacktrace-tooltip
