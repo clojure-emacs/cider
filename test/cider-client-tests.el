@@ -535,3 +535,18 @@
               (expect conns :to-have-same-items-as (list clj-repl cljs-repl))))
         (kill-buffer clj-repl)
         (kill-buffer cljs-repl)))))
+(describe "cider-nrepl-send-eval-request spinner placement"
+  (before-each
+    (spy-on 'nrepl-send-eval-request)
+    (spy-on 'cider-spinner-start))
+
+  (it "starts the spinner in the buffer the evaluation was initiated from"
+    (let ((repl (generate-new-buffer " *repl*")))
+      (unwind-protect
+          (with-temp-buffer
+            (let ((source (current-buffer)))
+              ;; Even with an explicit REPL connection, the spinner belongs in
+              ;; the originating (source) buffer, not the connection.
+              (cider-nrepl-send-eval-request "(+ 1 1)" #'ignore :connection repl)
+              (expect 'cider-spinner-start :to-have-been-called-with source)))
+        (kill-buffer repl)))))
