@@ -163,6 +163,16 @@ When CAUGHT is non-nil, display it as an error message overlay."
   "Response that triggered current debug session.
 Set by `cider--turn-on-debug-mode'.")
 
+(defvar cider--debug-origin-marker nil
+  "Marker to the location where the current debug session was started.
+Restored when the session is quit with `:quit'.  See
+`cider--debug-remember-origin' and `cider--debug-restore-origin'.")
+
+(defvar cider--debug-origin-id nil
+  "The \"original-id\" of the eval owning `cider--debug-origin-marker'.
+Used to detect when a new debug session starts, so the origin is only
+remembered on the session's first step.")
+
 (defcustom cider-debug-display-locals nil
   "If non-nil, local variables are displayed while debugging.
 Can be toggled at any time with `\\[cider-debug-toggle-locals]'."
@@ -414,6 +424,30 @@ In order to work properly, this mode must be activated by
     (let ((case-fold-search nil))
       (string-match "[[:upper:]]" (string last-command-event)))))
 
+(defun cider--debug-remember-origin (id)
+  "Remember point as the origin of the debug session identified by ID.
+Only the first step of a session (the first with a given \"original-id\"
+ID) is remembered, so that stepping through the code doesn't overwrite
+the location the session was started from."
+  (unless (equal id cider--debug-origin-id)
+    (setq cider--debug-origin-id id
+          cider--debug-origin-marker (point-marker))))
+
+(defun cider--debug-restore-origin ()
+  "Move point back to where the current debug session was started.
+Return non-nil if point was restored.  Does nothing if the origin buffer
+is no longer live.  See `cider--debug-remember-origin'."
+  (prog1 (when-let* ((marker cider--debug-origin-marker)
+                     (buffer (marker-buffer marker)))
+           (when (buffer-live-p buffer)
+             (pop-to-buffer buffer)
+             (goto-char marker)
+             t))
+    (setq cider--debug-origin-id nil)
+    (when cider--debug-origin-marker
+      (set-marker cider--debug-origin-marker nil)
+      (setq cider--debug-origin-marker nil))))
+
 (defun cider-debug-mode-send-reply (command &optional key force)
   "Reply to the message that started current buffer's debugging session.
 COMMAND is sent as the input option.  KEY can be provided to reply to a
@@ -426,13 +460,16 @@ message."
                     (concat ":" (cadr (assoc last-command-event cider-debug-prompt-commands)))))
                 nil
                 (cider--uppercase-command-p)))
-  (when (and (string-prefix-p ":" command) force)
-    (setq command (format "{:response %s :force? true}" command)))
-  (cider-nrepl-send-unhandled-request
-   `("op" "cider/debug-input"
-     "input" ,(or command ":quit")
-     "key" ,(or key (nrepl-dict-get cider--debug-mode-response "key"))))
-  (ignore-errors (cider--debug-mode -1)))
+  (let ((quit-p (member command '(nil ":quit"))))
+    (when (and (string-prefix-p ":" command) force)
+      (setq command (format "{:response %s :force? true}" command)))
+    (cider-nrepl-send-unhandled-request
+     `("op" "cider/debug-input"
+       "input" ,(or command ":quit")
+       "key" ,(or key (nrepl-dict-get cider--debug-mode-response "key"))))
+    (ignore-errors (cider--debug-mode -1))
+    (when quit-p
+      (cider--debug-restore-origin))))
 
 (defun cider--debug-quit ()
   "Send a :quit reply to the debugger.  Used in hooks."
@@ -653,6 +690,10 @@ needed.  It is expected to contain at least \"key\", \"input-type\", and
             ((pred sequencep)
              (let* ((marker (cider--debug-find-source-position response 'create-if-needed)))
                (pop-to-buffer (marker-buffer marker))
+               ;; Remember where we started, so `:quit' can return here.  Point
+               ;; hasn't moved to the breakpoint yet, so it's still at the place
+               ;; the session was invoked from.
+               (cider--debug-remember-origin (nrepl-dict-get response "original-id"))
                (goto-char marker))
              ;; The overlay code relies on window boundaries, but point could have been
              ;; moved outside the window by some other code. Redisplay here to ensure the

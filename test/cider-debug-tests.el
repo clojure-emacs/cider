@@ -178,3 +178,68 @@
       (save-excursion (insert "(defn a [] (let [x 1] #break ^{foo (foo x)} (inc x))"))
       (cider--debug-move-point '(3 2 1))
       (expect (thing-at-point 'symbol) :to-equal "x"))))
+
+(describe "cider--debug-remember-origin"
+  (before-each
+    (setq cider--debug-origin-marker nil
+          cider--debug-origin-id nil))
+
+  (it "remembers point on the first step of a session"
+    (with-temp-buffer
+      (insert "hello world")
+      (goto-char 3)
+      (cider--debug-remember-origin "id-1")
+      (expect (marker-position cider--debug-origin-marker) :to-equal 3)
+      (expect cider--debug-origin-id :to-equal "id-1")))
+
+  (it "does not overwrite the origin on later steps of the same session"
+    (with-temp-buffer
+      (insert "hello world")
+      (goto-char 3)
+      (cider--debug-remember-origin "id-1")
+      (goto-char 8)
+      (cider--debug-remember-origin "id-1")
+      (expect (marker-position cider--debug-origin-marker) :to-equal 3)))
+
+  (it "updates the origin when a new session starts"
+    (with-temp-buffer
+      (insert "hello world")
+      (goto-char 3)
+      (cider--debug-remember-origin "id-1")
+      (goto-char 8)
+      (cider--debug-remember-origin "id-2")
+      (expect (marker-position cider--debug-origin-marker) :to-equal 8)
+      (expect cider--debug-origin-id :to-equal "id-2"))))
+
+(describe "cider--debug-restore-origin"
+  (before-each
+    (setq cider--debug-origin-marker nil
+          cider--debug-origin-id nil))
+
+  (it "returns nil when there is no remembered origin"
+    (expect (cider--debug-restore-origin) :to-be nil))
+
+  (it "moves point back to the remembered location and clears the state"
+    (let ((buffer (get-buffer-create "*cider-debug-origin-test*")))
+      (unwind-protect
+          (with-current-buffer buffer
+            (insert "hello world")
+            (goto-char 3)
+            (cider--debug-remember-origin "id-1")
+            (goto-char 8)
+            (expect (cider--debug-restore-origin) :to-be-truthy)
+            (expect (point) :to-equal 3)
+            (expect cider--debug-origin-marker :to-be nil)
+            (expect cider--debug-origin-id :to-be nil))
+        (kill-buffer buffer))))
+
+  (it "returns nil and clears the state when the origin buffer is dead"
+    (let ((buffer (get-buffer-create "*cider-debug-origin-test*")))
+      (with-current-buffer buffer
+        (insert "hello world")
+        (goto-char 3)
+        (cider--debug-remember-origin "id-1"))
+      (kill-buffer buffer)
+      (expect (cider--debug-restore-origin) :to-be nil)
+      (expect cider--debug-origin-marker :to-be nil)
+      (expect cider--debug-origin-id :to-be nil))))
