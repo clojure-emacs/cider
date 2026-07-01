@@ -4,6 +4,7 @@
 
 ### New features
 
+- [#4061](https://github.com/clojure-emacs/cider/pull/4061): The jack-in/connect keybindings are now a transient menu (`cider-start-menu`, `C-c C-x`), with argument flags for the settings that vary per session: aliases (`-a`), the ClojureScript REPL type (`-l`) and editing the command before running (`-e`) ([#3317](https://github.com/clojure-emacs/cider/issues/3317)).
 - [#4060](https://github.com/clojure-emacs/cider/pull/4060): Hint at jack-in time when no Clojure CLI aliases are set, so newcomers discover aliases like `:dev`/`:test`; set `cider-clojure-cli-aliases` to `:nil-no-warn` to silence it ([#3317](https://github.com/clojure-emacs/cider/issues/3317)).
 - [#4057](https://github.com/clojure-emacs/cider/pull/4057): Show an animated spinner overlay at the form being evaluated (where its result will appear) while an interactive evaluation is pending, instead of the mode-line spinner, when result overlays are enabled ([#3516](https://github.com/clojure-emacs/cider/issues/3516)).
 - [#4055](https://github.com/clojure-emacs/cider/pull/4055): Add `cider-clojure-cli-powershell-options` to pass extra options (e.g. `-noprofile -executionpolicy bypass`) to the PowerShell executable used for jack-in on Windows ([#2879](https://github.com/clojure-emacs/cider/issues/2879)).

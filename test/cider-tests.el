@@ -224,4 +224,43 @@
             ;; kill server
             (delete-process (get-buffer-process client-buffer))))))))
 
+(describe "cider-start-menu--apply-args"
+  (it "binds the aliases from the --aliases= argument"
+    (let (captured)
+      (cider-start-menu--apply-args
+       '("--aliases=:dev:test")
+       (lambda (_) (setq captured cider-clojure-cli-aliases)))
+      (expect captured :to-equal ":dev:test")))
+
+  (it "binds the ClojureScript REPL type from --cljs-repl="
+    (let (captured)
+      (cider-start-menu--apply-args
+       '("--cljs-repl=shadow")
+       (lambda (_) (setq captured cider-default-cljs-repl)))
+      (expect captured :to-equal 'shadow)))
+
+  (it "enables command editing from --edit-command"
+    (let (captured)
+      (cider-start-menu--apply-args
+       '("--edit-command")
+       (lambda (_) (setq captured cider-edit-jack-in-command)))
+      (expect captured :to-be-truthy)))
+
+  (it "keeps the configured defaults when no arguments are set"
+    (let ((cider-clojure-cli-aliases ":global")
+          (cider-default-cljs-repl 'node)
+          (cider-edit-jack-in-command nil)
+          captured)
+      (cider-start-menu--apply-args
+       nil
+       (lambda (_) (setq captured (list cider-clojure-cli-aliases
+                                        cider-default-cljs-repl
+                                        cider-edit-jack-in-command))))
+      (expect captured :to-equal '(":global" node nil))))
+
+  (it "calls the command with nil params"
+    (let (received)
+      (cider-start-menu--apply-args nil (lambda (p) (setq received (list :called p))))
+      (expect received :to-equal '(:called nil)))))
+
 ;;; cider-tests.el ends here
