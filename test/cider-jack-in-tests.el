@@ -98,7 +98,42 @@
     ;; malformed `-M:dev::test:cider/nrepl').
     (let ((cider-clojure-cli-global-aliases ":dev")
           (cider-clojure-cli-aliases ":test"))
-      (expect (cider--combined-aliases) :to-equal ":dev:test"))))
+      (expect (cider--combined-aliases) :to-equal ":dev:test")))
+  (it "treats the `:nil-no-warn' sentinel as no local aliases"
+    (let ((cider-clojure-cli-global-aliases nil)
+          (cider-clojure-cli-aliases :nil-no-warn))
+      (expect (cider--combined-aliases) :to-equal ""))))
+
+(describe "cider--clojure-cli-aliases"
+  (it "treats the `:nil-no-warn' sentinel as nil"
+    (let ((cider-clojure-cli-aliases :nil-no-warn))
+      (expect (cider--clojure-cli-aliases) :to-be nil)))
+  (it "returns the configured aliases otherwise"
+    (let ((cider-clojure-cli-aliases ":dev:test"))
+      (expect (cider--clojure-cli-aliases) :to-equal ":dev:test"))))
+
+(describe "cider--clojure-cli-aliases-hint"
+  (before-each (spy-on 'message))
+  (it "hints when neither local nor global aliases are set"
+    (let ((cider-clojure-cli-aliases nil)
+          (cider-clojure-cli-global-aliases nil))
+      (cider--clojure-cli-aliases-hint)
+      (expect 'message :to-have-been-called)))
+  (it "stays quiet when local aliases are set"
+    (let ((cider-clojure-cli-aliases ":dev")
+          (cider-clojure-cli-global-aliases nil))
+      (cider--clojure-cli-aliases-hint)
+      (expect 'message :not :to-have-been-called)))
+  (it "stays quiet when global aliases are set"
+    (let ((cider-clojure-cli-aliases nil)
+          (cider-clojure-cli-global-aliases ":prod"))
+      (cider--clojure-cli-aliases-hint)
+      (expect 'message :not :to-have-been-called)))
+  (it "stays quiet when silenced with `:nil-no-warn'"
+    (let ((cider-clojure-cli-aliases :nil-no-warn)
+          (cider-clojure-cli-global-aliases nil))
+      (cider--clojure-cli-aliases-hint)
+      (expect 'message :not :to-have-been-called))))
 
 (describe "cider--jack-in-required-dependencies"
   (it "lists nrepl and cider-nrepl at the injected versions"

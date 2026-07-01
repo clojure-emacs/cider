@@ -117,10 +117,15 @@ execution policy."
   "A list of aliases to include when using the clojure cli.
 Alias names should be of the form \":foo:bar\".
 Leading \"-A\" \"-M\" \"-T\" or \"-X\" are stripped from aliases
-then concatenated into the \"-M[your-aliases]:cider/nrepl\" form."
-  :type 'string
+then concatenated into the \"-M[your-aliases]:cider/nrepl\" form.
+
+When nil, CIDER hints at jack-in time that you may want to activate an
+alias.  Set this to `:nil-no-warn' to keep it unset without the hint."
+  :type '(choice (const :tag "None (hint at jack-in)" nil)
+                 (const :tag "None (no hint)" :nil-no-warn)
+                 (string :tag "Aliases"))
   :group 'cider
-  :safe #'stringp
+  :safe (lambda (x) (or (null x) (eq x :nil-no-warn) (stringp x)))
   :package-version '(cider . "1.1"))
 
 (defcustom cider-clojure-cli-global-aliases
@@ -576,17 +581,24 @@ rules to quote it."
     (format "%s-encodedCommand %s" options (base64-encode-string utf-16le-command t))))
 
 
+(defun cider--clojure-cli-aliases ()
+  "Return `cider-clojure-cli-aliases', treating `:nil-no-warn' as nil.
+The `:nil-no-warn' value means \"no aliases, and don't hint about it\"."
+  (unless (eq cider-clojure-cli-aliases :nil-no-warn)
+    cider-clojure-cli-aliases))
+
 (defun cider--combined-aliases ()
   "Create the combined aliases as a string separated by ':'."
-  (let ((final-cider-clojure-cli-aliases
-         (cond ((and cider-clojure-cli-global-aliases cider-clojure-cli-aliases)
-                ;; both are documented to be of the `:foo:bar' form, so drop a
-                ;; leading colon from the local aliases before joining, lest the
-                ;; junction end up with a `::' (a malformed alias keyword).
-                (concat cider-clojure-cli-global-aliases ":"
-                        (string-remove-prefix ":" cider-clojure-cli-aliases)))
-               (cider-clojure-cli-global-aliases cider-clojure-cli-global-aliases)
-               (t cider-clojure-cli-aliases))))
+  (let* ((local-aliases (cider--clojure-cli-aliases))
+         (final-cider-clojure-cli-aliases
+          (cond ((and cider-clojure-cli-global-aliases local-aliases)
+                 ;; both are documented to be of the `:foo:bar' form, so drop a
+                 ;; leading colon from the local aliases before joining, lest the
+                 ;; junction end up with a `::' (a malformed alias keyword).
+                 (concat cider-clojure-cli-global-aliases ":"
+                         (string-remove-prefix ":" local-aliases)))
+                (cider-clojure-cli-global-aliases cider-clojure-cli-global-aliases)
+                (t local-aliases))))
     (if final-cider-clojure-cli-aliases
         ;; remove exec-opts flags -A -M -T or -X from cider-clojure-cli-aliases
         ;; concatenated with :cider/nrepl to ensure :cider/nrepl comes last
@@ -596,12 +608,24 @@ rules to quote it."
             (concat ":" aliases)))
       "")))
 
+(defun cider--clojure-cli-aliases-hint ()
+  "Hint at jack-in that no Clojure CLI aliases are active.
+Only when neither `cider-clojure-cli-aliases' nor
+`cider-clojure-cli-global-aliases' is set; silenced by setting
+`cider-clojure-cli-aliases' to `:nil-no-warn' (which is non-nil)."
+  (when (and (null cider-clojure-cli-aliases)
+             (null cider-clojure-cli-global-aliases))
+    (message (concat "`cider-clojure-cli-aliases' is unset; you may want to "
+                     "activate an alias (e.g. via `.dir-locals.el').  "
+                     "Set it to `:nil-no-warn' to silence this hint."))))
+
 (defun cider-clojure-cli-jack-in-dependencies (params dependencies &optional command)
   "Create Clojure tools.deps jack-in dependencies.
 Does so by concatenating DEPENDENCIES and PARAMS into a suitable `clojure`
 invocation and quoting, also accounting for COMMAND if provided.  The main
 is placed in an inline alias :cider/nrepl so that if your aliases contain
 any mains, the cider/nrepl one will be the one used."
+  (cider--clojure-cli-aliases-hint)
   (let* ((all-deps (thread-last dependencies
                                 (append (cider--jack-in-required-dependencies))
                                 ;; Duplicates are never OK since they would result in

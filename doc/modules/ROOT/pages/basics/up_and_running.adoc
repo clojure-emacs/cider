@@ -262,6 +262,8 @@ command of your own, see <<Overriding the Jack-In Command>> below.
 * `cider-clojure-cli-aliases` - a list of project-specific aliases to be used at jack-in time (it's meant to be set via `.dir-locals.el`)
 * `cider-clojure-cli-global-aliases` - a list of global aliases that are appended to project-specific `cider-clojure-cli-aliases`
 
+TIP: When `cider-clojure-cli-aliases` is unset, CIDER hints at jack-in time that you may want to activate an alias (e.g. `:dev` or `:test`). If you deliberately jack in without aliases, set `cider-clojure-cli-aliases` to `:nil-no-warn` to silence the hint.
+
 On MS-Windows, CIDER will employ `PowerShell` to execute Clojure if no
 `clojure` executable is found in the PATH (e.g. like the one supplied
 by https://github.com/borkdude/deps.clj[deps.clj]). The default
