@@ -605,17 +605,21 @@ itself is present."
   "Create an interrupt response handler for BUFFER."
   (cider-make-eval-handler :buffer buffer))
 
+(defun cider-interrupt-repl (repl)
+  "Interrupt any pending evaluations in REPL."
+  (with-current-buffer repl
+    (dolist (request-id (cider-util--hash-keys nrepl-pending-requests))
+      (nrepl-request:interrupt
+       request-id
+       (cider-interrupt-handler repl)
+       repl))))
+
 (defun cider-interrupt ()
-  "Interrupt any pending evaluations."
+  "Interrupt any pending evaluations.
+In a `.cljc' buffer this interrupts every REPL evaluations are
+dispatched to (both Clojure and ClojureScript), mirroring `cider-map-repls'."
   (interactive)
-  ;; FIXME: does this work correctly in cljc files?
-  (with-current-buffer (cider-current-repl 'infer 'ensure)
-    (let ((pending-request-ids (cider-util--hash-keys nrepl-pending-requests)))
-      (dolist (request-id pending-request-ids)
-        (nrepl-request:interrupt
-         request-id
-         (cider-interrupt-handler (current-buffer))
-         (cider-current-repl))))))
+  (cider-map-repls :auto #'cider-interrupt-repl))
 
 (defun cider-nrepl-eval-session ()
   "Return the eval nREPL session id of the current connection."
