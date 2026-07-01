@@ -89,3 +89,24 @@
                                '(83 . "")))
             :to-equal
             "*cider-repl ClojureProjects/PPL:localhost:36453(clj:)*")))
+
+(describe "cider-javadoc-handler"
+  (it "browses an absolute Javadoc URL"
+    (spy-on 'browse-url)
+    (spy-on 'cider-var-info :and-return-value
+            (nrepl-dict "javadoc" "https://example.com/Foo.html"))
+    (cider-javadoc-handler "Foo")
+    (expect 'browse-url :to-have-been-called-with "https://example.com/Foo.html"))
+
+  (it "errors helpfully on a non-absolute (unresolvable) Javadoc path"
+    (spy-on 'browse-url)
+    (spy-on 'cider-var-info :and-return-value
+            (nrepl-dict "javadoc" "ezvcard/VCard.html"))
+    (expect (cider-javadoc-handler "VCard") :to-throw 'user-error)
+    (expect 'browse-url :not :to-have-been-called))
+
+  (it "errors when no Javadoc is available at all"
+    (spy-on 'browse-url)
+    (spy-on 'cider-var-info :and-return-value (nrepl-dict))
+    (expect (cider-javadoc-handler "Foo") :to-throw 'user-error)
+    (expect 'browse-url :not :to-have-been-called)))

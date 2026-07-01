@@ -35,6 +35,7 @@
 
 ### Bugs fixed
 
+- [#4058](https://github.com/clojure-emacs/cider/pull/4058): Signal a helpful error when `cider-javadoc` gets an unresolvable (non-absolute) Javadoc URL from the middleware, instead of silently doing nothing ([#2969](https://github.com/clojure-emacs/cider/issues/2969)).
 - [#4054](https://github.com/clojure-emacs/cider/pull/4054): Interrupt every REPL an evaluation is dispatched to. In a `.cljc` buffer `cider-interrupt` previously interrupted only one of the two REPLs ([#4036](https://github.com/clojure-emacs/cider/issues/4036)).
 - [#4053](https://github.com/clojure-emacs/cider/pull/4053): Restore point to the place a debug session was started from when you quit it with `q`, instead of leaving it stranded at the last breakpoint ([#1595](https://github.com/clojure-emacs/cider/issues/1595)).
 - [#4049](https://github.com/clojure-emacs/cider/pull/4049): Font-lock streamed REPL results as a whole instead of per chunk, so values that nREPL splits across several chunks (much more common since nREPL 1.5.0's newline-triggered flushing) are highlighted correctly rather than left plain ([nREPL #445](https://github.com/nrepl/nrepl/issues/445)).

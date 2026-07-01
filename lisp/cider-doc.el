@@ -307,9 +307,16 @@ result dict (possibly empty), so toggling visibility never re-fetches.")
   (when symbol-name
     (let* ((info (cider-var-info symbol-name))
            (url (nrepl-dict-get info "javadoc")))
-      (if url
-          (browse-url url)
-        (user-error "No Javadoc available for %s" symbol-name)))))
+      (cond
+       ((null url)
+        (user-error "No Javadoc available for %s" symbol-name))
+       ;; A resolvable Javadoc URL is absolute (it has a URI scheme).  For
+       ;; classes whose Javadoc it can't locate, the middleware sometimes
+       ;; returns a bare resource path (e.g. \"foo/Bar.html\") on which
+       ;; `browse-url' silently fails, so give a useful error instead.
+       ((not (string-match-p "\\`[a-z][a-z0-9+.-]*:" url))
+        (user-error "No resolvable Javadoc for %s (its library ships no Javadoc)" symbol-name))
+       (t (browse-url url))))))
 
 (defun cider-javadoc (arg)
   "Open Javadoc documentation in a popup buffer.
