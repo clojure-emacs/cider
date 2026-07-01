@@ -110,7 +110,7 @@ execution policy."
                  (string :tag "Options"))
   :group 'cider
   :safe (lambda (s) (or (null s) (stringp s)))
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defcustom cider-clojure-cli-aliases
   nil

@@ -62,12 +62,12 @@ from ClojureDocs or any other function accepting a var as an argument."
 (defface cider-cheatsheet-section
   '((t (:inherit font-lock-keyword-face :weight bold)))
   "Face for top-level sections in the cheatsheet buffer."
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defface cider-cheatsheet-subsection
   '((t (:weight bold)))
   "Face for nested sections in the cheatsheet buffer."
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defconst cider-cheatsheet-hierarchy
   '(("Documentation"

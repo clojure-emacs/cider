@@ -128,7 +128,7 @@ compiler generated from macros, which leave no textual trace for the scan."
                  (const :tag "Runtime references only" runtime)
                  (const :tag "Runtime and source matches combined" both))
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defun cider--fn-refs-xrefs (ns var)
   "Find references of VAR in NS via runtime introspection (the `fn-refs' op).

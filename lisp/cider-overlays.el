@@ -53,10 +53,10 @@ lower priority than the syntax highlighting."
   :group 'cider
   :package-version '(cider "0.25.0"))
 
-(define-obsolete-variable-alias 'cider-result-use-clojure-font-lock 'cider-eval-result-font-lock "1.23.0")
-(define-obsolete-variable-alias 'cider-overlays-use-font-lock 'cider-eval-result-font-lock "1.23.0")
-(define-obsolete-variable-alias 'cider-use-overlays 'cider-eval-result-display "1.23.0")
-(define-obsolete-variable-alias 'cider-result-overlay-position 'cider-eval-result-position "1.23.0")
+(define-obsolete-variable-alias 'cider-result-use-clojure-font-lock 'cider-eval-result-font-lock "2.0.0")
+(define-obsolete-variable-alias 'cider-overlays-use-font-lock 'cider-eval-result-font-lock "2.0.0")
+(define-obsolete-variable-alias 'cider-use-overlays 'cider-eval-result-display "2.0.0")
+(define-obsolete-variable-alias 'cider-result-overlay-position 'cider-eval-result-position "2.0.0")
 
 (defcustom cider-eval-result-font-lock 'clojure
   "How to highlight interactive evaluation results.
@@ -71,7 +71,7 @@ This replaces the older `cider-result-use-clojure-font-lock' and
   :group 'cider
   :type '(choice (const :tag "Highlight as Clojure" clojure)
                  (const :tag "Use the result overlay face" nil))
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defcustom cider-eval-result-display 'both
   "Where to display interactive evaluation results.
@@ -92,7 +92,7 @@ see `cider-debug-use-overlays'."
                  (const :tag "Both" both)
                  (const :tag "Overlay for errors only" errors-only))
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defcustom cider-eval-result-position 'at-eol
   "Where to place result overlays for inline evaluation and the debugger.
@@ -101,7 +101,7 @@ If `at-point', place at the end of the evaluated sexp."
   :group 'cider
   :type '(choice (const :tag "End of line" at-eol)
                  (const :tag "End of sexp" at-point))
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defcustom cider-eval-result-prefix "=> "
   "The prefix displayed before an interactive evaluation result.
@@ -177,7 +177,7 @@ This function also removes itself from `post-command-hook'."
     (((class color) (background dark)) :foreground "orange"))
   "Face used on the fringe indicator for a form edited since it was evaluated."
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defconst cider--fringe-overlay-good
   (propertize " " 'display '(left-fringe empty-line cider-fringe-good-face))
@@ -192,13 +192,13 @@ This function also removes itself from `post-command-hook'."
     (((class color) (background dark)) :foreground "red1"))
   "Face used on the fringe indicator for a failing test."
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defconst cider--fringe-overlay-bad
   (propertize " " 'display '(left-fringe empty-line cider-fringe-bad-face))
   "The before-string property that adds a red indicator on the fringe.")
 
-(define-obsolete-variable-alias 'cider-use-fringe-indicators 'cider-fringe-indicators "1.23.0")
+(define-obsolete-variable-alias 'cider-use-fringe-indicators 'cider-fringe-indicators "2.0.0")
 
 (defcustom cider-fringe-indicators t
   "Whether to display indicators on the left fringe.
@@ -218,7 +218,7 @@ Recognized kinds:
                  (set :tag "Selected kinds"
                       (const :tag "Evaluated forms" eval)
                       (const :tag "Test results" test)))
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defun cider--use-fringe-indicators-p (kind)
   "Return non-nil when fringe indicators are enabled for KIND.
@@ -237,7 +237,7 @@ the form restores the in-sync indicator."
   :safe #'booleanp
   :group 'cider
   :type 'boolean
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defun cider--fringe-overlay-mark-stale (ov after-p _beg _end &optional _len)
   "Recolor fringe indicator overlay OV to the stale face once its form is edited.

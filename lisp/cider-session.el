@@ -109,7 +109,7 @@ correctness.  Use it only to fail fast, before doing interactive or
 side-effecting work, rather than at the point of the first request."
   (sesman-ensure-session 'CIDER))
 
-(define-obsolete-function-alias 'cider-ensure-connected #'cider-ensure-session "1.23.0")
+(define-obsolete-function-alias 'cider-ensure-connected #'cider-ensure-session "2.0.0")
 
 
 ;;; Connection Parameters
@@ -696,10 +696,10 @@ session."
 (defalias 'cider-connections #'cider-repls)
 (defalias 'cider-map-connections #'cider-map-repls)
 (defalias 'cider-connection-type-for-buffer #'cider-repl-type-for-buffer)
-(make-obsolete 'cider-current-connection #'cider-current-repl "1.23.0")
-(make-obsolete 'cider-connections #'cider-repls "1.23.0")
-(make-obsolete 'cider-map-connections #'cider-map-repls "1.23.0")
-(make-obsolete 'cider-connection-type-for-buffer #'cider-repl-type-for-buffer "1.23.0")
+(make-obsolete 'cider-current-connection #'cider-current-repl "2.0.0")
+(make-obsolete 'cider-connections #'cider-repls "2.0.0")
+(make-obsolete 'cider-map-connections #'cider-map-repls "2.0.0")
+(make-obsolete 'cider-connection-type-for-buffer #'cider-repl-type-for-buffer "2.0.0")
 
 
 (provide 'cider-session)

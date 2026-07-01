@@ -56,13 +56,13 @@ For per-form staleness, use the evaluation fringe indicators instead (see
   :type '(set (const :tag "Mode-line marker" mode-line)
               (const :tag "Fringe marker" fringe))
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defface cider-ns-load-state-face
   '((t :inherit warning))
   "Face for the namespace load-state marker (mode line and fringe)."
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defconst cider-ns-state--fringe-marker
   (propertize " " 'display '(left-fringe empty-line cider-ns-load-state-face))

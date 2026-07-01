@@ -132,7 +132,7 @@ If t, save the file without confirmation."
 
 (defconst cider-output-buffer "*cider-out*")
 
-(define-obsolete-variable-alias 'cider-interactive-eval-output-destination 'cider-eval-output-destination "1.23.0")
+(define-obsolete-variable-alias 'cider-interactive-eval-output-destination 'cider-eval-output-destination "2.0.0")
 
 (defcustom cider-eval-output-destination 'repl-buffer
   "The destination for stdout and stderr produced from interactive evaluation.
@@ -141,7 +141,7 @@ If `output-buffer', it's sent to a dedicated `*cider-out*' buffer."
   :type '(choice (const :tag "REPL buffer" repl-buffer)
                  (const :tag "Dedicated output buffer" output-buffer))
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defcustom cider-comment-prefix ";; => "
   "The prefix to insert before the first line of commented output."
@@ -179,7 +179,7 @@ and use their own fixed formatting."
                  (const :tag "Reader ignore form (#_)" ignore)
                  (const :tag "Comment form (comment ...)" comment))
   :group 'cider
-  :package-version '(cider . "1.23.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defun cider--comment-format ()
   "Return the comment formatting for `cider-comment-style'.
