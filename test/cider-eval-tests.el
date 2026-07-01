@@ -381,3 +381,25 @@
         ;; the animation timer is cancelled (no longer scheduled)
         (expect (memq (overlay-get ov 'cider-pending-timer) timer-list)
                 :to-be nil)))))
+
+(describe "cider-eval-pprint-menu--print-fn"
+  (it "interns a known printer to a symbol"
+    (expect (cider-eval-pprint-menu--print-fn "pprint") :to-equal 'pprint)
+    (expect (cider-eval-pprint-menu--print-fn "fipp") :to-equal 'fipp))
+  (it "keeps a custom var name as a string"
+    (expect (cider-eval-pprint-menu--print-fn "my.ns/printer") :to-equal "my.ns/printer")))
+
+(describe "cider-eval-pprint-menu--apply-args"
+  (it "binds the printer from the --print-fn= argument"
+    (let (captured)
+      (cider-eval-pprint-menu--apply-args
+       '("--print-fn=fipp")
+       (lambda () (setq captured cider-print-fn)))
+      (expect captured :to-equal 'fipp)))
+
+  (it "keeps the configured printer when no argument is set"
+    (let ((cider-print-fn 'pprint) captured)
+      (cider-eval-pprint-menu--apply-args
+       nil
+       (lambda () (setq captured cider-print-fn)))
+      (expect captured :to-equal 'pprint))))

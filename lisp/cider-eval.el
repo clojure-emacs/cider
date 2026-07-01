@@ -1305,19 +1305,73 @@ passing arguments."
 ;; including the C-<letter> duplicates (hidden from the menu), so muscle memory
 ;; like C-c C-v C-r keeps working unchanged.
 
+(defun cider-eval-pprint-menu--read-print-fn (prompt initial-input history)
+  "Read a print function for the pretty-print transient.
+PROMPT, INITIAL-INPUT and HISTORY are as for `completing-read'.  A value
+outside the known printers is treated as a namespace-qualified var name."
+  (completing-read (or prompt "Print function: ")
+                   '("pr" "pprint" "fipp" "puget" "zprint")
+                   nil nil initial-input history))
+
+(defun cider-eval-pprint-menu--print-fn (value)
+  "Convert VALUE, a string, into a `cider-print-fn' value.
+The known printers become symbols so `cider--print-fn' recognizes them;
+any other value (a custom var name) is kept as a string."
+  (if (member value '("pr" "pprint" "fipp" "puget" "zprint"))
+      (intern value)
+    value))
+
+(defun cider-eval-pprint-menu--apply-args (args command)
+  "Call pretty-print COMMAND with the `cider-eval-pprint-menu' ARGS applied.
+The chosen printer is `let'-bound around the call, for this invocation only."
+  (let ((cider-print-fn
+         (if-let* ((fn (transient-arg-value "--print-fn=" args)))
+             (cider-eval-pprint-menu--print-fn fn)
+           cider-print-fn)))
+    (funcall command)))
+
+(transient-define-suffix cider-eval-pprint-menu--last-sexp (args)
+  "Pretty-print the last sexp, applying the menu's ARGS."
+  (interactive (list (transient-args 'cider-eval-pprint-menu)))
+  (cider-eval-pprint-menu--apply-args args #'cider-pprint-eval-last-sexp))
+
+(transient-define-suffix cider-eval-pprint-menu--defun (args)
+  "Pretty-print the defun at point, applying the menu's ARGS."
+  (interactive (list (transient-args 'cider-eval-pprint-menu)))
+  (cider-eval-pprint-menu--apply-args args #'cider-pprint-eval-defun-at-point))
+
+(transient-define-suffix cider-eval-pprint-menu--last-sexp-to-comment (args)
+  "Pretty-print the last sexp into a comment, applying the menu's ARGS."
+  (interactive (list (transient-args 'cider-eval-pprint-menu)))
+  (cider-eval-pprint-menu--apply-args args #'cider-pprint-eval-last-sexp-to-comment))
+
+(transient-define-suffix cider-eval-pprint-menu--defun-to-comment (args)
+  "Pretty-print the defun at point into a comment, applying the menu's ARGS."
+  (interactive (list (transient-args 'cider-eval-pprint-menu)))
+  (cider-eval-pprint-menu--apply-args args #'cider-pprint-eval-defun-to-comment))
+
+(transient-define-suffix cider-eval-pprint-menu--last-sexp-to-repl (args)
+  "Pretty-print the last sexp into the REPL, applying the menu's ARGS."
+  (interactive (list (transient-args 'cider-eval-pprint-menu)))
+  (cider-eval-pprint-menu--apply-args args #'cider-pprint-eval-last-sexp-to-repl))
+
 ;;;###autoload (autoload 'cider-eval-pprint-menu "cider-eval" "Menu for CIDER's pretty-printing eval commands." t)
 (transient-define-prefix cider-eval-pprint-menu ()
-  "Transient menu for CIDER's pretty-printing eval commands."
+  "Transient menu for CIDER's pretty-printing eval commands.
+The print-function argument picks the printer (pr, pprint, fipp, puget,
+zprint, or a custom var) for this invocation only."
+  ["Argument"
+   ("-p" "Print function" "--print-fn=" :reader cider-eval-pprint-menu--read-print-fn)]
   [["Pretty-print"
-    ("e" "Last sexp" cider-pprint-eval-last-sexp)
-    ("d" "Defun at point" cider-pprint-eval-defun-at-point)]
+    ("e" "Last sexp" cider-eval-pprint-menu--last-sexp)
+    ("d" "Defun at point" cider-eval-pprint-menu--defun)]
    ["Send pretty-printed value to"
-    ("c" "Comment (last sexp)" cider-pprint-eval-last-sexp-to-comment)
-    ("D" "Comment (defun)" cider-pprint-eval-defun-to-comment)
-    ("r" "REPL (last sexp)" cider-pprint-eval-last-sexp-to-repl)]]
+    ("c" "Comment (last sexp)" cider-eval-pprint-menu--last-sexp-to-comment)
+    ("D" "Comment (defun)" cider-eval-pprint-menu--defun-to-comment)
+    ("r" "REPL (last sexp)" cider-eval-pprint-menu--last-sexp-to-repl)]]
   [:hide (lambda () t)
-   ("C-e" "Last sexp" cider-pprint-eval-last-sexp)
-   ("C-d" "Defun at point" cider-pprint-eval-defun-at-point)])
+   ("C-e" "Last sexp" cider-eval-pprint-menu--last-sexp)
+   ("C-d" "Defun at point" cider-eval-pprint-menu--defun)])
 
 ;;;###autoload (autoload 'cider-eval-menu "cider-eval" "Menu for CIDER's evaluation commands." t)
 (transient-define-prefix cider-eval-menu ()

@@ -4,6 +4,7 @@
 
 ### New features
 
+- [#4065](https://github.com/clojure-emacs/cider/pull/4065): Add a `--print-fn=` flag to the pretty-print transient menu (`cider-eval-pprint-menu`) to pick the printer (pr/pprint/fipp/puget/zprint or a custom var) per invocation.
 - [#4063](https://github.com/clojure-emacs/cider/pull/4063): Add test-selector flags to the test transient menu (`cider-test-menu`): `--include=` and `--exclude=`, so a selector filter can be set once and reused across the namespace/loaded/project run commands.
 - [#4062](https://github.com/clojure-emacs/cider/pull/4062): Add refresh-mode flags to the namespace transient menu (`cider-ns-menu`): `--all`, `--clear` and `--inhibit-fns`, making `cider-ns-refresh`'s otherwise prefix-argument-only modes explicit and combinable.
 - [#4062](https://github.com/clojure-emacs/cider/pull/4062): Add display flags to the macroexpand transient menu (`cider-macroexpand-menu`): `--ns=` (tidy/qualified/none) and `--meta`, to control the popup expansion's rendering per invocation.
