@@ -98,6 +98,20 @@ using rlwrap."
   :safe #'stringp
   :package-version '(cider . "1.8.0"))
 
+(defcustom cider-clojure-cli-powershell-options
+  nil
+  "PowerShell options inserted before the encoded jack-in command on Windows.
+When CIDER jacks in via PowerShell (see `cider-clojure-cli-command'), this
+string is passed to the PowerShell executable ahead of its
+`-encodedCommand' argument.  For example, \"-noprofile -executionpolicy
+bypass\" avoids loading the user profile and works around a restrictive
+execution policy."
+  :type '(choice (const :tag "None" nil)
+                 (string :tag "Options"))
+  :group 'cider
+  :safe (lambda (s) (or (null s) (stringp s)))
+  :package-version '(cider . "1.23.0"))
+
 (defcustom cider-clojure-cli-aliases
   nil
   "A list of aliases to include when using the clojure cli.
@@ -554,8 +568,12 @@ rules to quote it."
          ;;
          ;; https://stackoverflow.com/a/59036879
          (command (format "$PSNativeCommandArgumentPassing = 'Legacy'; clojure %s" quoted-params))
-         (utf-16le-command (encode-coding-string command 'utf-16le)))
-    (format "-encodedCommand %s" (base64-encode-string utf-16le-command t))))
+         (utf-16le-command (encode-coding-string command 'utf-16le))
+         (options (if (or (null cider-clojure-cli-powershell-options)
+                          (string-empty-p cider-clojure-cli-powershell-options))
+                      ""
+                    (concat cider-clojure-cli-powershell-options " "))))
+    (format "%s-encodedCommand %s" options (base64-encode-string utf-16le-command t))))
 
 
 (defun cider--combined-aliases ()
