@@ -95,6 +95,37 @@ check you can disable them like this:
 (setq cider-check-cljs-repl-requirements nil)
 ----
 
+== Full-stack Clojure + ClojureScript projects
+
+A common setup is a single project with a Clojure backend and a
+ClojureScript frontend. You don't need two nREPL servers for this.
+`cider-jack-in-clj&cljs` starts one nREPL server and gives you both a
+Clojure and a ClojureScript REPL over it (the ClojureScript one is
+layered on top via Piggieback). CIDER then routes commands to the right
+REPL based on whether you're visiting a `.clj` or `.cljs` file.
+
+The one piece that trips people up is the configuration. Add a
+`.dir-locals.el` at the project root so CIDER knows which ClojureScript
+REPL to start and doesn't prompt you for it every time. For a
+shadow-cljs project with an `:app` build:
+
+[source,lisp]
+----
+((nil . ((cider-default-cljs-repl . shadow)
+         (cider-shadow-default-options . "app"))))
+----
+
+With that in place, open any file in the project and run kbd:[M-x]
+`cider-jack-in-clj&cljs` kbd:[RET]. If your backend needs extra
+dependencies, activate them the usual way (for example
+`cider-clojure-cli-aliases` for the Clojure CLI, also settable in
+`.dir-locals.el`).
+
+The same idea applies to the other ClojureScript tools; only the
+`cider-default-cljs-repl` value and its options differ. See
+xref:cljs/shadow-cljs.adoc[Using shadow-cljs] and
+xref:cljs/figwheel.adoc[Using Figwheel] for the tool-specific details.
+
 == Working with `.cljc` files
 
 Ordinarily, CIDER dispatches code from `clj` files to Clojure REPLs
