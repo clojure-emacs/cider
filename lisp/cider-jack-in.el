@@ -226,6 +226,30 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   :safe #'stringp
   :package-version '(cider . "1.14.0"))
 
+(defcustom cider-clojure-clr-cli-command
+  "cljr"
+  "The command used to execute ClojureCLR."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "1.21.0"))
+
+(defcustom cider-clojure-clr-cli-parameters
+  "-X clojure.tools.nrepl/start-server!"
+  "Params passed to ClojureCLR to start an nREPL server via `cider-jack-in'."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "1.21.0"))
+
+;; Clojure git deps require :git/sha even when :git/tag is set, just do full SHA
+(defcustom cider-clojure-clr-cli-nrepl-sha "a6bf822a5f72ec613f703eaf95420758591f2437"
+  "The version of clr.tools.nrepl injected on jack-in with ClojureCLR."
+  :type 'string
+  :group 'cider
+  :safe #'stringp
+  :package-version '(cider . "1.21.0"))
+
 
 ;;; Jack-in defaults and toggles
 
@@ -669,6 +693,30 @@ Does so by concatenating PARAMS and DEPENDENCIES."
      " "
      params)))
 
+(defun cider-clojure-clr-cli-jack-in-dependencies (params dependencies &optional command)
+  "Create ClojureCLR clr.core.cli jack-in dependencies.
+Does so by concatenating DEPENDENCIES, and PARAMS into a
+suitable `cljr` invocation and quoting, also accounting for COMMAND if
+provided."
+  (let* ((all-deps (thread-last dependencies
+                                (cider--dedupe-deps)
+                                (seq-map (lambda (dep)
+                                           (if (listp (cadr dep))
+                                               (format "%s {%s}"
+                                                       (car dep)
+                                                       (seq-reduce
+                                                        (lambda (acc v)
+                                                          (concat acc (format " :%s \"%s\" " (car v) (cdr v))))
+                                                        (cadr dep)
+                                                        ""))
+                                             (format "%s {:git/sha \"%s\"}" (car dep) (cadr dep)))))))
+         (deps (format "{:deps {%s}}"
+                       (string-join all-deps " ")))
+         (deps-quoted (cider--shell-quote-argument deps command)))
+    (format "-Sdeps %s %s"
+            deps-quoted
+            (if params (format " %s" params) ""))))
+
 (defun cider-add-clojure-dependencies-maybe (dependencies)
   "Return DEPENDENCIES with an added Clojure dependency if requested.
 See also `cider-jack-in-auto-inject-clojure'."
@@ -727,6 +775,12 @@ COMMAND is the resolved jack-in command, used to handle PowerShell quoting."
    params
    (cider-add-clojure-dependencies-maybe cider-jack-in-dependencies)
    (cider-jack-in-normalized-nrepl-middlewares)))
+
+(defun cider--clojure-clr-cli-inject-deps (params _project-type _command)
+  "Inject CIDER deps into PARAMS for a ClojureCLR CLI project."
+  (cider-clojure-clr-cli-jack-in-dependencies
+   params
+   `(("io.github.clojure/clr.tools.nrepl" ,cider-clojure-clr-cli-nrepl-sha))))
 
 (defun cider-inject-jack-in-dependencies (params project-type &optional command)
   "Return PARAMS with injected REPL dependencies for PROJECT-TYPE.
@@ -894,6 +948,13 @@ Throws an error if PROJECT-TYPE is unknown."
                              :params-var 'cider-basilisp-parameters
                              :project-files '("basilisp.edn")
                              :dispatch-prefix-arg 5)
+
+(cider-register-jack-in-tool 'clojure-clr-cli
+                             :command-var 'cider-clojure-clr-cli-command
+                             :params-var 'cider-clojure-clr-cli-parameters
+                             :project-files '("deps-clr.edn")
+                             :inject-fn #'cider--clojure-clr-cli-inject-deps
+                             :universal-prefix-arg 6)
 
 
 ;;; ClojureScript jack-in helpers
