@@ -393,6 +393,9 @@ comment text.
 NOTE: The `ignore` and `comment` styles ignore the `cider-comment-*` prefix
 options and use their own fixed formatting.
 
+Re-evaluating a form replaces any existing eval comment in-place, rather than inserting a second one.
+You can preserve the old eval comment by detaching it from the form (e.g. with a newline).
+
 === Change the Output Destination
 
 By default CIDER will display the output produced by some evaluation in the REPL buffer, but you can also funnel the output to a dedicated buffer. You can configure this behavior via `cider-eval-output-destination`.
