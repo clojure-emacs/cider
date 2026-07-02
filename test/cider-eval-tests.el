@@ -39,7 +39,108 @@
                       (current-buffer) (point-marker) ";; => " ";;    " "")))
         (funcall handler (nrepl-dict "out" "Elapsed time: 0.042 msecs\n"))
         (expect 'cider-emit-interactive-eval-output
-                :to-have-been-called-with "Elapsed time: 0.042 msecs\n")))))
+                :to-have-been-called-with "Elapsed time: 0.042 msecs\n"))))
+
+  (it "tracks async buffer edits using markers (#2607)"
+    (with-temp-buffer
+      (setq-local nrepl-pending-requests (make-hash-table :test 'equal))
+      (insert "(+ 1 2)")
+      (let* ((indent-line-function #'ignore)
+             (insertion-point (point-max))
+             (handler (cider-eval-pprint-with-multiline-comment-handler
+                       (current-buffer) insertion-point ";; => " ";;    " "")))
+        ;; simulate user editing BEFORE the eval result arrives:
+        (goto-char 1)
+        (insert "(ns repro)\n\n")
+        (funcall handler (nrepl-dict "value" "3"))
+        (funcall handler (nrepl-dict "status" '("done")))
+        (expect (buffer-string) :to-equal
+                (concat "(ns repro)\n\n"
+                        "(+ 1 2)\n"
+                        ";; => 3")))))
+
+  ;; When eval produces both a value and stderr output (e.g. a reflection warning),
+  ;; the two must not be interleaved in the inserted comment.
+  (it "keeps value and stderr separate when both are present"
+    (with-temp-buffer
+      (setq-local nrepl-pending-requests (make-hash-table :test 'equal))
+      (let* ((indent-line-function #'ignore)
+             (handler (cider-eval-pprint-with-multiline-comment-handler
+                       (current-buffer) (point-marker) ";; => " ";;    " "")))
+        ;; Simulate nREPL responses: stderr chunk interleaved with value chunks
+        (funcall handler (nrepl-dict "value" "{:a 1, "))
+        (funcall handler (nrepl-dict "err" "Reflection warning, user.clj:5:1 - reference to field foo can't be resolved.\n"))
+        (funcall handler (nrepl-dict "value" ":b 2}"))
+        (funcall handler (nrepl-dict "status" '("done")))
+        ;; Value and stderr should be separated by a newline, not mashed together
+        (expect (string-trim (buffer-string))
+                :to-equal
+                (concat ";; => {:a 1, :b 2}\n"
+                        ";;    Reflection warning, user.clj:5:1 - reference to field foo can't be resolved.")))))
+
+  (it "inserts only the value when no stderr is produced"
+    (with-temp-buffer
+      (setq-local nrepl-pending-requests (make-hash-table :test 'equal))
+      (let* ((indent-line-function #'ignore)
+             (handler (cider-eval-pprint-with-multiline-comment-handler
+                       (current-buffer) (point-marker) ";; => " ";;    " "")))
+        (funcall handler (nrepl-dict "value" "42"))
+        (funcall handler (nrepl-dict "status" '("done")))
+        (expect (string-trim (buffer-string)) :to-equal ";; => 42"))))
+
+  (it "inserts only stderr when no value is produced"
+    (with-temp-buffer
+      (setq-local nrepl-pending-requests (make-hash-table :test 'equal))
+      (let* ((indent-line-function #'ignore)
+             (handler (cider-eval-pprint-with-multiline-comment-handler
+                       (current-buffer) (point-marker) ";; => " ";;    " "")))
+        (funcall handler (nrepl-dict "err" "Syntax error compiling at (user.clj:5:1)\nUnable to resolve symbol: oops in this context\n"))
+        (funcall handler (nrepl-dict "status" '("done")))
+        (expect (string-trim (buffer-string)) :to-equal
+                (concat ";; => Syntax error compiling at (user.clj:5:1)\n"
+                        ";;    Unable to resolve symbol: oops in this context")))))
+
+  (it "replaces an existing multiline comment on re-eval"
+    (with-temp-buffer
+      (setq-local nrepl-pending-requests (make-hash-table :test 'equal))
+      (let ((indent-line-function #'ignore))
+        (insert "(inc 0)")
+        (let ((h (cider-eval-pprint-with-multiline-comment-handler
+                  (current-buffer) (point) ";; => " ";;    " "")))
+          (funcall h (nrepl-dict "value" "1"))
+          (funcall h (nrepl-dict "status" '("done")))
+          (expect (buffer-string) :to-equal "(inc 0)\n;; => 1"))
+        ;; Simulate an edit and re-eval
+        (goto-char (point-min))
+        (kill-line)
+        (insert "(dec 3)")
+        (let ((h (cider-eval-pprint-with-multiline-comment-handler
+                  (current-buffer) (point) ";; => " ";;    " "")))
+          (funcall h (nrepl-dict "value" "2"))
+          (funcall h (nrepl-dict "status" '("done")))
+          (expect (buffer-string) :to-equal "(dec 3)\n;; => 2")))))
+
+  (it "replaces a single-line comment with a multiline result"
+    (with-temp-buffer
+      (setq-local nrepl-pending-requests (make-hash-table :test 'equal))
+      (let ((indent-line-function #'ignore)
+            loc)
+        (insert "(range 3)")
+        (setq loc (point))
+        (let ((h1 (cider-eval-pprint-with-multiline-comment-handler
+                   (current-buffer) loc ";; => " ";;    " "")))
+          (funcall h1 (nrepl-dict "value" "(0 1 2)"))
+          (funcall h1 (nrepl-dict "status" '("done")))
+          (expect (buffer-string) :to-equal "(range 3)\n;; => (0 1 2)"))
+        (let ((h2 (cider-eval-pprint-with-multiline-comment-handler
+                   (current-buffer) loc ";; => " ";;    " "")))
+          (funcall h2 (nrepl-dict "value" "(0\n 1\n 2)"))
+          (funcall h2 (nrepl-dict "status" '("done")))
+          (expect (buffer-string) :to-equal
+                  (concat "(range 3)\n"
+                          ";; => (0\n"
+                          ";;     1\n"
+                          ";;     2)")))))))
 
 (describe "cider--auto-inspect-after-eval-p"
   (it "treats t and `interactive' as interactive-only (back-compat)"
