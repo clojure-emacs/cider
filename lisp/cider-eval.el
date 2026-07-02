@@ -883,10 +883,9 @@ Any existing eval comment is replaced."
   (pcase-let* ((bounds (funcall form-fn 'bounds))
                (insertion-point (nth (if insert-before 0 1) bounds))
                (`(,prefix ,continued ,postfix) (cider--comment-format))
-               ;; when insert-before, we need a newline after the output to
+               ;; we need a newline after the output to
                ;; avoid commenting the first line of the form
-               (comment-postfix (concat postfix
-                                        (if insert-before "\n" ""))))
+               (comment-postfix (concat postfix "\n")))
     (cider-interactive-eval nil
                             (cider-eval-pprint-with-multiline-comment-handler
                              (current-buffer)
