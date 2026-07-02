@@ -38,6 +38,7 @@
 - [#3978](https://github.com/clojure-emacs/cider/pull/3978): Add `cider-macrostep-expand-all` (`a` in `cider-macrostep-mode`) to fully expand the form at point inline in one step, instead of stepping level by level.
 - [#3985](https://github.com/clojure-emacs/cider/pull/3985): Add `cider-macrostep-expand-in-buffer` to run a macro-stepping session in a dedicated `*cider-macrostep*` popup, leaving the source buffer untouched.
 - [#3973](https://github.com/clojure-emacs/cider/pull/3973): Indicate namespace load-state: a `cider-mode` lighter (and optional fringe) marker showing when the current buffer's namespace isn't loaded into the REPL or is stale (`cider-ns-load-state-display`), and a per-form fringe marker that turns from green to amber when you edit an evaluated form (`cider-mark-stale-after-edit`).
+- [#4018](https://github.com/clojure-emacs/cider/pull/4018): Detect and replace eval comments in `cider-pprint-form-to-comment`. Successive calls to eval-to-comment commands now update in-place instead of stacking stale results.
 
 ### Bugs fixed
 
@@ -55,6 +56,7 @@
 - [#4006](https://github.com/clojure-emacs/cider/pull/4006): Fix a doubled colon when both `cider-clojure-cli-global-aliases` and `cider-clojure-cli-aliases` are set in the documented `:foo:bar` form, which produced a malformed `-M:global::local:cider/nrepl` jack-in invocation.
 - [#3971](https://github.com/clojure-emacs/cider/pull/3971): Fix `cider-macroexpand-again` (`g` in the macroexpansion buffer) to actually re-expand the form instead of redisplaying the original input.
 - [#3986](https://github.com/clojure-emacs/cider/pull/3986): Signal a `user-error` (instead of a generic `error`) when a var to trace isn't found or isn't traceable, so the failure no longer triggers a backtrace under `debug-on-error`.
+- [#4018](https://github.com/clojure-emacs/cider/pull/4018): Fix interleaving of value and stderr output in `cider-eval-pprint-with-multiline-comment-handler`.
 
 ### Changes
 
