@@ -86,11 +86,14 @@
   \item[C-c M-.] cider-find-resource
   \item[C-c C-? r] \ns{cider-xref-fn}-refs
   \item[C-c C-? d] \ns            -deps
+  \item[C-c C-? s] \ns            -refs-in-source
+  \item[C-c C-w c] cider-who-calls
+  \item[C-c C-w i] cider-who-implements
   \item[C-c M-s] cider-selector
 \end{keylist}
 
 \subsection{Evaluation}
-\begin{keylist}[labelwidth=\widthof{\keyify{C-c C-M-l}}]
+\begin{keylist}[labelwidth=\widthof{\keyify{C-c M-m a}}]
   \item[C-x C-e]   \ns{cider-eval-last-sexp}
   \item[C-c M-e]   \ns                     -to-repl
   \item[C-M-x]     cider-eval-defun-at-point
@@ -100,8 +103,9 @@
   \item[C-c M-;]   cider-eval-defun-to-comment
   \item[C-c M-:]   cider-read-and-eval
   \item[C-c M-i]   cider-inspect
-  \item[C-c RET]   \ns{cider-macroexpand}-1
-  \item[C-c M-m]   \ns                   -all
+  \item[C-c C-m]   \ns{cider-macroexpand}-1
+  \item[C-c M-m a] \ns                   -all
+  \item[C-c M-m e] cider-macrostep-expand
 \end{keylist}
 
 \columnbreak
@@ -118,6 +122,7 @@
   \item[C-c M-n n] cider-repl-set-ns
   \item[C-c M-n e] cider-eval-ns-form
   \item[C-c M-n r] cider-ns-refresh
+  \item[C-c M-n l] cider-ns-reload
   \item[C-c M-n b] cider-browse-ns
 \end{keylist}
 
