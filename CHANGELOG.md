@@ -45,6 +45,7 @@
 
 ### Bugs fixed
 
+- Fix `cider-log-kill-appender`'s confirmation message, which had the appender and framework names swapped.
 - [#4066](https://github.com/clojure-emacs/cider/pull/4066): Jump to the actual source when clicking a stack frame for a top-level anonymous function (the `deftest` shape), instead of landing in `clojure.core/fn` ([#3157](https://github.com/clojure-emacs/cider/issues/3157)).
 - [#4058](https://github.com/clojure-emacs/cider/pull/4058): Signal a helpful error when `cider-javadoc` gets an unresolvable (non-absolute) Javadoc URL from the middleware, instead of silently doing nothing ([#2969](https://github.com/clojure-emacs/cider/issues/2969)).
 - [#4054](https://github.com/clojure-emacs/cider/pull/4054): Interrupt every REPL an evaluation is dispatched to. In a `.cljc` buffer `cider-interrupt` previously interrupted only one of the two REPLs ([#4036](https://github.com/clojure-emacs/cider/issues/4036)).
@@ -64,6 +65,7 @@
 
 - Bump the injected `cider-nrepl` to 0.62.0-alpha2, which carries the hardened content-type/slurp middleware backing the rich-content revival below (and no longer double-sends `value` alongside content-typed responses).
 - Enable rich content in the REPL by default (`cider-repl-use-content-types` is now t): image results render inline, and results naming external content (files, URLs) render a `[show content]` button that fetches and renders it on demand. The automatic fetching that got the feature disabled back in 0.25 ([#2825](https://github.com/clojure-emacs/cider/issues/2825)) is gone - nothing is transferred until the button is pressed - and the server side is hardened in `cider-nrepl` 0.62 (URL-scheme allowlist, size caps, graceful fetch errors).
+- Rename `cider-log-buffer-clear-p` to `cider-log-buffer-has-content-p` - the old name read as the opposite of its behavior; it remains as an obsolete alias.
 - Bump the default `cider-repl-history-size` from 500 to 5000.
 - Rename the REPL history browser from `cider-repl-history` to `cider-history` (command, mode and options), so its names no longer clash with the REPL's unrelated input-history settings (`cider-repl-history-file`, `cider-repl-history-size`); the old names keep working as obsolete aliases.
 - Color the nREPL messages buffer with theme-aware faces (`nrepl-message-faces`, eight faces inheriting from standard font-lock faces) instead of a hardcoded color list; `nrepl-message-colors` is now obsolete, but still takes precedence when customized.

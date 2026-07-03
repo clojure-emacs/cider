@@ -161,10 +161,11 @@ It will not be used if the package hasn't been installed."
   "Return S with a bold face."
   (when s (propertize (format "%s" s) 'face 'bold)))
 
-(defun cider-log-buffer-clear-p (&optional buffer)
+(defun cider-log-buffer-has-content-p (&optional buffer)
   "Return non-nil if BUFFER is not empty, otherwise nil."
   (when-let* ((buffer (get-buffer (or buffer cider-log-buffer))))
     (> (buffer-size buffer) 0)))
+(define-obsolete-function-alias 'cider-log-buffer-clear-p 'cider-log-buffer-has-content-p "2.0.0")
 
 (defun cider-log--description-clear-events-buffer ()
   "Return the description for the clear-events-buffer action."
@@ -221,7 +222,7 @@ It will not be used if the package hasn't been installed."
                 (cider-nrepl-send-request callback)))
 
 (defun cider-sync-request:log-update-consumer (framework appender consumer)
-  "Add CONSUMER to the APPENDER of FRAMEWORK and call CALLBACK on log events."
+  "Update CONSUMER of the APPENDER of FRAMEWORK."
   (thread-first `("op" "cider/log-update-consumer"
                   "framework" ,(cider-log-framework-id framework)
                   "appender" ,(cider-log-appender-id appender)
@@ -769,7 +770,7 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
     consumer))
 
 (defun cider-log--event-options ()
-  "Return the current log consumer."
+  "Return the filter and pagination options for a log event search."
   (nrepl-dict "filters" (cider-log--filters)
               "limit" cider-log-pagination-limit
               "offset" cider-log-pagination-offset))
@@ -1086,8 +1087,8 @@ the CIDER Inspector and the CIDER stacktrace mode.
   (cider-sync-request:log-remove-appender framework appender)
   (setq-local cider-log-consumer nil)
   (message "Log appender %s removed from the %s framework."
-           (cider-log-framework-display-name framework)
-           (cider-log-appender-display-name appender)))
+           (cider-log-appender-display-name appender)
+           (cider-log-framework-display-name framework)))
 
 (transient-define-suffix cider-log--do-add-appender (framework appender)
   "Add the APPENDER to the log FRAMEWORK."
@@ -1173,7 +1174,7 @@ You can jump to functions and methods directly from the printed stacktrace now."
 (transient-define-suffix cider-log-clear-event-buffer (buffer)
   "Clear the Cider log events in BUFFER."
   :description #'cider-log--description-clear-events-buffer
-  :inapt-if-not #'cider-log-buffer-clear-p
+  :inapt-if-not #'cider-log-buffer-has-content-p
   (interactive (list cider-log-buffer))
   (when (get-buffer buffer)
     (with-current-buffer buffer
