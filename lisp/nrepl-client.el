@@ -787,7 +787,8 @@ sub-handlers has been provided.  All UI concerns (namespace tracking,
 default error handling, need-input prompting, status messages) live in
 higher layers -- see `cider-make-eval-handler' for the editor wrapper.
 
-Sub-handlers, all optional:
+Sub-handlers (ON-VALUE, ON-STDOUT, ON-STDERR, ON-DONE, ON-NS, ON-STATUS,
+ON-EVAL-ERROR, ON-CONTENT-TYPE and ON-TRUNCATED), all optional:
 
   :on-value         called with VALUE when the response carries one.
   :on-stdout        called with the OUT string for stdout chunks.
@@ -854,7 +855,7 @@ level `cider-make-eval-handler' which layers UI concerns on top.
 The shim adapts the (BUFFER VALUE)-style sub-handlers expected here to
 the simpler (VALUE)-style sub-handlers of `nrepl-make-eval-handler',
 and additionally wires up the global handler hooks
-(`nrepl-namespace-handler-function', `nrepl-err-handler-function',
+\\(`nrepl-namespace-handler-function', `nrepl-err-handler-function',
 `nrepl-need-input-handler-function') and the legacy status messages
 that used to live inside `nrepl-make-eval-handler' itself.  Anything
 that was visible behavior of the original 7-positional-arg API stays

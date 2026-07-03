@@ -424,7 +424,7 @@ The full getting-started help now lives in `cider-repl-help'."
 \\{cider-repl-help-mode-map}")
 
 (defun cider-repl--help-key (command keymap)
-  "Return a display key for COMMAND in KEYMAP, or an \"M-x\" form if unbound.
+  "Return a display key for COMMAND in KEYMAP, or an extended-command form.
 KEYMAP is a symbol whose value is a keymap.  Only that keymap is searched (not
 its parents), since the refcard sections list commands bound directly in it."
   (if-let* ((km (and (boundp keymap) (symbol-value keymap)))

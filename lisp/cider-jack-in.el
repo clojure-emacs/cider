@@ -744,7 +744,7 @@ with its nREPL middleware and dependencies."
 ;;; Command resolution
 
 (defun cider--resolve-command (command)
-  "Find COMMAND in `exec-path', or on the remote host's PATH over TRAMP.
+  "Find COMMAND in the variable `exec-path', or on a remote PATH over TRAMP.
 Return the (shell-quoted) absolute path if found, otherwise nil.  When
 `default-directory' is remote, `executable-find' is asked to search on
 that host instead of the local one."

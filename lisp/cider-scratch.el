@@ -104,8 +104,9 @@ Per-session scratch buffers are named `*cider-scratch: SESSION*'.")
   "Go to the scratch buffer attached to the current session.
 Each session gets its own scratch buffer, permanently attached to it, so
 evaluations always target a known session.  When the current context has
-no clear session (or with a prefix ARG to force it), prompt for one.  With
-no connections at all, fall back to a single session-less scratch buffer."
+no clear session (or when ASK is non-nil - interactively, a prefix
+argument), prompt for one.  With no connections at all, fall back to a
+single session-less scratch buffer."
   (interactive "P")
   (let ((repl (or (and (not ask) (cider-current-repl))
                   (cider-scratch--ask-for-repl))))

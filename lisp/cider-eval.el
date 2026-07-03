@@ -226,8 +226,9 @@ additionally:
   `cider-default-err-handler' with BUFFER.
 
 BUFFER is the editor buffer the response is associated with (typically
-the one that issued the eval).  All other slots have the same semantics
-as in `nrepl-make-eval-handler'."
+the one that issued the eval).  The other slots (ON-VALUE, ON-STDOUT,
+ON-STDERR, ON-DONE, ON-EVAL-ERROR, ON-CONTENT-TYPE and ON-TRUNCATED)
+have the same semantics as in `nrepl-make-eval-handler'."
   (nrepl-make-eval-handler
    :on-value on-value
    :on-stdout on-stdout
@@ -329,8 +330,8 @@ REPL buffer.  This is controlled via
   "Mark BUFFER's content as loaded into the REPL and in sync.
 Refreshes the evaluation fringe indicators across BUFFER and runs
 `cider-file-loaded-hook' (which the namespace load-state indicator hooks
-into).  BUFFER defaults to the current buffer.  Used by the load-file flow
-and by the namespace reloading commands once they finish."
+into).  BUFFER defaults to the current buffer.  Used by the file-loading
+flow and by the namespace reloading commands once they finish."
   (with-current-buffer (or buffer (current-buffer))
     (cider--make-fringe-overlays-for-region (point-min) (point-max))
     (run-hooks 'cider-file-loaded-hook)))
