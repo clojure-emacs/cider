@@ -62,7 +62,7 @@
 
 ### Changes
 
-- Bump the injected `cider-nrepl` to 0.62.0-alpha1, which carries the hardened content-type/slurp middleware backing the rich-content revival below.
+- Bump the injected `cider-nrepl` to 0.62.0-alpha2, which carries the hardened content-type/slurp middleware backing the rich-content revival below (and no longer double-sends `value` alongside content-typed responses).
 - Enable rich content in the REPL by default (`cider-repl-use-content-types` is now t): image results render inline, and results naming external content (files, URLs) render a `[show content]` button that fetches and renders it on demand. The automatic fetching that got the feature disabled back in 0.25 ([#2825](https://github.com/clojure-emacs/cider/issues/2825)) is gone - nothing is transferred until the button is pressed - and the server side is hardened in `cider-nrepl` 0.62 (URL-scheme allowlist, size caps, graceful fetch errors).
 - Bump the default `cider-repl-history-size` from 500 to 5000.
 - Rename the REPL history browser from `cider-repl-history` to `cider-history` (command, mode and options), so its names no longer clash with the REPL's unrelated input-history settings (`cider-repl-history-file`, `cider-repl-history-size`); the old names keep working as obsolete aliases.
