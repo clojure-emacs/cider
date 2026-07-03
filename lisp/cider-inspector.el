@@ -30,6 +30,7 @@
 (require 'cl-lib)
 (require 'easymenu)
 (require 'seq)
+(require 'transient)
 (require 'cider-client)
 (require 'cider-eval)
 
@@ -176,6 +177,7 @@ by clicking or navigating to them by other means."
     (define-key map "b" #'backward-char)
     (define-key map "9" #'cider-inspector-previous-sibling)
     (define-key map "0" #'cider-inspector-next-sibling)
+    (define-key map "m" #'cider-inspector-menu)
     ;; Emacs translates S-TAB to BACKTAB on X.
     (define-key map [backtab] #'cider-inspector-previous-inspectable-object)
     (easy-menu-define cider-inspector-mode-menu map
@@ -215,6 +217,40 @@ by clicking or navigating to them by other means."
         "--"
         ["Quit" cider-popup-buffer-quit-function]))
     map))
+
+(transient-define-prefix cider-inspector-menu ()
+  "Transient menu for the CIDER inspector.
+It groups and labels the inspector's commands, so they can be discovered
+without memorizing the keys.  The sub-keys match the regular
+`cider-inspector-mode' bindings, so this menu is purely additive."
+  [["Navigate"
+    ("RET" "Inspect object at point" cider-inspector-operate-on-point)
+    ("l" "Pop back" cider-inspector-pop)
+    ("n" "Next inspectable object" cider-inspector-next-inspectable-object)
+    ("p" "Previous inspectable object" cider-inspector-previous-inspectable-object)
+    ("0" "Next sibling" cider-inspector-next-sibling)
+    ("9" "Previous sibling" cider-inspector-previous-sibling)
+    ("SPC" "Next page" cider-inspector-next-page)
+    ("M-SPC" "Previous page" cider-inspector-prev-page)
+    ("o" "Open file/URL at point" cider-inspector-open-thing-at-point)]
+   ["Display"
+    ("v" "Toggle object/normal view" cider-inspector-toggle-view-mode)
+    ("P" "Toggle pretty-printing" cider-inspector-toggle-pretty-print)
+    ("S" "Toggle sorted maps" cider-inspector-toggle-sort-maps)
+    ("D" "Toggle only-diff" cider-inspector-toggle-only-diff)
+    ("y" "Display analytics" cider-inspector-display-analytics)
+    ("g" "Refresh" cider-inspector-refresh)]
+   ["Limits"
+    ("s" "Set page size" cider-inspector-set-page-size)
+    ("a" "Set max atom length" cider-inspector-set-max-atom-length)
+    ("c" "Set max coll size" cider-inspector-set-max-coll-size)
+    ("C" "Set max nested depth" cider-inspector-set-max-nested-depth)]
+   ["Actions"
+    ("d" "Def current value" cider-inspector-def-current-val)
+    ("t" "Tap current value" cider-inspector-tap-current-val)
+    ("1" "Tap value at point" cider-inspector-tap-at-point)
+    ("C-c C-p" "Print current value" cider-inspector-print-current-value)
+    (":" "Inspect an expression" cider-inspect-expr-from-inspector)]])
 
 (define-derived-mode cider-inspector-mode special-mode "Inspector"
   "Major mode for inspecting Clojure data structures.

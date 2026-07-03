@@ -243,3 +243,33 @@
       (expect (cider--debug-restore-origin) :to-be nil)
       (expect cider--debug-origin-marker :to-be nil)
       (expect cider--debug-origin-id :to-be nil))))
+
+(describe "the named debugger commands"
+  (before-each
+    (spy-on 'cider-debug-mode-send-reply))
+
+  (it "send the matching debug-input reply"
+    (cider-debug-next)
+    (expect 'cider-debug-mode-send-reply :to-have-been-called-with ":next")
+    (cider-debug-continue)
+    (expect 'cider-debug-mode-send-reply :to-have-been-called-with ":continue")
+    (cider-debug-inject)
+    (expect 'cider-debug-mode-send-reply :to-have-been-called-with ":inject")
+    (cider-debug-quit)
+    (expect 'cider-debug-mode-send-reply :to-have-been-called-with ":quit"))
+
+  (it "send a forced :out for `cider-debug-force-out'"
+    (cider-debug-force-out)
+    (expect 'cider-debug-mode-send-reply :to-have-been-called-with ":out" nil t))
+
+  (it "cover every command char of `cider-debug-prompt-commands'"
+    ;; `here' is handled by `cider-debug-move-here'; the rest map to named
+    ;; commands, so the transient menu can offer the full command set.
+    (dolist (cmd '(cider-debug-continue cider-debug-continue-all
+                   cider-debug-next cider-debug-in cider-debug-out
+                   cider-debug-force-out cider-debug-eval
+                   cider-debug-inspect cider-debug-inspect-expr
+                   cider-debug-locals cider-debug-inject
+                   cider-debug-stacktrace cider-debug-trace
+                   cider-debug-quit))
+      (expect (commandp cmd) :to-be-truthy))))

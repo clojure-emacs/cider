@@ -125,7 +125,14 @@ keys, although there are some differences.
 
 | kbd:[q]
 | Quit execution
+
+| kbd:[?]
+| Open a menu (`cider-debug-menu`) listing all of the above, grouped and labelled
 |===
+
+TIP: There's no need to memorize this table - pressing kbd:[?] during a
+debugging session pops up a https://github.com/magit/transient[transient]
+menu with all the debugger commands, using the same keys.
 
 Additionally, all the usual evaluation commands such as kbd:[C-x C-e] or kbd:[C-c M-:] will be scoped to the current lexical
 context while the debugger is active, allowing you to access local
