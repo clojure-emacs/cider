@@ -403,3 +403,75 @@
        nil
        (lambda () (setq captured cider-print-fn)))
       (expect captured :to-equal 'pprint))))
+
+(describe "cider--external-body-url"
+  (it "extracts the URL from an external-body content-type"
+    (expect (cider--external-body-url
+             (list "message/external-body"
+                   (nrepl-dict "access-type" "URL" "URL" "file:/tmp/x.png")))
+            :to-equal "file:/tmp/x.png"))
+  (it "returns nil for other content types"
+    (expect (cider--external-body-url (list "image/png" (nrepl-dict)))
+            :to-be nil)))
+
+(describe "cider--rich-content-fallback-string"
+  (it "falls back to the URL for external bodies"
+    (expect (cider--rich-content-fallback-string
+             ""
+             (list "message/external-body"
+                   (nrepl-dict "access-type" "URL" "URL" "https://foo.bar/x.png")))
+            :to-equal "https://foo.bar/x.png"))
+  (it "falls back to a short tag for images"
+    (expect (cider--rich-content-fallback-string "<binary>" (list "image/png" (nrepl-dict)))
+            :to-equal "#content[image/png]"))
+  (it "falls back to the raw body for anything else"
+    (expect (cider--rich-content-fallback-string "graph foo {}" (list "text/vnd.graphviz" (nrepl-dict)))
+            :to-equal "graph foo {}")))
+
+(describe "cider--display-rich-content"
+  (it "does nothing when the destination is nil"
+    (let ((cider-eval-rich-content-destination nil))
+      (expect (cider--display-rich-content "body" (list "image/png" (nrepl-dict)) nil)
+              :to-be nil)))
+
+  (it "dispatches to the REPL's content-type handlers for the repl destination"
+    (let ((cider-eval-rich-content-destination 'repl)
+          (handled nil))
+      (cl-letf (((symbol-function 'cider-current-repl)
+                 (lambda (&rest _) (current-buffer)))
+                (cider-repl-content-type-handler-alist
+                 (list (cons "image/png"
+                             (lambda (_type _buffer body &rest _)
+                               (setq handled body))))))
+        (expect (cider--display-rich-content "IMG" (list "image/png" (nrepl-dict)) nil)
+                :to-be-truthy)
+        (expect handled :to-equal "IMG"))))
+
+  (it "reports failure for the repl destination when no REPL is around"
+    (let ((cider-eval-rich-content-destination 'repl))
+      (cl-letf (((symbol-function 'cider-current-repl) (lambda (&rest _) nil)))
+        (expect (cider--display-rich-content "IMG" (list "image/png" (nrepl-dict)) nil)
+                :to-be nil))))
+
+  (it "renders images inline via a result overlay"
+    (let ((cider-eval-rich-content-destination 'inline)
+          (overlaid nil))
+      (cl-letf (((symbol-function 'display-images-p) (lambda (&rest _) t))
+                ((symbol-function 'cider--eval-result-display) (lambda () 'both))
+                ((symbol-function 'cider--make-result-overlay)
+                 (lambda (string &rest _) (setq overlaid string)))
+                ((symbol-function 'create-image)
+                 (lambda (&rest _) '(image :type png)))
+                ((symbol-function 'message) #'ignore))
+        (expect (cider--display-rich-content "IMG" (list "image/png" (nrepl-dict)) 42)
+                :to-be-truthy)
+        (expect (get-text-property 0 'display overlaid) :to-equal '(image :type png)))))
+
+  (it "declines inline rendering for external bodies"
+    (let ((cider-eval-rich-content-destination 'inline))
+      (expect (cider--display-rich-content
+               ""
+               (list "message/external-body"
+                     (nrepl-dict "access-type" "URL" "URL" "file:/x"))
+               42)
+              :to-be nil))))

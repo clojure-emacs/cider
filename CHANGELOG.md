@@ -4,6 +4,7 @@
 
 ### New features
 
+- Honor content types for interactive evaluations too ([#2476](https://github.com/clojure-emacs/cider/issues/2476)): a `cider-eval-last-sexp` returning an image can now render it, per the new `cider-eval-rich-content-destination` - `inline` (the default, in the result overlay at point), `repl` (like results of forms typed at the prompt, with the `[show content]` button for external references), `popup` (the `*cider-result*` buffer) or `nil` (plain values, the previous behavior).
 - Add a transient menu to the debugger (`cider-debug-menu`, bound to `?` during a debug session), grouping all the debugger's single-key commands; they are also proper named commands now (e.g. `cider-debug-next`, `cider-debug-quit`), so they can be invoked via `M-x` as well.
 - Add a transient menu to the inspector (`cider-inspector-menu`, bound to `m` in the inspector buffer), grouping all the inspector commands.
 - [#4065](https://github.com/clojure-emacs/cider/pull/4065): Add a `--print-fn=` flag to the pretty-print transient menu (`cider-eval-pprint-menu`) to pick the printer (pr/pprint/fipp/puget/zprint or a custom var) per invocation.

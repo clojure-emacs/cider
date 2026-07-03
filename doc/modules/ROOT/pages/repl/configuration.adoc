@@ -306,6 +306,11 @@ IO (see https://github.com/clojure-emacs/cider/issues/2825[the discussion]).
 The on-demand button, together with the hardened `cider-nrepl` middleware
 (scheme allowlist, size caps, graceful fetch errors), resolves that.
 
+TIP: Interactive evaluations (e.g. kbd:[C-x C-e] in a source buffer) get the
+same treatment, controlled separately by
+`cider-eval-rich-content-destination` - see
+xref:usage/code_evaluation.adoc[Code Evaluation].
+
 == REPL type detection
 
 Normally CIDER would detect automatically the type of a REPL (Clojure or ClojureScript), based
