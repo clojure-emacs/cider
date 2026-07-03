@@ -383,7 +383,11 @@ inhibit-fns)), which is how `cider-ns-menu' passes its arguments."
                                           nil
                                           t))
           (when clear?
-            (cider-nrepl-sync-request `("op" ,(cider-ns--reload-op "reload-clear")) :connection conn))
+            ;; The clear op is fast by itself, but it serializes behind any
+            ;; refresh already in flight, which on large projects can hold
+            ;; the lock well past the default timeout (#3652).
+            (let ((nrepl-sync-request-timeout 60))
+              (cider-nrepl-sync-request `("op" ,(cider-ns--reload-op "reload-clear")) :connection conn)))
           (let ((reloading (list nil)))
             (cider-nrepl-send-request
              `("op" ,(cider-ns--reload-op (if all? "reload-all" "reload"))
