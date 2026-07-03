@@ -136,14 +136,19 @@ java.net.UnknownServiceException: protocol doesn't support input
 	at cider.nrepl.middleware.slurp$handle_slurp.invoke(slurp.clj:109)
 ----
 
-You can disable the middleware like this:
+This affected CIDER 1.x, where the content was fetched automatically as soon
+as a URL-shaped value was returned.  As of CIDER 2.0 (with `cider-nrepl`
+0.62+) content is only fetched when you press the result's `[show content]`
+button, non-fetchable URL schemes like `mailto:` are never offered for
+fetching, and a failed fetch reports a plain-text error instead of crashing
+the handler.
+
+If you're stuck on older versions, you can disable the feature like this:
 
 [source,lisp]
 ----
 (setq cider-repl-use-content-types nil)
 ----
-
-That's also the default behavior.
 
 === Debugging freezes & lock-ups
 

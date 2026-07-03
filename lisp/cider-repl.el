@@ -109,12 +109,15 @@ The `cider-toggle-pretty-printing' command can be used to interactively
 change the setting's value."
   :type 'boolean)
 
-(defcustom cider-repl-use-content-types nil
+(defcustom cider-repl-use-content-types t
   "Control whether REPL results are presented using content-type information.
+When enabled, evaluation results that are images render inline in the REPL,
+and results naming external content (files, URLs) offer a button that
+fetches and renders it on demand.
 The `cider-repl-toggle-content-types' command can be used to interactively
 change the setting's value."
   :type 'boolean
-  :package-version '(cider . "0.17.0"))
+  :package-version '(cider . "2.0.0"))
 
 (defcustom cider-repl-auto-detect-type t
   "Control whether to auto-detect the REPL type using track-state information.
@@ -1154,15 +1157,47 @@ Part of the default `cider-repl-content-type-handler-alist'."
                              (cider-repl--image image 'svg t)
                              show-prefix bol))
 
-(defun cider-repl-handle-external-body (type buffer _ &optional _show-prefix _bol)
-  "Handler for slurping external content into BUFFER.
-Handles an external-body TYPE by issuing a slurp request to fetch the content."
-  (if-let* ((args        (cadr type))
-            (access-type (nrepl-dict-get args "access-type")))
-      (cider-nrepl-send-request
-       (list "op" "cider/slurp" "url" (nrepl-dict-get args access-type))
-       (cider-repl-handler buffer)))
-  nil)
+(defun cider-repl--fetch-external-body (buffer url)
+  "Fetch URL's content from the nREPL server and render it in BUFFER."
+  (cider-nrepl-send-request (list "op" "cider/slurp" "url" url)
+                            (cider-repl-handler buffer)))
+
+(defun cider-repl--display-external-body (buffer url &optional show-prefix bol)
+  "Insert URL and a button that fetches its content into BUFFER.
+For compatibility with the rest of CIDER's REPL machinery, supports
+SHOW-PREFIX and BOL."
+  (with-current-buffer buffer
+    (save-excursion
+      (cider-save-marker cider-repl-output-start
+        (goto-char cider-repl-output-end)
+        (when (and bol (not (bolp)))
+          (insert-before-markers "\n"))
+        (when show-prefix
+          (insert-before-markers
+           (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
+        (insert-before-markers
+         (propertize url 'font-lock-face 'cider-repl-result-face)
+         " ")
+        (let ((start (point)))
+          (insert-before-markers "[show content]")
+          (make-text-button start (point)
+                            'follow-link t
+                            'help-echo (format "Fetch %s and render it here" url)
+                            'action (lambda (_button)
+                                      (cider-repl--fetch-external-body buffer url)))))))
+  t)
+
+(defun cider-repl-handle-external-body (type buffer _ &optional show-prefix bol)
+  "Handler for referencing external content in BUFFER.
+Handles an external-body TYPE by rendering the reference URL followed by a
+button that fetches and renders the content on demand, via a slurp
+request.  Nothing is transferred (or connected to) until the button is
+pressed, so merely evaluating a `File' or `URI' has no side effects."
+  (when-let* ((args        (cadr type))
+              (access-type (nrepl-dict-get args "access-type"))
+              (url         (nrepl-dict-get args access-type)))
+    (cider-repl--display-external-body buffer url show-prefix bol))
+  t)
 
 (defvar cider-repl-content-type-handler-alist
   `(("message/external-body" . ,#'cider-repl-handle-external-body)

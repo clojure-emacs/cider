@@ -641,3 +641,28 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
     (cider-debug-sesman-friendly-session-p)
     (expect 'cider-sessions :to-have-been-called)
     (expect 'cider--sesman-friendly-session-p :to-have-been-called-times 2)))
+
+(describe "cider-repl-handle-external-body"
+  (it "renders a fetch button for the URL instead of fetching automatically"
+    (let (rendered requested)
+      (cl-letf (((symbol-function 'cider-repl--display-external-body)
+                 (lambda (_buffer url &rest _) (setq rendered url) t))
+                ((symbol-function 'cider-nrepl-send-request)
+                 (lambda (&rest _) (setq requested t))))
+        (expect (cider-repl-handle-external-body
+                 (list "message/external-body"
+                       (nrepl-dict "access-type" "URL" "URL" "file:/tmp/x.png"))
+                 (current-buffer) "")
+                :to-be-truthy)
+        (expect rendered :to-equal "file:/tmp/x.png")
+        (expect requested :to-be nil))))
+
+  (it "does nothing (but still allows the prompt) without an access type"
+    (let (rendered)
+      (cl-letf (((symbol-function 'cider-repl--display-external-body)
+                 (lambda (_buffer url &rest _) (setq rendered url) t)))
+        (expect (cider-repl-handle-external-body
+                 (list "message/external-body" (nrepl-dict))
+                 (current-buffer) "")
+                :to-be-truthy)
+        (expect rendered :to-be nil)))))
