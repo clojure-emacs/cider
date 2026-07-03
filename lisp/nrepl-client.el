@@ -1390,7 +1390,7 @@ described by `nrepl-message-buffer-name-template'."
             (delete-region (point-min) (- (point) 1)))
           (goto-char (point-max))
           (nrepl-log-pp-object (nrepl-decorate-msg msg type)
-                               (nrepl-log--message-color (nrepl-plist-get (cdr msg) "id"))
+                               (nrepl-log--message-face (nrepl-plist-get (cdr msg) "id"))
                                t)
           (dolist (w following)
             (set-window-point w (point-max))))
@@ -1433,10 +1433,56 @@ error pointing at `nrepl-toggle-message-logging'."
                             (mapcar #'buffer-name buffers)
                             nil t)))))))
 
-(defcustom nrepl-message-colors
-  '("red" "brown" "coral" "orange" "green" "deep sky blue" "blue" "dark violet")
-  "Colors used in the messages buffer."
-  :type '(repeat color))
+(defface nrepl-message-1-face '((t :inherit font-lock-keyword-face))
+  "Face 1 of the palette cycled through when coloring nREPL messages."
+  :package-version '(cider . "2.0.0"))
+
+(defface nrepl-message-2-face '((t :inherit font-lock-string-face))
+  "Face 2 of the palette cycled through when coloring nREPL messages."
+  :package-version '(cider . "2.0.0"))
+
+(defface nrepl-message-3-face '((t :inherit font-lock-function-name-face))
+  "Face 3 of the palette cycled through when coloring nREPL messages."
+  :package-version '(cider . "2.0.0"))
+
+(defface nrepl-message-4-face '((t :inherit font-lock-variable-name-face))
+  "Face 4 of the palette cycled through when coloring nREPL messages."
+  :package-version '(cider . "2.0.0"))
+
+(defface nrepl-message-5-face '((t :inherit font-lock-type-face))
+  "Face 5 of the palette cycled through when coloring nREPL messages."
+  :package-version '(cider . "2.0.0"))
+
+(defface nrepl-message-6-face '((t :inherit font-lock-constant-face))
+  "Face 6 of the palette cycled through when coloring nREPL messages."
+  :package-version '(cider . "2.0.0"))
+
+(defface nrepl-message-7-face '((t :inherit font-lock-builtin-face))
+  "Face 7 of the palette cycled through when coloring nREPL messages."
+  :package-version '(cider . "2.0.0"))
+
+(defface nrepl-message-8-face '((t :inherit font-lock-warning-face))
+  "Face 8 of the palette cycled through when coloring nREPL messages."
+  :package-version '(cider . "2.0.0"))
+
+(defcustom nrepl-message-faces
+  '(nrepl-message-1-face nrepl-message-2-face nrepl-message-3-face
+    nrepl-message-4-face nrepl-message-5-face nrepl-message-6-face
+    nrepl-message-7-face nrepl-message-8-face)
+  "Faces cycled through when coloring the messages buffer.
+Each message is assigned a face based on its id, so the requests and
+responses belonging to the same exchange share a color.  The defaults
+inherit from standard font-lock faces, so they follow your theme."
+  :type '(repeat face)
+  :package-version '(cider . "2.0.0"))
+
+(defcustom nrepl-message-colors nil
+  "Colors used in the messages buffer.
+When non-nil, this list of color names takes precedence over
+`nrepl-message-faces'."
+  :type '(choice (const :tag "Use nrepl-message-faces" nil)
+                 (repeat color)))
+(make-obsolete-variable 'nrepl-message-colors 'nrepl-message-faces "2.0.0")
 
 (defun nrepl-log-expand-button (&optional button)
   "Expand the objects hidden in BUTTON's :nrepl-object property.
@@ -1489,25 +1535,29 @@ EVENT gives the button position on window."
                  'keymap `(keymap (mouse-1 . nrepl-log--expand-button-mouse)))
   (insert "\n"))
 
-(defun nrepl-log--message-color (id)
-  "Return the color to use when pretty-printing the nREPL message with ID.
-If ID is nil, return nil."
+(defun nrepl-log--message-face (id)
+  "Return the face to use when pretty-printing the nREPL message with ID.
+The obsolete `nrepl-message-colors' takes precedence when customized, in
+which case an anonymous face with the matching foreground color is
+returned.  If ID is nil, return nil."
   (when id
-    (thread-first
-      (string-to-number id)
-      (mod (length nrepl-message-colors))
-      (nth nrepl-message-colors))))
+    (let ((idx (string-to-number id)))
+      (if nrepl-message-colors
+          `(:foreground ,(nth (mod idx (length nrepl-message-colors))
+                              nrepl-message-colors))
+        (nth (mod idx (length nrepl-message-faces)) nrepl-message-faces)))))
 
 (defconst nrepl-log--special-keys '("id" "op" "session" "time-stamp")
   "Keys that are displayed first, in this order, in `nrepl-log--pp-listlike'.")
 
-(defun nrepl-log--pp-listlike (object &optional foreground button)
+(defun nrepl-log--pp-listlike (object &optional face button)
   "Pretty print nREPL list like OBJECT.
-FOREGROUND and BUTTON are as in `nrepl-log-pp-object'."
+FACE and BUTTON are as in `nrepl-log-pp-object'."
   (cl-flet ((color (str)
                    (propertize str 'face
-                               (append '(:weight ultra-bold)
-                                       (when foreground `(:foreground ,foreground))))))
+                               (if face
+                                   (list '(:weight ultra-bold) face)
+                                 '(:weight ultra-bold)))))
     (let ((head (format "(%s" (car object))))
       (insert (color head))
       (if (null (cdr object))
@@ -1542,10 +1592,10 @@ FOREGROUND and BUTTON are as in `nrepl-log-pp-object'."
             (delete-char -1))
           (insert (color ")\n")))))))
 
-(defun nrepl-log-pp-object (object &optional foreground button)
-  "Pretty print nREPL OBJECT, delimited using FOREGROUND.
-If BUTTON is non-nil, try making a button from OBJECT instead of inserting
-it into the buffer."
+(defun nrepl-log-pp-object (object &optional face button)
+  "Pretty print nREPL OBJECT, its delimiters colored with FACE.
+FACE can be a face symbol or an anonymous face.  If BUTTON is non-nil, try
+making a button from OBJECT instead of inserting it into the buffer."
   (let ((min-dict-fold-size   1)
         (min-list-fold-size   10)
         (min-string-fold-size 60))
@@ -1554,12 +1604,12 @@ it into the buffer."
         (cond
          ;; top level dicts (always expanded)
          ((memq head '(<-- -->))
-          (nrepl-log--pp-listlike object foreground button))
+          (nrepl-log--pp-listlike object face button))
          ;; inner dicts
          ((eq head 'dict)
           (if (and button (> (length object) min-dict-fold-size))
               (nrepl-log-insert-button "(dict ...)" object)
-            (nrepl-log--pp-listlike object foreground button)))
+            (nrepl-log--pp-listlike object face button)))
          ;; lists
          (t
           (if (and button (> (length object) min-list-fold-size))

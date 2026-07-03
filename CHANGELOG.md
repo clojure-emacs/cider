@@ -60,6 +60,7 @@
 
 ### Changes
 
+- Color the nREPL messages buffer with theme-aware faces (`nrepl-message-faces`, eight faces inheriting from standard font-lock faces) instead of a hardcoded color list; `nrepl-message-colors` is now obsolete, but still takes precedence when customized.
 - Consolidate the per-buffer auto-select options into a single `cider-auto-select-buffer`, which can be `t`, `nil` or a list of the popup buffers to select (e.g. `'(error inspector)`); the old options (`cider-auto-select-error-buffer`, `cider-auto-select-test-report-buffer`, `cider-doc-auto-select-buffer`, `cider-inspector-auto-select-buffer`, `cider-cheatsheet-auto-select-buffer` and `cider-log-auto-select-frameworks-buffer`) are now obsolete, but still take precedence when customized.
 - [#4059](https://github.com/clojure-emacs/cider/pull/4059): Use the public `sesman-sessions` (via `cider-sessions`) instead of a private sesman function in `cider-debug-sesman-friendly-session-p` ([#4037](https://github.com/clojure-emacs/cider/issues/4037)).
 - [#4056](https://github.com/clojure-emacs/cider/pull/4056): Show the interactive-evaluation spinner in the buffer you evaluated from (the source buffer, or the REPL when evaluating at its prompt) instead of always in the REPL buffer, which is often not even visible ([#3516](https://github.com/clojure-emacs/cider/issues/3516)).
