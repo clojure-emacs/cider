@@ -1,4 +1,4 @@
-;;; cider-repl-history.el --- REPL input history browser  -*- lexical-binding: t; -*-
+;;; cider-history.el --- REPL input history browser  -*- lexical-binding: t; -*-
 
 ;; Copyright (c) 2017-2026 John Valente and browse-kill-ring authors
 
@@ -36,62 +36,85 @@
 (require 'pulse)
 (require 'sesman)
 
-(defconst cider-repl-history-buffer "*cider-repl-history*")
+(defconst cider-history-buffer "*cider-history*")
 
-(defgroup cider-repl-history nil
+(defgroup cider-history nil
   "A package for browsing and inserting the items in the CIDER command history."
-  :prefix "cider-repl-history-"
+  :prefix "cider-history-"
   :group 'cider)
 
-(defvar cider-repl-history-display-styles
-  '((separated . cider-repl-history-insert-as-separated)
-    (one-line . cider-repl-history-insert-as-one-line)))
+;; The feature was renamed from `cider-repl-history' to `cider-history' in
+;; CIDER 2.0, so its symbols no longer clash with the REPL's input-history
+;; options (`cider-repl-history-file', `cider-repl-history-size', etc.),
+;; which are unrelated to this browser and keep their names.
+(define-obsolete-variable-alias 'cider-repl-history-display-style 'cider-history-display-style "2.0.0")
+(define-obsolete-variable-alias 'cider-repl-history-quit-action 'cider-history-quit-action "2.0.0")
+(define-obsolete-variable-alias 'cider-repl-history-resize-window 'cider-history-resize-window "2.0.0")
+(define-obsolete-variable-alias 'cider-repl-history-separator 'cider-history-separator "2.0.0")
+(define-obsolete-variable-alias 'cider-repl-history-recenter 'cider-history-recenter "2.0.0")
+(define-obsolete-variable-alias 'cider-repl-history-highlight-current-entry 'cider-history-highlight-current-entry "2.0.0")
+(define-obsolete-variable-alias 'cider-repl-history-highlight-inserted-item 'cider-history-highlight-inserted-item "2.0.0")
+(define-obsolete-variable-alias 'cider-repl-history-current-entry-face 'cider-history-current-entry-face "2.0.0")
+(define-obsolete-variable-alias 'cider-repl-history-inserted-item-face 'cider-history-inserted-item-face "2.0.0")
+(define-obsolete-variable-alias 'cider-repl-history-maximum-display-length 'cider-history-maximum-display-length "2.0.0")
+(define-obsolete-variable-alias 'cider-repl-history-display-duplicates 'cider-history-display-duplicates "2.0.0")
+(define-obsolete-variable-alias 'cider-repl-history-display-duplicate-highest 'cider-history-display-duplicate-highest "2.0.0")
+(define-obsolete-variable-alias 'cider-repl-history-text-properties 'cider-history-text-properties "2.0.0")
+(define-obsolete-variable-alias 'cider-repl-history-hook 'cider-history-hook "2.0.0")
+(define-obsolete-variable-alias 'cider-repl-history-show-preview 'cider-history-show-preview "2.0.0")
+(define-obsolete-variable-alias 'cider-repl-history-mode-map 'cider-history-mode-map "2.0.0")
+(define-obsolete-variable-alias 'cider-repl-history-mode-hook 'cider-history-mode-hook "2.0.0")
+(define-obsolete-function-alias 'cider-repl-history-mode 'cider-history-mode "2.0.0")
 
-(defcustom cider-repl-history-display-style 'separated
+(defvar cider-history-display-styles
+  '((separated . cider-history-insert-as-separated)
+    (one-line . cider-history-insert-as-one-line)))
+
+(defcustom cider-history-display-style 'separated
   "How to display the CIDER command history items.
 
 If `one-line', then replace newlines with \"\\n\" for display.
 
-If `separated', then display `cider-repl-history-separator' between
+If `separated', then display `cider-history-separator' between
 entries."
   :type '(choice (const :tag "One line" one-line)
                  (const :tag "Separated" separated))
   :package-version '(cider . "0.15.0"))
 
-(defcustom cider-repl-history-quit-action 'quit-window
-  "What action to take when `cider-repl-history-quit' is called.
+(defcustom cider-history-quit-action 'quit-window
+  "What action to take when `cider-history-quit' is called.
 
-If `bury-buffer', then simply bury the *cider-repl-history* buffer, but keep
+If `bury-buffer', then simply bury the *cider-history* buffer, but keep
 the window.
 
 If `bury-and-delete-window', then bury the buffer, and (if there is
 more than one window) delete the window.
 
 If `delete-and-restore', then restore the window configuration to what it was
-before `cider-repl-history' was called, and kill the *cider-repl-history*
+before `cider-history' was called, and kill the *cider-history*
 buffer.
 
 If `quit-window', then restore the window configuration to what
-it was before `cider-repl-history' was called, and bury *cider-repl-history*.
+it was before `cider-history' was called, and bury *cider-history*.
 This is the default.
 
-If `kill-and-delete-window', then kill the *cider-repl-history* buffer, and
+If `kill-and-delete-window', then kill the *cider-history* buffer, and
 delete the window on close.
 
 Otherwise, it should be a function to call."
   ;; Note, if you use one of the non-"delete" options, after you "quit",
-  ;; the *cider-repl-history* buffer is still available.  If you are using
-  ;; `cider-repl-history-show-preview', and you switch to *cider-repl-history* (i.e.,
+  ;; the *cider-history* buffer is still available.  If you are using
+  ;; `cider-history-show-preview', and you switch to *cider-history* (i.e.,
   ;; with C-x b), it will not give the preview unless and until you "update"
-  ;; the *cider-repl-history* buffer.
+  ;; the *cider-history* buffer.
   ;;
   ;; This really should not be an issue, because there's no reason to "switch"
   ;; back to the buffer.  If you want to get it back, you can just do C-c M-p
   ;; from the REPL buffer.
 
   ;; If you get in this situation and find it annoying, you can either disable
-  ;; the preview, or set `cider-repl-history-quit-action' to 'delete-and-restore.
-  ;; Then you will simply not have the *cider-repl-history* buffer after you quit,
+  ;; the preview, or set `cider-history-quit-action' to 'delete-and-restore.
+  ;; Then you will simply not have the *cider-history* buffer after you quit,
   ;; and it won't be an issue.
 
   :type '(choice (const :tag "Bury buffer"
@@ -107,8 +130,8 @@ Otherwise, it should be a function to call."
                  function)
   :package-version '(cider . "0.15.0"))
 
-(defcustom cider-repl-history-resize-window nil
-  "Whether to resize the `cider-repl-history' window to fit its contents.
+(defcustom cider-history-resize-window nil
+  "Whether to resize the `cider-history' window to fit its contents.
 Value is either t, meaning yes, or a cons pair of integers,
  (MAXIMUM . MINIMUM) for the size of the window.  MAXIMUM defaults to
 the window size chosen by `pop-to-buffer'; MINIMUM defaults to
@@ -118,25 +141,25 @@ the window size chosen by `pop-to-buffer'; MINIMUM defaults to
                  (cons (integer :tag "Maximum") (integer :tag "Minimum")))
   :package-version '(cider . "0.15.0"))
 
-(defcustom cider-repl-history-separator ";;;;;;;;;;"
+(defcustom cider-history-separator ";;;;;;;;;;"
   "The string separating entries in the `separated' style.
-See `cider-repl-history-display-style'."
+See `cider-history-display-style'."
   ;; The (default) separator is a Clojure comment, to preserve fontification
   ;; in the buffer.
   :type 'string
   :package-version '(cider . "0.15.0"))
 
-(defcustom cider-repl-history-recenter nil
+(defcustom cider-history-recenter nil
   "If non-nil, then always keep the current entry at the top of the window."
   :type 'boolean
   :package-version '(cider . "0.15.0"))
 
-(defcustom cider-repl-history-highlight-current-entry nil
+(defcustom cider-history-highlight-current-entry nil
   "If non-nil, highlight the currently selected command history entry."
   :type 'boolean
   :package-version '(cider . "0.15.0"))
 
-(defcustom cider-repl-history-highlight-inserted-item nil
+(defcustom cider-history-highlight-inserted-item nil
   "If non-nil, then temporarily highlight the inserted command history entry.
 The value selected controls how the inserted item is highlighted,
 possible values are `solid' (highlight the inserted text for a
@@ -144,23 +167,23 @@ fixed period of time), or `pulse' (fade out the highlighting gradually).
 Setting this variable to the value t will select the default
 highlighting style, which currently `pulse'.
 
-The variable `cider-repl-history-inserted-item-face' contains the
+The variable `cider-history-inserted-item-face' contains the
 face used for highlighting."
   :type '(choice (const nil) (const t) (const solid) (const pulse))
   :package-version '(cider . "0.15.0"))
 
 
-(defcustom cider-repl-history-current-entry-face 'highlight
+(defcustom cider-history-current-entry-face 'highlight
   "The face in which to highlight the command history current entry."
   :type 'face
   :package-version '(cider . "0.15.0"))
 
-(defcustom cider-repl-history-inserted-item-face 'highlight
+(defcustom cider-history-inserted-item-face 'highlight
   "The face in which to highlight the inserted item."
   :type 'face
   :package-version '(cider . "0.15.0"))
 
-(defcustom cider-repl-history-maximum-display-length nil
+(defcustom cider-history-maximum-display-length nil
   "Whether or not to limit the length of displayed items.
 
 If this variable is an integer, the display of the command history will be
@@ -170,28 +193,28 @@ Setting this variable to nil means no limit."
                  integer)
   :package-version '(cider . "0.15.0"))
 
-(defcustom cider-repl-history-display-duplicates t
+(defcustom cider-history-display-duplicates t
   "If non-nil, then display duplicate items in the command history."
   :type 'boolean
   :package-version '(cider . "0.15.0"))
 
-(defcustom cider-repl-history-display-duplicate-highest t
+(defcustom cider-history-display-duplicate-highest t
   "If non-nil, then display most recent duplicate items in the command history.
-Only takes effect when `cider-repl-history-display-duplicates' is nil."
+Only takes effect when `cider-history-display-duplicates' is nil."
   :type 'boolean
   :package-version '(cider . "0.15.0"))
 
-(defcustom cider-repl-history-text-properties nil
+(defcustom cider-history-text-properties nil
   "If non-nil, maintain text properties of the command history items."
   :type 'boolean
   :package-version '(cider . "0.15.0"))
 
-(defcustom cider-repl-history-hook nil
-  "A list of functions to call after `cider-repl-history'."
+(defcustom cider-history-hook nil
+  "A list of functions to call after `cider-history'."
   :type 'hook
   :package-version '(cider . "0.15.0"))
 
-(defcustom cider-repl-history-show-preview nil
+(defcustom cider-history-show-preview nil
   "If non-nil, show a preview of the inserted text in the REPL buffer.
 
 The REPL buffer would show a preview of what the buffer would look like
@@ -200,42 +223,42 @@ if the item under point were inserted."
   :type 'boolean
   :package-version '(cider . "0.15.0"))
 
-(defvar cider-repl-history-repl-window nil
+(defvar cider-history-repl-window nil
   "The window in which chosen command history data will be inserted.
 It is probably not a good idea to set this variable directly; simply
-call `cider-repl-history' again.")
+call `cider-history' again.")
 
-(defvar cider-repl-history-repl-buffer nil
+(defvar cider-history-repl-buffer nil
   "The buffer in which chosen command history data will be inserted.
 It is probably not a good idea to set this variable directly; simply
-call `cider-repl-history' again.")
+call `cider-history' again.")
 
-(defvar cider-repl-history-preview-overlay nil
+(defvar cider-history-preview-overlay nil
   "Overlay used to preview what would happen if the user inserted the given text.")
 
-(defvar cider-repl-history-previous-overlay nil
-  "Previous overlay within *cider-repl-history* buffer.")
+(defvar cider-history-previous-overlay nil
+  "Previous overlay within *cider-history* buffer.")
 
-(defun cider-repl-history-get-history ()
+(defun cider-history-get-history ()
   "Function to retrieve history from the REPL buffer."
-  (if cider-repl-history-repl-buffer
+  (if cider-history-repl-buffer
       (buffer-local-value
        'cider-repl-input-history
-       cider-repl-history-repl-buffer)
-    (error "Variable `cider-repl-history-repl-buffer' not bound to a buffer")))
+       cider-history-repl-buffer)
+    (error "Variable `cider-history-repl-buffer' not bound to a buffer")))
 
-(defun cider-repl-history-resize-window ()
-  "Resize the *cider-repl-history* window if needed.
-Controlled by variable `cider-repl-history-resize-window'."
-  (when cider-repl-history-resize-window
+(defun cider-history-resize-window ()
+  "Resize the *cider-history* window if needed.
+Controlled by variable `cider-history-resize-window'."
+  (when cider-history-resize-window
     (apply #'fit-window-to-buffer (selected-window)
-           (if (consp cider-repl-history-resize-window)
-               (list (car cider-repl-history-resize-window)
-                     (or (cdr cider-repl-history-resize-window)
+           (if (consp cider-history-resize-window)
+               (list (car cider-history-resize-window)
+                     (or (cdr cider-history-resize-window)
                          window-min-height))
              (list nil window-min-height)))))
 
-(defun cider-repl-history-read-regexp (msg use-default-p)
+(defun cider-history-read-regexp (msg use-default-p)
   "Get a regular expression from the user.
 Prompts with MSG; previous entry is default if USE-DEFAULT-P."
   (let* ((default (car regexp-history))
@@ -251,26 +274,26 @@ Prompts with MSG; previous entry is default if USE-DEFAULT-P."
         (if use-default-p default nil)
       input)))
 
-(defun cider-repl-history-clear-preview ()
+(defun cider-history-clear-preview ()
   "Clear the preview, if one is present."
   (interactive)
-  (when cider-repl-history-preview-overlay
-    (cl-assert (overlayp cider-repl-history-preview-overlay))
-    (delete-overlay cider-repl-history-preview-overlay)))
+  (when cider-history-preview-overlay
+    (cl-assert (overlayp cider-history-preview-overlay))
+    (delete-overlay cider-history-preview-overlay)))
 
-(defun cider-repl-history-cleanup-on-exit ()
-  "Function called when the user is finished with `cider-repl-history'.
+(defun cider-history-cleanup-on-exit ()
+  "Function called when the user is finished with `cider-history'.
 This function performs any cleanup that is required when the user
-has finished interacting with the *cider-repl-history* buffer.  For now
+has finished interacting with the *cider-history* buffer.  For now
 the only cleanup performed is to remove the preview overlay, if
 it's turned on."
-  (cider-repl-history-clear-preview))
+  (cider-history-clear-preview))
 
-(defun cider-repl-history-quit ()
-  "Take the action specified by `cider-repl-history-quit-action'."
+(defun cider-history-quit ()
+  "Take the action specified by `cider-history-quit-action'."
   (interactive)
-  (cider-repl-history-cleanup-on-exit)
-  (pcase cider-repl-history-quit-action
+  (cider-history-cleanup-on-exit)
+  (pcase cider-history-quit-action
     (`delete-and-restore
      (quit-restore-window (selected-window) 'kill))
     (`quit-window
@@ -284,11 +307,11 @@ it's turned on."
      (unless (= (count-windows) 1)
        (delete-window)))
     (_
-     (funcall cider-repl-history-quit-action))))
+     (funcall cider-history-quit-action))))
 
-(defun cider-repl-history-preview-overlay-setup (orig-buf)
+(defun cider-history-preview-overlay-setup (orig-buf)
   "Setup the preview overlay in ORIG-BUF."
-  (when cider-repl-history-show-preview
+  (when cider-history-show-preview
     (with-current-buffer orig-buf
       (let* ((will-replace (region-active-p))
              (start (if will-replace
@@ -297,60 +320,60 @@ it's turned on."
              (end (if will-replace
                       (max (point) (mark))
                     (point))))
-        (cider-repl-history-clear-preview)
-        (setq cider-repl-history-preview-overlay
+        (cider-history-clear-preview)
+        (setq cider-history-preview-overlay
               (make-overlay start end orig-buf))
-        (overlay-put cider-repl-history-preview-overlay
+        (overlay-put cider-history-preview-overlay
                      'invisible t)))))
 
-(defun cider-repl-history-highlight-inserted (start end)
+(defun cider-history-highlight-inserted (start end)
   "Insert the text between START and END."
-  (pcase cider-repl-history-highlight-inserted-item
+  (pcase cider-history-highlight-inserted-item
     ((or `pulse `t)
      (let ((pulse-delay .05) (pulse-iterations 10))
        (with-no-warnings
          (pulse-momentary-highlight-region
-          start end cider-repl-history-inserted-item-face))))
+          start end cider-history-inserted-item-face))))
     (`solid
      (let ((o (make-overlay start end)))
-       (overlay-put o 'face cider-repl-history-inserted-item-face)
+       (overlay-put o 'face cider-history-inserted-item-face)
        (sit-for 0.5)
        (delete-overlay o)))))
 
-(defun cider-repl-history-insert-and-highlight (str)
+(defun cider-history-insert-and-highlight (str)
   "Helper function to insert STR at point, highlighting it if appropriate."
   (let ((before-insert (point)))
     (let (deactivate-mark)
       (insert-for-yank str))
-    (cider-repl-history-highlight-inserted
+    (cider-history-highlight-inserted
      before-insert
      (point))))
 
-(defun cider-repl-history-target-overlay-at (position &optional no-error)
-  "Return overlay at POSITION that has property `cider-repl-history-target'.
+(defun cider-history-target-overlay-at (position &optional no-error)
+  "Return overlay at POSITION that has property `cider-history-target'.
 POSITION defaults to point.
 If no such overlay, raise an error unless NO-ERROR is true, in which
 case return nil."
   (let ((ovs (overlays-at (or position (point)))))
-    (catch 'cider-repl-history-target-overlay-at
+    (catch 'cider-history-target-overlay-at
       (dolist (ov ovs)
-        (when (overlay-get ov 'cider-repl-history-target)
-          (throw 'cider-repl-history-target-overlay-at ov)))
+        (when (overlay-get ov 'cider-history-target)
+          (throw 'cider-history-target-overlay-at ov)))
       (unless no-error
         (error "No CIDER history item here")))))
 
-(defun cider-repl-history-current-string (pt &optional no-error)
+(defun cider-history-current-string (pt &optional no-error)
   "Find the string to insert into the REPL by looking for the overlay at PT.
 Might error unless NO-ERROR set."
-  (let ((o (cider-repl-history-target-overlay-at pt t)))
+  (let ((o (cider-history-target-overlay-at pt t)))
     (if o
-        (overlay-get o 'cider-repl-history-target)
+        (overlay-get o 'cider-history-target)
       (unless no-error
         (error "No CIDER history item in this buffer")))))
 
-(defun cider-repl-history-do-insert (_buf pt)
+(defun cider-history-do-insert (_buf pt)
   "Helper function to insert the history entry at PT into the REPL buffer.
-Also kills *cider-repl-history*."
+Also kills *cider-history*."
   ;; Note: as mentioned at the top, this file is based on browse-kill-ring,
   ;; which has numerous insertion options.  The functionality of
   ;; browse-kill-ring allows users to insert at point, and move point to the end
@@ -360,29 +383,29 @@ Also kills *cider-repl-history*."
   ;; generic paste tool, but for inserting a previous command into an
   ;; interpreter, I felt the only useful option would be inserting it at the end
   ;; and quitting the history buffer, so that is all that's provided.
-  (let ((str (cider-repl-history-current-string pt)))
-    (cider-repl-history-quit)
-    (with-selected-window cider-repl-history-repl-window
-      (with-current-buffer cider-repl-history-repl-buffer
+  (let ((str (cider-history-current-string pt)))
+    (cider-history-quit)
+    (with-selected-window cider-history-repl-window
+      (with-current-buffer cider-history-repl-buffer
         (let ((max (point-max)))
           (if (= max (point))
-              (cider-repl-history-insert-and-highlight str)
+              (cider-history-insert-and-highlight str)
             (save-excursion
               (goto-char max)
-              (cider-repl-history-insert-and-highlight str))))))))
+              (cider-history-insert-and-highlight str))))))))
 
-(defun cider-repl-history-insert-and-quit ()
-  "Insert the item into the REPL buffer, and close *cider-repl-history*.
+(defun cider-history-insert-and-quit ()
+  "Insert the item into the REPL buffer, and close *cider-history*.
 
 The text is always inserted at the very bottom of the REPL buffer.  If your
 cursor is already at the bottom, it is advanced to the end of the inserted
 text.  If your cursor is somewhere else, the cursor is not moved, but the
 text is still inserted at the end."
   (interactive)
-  (cider-repl-history-do-insert (current-buffer) (point)))
+  (cider-history-do-insert (current-buffer) (point)))
 
-(defun cider-repl-history-mouse-insert (e)
-  "Insert the item at E into the REPL buffer, and close *cider-repl-history*.
+(defun cider-history-mouse-insert (e)
+  "Insert the item at E into the REPL buffer, and close *cider-history*.
 
 The text is always inserted at the very bottom of the REPL buffer.  If your
 cursor is already at the bottom, it is advanced to the end of the inserted
@@ -394,46 +417,46 @@ text is still inserted at the end."
                  (cons (current-buffer) (point))))
          (buf (car data))
          (pt (cdr data)))
-    (cider-repl-history-do-insert buf pt)))
+    (cider-history-do-insert buf pt)))
 
-(defun cider-repl-history-clear-highlighted-entry ()
+(defun cider-history-clear-highlighted-entry ()
   "Clear the highlighted entry, when one exists."
-  (when cider-repl-history-previous-overlay
-    (cl-assert (overlayp cider-repl-history-previous-overlay)
+  (when cider-history-previous-overlay
+    (cl-assert (overlayp cider-history-previous-overlay)
                nil "not an overlay")
-    (overlay-put cider-repl-history-previous-overlay 'face nil)))
+    (overlay-put cider-history-previous-overlay 'face nil)))
 
-(defun cider-repl-history-update-highlighted-entry ()
+(defun cider-history-update-highlighted-entry ()
   "Update highlighted entry, when feature is turned on."
-  (when cider-repl-history-highlight-current-entry
-    (if-let* ((current-overlay (cider-repl-history-target-overlay-at (point) t)))
-        (unless (equal cider-repl-history-previous-overlay current-overlay)
+  (when cider-history-highlight-current-entry
+    (if-let* ((current-overlay (cider-history-target-overlay-at (point) t)))
+        (unless (equal cider-history-previous-overlay current-overlay)
           ;; We've changed overlay.  Clear current highlighting,
           ;; and highlight the new overlay.
-          (cl-assert (overlay-get current-overlay 'cider-repl-history-target) t)
-          (cider-repl-history-clear-highlighted-entry)
-          (setq cider-repl-history-previous-overlay current-overlay)
+          (cl-assert (overlay-get current-overlay 'cider-history-target) t)
+          (cider-history-clear-highlighted-entry)
+          (setq cider-history-previous-overlay current-overlay)
           (overlay-put current-overlay 'face
-                       cider-repl-history-current-entry-face))
+                       cider-history-current-entry-face))
       ;; No overlay at point.  Just clear all current highlighting.
-      (cider-repl-history-clear-highlighted-entry))))
+      (cider-history-clear-highlighted-entry))))
 
-(defun cider-repl-history-forward (&optional arg)
+(defun cider-history-forward (&optional arg)
   "Move forward by ARG command history entries."
   (interactive "p")
   (beginning-of-line)
   (while (not (zerop arg))
-    (let ((o (cider-repl-history-target-overlay-at (point) t)))
+    (let ((o (cider-history-target-overlay-at (point) t)))
       (cond
        ((>= arg 0)
         (setq arg (1- arg))
-        ;; We're on a cider-repl-history overlay, skip to the end of it.
+        ;; We're on a cider-history overlay, skip to the end of it.
         (when o
           (goto-char (overlay-end o))
           (setq o nil))
         (while (not (or o (eobp)))
           (goto-char (next-overlay-change (point)))
-          (setq o (cider-repl-history-target-overlay-at (point) t))))
+          (setq o (cider-history-target-overlay-at (point) t))))
        (t
         (setq arg (1+ arg))
         (when o
@@ -441,101 +464,101 @@ text is still inserted at the end."
           (setq o nil))
         (while (not (or o (bobp)))
           (goto-char (previous-overlay-change (point)))
-          (setq o (cider-repl-history-target-overlay-at (point) t)))))))
-  (when cider-repl-history-recenter
+          (setq o (cider-history-target-overlay-at (point) t)))))))
+  (when cider-history-recenter
     (recenter 1)))
 
-(defun cider-repl-history-previous (&optional arg)
+(defun cider-history-previous (&optional arg)
   "Move backward by ARG command history entries."
   (interactive "p")
-  (cider-repl-history-forward (- arg)))
+  (cider-history-forward (- arg)))
 
-(defun cider-repl-history-search-forward (regexp &optional backwards)
+(defun cider-history-search-forward (regexp &optional backwards)
   "Move to the next command history entry matching REGEXP from point.
 If optional arg BACKWARDS is non-nil, move to the previous matching
 entry."
   (interactive
-   (list (cider-repl-history-read-regexp "Search forward" t)
+   (list (cider-history-read-regexp "Search forward" t)
          current-prefix-arg))
   (let ((orig (point)))
-    (cider-repl-history-forward (if backwards -1 1))
-    (let ((over (cider-repl-history-target-overlay-at (point) t)))
+    (cider-history-forward (if backwards -1 1))
+    (let ((over (cider-history-target-overlay-at (point) t)))
       (while (and over
                   (not (if backwards (bobp) (eobp)))
                   (not (string-match regexp
                                      (overlay-get over
-                                                  'cider-repl-history-target))))
-        (cider-repl-history-forward (if backwards -1 1))
-        (setq over (cider-repl-history-target-overlay-at (point) t)))
+                                                  'cider-history-target))))
+        (cider-history-forward (if backwards -1 1))
+        (setq over (cider-history-target-overlay-at (point) t)))
       (unless (and over
                    (string-match regexp
                                  (overlay-get over
-                                              'cider-repl-history-target)))
+                                              'cider-history-target)))
         (goto-char orig)
         (message "No more command history entries matching %s" regexp)))))
 
-(defun cider-repl-history-search-backward (regexp)
+(defun cider-history-search-backward (regexp)
   "Move to the previous command history entry matching REGEXP from point."
   (interactive
-   (list (cider-repl-history-read-regexp "Search backward" t)))
-  (cider-repl-history-search-forward regexp t))
+   (list (cider-history-read-regexp "Search backward" t)))
+  (cider-history-search-forward regexp t))
 
-(defun cider-repl-history-elide (str)
+(defun cider-history-elide (str)
   ;; FIXME: Use `truncate-string-to-width'?
   "If STR is too long, abbreviate it with an ellipsis.
 Otherwise, return it unchanged."
-  (if (and cider-repl-history-maximum-display-length
+  (if (and cider-history-maximum-display-length
            (> (length str)
-              cider-repl-history-maximum-display-length))
-      (concat (substring str 0 (- cider-repl-history-maximum-display-length 3))
-              (propertize "..." 'cider-repl-history-extra t))
+              cider-history-maximum-display-length))
+      (concat (substring str 0 (- cider-history-maximum-display-length 3))
+              (propertize "..." 'cider-history-extra t))
     str))
 
-(defmacro cider-repl-history-add-overlays-for (item &rest body)
+(defmacro cider-history-add-overlays-for (item &rest body)
   "Add overlays for ITEM, and execute BODY."
-  (let ((beg (gensym "cider-repl-history-add-overlays-"))
-        (end (gensym "cider-repl-history-add-overlays-")))
+  (let ((beg (gensym "cider-history-add-overlays-"))
+        (end (gensym "cider-history-add-overlays-")))
     `(let ((,beg (point))
            (,end
             (progn
               ,@body
               (point))))
        (let ((o (make-overlay ,beg ,end)))
-         (overlay-put o 'cider-repl-history-target ,item)
+         (overlay-put o 'cider-history-target ,item)
          (overlay-put o 'mouse-face 'highlight)))))
 
-(defun cider-repl-history-insert-as-separated (items)
+(defun cider-history-insert-as-separated (items)
   "Insert ITEMS into the current buffer, with separators between items."
   (while items
     (let* ((origitem (car items))
-           (item (cider-repl-history-elide origitem))
+           (item (cider-history-elide origitem))
            ) ;; (len (length item))
-      (cider-repl-history-add-overlays-for origitem (insert item))
+      (cider-history-add-overlays-for origitem (insert item))
       ;; When the command history has items with read-only text property at
-      ;; **the end of** string, cider-repl-history-setup fails with error
+      ;; **the end of** string, cider-history-setup fails with error
       ;; `Text is read-only'.  So inhibit-read-only here.
       ;; See http://bugs.debian.org/225082
       (let ((inhibit-read-only t))
         (insert "\n")
         (when (cdr items)
-          (insert (propertize cider-repl-history-separator
-                              'cider-repl-history-extra t
-                              'cider-repl-history-separator t))
+          (insert (propertize cider-history-separator
+                              'cider-history-extra t
+                              'cider-history-separator t))
           (insert "\n"))))
     (setq items (cdr items))))
 
-(defun cider-repl-history-insert-as-one-line (items)
+(defun cider-history-insert-as-one-line (items)
   "Insert ITEMS into the current buffer, formatting each item as a single line.
 
 An explicit newline character will replace newlines so that the text retains its
 spacing when it's actually inserted into the REPL buffer."
   (dolist (item items)
-    (cider-repl-history-add-overlays-for
+    (cider-history-add-overlays-for
      item
-     (let* ((item (cider-repl-history-elide item))
+     (let* ((item (cider-history-elide item))
             (len (length item))
             (start 0)
-            (newl (propertize "\\n" 'cider-repl-history-extra t)))
+            (newl (propertize "\\n" 'cider-history-extra t)))
        (while (and (< start len)
                    (string-match "\n" item start))
          (insert (substring item start (match-beginning 0))
@@ -544,54 +567,54 @@ spacing when it's actually inserted into the REPL buffer."
        (insert (substring item start len))))
     (insert "\n")))
 
-(defun cider-repl-history-preview-update-text (preview-text)
-  "Update `cider-repl-history-preview-overlay' to show `PREVIEW-TEXT`."
+(defun cider-history-preview-update-text (preview-text)
+  "Update `cider-history-preview-overlay' to show `PREVIEW-TEXT`."
   ;; If preview-text is nil, replacement should be nil too.
-  (cl-assert (overlayp cider-repl-history-preview-overlay))
+  (cl-assert (overlayp cider-history-preview-overlay))
   (let ((replacement (when preview-text
                        (propertize preview-text 'face 'highlight))))
-    (overlay-put cider-repl-history-preview-overlay
+    (overlay-put cider-history-preview-overlay
                  'before-string replacement)))
 
-(defun cider-repl-history-preview-update-by-position (&optional pt)
-  "Update `cider-repl-history-preview-overlay' to match item at PT.
+(defun cider-history-preview-update-by-position (&optional pt)
+  "Update `cider-history-preview-overlay' to match item at PT.
 
-This function is called whenever the selection in the *cider-repl-history*
-buffer is adjusted, the `cider-repl-history-preview-overlay'
+This function is called whenever the selection in the *cider-history*
+buffer is adjusted, the `cider-history-preview-overlay'
 is updated to preview the text of the selection at PT (or the
 current point if not specified)."
-  (let ((new-text (cider-repl-history-current-string
+  (let ((new-text (cider-history-current-string
                    (or pt (point)) t)))
-    (cider-repl-history-preview-update-text new-text)))
+    (cider-history-preview-update-text new-text)))
 
-(defun cider-repl-history-undo-other-window ()
+(defun cider-history-undo-other-window ()
   "Undo the most recent change in the other window's buffer.
 You most likely want to use this command for undoing an insertion of
-text from the *cider-repl-history* buffer."
+text from the *cider-history* buffer."
   (interactive)
-  (with-current-buffer cider-repl-history-repl-buffer
+  (with-current-buffer cider-history-repl-buffer
     (undo)))
 
-(defun cider-repl-history-delete-entry-at-point ()
+(defun cider-history-delete-entry-at-point ()
   "Delete history entry (at point)."
   (interactive)
   (let* ((orig (point))
-         (str (cider-repl-history-current-string orig)))
-    (with-current-buffer cider-repl-history-repl-buffer
+         (str (cider-history-current-string orig)))
+    (with-current-buffer cider-history-repl-buffer
       (delete str cider-repl-input-history))
-    (cider-repl-history-update)
+    (cider-history-update)
     (goto-char orig)))
 
-(defun cider-repl-history-setup (repl-win repl-buf history-buf &optional regexp)
+(defun cider-history-setup (repl-win repl-buf history-buf &optional regexp)
   "Setup.
 REPL-WIN and REPL-BUF are where to insert commands;
 HISTORY-BUF is the history, and optional arg REGEXP is a filter."
-  (cider-repl-history-preview-overlay-setup repl-buf)
+  (cider-history-preview-overlay-setup repl-buf)
   (with-current-buffer history-buf
     (unwind-protect
         (progn
           ;; Erase any stale content from a previous invocation before
-          ;; (re-)entering the mode.  `cider-repl-history-mode' inherits
+          ;; (re-)entering the mode.  `cider-history-mode' inherits
           ;; from `clojure-mode', and its mode hooks can run arbitrary
           ;; syntax checks (e.g. `check-parens' set up by the user).  If
           ;; the previous render left an entry with unbalanced parens in
@@ -599,31 +622,31 @@ HISTORY-BUF is the history, and optional arg REGEXP is a filter."
           ;; with "Unmatched bracket or quote" -- see #3915.
           (let ((inhibit-read-only t))
             (erase-buffer))
-          (cider-repl-history-mode)
+          (cider-history-mode)
           (setq buffer-read-only nil)
-          (when (eq 'one-line cider-repl-history-display-style)
+          (when (eq 'one-line cider-history-display-style)
             (setq truncate-lines t))
-          (setq cider-repl-history-repl-buffer repl-buf)
-          (setq cider-repl-history-repl-window repl-win)
-          (let* ((cider-repl-history-maximum-display-length
-                  (if (and cider-repl-history-maximum-display-length
-                           (<= cider-repl-history-maximum-display-length 3))
+          (setq cider-history-repl-buffer repl-buf)
+          (setq cider-history-repl-window repl-win)
+          (let* ((cider-history-maximum-display-length
+                  (if (and cider-history-maximum-display-length
+                           (<= cider-history-maximum-display-length 3))
                       4
-                    cider-repl-history-maximum-display-length))
-                 (cider-command-history (cider-repl-history-get-history))
+                    cider-history-maximum-display-length))
+                 (cider-command-history (cider-history-get-history))
                  (items (mapcar
-                         (if cider-repl-history-text-properties
+                         (if cider-history-text-properties
                              #'copy-sequence
                            #'substring-no-properties)
                          cider-command-history)))
-            (unless cider-repl-history-display-duplicates
+            (unless cider-history-display-duplicates
               ;; display highest or lowest duplicate.
-              ;; if `cider-repl-history-display-duplicate-highest' is t,
+              ;; if `cider-history-display-duplicate-highest' is t,
               ;; display highest (most recent) duplicate.
               (setq items (cl-delete-duplicates
                            items
                            :test #'equal
-                           :from-end cider-repl-history-display-duplicate-highest)))
+                           :from-end cider-history-display-duplicate-highest)))
             (when (stringp regexp)
               (setq items (delq nil
                                 (mapcar
@@ -631,23 +654,23 @@ HISTORY-BUF is the history, and optional arg REGEXP is a filter."
                                      (when (string-match regexp item)
                                        item))
                                  items))))
-            (funcall (or (cdr (assq cider-repl-history-display-style
-                                    cider-repl-history-display-styles))
-                         (error "Invalid `cider-repl-history-display-style': %s"
-                                cider-repl-history-display-style))
+            (funcall (or (cdr (assq cider-history-display-style
+                                    cider-history-display-styles))
+                         (error "Invalid `cider-history-display-style': %s"
+                                cider-history-display-style))
                      items)
-            (when cider-repl-history-show-preview
-              (cider-repl-history-preview-update-by-position (point-min))
-              ;; Local post-command-hook, only happens in *cider-repl-history*
+            (when cider-history-show-preview
+              (cider-history-preview-update-by-position (point-min))
+              ;; Local post-command-hook, only happens in *cider-history*
               (add-hook 'post-command-hook
-                        #'cider-repl-history-preview-update-by-position
+                        #'cider-history-preview-update-by-position
                         nil t)
               (add-hook 'kill-buffer-hook
-                        #'cider-repl-history-cleanup-on-exit
+                        #'cider-history-cleanup-on-exit
                         nil t))
-            (when cider-repl-history-highlight-current-entry
+            (when cider-history-highlight-current-entry
               (add-hook 'post-command-hook
-                        #'cider-repl-history-update-highlighted-entry
+                        #'cider-history-update-highlighted-entry
                         nil t))
             (message
              (let* ((history-length (length cider-command-history))
@@ -656,100 +679,105 @@ HISTORY-BUF is the history, and optional arg REGEXP is a filter."
                              "entries")))
                (concat
                 (if (and (not regexp)
-                         cider-repl-history-display-duplicates)
+                         cider-history-display-duplicates)
                     (format "%s %s in the command history."
                             history-length entry)
                   (format "%s (of %s) %s in the command history shown."
                           (length items) history-length entry))
                 (substitute-command-keys
-                 "  Type \\[cider-repl-history-quit] to quit.  \\[describe-mode] for help."))))
+                 "  Type \\[cider-history-quit] to quit.  \\[describe-mode] for help."))))
             (set-buffer-modified-p nil)
             (goto-char (point-min))
-            (cider-repl-history-forward 0)
+            (cider-history-forward 0)
             (setq mode-name (if regexp
                                 (concat "History [" regexp "]")
                               "History"))
-            (run-hooks 'cider-repl-history-hook)))
+            (run-hooks 'cider-history-hook)))
       (setq buffer-read-only t))))
 
-(defun cider-repl-history-update ()
+(defun cider-history-update ()
   "Update the history buffer to reflect the latest state of the command history."
   (interactive)
-  (cl-assert (eq major-mode 'cider-repl-history-mode))
-  (cider-repl-history-setup cider-repl-history-repl-window
-                            cider-repl-history-repl-buffer
+  (cl-assert (eq major-mode 'cider-history-mode))
+  (cider-history-setup cider-history-repl-window
+                            cider-history-repl-buffer
                             (current-buffer))
-  (cider-repl-history-resize-window))
+  (cider-history-resize-window))
 
-(defun cider-repl-history-occur (regexp)
+(defun cider-history-occur (regexp)
   "Display all command history entries matching REGEXP."
   (interactive
-   (list (cider-repl-history-read-regexp
+   (list (cider-history-read-regexp
           "Display command history entries matching" nil)))
-  (cl-assert (eq major-mode 'cider-repl-history-mode))
-  (cider-repl-history-setup cider-repl-history-repl-window
-                            cider-repl-history-repl-buffer
+  (cl-assert (eq major-mode 'cider-history-mode))
+  (cider-history-setup cider-history-repl-window
+                            cider-history-repl-buffer
                             (current-buffer)
                             regexp)
-  (cider-repl-history-resize-window))
+  (cider-history-resize-window))
 
-(defvar cider-repl-history-mode-map
+(defvar cider-history-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "n")   #'cider-repl-history-forward)
-    (define-key map (kbd "p")   #'cider-repl-history-previous)
-    (define-key map (kbd "SPC") #'cider-repl-history-insert-and-quit)
-    (define-key map (kbd "RET") #'cider-repl-history-insert-and-quit)
-    (define-key map [(mouse-2)] #'cider-repl-history-mouse-insert)
-    (define-key map (kbd "l")   #'cider-repl-history-occur)
-    (define-key map (kbd "s")   #'cider-repl-history-search-forward)
-    (define-key map (kbd "r")   #'cider-repl-history-search-backward)
-    (define-key map (kbd "g")   #'cider-repl-history-update)
-    (define-key map (kbd "q")   #'cider-repl-history-quit)
-    (define-key map (kbd "U")   #'cider-repl-history-undo-other-window)
-    (define-key map (kbd "D")   #'cider-repl-history-delete-entry-at-point)
+    (define-key map (kbd "n")   #'cider-history-forward)
+    (define-key map (kbd "p")   #'cider-history-previous)
+    (define-key map (kbd "SPC") #'cider-history-insert-and-quit)
+    (define-key map (kbd "RET") #'cider-history-insert-and-quit)
+    (define-key map [(mouse-2)] #'cider-history-mouse-insert)
+    (define-key map (kbd "l")   #'cider-history-occur)
+    (define-key map (kbd "s")   #'cider-history-search-forward)
+    (define-key map (kbd "r")   #'cider-history-search-backward)
+    (define-key map (kbd "g")   #'cider-history-update)
+    (define-key map (kbd "q")   #'cider-history-quit)
+    (define-key map (kbd "U")   #'cider-history-undo-other-window)
+    (define-key map (kbd "D")   #'cider-history-delete-entry-at-point)
     (define-key map (kbd "?")   #'describe-mode)
     (define-key map (kbd "h")   #'describe-mode)
-    (easy-menu-define cider-repl-history-mode-menu map
+    (easy-menu-define cider-history-mode-menu map
       "Menu for CIDER's REPL history browser."
       '("REPL History"
-        ["Insert entry and quit" cider-repl-history-insert-and-quit]
+        ["Insert entry and quit" cider-history-insert-and-quit]
         "--"
-        ["Next entry" cider-repl-history-forward]
-        ["Previous entry" cider-repl-history-previous]
+        ["Next entry" cider-history-forward]
+        ["Previous entry" cider-history-previous]
         "--"
-        ["Filter by regexp" cider-repl-history-occur]
-        ["Search forward" cider-repl-history-search-forward]
-        ["Search backward" cider-repl-history-search-backward]
+        ["Filter by regexp" cider-history-occur]
+        ["Search forward" cider-history-search-forward]
+        ["Search backward" cider-history-search-backward]
         "--"
-        ["Refresh from REPL" cider-repl-history-update]
-        ["Delete entry at point" cider-repl-history-delete-entry-at-point]
-        ["Undo in other window" cider-repl-history-undo-other-window]
+        ["Refresh from REPL" cider-history-update]
+        ["Delete entry at point" cider-history-delete-entry-at-point]
+        ["Undo in other window" cider-history-undo-other-window]
         "--"
         ["Help" describe-mode]
-        ["Quit" cider-repl-history-quit]))
+        ["Quit" cider-history-quit]))
     map))
 
-(put 'cider-repl-history-mode 'mode-class 'special)
-(define-derived-mode cider-repl-history-mode clojure-mode "History"
+(put 'cider-history-mode 'mode-class 'special)
+(define-derived-mode cider-history-mode clojure-mode "History"
   "Major mode for browsing the entries in the command input history.
 
-\\{cider-repl-history-mode-map}"
+\\{cider-history-mode-map}"
   (setq-local sesman-system 'CIDER))
 
 ;;;###autoload
-(defun cider-repl-history ()
+(defun cider-history ()
   "Display items in the CIDER command history in another buffer."
   (interactive)
-  (when (eq major-mode 'cider-repl-history-mode)
+  (when (eq major-mode 'cider-history-mode)
     (user-error "Already viewing the CIDER command history"))
 
   (let* ((repl-win (selected-window))
          (repl-buf (window-buffer repl-win))
-         (buf (get-buffer-create cider-repl-history-buffer)))
-    (cider-repl-history-setup repl-win repl-buf buf)
+         (buf (get-buffer-create cider-history-buffer)))
+    (cider-history-setup repl-win repl-buf buf)
     (pop-to-buffer buf)
-    (cider-repl-history-resize-window)))
+    (cider-history-resize-window)))
 
+;;;###autoload
+(define-obsolete-function-alias 'cider-repl-history 'cider-history "2.0.0")
+
+(provide 'cider-history)
+;; Compatibility for pre-2.0 `require's of the old feature name.
 (provide 'cider-repl-history)
 
-;;; cider-repl-history.el ends here
+;;; cider-history.el ends here

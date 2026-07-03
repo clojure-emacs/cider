@@ -480,7 +480,7 @@ code, switching namespaces and moving between the REPL and source."
    (cider-repl--help-section
     "In the REPL"
     '((cider-repl-handle-shortcut          . "run a REPL shortcut (,help lists them)")
-      (cider-repl-history                  . "browse input history")
+      (cider-history                       . "browse input history")
       (cider-repl-previous-input           . "previous input")
       (cider-repl-next-input               . "next input")
       (cider-repl-clear-output             . "clear the last output")
@@ -1962,13 +1962,13 @@ Returns the list of deleted indices."
 
 Walks `cider-repl-input-history' looking for entries whose parens don't
 balance under Clojure syntax -- the kind of corruption that causes
-`cider-repl-history' to fail with \"Unmatched bracket or quote\" (see
+`cider-history' to fail with \"Unmatched bracket or quote\" (see
 issue #3915).  Each problematic entry is shown in a side buffer; answer
 `y' to delete it, `n' to keep it, `q' to stop reviewing.  When done,
 the history file is rewritten if `cider-repl-history-file' is set."
   (interactive)
   (let ((repl (or (and (derived-mode-p 'cider-repl-mode) (current-buffer))
-                  (bound-and-true-p cider-repl-history-repl-buffer)
+                  (bound-and-true-p cider-history-repl-buffer)
                   (and (fboundp 'cider-current-repl) (cider-current-repl))
                   (user-error "No CIDER REPL available"))))
     (let* ((history (buffer-local-value 'cider-repl-input-history repl))
@@ -2012,7 +2012,7 @@ the history file is rewritten if `cider-repl-history-file' is set."
 (declare-function cider-undef "cider-eval")
 (declare-function cider-browse-ns "cider-browse-ns")
 (declare-function cider-classpath "cider-classpath")
-(declare-function cider-repl-history "cider-repl-history")
+(declare-function cider-history "cider-history")
 (declare-function cider-run "cider-mode")
 (declare-function cider-ns-refresh "cider-ns")
 (declare-function cider-ns-reload "cider-ns")
@@ -2031,7 +2031,7 @@ the history file is rewritten if `cider-repl-history-file' is set."
 (cider-repl-add-shortcut "toggle-content-types" #'cider-repl-toggle-content-types)
 (cider-repl-add-shortcut "browse-ns" (lambda () (interactive) (cider-browse-ns (cider-current-ns))))
 (cider-repl-add-shortcut "classpath" #'cider-classpath)
-(cider-repl-add-shortcut "history" #'cider-repl-history)
+(cider-repl-add-shortcut "history" #'cider-history)
 (cider-repl-add-shortcut "trace-ns" #'cider-toggle-trace-ns)
 (cider-repl-add-shortcut "undef" #'cider-undef)
 (cider-repl-add-shortcut "refresh" #'cider-ns-refresh)
@@ -2249,7 +2249,7 @@ in an unexpected place."
     (define-key map (kbd "C-c C-q") #'cider-quit)
     (define-key map (kbd "C-c M-r") #'cider-restart)
     (define-key map (kbd "C-c M-i") #'cider-inspect)
-    (define-key map (kbd "C-c M-p") #'cider-repl-history)
+    (define-key map (kbd "C-c M-p") #'cider-history)
     (define-key map (kbd "C-c M-t") #'cider-trace-menu)
     (define-key map (kbd "C-c C-x") #'cider-start-menu)
     (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
@@ -2306,7 +2306,7 @@ in an unexpected place."
         ["Browse all namespaces" cider-browse-ns-all]
         ["Browse spec" cider-browse-spec]
         ["Browse all specs" cider-browse-spec-all]
-        ["Browse REPL input history" cider-repl-history]
+        ["Browse REPL input history" cider-history]
         "--"
         ["Next prompt" cider-repl-next-prompt]
         ["Previous prompt" cider-repl-previous-prompt]

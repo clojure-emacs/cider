@@ -1,4 +1,4 @@
-;;; cider-repl-history-tests.el  -*- lexical-binding: t; -*-
+;;; cider-history-tests.el  -*- lexical-binding: t; -*-
 
 ;; Copyright © 2012-2026 Tim King, Bozhidar Batsov
 
@@ -28,22 +28,22 @@
 
 (require 'buttercup)
 (require 'cider-repl)
-(require 'cider-repl-history)
+(require 'cider-history)
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
-(describe "cider-repl-history-setup"
+(describe "cider-history-setup"
   (describe "when invoked repeatedly with a malformed history entry (#3915)"
-    ;; Regression test.  A previous `cider-repl-history' invocation left
-    ;; an entry with unbalanced parens in the *cider-repl-history*
-    ;; buffer.  Re-running the setup used to call `cider-repl-history-mode'
+    ;; Regression test.  A previous `cider-history' invocation left
+    ;; an entry with unbalanced parens in the *cider-history*
+    ;; buffer.  Re-running the setup used to call `cider-history-mode'
     ;; before erasing the buffer, so a user-configured `clojure-mode-hook'
     ;; that runs `check-parens' (a common safety net) would fail with
     ;; "Unmatched bracket or quote" and abort rendering.
 
     (it "renders the second invocation without erroring"
       (let ((repl-buf (generate-new-buffer "*fake-repl*"))
-            (hist-buf-name "*cider-repl-history-regression*")
+            (hist-buf-name "*cider-history-regression*")
             ;; Simulate a user config that runs `check-parens' on non-empty
             ;; clojure-mode buffers.
             (clojure-mode-hook
@@ -58,11 +58,11 @@
                             (list "(+ 1 2)"
                                   "(let [x 1] x))))"
                                   "(println :ok)")))
-              (let ((cider-repl-history-buffer hist-buf-name))
-                (cider-repl-history-setup
+              (let ((cider-history-buffer hist-buf-name))
+                (cider-history-setup
                  (selected-window) repl-buf
                  (get-buffer-create hist-buf-name))
-                (expect (cider-repl-history-setup
+                (expect (cider-history-setup
                          (selected-window) repl-buf
                          (get-buffer-create hist-buf-name))
                         :not :to-throw)))
@@ -111,7 +111,7 @@
       (expect (car (nth 0 out)) :to-equal 1)
       (expect (car (nth 1 out)) :to-equal 3))))
 
-(describe "cider-repl-history-target-overlay-at"
+(describe "cider-history-target-overlay-at"
   ;; Regression test: the overlay must be looked up at the POSITION
   ;; argument, not always at point.  The arg used to be ignored and
   ;; `(point)' hard-coded, so e.g. mouse insertion (which restores point
@@ -121,15 +121,15 @@
       (insert "AAAAA\nBBBBB\n")
       (let ((ov-a (make-overlay 2 3))
             (ov-b (make-overlay 8 9)))
-        (overlay-put ov-a 'cider-repl-history-target "entry-a")
-        (overlay-put ov-b 'cider-repl-history-target "entry-b")
+        (overlay-put ov-a 'cider-history-target "entry-a")
+        (overlay-put ov-b 'cider-history-target "entry-b")
         (goto-char 2)                   ; point sits on the A overlay
         ;; ...but we ask for the overlay at the B position
-        (expect (cider-repl-history-target-overlay-at 8) :to-be ov-b)
-        (expect (cider-repl-history-current-string 8) :to-equal "entry-b")
+        (expect (cider-history-target-overlay-at 8) :to-be ov-b)
+        (expect (cider-history-current-string 8) :to-equal "entry-b")
         ;; a nil position falls back to point (the A overlay)
-        (expect (cider-repl-history-target-overlay-at nil) :to-be ov-a)))))
+        (expect (cider-history-target-overlay-at nil) :to-be ov-a)))))
 
-(provide 'cider-repl-history-tests)
+(provide 'cider-history-tests)
 
-;;; cider-repl-history-tests.el ends here
+;;; cider-history-tests.el ends here

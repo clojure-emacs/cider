@@ -203,7 +203,7 @@
     "Press <\\[cider-browse-ns-all]> to start CIDER's namespace browser."
     "Use <M-x cider-browse-spec-all RET> to browse all registered Clojure specs."
     "Press <\\[cider-classpath]> to start CIDER's classpath browser."
-    "Press <\\[cider-repl-history]> to start CIDER's REPL input history browser."
+    "Press <\\[cider-history]> to start CIDER's REPL input history browser."
     ;; Format
     "Press <\\[cider-format-buffer]> to format the entire buffer using cljfmt."
     "Press <\\[cider-format-defun]> to format the top-level form at point using cljfmt."
