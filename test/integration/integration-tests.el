@@ -377,7 +377,7 @@ If CLI-COMMAND is nil, then use the default."
                 (cider-itu-poll-until (not (eq (process-status nrepl-proc) 'run)) 5)
                 (expect (member (process-status nrepl-proc) '(exit signal))))))))))
 
-  (xit "to shadow" ;; disabled: shadow-cljs 2.20.13 incompatible with nREPL 1.6
+  (it "to shadow"
     ;; shadow asks user whether they want to open a browser, force to no
     (spy-on 'y-or-n-p)
 
@@ -391,9 +391,9 @@ If CLI-COMMAND is nil, then use the default."
           (write-region "{:deps true, :nrepl {:middleware [ikappaki.nrepl-mdlw-log/middleware]}}" nil shadow-cljs-edn)
           (write-region "{:deps {ikappaki/nrepl-mdlw-log {:git/sha \"d00fecf9f299ffde90b413751f28c1d2e7b56d17\"
                                                           :git/url \"https://github.com/ikappaki/nrepl-mdlw-log.git\"}
-                                 thheller/shadow-cljs {:mvn/version \"2.20.13\"}}}"
+                                 thheller/shadow-cljs {:mvn/version \"3.4.11\"}}}"
                         nil deps-edn)
-          (write-region "{\"dependencies\":{\"shadow-cljs\": \"^2.20.13\"}}" nil package-json)
+          (write-region "{\"dependencies\":{\"shadow-cljs\": \"^3.4.11\"}}" nil package-json)
           (let ((default-directory project-dir))
             (message ":npm-install...")
             (shell-command "npm install")
