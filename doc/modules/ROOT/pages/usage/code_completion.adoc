@@ -4,6 +4,12 @@
 CIDER provides intelligent code completion for both source buffers (powered by
 `cider-mode`) and REPL buffers.
 
+On the Emacs side the completion is exposed through the standard
+`completion-at-point` mechanism, so it requires no setup and works with every
+completion frontend - the built-in completion UI, as well as packages like
+https://github.com/minad/corfu[corfu] and
+http://company-mode.github.io/[company].
+
 NOTE: Internally CIDER leverages
 https://github.com/alexander-yakushev/compliment[compliment] for Clojure and
 https://github.com/clojure-emacs/clj-suitable[clj-suitable] for ClojureScript.
@@ -35,28 +41,69 @@ Normally kbd:[TAB] only indents, but now it will also do completion if the code
 is already properly indented.
 ====
 
+TIP: On Emacs 30+ you can also enable the built-in `completion-preview-mode`,
+which shows the top completion candidate inline as you type (accept it with
+kbd:[TAB]). It's a lightweight alternative to the popup UIs described below and
+works out-of-the-box with CIDER's completion.
+
 == Auto-completion
 
-While the standard Emacs tooling works just fine, we suggest that
-CIDER users consider using
-http://company-mode.github.io/[`company-mode`] or https://github.com/minad/corfu[`corfu-mode`] instead. These
-can be used for auto-completion in both source code and REPL buffers, with the following advantages:
+While the standard Emacs tooling works just fine, we suggest that CIDER users
+consider using https://github.com/minad/corfu[`corfu`] or
+http://company-mode.github.io/[`company-mode`] instead. These display the
+completion candidates in a popup as you type, in both source code and REPL
+buffers, with the following advantages:
 
 * A nicer UI.
 * Integration with Clojure docstrings and Java doc comments.
 
-=== Configuration
+Both are frontends to the same `completion-at-point` machinery, so they receive
+identical candidates from CIDER; pick whichever UI you prefer. Corfu is the
+more modern of the two - it's a thin layer over the standard completion API
+and composes well with the rest of the modern completion ecosystem (`vertico`,
+`orderless`, `cape`, etc.).
 
-Both company-mode and corfu-mode are affected by the following CIDER configuration options:
+=== corfu installation
 
-* `cider-docstring-max-lines` (default `20`) controls how many lines, at most, of this docstring
-will be included (in a popup or the echo area, depending on your setup) while offering completions.
-It's worth noting, for Java documentation, CIDER doesn't simply trim lines,
-but it looks at the structure and tries to find the largest combination of these that fits into `cider-docstring-max-lines`:
- ** The entire comment body, followed by its "block tags" (Returns/Throws/Params information)
- ** The first sentence of the comment, followed by the block tags
- ** The block tags
- ** The first sentence of the comment.
+To install `corfu`:
+
+kbd:[M-x] `package-install` kbd:[RET] `corfu` kbd:[RET]
+
+After installation, you can turn it on globally:
+
+[source,lisp]
+----
+(global-corfu-mode)
+----
+
+or through mode-specific hooks:
+
+[source,lisp]
+----
+(add-hook 'cider-repl-mode-hook #'corfu-mode)
+(add-hook 'cider-mode-hook #'corfu-mode)
+----
+
+Out of the box corfu only shows its popup when you invoke completion
+explicitly (e.g. via kbd:[TAB] with `tab-always-indent` set to `complete`).
+For the typical auto-completion experience, where candidates pop up as you
+type, enable `corfu-auto`:
+
+[source,lisp]
+----
+(setq corfu-auto t)
+----
+
+To see the documentation of the candidates while completing, enable the
+`corfu-popupinfo` extension that ships with corfu:
+
+[source,lisp]
+----
+(corfu-popupinfo-mode)
+----
+
+or press kbd:[M-h] (`corfu-info-documentation`) on a candidate to display its
+documentation in a help buffer.
 
 === company-mode installation
 
@@ -112,6 +159,20 @@ without needing to hit an extra key, please customize:
 ;; (You may want to do this as a setq-local within a clojure-mode-hook instead)
 (custom-set-variables '(company-auto-update-doc t))
 ----
+
+=== Documentation display configuration
+
+Regardless of the frontend you use, the following CIDER configuration options
+affect the documentation shown while completing:
+
+* `cider-docstring-max-lines` (default `20`) controls how many lines, at most, of this docstring
+will be included (in a popup or the echo area, depending on your setup) while offering completions.
+It's worth noting, for Java documentation, CIDER doesn't simply trim lines,
+but it looks at the structure and tries to find the largest combination of these that fits into `cider-docstring-max-lines`:
+ ** The entire comment body, followed by its "block tags" (Returns/Throws/Params information)
+ ** The first sentence of the comment, followed by the block tags
+ ** The block tags
+ ** The first sentence of the comment.
 
 === Rich candidate matching
 

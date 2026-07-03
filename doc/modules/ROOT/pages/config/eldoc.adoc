@@ -13,10 +13,15 @@ image::eldoc.png[Eldoc]
 
 == Enabling ElDoc
 
-`global-eldoc-mode` is enabled by default in Emacs 25.1, so you don't really have
+`global-eldoc-mode` is enabled by default in Emacs, so you don't really have
 to do anything to enable it.
 
 It will work in both source and REPL buffers.
+
+NOTE: As of CIDER 2.0 the eldoc lookup is asynchronous - the arglist/var
+lookup no longer blocks Emacs on an nREPL round-trip as you move the cursor.
+CIDER also declines the eldoc slot when it has nothing to show, so other
+documentation sources (e.g. `clojure-lsp`) compose cleanly with it.
 
 == Configuring ElDoc
 

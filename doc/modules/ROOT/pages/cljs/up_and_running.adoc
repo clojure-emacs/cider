@@ -68,9 +68,8 @@ Open a ClojureScript file in your project and type kbd:[M-x]
 and after answering a few prompts this will start up the
 nREPL server and create a ClojureScript REPL buffer.
 
-NOTE: Prior to CIDER 0.18, `cider-jack-in-cljs` would create both a Clojure and
-a ClojureScript REPL. In CIDER 0.18+ if you want to create both REPLs
-you'll have to use `cider-jack-in-clj&cljs` instead.
+TIP: If you want to create both a Clojure and a ClojureScript REPL use
+`cider-jack-in-clj&cljs` instead.
 
 When you have a combination of Clojure and ClojureScript REPLs, CIDER
 will automatically direct all the usual CIDER commands to the

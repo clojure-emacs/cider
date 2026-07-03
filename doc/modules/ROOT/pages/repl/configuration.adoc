@@ -209,11 +209,9 @@ details.
 == Font-locking
 
 Normally, code in the REPL is font-locked the same way as in
-`clojure-mode`. Before CIDER 0.10, by default, REPL input was
-font-locked with `cider-repl-input-face` (after pressing
-kbd:[Return]) and results were font-locked with
-`cider-repl-result-face`. If you want to restore the old behavior
-use:
+`clojure-mode`. Alternatively, REPL input can be font-locked with
+`cider-repl-input-face` (after pressing kbd:[Return]) and results
+with `cider-repl-result-face`. If you prefer that behavior use:
 
 [source,lisp]
 ----
@@ -248,7 +246,7 @@ By default CIDER instructs nREPL to stream data in 4K chunks, but you can easily
 [source,lisp]
 ----
 ;; let's stream data in 8K chunks
-(setq cider-print-buffer-size (8 * 1024))
+(setq cider-print-buffer-size (* 8 1024))
 ----
 
 Setting this to `nil` will result in using nREPL's default `buffer-size` of 1024 bytes.
@@ -256,16 +254,13 @@ The smaller the print buffer size the faster you'll get feedback/updates in the 
 it's a good idea to stick to some relatively small size.
 
 TIP: If you'd like to learn more about the font-locking of results you can check
-out the definition of `clojure-font-lock-as` and `clojure-font-lock-as-clojure`
+out the definition of `cider-font-lock-as` and `cider-font-lock-as-clojure`
 in `cider-util.el`.
 
 == Pretty printing in the REPL
 
 By default the REPL always prints the results of your evaluations using the
 printing function specified by `cider-print-fn`.
-
-NOTE: This behavior was changed in CIDER 0.20. In prior CIDER releases
-pretty-printing was disabled by default.
 
 You can temporarily disable this behavior and revert to the default behavior
 (equivalent to `clojure.core/pr`) using kbd:[M-x cider-repl-toggle-pretty-printing]
@@ -287,19 +282,17 @@ more information on configuring printing.
 
 == Displaying images in the REPL
 
-Starting with CIDER 0.17 (Andalucía) expressions that evaluate to
-images can be rendered as images in the REPL. You can enable this
-behavior like this:
+Expressions that evaluate to images can be rendered as images in the
+REPL. You can enable this behavior like this:
 
 [source,lisp]
 ----
 (setq cider-repl-use-content-types t)
 ----
 
-NOTE: This setting used to be enabled by default until CIDER 0.25 when it was
-disabled due to some rough edges with the feature that were
-never properly addressed. See this https://github.com/clojure-emacs/cider/issues/2825[bug report]
-for details.
+NOTE: This setting is disabled by default due to some rough edges with the
+feature that were never properly addressed. See this
+https://github.com/clojure-emacs/cider/issues/2825[bug report] for details.
 
 Alternatively, you can toggle this behavior on and off using kbd:[M-x cider-repl-toggle-content-types]
 or the REPL shortcut `toggle-content-types`.

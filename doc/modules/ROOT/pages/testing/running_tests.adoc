@@ -142,6 +142,23 @@ selectors so that tests tagged as "integration" or "flakey" don't run.
 
 TIP: You'll generally want to place default selectors in xref:config/project_config.adoc[your project configuration], as opposed to your global configuration.
 
+[#one-off-test-selectors]
+=== One-off Test Selectors
+
+For an ad-hoc selector filter you don't want to make permanent, use the test
+menu that pops up when you pause after the kbd:[C-c C-t] prefix. It has two
+arguments:
+
+* kbd:[-i] (`--include=`) - only run tests tagged with these selectors
+* kbd:[-x] (`--exclude=`) - skip tests tagged with these selectors
+
+Set them once (space-separated, e.g. `:integration :flakey`) and they are
+applied by the namespace (kbd:[n]), loaded (kbd:[l]) and project (kbd:[p]) run
+commands invoked from the menu, without any prompting. The flags affect only
+commands dispatched through the menu; the plain keybindings and the
+`cider-test-default-include-selectors`/`cider-test-default-exclude-selectors`
+variables are untouched.
+
 === Display Test Report on Success
 
 By default the test report is displayed only when there are test failures or

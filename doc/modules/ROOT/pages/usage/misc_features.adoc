@@ -45,8 +45,7 @@ you want to pin evaluations to a specific REPL instead of the
 
 == Find References
 
-NOTE: The functionality is based on https://metaredux.com/posts/2019/12/11/hard-cider-find-usages.html[ideas from this article] and was
-introduced in CIDER 0.22.
+NOTE: The functionality is based on https://metaredux.com/posts/2019/12/11/hard-cider-find-usages.html[ideas from this article].
 
 There are two ways to use find references in CIDER:
 

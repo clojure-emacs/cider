@@ -42,6 +42,13 @@ and
 http://clojure.github.io/tools.namespace/#clojure.tools.namespace.repl/clear[`clojure.tools.namespace.repl/clear`]
 (followed by a normal refresh), respectively.
 
+TIP: The namespace menu that pops up when you pause after kbd:[C-c M-n]
+exposes these modes as explicit, combinable arguments instead of prefix
+arguments: kbd:[-a] (`--all`) reloads unconditionally, kbd:[-c] (`--clear`)
+clears the tracker first, and kbd:[-i] (`--inhibit-fns`) skips the
+`cider-ns-refresh-before-fn`/`cider-ns-refresh-after-fn` functions for this
+run. Toggle the ones you want, then invoke the refresh with kbd:[r].
+
 === Configuration
 
 You can define Clojure functions to be called before reloading, and after a

@@ -92,6 +92,22 @@ kbd:[C-c C-d C-d] runs `cider-doc` immediately; the menu only appears if you
 *pause* after the prefix.  There's also a top-level `cider-menu` command (not
 bound by default) that dispatches into all of the group menus, magit-style.
 
+Some menus also offer *arguments* (toggled with kbd:[-] keys, magit-style)
+that tweak the commands for a single invocation, without touching your saved
+configuration:
+
+* the test menu (kbd:[C-c C-t]) can
+  xref:testing/running_tests.adoc#one-off-test-selectors[filter by selectors];
+* the namespace menu (kbd:[C-c M-n]) makes `cider-ns-refresh`'s
+  xref:usage/code_reloading.adoc[modes explicit toggles];
+* the macroexpand menu (kbd:[C-c M-m]) controls the
+  xref:debugging/macroexpansion.adoc[expansion's rendering];
+* the pretty-print menu (kbd:[C-c C-v f]) lets you
+  xref:usage/pretty_printing.adoc[pick the printer];
+* the jack-in/connect menu (kbd:[C-c C-x]) can set
+  xref:basics/up_and_running.adoc[CLI aliases, the ClojureScript REPL type, or
+  edit the command] before it runs.
+
 [[opting-out-of-the-transient-menus]]
 === Opting out of the transient menus
 
