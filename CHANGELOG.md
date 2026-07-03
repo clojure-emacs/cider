@@ -4,6 +4,8 @@
 
 ### New features
 
+- Add a transient menu to the debugger (`cider-debug-menu`, bound to `?` during a debug session), grouping all the debugger's single-key commands; they are also proper named commands now (e.g. `cider-debug-next`, `cider-debug-quit`), so they can be invoked via `M-x` as well.
+- Add a transient menu to the inspector (`cider-inspector-menu`, bound to `m` in the inspector buffer), grouping all the inspector commands.
 - [#4065](https://github.com/clojure-emacs/cider/pull/4065): Add a `--print-fn=` flag to the pretty-print transient menu (`cider-eval-pprint-menu`) to pick the printer (pr/pprint/fipp/puget/zprint or a custom var) per invocation.
 - [#4063](https://github.com/clojure-emacs/cider/pull/4063): Add test-selector flags to the test transient menu (`cider-test-menu`): `--include=` and `--exclude=`, so a selector filter can be set once and reused across the namespace/loaded/project run commands.
 - [#4062](https://github.com/clojure-emacs/cider/pull/4062): Add refresh-mode flags to the namespace transient menu (`cider-ns-menu`): `--all`, `--clear` and `--inhibit-fns`, making `cider-ns-refresh`'s otherwise prefix-argument-only modes explicit and combinable.

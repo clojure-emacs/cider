@@ -133,7 +133,15 @@ toggled by pressing kbd:[?].
 | `cider-inspector-toggle-display-help`
 | Toggles the `Keybindings` help section at the bottom of the inspector buffer.
 
+| kbd:[m]
+| `cider-inspector-menu`
+| Opens a menu listing all the inspector commands, grouped and labelled.
+
 |===
+
+TIP: There's no need to memorize these keys - pressing kbd:[m] in the
+inspector pops up a https://github.com/magit/transient[transient] menu with
+all the commands, using the same keys.
 
 === View modes
 

@@ -28,6 +28,7 @@
 (require 'subr-x)
 
 (require 'spinner)
+(require 'transient)
 
 (require 'cider-browse-ns)
 (require 'cider-client)
@@ -317,6 +318,7 @@ of `cider-interactive-eval' in debug sessions."
     (define-key map "h" #'cider-debug-move-here)
     (define-key map "H" #'cider-debug-move-here)
     (define-key map "L" #'cider-debug-toggle-locals)
+    (define-key map "?" #'cider-debug-menu)
     map)
   "The active keymap during a debugging session.")
 
@@ -417,6 +419,107 @@ In order to work properly, this mode must be activated by
      "--"
      ["List locals" cider-debug-toggle-locals :style toggle :selected cider-debug-display-locals])
     ["Customize" (customize-group 'cider-debug)]))
+
+;; Named commands for the debugger replies, so they can be invoked outside
+;; the single-key session bindings (M-x, the transient menu below, etc.).
+
+(defun cider-debug-next ()
+  "Step to the next instrumented point in the code being debugged."
+  (interactive)
+  (cider-debug-mode-send-reply ":next"))
+
+(defun cider-debug-in ()
+  "Step into the function about to be called."
+  (interactive)
+  (cider-debug-mode-send-reply ":in"))
+
+(defun cider-debug-out ()
+  "Step out of the sexp being debugged."
+  (interactive)
+  (cider-debug-mode-send-reply ":out"))
+
+(defun cider-debug-force-out ()
+  "Step out of the sexp being debugged, skipping any breakpoints inside it."
+  (interactive)
+  (cider-debug-mode-send-reply ":out" nil t))
+
+(defun cider-debug-continue ()
+  "Continue running until the next breakpoint."
+  (interactive)
+  (cider-debug-mode-send-reply ":continue"))
+
+(defun cider-debug-continue-all ()
+  "Continue running, ignoring all further breakpoints in this session."
+  (interactive)
+  (cider-debug-mode-send-reply ":continue-all"))
+
+(defun cider-debug-eval ()
+  "Read an expression and evaluate it in the debugger's lexical scope."
+  (interactive)
+  (cider-debug-mode-send-reply ":eval"))
+
+(defun cider-debug-inject ()
+  "Read an expression and replace the current value with its result."
+  (interactive)
+  (cider-debug-mode-send-reply ":inject"))
+
+(defun cider-debug-inspect ()
+  "Inspect the current value in the CIDER inspector."
+  (interactive)
+  (cider-debug-mode-send-reply ":inspect"))
+
+(defun cider-debug-inspect-expr ()
+  "Read an expression, evaluate it in the debugger's scope and inspect it."
+  (interactive)
+  (cider-debug-mode-send-reply ":inspect-prompt"))
+
+(defun cider-debug-locals ()
+  "Inspect the local variables of the current debugging context."
+  (interactive)
+  (cider-debug-mode-send-reply ":locals"))
+
+(defun cider-debug-stacktrace ()
+  "Show the stacktrace of the current debugging context."
+  (interactive)
+  (cider-debug-mode-send-reply ":stacktrace"))
+
+(defun cider-debug-trace ()
+  "Continue running, printing the value at each instrumented point."
+  (interactive)
+  (cider-debug-mode-send-reply ":trace"))
+
+(defun cider-debug-quit ()
+  "Quit the current debugging session."
+  (interactive)
+  (cider-debug-mode-send-reply ":quit"))
+
+(transient-define-prefix cider-debug-menu ()
+  "Transient menu for the CIDER debugger.
+It groups and labels the debugger's single-key commands, so they can be
+discovered without memorizing the key prompt.  The sub-keys match the
+session bindings, so this menu is purely additive."
+  [["Stepping"
+    ("n" "Next step" cider-debug-next)
+    ("i" "Step in" cider-debug-in)
+    ("o" "Step out" cider-debug-out)
+    ("O" "Step out (skip breakpoints)" cider-debug-force-out)
+    ("h" "Continue to point" cider-debug-move-here)
+    ("c" "Continue" cider-debug-continue)
+    ("C" "Continue non-stop" cider-debug-continue-all)]
+   ["Values"
+    ("e" "Eval in debug scope" cider-debug-eval)
+    ("j" "Inject value" cider-debug-inject)
+    ("p" "Inspect current value" cider-debug-inspect)
+    ("P" "Inspect expression" cider-debug-inspect-expr)
+    ("l" "Inspect locals" cider-debug-locals)
+    ("L" "Toggle locals display" cider-debug-toggle-locals)]
+   ["Session"
+    ("s" "Show stacktrace" cider-debug-stacktrace)
+    ("t" "Trace (continue, printing values)" cider-debug-trace)
+    ("q" "Quit session" cider-debug-quit)]]
+  ;; Uppercase `here', preserving the H binding's forced variant.
+  [:hide (lambda () t)
+   ("H" "Continue to point (forced)" cider-debug-move-here)])
 
 (defun cider--uppercase-command-p ()
   "Return non-nil if the last command was uppercase letter."
