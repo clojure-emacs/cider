@@ -60,6 +60,7 @@
 
 ### Changes
 
+- Bump the default `cider-repl-history-size` from 500 to 5000.
 - Rename the REPL history browser from `cider-repl-history` to `cider-history` (command, mode and options), so its names no longer clash with the REPL's unrelated input-history settings (`cider-repl-history-file`, `cider-repl-history-size`); the old names keep working as obsolete aliases.
 - Color the nREPL messages buffer with theme-aware faces (`nrepl-message-faces`, eight faces inheriting from standard font-lock faces) instead of a hardcoded color list; `nrepl-message-colors` is now obsolete, but still takes precedence when customized.
 - Consolidate the per-buffer auto-select options into a single `cider-auto-select-buffer`, which can be `t`, `nil` or a list of the popup buffers to select (e.g. `'(error inspector)`); the old options (`cider-auto-select-error-buffer`, `cider-auto-select-test-report-buffer`, `cider-doc-auto-select-buffer`, `cider-inspector-auto-select-buffer`, `cider-cheatsheet-auto-select-buffer` and `cider-log-auto-select-frameworks-buffer`) are now obsolete, but still take precedence when customized.

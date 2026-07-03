@@ -490,9 +490,8 @@ Set to nil for no limit."
 
 (defcustom cider-print-buffer-size (* 4 1024)
   "The size in bytes of each value/output chunk when using print streaming.
-Smaller values mean smaller data chunks and faster feedback, but they also mean
-smaller results that can be font-locked as Clojure in the REPL buffers, as only
-a single chunk result can be font-locked.
+Smaller values mean faster first feedback, but also more messages for large
+results, with the associated decoding overhead.
 
 The default value in nREPL is 1024."
   :type 'integer

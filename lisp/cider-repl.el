@@ -1775,7 +1775,7 @@ If USE-CURRENT-INPUT is non-nil, use the current input."
         (t nil)))
 
 ;;; persistent history
-(defcustom cider-repl-history-size 500
+(defcustom cider-repl-history-size 5000
   "The maximum number of items to keep in the REPL history."
   :type 'integer
   :safe #'integerp)
