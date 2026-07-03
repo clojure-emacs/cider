@@ -143,6 +143,30 @@ If `output-buffer', it's sent to a dedicated `*cider-out*' buffer."
   :group 'cider
   :package-version '(cider . "2.0.0"))
 
+(defcustom cider-eval-rich-content-destination 'inline
+  "Where rich (content-typed) interactive evaluation results are rendered.
+When an interactive evaluation (e.g. `cider-eval-last-sexp') produces a
+value with a recognized content type - an image, or a reference to external
+content such as a file or URL - this controls where that content shows up:
+
+  `inline' - render directly displayable content (images) in the result
+             overlay at point; other rich results fall back to their
+             plain-text representation.
+  `repl'   - render in the current REPL buffer, exactly like rich results
+             of forms entered at the REPL prompt (references to external
+             content get a [show content] button there).
+  `popup'  - render in the `*cider-result*' popup buffer.
+  nil      - don't request rich content; results display as plain values.
+
+This is the interactive-evaluation counterpart of
+`cider-repl-use-content-types', and likewise requires cider-nrepl."
+  :type '(choice (const :tag "Inline, in the result overlay" inline)
+                 (const :tag "In the REPL buffer" repl)
+                 (const :tag "In a popup buffer" popup)
+                 (const :tag "Plain printed values" nil))
+  :group 'cider
+  :package-version '(cider . "2.0.0"))
+
 (defcustom cider-comment-prefix ";; => "
   "The prefix to insert before the first line of commented output."
   :type 'string
@@ -403,6 +427,109 @@ Cancel their animation timers and delete the overlays."
   (setq cider--eval-pending-overlays nil))
 
 (declare-function cider-inspect-last-result "cider-inspector")
+;;; Rich content rendering for interactive evals
+
+(defvar cider-repl-content-type-handler-alist)
+(declare-function cider-repl-emit-result "cider-repl")
+
+(defconst cider--image-content-types
+  '(("image/jpeg" . jpeg) ("image/png" . png) ("image/svg+xml" . svg))
+  "Mapping from image MIME types to Emacs image types.")
+
+(defun cider--external-body-url (content-type)
+  "Return the URL referenced by an external-body CONTENT-TYPE, or nil."
+  (pcase-let ((`(,type ,attrs) content-type))
+    (when (equal type "message/external-body")
+      (when-let* ((access-type (nrepl-dict-get attrs "access-type")))
+        (nrepl-dict-get attrs access-type)))))
+
+(defun cider--rich-content-fallback-string (body content-type)
+  "Return a plain-text stand-in for BODY of CONTENT-TYPE.
+Used when rich content can't (or shouldn't) be rendered: external
+references display as their URL, images as a short tag, and anything
+else as its raw body."
+  (pcase-let ((`(,type ,_attrs) content-type))
+    (cond
+     ((cider--external-body-url content-type))
+     ((assoc type cider--image-content-types) (format "#content[%s]" type))
+     (t body))))
+
+(defun cider--render-rich-content-inline (body content-type point)
+  "Render BODY of CONTENT-TYPE in a result overlay at POINT, if possible.
+Only directly displayable content (images) is rendered inline; return nil
+otherwise, so the caller falls back to a plain display."
+  (when-let* ((image-type (cdr (assoc (car content-type)
+                                      cider--image-content-types))))
+    (when (and point
+               (display-images-p)
+               (memq (cider--eval-result-display) '(overlay both)))
+      (cider--make-result-overlay (propertize " " 'display
+                                              (create-image body image-type t))
+        :where point
+        :duration cider-eval-result-duration
+        :prepend-face 'cider-result-overlay-face)
+      (message "%s#content[%s]" cider-eval-result-prefix (car content-type))
+      t)))
+
+(defun cider--render-rich-content-repl (body content-type)
+  "Render BODY of CONTENT-TYPE in the current REPL buffer.
+Reuses the REPL's `cider-repl-content-type-handler-alist' handlers, so
+this behaves exactly like a rich result of a form entered at the prompt.
+Return nil when there's no REPL to render into."
+  (when-let* ((repl (cider-current-repl)))
+    (if-let* ((handler (cdr (assoc (car content-type)
+                                   cider-repl-content-type-handler-alist))))
+        (funcall handler content-type repl body t t)
+      (cider-repl-emit-result repl body t t))
+    t))
+
+(defun cider--popup-insert-rich-content (buffer body content-type)
+  "Insert BODY of CONTENT-TYPE at the end of the popup BUFFER."
+  (with-current-buffer buffer
+    (let ((inhibit-read-only t))
+      (goto-char (point-max))
+      (cond
+       ((when-let* ((image-type (cdr (assoc (car content-type)
+                                            cider--image-content-types))))
+          (insert-image (create-image body image-type t) " ")
+          (insert "\n")
+          t))
+       ((when-let* ((url (cider--external-body-url content-type)))
+          (insert url " ")
+          (insert-text-button "[show content]"
+                              'follow-link t
+                              'help-echo (format "Fetch %s and render it here" url)
+                              'action (lambda (_button)
+                                        (cider--popup-fetch-external-body buffer url)))
+          (insert "\n")
+          t))
+       (t (insert body "\n"))))))
+
+(defun cider--popup-fetch-external-body (buffer url)
+  "Fetch URL via the cider/slurp op and render it into popup BUFFER."
+  (cider-nrepl-send-request
+   (list "op" "cider/slurp" "url" url)
+   (cider-make-eval-handler
+    :buffer buffer
+    :on-content-type (lambda (body content-type)
+                       (cider--popup-insert-rich-content buffer body content-type)))))
+
+(defun cider--render-rich-content-popup (body content-type)
+  "Render BODY of CONTENT-TYPE in the `*cider-result*' popup buffer."
+  (let ((buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode 'ancillary)))
+    (cider--popup-insert-rich-content buffer body content-type)
+    t))
+
+(defun cider--display-rich-content (body content-type point)
+  "Display BODY of CONTENT-TYPE per `cider-eval-rich-content-destination'.
+POINT anchors inline overlays.  Return non-nil when the content was
+rendered; nil means the caller should fall back to a plain display."
+  (pcase cider-eval-rich-content-destination
+    ('inline (cider--render-rich-content-inline body content-type point))
+    ('repl (cider--render-rich-content-repl body content-type))
+    ('popup (cider--render-rich-content-popup body content-type))
+    (_ nil)))
+
 (defun cider-interactive-eval-handler (&optional buffer place)
   "Make an interactive eval handler for BUFFER.
 PLACE is used to display the evaluation result.
@@ -426,6 +553,14 @@ when `cider-auto-inspect-after-eval' is non-nil."
                      (cider--eval-pending-overlay-remove)))
                  (setq res (concat res value))
                  (cider--display-interactive-eval-result res 'value end))
+     :on-content-type (lambda (body content-type)
+                        (when (buffer-live-p eval-buffer)
+                          (with-current-buffer eval-buffer
+                            (cider--eval-pending-overlay-remove)))
+                        (unless (cider--display-rich-content body content-type end)
+                          (setq res (concat res (cider--rich-content-fallback-string
+                                                 body content-type)))
+                          (cider--display-interactive-eval-result res 'value end)))
      :on-stdout #'cider-emit-interactive-eval-output
      :on-stderr (lambda (err)
                   (cider-emit-interactive-eval-err-output err)
@@ -674,7 +809,12 @@ arguments and only proceed with evaluation if it returns nil."
              :ns (if (cider-ns-form-p form) "user" (cider-current-ns))
              :line (when start (line-number-at-pos start))
              :column (when start (cider-column-number-at-pos start))
-             :additional-params additional-params
+             ;; Opt in to content-typed responses; handlers without an
+             ;; `:on-content-type' slot still see the plain value, since
+             ;; the server sends both.
+             :additional-params (append (when cider-eval-rich-content-destination
+                                          (list "content-type" "true"))
+                                        additional-params)
              :connection connection)))))))
 
 (defun cider-eval-region (start end)

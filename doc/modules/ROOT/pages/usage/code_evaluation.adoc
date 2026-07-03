@@ -411,7 +411,32 @@ Additionally, there's the variable `cider-redirect-server-output-to-repl` that c
 
 NOTE: The redirection functionality is implemented in `cider-nrepl` as nREPL middleware. If you're using CIDER without `cider-nrepl` no output redirection is going to take place.
 
+=== Rich Results
 
+When an interactive evaluation produces a value with a recognized content
+type - an image, or a reference to external content such as a file or URL -
+CIDER can render it instead of just printing the value.  Where it renders is
+controlled by `cider-eval-rich-content-destination`:
+
+* `inline` (the default) - directly displayable content (images) shows in
+  the result overlay at point, just like a regular evaluation result;
+  anything that can't render inline falls back to its plain-text
+  representation.
+* `repl` - rich results render in the current REPL buffer, exactly like the
+  results of forms entered at the prompt; references to external content get
+  a `[show content]` button there.
+* `popup` - rich results render in the `+*cider-result*+` popup buffer,
+  where external references also get a fetch button.
+* `nil` - disable the feature; results display as plain printed values.
+
+[source,lisp]
+----
+(setq cider-eval-rich-content-destination 'repl)
+----
+
+This is the interactive-evaluation counterpart of the REPL's rich content
+support (see xref:repl/configuration.adoc[REPL Configuration]) and likewise
+requires `cider-nrepl`.
 
 === Storing eval results
 
