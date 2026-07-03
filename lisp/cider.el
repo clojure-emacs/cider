@@ -95,7 +95,7 @@
 (require 'cider-inspiration)
 (require 'cider-jack-in)
 (require 'cider-repl)
-(require 'cider-repl-history)
+(require 'cider-history)
 (require 'cider-session)
 (require 'cider-connection)
 (require 'cider-mode)

@@ -454,7 +454,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
      ["Browse spec" cider-browse-spec]
      ["Browse spec tree" cider-browse-spec-tree]
      ["Browse all specs" cider-browse-spec-all]
-     ["Browse REPL input history" cider-repl-history]
+     ["Browse REPL input history" cider-history]
      ["Browse classpath" cider-classpath]
      ["Browse classpath entry" cider-open-classpath-entry])
     ("Format"
