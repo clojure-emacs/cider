@@ -14,7 +14,9 @@ following possible values:
 bound value of `+nrepl.middleware.print/*print-fn*+`, which defaults to the
 equivalent of `clojure.core/pr`.
 * `pr` to use the equivalent of `clojure.core/pr`.
-* `pprint` to use the built-in `clojure.pprint/pprint` (this is the default).
+* `pprint` to use a fast `clojure.pprint/pprint`-style printer (this is the
+default). As of `cider-nrepl` 0.61 it's backed by `orchard.pp`; with older
+versions of the middleware it's the built-in `clojure.pprint/pprint`.
 * `fipp` to use the https://github.com/brandonbloom/fipp[Fast Idiomatic
 Pretty-Printer]. This is approximately 5-10x faster than `clojure.core/pprint`.
 * `puget` to use https://github.com/greglook/puget[Puget], which provides
@@ -54,6 +56,12 @@ Here's one example:
   [value writer options]
   (apply pp/write value (mapcat identity (assoc options :stream writer))))
 ----
+
+TIP: You can also pick a printer for a single evaluation, without changing
+`cider-print-fn`: the pretty-print menu (kbd:[C-c C-v f]) has a kbd:[-p]
+(`--print-fn=`) argument accepting `pr`, `pprint`, `fipp`, `puget`, `zprint`
+or the name of a custom var, honored by the pretty-printing commands invoked
+from the menu.
 
 == Limiting printed output
 

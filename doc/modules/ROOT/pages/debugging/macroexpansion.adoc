@@ -151,6 +151,13 @@ namespaces in the macroexpansion buffer. It can be set to one of the following:
 The option `cider-macroexpansion-print-metadata` controls whether to print the var metadata
 in the macroexpansion buffer. It's set to `nil` by default.
 
+TIP: Both options can also be overridden for a single expansion, without
+touching your configuration: the macroexpand menu that pops up when you pause
+after kbd:[C-c M-m] has a kbd:[-n] (`--ns=`) argument to pick the
+namespace-display style (`tidy`, `qualified` or `none`) and a kbd:[-m]
+(`--meta`) toggle for the metadata, honored by the popup expansion commands
+(kbd:[1] and kbd:[a]) invoked from the menu.
+
 [#inline]
 == Inline macroexpansion
 

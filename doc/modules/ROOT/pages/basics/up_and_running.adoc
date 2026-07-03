@@ -28,6 +28,22 @@ CIDER will start an nREPL server and automatically connect to it.
 
 TIP: In Clojure(Script) buffers the command `cider-jack-in` is bound to kbd:[C-c C-x (C-)j (C-)j].
 
+If you pause after typing kbd:[C-c C-x], a menu (`cider-start-menu`) pops up
+listing all the ways to start or connect to a session - the jack-in commands,
+the connect commands and the sibling-connect commands - so you don't have to
+remember each full key sequence. The menu also has three arguments that apply
+to the jack-in commands for that invocation only, without touching your saved
+configuration:
+
+* kbd:[-a] (`--aliases=`) - the Clojure CLI aliases to launch with
+  (e.g. `:dev:test`)
+* kbd:[-l] (`--cljs-repl=`) - the ClojureScript REPL type to use
+* kbd:[-e] (`--edit-command`) - edit the final command in the minibuffer
+  before it runs
+
+Typing a full sequence like kbd:[C-c C-x j j] still fires immediately; the
+menu only appears if you pause after the prefix.
+
 The process of jacking-in is pretty simple:
 
 * CIDER determines the build system for your project (e.g. Leiningen) and picks the necessary command to start an nREPL server.

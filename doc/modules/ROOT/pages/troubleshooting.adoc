@@ -140,10 +140,10 @@ You can disable the middleware like this:
 
 [source,lisp]
 ----
-(setq cider-repl-use-content-types t)
+(setq cider-repl-use-content-types nil)
 ----
 
-It's disabled by default starting with CIDER 0.25.
+That's also the default behavior.
 
 === Debugging freezes & lock-ups
 
