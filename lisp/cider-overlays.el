@@ -328,6 +328,12 @@ overlay."
                ;; Maximum value width at which we truncate it.
                (truncation-threshold (* 3 (window-width)))
                (o nil))
+          ;; Huge results get truncated to the threshold below anyway; cut
+          ;; them down early so the face and width bookkeeping doesn't have
+          ;; to walk the full text.
+          (when (> (length display-string) (* 2 truncation-threshold))
+            (setq display-string
+                  (substring display-string 0 (* 2 truncation-threshold))))
           ;; Remove any overlay at the position we're creating a new one, if it
           ;; exists.
           (remove-overlays beg end 'category type)
