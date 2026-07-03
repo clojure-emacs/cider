@@ -187,24 +187,24 @@
           (push (match-string-no-properties 0) matches))
         (expect (nreverse matches) :to-equal '("x__1__auto__" "G__42")))))
 
-  (it "gives each distinct gensym its own color, shared across occurrences"
+  (it "gives each distinct gensym its own face, shared across occurrences"
     (with-temp-buffer
       (clojure-mode)
       (insert "(let* [x__1__auto__ 1 y__2__auto__ 2] (list x__1__auto__ y__2__auto__))")
       (setq cider-macrostep--overlays (list (make-overlay (point-min) (point-max))))
-      (let ((cider-macrostep-gensym-colors '("red" "blue")))
+      (let ((cider-macrostep-gensym-faces '(bold italic)))
         (cider-macrostep--refresh-gensyms))
       ;; four occurrences -> four overlays
       (expect (length cider-macrostep--gensym-overlays) :to-equal 4)
-      ;; same gensym -> same color, distinct gensyms -> distinct colors
-      (let ((color-of (lambda (name)
-                        (seq-some (lambda (o)
-                                    (when (string= name (buffer-substring-no-properties
-                                                         (overlay-start o) (overlay-end o)))
-                                      (overlay-get o 'face)))
-                                  cider-macrostep--gensym-overlays))))
-        (expect (funcall color-of "x__1__auto__") :to-equal '(:foreground "red"))
-        (expect (funcall color-of "y__2__auto__") :to-equal '(:foreground "blue")))))
+      ;; same gensym -> same face, distinct gensyms -> distinct faces
+      (let ((face-of (lambda (name)
+                       (seq-some (lambda (o)
+                                   (when (string= name (buffer-substring-no-properties
+                                                        (overlay-start o) (overlay-end o)))
+                                     (overlay-get o 'face)))
+                                 cider-macrostep--gensym-overlays))))
+        (expect (funcall face-of "x__1__auto__") :to-equal 'bold)
+        (expect (funcall face-of "y__2__auto__") :to-equal 'italic))))
 
   (it "does not double-color gensyms in nested (overlapping) expansions"
     (with-temp-buffer

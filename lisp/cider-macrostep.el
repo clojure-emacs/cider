@@ -58,18 +58,58 @@ silently skipped."
 (defcustom cider-macrostep-color-gensyms t
   "Whether to colorize the gensyms introduced by a macro expansion.
 When non-nil, each distinct gensym (e.g. `x__42__auto__') in an inline
-expansion gets its own color from `cider-macrostep-gensym-colors', so a
+expansion gets its own face from `cider-macrostep-gensym-faces', so a
 binding introduced by the macro can be tracked through the expansion."
   :type 'boolean
   :group 'cider
   :package-version '(cider . "2.0.0"))
 
-(defcustom cider-macrostep-gensym-colors
-  '("#d33682" "#268bd2" "#859900" "#b58900" "#6c71c4" "#2aa198" "#cb4b16")
-  "Colors cycled through when coloring gensyms.
-Each distinct gensym in an expansion is assigned the next color in this
-list, wrapping around when an expansion has more gensyms than colors."
-  :type '(repeat color)
+(defface cider-macrostep-gensym-1-face '((t :inherit font-lock-keyword-face))
+  "Face 1 of the palette cycled through when coloring gensyms."
+  :group 'cider
+  :package-version '(cider . "2.0.0"))
+
+(defface cider-macrostep-gensym-2-face '((t :inherit font-lock-string-face))
+  "Face 2 of the palette cycled through when coloring gensyms."
+  :group 'cider
+  :package-version '(cider . "2.0.0"))
+
+(defface cider-macrostep-gensym-3-face '((t :inherit font-lock-function-name-face))
+  "Face 3 of the palette cycled through when coloring gensyms."
+  :group 'cider
+  :package-version '(cider . "2.0.0"))
+
+(defface cider-macrostep-gensym-4-face '((t :inherit font-lock-variable-name-face))
+  "Face 4 of the palette cycled through when coloring gensyms."
+  :group 'cider
+  :package-version '(cider . "2.0.0"))
+
+(defface cider-macrostep-gensym-5-face '((t :inherit font-lock-type-face))
+  "Face 5 of the palette cycled through when coloring gensyms."
+  :group 'cider
+  :package-version '(cider . "2.0.0"))
+
+(defface cider-macrostep-gensym-6-face '((t :inherit font-lock-constant-face))
+  "Face 6 of the palette cycled through when coloring gensyms."
+  :group 'cider
+  :package-version '(cider . "2.0.0"))
+
+(defface cider-macrostep-gensym-7-face '((t :inherit font-lock-builtin-face))
+  "Face 7 of the palette cycled through when coloring gensyms."
+  :group 'cider
+  :package-version '(cider . "2.0.0"))
+
+(defcustom cider-macrostep-gensym-faces
+  '(cider-macrostep-gensym-1-face cider-macrostep-gensym-2-face
+    cider-macrostep-gensym-3-face cider-macrostep-gensym-4-face
+    cider-macrostep-gensym-5-face cider-macrostep-gensym-6-face
+    cider-macrostep-gensym-7-face)
+  "Faces cycled through when coloring gensyms.
+Each distinct gensym in an expansion is assigned the next face in this
+list, wrapping around when an expansion has more gensyms than faces.
+The defaults inherit from standard font-lock faces, so they follow your
+theme."
+  :type '(repeat face)
   :group 'cider
   :package-version '(cider . "2.0.0"))
 
@@ -288,11 +328,11 @@ symbols and are left uncolored.")
 
 (defun cider-macrostep--refresh-gensyms ()
   "Color each distinct gensym in the active expansions.
-All occurrences of a gensym share one color; different gensyms get different
-colors from `cider-macrostep-gensym-colors'.  A no-op when disabled."
+All occurrences of a gensym share one face; different gensyms get different
+faces from `cider-macrostep-gensym-faces'.  A no-op when disabled."
   (cider-macrostep--clear-gensym-overlays)
-  (when (and cider-macrostep-color-gensyms cider-macrostep-gensym-colors)
-    (let ((colors (vconcat cider-macrostep-gensym-colors))
+  (when (and cider-macrostep-color-gensyms cider-macrostep-gensym-faces)
+    (let ((faces (vconcat cider-macrostep-gensym-faces))
           (assigned (make-hash-table :test 'equal))
           (next 0)
           ;; Nested expansions overlap (the outer overlay still spans the inner
@@ -302,13 +342,13 @@ colors from `cider-macrostep-gensym-colors'.  A no-op when disabled."
                                          cider-macrostep--overlays))))
       (dolist (match matches)
         (pcase-let ((`(,name ,beg ,end) match))
-          (let ((color (or (gethash name assigned)
-                           (let ((c (aref colors (mod next (length colors)))))
-                             (puthash name c assigned)
-                             (setq next (1+ next))
-                             c)))
+          (let ((face (or (gethash name assigned)
+                          (let ((f (aref faces (mod next (length faces)))))
+                            (puthash name f assigned)
+                            (setq next (1+ next))
+                            f)))
                 (gov (make-overlay beg end)))
-            (overlay-put gov 'face (list :foreground color))
+            (overlay-put gov 'face face)
             (overlay-put gov 'priority 90)
             (push gov cider-macrostep--gensym-overlays)))))))
 

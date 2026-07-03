@@ -220,5 +220,5 @@ in one step.
   further-expandable sub-forms (on by default).
 * `cider-macrostep-color-gensyms` - colorize the gensyms introduced by an
   expansion (on by default).
-* `cider-macrostep-gensym-colors` - the palette cycled through when coloring
-  gensyms.
+* `cider-macrostep-gensym-faces` - the face palette cycled through when
+  coloring gensyms (theme-aware, inheriting from font-lock faces).
