@@ -41,30 +41,9 @@
 (require 'clojure-mode)
 (require 'cider-client)
 (require 'cider-common)
+(require 'cider-macroexpansion)
 (require 'cider-popup)
 (require 'nrepl-dict)
-
-(defcustom cider-macrostep-display-namespaces 'tidy
-  "Determines how namespaces are displayed in inline macro expansions.
-Possible values are:
-
-  `qualified' ;=> Vars are fully-qualified in the expansion
-  `none'      ;=> Vars are displayed without namespace qualification
-  `tidy'      ;=> Vars that are :refer-ed or in the current namespace are
-                 displayed with their simple name, non-referred vars from other
-                 namespaces are referred using the alias for that namespace (if
-                 defined), other vars are displayed fully qualified."
-  :type '(choice (const :tag "Suppress namespaces" none)
-                 (const :tag "Show fully-qualified namespaces" qualified)
-                 (const :tag "Show namespace aliases" tidy))
-  :group 'cider
-  :package-version '(cider . "2.0.0"))
-
-(defcustom cider-macrostep-highlight-expansion t
-  "Whether to briefly highlight (pulse) a freshly inserted inline expansion."
-  :type 'boolean
-  :group 'cider
-  :package-version '(cider . "2.0.0"))
 
 (defcustom cider-macrostep-highlight-expandable t
   "Whether to highlight the operators of further-expandable sub-forms.
@@ -151,7 +130,7 @@ EXPANDER is a `cider/macroexpand' expander name, such as \"macroexpand-1\"
                                 "expander" ,expander
                                 "code" ,code
                                 "ns" ,(cider-current-ns)
-                                "display-namespaces" ,(symbol-name cider-macrostep-display-namespaces))
+                                "display-namespaces" ,(symbol-name cider-macroexpansion-display-namespaces))
                               (cider-nrepl-sync-request))))
     (nrepl-dbind-response result (expansion status)
       (if (member "macroexpand-error" status)
@@ -428,7 +407,7 @@ Enter `cider-macrostep-mode' when it isn't already active."
               (overlay-put ov 'face 'cider-macrostep-expansion-face)
               (push ov cider-macrostep--overlays))
             (goto-char ins-beg)
-            (when cider-macrostep-highlight-expansion
+            (when cider-macroexpansion-highlight-expansion
               (pulse-momentary-highlight-region ins-beg ins-end))))))))
 
 ;;;###autoload
