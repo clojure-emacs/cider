@@ -116,6 +116,29 @@
 ;; Clojure 1.8.0, Java 1.8.0_31
 "))))
 
+(describe "cider-repl--banner"
+  (before-each
+    (setq nrepl-endpoint (list :host "localhost" :port "12345"))
+    (spy-on 'cider--version :and-return-value "2.0.0"))
+
+  (it "uses the Babashka banner when only a Babashka version is available"
+    (spy-on 'cider--clojure-version :and-return-value nil)
+    (spy-on 'cider--babashka-version :and-return-value "1.3.190")
+    (spy-on 'cider--babashka-nrepl-version :and-return-value "0.0.6")
+    (expect (cider-repl--banner) :to-equal
+            ";; Connected to nREPL server - nrepl://localhost:12345
+;; CIDER 2.0.0, babashka.nrepl 0.0.6
+;; Babashka 1.3.190
+"))
+
+  (it "falls back to the basic banner without any version info"
+    (spy-on 'cider--clojure-version :and-return-value nil)
+    (spy-on 'cider--babashka-version :and-return-value nil)
+    (expect (cider-repl--banner) :to-equal
+            ";; Connected to nREPL server - nrepl://localhost:12345
+;; CIDER 2.0.0
+")))
+
 (defvar cider-testing-ansi-colors-vector
   ["black" "red3" "green3" "yellow3" "blue2"
    "magenta3" "cyan3" "gray90"]
@@ -666,3 +689,94 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
                  (current-buffer) "")
                 :to-be-truthy)
         (expect rendered :to-be nil)))))
+
+(describe "cider-repl--emit-verbatim"
+  (it "inserts the text into the output area with a trailing newline"
+    (with-temp-buffer
+      (cider-repl-reset-markers)
+      (cider-repl--emit-verbatim (current-buffer) "hello")
+      (expect (buffer-substring-no-properties (point-min) (point-max))
+              :to-equal "hello\n")
+      ;; the output-end marker has advanced past the inserted text
+      (expect (marker-position cider-repl-output-end) :to-equal (point-max))))
+
+  (it "doesn't add a second newline when the text already ends in one"
+    (with-temp-buffer
+      (cider-repl-reset-markers)
+      (cider-repl--emit-verbatim (current-buffer) "hello\n")
+      (expect (buffer-substring-no-properties (point-min) (point-max))
+              :to-equal "hello\n")))
+
+  (it "preserves the text properties of the inserted string"
+    (with-temp-buffer
+      (cider-repl-reset-markers)
+      (cider-repl--emit-verbatim (current-buffer) (propertize "styled" 'face 'bold))
+      (expect (get-text-property (point-min) 'face) :to-equal 'bold)))
+
+  (it "starts on a fresh line when BOL is requested mid-line"
+    (with-temp-buffer
+      (insert "mid")
+      (cider-repl-reset-markers)
+      (cider-repl--emit-verbatim (current-buffer) "text" nil t)
+      (expect (buffer-substring-no-properties (point-min) (point-max))
+              :to-equal "mid\ntext\n")))
+
+  (it "inserts the result prefix when SHOW-PREFIX is non-nil"
+    (with-temp-buffer
+      (cider-repl-reset-markers)
+      (let ((cider-repl-result-prefix "=> "))
+        (cider-repl--emit-verbatim (current-buffer) "res" t))
+      (expect (buffer-substring-no-properties (point-min) (point-max))
+              :to-equal "=> res\n"))))
+
+(describe "cider-repl-handle-html"
+  (it "emits the rendered HTML verbatim and allows the prompt"
+    (spy-on 'cider--render-html-string
+            :and-return-value (propertize "rendered" 'face 'bold))
+    (with-temp-buffer
+      (cider-repl-reset-markers)
+      (expect (cider-repl-handle-html "text/html" (current-buffer) "<b>raw</b>")
+              :to-be t)
+      (expect 'cider--render-html-string :to-have-been-called-with "<b>raw</b>")
+      (expect (buffer-substring-no-properties (point-min) (point-max))
+              :to-equal "rendered\n")
+      ;; the faces produced by the HTML renderer survive
+      (expect (get-text-property (point-min) 'face) :to-equal 'bold))))
+
+(describe "cider-repl--display-external-body"
+  (it "inserts the URL as a browse-url button plus a fetch button"
+    (with-temp-buffer
+      (cider-repl-reset-markers)
+      (expect (cider-repl--display-external-body (current-buffer) "file:/tmp/x.html")
+              :to-be t)
+      (expect (buffer-substring-no-properties (point-min) (point-max))
+              :to-equal "file:/tmp/x.html [show content]")
+      ;; activating the URL button opens it in the browser
+      (spy-on 'browse-url)
+      (funcall (get-text-property (point-min) 'action) nil)
+      (expect 'browse-url :to-have-been-called-with "file:/tmp/x.html")
+      ;; activating [show content] triggers the slurp fetch
+      (spy-on 'cider-repl--fetch-external-body)
+      (goto-char (point-min))
+      (search-forward "[show content]")
+      (funcall (get-text-property (match-beginning 0) 'action) nil)
+      (expect 'cider-repl--fetch-external-body
+              :to-have-been-called-with (current-buffer) "file:/tmp/x.html"))))
+
+(describe "cider-repl--fetch-external-body"
+  (it "requests the URL's content via the cider/slurp op"
+    (spy-on 'cider-nrepl-send-request)
+    (spy-on 'cider-repl-handler :and-return-value #'ignore)
+    (cider-repl--fetch-external-body (current-buffer) "file:/tmp/x.html")
+    (expect 'cider-repl-handler :to-have-been-called-with (current-buffer))
+    (expect 'cider-nrepl-send-request :to-have-been-called-with
+            '("op" "cider/slurp" "url" "file:/tmp/x.html") #'ignore)))
+
+(describe "cider-repl-content-type-handler-alist"
+  (it "maps the supported content types to defined handler functions"
+    (expect (mapcar #'car cider-repl-content-type-handler-alist)
+            :to-have-same-items-as
+            '("message/external-body" "image/jpeg" "image/png"
+              "image/svg+xml" "text/html"))
+    (dolist (entry cider-repl-content-type-handler-alist)
+      (expect (functionp (cdr entry)) :to-be-truthy))))
