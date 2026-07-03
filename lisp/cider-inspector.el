@@ -108,10 +108,15 @@ by clicking or navigating to them by other means."
   :type 'boolean
   :package-version '(cider . "0.25.0"))
 
-(defcustom cider-inspector-auto-select-buffer t
-  "Determines if the inspector buffer should be auto selected."
-  :type 'boolean
+(defcustom cider-inspector-auto-select-buffer 'default
+  "Determines if the inspector buffer should be auto selected.
+The value `default' defers to `cider-auto-select-buffer'; t and nil
+override it for this buffer."
+  :type '(choice (const :tag "Inherit from cider-auto-select-buffer" default)
+                 (const :tag "Always" t)
+                 (const :tag "Never" nil))
   :package-version '(cider . "0.27.0"))
+(make-obsolete-variable 'cider-inspector-auto-select-buffer 'cider-auto-select-buffer "2.0.0")
 
 (defcustom cider-inspector-display-analytics-hint nil
   "Obsolete; no longer used."
@@ -606,7 +611,9 @@ from stack), `:next-inspectable' (move point to next inspectable object)."
                             :font-size font-size
                             :truncate-lines-defined truncate-lines-defined
                             :truncate-lines-p truncate-lines-p)
-    (cider-popup-buffer-display cider-inspector-buffer cider-inspector-auto-select-buffer)
+    (cider-popup-buffer-display cider-inspector-buffer
+                                (cider-auto-select-buffer-p
+                                 'inspector cider-inspector-auto-select-buffer))
     (when cider-inspector-fill-frame (delete-other-windows))
     (with-current-buffer cider-inspector-buffer
       ;; The pin to the originating REPL is set by `cider-make-popup-buffer'.

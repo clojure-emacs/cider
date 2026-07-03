@@ -58,10 +58,15 @@
   :type 'boolean
   :package-version '(cider . "0.8.0"))
 
-(defcustom cider-auto-select-test-report-buffer t
-  "Whether the test-report buffer should be auto-selected."
-  :type 'boolean
+(defcustom cider-auto-select-test-report-buffer 'default
+  "Whether the test-report buffer should be auto-selected.
+The value `default' defers to `cider-auto-select-buffer'; t and nil
+override it for this buffer."
+  :type '(choice (const :tag "Inherit from cider-auto-select-buffer" default)
+                 (const :tag "Always" t)
+                 (const :tag "Never" nil))
   :package-version '(cider . "0.9.0"))
+(make-obsolete-variable 'cider-auto-select-test-report-buffer 'cider-auto-select-buffer "2.0.0")
 
 (defvar cider-test--spinner-buffers nil
   "List of buffers where test spinners are active.")
@@ -362,7 +367,8 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
                (status (when causes
                          (cider-stacktrace-render
                           (cider-popup-buffer cider-error-buffer
-                                              cider-auto-select-error-buffer
+                                              (cider-auto-select-buffer-p
+                                               'error cider-auto-select-error-buffer)
                                               #'cider-stacktrace-mode
                                               'ancillary)
                           (reverse causes)))
@@ -905,7 +911,8 @@ running them."
                                 cider-test-show-report-on-success)
                             (let ((b (cider-popup-buffer
                                       cider-test-report-buffer
-                                      cider-auto-select-test-report-buffer)))
+                                      (cider-auto-select-buffer-p
+                                       'test-report cider-auto-select-test-report-buffer))))
                               ;; `cider-make-popup-buffer' now pins the report to
                               ;; its originating REPL and adopts that session's
                               ;; project dir, so no `default-directory' override

@@ -56,12 +56,17 @@ Example values: \"Logback\", \"Timbre\"."
   :safe #'stringp
   :type 'string)
 
-(defcustom cider-log-auto-select-frameworks-buffer t
-  "Whether to auto-select the log frameworks popup buffer."
+(defcustom cider-log-auto-select-frameworks-buffer 'default
+  "Whether to auto-select the log frameworks popup buffer.
+The value `default' defers to `cider-auto-select-buffer'; t and nil
+override it for this buffer."
   :group 'cider
   :package-version '(cider . "1.17")
-  :safe #'booleanp
-  :type 'boolean)
+  :safe (lambda (value) (memq value '(default t nil)))
+  :type '(choice (const :tag "Inherit from cider-auto-select-buffer" default)
+                 (const :tag "Always" t)
+                 (const :tag "Never" nil)))
+(make-obsolete-variable 'cider-log-auto-select-frameworks-buffer 'cider-auto-select-buffer "2.0.0")
 
 (defcustom cider-log-appender-id "cider-log"
   "The name of the default log appender."
@@ -641,7 +646,8 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
 (defun cider-log-event--pretty-print (framework appender event)
   "Format the log EVENT of FRAMEWORK and APPENDER."
   (when-let* ((event (cider-sync-request:log-format-event framework appender event)))
-    (cider-popup-buffer cider-log-event-buffer cider-auto-select-error-buffer
+    (cider-popup-buffer cider-log-event-buffer
+                        (cider-auto-select-buffer-p 'error cider-auto-select-error-buffer)
                         'clojure-mode 'ancillary)
     (with-current-buffer cider-log-event-buffer
       (let ((inhibit-read-only t))
@@ -1017,7 +1023,8 @@ the CIDER Inspector and the CIDER stacktrace mode.
   (interactive)
   (let ((frameworks (cider-sync-request:log-frameworks)))
     (with-current-buffer (cider-popup-buffer cider-log-frameworks-buffer
-                                             cider-log-auto-select-frameworks-buffer)
+                                             (cider-auto-select-buffer-p
+                                              'log-frameworks cider-log-auto-select-frameworks-buffer))
       (read-only-mode -1)
       (insert (with-temp-buffer
                 (insert (propertize (cider-propertize "Cider Log Frameworks" 'ns) 'ns t) "\n\n")

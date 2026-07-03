@@ -50,6 +50,41 @@ Should be set before loading CIDER."
   :group 'cider
   :package-version '(cider . "0.15.0"))
 
+(defcustom cider-auto-select-buffer t
+  "Whether CIDER should select the auxiliary buffers it displays.
+This is consulted whenever CIDER pops up a buffer in another window (the
+error buffer, the test report, the doc buffer, the inspector, and so on):
+if t, the new window is selected; if nil, the buffer is displayed without
+stealing focus.
+
+It can also be a list of feature symbols, selecting only those buffers.
+The recognized symbols are `error', `test-report', `doc', `inspector',
+`cheatsheet' and `log-frameworks'.
+
+This option subsumes the older per-feature options (e.g.
+`cider-auto-select-error-buffer'), which are obsolete, but still take
+precedence when customized."
+  :type '(choice (const :tag "Select all popup buffers" t)
+                 (const :tag "Never select popup buffers" nil)
+                 (repeat :tag "Select only these buffers"
+                         (choice (const error)
+                                 (const test-report)
+                                 (const doc)
+                                 (const inspector)
+                                 (const cheatsheet)
+                                 (const log-frameworks))))
+  :group 'cider
+  :package-version '(cider . "2.0.0"))
+
+(defun cider-auto-select-buffer-p (feature legacy-value)
+  "Whether the FEATURE popup buffer should be selected when displayed.
+Consults `cider-auto-select-buffer', unless LEGACY-VALUE (the value of
+FEATURE's obsolete auto-select option) is something other than the symbol
+`default', in which case LEGACY-VALUE takes precedence."
+  (cond ((not (eq legacy-value 'default)) legacy-value)
+        ((listp cider-auto-select-buffer) (memq feature cider-auto-select-buffer))
+        (t cider-auto-select-buffer)))
+
 (defun cider--should-prompt-for-symbol (&optional invert)
   "Return the value of the variable `cider-prompt-for-symbol'.
 Optionally invert the value, if INVERT is truthy."
