@@ -224,3 +224,22 @@
       (with-temp-buffer
         (cider--pin-repl-if-out-of-project repl-buf)
         (expect cider--ancillary-buffer-repl :to-be nil))))
+
+(describe "cider-auto-select-buffer-p"
+  (it "follows cider-auto-select-buffer when the legacy option is `default'"
+    (let ((cider-auto-select-buffer t))
+      (expect (cider-auto-select-buffer-p 'error 'default) :to-be-truthy))
+    (let ((cider-auto-select-buffer nil))
+      (expect (cider-auto-select-buffer-p 'error 'default) :to-be nil)))
+
+  (it "supports selecting only the features listed in cider-auto-select-buffer"
+    (let ((cider-auto-select-buffer '(error inspector)))
+      (expect (cider-auto-select-buffer-p 'error 'default) :to-be-truthy)
+      (expect (cider-auto-select-buffer-p 'inspector 'default) :to-be-truthy)
+      (expect (cider-auto-select-buffer-p 'test-report 'default) :to-be nil)))
+
+  (it "gives precedence to a customized legacy option"
+    (let ((cider-auto-select-buffer t))
+      (expect (cider-auto-select-buffer-p 'error nil) :to-be nil))
+    (let ((cider-auto-select-buffer nil))
+      (expect (cider-auto-select-buffer-p 'error t) :to-be-truthy))))

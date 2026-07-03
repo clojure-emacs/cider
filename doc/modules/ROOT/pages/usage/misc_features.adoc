@@ -499,4 +499,8 @@ image::cider-cheatsheet-select-3.png[Selecting path in cheatsheet]
 
 It is possible to control which function is used on a var when it is selected by customizing `cider-cheatsheet-default-action-function`. By default, documentation for a var is displayed using `cider-doc-lookup`, but it can also be set to `cider-clojuredocs-lookup` to show documentation from ClojureDocs or any other function accepting a var as an argument.
 
-By default the cheatsheet buffer is selected when it pops up.  Set `cider-cheatsheet-auto-select-buffer` to nil if you'd rather keep focus in the current buffer.
+By default the cheatsheet buffer is selected when it pops up (per
+`cider-auto-select-buffer`, which governs all of CIDER's popup buffers).
+Remove `cheatsheet` from that option's list form (or set the obsolete
+`cider-cheatsheet-auto-select-buffer` to nil) if you'd rather keep focus in
+the current buffer.

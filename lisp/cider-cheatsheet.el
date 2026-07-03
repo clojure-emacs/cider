@@ -43,10 +43,15 @@
 (defconst cider-cheatsheet-buffer "*cider-cheatsheet*"
   "Name of the CIDER cheatsheet buffer.")
 
-(defcustom cider-cheatsheet-auto-select-buffer t
-  "Whether to auto-select the cheatsheet popup buffer."
-  :type 'boolean
+(defcustom cider-cheatsheet-auto-select-buffer 'default
+  "Whether to auto-select the cheatsheet popup buffer.
+The value `default' defers to `cider-auto-select-buffer'; t and nil
+override it for this buffer."
+  :type '(choice (const :tag "Inherit from cider-auto-select-buffer" default)
+                 (const :tag "Always" t)
+                 (const :tag "Never" nil))
   :package-version '(cider . "1.15.0"))
+(make-obsolete-variable 'cider-cheatsheet-auto-select-buffer 'cider-auto-select-buffer "2.0.0")
 
 (defcustom cider-cheatsheet-default-action-function #'cider-doc-lookup
   "Function to use on a var when it is selected.
@@ -710,7 +715,8 @@ LEVEL defaults to 0."
   "Display cheatsheet in a popup buffer."
   (interactive)
   (with-current-buffer (cider-popup-buffer cider-cheatsheet-buffer
-                                           cider-cheatsheet-auto-select-buffer
+                                           (cider-auto-select-buffer-p
+                                            'cheatsheet cider-cheatsheet-auto-select-buffer)
                                            #'cider-cheatsheet-mode)
     (let ((inhibit-read-only t))
       (insert (cider-cheatsheet--buffer-contents)))

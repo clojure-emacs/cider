@@ -94,10 +94,15 @@ When set to nil, don't jump at all."
   :group 'cider
   :package-version '(cider . "0.7.0"))
 
-(defcustom cider-auto-select-error-buffer t
-  "Controls whether to auto-select the error popup buffer."
-  :type 'boolean
+(defcustom cider-auto-select-error-buffer 'default
+  "Controls whether to auto-select the error popup buffer.
+The value `default' defers to `cider-auto-select-buffer'; t and nil
+override it for this buffer."
+  :type '(choice (const :tag "Inherit from cider-auto-select-buffer" default)
+                 (const :tag "Always" t)
+                 (const :tag "Never" nil))
   :group 'cider)
+(make-obsolete-variable 'cider-auto-select-error-buffer 'cider-auto-select-buffer "2.0.0")
 
 (defface cider-error-highlight-face
   '((((supports :underline (:style wave)))
@@ -204,11 +209,14 @@ but also the ERROR-TYPES of the error, which is checked against the
 `cider-stacktrace-suppressed-errors' set, and the value of DONT-SHOW.
 
 When deciding whether to select the buffer, takes into account the value of
-`cider-auto-select-error-buffer'."
+`cider-auto-select-buffer' (and the obsolete
+`cider-auto-select-error-buffer')."
   (if (and (cider--show-error-buffer-p)
            (not dont-show)
            (not (cider-stacktrace-some-suppressed-errors-p error-types)))
-      (cider-popup-buffer cider-error-buffer cider-auto-select-error-buffer mode 'ancillary)
+      (cider-popup-buffer cider-error-buffer
+                          (cider-auto-select-buffer-p 'error cider-auto-select-error-buffer)
+                          mode 'ancillary)
     (cider-make-popup-buffer cider-error-buffer mode 'ancillary)))
 
 (defun cider-emit-into-color-buffer (buffer value)

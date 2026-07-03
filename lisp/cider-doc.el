@@ -52,11 +52,16 @@
   :prefix "cider-doc-"
   :group 'cider)
 
-(defcustom cider-doc-auto-select-buffer t
-  "Control whether to auto-select the doc popup buffer."
-  :type 'boolean
+(defcustom cider-doc-auto-select-buffer 'default
+  "Control whether to auto-select the doc popup buffer.
+The value `default' defers to `cider-auto-select-buffer'; t and nil
+override it for this buffer."
+  :type '(choice (const :tag "Inherit from cider-auto-select-buffer" default)
+                 (const :tag "Always" t)
+                 (const :tag "Never" nil))
   :group 'cider-doc
   :package-version  '(cider . "0.15.0"))
+(make-obsolete-variable 'cider-doc-auto-select-buffer 'cider-auto-select-buffer "2.0.0")
 
 (defcustom cider-doc-show-clojuredocs-examples nil
   "Whether to show ClojureDocs examples in the doc buffer automatically.
@@ -499,7 +504,8 @@ Favor a compact rendering of docstrings."
 (defun cider-doc-lookup (symbol)
   "Look up documentation for SYMBOL."
   (if-let* ((buffer (cider-create-doc-buffer symbol)))
-      (cider-popup-buffer-display buffer cider-doc-auto-select-buffer)
+      (cider-popup-buffer-display buffer (cider-auto-select-buffer-p
+                                          'doc cider-doc-auto-select-buffer))
     (user-error "%s" (cider-resolution-failure-message symbol))))
 
 (defun cider-doc (&optional arg)
