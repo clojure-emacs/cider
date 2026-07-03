@@ -446,12 +446,13 @@ Cancel their animation timers and delete the overlays."
 (defun cider--rich-content-fallback-string (body content-type)
   "Return a plain-text stand-in for BODY of CONTENT-TYPE.
 Used when rich content can't (or shouldn't) be rendered: external
-references display as their URL, images as a short tag, and anything
-else as its raw body."
+references display as their URL, images as a short tag, HTML as its
+shr-rendered text, and anything else as its raw body."
   (pcase-let ((`(,type ,_attrs) content-type))
     (cond
      ((cider--external-body-url content-type))
      ((assoc type cider--image-content-types) (format "#content[%s]" type))
+     ((equal type "text/html") (cider--render-html-string body))
      (t body))))
 
 (defun cider--render-rich-content-inline (body content-type point)
@@ -495,7 +496,11 @@ Return nil when there's no REPL to render into."
           (insert "\n")
           t))
        ((when-let* ((url (cider--external-body-url content-type)))
-          (insert url " ")
+          (insert-text-button url
+                              'follow-link t
+                              'help-echo "Open in the browser"
+                              'action (lambda (_button) (browse-url url)))
+          (insert " ")
           (insert-text-button "[show content]"
                               'follow-link t
                               'help-echo (format "Fetch %s and render it here" url)
@@ -503,6 +508,8 @@ Return nil when there's no REPL to render into."
                                         (cider--popup-fetch-external-body buffer url)))
           (insert "\n")
           t))
+       ((equal (car content-type) "text/html")
+        (insert (cider--render-html-string body) "\n"))
        (t (insert body "\n"))))))
 
 (defun cider--popup-fetch-external-body (buffer url)
@@ -809,10 +816,13 @@ arguments and only proceed with evaluation if it returns nil."
              :ns (if (cider-ns-form-p form) "user" (cider-current-ns))
              :line (when start (line-number-at-pos start))
              :column (when start (cider-column-number-at-pos start))
-             ;; Opt in to content-typed responses; handlers without an
-             ;; `:on-content-type' slot still see the plain value, since
-             ;; the server sends both.
-             :additional-params (append (when cider-eval-rich-content-destination
+             ;; Opt in to content-typed responses, but only for the default
+             ;; handler (which knows how to render them); custom callbacks
+             ;; (eval-to-comment, pprint flows, third parties) keep getting
+             ;; plain values only, so the server may safely omit `value'
+             ;; from content-typed responses.
+             :additional-params (append (when (and cider-eval-rich-content-destination
+                                                   (null callback))
                                           (list "content-type" "true"))
                                         additional-params)
              :connection connection)))))))

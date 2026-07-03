@@ -1162,10 +1162,12 @@ Part of the default `cider-repl-content-type-handler-alist'."
   (cider-nrepl-send-request (list "op" "cider/slurp" "url" url)
                             (cider-repl-handler buffer)))
 
-(defun cider-repl--display-external-body (buffer url &optional show-prefix bol)
-  "Insert URL and a button that fetches its content into BUFFER.
-For compatibility with the rest of CIDER's REPL machinery, supports
-SHOW-PREFIX and BOL."
+(defun cider-repl--emit-verbatim (buffer string &optional show-prefix bol)
+  "Insert STRING into BUFFER's output area, preserving its text properties.
+Unlike `cider-repl-emit-result', the inserted text is not registered as a
+result span, so it's never re-font-locked as Clojure and any faces or
+buttons it carries survive.  SHOW-PREFIX and BOL are as in
+`cider-repl-emit-result'."
   (with-current-buffer buffer
     (save-excursion
       (cider-save-marker cider-repl-output-start
@@ -1175,9 +1177,37 @@ SHOW-PREFIX and BOL."
         (when show-prefix
           (insert-before-markers
            (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
-        (insert-before-markers
-         (propertize url 'font-lock-face 'cider-repl-result-face)
-         " ")
+        (insert-before-markers string)
+        (unless (bolp)
+          (insert-before-markers "\n"))))))
+
+(defun cider-repl-handle-html (_type buffer html &optional show-prefix bol)
+  "A handler for rendering text/html HTML into the repl BUFFER.
+Part of the default `cider-repl-content-type-handler-alist'."
+  (cider-repl--emit-verbatim buffer (cider--render-html-string html)
+                             show-prefix bol)
+  t)
+
+(defun cider-repl--display-external-body (buffer url &optional show-prefix bol)
+  "Insert URL and a button that fetches its content into BUFFER.
+The URL itself is a link that opens in the browser.  For compatibility
+with the rest of CIDER's REPL machinery, supports SHOW-PREFIX and BOL."
+  (with-current-buffer buffer
+    (save-excursion
+      (cider-save-marker cider-repl-output-start
+        (goto-char cider-repl-output-end)
+        (when (and bol (not (bolp)))
+          (insert-before-markers "\n"))
+        (when show-prefix
+          (insert-before-markers
+           (propertize cider-repl-result-prefix 'font-lock-face 'font-lock-comment-face)))
+        (let ((start (point)))
+          (insert-before-markers url)
+          (make-text-button start (point)
+                            'follow-link t
+                            'help-echo "Open in the browser"
+                            'action (lambda (_button) (browse-url url))))
+        (insert-before-markers " ")
         (let ((start (point)))
           (insert-before-markers "[show content]")
           (make-text-button start (point)
@@ -1203,7 +1233,8 @@ pressed, so merely evaluating a `File' or `URI' has no side effects."
   `(("message/external-body" . ,#'cider-repl-handle-external-body)
     ("image/jpeg" . ,#'cider-repl-handle-jpeg)
     ("image/png" . ,#'cider-repl-handle-png)
-    ("image/svg+xml" . ,#'cider-repl-handle-svg))
+    ("image/svg+xml" . ,#'cider-repl-handle-svg)
+    ("text/html" . ,#'cider-repl-handle-html))
   "Association list from content-types to handlers.
 Handlers must be functions of two required and two optional arguments - the
 REPL buffer to insert into, the value of the given content type as a raw

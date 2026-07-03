@@ -475,3 +475,10 @@
                      (nrepl-dict "access-type" "URL" "URL" "file:/x"))
                42)
               :to-be nil))))
+
+(describe "cider--rich-content-fallback-string for html"
+  (it "renders text/html via shr"
+    (cl-letf (((symbol-function 'cider--render-html-string)
+               (lambda (html) (concat "rendered:" html))))
+      (expect (cider--rich-content-fallback-string "<b>x</b>" (list "text/html" (nrepl-dict)))
+              :to-equal "rendered:<b>x</b>"))))

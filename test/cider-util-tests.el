@@ -602,3 +602,10 @@ and some other vars (like clojure.core/filter).
       (cider--define-deprecated-key map "C-c X" #'ignore "new")
       (expect (length cider--deprecated-keybindings) :to-equal 1)
       (expect (plist-get (car cider--deprecated-keybindings) :replacement) :to-equal "new"))))
+
+(describe "cider--render-html-string"
+  (it "renders html to plain text when libxml is available"
+    (if (and (fboundp 'libxml-available-p) (libxml-available-p))
+        (expect (substring-no-properties (cider--render-html-string "<p><b>hello</b></p>"))
+                :to-equal "hello")
+      (expect (cider--render-html-string "<b>x</b>") :to-equal "<b>x</b>"))))
