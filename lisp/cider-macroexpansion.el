@@ -41,14 +41,17 @@
 
 (defcustom cider-macroexpansion-highlight-expansion t
   "Whether to briefly highlight (pulse) the expansion after expanding.
-This makes it more obvious that the buffer's contents changed."
+This makes it more obvious that the buffer's contents changed.
+Honored both by the macroexpansion buffer and by the inline
+`cider-macrostep' expansions."
   :type 'boolean
   :group 'cider
   :package-version '(cider . "2.0.0"))
 
 (defcustom cider-macroexpansion-display-namespaces 'tidy
-  "Determines if namespaces are displayed in the macroexpansion buffer.
-Possible values are:
+  "Determines how namespaces are displayed in macro expansions.
+Honored both by the macroexpansion buffer and by the inline
+`cider-macrostep' expansions.  Possible values are:
 
   `qualified' ;=> Vars are fully-qualified in the expansion
   `none'      ;=> Vars are displayed without namespace qualification

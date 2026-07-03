@@ -211,10 +211,11 @@ in one step.
 
 === Configuration
 
-* `cider-macrostep-display-namespaces` - how namespaces are displayed in the
-  expansion (`tidy`, `qualified` or `none`), as for the separate-buffer flow.
-* `cider-macrostep-highlight-expansion` - briefly pulse a freshly inserted
-  expansion (on by default).
+* `cider-macroexpansion-display-namespaces` - how namespaces are displayed in
+  the expansion (`tidy`, `qualified` or `none`); shared with the
+  separate-buffer flow.
+* `cider-macroexpansion-highlight-expansion` - briefly pulse a freshly
+  inserted expansion (on by default); shared with the separate-buffer flow.
 * `cider-macrostep-highlight-expandable` - underline the operators of
   further-expandable sub-forms (on by default).
 * `cider-macrostep-color-gensyms` - colorize the gensyms introduced by an
