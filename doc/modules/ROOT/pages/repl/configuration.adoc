@@ -280,14 +280,16 @@ width (i.e. any of them except for `pr`) will keep your REPL running smoothly.
 TIP: See xref:usage/pretty_printing.adoc[this section of the documentation] for
 more information on configuring printing.
 
-== Displaying images in the REPL
+== Displaying rich content in the REPL
 
-Expressions that evaluate to images are rendered as images in the REPL.
+Expressions that evaluate to images are rendered as images in the REPL, and
+fetched HTML content is rendered as formatted text (via `shr`).
 Results naming external content - a `java.io.File`, or a `java.net.URI`/`URL`
-with a `file:`, `http:` or `https:` scheme - render as the URL followed by a
-`[show content]` button; press kbd:[RET] (or click) to fetch the content and
-render it in place.  Nothing is transferred until you press the button, so
-merely evaluating a `File` or `URI` has no side effects.
+with a `file:`, `http:` or `https:` scheme - render as a clickable URL (which
+opens in your browser) followed by a `[show content]` button; press kbd:[RET]
+\(or click) to fetch the content and render it in place.  Nothing is
+transferred until you press the button, so merely evaluating a `File` or
+`URI` has no side effects.
 
 This behavior is enabled by default as of CIDER 2.0.  You can disable it like
 this:

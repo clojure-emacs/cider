@@ -858,6 +858,22 @@ throughout the deprecation window, then is removed in a later release."
                            (format "  (deprecated since %s)" since)
                          "")))))))
 
+(declare-function shr-insert-document "shr" (dom))
+
+(defun cider--render-html-string (html)
+  "Return HTML rendered to displayable text via shr.
+Falls back to the raw HTML when Emacs lacks libxml support."
+  (if (and (fboundp 'libxml-available-p) (libxml-available-p))
+      (progn
+        (require 'shr)
+        (with-temp-buffer
+          (insert html)
+          (let ((dom (libxml-parse-html-region (point-min) (point-max))))
+            (erase-buffer)
+            (shr-insert-document dom)
+            (string-trim (buffer-string)))))
+    html))
+
 (provide 'cider-util)
 
 ;;; cider-util.el ends here
