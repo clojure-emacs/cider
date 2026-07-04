@@ -80,6 +80,19 @@ the
 https://github.com/jorgenschaefer/emacs-buttercup/blob/master/docs/running-tests.md[buttercup documentation] for
 all the details.
 
+A few suite conventions worth knowing:
+
+* Specs that only make sense in certain environments (a specific OS, Emacs
+  feature or library) should declare that with buttercup's `assume`, so they
+  show up as skipped instead of silently passing over the interesting branch.
+* `test/utils/cider-test-utils.el` defines custom matchers for the common
+  assertion patterns: `:to-have-sent-op` for checking the nREPL request a
+  spied request function sent, and `:to-equal-dict` for order-insensitive
+  nrepl-dict comparison with key-level failure messages.  Prefer them over
+  hand-rolled request/dict plumbing.
+* Prefer `spy-calls-most-recent` over indexed `spy-calls-args-for` - it
+  doesn't break when a function gains an earlier internal call.
+
 ==== Running the tests in batch mode
 
 If you prefer running all tests outside Emacs that's also an option.

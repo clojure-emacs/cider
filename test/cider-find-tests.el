@@ -63,13 +63,13 @@
             (nrepl-dict "dest" (current-buffer) "dest-point" 1))
     (spy-on 'cider-jump-to)
     (cider-find-keyword '(4))           ; single C-u -> same window
-    (expect (nth 2 (spy-calls-args-for 'cider-jump-to 0)) :to-be nil)
+    (expect (nth 2 (spy-context-args (spy-calls-most-recent 'cider-jump-to))) :to-be nil)
     (spy-calls-reset 'cider-jump-to)
     (cider-find-keyword '(16))          ; double C-u -> other window
-    (expect (nth 2 (spy-calls-args-for 'cider-jump-to 0)) :to-be-truthy)
+    (expect (nth 2 (spy-context-args (spy-calls-most-recent 'cider-jump-to))) :to-be-truthy)
     (spy-calls-reset 'cider-jump-to)
     (cider-find-keyword '-)             ; negative -> other window
-    (expect (nth 2 (spy-calls-args-for 'cider-jump-to 0)) :to-be-truthy)))
+    (expect (nth 2 (spy-context-args (spy-calls-most-recent 'cider-jump-to))) :to-be-truthy)))
 
 (describe "cider--find-keyword-loc"
   (it "finds the given keyword, discarding false positives"

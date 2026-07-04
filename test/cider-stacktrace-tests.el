@@ -282,7 +282,7 @@
                                         'line 12)))
         (cider-stacktrace-navigate button)
         (expect 'cider-var-info :not :to-have-been-called)
-        (let ((info (car (car (spy-calls-all-args 'cider--jump-to-loc-from-info)))))
+        (let ((info (car (spy-context-args (spy-calls-most-recent 'cider--jump-to-loc-from-info)))))
           (expect (nrepl-dict-get info "file") :to-equal "file:/tmp/repro.clj")
           (expect (nrepl-dict-get info "line") :to-equal 12)))))
 
