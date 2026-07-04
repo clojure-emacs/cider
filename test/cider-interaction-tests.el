@@ -45,19 +45,21 @@
 
 (describe "cider-to-nrepl-filename-function"
   (it "translates file paths when running on cygwin systems"
+    (assume (eq system-type 'cygwin) "not running on cygwin")
     (let ((windows-file-name "C:/foo/bar")
           (unix-file-name "/cygdrive/c/foo/bar"))
-      (if (eq system-type 'cygwin)
-          (progn
-            (expect (funcall cider-from-nrepl-filename-function windows-file-name)
-                    :to-equal unix-file-name)
-            (expect (funcall cider-to-nrepl-filename-function unix-file-name)
-                    :to-equal windows-file-name))
-        (progn
-          (expect (funcall cider-from-nrepl-filename-function unix-file-name)
-                  :to-equal unix-file-name)
-          (expect (funcall cider-to-nrepl-filename-function unix-file-name)
-                  :to-equal unix-file-name)))))
+      (expect (funcall cider-from-nrepl-filename-function windows-file-name)
+              :to-equal unix-file-name)
+      (expect (funcall cider-to-nrepl-filename-function unix-file-name)
+              :to-equal windows-file-name)))
+
+  (it "leaves file paths alone on other systems"
+    (assume (not (eq system-type 'cygwin)) "running on cygwin")
+    (let ((unix-file-name "/cygdrive/c/foo/bar"))
+      (expect (funcall cider-from-nrepl-filename-function unix-file-name)
+              :to-equal unix-file-name)
+      (expect (funcall cider-to-nrepl-filename-function unix-file-name)
+              :to-equal unix-file-name)))
   (it "translates file paths from container/vm location to host location"
     (let* ((/docker/src (expand-file-name "/docker/src"))
            (/cygdrive/c/project/src (expand-file-name "/cygdrive/c/project/src"))

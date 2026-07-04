@@ -27,6 +27,7 @@
 
 (require 'buttercup)
 (require 'cider-log)
+(require 'cider-test-utils)
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
@@ -200,10 +201,6 @@
       (expect (substring-no-properties (cider-log--description-clear-events-buffer))
               :to-equal "Clear *cider-log* buffer"))))
 
-(defun cider-log-tests--request-get (request key)
-  "Return the value following KEY in the nREPL REQUEST list."
-  (cadr (member key request)))
-
 (describe "cider-log nREPL request construction"
   :var (framework appender event)
   (before-each
@@ -219,24 +216,17 @@
             :and-return-value (nrepl-dict "cider/log-add-appender" appender))
     (expect (cider-sync-request:log-add-appender framework appender)
             :to-equal appender)
-    (let ((request (car (spy-calls-args-for 'cider-nrepl-sync-request 0))))
-      (expect (cider-log-tests--request-get request "op")
-              :to-equal "cider/log-add-appender")
-      (expect (cider-log-tests--request-get request "framework") :to-equal "logback")
-      (expect (cider-log-tests--request-get request "appender") :to-equal "my-appender")
-      (expect (cider-log-tests--request-get request "size") :to-equal 100)
-      (expect (cider-log-tests--request-get request "threshold") :to-equal 10)
-      (expect (nrepl-dict-get (cider-log-tests--request-get request "filters") "level")
-              :to-equal "INFO")))
+    (expect 'cider-nrepl-sync-request :to-have-sent-op "cider/log-add-appender"
+            "framework" "logback" "appender" "my-appender"
+            "size" 100 "threshold" 10)
+    (expect (cider-request-get (cider-sent-request 'cider-nrepl-sync-request) "filters")
+            :to-equal-dict (nrepl-dict "level" "INFO")))
 
   (it "cider-sync-request:log-clear sends the clear-appender op"
     (spy-on 'cider-nrepl-sync-request :and-return-value (nrepl-dict))
     (cider-sync-request:log-clear framework appender)
-    (let ((request (car (spy-calls-args-for 'cider-nrepl-sync-request 0))))
-      (expect (cider-log-tests--request-get request "op")
-              :to-equal "cider/log-clear-appender")
-      (expect (cider-log-tests--request-get request "framework") :to-equal "logback")
-      (expect (cider-log-tests--request-get request "appender") :to-equal "my-appender")))
+    (expect 'cider-nrepl-sync-request :to-have-sent-op "cider/log-clear-appender"
+            "framework" "logback" "appender" "my-appender"))
 
   (it "cider-sync-request:log-search sends the filters and pagination"
     (spy-on 'cider-nrepl-sync-request
@@ -245,45 +235,33 @@
       (expect (cider-sync-request:log-search framework appender
                                              :filters filters :limit 25 :offset 5)
               :to-equal (list event))
-      (let ((request (car (spy-calls-args-for 'cider-nrepl-sync-request 0))))
-        (expect (cider-log-tests--request-get request "op")
-                :to-equal "cider/log-search")
-        (expect (cider-log-tests--request-get request "filters") :to-equal filters)
-        (expect (cider-log-tests--request-get request "limit") :to-equal 25)
-        (expect (cider-log-tests--request-get request "offset") :to-equal 5))))
+      (expect 'cider-nrepl-sync-request :to-have-sent-op "cider/log-search"
+              "filters" filters "limit" 25 "offset" 5)))
 
   (it "cider-sync-request:log-inspect-event asks for the event by id"
     (spy-on 'cider-nrepl-sync-request
             :and-return-value (nrepl-dict "value" "inspected"))
     (expect (cider-sync-request:log-inspect-event framework appender event)
             :to-equal "inspected")
-    (let ((request (car (spy-calls-args-for 'cider-nrepl-sync-request 0))))
-      (expect (cider-log-tests--request-get request "op")
-              :to-equal "cider/log-inspect-event")
-      (expect (cider-log-tests--request-get request "event") :to-equal "ev-42")))
+    (expect 'cider-nrepl-sync-request :to-have-sent-op "cider/log-inspect-event"
+            "event" "ev-42"))
 
   (it "cider-sync-request:log-format-event includes the print options"
     (spy-on 'cider-nrepl-sync-request
             :and-return-value (nrepl-dict "cider/log-format-event" "formatted"))
     (expect (cider-sync-request:log-format-event framework appender event)
             :to-equal "formatted")
-    (let ((request (car (spy-calls-args-for 'cider-nrepl-sync-request 0))))
-      (expect (cider-log-tests--request-get request "op")
-              :to-equal "cider/log-format-event")
-      (expect (cider-log-tests--request-get request "event") :to-equal "ev-42")
-      (expect (cider-log-tests--request-get request "nrepl.middleware.print/stream?")
-              :to-equal "1")))
+    (expect 'cider-nrepl-sync-request :to-have-sent-op "cider/log-format-event"
+            "event" "ev-42" "nrepl.middleware.print/stream?" "1"))
 
   (it "cider-request:log-add-consumer sends the consumer's filters and the callback"
     (spy-on 'cider-nrepl-send-request)
     (let ((consumer (nrepl-dict "filters" (nrepl-dict "level" "INFO"))))
       (cider-request:log-add-consumer framework appender consumer #'ignore)
-      (let ((args (spy-calls-args-for 'cider-nrepl-send-request 0)))
-        (expect (cider-log-tests--request-get (car args) "op")
-                :to-equal "cider/log-add-consumer")
-        (expect (cider-log-tests--request-get (car args) "framework") :to-equal "logback")
-        (expect (cider-log-tests--request-get (car args) "appender") :to-equal "my-appender")
-        (expect (nrepl-dict-get (cider-log-tests--request-get (car args) "filters") "level")
+      (expect 'cider-nrepl-send-request :to-have-sent-op "cider/log-add-consumer"
+              "framework" "logback" "appender" "my-appender")
+      (let ((args (spy-context-args (spy-calls-most-recent 'cider-nrepl-send-request))))
+        (expect (nrepl-dict-get (cider-request-get (car args) "filters") "level")
                 :to-equal "INFO")
         (expect (cadr args) :to-be #'ignore))))
 
@@ -291,10 +269,8 @@
     (spy-on 'cider-nrepl-sync-request :and-return-value (nrepl-dict))
     (cider-sync-request:log-remove-consumer
      framework appender (nrepl-dict "id" "my-consumer"))
-    (let ((request (car (spy-calls-args-for 'cider-nrepl-sync-request 0))))
-      (expect (cider-log-tests--request-get request "op")
-              :to-equal "cider/log-remove-consumer")
-      (expect (cider-log-tests--request-get request "consumer") :to-equal "my-consumer"))))
+    (expect 'cider-nrepl-sync-request :to-have-sent-op "cider/log-remove-consumer"
+            "consumer" "my-consumer")))
 
 (describe "cider-log appender and consumer accessors"
   (it "reads the appender size, threshold, filters and consumers"
@@ -454,6 +430,6 @@
             (cider-log-appender-id "my-appender"))
         (cider-log-info)))
     (expect (substring-no-properties
-             (apply #'format (spy-calls-args-for 'message 0)))
+             (apply #'format (spy-context-args (spy-calls-most-recent 'message))))
             :to-equal
             "Buffer: *cider-log* Framework: Logback Appender: my-appender Consumer: c1")))

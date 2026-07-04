@@ -605,7 +605,12 @@ and some other vars (like clojure.core/filter).
 
 (describe "cider--render-html-string"
   (it "renders html to plain text when libxml is available"
-    (if (and (fboundp 'libxml-available-p) (libxml-available-p))
-        (expect (substring-no-properties (cider--render-html-string "<p><b>hello</b></p>"))
-                :to-equal "hello")
-      (expect (cider--render-html-string "<b>x</b>") :to-equal "<b>x</b>"))))
+    (assume (and (fboundp 'libxml-available-p) (libxml-available-p))
+            "libxml support not available")
+    (expect (substring-no-properties (cider--render-html-string "<p><b>hello</b></p>"))
+            :to-equal "hello"))
+
+  (it "returns the raw html without libxml support"
+    (assume (not (and (fboundp 'libxml-available-p) (libxml-available-p)))
+            "libxml support is available")
+    (expect (cider--render-html-string "<b>x</b>") :to-equal "<b>x</b>")))
