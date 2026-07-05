@@ -394,31 +394,60 @@ In order to work properly, this mode must be activated by
   (setq cider-debug-prompt value)
   (cider--debug-mode-redisplay))
 
+;; The command catalog is the single source of truth for both the menu-bar
+;; menu (`cider-debug-mode-menu') and the transient menu (`cider-debug-menu'),
+;; so the two can no longer drift apart.  It is wrapped in `eval-and-compile'
+;; because the transient prefix is generated from it at macroexpansion time.
+(eval-and-compile
+  (defconst cider--debug-commands
+    '((?n cider-debug-next         "Next step"                         stepping)
+      (?i cider-debug-in           "Step in"                           stepping)
+      (?o cider-debug-out          "Step out"                          stepping)
+      (?O cider-debug-force-out    "Step out (skip breakpoints)"       stepping)
+      (?h cider-debug-move-here    "Continue to point"                 stepping)
+      (?c cider-debug-continue     "Continue"                          stepping)
+      (?C cider-debug-continue-all "Continue non-stop"                 stepping)
+      (?e cider-debug-eval         "Eval in debug scope"               values)
+      (?j cider-debug-inject       "Inject value"                      values)
+      (?p cider-debug-inspect      "Inspect current value"             values)
+      (?P cider-debug-inspect-expr "Inspect expression"                values)
+      (?l cider-debug-locals       "Inspect locals"                    values)
+      (?L cider-debug-toggle-locals "Toggle locals display"            values)
+      (?s cider-debug-stacktrace   "Show stacktrace"                   session)
+      (?t cider-debug-trace        "Trace (continue, printing values)" session)
+      (?q cider-debug-quit         "Quit session"                      session))
+    "Catalog of the debugger's user-facing commands.
+Each entry is (KEY FUNCTION DESCRIPTION GROUP), where KEY is the character
+that invokes FUNCTION during a session, DESCRIPTION is the label shown in
+the menus, and GROUP is one of `stepping', `values', or `session'.")
+
+  (defun cider--debug-commands-in-group (group)
+    "Return the `cider--debug-commands' entries belonging to GROUP."
+    (seq-filter (pcase-lambda (`(,_key ,_fn ,_desc ,g)) (eq g group))
+                cider--debug-commands)))
+
+(defun cider--debug-menu-items (group)
+  "Return `easy-menu' items for the debugger commands in GROUP."
+  (mapcar (pcase-lambda (`(,key ,fn ,desc ,_group))
+            (vector desc fn :keys (string key)))
+          (cider--debug-commands-in-group group)))
+
 (easy-menu-define cider-debug-mode-menu cider--debug-mode-map
   "Menu for CIDER debug mode."
-  `("CIDER Debugger"
-    ["Next step" (cider-debug-mode-send-reply ":next") :keys "n"]
-    ["Continue" (cider-debug-mode-send-reply ":continue") :keys "c"]
-    ["Continue non-stop" (cider-debug-mode-send-reply ":continue-all") :keys "C"]
-    ["Move out of sexp" (cider-debug-mode-send-reply ":out") :keys "o"]
-    ["Forced move out of sexp" (cider-debug-mode-send-reply ":out" nil t) :keys "O"]
-    ["Move to current position" (cider-debug-mode-send-reply ":here") :keys "h"]
-    ["Quit" (cider-debug-mode-send-reply ":quit") :keys "q"]
-    "--"
-    ["Evaluate in current scope" (cider-debug-mode-send-reply ":eval") :keys "e"]
-    ["Inject value" (cider-debug-mode-send-reply ":inject") :keys "i"]
-    ["Inspect current value" (cider-debug-mode-send-reply ":inspect") :keys "p"]
-    ["Inspect expression" (cider-debug-mode-send-reply ":inspect-prompt") :keys "P"]
-    ["Inspect local variables" (cider-debug-mode-send-reply ":locals") :keys "l"]
-    "--"
-    ("Configure keys prompt"
-     ["Don't show keys"     (cider--debug-set-prompt nil)         :style toggle :selected (eq cider-debug-prompt nil)]
-     ["Show in minibuffer"  (cider--debug-set-prompt 'minibuffer) :style toggle :selected (eq cider-debug-prompt 'minibuffer)]
-     ["Show above function" (cider--debug-set-prompt 'overlay)    :style toggle :selected (eq cider-debug-prompt 'overlay)]
-     ["Show in both places" (cider--debug-set-prompt t)           :style toggle :selected (eq cider-debug-prompt t)]
-     "--"
-     ["List locals" cider-debug-toggle-locals :style toggle :selected cider-debug-display-locals])
-    ["Customize" (customize-group 'cider-debug)]))
+  (append
+   '("CIDER Debugger")
+   (cider--debug-menu-items 'stepping)
+   '("--")
+   (cider--debug-menu-items 'values)
+   '("--")
+   (cider--debug-menu-items 'session)
+   '("--")
+   '(("Configure keys prompt"
+      ["Don't show keys"     (cider--debug-set-prompt nil)         :style toggle :selected (eq cider-debug-prompt nil)]
+      ["Show in minibuffer"  (cider--debug-set-prompt 'minibuffer) :style toggle :selected (eq cider-debug-prompt 'minibuffer)]
+      ["Show above function" (cider--debug-set-prompt 'overlay)    :style toggle :selected (eq cider-debug-prompt 'overlay)]
+      ["Show in both places" (cider--debug-set-prompt t)           :style toggle :selected (eq cider-debug-prompt t)])
+     ["Customize" (customize-group 'cider-debug)])))
 
 ;; Named commands for the debugger replies, so they can be invoked outside
 ;; the single-key session bindings (M-x, the transient menu below, etc.).
@@ -493,33 +522,30 @@ In order to work properly, this mode must be activated by
   (interactive)
   (cider-debug-mode-send-reply ":quit"))
 
-(transient-define-prefix cider-debug-menu ()
-  "Transient menu for the CIDER debugger.
+(eval-and-compile
+  (defun cider--debug-transient-column (title group)
+    "Build a transient column vector titled TITLE for GROUP.
+The suffixes are derived from `cider--debug-commands'."
+    (apply #'vector title
+           (mapcar (pcase-lambda (`(,key ,fn ,desc ,_group))
+                     (list (string key) desc fn))
+                   (cider--debug-commands-in-group group)))))
+
+(defmacro cider--debug-define-menu ()
+  "Define the `cider-debug-menu' transient from `cider--debug-commands'."
+  `(transient-define-prefix cider-debug-menu ()
+     "Transient menu for the CIDER debugger.
 It groups and labels the debugger's single-key commands, so they can be
 discovered without memorizing the key prompt.  The sub-keys match the
 session bindings, so this menu is purely additive."
-  [["Stepping"
-    ("n" "Next step" cider-debug-next)
-    ("i" "Step in" cider-debug-in)
-    ("o" "Step out" cider-debug-out)
-    ("O" "Step out (skip breakpoints)" cider-debug-force-out)
-    ("h" "Continue to point" cider-debug-move-here)
-    ("c" "Continue" cider-debug-continue)
-    ("C" "Continue non-stop" cider-debug-continue-all)]
-   ["Values"
-    ("e" "Eval in debug scope" cider-debug-eval)
-    ("j" "Inject value" cider-debug-inject)
-    ("p" "Inspect current value" cider-debug-inspect)
-    ("P" "Inspect expression" cider-debug-inspect-expr)
-    ("l" "Inspect locals" cider-debug-locals)
-    ("L" "Toggle locals display" cider-debug-toggle-locals)]
-   ["Session"
-    ("s" "Show stacktrace" cider-debug-stacktrace)
-    ("t" "Trace (continue, printing values)" cider-debug-trace)
-    ("q" "Quit session" cider-debug-quit)]]
-  ;; Uppercase `here', preserving the H binding's forced variant.
-  [:hide (lambda () t)
-   ("H" "Continue to point (forced)" cider-debug-move-here)])
+     [,(cider--debug-transient-column "Stepping" 'stepping)
+      ,(cider--debug-transient-column "Values" 'values)
+      ,(cider--debug-transient-column "Session" 'session)]
+     ;; Uppercase `here', preserving the H binding's forced variant.
+     [:hide (lambda () t)
+      ("H" "Continue to point (forced)" cider-debug-move-here)]))
+
+(cider--debug-define-menu)
 
 (defun cider--uppercase-command-p ()
   "Return non-nil if the last command was uppercase letter."

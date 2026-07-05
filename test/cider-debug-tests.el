@@ -262,14 +262,26 @@
     (cider-debug-force-out)
     (expect 'cider-debug-mode-send-reply :to-have-been-called-with ":out" nil t))
 
-  (it "cover every command char of `cider-debug-prompt-commands'"
-    ;; `here' is handled by `cider-debug-move-here'; the rest map to named
-    ;; commands, so the transient menu can offer the full command set.
-    (dolist (cmd '(cider-debug-continue cider-debug-continue-all
-                   cider-debug-next cider-debug-in cider-debug-out
-                   cider-debug-force-out cider-debug-eval
-                   cider-debug-inspect cider-debug-inspect-expr
-                   cider-debug-locals cider-debug-inject
-                   cider-debug-stacktrace cider-debug-trace
-                   cider-debug-quit))
-      (expect (commandp cmd) :to-be-truthy))))
+  (it "expose every catalog command as a callable command"
+    ;; Every entry in `cider--debug-commands' feeds the menus, so its
+    ;; function must be an actual command.
+    (pcase-dolist (`(,_key ,fn ,_desc ,_group) cider--debug-commands)
+      (expect (commandp fn) :to-be-truthy))))
+
+(describe "cider--debug-commands"
+  (it "covers every command in `cider-debug-prompt-commands'"
+    ;; The catalog drives the menus; the prompt commands drive the overlay
+    ;; and the session keymap.  Every prompt command must therefore have a
+    ;; catalog entry, so a command can never appear in one surface but not
+    ;; the others.
+    (let ((catalog-keys (mapcar #'car cider--debug-commands)))
+      (dolist (spec cider-debug-prompt-commands)
+        (expect (memq (car spec) catalog-keys) :to-be-truthy))))
+
+  (it "groups every entry under a known group"
+    (pcase-dolist (`(,_key ,_fn ,_desc ,group) cider--debug-commands)
+      (expect (memq group '(stepping values session)) :to-be-truthy)))
+
+  (it "binds each key to a distinct command"
+    (let ((keys (mapcar #'car cider--debug-commands)))
+      (expect (length keys) :to-equal (length (seq-uniq keys))))))

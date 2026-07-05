@@ -45,6 +45,7 @@
 
 ### Bugs fixed
 
+- Fix the debugger's menu-bar menu: it advertised the wrong key for "Inject value" (`i` instead of `j`) and was missing entries for stepping in, showing the stacktrace, and tracing.
 - Fix `cider-log-kill-appender`'s confirmation message, which had the appender and framework names swapped.
 - [#4066](https://github.com/clojure-emacs/cider/pull/4066): Jump to the actual source when clicking a stack frame for a top-level anonymous function (the `deftest` shape), instead of landing in `clojure.core/fn` ([#3157](https://github.com/clojure-emacs/cider/issues/3157)).
 - [#4058](https://github.com/clojure-emacs/cider/pull/4058): Signal a helpful error when `cider-javadoc` gets an unresolvable (non-absolute) Javadoc URL from the middleware, instead of silently doing nothing ([#2969](https://github.com/clojure-emacs/cider/issues/2969)).
