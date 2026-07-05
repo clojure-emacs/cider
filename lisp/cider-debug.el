@@ -186,7 +186,10 @@ Can be toggled at any time with `\\[cider-debug-toggle-locals]'."
     (?n "next" "next")
     (?i "in" "in")
     (?o "out" "out")
-    (?O "force-out" nil)
+    ;; Force-out is not a distinct middleware command: it's `out' sent with a
+    ;; `force?' flag, which `cider-debug-mode-send-reply' adds because the key
+    ;; is uppercase.
+    (?O "out" nil)
     (?h "here" "here")
     (?e "eval" "eval")
     (?p "inspect" "inspect")

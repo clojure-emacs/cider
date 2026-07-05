@@ -260,7 +260,19 @@
 
   (it "send a forced :out for `cider-debug-force-out'"
     (cider-debug-force-out)
-    (expect 'cider-debug-mode-send-reply :to-have-been-called-with ":out" nil t))
+    (expect 'cider-debug-mode-send-reply :to-have-been-called-with ":out" nil t)))
+
+(describe "cider-debug-mode-send-reply"
+  (it "sends a forced :out for the uppercase O key, not an invalid :force-out"
+    ;; The middleware has no `:force-out' command; force-out is `:out' with a
+    ;; `force?' flag, keyed off the uppercase letter.
+    (spy-on 'cider-nrepl-send-unhandled-request)
+    (let ((last-command-event ?O)
+          (cider--debug-mode-response (nrepl-dict "key" "the-key")))
+      (call-interactively 'cider-debug-mode-send-reply)
+      (let ((request (car (spy-calls-args-for 'cider-nrepl-send-unhandled-request 0))))
+        (expect (cadr (member "input" request)) :to-equal "{:response :out :force? true}")
+        (expect (cadr (member "key" request)) :to-equal "the-key"))))
 
   (it "expose every catalog command as a callable command"
     ;; Every entry in `cider--debug-commands' feeds the menus, so its
