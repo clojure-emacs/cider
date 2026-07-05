@@ -179,6 +179,29 @@
       (cider--debug-move-point '(3 2 1))
       (expect (thing-at-point 'symbol) :to-equal "x"))))
 
+(describe "cider--debug-find-coordinates-for-point"
+  ;; `cider--debug-find-coordinates-for-point' is the inverse of
+  ;; `cider--debug-move-point', so feeding its result back into the latter
+  ;; must land on the same spot.
+  (it "round-trips with cider--debug-move-point"
+    ;; Each form is paired with coordinates known to be valid for it.
+    (dolist (case '(("(defn a [] (let [x 1] (inc x)) {:a 1, :b 2})" (3 2 1) (3 1 1) (2))
+                    ("(defn f [y] (+ (* y 2) (- y 3)))" (3 2 1) (3 1 1))
+                    ("(let [x (atom 1)] @x)" (2 1))
+                    ("(do @(do (atom {})))" (1 1 1))))
+      (let ((form (car case)))
+        (dolist (coord (cdr case))
+          (with-temp-buffer
+            (clojure-mode)
+            (save-excursion (insert form))
+            (cider--debug-move-point coord)
+            (let ((target (point)))
+              (goto-char (point-min))
+              (let ((found (cider--debug-find-coordinates-for-point target)))
+                (goto-char (point-min))
+                (cider--debug-move-point found)
+                (expect (point) :to-equal target)))))))))
+
 (describe "cider--debug-remember-origin"
   (before-each
     (setq cider--debug-origin-marker nil
@@ -260,16 +283,40 @@
 
   (it "send a forced :out for `cider-debug-force-out'"
     (cider-debug-force-out)
-    (expect 'cider-debug-mode-send-reply :to-have-been-called-with ":out" nil t))
+    (expect 'cider-debug-mode-send-reply :to-have-been-called-with ":out" nil t)))
 
-  (it "cover every command char of `cider-debug-prompt-commands'"
-    ;; `here' is handled by `cider-debug-move-here'; the rest map to named
-    ;; commands, so the transient menu can offer the full command set.
-    (dolist (cmd '(cider-debug-continue cider-debug-continue-all
-                   cider-debug-next cider-debug-in cider-debug-out
-                   cider-debug-force-out cider-debug-eval
-                   cider-debug-inspect cider-debug-inspect-expr
-                   cider-debug-locals cider-debug-inject
-                   cider-debug-stacktrace cider-debug-trace
-                   cider-debug-quit))
-      (expect (commandp cmd) :to-be-truthy))))
+(describe "cider-debug-mode-send-reply"
+  (it "sends a forced :out for the uppercase O key, not an invalid :force-out"
+    ;; The middleware has no `:force-out' command; force-out is `:out' with a
+    ;; `force?' flag, keyed off the uppercase letter.
+    (spy-on 'cider-nrepl-send-unhandled-request)
+    (let ((last-command-event ?O)
+          (cider--debug-mode-response (nrepl-dict "key" "the-key")))
+      (call-interactively 'cider-debug-mode-send-reply)
+      (let ((request (car (spy-calls-args-for 'cider-nrepl-send-unhandled-request 0))))
+        (expect (cadr (member "input" request)) :to-equal "{:response :out :force? true}")
+        (expect (cadr (member "key" request)) :to-equal "the-key"))))
+
+  (it "expose every catalog command as a callable command"
+    ;; Every entry in `cider--debug-commands' feeds the menus, so its
+    ;; function must be an actual command.
+    (pcase-dolist (`(,_key ,fn ,_desc ,_group) cider--debug-commands)
+      (expect (commandp fn) :to-be-truthy))))
+
+(describe "cider--debug-commands"
+  (it "covers every command in `cider-debug-prompt-commands'"
+    ;; The catalog drives the menus; the prompt commands drive the overlay
+    ;; and the session keymap.  Every prompt command must therefore have a
+    ;; catalog entry, so a command can never appear in one surface but not
+    ;; the others.
+    (let ((catalog-keys (mapcar #'car cider--debug-commands)))
+      (dolist (spec cider-debug-prompt-commands)
+        (expect (memq (car spec) catalog-keys) :to-be-truthy))))
+
+  (it "groups every entry under a known group"
+    (pcase-dolist (`(,_key ,_fn ,_desc ,group) cider--debug-commands)
+      (expect (memq group '(stepping values session)) :to-be-truthy)))
+
+  (it "binds each key to a distinct command"
+    (let ((keys (mapcar #'car cider--debug-commands)))
+      (expect (length keys) :to-equal (length (seq-uniq keys))))))
