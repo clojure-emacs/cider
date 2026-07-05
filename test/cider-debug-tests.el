@@ -179,6 +179,29 @@
       (cider--debug-move-point '(3 2 1))
       (expect (thing-at-point 'symbol) :to-equal "x"))))
 
+(describe "cider--debug-find-coordinates-for-point"
+  ;; `cider--debug-find-coordinates-for-point' is the inverse of
+  ;; `cider--debug-move-point', so feeding its result back into the latter
+  ;; must land on the same spot.
+  (it "round-trips with cider--debug-move-point"
+    ;; Each form is paired with coordinates known to be valid for it.
+    (dolist (case '(("(defn a [] (let [x 1] (inc x)) {:a 1, :b 2})" (3 2 1) (3 1 1) (2))
+                    ("(defn f [y] (+ (* y 2) (- y 3)))" (3 2 1) (3 1 1))
+                    ("(let [x (atom 1)] @x)" (2 1))
+                    ("(do @(do (atom {})))" (1 1 1))))
+      (let ((form (car case)))
+        (dolist (coord (cdr case))
+          (with-temp-buffer
+            (clojure-mode)
+            (save-excursion (insert form))
+            (cider--debug-move-point coord)
+            (let ((target (point)))
+              (goto-char (point-min))
+              (let ((found (cider--debug-find-coordinates-for-point target)))
+                (goto-char (point-min))
+                (cider--debug-move-point found)
+                (expect (point) :to-equal target)))))))))
+
 (describe "cider--debug-remember-origin"
   (before-each
     (setq cider--debug-origin-marker nil
