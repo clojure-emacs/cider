@@ -17,4 +17,6 @@ Alternatively, you can use a traditional TeX distribution and run:
 You can find installation instructions for `pdflatex` on all major operating
 systems [here](https://www.latex-project.org/get/).
 
-The card is curated by hand, so when you change CIDER's keybindings please update it to match.
+The card is curated by hand, so when you change CIDER's keybindings please update it to match. The
+manual's [Keybindings](../doc/modules/ROOT/pages/keybindings.adoc) reference mirrors this card, so keep
+the two in sync.

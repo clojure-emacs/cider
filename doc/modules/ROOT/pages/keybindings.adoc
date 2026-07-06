@@ -1,0 +1,444 @@
+= Keybindings
+:experimental:
+
+This is the reference for `cider-mode`'s keybindings - the commands available in
+Clojure(Script) source buffers once you've connected a REPL. They're grouped by
+task; the printable xref:#printable-refcard[quick-reference card] covers the same
+ground on a single page.
+
+[NOTE]
+====
+This page covers *source-buffer* bindings. A few related references:
+
+* The REPL buffer has its own bindings - see xref:repl/keybindings.adoc[REPL Keybindings].
+* Feature pages carry the bindings specific to their tools (e.g. the
+  xref:debugging/debugger.adoc[debugger], the xref:debugging/inspector.adoc[inspector],
+  and the buffer-local browsers in xref:usage/navigation.adoc[Code Navigation and Browsing]).
+* Many commands do something extra when invoked with a prefix argument
+  (kbd:[C-u]). Use kbd:[C-h k] on a binding for the full story.
+====
+
+== Discovering keybindings
+
+Emacs can always tell you what's bound right now, which is handy given CIDER's
+many prefix keys:
+
+|===
+| Keyboard shortcut | Description
+
+| kbd:[C-h m]
+| Describe the current major/minor modes, including a full list of active bindings.
+
+| kbd:[C-h k] _key_
+| Describe the command bound to _key_.
+
+| kbd:[C-h b]
+| List all key bindings active in the current buffer.
+
+| _prefix_ kbd:[C-h]
+| Show every binding that starts with _prefix_ (e.g. kbd:[C-c C-d C-h]).
+|===
+
+TIP: Install https://github.com/justbur/emacs-which-key[which-key] and CIDER's
+prefixes become self-documenting - pause after a prefix like kbd:[C-c C-d] and a
+popup lists the keys that follow. See xref:usage/cider_mode.adoc[Using cider-mode]
+for more.
+
+== Starting and stopping CIDER
+
+|===
+| Keyboard shortcut | Command | Description
+
+| kbd:[C-c C-x C-j C-j]
+| `cider-jack-in-clj`
+| Start an nREPL server for the project and connect to it (Clojure).
+
+| kbd:[C-c C-x C-j C-s]
+| `cider-jack-in-cljs`
+| Start an nREPL server and connect to it (ClojureScript).
+
+| kbd:[C-c C-x C-c C-j]
+| `cider-connect-clj`
+| Connect to an already-running nREPL server (Clojure).
+
+| kbd:[C-c C-x C-c C-s]
+| `cider-connect-cljs`
+| Connect to an already-running nREPL server (ClojureScript).
+
+| kbd:[C-c C-q]
+| `cider-quit`
+| Quit the current connection.
+
+| kbd:[C-c M-r]
+| `cider-restart`
+| Restart the current connection.
+|===
+
+TIP: If you pause after the kbd:[C-c C-x] prefix, a menu pops up listing every way
+to start or connect to a session. See xref:basics/up_and_running.adoc[Up and Running].
+
+== Evaluating code
+
+|===
+| Keyboard shortcut | Command | Description
+
+| kbd:[C-x C-e] (also kbd:[C-c C-e])
+| `cider-eval-last-sexp`
+| Evaluate the form preceding point and show the result in the echo area.
+
+| kbd:[C-c C-c] (also kbd:[C-M-x])
+| `cider-eval-defun-at-point`
+| Evaluate the top-level form containing point (redefine it in the running program).
+
+| kbd:[C-c C-v v]
+| `cider-eval-sexp-at-point`
+| Evaluate the form around point.
+
+| kbd:[C-c C-v l]
+| `cider-eval-list-at-point`
+| Evaluate the list around point.
+
+| kbd:[C-c C-v r]
+| `cider-eval-region`
+| Evaluate the active region.
+
+| kbd:[C-c C-v s]
+| `cider-eval-dwim`
+| Evaluate the region if one is active, otherwise the top-level form.
+
+| kbd:[C-c C-v z]
+| `cider-eval-defun-up-to-point`
+| Evaluate the enclosing top-level form up to point.
+
+| kbd:[C-c C-v w]
+| `cider-eval-last-sexp-and-replace`
+| Evaluate the form preceding point and replace it with the result.
+
+| kbd:[C-c M-e]
+| `cider-eval-last-sexp-to-repl`
+| Evaluate the form preceding point and send the result to the REPL.
+
+| kbd:[C-c C-p]
+| `cider-pprint-eval-last-sexp`
+| Evaluate the form preceding point and pretty-print the result in a popup.
+
+| kbd:[C-c C-f]
+| `cider-pprint-eval-defun-at-point`
+| Evaluate the top-level form and pretty-print the result in a popup.
+
+| kbd:[C-c M-;]
+| `cider-eval-defun-to-comment`
+| Evaluate the top-level form and insert the result as a comment.
+
+| kbd:[C-c M-:]
+| `cider-read-and-eval`
+| Read a Clojure expression from the minibuffer and evaluate it.
+
+| kbd:[C-c M-i]
+| `cider-inspect`
+| Evaluate an expression and open the result in the xref:debugging/inspector.adoc[inspector].
+|===
+
+TIP: See xref:usage/code_evaluation.adoc[Code Evaluation] for the evaluation
+commands and their prefix-argument variations.
+
+== Loading code
+
+|===
+| Keyboard shortcut | Command | Description
+
+| kbd:[C-c C-k]
+| `cider-load-buffer`
+| Load (evaluate) the current buffer.
+
+| kbd:[C-c C-l]
+| `cider-load-file`
+| Load a file, prompting for its name.
+
+| kbd:[C-c C-M-l]
+| `cider-load-all-files`
+| Load all files under a directory, prompting for it.
+|===
+
+== Navigating code
+
+|===
+| Keyboard shortcut | Command | Description
+
+| kbd:[M-.]
+| `cider-find-var`
+| Jump to the definition of the symbol at point.
+
+| kbd:[M-,]
+| `cider-pop-back`
+| Return to where you were before the last jump.
+
+| kbd:[C-c C-.]
+| `cider-find-ns`
+| Jump to a namespace, selected via completion.
+
+| kbd:[C-c C-:]
+| `cider-find-keyword`
+| Jump to the definition of the namespaced keyword at point.
+
+| kbd:[C-c M-.]
+| `cider-find-resource`
+| Jump to a classpath resource referenced by the string at point.
+
+| kbd:[C-c C-? r]
+| `cider-xref-fn-refs`
+| Show the usages of the function at point in a dedicated buffer.
+
+| kbd:[C-c C-? C-r]
+| `cider-xref-fn-refs-select`
+| Show the usages of the function at point in a minibuffer selector.
+
+| kbd:[C-c C-? s]
+| `cider-xref-fn-refs-in-source`
+| Search the project's source for references to the symbol at point.
+
+| kbd:[C-c C-? d]
+| `cider-xref-fn-deps`
+| Show the functions used by the function at point.
+
+| kbd:[C-c C-? C-d]
+| `cider-xref-fn-deps-select`
+| Show the functions used by the function at point in a minibuffer selector.
+
+| kbd:[C-c C-w c]
+| `cider-who-calls`
+| Browse the callers of the function at point as a tree.
+
+| kbd:[C-c C-w d]
+| `cider-who-is-called`
+| Browse the functions the function at point calls, as a tree.
+
+| kbd:[C-c C-w m]
+| `cider-who-macroexpands`
+| Find a macro's use sites by searching the project's source.
+
+| kbd:[C-c C-w i]
+| `cider-who-implements`
+| Browse the types that implement the protocol at point.
+
+| kbd:[C-c C-w t]
+| `cider-type-protocols`
+| Browse the protocols a type implements.
+
+| kbd:[C-c C-w p]
+| `cider-protocols-with-method`
+| Browse the protocols that declare a given method.
+
+| kbd:[C-c M-s]
+| `cider-selector`
+| Quickly jump to an important buffer (REPL, docs, stacktrace, etc.).
+|===
+
+TIP: See xref:usage/navigation.adoc[Code Navigation and Browsing] for the complete
+navigation and call-graph toolkit.
+
+== Looking up documentation
+
+|===
+| Keyboard shortcut | Command | Description
+
+| kbd:[C-c C-d d]
+| `cider-doc`
+| Show documentation for the symbol at point.
+
+| kbd:[C-c C-d j]
+| `cider-javadoc`
+| Open the Javadoc for the symbol at point in a browser.
+
+| kbd:[C-c C-d a]
+| `cider-apropos`
+| Search for definitions matching a pattern.
+
+| kbd:[C-c C-d f]
+| `cider-apropos-documentation`
+| Search documentation strings matching a pattern.
+
+| kbd:[C-c C-d c]
+| `cider-clojuredocs`
+| Show https://clojuredocs.org[ClojureDocs] documentation for the symbol at point.
+
+| kbd:[C-c C-d w]
+| `cider-clojuredocs-web`
+| Open the symbol's ClojureDocs page in a browser.
+|===
+
+TIP: See xref:usage/working_with_documentation.adoc[Working with Documentation] for more.
+
+== Macroexpansion
+
+|===
+| Keyboard shortcut | Command | Description
+
+| kbd:[C-c C-m] (also kbd:[C-c M-m 1])
+| `cider-macroexpand-1`
+| Expand the macro call at point once.
+
+| kbd:[C-c M-m a]
+| `cider-macroexpand-all`
+| Fully expand the macro call at point.
+
+| kbd:[C-c M-m e]
+| `cider-macrostep-expand`
+| Step through the expansion inline in the source buffer (requires `macrostep`).
+
+| kbd:[C-c M-m E]
+| `cider-macrostep-expand-all`
+| Fully expand the macro at point inline in the source buffer.
+
+| kbd:[C-c M-m b]
+| `cider-macrostep-expand-in-buffer`
+| Run a macro-stepping session in a dedicated popup buffer.
+|===
+
+TIP: See xref:debugging/macroexpansion.adoc[Macroexpansion] for details.
+
+== Working with namespaces
+
+|===
+| Keyboard shortcut | Command | Description
+
+| kbd:[C-c M-n n]
+| `cider-repl-set-ns`
+| Switch the REPL to the current buffer's namespace.
+
+| kbd:[C-c M-n e]
+| `cider-eval-ns-form`
+| Evaluate the `ns` form of the current buffer.
+
+| kbd:[C-c M-n r]
+| `cider-ns-refresh`
+| Reload changed namespaces (via `clojure.tools.namespace`).
+
+| kbd:[C-c M-n l]
+| `cider-ns-reload`
+| Reload the current namespace with `require :reload`.
+
+| kbd:[C-c M-n b]
+| `cider-browse-ns`
+| Browse the contents of a namespace.
+
+| kbd:[C-c C-u]
+| `cider-undef`
+| Undefine a symbol.
+
+| kbd:[C-c C-M-u]
+| `cider-undef-all`
+| Undefine all symbols and aliases in the namespace.
+|===
+
+TIP: See xref:usage/code_reloading.adoc[Code Reloading] for the reloading workflow.
+
+== Testing
+
+|===
+| Keyboard shortcut | Command | Description
+
+| kbd:[C-c C-t t]
+| `cider-test-run-test`
+| Run the test at point.
+
+| kbd:[C-c C-t n]
+| `cider-test-run-ns-tests`
+| Run the tests in the current namespace.
+
+| kbd:[C-c C-t l]
+| `cider-test-run-loaded-tests`
+| Run all currently loaded tests.
+
+| kbd:[C-c C-t p]
+| `cider-test-run-project-tests`
+| Run all the project's tests.
+
+| kbd:[C-c C-t a]
+| `cider-test-rerun-test`
+| Re-run the last test you ran.
+
+| kbd:[C-c C-t r]
+| `cider-test-rerun-failed-tests`
+| Re-run only the failing tests.
+
+| kbd:[C-c C-t b]
+| `cider-test-show-report`
+| Show the test report buffer.
+|===
+
+TIP: See xref:testing/running_tests.adoc[Running Tests] for the full test runner.
+
+== Debugging and tracing
+
+|===
+| Keyboard shortcut | Command | Description
+
+| kbd:[C-u C-M-x] (also kbd:[C-u C-c C-c])
+| `cider-eval-defun-at-point`
+| Instrument the top-level form and step through it in the debugger.
+
+| kbd:[C-c M-t v]
+| `cider-toggle-trace-var`
+| Toggle tracing of the var at point.
+
+| kbd:[C-c M-t n]
+| `cider-toggle-trace-ns`
+| Toggle tracing of a whole namespace.
+|===
+
+TIP: See xref:debugging/debugger.adoc[Debugger] and xref:debugging/tracing.adoc[Tracing].
+
+== Interacting with the REPL
+
+|===
+| Keyboard shortcut | Command | Description
+
+| kbd:[C-c C-z]
+| `cider-switch-to-repl-buffer`
+| Switch between the source buffer and the REPL.
+
+| kbd:[C-c M-z]
+| `cider-load-buffer-and-switch-to-repl-buffer`
+| Load the current buffer and switch to the REPL.
+
+| kbd:[C-c M-p]
+| `cider-insert-last-sexp-in-repl`
+| Copy the form preceding point into the REPL prompt.
+
+| kbd:[C-c C-j c]
+| `cider-send-to-comment`
+| Copy the top-level form into the namespace's rich `comment` block.
+
+| kbd:[C-c C-j v]
+| `cider-jump-to-comment`
+| Move point into the namespace's rich `comment` block.
+
+| kbd:[C-c C-o]
+| `cider-find-and-clear-repl-output`
+| Clear the output of the last evaluation from the REPL.
+
+| kbd:[C-c M-d]
+| `cider-describe-connection`
+| Show information about the current connection.
+
+| kbd:[C-c C-b]
+| `cider-interrupt`
+| Interrupt any pending evaluations.
+|===
+
+== Completion
+
+CIDER completes the symbol at point through the standard
+`completion-at-point` mechanism, so it's normally bound to kbd:[M-TAB] (and
+triggered automatically by completion UIs like `company` or `corfu`). See
+xref:usage/code_completion.adoc[Code Completion] for details.
+
+[#printable-refcard]
+== Printable reference card
+
+CIDER also ships a one-page, printable quick-reference card covering these
+essentials, meant to be printed and kept on your desk. You can find the PDF (and
+its source) in the
+https://github.com/clojure-emacs/cider/tree/master/refcard[`refcard` directory]
+of the CIDER repository.

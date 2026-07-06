@@ -59,6 +59,7 @@
 ** xref:platforms/clojureclr.adoc[ClojureCLR]
 ** xref:platforms/other_platforms.adoc[Other Platforms]
 * Reference
+** xref:keybindings.adoc[Keybindings]
 ** xref:indent_spec.adoc[Indentation Specification]
 ** xref:about/changelog.adoc[Changelog]
 * Getting Help
