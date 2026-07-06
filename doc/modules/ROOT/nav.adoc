@@ -1,6 +1,7 @@
 * xref:index.adoc[Home]
 * Getting Started
 ** xref:basics/installation.adoc[Installation]
+** xref:basics/quickstart.adoc[Quick Start]
 ** xref:basics/up_and_running.adoc[Up and Running]
 ** xref:basics/remote.adoc[Remote and Container Connections]
 ** xref:basics/middleware_setup.adoc[nREPL Middleware Setup]
@@ -39,6 +40,8 @@
 ** xref:config/syntax_highlighting.adoc[Syntax Highlighting]
 ** xref:config/indentation.adoc[Indentation]
 ** xref:config/eldoc.adoc[Eldoc]
+** xref:config/clojure_ts_mode.adoc[Using clojure-ts-mode]
+** xref:config/lsp.adoc[Using CIDER with clojure-lsp]
 ** xref:config/project_config.adoc[Project-specific Configuration]
 * ClojureScript
 ** xref:cljs/overview.adoc[Overview]

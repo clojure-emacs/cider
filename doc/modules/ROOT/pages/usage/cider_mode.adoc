@@ -27,6 +27,9 @@ or if you are using `clojure-ts-mode`:
 
 NOTE: There's no need to enable it explicitly for modes derived from `clojure-mode` or `clojure-ts-mode` like `clojurescript-mode` and `clojure-ts-clojurescript-mode`.
 
+TIP: See xref:config/clojure_ts_mode.adoc[Using clojure-ts-mode] for the current
+state of CIDER's tree-sitter support.
+
 == Disabling cider-mode
 
 `cider-mode` is normally disabled automatically when you quit CIDER, but you can also disable it in any buffer explicitly by typing `M-x cider-mode` (provided it's already enabled in that buffer).

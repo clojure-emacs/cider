@@ -4,6 +4,12 @@
 CIDER is certainly not perfect and has some limitations that everyone
 should be aware of.
 
+TIP: This page lists known limitations - things that don't work, or only work
+partially, by design or because support is still in progress. If instead
+something that's supposed to work is misbehaving, see
+xref:troubleshooting.adoc[Troubleshooting]; for general questions see the
+xref:faq.adoc[FAQ].
+
 == ClojureScript limitations
 
 Currently, the following features are not supported for ClojureScript
@@ -86,11 +92,7 @@ one that's bundled with Leiningen.
 
 == clojure-ts-mode integration
 
-NOTE: `clojure-ts-mode` support was introduced in CIDER 1.14.
-
-CIDER has basic support for working with
-https://github.com/clojure-emacs/clojure-ts-mode[clojure-ts-mode] buffers, but it still depends on
-https://github.com/clojure-emacs/clojure-mode[clojure-mode] for certain functionality, like
-extracting information about Clojure code out of the buffer. We plan to make `clojure-ts-mode` capable
-of providing CIDER with all the functionality it needs to interact with Clojure buffers, but that
-will take some time.
+CIDER supports `clojure-ts-mode`, but that support is still maturing and it
+currently leans on `clojure-mode` for some buffer analysis. See
+xref:config/clojure_ts_mode.adoc[Using clojure-ts-mode] for the details and
+current limitations.

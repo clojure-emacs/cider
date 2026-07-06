@@ -1,0 +1,115 @@
+= Using CIDER with clojure-lsp
+:experimental:
+
+A lot of Clojure programmers run CIDER alongside
+https://clojure-lsp.io[clojure-lsp] (through
+https://emacs-lsp.github.io/lsp-mode/[lsp-mode] or Emacs's built-in
+https://github.com/joaotavora/eglot[Eglot]). The two are complementary rather
+than competing, but because they both hook into the same Emacs facilities
+(completion, xref, ElDoc, formatting) it's worth understanding how to make them
+coexist cleanly.
+
+This page assumes you already have clojure-lsp and an LSP client set up. It only
+covers the CIDER side of the relationship.
+
+== Why run both?
+
+CIDER and clojure-lsp answer different questions, and the split follows a simple
+rule of thumb:
+
+* *clojure-lsp is static.* It analyzes your project's source on disk, so it works
+  before you've started a REPL and sees code that's never been loaded. That makes
+  it strong at project-wide navigation and references, rename and other
+  refactorings, completion and signature help without a running process,
+  formatting, and on-the-fly diagnostics from `clj-kondo`.
+* *CIDER is dynamic.* Everything it does goes through a running nREPL process, so
+  it reflects the actual state of your program. That's what powers interactive
+  evaluation, the debugger, the inspector, the test runner, macroexpansion,
+  tracing and profiling, and runtime-accurate documentation and completion.
+
+Used together you get the best of both: clojure-lsp's whole-project static view
+for editing and navigation, and CIDER's live connection for actually running and
+inspecting your code. The features that only make sense at runtime (evaluation,
+debugging, inspection, testing) are CIDER's alone and never overlap with LSP.
+
+== Resolving the overlaps
+
+The friction shows up in the handful of areas where both tools plug into the same
+Emacs feature. In each case you can keep both, or defer to one. There's no single
+correct answer - it depends on whether you'd rather have runtime-accurate or
+static-analysis answers when a REPL is connected.
+
+=== Definition lookup and references (xref)
+
+Both integrate with Emacs's built-in `xref`, so kbd:[M-.] and kbd:[M-?] could be
+served by either. CIDER adds its backend with a precedence of `-90` (lower means
+higher priority), so by default *CIDER wins when a REPL is connected*. To let
+clojure-lsp handle navigation instead, lower CIDER's precedence:
+
+[source,lisp]
+----
+(setq cider-xref-fn-depth 90)
+----
+
+Or turn CIDER's xref backend off entirely, so kbd:[M-.] always goes through your
+LSP client:
+
+[source,lisp]
+----
+(setq cider-use-xref nil)
+----
+
+NOTE: You'll have to toggle `cider-mode` off and on (or restart it) for a change
+to `cider-use-xref` to take effect.
+
+See xref:usage/navigation.adoc[Code Navigation and Browsing] for the full picture
+of CIDER's own navigation commands.
+
+=== Documentation in the echo area (ElDoc)
+
+Both can feed the echo area through `eldoc-documentation-functions`. As of CIDER
+2.0, CIDER's ElDoc function declines its slot when it has nothing to show, so the
+two compose cleanly and you can leave both registered. If you'd rather have
+clojure-lsp be the sole ElDoc source, remove CIDER's function:
+
+[source,lisp]
+----
+(remove-hook 'eldoc-documentation-functions #'cider-eldoc)
+----
+
+TIP: Emacs 28+ can merge multiple ElDoc sources, so you can see, say, a linter
+message from clojure-lsp *and* CIDER's runtime arglist at once. See
+xref:config/eldoc.adoc[ElDoc] for details.
+
+=== Completion
+
+CIDER registers a `completion-at-point` function that completes against the
+running REPL, and lsp-mode registers one of its own. They can coexist on
+`completion-at-point-functions`; which one you get depends on their order and on
+whether a REPL is connected. If you prefer a single source of completions, keep
+whichever you like and disable the other in Clojure buffers (for CIDER, that's
+removing `cider-complete-at-point` from `completion-at-point-functions`). See
+xref:usage/code_completion.adoc[Code Completion] for how CIDER's completion works.
+
+=== Formatting
+
+clojure-lsp formats via `cljfmt`, and so does CIDER
+(xref:usage/formatting.adoc[Formatting Code]). Pick one to own formatting rather
+than wiring both into your save hook, so a buffer isn't reformatted twice by two
+configurations that might disagree.
+
+=== Diagnostics and refactoring
+
+These don't overlap: CIDER does no static linting and only a little refactoring,
+so leave diagnostics (`clj-kondo`) and project-wide refactorings like rename to
+clojure-lsp. For AST-powered refactoring on top of a REPL, there's also the
+separate https://github.com/clojure-emacs/clj-refactor.el[clj-refactor.el].
+
+== A note on load order
+
+If you use both, enabling `cider-mode` and your LSP client in the same Clojure
+buffers is enough - the precedence knobs above decide who answers what. Because
+CIDER's backends generally only kick in once a REPL is connected, a common and
+comfortable setup is to let clojure-lsp drive navigation, completion and docs
+while you're just editing, and let CIDER take over (per the defaults, or your
+tuned precedence) once you've jacked in.

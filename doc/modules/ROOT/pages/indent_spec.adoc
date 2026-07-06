@@ -1,5 +1,9 @@
 = Indentation Specification
 
+This is the reference for the `:style/indent` metadata format. For how CIDER
+applies indentation in general (and how "dynamic indentation" picks these specs
+up from your running code), see xref:config/indentation.adoc[Indentation].
+
 == Overview
 
 An indent spec can be used to specify intricate indentation rules for the more

@@ -4,6 +4,10 @@
 In case you run into issues here are a few tips that can help you diagnose the
 problem.
 
+TIP: This page is about diagnosing things that should work but don't. If the
+behavior you're seeing is a known limitation, check xref:caveats.adoc[Caveats]
+first; for general questions about CIDER see the xref:faq.adoc[FAQ].
+
 Generally, it's not a bad idea to configure Emacs to spit the backtrace on error
 (instead of just logging the error in the `+*Messages*+` buffer). You can toggle
 this behavior by using kbd:[M-x] `toggle-debug-on-error`.

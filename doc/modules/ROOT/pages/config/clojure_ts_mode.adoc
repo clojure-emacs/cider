@@ -1,0 +1,47 @@
+= Using clojure-ts-mode
+:experimental:
+
+https://github.com/clojure-emacs/clojure-ts-mode[clojure-ts-mode] is a
+tree-sitter-powered major mode for editing Clojure, and the eventual successor to
+the classic https://github.com/clojure-emacs/clojure-mode[clojure-mode]. CIDER
+works with it, so you can pair CIDER's interactive-programming features with a
+tree-sitter editing experience.
+
+NOTE: `clojure-ts-mode` support was introduced in CIDER 1.14.
+
+== Enabling cider-mode
+
+Just as with `clojure-mode`, CIDER's minor mode isn't forced on you - enable it
+by adding it to the mode hook:
+
+[source,lisp]
+----
+(add-hook 'clojure-ts-mode-hook #'cider-mode)
+----
+
+TIP: There's no need to enable it explicitly for modes derived from
+`clojure-ts-mode` (such as `clojure-ts-clojurescript-mode`) - those inherit the
+hook.
+
+Once `cider-mode` is on, the usual commands are available and the CIDER menu and
+keybindings are installed in `clojure-ts-mode` buffers. Starting a REPL works the
+same way too: visit a project file and run kbd:[M-x] `cider-jack-in` (see
+xref:basics/quickstart.adoc[Quick Start]).
+
+== Current state and limitations
+
+CIDER has solid, but still-evolving, support for `clojure-ts-mode`. The important
+thing to know is that it *still depends on `clojure-mode`* for some of its work -
+notably for extracting information about the Clojure code in a buffer. So even
+when you edit with `clojure-ts-mode`, you should keep `clojure-mode` installed
+(it's a hard dependency of CIDER anyway, so it will be).
+
+The long-term plan is to make `clojure-ts-mode` capable of providing CIDER with
+everything it needs directly, at which point the `clojure-mode` dependency for
+buffer analysis will fall away. That work is ongoing and will take some time, so
+if you hit a rough edge with `clojure-ts-mode` that `clojure-mode` handles
+smoothly, that mismatch is the usual cause.
+
+TIP: If you're deciding whether to switch, `clojure-ts-mode`'s own README tracks
+its maturity and feature coverage. CIDER will keep supporting `clojure-mode` for
+the foreseeable future, so there's no rush.

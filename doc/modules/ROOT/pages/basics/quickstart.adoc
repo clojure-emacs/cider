@@ -1,0 +1,85 @@
+= Quick Start
+:experimental:
+
+This page gets you from nothing to a live CIDER session in a few minutes. It
+sticks to the common happy path - a local Clojure project and Emacs on the same
+machine. Everything here is covered in more depth elsewhere, and the page links
+out at each step.
+
+== 1. Install CIDER
+
+CIDER is available on all the major `package.el` repositories. The quickest way
+in:
+
+kbd:[M-x package-install <RET> cider <RET>]
+
+If Emacs can't find the package, refresh the package list first with kbd:[M-x
+package-refresh-contents <RET>] and try again.
+
+TIP: For `use-package`, pinning to stable releases, and the finer points, see
+xref:basics/installation.adoc[Installation].
+
+You'll also need Emacs 28.1+ and a recent build tool on your `PATH` - the Clojure
+CLI (`clojure`), Leiningen (`lein`), or Gradle. Any Clojure project managed by
+one of those works out of the box.
+
+== 2. Open a file in your project
+
+Visit any Clojure source file that belongs to your project (for example
+`src/my_app/core.clj`). CIDER keys off the project that file lives in, so it's
+important to start from inside a real project rather than a stray buffer.
+
+`cider-mode` turns on automatically in Clojure buffers once CIDER is loaded, and
+it's what adds all the "talk to a running Clojure" commands on top of ordinary
+editing.
+
+== 3. Jack in
+
+Start a REPL and connect to it in one step:
+
+kbd:[M-x] `cider-jack-in` kbd:[RET]
+
+In a Clojure buffer this is bound to kbd:[C-c C-x C-j C-j]. CIDER detects your
+build tool, launches an nREPL server with the right dependencies injected
+automatically, waits for it to come up, and connects. When it's done you land in
+a REPL buffer with a prompt.
+
+TIP: If you pause after kbd:[C-c C-x], a menu pops up listing every way to start
+or connect to a session, so you don't have to memorize the key sequences.
+
+NOTE: If your REPL server is already running, or lives on another machine or in
+a container, use `cider-connect` instead - see
+xref:basics/up_and_running.adoc[Up and Running] and
+xref:basics/remote.adoc[Remote and Container Connections].
+
+== 4. Evaluate some code
+
+You now have a running Clojure process you can interact with without ever
+restarting it. From your source buffer:
+
+* kbd:[C-x C-e] (`cider-eval-last-sexp`) - evaluate the expression right before
+  the cursor and show the result in the echo area.
+* kbd:[C-c C-c] (`cider-eval-defun-at-point`) - evaluate the top-level form the
+  cursor is in. Use this after editing a function to redefine it in the running
+  program.
+* kbd:[C-c C-k] (`cider-load-buffer`) - load the whole current buffer.
+
+Try changing a function, pressing kbd:[C-c C-c] on it, and calling it from the
+REPL - the new definition is live immediately. That loop, editing a running
+program instead of restarting it, is the heart of how you work with CIDER.
+
+TIP: The REPL buffer is a full Clojure REPL. Type an expression at the prompt and
+press kbd:[RET] to evaluate it.
+
+== Where to next?
+
+You're up and running. A few good directions from here:
+
+* Understand the workflow you just used in
+  xref:usage/interactive_programming.adoc[Interactive Programming] and
+  xref:usage/cider_mode.adoc[Using cider-mode].
+* Go deeper on evaluation in xref:usage/code_evaluation.adoc[Code Evaluation]
+  and the REPL in xref:repl/basic_usage.adoc[Using the REPL].
+* xref:config/basic_config.adoc[Configure] CIDER to your liking.
+* Explore the xref:additional_packages.adoc[additional packages] that pair well
+  with CIDER.

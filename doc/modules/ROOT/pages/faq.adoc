@@ -1,5 +1,13 @@
 = Frequently Asked Questions
 
+[TIP]
+====
+This page answers general questions about CIDER, the project and its place in the
+ecosystem. If something isn't working, start with
+xref:troubleshooting.adoc[Troubleshooting]; for features that are known not to
+work (by design or not yet), see xref:caveats.adoc[Caveats].
+====
+
 == What does CIDER stand for?
 
 CIDER stands for **C**lojure **I**nteractive **D**evelopment **E**nvironment that **R**ocks.
