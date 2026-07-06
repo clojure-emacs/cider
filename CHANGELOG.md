@@ -45,6 +45,7 @@
 
 ### Bugs fixed
 
+- [#4078](https://github.com/clojure-emacs/cider/issues/4078): Fix the menu-bar showing a duplicated "CIDER" menu when `cider-mode` is active.
 - Fix the debugger's `O` (force step-out) key, which aborted the session with an error because it sent an invalid `:force-out` command instead of a forced `:out`.
 - Fix the debugger's menu-bar menu: it advertised the wrong key for "Inject value" (`i` instead of `j`) and was missing entries for stepping in, showing the stacktrace, and tracing.
 - Fix `cider-log-kill-appender`'s confirmation message, which had the appender and framework names swapped.

@@ -711,23 +711,30 @@ higher precedence."
 
 This menu works as an easy entry-point into CIDER.  Even if cider.el isn't
 loaded yet, this will be shown in Clojure buffers next to the Clojure menu."
-  (easy-menu-define cider-clojure-mode-menu-open mode-map
-    "Menu for Clojure mode.
-  This is displayed in `clojure-mode' and `clojure-ts-mode' buffers,
-  if `cider-mode' is not active."
-    `("CIDER" :visible (not cider-mode)
-      ["Start a Clojure REPL" cider-jack-in-clj
-       :help "Starts an nREPL server and connects a Clojure REPL to it."]
-      ["Connect to a Clojure REPL" cider-connect-clj
-       :help "Connects to a REPL that's already running."]
-      ["Start a ClojureScript REPL" cider-jack-in-cljs
-       :help "Starts an nREPL server and connects a ClojureScript REPL to it."]
-      ["Connect to a ClojureScript REPL" cider-connect-cljs
-       :help "Connects to a ClojureScript REPL that's already running."]
-      ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-clj&cljs
-       :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL."]
-      "--"
-      ["View user manual" cider-view-manual])))
+  ;; NOTE: This entry-point menu deliberately uses a menu-bar key of its own
+  ;; (`cider-jack-in') rather than the `cider' key used by `cider-mode's own
+  ;; menu (see `cider-mode-menu').  Both menus are labelled "CIDER", and Emacs
+  ;; *merges* same-key menu-bar entries coming from different active keymaps -
+  ;; which would drop the `:visible' guard below and show two "CIDER" menus at
+  ;; once when `cider-mode' is active (see #4078).  A distinct key keeps them
+  ;; separate, so `:visible' alone decides which one is shown.
+  (define-key mode-map [menu-bar cider-jack-in]
+    `(menu-item "CIDER"
+                ,(easy-menu-create-menu
+                  "CIDER"
+                  '(["Start a Clojure REPL" cider-jack-in-clj
+                     :help "Starts an nREPL server and connects a Clojure REPL to it."]
+                    ["Connect to a Clojure REPL" cider-connect-clj
+                     :help "Connects to a REPL that's already running."]
+                    ["Start a ClojureScript REPL" cider-jack-in-cljs
+                     :help "Starts an nREPL server and connects a ClojureScript REPL to it."]
+                    ["Connect to a ClojureScript REPL" cider-connect-cljs
+                     :help "Connects to a ClojureScript REPL that's already running."]
+                    ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-clj&cljs
+                     :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL."]
+                    "--"
+                    ["View user manual" cider-view-manual]))
+                :visible (not cider-mode))))
 
 ;;;###autoload
 (with-eval-after-load 'clojure-mode
