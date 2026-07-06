@@ -493,10 +493,10 @@ See `compilation-error-regexp-alist' for help on their format.")
 We do so by starting and the current position and proceeding backwards
 until we find a delimiters that's not inside a string."
   (if (and (looking-back "[])}]" (line-beginning-position))
-           (null (nth 3 (syntax-ppss))))
+           (null (ppss-string-terminator (syntax-ppss))))
       (backward-sexp)
     (while (or (not (looking-at-p "[({[]"))
-               (nth 3 (syntax-ppss)))
+               (ppss-string-terminator (syntax-ppss)))
       (backward-char))))
 
 (defun cider--find-last-error-location (error-info)

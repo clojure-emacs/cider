@@ -136,12 +136,12 @@ directory still has a sensible default."
 (defun cider-in-string-p ()
   "Return non-nil if point is in a string."
   (let ((beg (save-excursion (beginning-of-defun-raw) (point))))
-    (nth 3 (parse-partial-sexp beg (point)))))
+    (ppss-string-terminator (parse-partial-sexp beg (point)))))
 
 (defun cider-in-comment-p ()
   "Return non-nil if point is in a comment."
   (let ((beg (save-excursion (beginning-of-defun-raw) (point))))
-    (nth 4 (parse-partial-sexp beg (point)))))
+    (ppss-comment-depth (parse-partial-sexp beg (point)))))
 
 (defun cider--tooling-file-p (file-name)
   "Return t if FILE-NAME is not a real source file.

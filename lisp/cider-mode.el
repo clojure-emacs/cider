@@ -863,7 +863,7 @@ Search is done with the given LIMIT."
     (when (search-forward-regexp cider-reader-conditionals-regexp limit t)
       (let ((start (match-beginning 0))
             (state (syntax-ppss)))
-        (if (or (nth 3 state) (nth 4 state)) ; inside string or comment?
+        (if (syntax-ppss-context state) ; inside string or comment?
             (cider--search-reader-conditionals limit)
           (when (<= (point) limit)
             (ignore-errors
@@ -929,7 +929,7 @@ with the given LIMIT."
      (cider--anchored-search-suppressed-forms
       (save-excursion
         (let* ((state (syntax-ppss))
-               (list-pt (nth 1 state)))
+               (list-pt (ppss-innermost-start state)))
           (when list-pt
             (goto-char list-pt)
             (forward-list)

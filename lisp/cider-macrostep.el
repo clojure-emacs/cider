@@ -260,8 +260,7 @@ skipped."
           ;; with `save-excursion'; otherwise the next `search-forward' would
           ;; re-find this same paren and loop forever.
           (unless (save-excursion
-                    (let ((ppss (syntax-ppss lb)))
-                      (or (nth 3 ppss) (nth 4 ppss))))
+                    (syntax-ppss-context (syntax-ppss lb)))
             (save-excursion
               (goto-char (1+ lb))
               (skip-chars-forward " \t\n")
