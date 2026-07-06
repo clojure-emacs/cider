@@ -1616,20 +1616,20 @@ case."
   "Workhorse for getting locref at point.
 REG-LIST is an entry in `cider-locref-regexp-alist'."
   (beginning-of-line)
-  (when (re-search-forward (nth 1 reg-list) (line-end-position) t)
-    (let ((ix-highlight (or (nth 2 reg-list) 0))
-          (ix-var (nth 3 reg-list))
-          (ix-file (nth 4 reg-list))
-          (ix-line (nth 5 reg-list)))
-      (list
-       :type (car reg-list)
-       :highlight (cons (match-beginning ix-highlight) (match-end ix-highlight))
-       :var  (and ix-var
-                  (replace-regexp-in-string "_" "-"
-                                            (match-string-no-properties ix-var)
-                                            nil t))
-       :file (and ix-file (match-string-no-properties ix-file))
-       :line (and ix-line (string-to-number (match-string-no-properties ix-line)))))))
+  ;; `seq-let' (rather than a `pcase' pattern) so a user-customized entry with
+  ;; missing trailing fields still binds them to nil, as the old `nth' reads did.
+  (seq-let (type regexp highlight var file line) reg-list
+    (when (re-search-forward regexp (line-end-position) t)
+      (let ((highlight (or highlight 0)))
+        (list
+         :type type
+         :highlight (cons (match-beginning highlight) (match-end highlight))
+         :var  (and var
+                    (replace-regexp-in-string "_" "-"
+                                              (match-string-no-properties var)
+                                              nil t))
+         :file (and file (match-string-no-properties file))
+         :line (and line (string-to-number (match-string-no-properties line))))))))
 
 (defun cider-locref-at-point (&optional pos)
   "Return a plist of components of the location reference at POS.

@@ -493,10 +493,10 @@ See `compilation-error-regexp-alist' for help on their format.")
 We do so by starting and the current position and proceeding backwards
 until we find a delimiters that's not inside a string."
   (if (and (looking-back "[])}]" (line-beginning-position))
-           (null (nth 3 (syntax-ppss))))
+           (null (ppss-string-terminator (syntax-ppss))))
       (backward-sexp)
     (while (or (not (looking-at-p "[({[]"))
-               (nth 3 (syntax-ppss)))
+               (ppss-string-terminator (syntax-ppss)))
       (backward-char))))
 
 (defun cider--find-last-error-location (error-info)
@@ -538,33 +538,33 @@ buffer.
 If `cider-auto-jump-to-error' is enabled and not NO-JUMP, jump to the
 parsed location."
   (when-let* ((info (cider-extract-error-info cider-compilation-regexp message))
-              (loc (cider--find-last-error-location info))
-              (overlay (make-overlay (nth 0 loc) (nth 1 loc) (nth 2 loc))))
-    (let* ((face (nth 3 info))
-           (note (nth 4 info))
-           (auto-jump (unless no-jump
-                        (if (eq cider-auto-jump-to-error 'errors-only)
-                            (not (or (eq face 'cider-warning-highlight-face)
-                                     (string-match-p "warning" note)))
-                          cider-auto-jump-to-error))))
-      (overlay-put overlay 'cider-note-p t)
-      (overlay-put overlay 'font-lock-face face)
-      (overlay-put overlay 'cider-note note)
-      (overlay-put overlay 'help-echo note)
-      (overlay-put overlay 'modification-hooks
-                   (list (lambda (o &rest _args) (delete-overlay o))))
-      (when auto-jump
-        (with-current-buffer eval-buffer
-          (push-mark)
-          ;; At this stage selected window commonly is *cider-error* and we need to
-          ;; re-select the original user window. If eval-buffer is not
-          ;; visible it was probably covered as a result of a small screen or user
-          ;; configuration (https://github.com/clojure-emacs/cider/issues/847). In
-          ;; that case we don't jump at all in order to avoid covering *cider-error*
-          ;; buffer.
-          (when-let* ((win (get-buffer-window eval-buffer)))
-            (with-selected-window win
-              (cider-jump-to (nth 2 loc) (car loc)))))))))
+              (loc (cider--find-last-error-location info)))
+    (pcase-let ((`(,begin ,end ,buffer) loc)
+                (`(,_file ,_line ,_col ,face ,note) info))
+      (let ((overlay (make-overlay begin end buffer))
+            (auto-jump (unless no-jump
+                         (if (eq cider-auto-jump-to-error 'errors-only)
+                             (not (or (eq face 'cider-warning-highlight-face)
+                                      (string-match-p "warning" note)))
+                           cider-auto-jump-to-error))))
+        (overlay-put overlay 'cider-note-p t)
+        (overlay-put overlay 'font-lock-face face)
+        (overlay-put overlay 'cider-note note)
+        (overlay-put overlay 'help-echo note)
+        (overlay-put overlay 'modification-hooks
+                     (list (lambda (o &rest _args) (delete-overlay o))))
+        (when auto-jump
+          (with-current-buffer eval-buffer
+            (push-mark)
+            ;; At this stage selected window commonly is *cider-error* and we need to
+            ;; re-select the original user window. If eval-buffer is not
+            ;; visible it was probably covered as a result of a small screen or user
+            ;; configuration (https://github.com/clojure-emacs/cider/issues/847). In
+            ;; that case we don't jump at all in order to avoid covering *cider-error*
+            ;; buffer.
+            (when-let* ((win (get-buffer-window eval-buffer)))
+              (with-selected-window win
+                (cider-jump-to buffer begin)))))))))
 
 (provide 'cider-compilation)
 

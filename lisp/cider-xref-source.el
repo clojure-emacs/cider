@@ -205,7 +205,7 @@ namespace form's own require declarations."
         (let ((beg (match-beginning 1))
               (end (match-end 1)))
           (goto-char end)
-          (unless (or (nth 8 (syntax-ppss beg))   ; skip strings and comments
+          (unless (or (ppss-comment-or-string-start (syntax-ppss beg)) ; skip strings and comments
                       (and exclude (>= beg (car exclude)) (< beg (cdr exclude))))
             ;; Advance the line counter incrementally so the whole scan stays
             ;; linear instead of calling `line-number-at-pos' per match.
@@ -306,7 +306,7 @@ Matches inside strings and comments are skipped."
         (let ((name-beg (match-beginning 1))
               (name-end (match-end 1)))
           (goto-char name-end)
-          (unless (nth 8 (syntax-ppss name-beg))   ; skip strings and comments
+          (unless (ppss-comment-or-string-start (syntax-ppss name-beg)) ; skip strings and comments
             (setq line (+ line (save-excursion
                                  (goto-char counted)
                                  (let ((n 0))

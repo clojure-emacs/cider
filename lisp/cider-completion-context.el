@@ -35,7 +35,7 @@
 (defun cider-completion--bounds-of-non-string-symbol-at-point ()
   "Return the bounds of the symbol at point, unless it's inside a string."
   (let ((sap (symbol-at-point)))
-    (when (and sap (not (nth 3 (syntax-ppss))))
+    (when (and sap (not (ppss-string-terminator (syntax-ppss))))
       (bounds-of-thing-at-point 'symbol))))
 
 (defun cider-completion-symbol-start-pos ()

@@ -97,7 +97,7 @@ Show results in a different window if OTHER-WINDOW is true."
 Inside a string we assume a resource path and use `thing-at-point'.
 Otherwise we use `cider-symbol-at-point', which recognizes Clojure symbol
 characters such as `?' and `!' that `thing-at-point' filename mode drops."
-  (if (nth 3 (syntax-ppss))
+  (if (ppss-string-terminator (syntax-ppss))
       (thing-at-point 'filename)
     (or (cider-symbol-at-point) (thing-at-point 'filename))))
 

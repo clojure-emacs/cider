@@ -1031,7 +1031,7 @@ top-level `comment' form."
       (while (and (not beg)
                   (re-search-backward "^(comment\\_>" nil t))
         ;; ignore matches that sit inside a string or a line comment
-        (unless (nth 8 (syntax-ppss))
+        (unless (ppss-comment-or-string-start (syntax-ppss))
           (setq beg (point))))
       (when beg
         (goto-char beg)
