@@ -305,11 +305,11 @@ or when the `cider/classify-symbols' op isn't available."
                              (seq-uniq (mapcar #'car heads)))))
         ;; `seq-uniq' drops the duplicate hits that overlapping nested
         ;; expansions produce for the same head position.
-        (dolist (head (seq-uniq heads))
+        (pcase-dolist (`(,operator ,head-beg ,head-end) (seq-uniq heads))
           ;; Only macros are expandable today; inline functions will join once
           ;; the expander learns to expand them (a separate effort).
-          (when (equal (nrepl-dict-get classification (car head)) "macro")
-            (let ((ov (make-overlay (nth 1 head) (nth 2 head))))
+          (when (equal (nrepl-dict-get classification operator) "macro")
+            (let ((ov (make-overlay head-beg head-end)))
               (overlay-put ov 'face 'cider-macrostep-expandable-face)
               (overlay-put ov 'priority 100)
               (push ov cider-macrostep--expandable-overlays))))))))
