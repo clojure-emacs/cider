@@ -70,7 +70,8 @@ most of the time you'd probably want to have a project-specific setting for it i
 
 NOTE: `cider-jack-in` is mainly designed for local development (with files on a
 local machine and the nREPL process running on the same machine). It does support
-various common remote/container scenarios, as documented later in this section. Due
+various common remote/container scenarios, covered in
+xref:basics/remote.adoc[Remote and Container Connections]. Due
 to the large variation of remote scenarios it cannot support all of them, so in
 some cases, a better option would be to start nREPL manually and connect to it with `cider-connect`.
 
@@ -345,6 +346,7 @@ use `cider-connect` instead of `cider-jack-in`.
 * `cider-shadow-cljs-command` - the command to run `shadow-cljs` (`npx shadow-cljs` by default). By default we favor the project-specific shadow-cljs over the system-wide.
 * `cider-shadow-cljs-parameters` - the task to start a REPL server (`server` by default)
 
+[#overriding-the-jack-in-command]
 === Overriding the Jack-In Command
 
 Which jack-in command is used is normally inferred from the project type, but
@@ -459,222 +461,12 @@ The following configuration allows you to type kbd:[M-x] `cider-connect-clj&cljs
 
 Note that the universal argument kbd:[C-u] can be used before a command to override these settings and force the prompts to be displayed.
 
-== Working with Remote Hosts
+== Beyond the Local Machine
 
-Most of the time you'll connect to an nREPL server running on your own
-machine, started manually or via `cider-jack-in-\*`. Sometimes, though, the
-server lives elsewhere - another host on your network, a container, or even a
-production box.
-
-[IMPORTANT]
-====
-nREPL connections are completely insecure by default - there's no
-authentication, and anyone who can reach the port gets arbitrary code
-execution inside your process. *Never expose an nREPL port directly to a
-network you don't fully trust.*
-
-For any non-local server - and *especially* a production one - SSH tunneling
-is the way to go: keep nREPL bound to the remote's own `localhost`, and reach
-it through an encrypted SSH tunnel that piggybacks on your existing SSH
-credentials. CIDER can set up that tunnel for you.
-====
-
-There are two ways to get there.
-
-The first is to start the nREPL server yourself and point `cider-connect` (or
-`cider-connect-cljs`) at the remote host and port. For remote hosts CIDER can
-tunnel the connection over SSH rather than connecting directly:
-
-* `nrepl-use-ssh-fallback-for-remote-hosts` (default `nil`) - fall back to an
-  SSH tunnel when a direct connection to a remote host fails.
-* `nrepl-force-ssh-for-remote-hosts` (default `nil`) - skip the direct attempt
-  and always tunnel. This is the right setting when the nREPL port is bound
-  only to the remote's `localhost`, which is what you want for anything
-  reachable from an untrusted network.
-
-CIDER forwards a free _local_ port to the nREPL port on the remote and
-connects to that local port, so tunnels to several remote servers that happen
-to use the same nREPL port don't collide. If the forwarding doesn't come up
-within `nrepl-ssh-tunnel-timeout` seconds CIDER gives up with an error rather
-than hanging - the countdown resets while ssh is producing output, so password
-or 2FA prompts won't trip it, and the tunnel's buffer holds ssh's diagnostics
-if you need to investigate.
-
-CIDER can also use `ssh` merely to _discover_ which nREPL ports are listening
-on a remote host when you run `cider-connect-\*` - set
-`cider-infer-remote-nrepl-ports` to `t` (default `nil`).
-
-The second way is to run `cider-jack-in-\*` while editing remote files over
-https://www.gnu.org/software/tramp/[TRAMP] (e.g. a file opened as
-`/ssh:my-box:/path/to/project`). CIDER then starts the build tool and the
-nREPL server _on the remote host_, reuses the TRAMP connection's parameters
-(host, port, user) to establish the SSH tunnel, and connects back through it.
-The same tunnel reuse happens when you `cider-connect-\*` to a host you're
-already editing over TRAMP.
-
-NOTE: Enabling the SSH options above, or jacking in over TRAMP, makes CIDER
-lean on TRAMP for some SSH operations, which parses config files such as
-`~/.ssh/config` and `~/.ssh/known_hosts`. Complex or nonstandard ssh configs
-can trip this up - the tips below help.
-
-=== SSH config tips
-
-Remote work goes a lot more smoothly when you let your `~/.ssh/config` do the
-heavy lifting; CIDER, TRAMP and plain `ssh` then all share one definition of
-how to reach a host:
-
-* *Host aliases* keep the `cider-connect` prompts short.
-* *Connection sharing* (`ControlMaster auto`, `ControlPath`, `ControlPersist`)
-  reuses a single SSH connection for subsequent operations, which dramatically
-  cuts the per-request latency you'd otherwise pay over TRAMP.
-* *Bastion / jump hosts* are handled by `ProxyJump`.
-
-WARNING: If you go through a bastion host, beware that TRAMP injects its own
-connection-sharing options, which can conflict with a `ProxyJump` (or
-`ProxyCommand`) in your ssh config. Set `tramp-use-connection-share` to `nil`
-(or `suppress`) so TRAMP defers to your `~/.ssh/config`.
-
-=== Known TRAMP caveats
-
-A few things still need attention when jacking in over TRAMP:
-
-- *Executable resolution is best-effort on remote hosts.*  CIDER cannot
-  reliably check whether a given command exists on the other side, so a
-  missing executable typically only surfaces when the server fails to
-  start.  When in doubt, set `cider-jack-in-cmd` (see
-  <<Overriding the Jack-In Command>>) to the exact command
-  line you want to run.
-- *Endpoint discovery for `cider-connect`* (`cider-locate-running-nrepl-ports`)
-  inspects processes via `ps`/`lsof` on the host given by the buffer's
-  `default-directory`.  When you invoke `cider-connect` from a TRAMP
-  buffer, CIDER queries the remote host -- assuming `ps` and `lsof` are
-  installed there.  If they aren't, the completion list will simply be
-  empty.  The scan result is cached per `default-directory` for
-  `cider-running-nrepl-paths-cache-ttl` seconds (5 by default), so
-  back-to-back completions don't re-spawn the subprocesses; call
-  `cider-clear-running-nrepl-paths-cache` to discard it on demand.
-- *Server-printed bind addresses.*  Some servers (e.g. babashka) print
-  the bound address as `localhost`, `127.0.0.1`, or `0.0.0.0`.  CIDER
-  treats those as wildcard/loopback and falls back to the TRAMP host so
-  the resulting connection lands on the right machine; an explicit
-  non-loopback host in the server's output is honored as-is.
-- *Quoting on Windows is local-OS-aware.*  PowerShell-specific encoding
-  is selected from your local `cider-clojure-cli-command`, not the
-  remote host's shell, so cross-OS jack-ins (e.g. Linux Emacs ->
-  Windows host) may need an explicit `cider-jack-in-cmd`.
-
-NOTE: For Docker containers, running `cider-jack-in-\*` over TRAMP may technically work but it may give mixed results.
-Please check out the following section for the recommended approaches.
-
-== Working with Containers (Docker or others)
-
-By 'containers' we mean Docker containers, or similar technologies, for running the JVM that will host our nREPL server.
-The files which we edit may / may not be edited using TRAMP. They could as well be mounted inside the container, so they appear as local.
-
-Because CIDER can't always detect if it's dealing with remote files, it's advisable to not rely on `cider-jack-in`
-and its remote support described above, but to
-start the nREPL server via command line from inside the container, and `cider-connect` to it.
-
-This requires to first get a shell inside the running container and then start a nREPL server manually,
-or configure the container to start an nREPL automatically when the container starts.
-
-In order to connect Emacs to nREPL, we need to make sure that the port of nREPL is reachable to our local Emacs,
-so that we can `cider-connect` to it.
-There are several solutions for this depending on the concrete scenario.
-
-=== Working with Containers running on localhost
-
-The nREPL port should be set to a fixed value as we need to give this during the `docker start` command in order to forward the port from
-container to host. This requires as well that nREPL server listens to "0.0.0.0" and not only to "localhost".
-
-=== Working with Containers running on remote hosts
-
-In case we have the container running on a remote machine, we need to do the same setup as above and additionally use `ssh`
-to forward the already-forwarded port again to our local machine.
-
-This can be done using a command such as "ssh -L 12345:localhost:12345 remote-server",
-assuming that 12345 was the nREPL port exposed by the container.
-
-=== Working with devcontainers locally or remotely
-
-https://containers.dev[Development Containers] is a standard to describe container-based development environments. It includes a CLI.
-It uses Docker/Podman behind the scenes. So the principles of making sure that the nREPL port becomes available stay the same,
-but there are slightly different ways to configure this (given by the devcontainer standard).
-
-There are several CLI tools to manage devcontainers, as there are several container technologies. The following example uses
-link:https://github.com/devcontainers/cli[the devcontainers cli], but there are others (devpod, gitpod...).
-
-==== Example: Working with containers (using `devcontainer`) on a remote server
-
-In this scenario and assuming a folder `/home/me/my-clj-code` containing the relevant `devcontainer` related config files
-(devcontainer.json) we can first start remotely a devcontainer via:
-
-[source,sh]
-----
-# executed on MY_REMOTE_SERVER
-devcontainer up --workspace-folder /home/me/my-clj-code
-----
-
-Then we can start a nREPL server inside the container on the remote host as shown below (executed from your local machine).
-The command tunnels as well the remote port 12345 to local machine on port 12345:
-
-[source,sh]
-----
-ssh -t -L 12345:localhost:12345 MY_REMOTE_SERVER \
-    devcontainer exec  --workspace-folder /home/me/my-clj-code \
-    "clojure -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"1.7.0\"} cider/cider-nrepl {:mvn/version \"0.59.0\"}}}' -m nrepl.cmdline -p 12345 -b 0.0.0.0 --middleware '[\"cider.nrepl/cider-middleware\"]' "
-----
-
-For this to work, we need as well to configure `devcontainer.json` with a snippet that exposes port `12345` from the container to the (remote) host:
-
-[source,json]
-----
-"appPort": [
-  // will make container port 12345 available as 12345 on remote host
-  // (which will be further tunneled to 12345 on local machine)
-  "12345:12345"
-	],
-----
-
-This results then in having port 12345 available locally and we can `cider-connect` to it, using `localhost:12345`.
-Editing of the files can then happen via TRAMP. As the files are "on the remote machine"
-and also mounted inside the container on the remote machine, we have two possible TRAMP file syntaxes to edit them - either of:
-
-* `/ssh:MY_REMOTE_SERVER:/home/me/my-clj-code/...`
-* `/ssh:MY_REMOTE_SERVER|docker:DOCKER_CONTAINER_ID:/workspaces/my-clj-code/...`
-
-== Connecting via unix domain file socket
-
-NOTE: Unix socket support was introduced in nREPL 0.9. Currently
-CIDER's support for Unix sockets is considered experimental and its
-interface might change in future CIDER releases.
-
-When locally running nREPL servers, there is the option to listen on a
-socket file instead of opening a network port.  As long as access to
-the parent directory of the socket is sufficiently protected, this is
-much more secure than the network port, since any local user can
-access the port-provided REPL.  It can also be helpful in other
-cases, e.g. when working with virtual networks (containers) where
-sharing a file socket can be vastly simpler than managing bridge
-networks and firewall setups.
-
-After having started an nREPL server on a file socket, e.g. with the
-`clj` command (see https://nrepl.org/nrepl/usage/server.html for other
-examples),
-
-[source,sh]
-----
-$ clj -R:nREPL -m nrepl.cmdline --socket nrepl.sock
-----
-
-you can then connect CIDER by using the `local-unix-domain-socket`
-special hostname with `cider-connect`: kbd:[M-x] `cider-connect` kbd:[RET] `local-unix-domain-socket` kbd:[RET] `nrepl.sock` kbd:[RET].
-
-At the moment only with `leiningen`, commands like `cider-jack-in`
-will detect and use the unix domain socket if one is requested via the
-`:socket` argument.  This can be arranged by specifying a prefix
-argument to `cider-jack-in`, e.g. kbd:[C-u] kbd:[M-x] `cider-jack-in`,
-or by adjusting `cider-lein-parameters`.
+The commands above assume the nREPL server runs on your own machine. For
+servers on another host, inside a container, or reachable over a Unix domain
+socket - including SSH tunneling and jacking in over TRAMP - see
+xref:basics/remote.adoc[Remote and Container Connections].
 
 == What's Next?
 
