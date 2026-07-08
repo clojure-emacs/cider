@@ -90,10 +90,21 @@ If it doesn't point anywhere, returns ALIAS."
 
 (defconst cider-resolve--prefix-regexp "\\`\\(?:#'\\)?\\([^/]+\\)/")
 
-(defun cider-resolve--var (cache ns var)
+(defun cider-resolve--core-ns-name ()
+  "Return the core namespace name for the current connection.
+Either \"cljs.core\" or \"clojure.core\", depending on the value of
+`cider-repl-type' in the connected REPL."
+  (if-let* ((repl (cider-current-repl)))
+      (with-current-buffer repl
+        (if (eq cider-repl-type 'cljs) "cljs.core" "clojure.core"))
+    "clojure.core"))
+
+(defun cider-resolve--var (cache ns var core-ns)
   "Resolve VAR in namespace NS against the namespace CACHE dict.
-Helper for `cider-resolve-var'; recurses on CACHE instead of re-resolving
-the connection on every lookup.  See `cider-resolve-var' for the contract."
+CORE-NS is the core namespace (\"clojure.core\" or \"cljs.core\") that an
+unqualified, non-referred VAR falls back to.  Helper for `cider-resolve-var';
+recurses on CACHE instead of re-resolving the connection on every lookup.
+See `cider-resolve-var' for the contract."
   (let* ((var-ns (when (string-match cider-resolve--prefix-regexp var)
                    (let ((alias (match-string 1 var)))
                      (or (nrepl-dict-get-in cache (list ns "aliases" alias))
@@ -104,17 +115,17 @@ the connection on every lookup.  See `cider-resolve-var' for the contract."
      (unless var-ns
        ;; If the var had no prefix, it might be referred.
        (if-let* ((referral (nrepl-dict-get-in cache (list ns "refers" name))))
-           (cider-resolve--var cache ns referral)
+           (cider-resolve--var cache ns referral core-ns)
          ;; Or it might be from core.
-         (unless (equal ns "clojure.core")
-           (cider-resolve--var cache "clojure.core" name)))))))
+         (unless (equal ns core-ns)
+           (cider-resolve--var cache core-ns name core-ns)))))))
 
 (defun cider-resolve-var (ns var)
   "Return a dict of the metadata of a clojure var VAR in namespace NS.
 VAR is a string.
 Return nil only if VAR cannot be resolved."
   (when-let* ((cache (cider-resolve--ns-cache)))
-    (cider-resolve--var cache ns var)))
+    (cider-resolve--var cache ns var (cider-resolve--core-ns-name))))
 
 (defun cider-resolve-core-ns ()
   "Return a dict of the core namespace for current connection.
