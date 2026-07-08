@@ -645,7 +645,7 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
   "Format the log EVENT of FRAMEWORK and APPENDER."
   (when-let* ((event (cider-sync-request:log-format-event framework appender event)))
     (cider-popup-buffer cider-log-event-buffer
-                        (cider-auto-select-buffer-p 'error cider-auto-select-error-buffer)
+                        (cider-auto-select-buffer-p 'error 'default)
                         'clojure-mode 'ancillary)
     (with-current-buffer cider-log-event-buffer
       (let ((inhibit-read-only t))
@@ -680,7 +680,7 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
     (when-let* ((framework cider-log-framework)
                 (appender cider-log-appender)
                 (event (cider-log-event-at-point)))
-      (let ((cider-auto-select-error-buffer nil))
+      (let ((cider-auto-select-buffer nil))
         (save-window-excursion
           (when (get-buffer-window cider-inspector-buffer)
             (cider-log-event--inspect framework appender event))
