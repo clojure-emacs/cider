@@ -859,16 +859,25 @@ throughout the deprecation window, then is removed in a later release."
                          "")))))))
 
 (declare-function shr-insert-document "shr" (dom))
+(defvar shr-blocked-images)
 
 (defun cider--render-html-string (html)
   "Return HTML rendered to displayable text via shr.
+Remote images (any `scheme://' URL) are blocked, so rendering a result
+never makes a network request on its own - which would otherwise leak the
+user's IP the moment a result contained a remote `<img>' (a tracking-pixel
+vector), bypassing the on-demand fetch the external-content path requires.
+Inline `data:' images are safe and still render.
 Falls back to the raw HTML when Emacs lacks libxml support."
   (if (and (fboundp 'libxml-available-p) (libxml-available-p))
       (progn
         (require 'shr)
         (with-temp-buffer
           (insert html)
-          (let ((dom (libxml-parse-html-region (point-min) (point-max))))
+          (let ((dom (libxml-parse-html-region (point-min) (point-max)))
+                ;; Block remote image fetching (see the docstring); `data:'
+                ;; URLs have no `//' authority, so they are not matched.
+                (shr-blocked-images "\\`[a-z][-a-z0-9+.]*://"))
             (erase-buffer)
             (shr-insert-document dom)
             (string-trim (buffer-string)))))

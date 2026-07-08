@@ -613,4 +613,19 @@ and some other vars (like clojure.core/filter).
   (it "returns the raw html without libxml support"
     (assume (not (and (fboundp 'libxml-available-p) (libxml-available-p)))
             "libxml support is available")
-    (expect (cider--render-html-string "<b>x</b>") :to-equal "<b>x</b>")))
+    (expect (cider--render-html-string "<b>x</b>") :to-equal "<b>x</b>"))
+
+  (it "blocks remote images (no network) but still renders inline data: images"
+    (assume (and (fboundp 'libxml-available-p) (libxml-available-p))
+            "libxml support not available")
+    (require 'shr)
+    (let (blocked)
+      ;; Capture the `shr-blocked-images' binding in effect during rendering.
+      (spy-on 'shr-insert-document :and-call-fake
+              (lambda (_dom) (setq blocked shr-blocked-images)))
+      (cider--render-html-string "<p>hi</p>")
+      (expect blocked :to-be-truthy)
+      ;; remote images match (blocked); a `data:' URI does not (still renders).
+      (expect (string-match-p blocked "http://example.com/pixel.png") :to-be-truthy)
+      (expect (string-match-p blocked "https://example.com/x.png") :to-be-truthy)
+      (expect (string-match-p blocked "data:image/png;base64,AAAA") :to-be nil))))
