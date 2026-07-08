@@ -833,6 +833,12 @@ Optional arguments include SEARCH-NS, DOCS-P, PRIVATES-P, CASE-SENSITIVE-P.
 
 This is the keyword-argument form; `cider-sync-request:apropos' is the legacy
 positional shim retained for backward compatibility."
+  ;; Apropos resolves symbols against the JVM Clojure runtime (orchard has no
+  ;; ClojureScript branch), so it returns misleading results in a cljs context.
+  ;; Guard on `cider-connected-p' so a disconnected session still gets the
+  ;; regular "no REPL" error rather than this one.
+  (when (and (cider-connected-p) (not (cider-runtime-clojure-p)))
+    (user-error "Apropos is only supported for Clojure, not ClojureScript"))
   (let* ((query (replace-regexp-in-string "[ \t]+" ".+" query))
          (response (cider-nrepl-sync-request
                     `("op" "cider/apropos"

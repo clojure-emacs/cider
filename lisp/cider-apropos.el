@@ -52,14 +52,10 @@ the symbol found by the apropos search as argument."
   :group 'cider
   :package-version '(cider . "0.13.0"))
 
-(define-button-type 'apropos-special-form
-  'apropos-label "Special form"
-  'apropos-short-label "s"
-  'face 'font-lock-keyword-face
-  'help-echo "mouse-2, RET: Display more help on this special form"
+(define-button-type 'cider-apropos-label
+  'face 'font-lock-type-face
   'follow-link t
-  'action (lambda (button)
-            (describe-function (button-get button 'apropos-symbol))))
+  'action #'cider-apropos-doc)
 
 (defun cider-apropos-doc (button)
   "Display documentation for the symbol represented at BUTTON."
@@ -106,7 +102,7 @@ and be case-sensitive (based on CASE-SENSITIVE-P)."
       (cider-propertize-region props
         (insert-text-button name 'type 'apropos-symbol)
         (insert "\n  ")
-        (insert-text-button label 'type (intern (concat "apropos-" type)))
+        (insert-text-button label 'type 'cider-apropos-label)
         (insert ": ")
         (let ((beg (point)))
           (if docs-p

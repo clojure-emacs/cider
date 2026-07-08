@@ -41,3 +41,9 @@
   (it "raises user-error when cider is not connected."
     (spy-on 'cider-connected-p :and-return-value nil)
     (expect (cider-apropos-documentation) :to-throw 'user-error)))
+
+(describe "cider-apropos-request"
+  (it "raises a user-error in a ClojureScript context"
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'cider-runtime-clojure-p :and-return-value nil)
+    (expect (cider-apropos-request "test") :to-throw 'user-error)))
