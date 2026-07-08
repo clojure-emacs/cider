@@ -69,7 +69,15 @@
     (expect (nth 2 (spy-context-args (spy-calls-most-recent 'cider-jump-to))) :to-be-truthy)
     (spy-calls-reset 'cider-jump-to)
     (cider-find-keyword '-)             ; negative -> other window
-    (expect (nth 2 (spy-context-args (spy-calls-most-recent 'cider-jump-to))) :to-be-truthy)))
+    (expect (nth 2 (spy-context-args (spy-calls-most-recent 'cider-jump-to))) :to-be-truthy))
+
+  ;; Regression test: with the default config and no keyword at point, `kw' is
+  ;; nil and used to reach `string-match', crashing with a raw type error.
+  (it "signals a user-error when there is no keyword at point"
+    (spy-on 'cider-ensure-session :and-return-value t)
+    (spy-on 'cider-symbol-at-point :and-return-value nil)
+    (let ((cider-prompt-for-symbol nil))
+      (expect (cider-find-keyword nil) :to-throw 'user-error))))
 
 (describe "cider--find-keyword-loc"
   (it "finds the given keyword, discarding false positives"

@@ -278,7 +278,9 @@ thing at point."
                     nil nil kw-at-point)
                  kw-at-point)))
          (before (buffer-list))
-         (result (cider--find-keyword-loc kw)))
+         (result (if kw
+                     (cider--find-keyword-loc kw)
+                   (user-error "No keyword at point"))))
     (nrepl-dbind-response result (dest dest-point)
       (if dest-point
           (cider-jump-to dest dest-point (cider--open-other-window-p arg))
