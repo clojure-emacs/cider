@@ -130,10 +130,13 @@ FN must accept two arguments key and value."
 (defun nrepl-dict-merge (dict1 dict2)
   "Destructively merge DICT2 into DICT1.
 Keys in DICT2 override those in DICT1."
-  (let ((base (or dict1 '(dict))))
+  ;; Allocate a fresh dict when DICT1 is nil.  Using the quoted literal
+  ;; `\='(dict)' here would be mutated in place by `nrepl-dict-put', polluting
+  ;; the shared constant for every later nil-seeded merge in the session.
+  (let ((base (or dict1 (nrepl-dict))))
     (nrepl-dict-map (lambda (k v)
                       (nrepl-dict-put base k v))
-                    (or dict2 '(dict)))
+                    (or dict2 (nrepl-dict)))
     base))
 
 (defun nrepl-dict-get-in (dict keys)

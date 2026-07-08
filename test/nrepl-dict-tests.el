@@ -43,7 +43,14 @@
 
   (it "handles nil values"
     (expect (nrepl-dict-merge nil '(dict 1 3 "10" me)) :to-equal '(dict 1 3 "10" me))
-    (expect (nrepl-dict-merge '(dict 1 3 "10" me) nil) :to-equal '(dict 1 3 "10" me))))
+    (expect (nrepl-dict-merge '(dict 1 3 "10" me) nil) :to-equal '(dict 1 3 "10" me)))
+
+  (it "does not leak state between nil-seeded merges"
+    ;; A nil DICT1 must yield a fresh dict, not a shared literal that later
+    ;; merges keep mutating.
+    (nrepl-dict-merge nil '(dict "x" 1))
+    (expect (nrepl-dict-merge nil nil) :to-equal '(dict))
+    (expect (nrepl-dict-merge nil '(dict "y" 2)) :to-equal '(dict "y" 2))))
 
 (describe "nrepl-dict-contains"
   :var (input)
