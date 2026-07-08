@@ -45,6 +45,7 @@
 
 ### Bugs fixed
 
+- [#4081](https://github.com/clojure-emacs/cider/pull/4081): Make `cider-stacktrace-suppressed-errors` customizable again (its `:type` described a fixed one-element list) and stop the stacktrace renderer from leaving a stray `fill-prefix` in the `*cider-error*` buffer.
 - [#4078](https://github.com/clojure-emacs/cider/issues/4078): Fix the menu-bar showing a duplicated "CIDER" menu when `cider-mode` is active.
 - Fix the debugger's `O` (force step-out) key, which aborted the session with an error because it sent an invalid `:force-out` command instead of a forced `:out`.
 - Fix the debugger's menu-bar menu: it advertised the wrong key for "Inject value" (`i` instead of `j`) and was missing entries for stepping in, showing the stacktrace, and tracing.
@@ -66,6 +67,7 @@
 
 ### Changes
 
+- [#4081](https://github.com/clojure-emacs/cider/pull/4081): Remove the long-obsolete (no-op since 1.18) `cider-stacktrace-analyze-at-point` and `cider-stacktrace-analyze-in-region` commands.
 - Bump the injected `cider-nrepl` to 0.62.0-alpha2, which carries the hardened content-type/slurp middleware backing the rich-content revival below (and no longer double-sends `value` alongside content-typed responses).
 - Enable rich content in the REPL by default (`cider-repl-use-content-types` is now t): image results render inline, and results naming external content (files, URLs) render a `[show content]` button that fetches and renders it on demand. The automatic fetching that got the feature disabled back in 0.25 ([#2825](https://github.com/clojure-emacs/cider/issues/2825)) is gone - nothing is transferred until the button is pressed - and the server side is hardened in `cider-nrepl` 0.62 (URL-scheme allowlist, size caps, graceful fetch errors).
 - Rename `cider-log-buffer-clear-p` to `cider-log-buffer-has-content-p` - the old name read as the opposite of its behavior; it remains as an obsolete alias.

@@ -67,17 +67,19 @@ Pick nil if you prefer the same window as *cider-error*."
 (defvar cider-stacktrace-detail-max 2
   "The maximum detail level for causes.")
 
-(defvar-local cider-stacktrace-hidden-frame-count 0)
-(defvar-local cider-stacktrace-filters nil)
-(defvar-local cider-stacktrace-cause-visibility nil)
-(defvar-local cider-stacktrace-positive-filters nil)
+(defvar-local cider-stacktrace-hidden-frame-count 0
+  "Number of stack frames currently hidden by the active filters.")
+(defvar-local cider-stacktrace-filters nil
+  "List of the currently active stack-frame filters.")
+(defvar-local cider-stacktrace-cause-visibility nil
+  "Vector mapping each cause's index to its visibility level (0-2).")
 
 (defconst cider-error-buffer "*cider-error*")
 
 (defcustom cider-stacktrace-suppressed-errors '()
   "Errors that won't make the stacktrace buffer pop over your active window.
 The error types are represented as strings."
-  :type '(list string)
+  :type '(repeat string)
   :package-version '(cider . "0.12.0"))
 
 ;; Faces
@@ -407,9 +409,10 @@ grouped with a suppressed error type."
 (defun cider-stacktrace-cycle-cause (num &optional level)
   "Update element NUM of `cider-stacktrace-cause-visibility'.
 If LEVEL is specified, it is used, otherwise its current value is incremented.
-When it reaches 3, it wraps to 0."
+When it passes `cider-stacktrace-detail-max', it wraps back to 0."
   (let ((level (or level (1+ (elt cider-stacktrace-cause-visibility num)))))
-    (aset cider-stacktrace-cause-visibility num (mod level 3))
+    (aset cider-stacktrace-cause-visibility num
+          (mod level (1+ cider-stacktrace-detail-max)))
     (cider-stacktrace-apply-cause-visibility)))
 
 (defun cider-stacktrace-cycle-all-causes ()
@@ -426,7 +429,7 @@ When it reaches 3, it wraps to 0."
       (let* ((num (get-text-property (point) 'cause))
              (level (1+ (elt cider-stacktrace-cause-visibility num))))
         (setq-local cider-stacktrace-cause-visibility
-                    (make-vector 10 (mod level 3)))
+                    (make-vector 10 (mod level (1+ cider-stacktrace-detail-max))))
         (cider-stacktrace-apply-cause-visibility)))))
 
 (defun cider-stacktrace-cycle-current-cause ()
@@ -615,10 +618,13 @@ length given by `current-column'."
       (insert indent)
       (forward-line))
     (when (and fill cider-stacktrace-fill-column)
-      (when (and (numberp cider-stacktrace-fill-column))
-        (setq-local fill-column cider-stacktrace-fill-column))
-      (setq-local fill-prefix indent)
-      (fill-region beg (point)))))
+      ;; Bind rather than `setq-local' so the error buffer isn't left with a
+      ;; stray `fill-prefix'/`fill-column' after rendering.
+      (let ((fill-column (if (numberp cider-stacktrace-fill-column)
+                             cider-stacktrace-fill-column
+                           fill-column))
+            (fill-prefix indent))
+        (fill-region beg (point))))))
 
 (defun cider-stacktrace-render-filters (buffer special-filters filters)
   "Emit into BUFFER toggle buttons for each of the FILTERS.
@@ -698,7 +704,7 @@ This associates text properties to enable filtering and source navigation."
                                         (if (member 'clj flags) ns class)
                                         (if (member 'clj flags) fn method))
                                 'var var 'class class 'method method
-                                'name name 'file file 'file-url file-url 'line line
+                                'file file 'file-url file-url 'line line
                                 'flags flags 'follow-link t
                                 'action #'cider-stacktrace-navigate
                                 'help-echo (cider-stacktrace-tooltip
@@ -964,20 +970,6 @@ through the `cider-stacktrace-suppressed-errors' variable."
             (setq num (1- num))))))
     (cider-stacktrace-initialize causes)
     (font-lock-refresh-defaults)))
-
-(defun cider-stacktrace-analyze-at-point ()
-  "Removed."
-  (interactive)
-  (message "This function has been removed.
-You can jump to functions and methods directly from the printed stacktrace now."))
-(make-obsolete 'cider-stacktrace-analyze-at-point nil "1.18")
-
-(defun cider-stacktrace-analyze-in-region (&rest _)
-  "Removed."
-  (interactive)
-  (message "This function has been removed.
-You can jump to functions and methods directly from the printed stacktrace now."))
-(make-obsolete 'cider-stacktrace-analyze-in-region nil "1.18")
 
 (provide 'cider-stacktrace)
 
