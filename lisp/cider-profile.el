@@ -31,18 +31,6 @@
 (require 'cider-inspector)
 (require 'transient)
 
-(defvar cider-profile-map
-  (let ((map (define-prefix-command 'cider-profile-map)))
-    (define-key map (kbd "t") #'cider-profile-toggle)
-    (define-key map (kbd "C-t") #'cider-profile-toggle)
-    (define-key map (kbd "c") #'cider-profile-clear)
-    (define-key map (kbd "C-c") #'cider-profile-clear)
-    (define-key map (kbd "s") #'cider-profile-summary)
-    (define-key map (kbd "C-s") #'cider-profile-summary)
-    (define-key map (kbd "n") #'cider-profile-ns-toggle)
-    (define-key map (kbd "C-n") #'cider-profile-ns-toggle)
-    map)
-  "CIDER profiler keymap.")
 
 (defconst cider-profile-easy-menu
   '("Profile"
@@ -97,24 +85,26 @@ current ns."
           ("unprofiled" (message "Profiling disabled for %s" ns))))))))
 
 ;;;###autoload
-(defun cider-profile-toggle (_query)
+(defun cider-profile-toggle (query)
   "Toggle profiling for a var.
-Defaults to the symbol at point.
-With prefix arg or no symbol at point, prompts for a var."
+Defaults to the symbol at point.  With a prefix arg QUERY, or when there is
+no symbol at point, prompt for the var."
   (interactive "P")
-  (cider-read-symbol-name
-   "Toggle profiling for var: "
-   (lambda (sym)
-     (let ((ns (cider-current-ns)))
-       (cider-nrepl-send-request
-        `("op" "cider/profile-toggle-var"
-          "ns" ,ns
-          "sym" ,sym)
-        (cider-profile--make-response-handler
-         (lambda (value)
-           (pcase value
-             ("profiled" (message "Profiling enabled for %s/%s" ns sym))
-             ("unprofiled" (message "Profiling disabled for %s/%s" ns sym))))))))))
+  (let ((toggle
+         (lambda (sym)
+           (let ((ns (cider-current-ns)))
+             (cider-nrepl-send-request
+              `("op" "cider/profile-toggle-var"
+                "ns" ,ns
+                "sym" ,sym)
+              (cider-profile--make-response-handler
+               (lambda (value)
+                 (pcase value
+                   ("profiled" (message "Profiling enabled for %s/%s" ns sym))
+                   ("unprofiled" (message "Profiling disabled for %s/%s" ns sym))))))))))
+    (if-let* ((sym (and (not query) (cider-symbol-at-point))))
+        (funcall toggle sym)
+      (cider-read-symbol-name "Toggle profiling for var: " toggle))))
 
 ;;;###autoload
 (defun cider-profile-summary ()

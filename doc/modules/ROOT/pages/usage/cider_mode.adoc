@@ -128,7 +128,7 @@ defined.  Just rebind the prefix key back to its keymap:
   (keymap-set cider-mode-map "C-c M-n" 'cider-ns-map)             ; namespace
   (keymap-set cider-mode-map "C-c C-j" 'cider-insert-commands-map) ; insert in REPL
   (keymap-set cider-mode-map "C-c M-m" 'cider-macroexpand-map)    ; macroexpansion
-  (keymap-set cider-mode-map "C-c C-=" 'cider-profile-map)        ; profiling
+  (keymap-set cider-mode-map "C-c C-=" 'cider-profile-menu)       ; profiling
   (keymap-set cider-mode-map "C-c C-w" 'cider-who-map))           ; call-graph queries
 ----
 
