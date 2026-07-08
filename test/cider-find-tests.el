@@ -77,7 +77,22 @@
     (spy-on 'cider-ensure-session :and-return-value t)
     (spy-on 'cider-symbol-at-point :and-return-value nil)
     (let ((cider-prompt-for-symbol nil))
-      (expect (cider-find-keyword nil) :to-throw 'user-error))))
+      (expect (cider-find-keyword nil) :to-throw 'user-error)))
+
+  ;; Regression: a prefix arg must invert `cider-prompt-for-symbol', not be
+  ;; OR-ed with it (which made the prompt unconditional when the option was t).
+  (it "inverts cider-prompt-for-symbol with a prefix arg"
+    (spy-on 'cider-ensure-session :and-return-value t)
+    (spy-on 'cider-symbol-at-point :and-return-value ":foo")
+    (spy-on 'read-string :and-return-value ":foo")
+    (spy-on 'cider--find-keyword-loc :and-return-value
+            (nrepl-dict "dest" (current-buffer) "dest-point" 1))
+    (spy-on 'cider-jump-to)
+    (let ((cider-prompt-for-symbol t))
+      (cider-find-keyword '(4))         ; prefix inverts t -> no prompt
+      (expect 'read-string :not :to-have-been-called)
+      (cider-find-keyword nil)          ; no prefix -> prompt
+      (expect 'read-string :to-have-been-called))))
 
 (describe "cider--find-keyword-loc"
   (it "finds the given keyword, discarding false positives"
