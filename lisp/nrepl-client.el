@@ -964,42 +964,46 @@ positional shim retained for backward compatibility."
                (when callback
                  (funcall callback resp))
                (nrepl--merge response resp)))
-         status)
-    (nrepl-send-request request cb connection tooling)
-    (while (and (not (member "done" status))
-                (not (and abort-on-input
-                          (input-pending-p))))
-      (setq status (nrepl-dict-get response "status"))
-      ;; If we get a need-input message then the repl probably isn't going
-      ;; anywhere, and we'll just timeout.  So we forward it to the user.
-      (if (and (member "need-input" status)
-               nrepl-need-input-handler-function)
-          (progn (funcall nrepl-need-input-handler-function (current-buffer))
-                 ;; If the user took a few seconds to respond, we might
-                 ;; unnecessarily timeout, so let's reset the timer.
-                 (setq time0 (current-time)))
-        ;; break out in case we don't receive a response for a while
-        (when (and nrepl-sync-request-timeout
-                   (time-less-p
-                    nrepl-sync-request-timeout
-                    (time-subtract nil time0)))
-          (error "Sync nREPL request timed out %s after %s secs" request nrepl-sync-request-timeout)))
-      ;; Clean up the response, otherwise we might repeatedly ask for input.
-      (nrepl-dict-put response "status" (remove "need-input" status))
-      (accept-process-output nil 0.01))
-    ;; If we couldn't finish, return nil.
-    (when (member "done" status)
-      (nrepl-dbind-response response (ex err eval-error id)
-        (when (and ex err eval-error nrepl-err-handler-function)
-          (funcall nrepl-err-handler-function connection))
-        (when id
-          (with-current-buffer connection
-            (nrepl--mark-id-completed id)))
-        ;; The op was declined because a ClojureScript REPL is active; abort
-        ;; the calling command with a clear message (clojure-emacs/cider#2198).
-        (when-let* ((msg (nrepl--clojure-only-error response)))
-          (user-error "%s" msg))
-        response))))
+         status
+         (id (nrepl-send-request request cb connection tooling)))
+    (unwind-protect
+        (progn
+          (while (and (not (member "done" status))
+                      (not (and abort-on-input
+                                (input-pending-p))))
+            (setq status (nrepl-dict-get response "status"))
+            ;; If we get a need-input message then the repl probably isn't going
+            ;; anywhere, and we'll just timeout.  So we forward it to the user.
+            (if (and (member "need-input" status)
+                     nrepl-need-input-handler-function)
+                (progn (funcall nrepl-need-input-handler-function (current-buffer))
+                       ;; If the user took a few seconds to respond, we might
+                       ;; unnecessarily timeout, so let's reset the timer.
+                       (setq time0 (current-time)))
+              ;; break out in case we don't receive a response for a while
+              (when (and nrepl-sync-request-timeout
+                         (time-less-p
+                          nrepl-sync-request-timeout
+                          (time-subtract nil time0)))
+                (error "Sync nREPL request timed out %s after %s secs" request nrepl-sync-request-timeout)))
+            ;; Clean up the response, otherwise we might repeatedly ask for input.
+            (nrepl-dict-put response "status" (remove "need-input" status))
+            (accept-process-output nil 0.01))
+          ;; If we couldn't finish, return nil.
+          (when (member "done" status)
+            (nrepl-dbind-response response (ex err eval-error)
+              (when (and ex err eval-error nrepl-err-handler-function)
+                (funcall nrepl-err-handler-function connection))
+              ;; The op was declined because a ClojureScript REPL is active; abort
+              ;; the calling command with a clear message (clojure-emacs/cider#2198).
+              (when-let* ((msg (nrepl--clojure-only-error response)))
+                (user-error "%s" msg))
+              response)))
+      ;; Always reap the pending callback -- even on an abort-on-input or
+      ;; timeout exit -- so it isn't leaked for the life of the connection.
+      (when (buffer-live-p connection)
+        (with-current-buffer connection
+          (nrepl--mark-id-completed id))))))
 
 (defun nrepl-send-sync-request (request connection &optional abort-on-input
                                         tooling callback)
