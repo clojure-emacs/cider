@@ -887,7 +887,9 @@ Sometimes the classpath contains entries like src/main and we need to
 resolve those to absolute paths."
   (when (cider-runtime-clojure-p)
     (let ((classpath (thread-first
-                       "(seq (.split (System/getProperty \"java.class.path\") \":\"))"
+                       ;; Split on the platform path separator (`;' on Windows,
+                       ;; where `:' also appears inside `C:\\...' paths).
+                       "(seq (.split (System/getProperty \"java.class.path\") (System/getProperty \"path.separator\")))"
                        (cider-sync-tooling-eval)
                        (nrepl-dict-get "value")
                        read))
