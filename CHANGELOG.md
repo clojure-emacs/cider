@@ -46,6 +46,8 @@
 
 ### Bugs fixed
 
+- [#4085](https://github.com/clojure-emacs/cider/pull/4085): Resolve unqualified ClojureScript core vars (e.g. their indentation metadata) against `cljs.core` in a cljs REPL, instead of always falling back to `clojure.core`.
+- [#4085](https://github.com/clojure-emacs/cider/pull/4085): Make a prefix argument to `cider-find-keyword` invert `cider-prompt-for-symbol` (matching the sibling find commands), instead of forcing the prompt on.
 - [#4084](https://github.com/clojure-emacs/cider/pull/4084): Fix `nrepl-dict-merge` mutating a shared literal when its first argument is nil, which leaked state (e.g. the REPL ns cache) between unrelated merges.
 - [#4084](https://github.com/clojure-emacs/cider/pull/4084): Don't treat a server notification's text as a format string in `nrepl-notify` (a stray `%` could error).
 - [#4084](https://github.com/clojure-emacs/cider/pull/4084): Reap the sync-request callback on `abort-on-input`/timeout exits, fixing a slow per-lookup memory leak on the eldoc/completion path.
