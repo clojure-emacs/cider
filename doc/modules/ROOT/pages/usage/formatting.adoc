@@ -44,6 +44,13 @@ You can supply additional configuration to `cljfmt` via the configuration variab
         ("alias-map" (("me" "org.me")))))
 ----
 
+As of `cider-nrepl` 0.61, formatting also picks up the project's own `cljfmt`
+configuration (for example a `.cljfmt.edn` file at the project root), so a
+team can share the same formatting rules regardless of editor. You don't
+have to do anything to opt in - the middleware reads it automatically.
+`cider-format-code-options` continues to let you pass extra `cljfmt` options
+from Emacs.
+
 NOTE: CIDER doesn't shell out to `cljfmt` - it interacts with it via nREPL
 (there's `format` middleware in `cider-nrepl`), which is faster than
 shelling out.
