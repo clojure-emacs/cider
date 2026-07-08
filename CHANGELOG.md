@@ -45,6 +45,7 @@
 
 ### Bugs fixed
 
+- [#4082](https://github.com/clojure-emacs/cider/pull/4082): Render a stack frame's `ns/fn` when it carries them (e.g. ClojureScript frames) instead of degrading to `nil/nil` for frames not tagged as Clojure ([#4043](https://github.com/clojure-emacs/cider/issues/4043)).
 - [#4081](https://github.com/clojure-emacs/cider/pull/4081): Make `cider-stacktrace-suppressed-errors` customizable again (its `:type` described a fixed one-element list) and stop the stacktrace renderer from leaving a stray `fill-prefix` in the `*cider-error*` buffer.
 - [#4078](https://github.com/clojure-emacs/cider/issues/4078): Fix the menu-bar showing a duplicated "CIDER" menu when `cider-mode` is active.
 - Fix the debugger's `O` (force step-out) key, which aborted the session with an error because it sent an invalid `:force-out` command instead of a forced `:out`.

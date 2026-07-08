@@ -310,3 +310,31 @@
         ;; the fill state must be bound, not set-local, so nothing lingers.
         (expect fill-prefix :to-be nil)
         (expect (local-variable-p 'fill-column) :to-be nil)))))
+
+(describe "cider-stacktrace-render-frame"
+  (it "renders a Clojure frame's ns/fn"
+    (with-temp-buffer
+      (cider-stacktrace-render-frame
+       (current-buffer)
+       (nrepl-dict "ns" "clojure.core" "fn" "map" "file" "core.clj" "line" 1
+                   "flags" '("clj") "class" "clojure.core$map" "method" "invoke"))
+      (expect (buffer-string) :to-match "clojure\\.core/map")))
+
+  (it "renders a Java frame's class/method"
+    (with-temp-buffer
+      (cider-stacktrace-render-frame
+       (current-buffer)
+       (nrepl-dict "class" "java.lang.Thread" "method" "run" "file" "Thread.java"
+                   "line" 1 "flags" '("java")))
+      (expect (buffer-string) :to-match "java\\.lang\\.Thread/run")))
+
+  (it "renders a ClojureScript frame's ns/fn even without the clj flag (#4043)"
+    (with-temp-buffer
+      ;; cljs frames carry ns/fn but no `clj' flag and no class/method; they
+      ;; must not degrade to `nil/nil'.
+      (cider-stacktrace-render-frame
+       (current-buffer)
+       (nrepl-dict "ns" "my.app.core" "fn" "handler" "file" "core.cljs"
+                   "line" 42 "flags" '("cljs")))
+      (expect (buffer-string) :to-match "my\\.app\\.core/handler")
+      (expect (buffer-string) :not :to-match "nil/nil"))))

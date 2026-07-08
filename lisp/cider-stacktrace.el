@@ -699,10 +699,15 @@ This associates text properties to enable filtering and source navigation."
       (nrepl-dbind-response frame (file file-url line flags class method name var ns fn)
         (when (or class file fn method ns name)
           (let ((flags (mapcar #'intern flags))) ; strings -> symbols
+            ;; Show the Clojure(Script) `ns/fn' when the frame carries it,
+            ;; otherwise the Java `class/method'.  Keying on the presence of
+            ;; `ns'/`fn' rather than the `clj' flag means ClojureScript frames
+            ;; (which aren't `clj'-flagged but do carry `ns'/`fn') render their
+            ;; names instead of `nil/nil' (#4043).
             (insert-text-button (format "%26s:%5d  %s/%s"
                                         (if (member 'repl flags) "REPL" file) (or line -1)
-                                        (if (member 'clj flags) ns class)
-                                        (if (member 'clj flags) fn method))
+                                        (or ns class)
+                                        (or fn method))
                                 'var var 'class class 'method method
                                 'file file 'file-url file-url 'line line
                                 'flags flags 'follow-link t
