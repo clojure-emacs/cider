@@ -547,3 +547,10 @@
         (funcall (nrepl-make-response-handler 'shim-buf nil nil nil nil)
                  '(dict "id" "1" "status" ("eval-error"))))
       (expect seen :to-be 'shim-buf))))
+
+(describe "nrepl-notify"
+  ;; The server controls the message text, so a `%' in it must not be treated
+  ;; as a format directive (which used to signal or misparse).
+  (it "does not treat a server message as a format string"
+    (expect (nrepl-notify "test %s and 100%" "warning") :not :to-throw)
+    (expect (nrepl-notify "raw 50% done" nil) :not :to-throw)))

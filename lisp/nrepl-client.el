@@ -773,7 +773,9 @@ Displays the notification via `message'."
          (msg (if face
                   (propertize msg 'face face)
                 (format "%s: %s" (upcase type) msg))))
-    (message msg)))
+    ;; MSG is server-provided, so pass it as an argument rather than as the
+    ;; format string - a stray `%' would otherwise misparse or error.
+    (message "%s" msg)))
 
 (cl-defun nrepl-make-eval-handler (&key on-value on-stdout on-stderr on-done
                                         on-ns on-status
