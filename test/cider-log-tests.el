@@ -39,20 +39,25 @@
       (spy-on 'cider-connected-p :and-return-value nil)
       (expect (cider-log framework appender) :to-throw 'user-error))
 
-    (it "doesn't add an appender when initialized."
-      (let ((cider-log--initialized-once-p t))
-        (spy-on 'cider-sync-request:log-frameworks :and-return-value (list framework))
-        (spy-on 'transient-setup)
-        (cider-log framework appender)
-        (expect 'transient-setup :to-have-been-called-with 'cider-log)))
+    (it "doesn't add an appender when it already exists server-side."
+      (spy-on 'cider-sync-request:log-frameworks :and-return-value (list framework))
+      (spy-on 'cider-log-appender-reload :and-return-value appender) ; exists
+      (spy-on 'cider-sync-request:log-add-appender)
+      (spy-on 'transient-setup)
+      (cider-log framework appender)
+      (expect 'cider-sync-request:log-add-appender :not :to-have-been-called)
+      (expect 'transient-setup :to-have-been-called-with 'cider-log))
 
-    (it "does add an appender when not initialized."
-      (let ((cider-log--initialized-once-p nil))
-        (spy-on 'cider-sync-request:log-frameworks :and-return-value (list framework))
-        (spy-on 'cider-sync-request:log-add-appender :and-return-value appender)
-        (spy-on 'transient-setup)
-        (cider-log framework appender)
-        (expect 'transient-setup :to-have-been-called-with 'cider-log)))
+    (it "adds an appender when it is missing server-side."
+      ;; Regression: this must keep working across an appender kill or a REPL
+      ;; restart, which a stuck once-per-session flag used to prevent.
+      (spy-on 'cider-sync-request:log-frameworks :and-return-value (list framework))
+      (spy-on 'cider-log-appender-reload :and-return-value nil) ; missing
+      (spy-on 'cider-sync-request:log-add-appender :and-return-value appender)
+      (spy-on 'transient-setup)
+      (cider-log framework appender)
+      (expect 'cider-sync-request:log-add-appender :to-have-been-called)
+      (expect 'transient-setup :to-have-been-called-with 'cider-log))
 
     (it "applies the consumer's own filters when initializing, not the appender's."
       ;; Regression: the consumer branch of `cider-log--ensure-initialized'
@@ -60,8 +65,8 @@
       (let* ((appender-filters (nrepl-dict "pattern" "appender-pattern"))
              (consumer-filters (nrepl-dict "pattern" "consumer-pattern"))
              (appender (nrepl-dict "id" "cider-log" "filters" appender-filters))
-             (consumer (nrepl-dict "id" "consumer" "filters" consumer-filters))
-             (cider-log--initialized-once-p t)) ; skip the add-appender network path
+             (consumer (nrepl-dict "id" "consumer" "filters" consumer-filters)))
+        (spy-on 'cider-log-appender-reload :and-return-value appender) ; skip add path
         (spy-on 'cider-log--set-filters)
         (with-temp-buffer
           (cider-log--ensure-initialized framework appender consumer))
