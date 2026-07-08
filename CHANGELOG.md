@@ -46,6 +46,11 @@
 
 ### Bugs fixed
 
+- [#4084](https://github.com/clojure-emacs/cider/pull/4084): Fix `nrepl-dict-merge` mutating a shared literal when its first argument is nil, which leaked state (e.g. the REPL ns cache) between unrelated merges.
+- [#4084](https://github.com/clojure-emacs/cider/pull/4084): Don't treat a server notification's text as a format string in `nrepl-notify` (a stray `%` could error).
+- [#4084](https://github.com/clojure-emacs/cider/pull/4084): Reap the sync-request callback on `abort-on-input`/timeout exits, fixing a slow per-lookup memory leak on the eldoc/completion path.
+- [#4084](https://github.com/clojure-emacs/cider/pull/4084): Signal a clean error from `cider-find-keyword` when there is no keyword at point, instead of a raw type error.
+- [#4084](https://github.com/clojure-emacs/cider/pull/4084): Recreate the log appender when it is missing server-side (after an appender kill or a REPL restart), which a stuck once-per-session flag used to prevent.
 - [#4083](https://github.com/clojure-emacs/cider/pull/4083): Split the classpath on the platform path separator, fixing `cider-classpath`/`cider-open-classpath-entry` on Windows.
 - [#4083](https://github.com/clojure-emacs/cider/pull/4083): Stop `cider-format-region`/`cider-format-defun` from corrupting multi-line string and regex literals when the region starts at a non-zero column, and give `cider-format-edn-last-sexp` a clean error when there is no sexp at point.
 - [#4083](https://github.com/clojure-emacs/cider/pull/4083): Make `cider-profile-toggle` honor its prefix argument (use the symbol at point unless prefixed), instead of always prompting.
