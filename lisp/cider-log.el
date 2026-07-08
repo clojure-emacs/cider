@@ -129,9 +129,6 @@ It will not be used if the package hasn't been installed."
 (declare-function logview-initialized-p "logview" () t)
 (declare-function logview-mode "logview" () t)
 
-(defvar cider-log--initialized-once-p nil
-  "Set to t if log framework and appender have been initialized once.")
-
 (defvar cider-log-framework nil
   "The current log framework to use.")
 
@@ -719,10 +716,12 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
   (when consumer
     (setq cider-log-consumer consumer)
     (cider-log--set-filters (cider-log-consumer-filters consumer)))
-  (when (and appender (not cider-log--initialized-once-p))
+  ;; Recreate the appender whenever it's missing server-side (after it was
+  ;; killed, or on a fresh REPL session).  `cider-log-appender-reload' is the
+  ;; authoritative existence check.
+  (when appender
     (unless (cider-log-appender-reload framework appender)
-      (setq cider-log-appender (cider-sync-request:log-add-appender framework appender))
-      (setq cider-log--initialized-once-p t))))
+      (setq cider-log-appender (cider-sync-request:log-add-appender framework appender)))))
 
 (defun cider-log-kill-buffer-hook-handler ()
   "Called from `kill-buffer-hook' to remove the consumer."
