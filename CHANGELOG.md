@@ -45,6 +45,10 @@
 
 ### Bugs fixed
 
+- [#4083](https://github.com/clojure-emacs/cider/pull/4083): Split the classpath on the platform path separator, fixing `cider-classpath`/`cider-open-classpath-entry` on Windows.
+- [#4083](https://github.com/clojure-emacs/cider/pull/4083): Stop `cider-format-region`/`cider-format-defun` from corrupting multi-line string and regex literals when the region starts at a non-zero column, and give `cider-format-edn-last-sexp` a clean error when there is no sexp at point.
+- [#4083](https://github.com/clojure-emacs/cider/pull/4083): Make `cider-profile-toggle` honor its prefix argument (use the symbol at point unless prefixed), instead of always prompting.
+- [#4083](https://github.com/clojure-emacs/cider/pull/4083): Signal a clear error when `cider-apropos` is used in a ClojureScript context (it is only supported for Clojure), instead of returning misleading results.
 - [#4082](https://github.com/clojure-emacs/cider/pull/4082): Render a stack frame's `ns/fn` when it carries them (e.g. ClojureScript frames) instead of degrading to `nil/nil` for frames not tagged as Clojure ([#4043](https://github.com/clojure-emacs/cider/issues/4043)).
 - [#4081](https://github.com/clojure-emacs/cider/pull/4081): Make `cider-stacktrace-suppressed-errors` customizable again (its `:type` described a fixed one-element list) and stop the stacktrace renderer from leaving a stray `fill-prefix` in the `*cider-error*` buffer.
 - [#4078](https://github.com/clojure-emacs/cider/issues/4078): Fix the menu-bar showing a duplicated "CIDER" menu when `cider-mode` is active.
