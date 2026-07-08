@@ -58,6 +58,12 @@
           "interns"
           (dict "map" (dict "arglists" "([f] [f coll])")
                 "filter" (dict "arglists" "([pred] [pred coll])"))
+          "refers" (dict))
+    "cljs.core"
+    (dict "aliases" (dict)
+          "interns"
+          (dict "map" (dict "arglists" "([f] [f coll])")
+                "js-obj" (dict "arglists" "([& keyvals])"))
           "refers" (dict))))
 
 (defmacro with-mock-ns-cache (&rest body)
@@ -142,7 +148,20 @@
   (it "returns nil for completely unknown vars"
     (with-mock-ns-cache
       (expect (cider-resolve-var "myapp.core" "totally-unknown")
-              :to-be nil))))
+              :to-be nil)))
+
+  (it "falls back to cljs.core in a ClojureScript REPL"
+    (with-mock-ns-cache
+      (with-current-buffer repl-buf (setq-local cider-repl-type 'cljs))
+      ;; A cljs.core-only var resolves in a cljs REPL...
+      (let ((meta (cider-resolve-var "myapp.core" "js-obj")))
+        (expect meta :to-be-truthy)
+        (expect (nrepl-dict-get meta "arglists") :to-equal "([& keyvals])"))))
+
+  (it "does not resolve cljs.core vars in a Clojure REPL"
+    (with-mock-ns-cache
+      ;; ...but not in a clj REPL, where the fallback is clojure.core.
+      (expect (cider-resolve-var "myapp.core" "js-obj") :to-be nil))))
 
 (describe "cider-resolve-core-ns"
   (it "returns clojure.core for Clojure REPLs"
