@@ -82,7 +82,7 @@
 ### Changes
 
 - [#4081](https://github.com/clojure-emacs/cider/pull/4081): Remove the long-obsolete (no-op since 1.18) `cider-stacktrace-analyze-at-point` and `cider-stacktrace-analyze-in-region` commands.
-- Bump the injected `cider-nrepl` to 0.62.0, which carries the hardened content-type/slurp middleware backing the rich-content revival below (and no longer double-sends `value` alongside content-typed responses).
+- Bump the injected `cider-nrepl` to 0.62.0 (and `piggieback` to 0.7.0), which carries the hardened content-type/slurp middleware backing the rich-content revival below (and no longer double-sends `value` alongside content-typed responses).
 - Enable rich content in the REPL by default (`cider-repl-use-content-types` is now t): image results render inline, and results naming external content (files, URLs) render a `[show content]` button that fetches and renders it on demand. The automatic fetching that got the feature disabled back in 0.25 ([#2825](https://github.com/clojure-emacs/cider/issues/2825)) is gone - nothing is transferred until the button is pressed - and the server side is hardened in `cider-nrepl` 0.62 (URL-scheme allowlist, size caps, graceful fetch errors).
 - Rename `cider-log-buffer-clear-p` to `cider-log-buffer-has-content-p` - the old name read as the opposite of its behavior; it remains as an obsolete alias.
 - Bump the default `cider-repl-history-size` from 500 to 5000.
