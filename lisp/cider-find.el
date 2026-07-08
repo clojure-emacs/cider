@@ -272,7 +272,7 @@ thing at point."
   (interactive "P")
   (cider-ensure-session)
   (let* ((kw (let ((kw-at-point (cider-symbol-at-point 'look-back)))
-               (if (or cider-prompt-for-symbol arg)
+               (if (cider--prompt-for-symbol-p arg)
                    (read-string
                     (format "Keyword (default %s): " kw-at-point)
                     nil nil kw-at-point)
