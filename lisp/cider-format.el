@@ -30,15 +30,34 @@
 
 (require 'cider-client)
 (require 'cider-util)
+(require 'clojure-mode)
 
 
 ;; Format
 
 (defun cider--format-reindent (formatted start)
-  "Reindent FORMATTED to align with buffer position START."
-  (let* ((start-column (save-excursion (goto-char start) (current-column)))
-         (indent-line (concat "\n" (make-string start-column ? ))))
-    (replace-regexp-in-string "\n" indent-line formatted)))
+  "Reindent FORMATTED to align with the buffer column of position START.
+Each continuation line is shifted right by START's column, except newlines
+inside string or regex literals, whose contents are left untouched."
+  (let ((start-column (save-excursion (goto-char start) (current-column))))
+    (if (zerop start-column)
+        formatted
+      (with-temp-buffer
+        (set-syntax-table clojure-mode-syntax-table)
+        (insert formatted)
+        (let ((pad (make-string start-column ?\s))
+              (positions nil))
+          ;; Collect the continuation lines that don't start inside a string,
+          ;; in a read-only pass so `syntax-ppss' stays accurate.
+          (goto-char (point-min))
+          (while (zerop (forward-line 1))
+            (unless (or (eobp) (nth 3 (syntax-ppss (point))))
+              (push (point) positions)))
+          ;; Insert bottom-up so earlier positions stay valid.
+          (dolist (pos positions)
+            (goto-char pos)
+            (insert pad)))
+        (buffer-string)))))
 
 
 ;;; Format region
@@ -141,7 +160,9 @@ START and END represent the region's boundaries."
 (defun cider-format-edn-last-sexp ()
   "Format the EDN data of the last sexp."
   (interactive)
-  (apply #'cider-format-edn-region (cider-sexp-at-point 'bounds)))
+  (if-let* ((bounds (cider-sexp-at-point 'bounds)))
+      (apply #'cider-format-edn-region bounds)
+    (user-error "No sexp at point")))
 
 (provide 'cider-format)
 ;;; cider-format.el ends here
