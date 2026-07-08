@@ -299,3 +299,14 @@
         (cider-stacktrace-navigate button)
         (expect 'cider-var-info :to-have-been-called-with "repro/named")
         (expect 'cider--jump-to-loc-from-info :to-have-been-called)))))
+
+(describe "cider-stacktrace-emit-indented"
+  (it "does not leak fill-prefix or a buffer-local fill-column after filling"
+    (with-temp-buffer
+      (let ((cider-stacktrace-fill-column 40))
+        (cider-stacktrace-emit-indented
+         "a fairly long line of text that the filler will wrap onto several lines"
+         "  " t nil)
+        ;; the fill state must be bound, not set-local, so nothing lingers.
+        (expect fill-prefix :to-be nil)
+        (expect (local-variable-p 'fill-column) :to-be nil)))))
