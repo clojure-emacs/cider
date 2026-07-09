@@ -385,12 +385,12 @@ The available styles are:
 * `line` - a line comment, e.g. `+;; => 42+`. This is the default and honors the
 `cider-comment-prefix`, `cider-comment-continued-prefix` and
 `cider-comment-postfix` options.
-* `ignore` - a reader ignore form, e.g. `+#_42+`. Handy when the result is a data
+* `discard` - a reader discard form, e.g. `+#_42+`. Handy when the result is a data
 structure you want to keep as a navigable, editable Clojure datum rather than
 comment text.
 * `comment` - a `comment` form, e.g. `+(comment 42)+`.
 
-NOTE: The `ignore` and `comment` styles ignore the `cider-comment-*` prefix
+NOTE: The `discard` and `comment` styles ignore the `cider-comment-*` prefix
 options and use their own fixed formatting.
 
 Re-evaluating a form replaces any existing eval comment in-place, rather than inserting a second one.
