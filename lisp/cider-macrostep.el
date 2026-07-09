@@ -64,37 +64,58 @@ binding introduced by the macro can be tracked through the expansion."
   :group 'cider
   :package-version '(cider . "2.0.0"))
 
-(defface cider-macrostep-gensym-1-face '((t :inherit font-lock-keyword-face))
+;; A qualitative palette: each distinct gensym just needs to be told apart
+;; from the others, so these default to distinct hues rather than inheriting
+;; semantic font-lock faces (which would imply meaning that isn't there and
+;; would collapse into weight/slant differences on themes that don't
+;; distinguish font-lock by color).  Each hue has a darker variant for light
+;; backgrounds and a brighter one for dark backgrounds.
+
+(defface cider-macrostep-gensym-1-face
+  '((((background light)) :foreground "#2166ac")
+    (t :foreground "#6cb6ff"))
   "Face 1 of the palette cycled through when coloring gensyms."
   :group 'cider
   :package-version '(cider . "2.0.0"))
 
-(defface cider-macrostep-gensym-2-face '((t :inherit font-lock-string-face))
+(defface cider-macrostep-gensym-2-face
+  '((((background light)) :foreground "#b35900")
+    (t :foreground "#e8a15a"))
   "Face 2 of the palette cycled through when coloring gensyms."
   :group 'cider
   :package-version '(cider . "2.0.0"))
 
-(defface cider-macrostep-gensym-3-face '((t :inherit font-lock-function-name-face))
+(defface cider-macrostep-gensym-3-face
+  '((((background light)) :foreground "#237a23")
+    (t :foreground "#89c559"))
   "Face 3 of the palette cycled through when coloring gensyms."
   :group 'cider
   :package-version '(cider . "2.0.0"))
 
-(defface cider-macrostep-gensym-4-face '((t :inherit font-lock-variable-name-face))
+(defface cider-macrostep-gensym-4-face
+  '((((background light)) :foreground "#a3187a")
+    (t :foreground "#f57ac8"))
   "Face 4 of the palette cycled through when coloring gensyms."
   :group 'cider
   :package-version '(cider . "2.0.0"))
 
-(defface cider-macrostep-gensym-5-face '((t :inherit font-lock-type-face))
+(defface cider-macrostep-gensym-5-face
+  '((((background light)) :foreground "#00808b")
+    (t :foreground "#4fcfc4"))
   "Face 5 of the palette cycled through when coloring gensyms."
   :group 'cider
   :package-version '(cider . "2.0.0"))
 
-(defface cider-macrostep-gensym-6-face '((t :inherit font-lock-constant-face))
+(defface cider-macrostep-gensym-6-face
+  '((((background light)) :foreground "#c62828")
+    (t :foreground "#ff6e6e"))
   "Face 6 of the palette cycled through when coloring gensyms."
   :group 'cider
   :package-version '(cider . "2.0.0"))
 
-(defface cider-macrostep-gensym-7-face '((t :inherit font-lock-builtin-face))
+(defface cider-macrostep-gensym-7-face
+  '((((background light)) :foreground "#7b2fa3")
+    (t :foreground "#c58af0"))
   "Face 7 of the palette cycled through when coloring gensyms."
   :group 'cider
   :package-version '(cider . "2.0.0"))
@@ -107,8 +128,8 @@ binding introduced by the macro can be tracked through the expansion."
   "Faces cycled through when coloring gensyms.
 Each distinct gensym in an expansion is assigned the next face in this
 list, wrapping around when an expansion has more gensyms than faces.
-The defaults inherit from standard font-lock faces, so they follow your
-theme."
+The defaults are a palette of distinct hues (with light- and dark-background
+variants) so that each gensym stays easy to tell apart on any theme."
   :type '(repeat face)
   :group 'cider
   :package-version '(cider . "2.0.0"))
