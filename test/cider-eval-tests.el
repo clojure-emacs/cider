@@ -182,8 +182,8 @@
           (cider-comment-continued-prefix ";;    ")
           (cider-comment-postfix ""))
       (expect (cider--comment-format) :to-equal '(";; => " ";;    " ""))))
-  (it "wraps results in a reader ignore form for the `ignore' style"
-    (let ((cider-comment-style 'ignore))
+  (it "wraps results in a reader discard form for the `discard' style"
+    (let ((cider-comment-style 'discard))
       (expect (cider--comment-format) :to-equal '("#_" "" ""))))
   (it "wraps results in a comment form for the `comment' style"
     (let ((cider-comment-style 'comment))
@@ -196,7 +196,7 @@
       (let ((indent-line-function #'ignore))
         (cider-maybe-insert-multiline-comment "42" ";; => " ";;    " ""))
       (expect (buffer-string) :to-equal ";; => 42")))
-  (it "produces a reader ignore form for the `ignore' style"
+  (it "produces a reader discard form for the `discard' style"
     (with-temp-buffer
       (let ((indent-line-function #'ignore))
         (cider-maybe-insert-multiline-comment "42" "#_" "" ""))

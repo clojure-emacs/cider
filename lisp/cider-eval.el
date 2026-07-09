@@ -193,14 +193,14 @@ The available styles are:
   `line'    -- a line comment (e.g. \";; => 42\").  This is the default and
                honors the `cider-comment-prefix', `cider-comment-continued-prefix'
                and `cider-comment-postfix' options.
-  `ignore'  -- a reader ignore form (e.g. \"#_42\"), which keeps the result as a
+  `discard' -- a reader discard form (e.g. \"#_42\"), which keeps the result as a
                navigable Clojure datum rather than comment text.
   `comment' -- a `comment' form (e.g. \"(comment 42)\").
 
-The `ignore' and `comment' styles ignore the `cider-comment-*' prefix options
+The `discard' and `comment' styles ignore the `cider-comment-*' prefix options
 and use their own fixed formatting."
   :type '(choice (const :tag "Line comment (;; =>)" line)
-                 (const :tag "Reader ignore form (#_)" ignore)
+                 (const :tag "Reader discard form (#_)" discard)
                  (const :tag "Comment form (comment ...)" comment))
   :group 'cider
   :package-version '(cider . "2.0.0"))
@@ -210,7 +210,7 @@ and use their own fixed formatting."
 The return value is a list (PREFIX CONTINUED-PREFIX POSTFIX) suitable for
 the eval-to-comment handlers."
   (pcase cider-comment-style
-    ('ignore  (list "#_" "" ""))
+    ('discard (list "#_" "" ""))
     ('comment (list "(comment " "" ")"))
     (_        (list cider-comment-prefix
                     cider-comment-continued-prefix

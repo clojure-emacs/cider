@@ -650,8 +650,8 @@ REASON is a keyword describing why this buffer was necessary."
     (search-forward-regexp (concat "\\_<" (regexp-quote key) "\\_>")
                            limit 'noerror)))
 
-(defun cider--debug-skip-ignored-forms ()
-  "Skip past all forms ignored with #_ reader macro."
+(defun cider--debug-skip-discarded-forms ()
+  "Skip past all forms discarded with the #_ reader macro."
   ;; Logic taken from `clojure--search-comment-macro-internal'
   (while (looking-at (concat "[ ,\r\t\n]*" clojure--comment-macro-regexp))
     (let ((md (match-data))
@@ -737,7 +737,7 @@ key of a map, and it means \"go to the value associated with this key\"."
               ;; entire #(...), so we should move back out.
               (backward-up-list)))
           ;; Finally skip past all #_ forms
-          (cider--debug-skip-ignored-forms))
+          (cider--debug-skip-discarded-forms))
         ;; Place point at the end of instrumented sexp.
         (clojure-forward-logical-sexp 1))
     ;; Avoid throwing actual errors, since this happens on every breakpoint.
