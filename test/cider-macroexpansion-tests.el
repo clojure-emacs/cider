@@ -168,6 +168,23 @@
                                        cider-macroexpansion-print-metadata))))
       (expect captured :to-equal '(tidy nil)))))
 
+(describe "cider-macroexpand-undo"
+  ;; Regression: the command used `(interactive "*P")', whose leading `*'
+  ;; signals `buffer-read-only' before the body can bind `inhibit-read-only',
+  ;; so undo failed in the read-only macroexpansion buffer (#4089).
+  (it "undoes in a read-only buffer without a `buffer-read-only' error"
+    (with-temp-buffer
+      (buffer-enable-undo)
+      (insert "(foo)")
+      (undo-boundary)
+      (let ((inhibit-read-only t)) (insert " (bar)"))
+      (setq buffer-read-only t)
+      ;; Invoked interactively, so the `*' check would fire if it were present.
+      (expect (call-interactively #'cider-macroexpand-undo)
+              :not :to-throw 'buffer-read-only)
+      ;; The undo actually took effect (the last change is gone).
+      (expect (buffer-string) :not :to-match "bar"))))
+
 (provide 'cider-macroexpansion-tests)
 
 ;;; cider-macroexpansion-tests.el ends here

@@ -92,7 +92,10 @@ The default for DISPLAY-NAMESPACES is taken from
 (defun cider-macroexpand-undo (&optional arg)
   "Undo the last macroexpansion, using `undo-only'.
 ARG is passed along to `undo-only'."
-  (interactive "*P")
+  ;; No `*' in the spec: the macroexpansion buffer is read-only, and a leading
+  ;; `*' would signal `buffer-read-only' before the body could bind
+  ;; `inhibit-read-only' around the undo (clojure-emacs/cider#4089).
+  (interactive "P")
   (let ((inhibit-read-only t))
     (undo-only arg)))
 
