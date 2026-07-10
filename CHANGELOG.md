@@ -46,6 +46,7 @@
 
 ### Bugs fixed
 
+- [#4090](https://github.com/clojure-emacs/cider/pull/4090): Don't place evaluation fringe indicators in the REPL buffer (e.g. after `C-x C-e` there); they only make sense in Clojure source buffers.
 - [#4085](https://github.com/clojure-emacs/cider/pull/4085): Resolve unqualified ClojureScript core vars (e.g. their indentation metadata) against `cljs.core` in a cljs REPL, instead of always falling back to `clojure.core`.
 - [#4085](https://github.com/clojure-emacs/cider/pull/4085): Make a prefix argument to `cider-find-keyword` invert `cider-prompt-for-symbol` (matching the sibling find commands), instead of forcing the prompt on.
 - [#4084](https://github.com/clojure-emacs/cider/pull/4084): Fix `nrepl-dict-merge` mutating a shared literal when its first argument is nil, which leaked state (e.g. the REPL ns cache) between unrelated merges.
