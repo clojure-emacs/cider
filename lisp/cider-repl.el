@@ -2268,6 +2268,7 @@ in an unexpected place."
 (declare-function cider-switch-to-last-clojure-buffer "cider-mode")
 (declare-function cider-macroexpand-1 "cider-macroexpansion")
 (declare-function cider-macroexpand-all "cider-macroexpansion")
+(declare-function cider-macroexpand-menu "cider-macroexpansion")
 (declare-function cider-selector "cider-selector")
 (declare-function cider-jack-in-clj "cider")
 (declare-function cider-jack-in-cljs "cider")
@@ -2305,7 +2306,7 @@ in an unexpected place."
     (define-key map (kbd "C-c C-b") #'cider-interrupt)
     (define-key map (kbd "C-c C-c") #'cider-interrupt)
     (define-key map (kbd "C-c C-m") #'cider-macroexpand-1)
-    (define-key map (kbd "C-c M-m") #'cider-macroexpand-all)
+    (define-key map (kbd "C-c M-m") #'cider-macroexpand-menu)
     (define-key map (kbd "C-c C-s") #'sesman-map)
     (define-key map (kbd "C-c C-z") #'cider-switch-to-last-clojure-buffer)
     (define-key map (kbd "C-c M-o") #'cider-repl-switch-to-other)
@@ -2317,7 +2318,6 @@ in an unexpected place."
     (define-key map (kbd "C-c M-p") #'cider-history)
     (define-key map (kbd "C-c M-t") #'cider-trace-menu)
     (define-key map (kbd "C-c C-x") #'cider-start-menu)
-    (define-key map (kbd "C-c C-r") 'clojure-refactor-map)
     ;; Shadow the global `eval-last-sexp' (Emacs Lisp) so `C-x C-e' is an
     ;; explicit no-op in the REPL rather than evaluating the Clojure text as
     ;; Emacs Lisp.  Evaluate at the prompt instead.
