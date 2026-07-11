@@ -780,3 +780,17 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
               "image/svg+xml" "text/html"))
     (dolist (entry cider-repl-content-type-handler-alist)
       (expect (functionp (cdr entry)) :to-be-truthy))))
+
+(describe "cider-repl-mode-map"
+  ;; The plain-eval commands were removed from the REPL keymap: they ran
+  ;; source-buffer eval machinery (fringe indicators and the like) in the REPL
+  ;; for a use case that was niche to begin with.
+  (it "does not bind the source-buffer eval commands"
+    ;; `C-x C-e' is shadowed with `undefined' so it doesn't fall through to the
+    ;; global Emacs Lisp `eval-last-sexp'; `C-c C-v' is simply left unbound.
+    (expect (lookup-key cider-repl-mode-map (kbd "C-x C-e")) :to-be 'undefined)
+    (expect (lookup-key cider-repl-mode-map (kbd "C-c C-v")) :to-be nil))
+
+  (it "keeps the macroexpand and inspect commands"
+    (expect (lookup-key cider-repl-mode-map (kbd "C-c C-m")) :to-be 'cider-macroexpand-1)
+    (expect (lookup-key cider-repl-mode-map (kbd "C-c M-i")) :to-be 'cider-inspect)))
