@@ -46,6 +46,7 @@
 
 ### Bugs fixed
 
+- [#4093](https://github.com/clojure-emacs/cider/pull/4093): Fix a crash (`wrong-type-argument stringp nil`) when a REPL result is truncated by the print middleware.
 - [#4089](https://github.com/clojure-emacs/cider/issues/4089): Fix `cider-macroexpand-undo` failing with a read-only error in the macroexpansion buffer.
 - [#4085](https://github.com/clojure-emacs/cider/pull/4085): Resolve unqualified ClojureScript core vars (e.g. their indentation metadata) against `cljs.core` in a cljs REPL, instead of always falling back to `clojure.core`.
 - [#4085](https://github.com/clojure-emacs/cider/pull/4085): Make a prefix argument to `cider-find-keyword` invert `cider-prompt-for-symbol` (matching the sibling find commands), instead of forcing the prompt on.
@@ -82,6 +83,7 @@
 
 ### Changes
 
+- [#4093](https://github.com/clojure-emacs/cider/pull/4093): In the REPL, `C-c M-m` now opens the macroexpand menu (matching `cider-mode`) instead of running `cider-macroexpand-all` directly, and `C-c C-r` no longer injects clojure-mode's source-editing refactor map.
 - [#4092](https://github.com/clojure-emacs/cider/pull/4092): Stop the `C-x C-e` and `C-c C-v` eval keybindings from running the source-buffer eval path in the REPL (which left fringe indicators and the like there) for a niche use case; evaluate at the prompt instead. `C-x C-e` is now a no-op in the REPL rather than falling through to Emacs's Emacs Lisp `eval-last-sexp`. Macroexpansion (`C-c C-m`/`C-c M-m`) and inspection (`C-c M-i`) stay bound.
 - [#4081](https://github.com/clojure-emacs/cider/pull/4081): Remove the long-obsolete (no-op since 1.18) `cider-stacktrace-analyze-at-point` and `cider-stacktrace-analyze-in-region` commands.
 - Bump the injected `cider-nrepl` to 0.62.0 (and `piggieback` to 0.7.0), which carries the hardened content-type/slurp middleware backing the rich-content revival below (and no longer double-sends `value` alongside content-typed responses).
