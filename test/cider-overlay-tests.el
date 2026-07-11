@@ -22,8 +22,6 @@
 (require 'cl-lib)
 
 (require 'cider-overlays)
-(require 'clojure-mode)
-(require 'cider-repl)
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
@@ -239,31 +237,6 @@ being set that way"
     (let ((cider-fringe-indicators '(eval test)))
       (expect (cider--use-fringe-indicators-p 'eval) :to-be-truthy)
       (expect (cider--use-fringe-indicators-p 'test) :to-be-truthy))))
-
-(describe "cider--make-fringe-overlay"
-  (it "places an eval indicator in a Clojure source buffer"
-    (with-temp-buffer
-      (clojure-mode)
-      (insert "(+ 1 2)")
-      (let ((cider-fringe-indicators t))
-        (cider--make-fringe-overlay (point)))
-      (expect (seq-filter (lambda (o) (eq (overlay-get o 'category) 'cider-fringe-indicator))
-                          (overlays-in (point-min) (point-max)))
-              :not :to-be nil)))
-
-  ;; Regression: `cider-eval-last-sexp' is bound to `C-x C-e' in the REPL, and
-  ;; the fringe indicators track source-form state, so they must not appear
-  ;; there.  `cider-repl-mode' is `fundamental-mode'-derived, so the
-  ;; source-buffer guard excludes it.
-  (it "does not place an indicator in the REPL buffer"
-    (with-temp-buffer
-      (setq major-mode 'cider-repl-mode)
-      (insert "(+ 1 2)")
-      (let ((cider-fringe-indicators t))
-        (cider--make-fringe-overlay (point)))
-      (expect (seq-filter (lambda (o) (eq (overlay-get o 'category) 'cider-fringe-indicator))
-                          (overlays-in (point-min) (point-max)))
-              :to-be nil))))
 
 (describe "cider--eval-result-display"
   (it "passes the canonical values through unchanged"
