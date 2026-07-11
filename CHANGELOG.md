@@ -47,7 +47,6 @@
 ### Bugs fixed
 
 - [#4089](https://github.com/clojure-emacs/cider/issues/4089): Fix `cider-macroexpand-undo` failing with a read-only error in the macroexpansion buffer.
-- [#4090](https://github.com/clojure-emacs/cider/pull/4090): Don't place evaluation fringe indicators in the REPL buffer (e.g. after `C-x C-e` there); they only make sense in Clojure source buffers.
 - [#4085](https://github.com/clojure-emacs/cider/pull/4085): Resolve unqualified ClojureScript core vars (e.g. their indentation metadata) against `cljs.core` in a cljs REPL, instead of always falling back to `clojure.core`.
 - [#4085](https://github.com/clojure-emacs/cider/pull/4085): Make a prefix argument to `cider-find-keyword` invert `cider-prompt-for-symbol` (matching the sibling find commands), instead of forcing the prompt on.
 - [#4084](https://github.com/clojure-emacs/cider/pull/4084): Fix `nrepl-dict-merge` mutating a shared literal when its first argument is nil, which leaked state (e.g. the REPL ns cache) between unrelated merges.
@@ -83,6 +82,7 @@
 
 ### Changes
 
+- [#4092](https://github.com/clojure-emacs/cider/pull/4092): Stop the `C-x C-e` and `C-c C-v` eval keybindings from running the source-buffer eval path in the REPL (which left fringe indicators and the like there) for a niche use case; evaluate at the prompt instead. `C-x C-e` is now a no-op in the REPL rather than falling through to Emacs's Emacs Lisp `eval-last-sexp`. Macroexpansion (`C-c C-m`/`C-c M-m`) and inspection (`C-c M-i`) stay bound.
 - [#4081](https://github.com/clojure-emacs/cider/pull/4081): Remove the long-obsolete (no-op since 1.18) `cider-stacktrace-analyze-at-point` and `cider-stacktrace-analyze-in-region` commands.
 - Bump the injected `cider-nrepl` to 0.62.0 (and `piggieback` to 0.7.0), which carries the hardened content-type/slurp middleware backing the rich-content revival below (and no longer double-sends `value` alongside content-typed responses).
 - Enable rich content in the REPL by default (`cider-repl-use-content-types` is now t): image results render inline, and results naming external content (files, URLs) render a `[show content]` button that fetches and renders it on demand. The automatic fetching that got the feature disabled back in 0.25 ([#2825](https://github.com/clojure-emacs/cider/issues/2825)) is gone - nothing is transferred until the button is pressed - and the server side is hardened in `cider-nrepl` 0.62 (URL-scheme allowlist, size caps, graceful fetch errors).
