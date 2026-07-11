@@ -2072,7 +2072,6 @@ the history file is rewritten if `cider-repl-history-file' is set."
   "Add a REPL shortcut command, defined by NAME and HANDLER."
   (puthash name handler cider-repl-shortcuts))
 
-(declare-function cider-toggle-trace-ns "cider-tracing")
 (declare-function cider-undef "cider-eval")
 (declare-function cider-browse-ns "cider-browse-ns")
 (declare-function cider-classpath "cider-classpath")
@@ -2080,7 +2079,6 @@ the history file is rewritten if `cider-repl-history-file' is set."
 (declare-function cider-run "cider-mode")
 (declare-function cider-ns-refresh "cider-ns")
 (declare-function cider-ns-reload "cider-ns")
-(declare-function cider-find-var "cider-find")
 (declare-function cider-version "cider")
 (declare-function cider-test-run-loaded-tests "cider-test")
 (declare-function cider-test-run-project-tests "cider-test")
