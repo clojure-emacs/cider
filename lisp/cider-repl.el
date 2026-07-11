@@ -1354,9 +1354,7 @@ REPL BUFFER rather than popping to the inspector (#3636)."
                             (setq show-prompt (funcall handler content-type buffer value nil t))
                           (cider-repl-emit-result buffer value t t)))
      :on-truncated (lambda ()
-                     ;; Preserve the (incidentally nil) warning the legacy
-                     ;; truncated-handler form passed through.
-                     (cider-repl-emit-stderr buffer nil)))))
+                     (cider-repl-emit-stderr buffer "\n... output truncated ...\n")))))
 
 (defun cider--repl-request-plist ()
   "Plist to be merged into REPL eval requests."
