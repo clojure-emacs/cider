@@ -2259,7 +2259,6 @@ in an unexpected place."
 (defvar cider-repl-mode-syntax-table
   (copy-syntax-table clojure-mode-syntax-table))
 
-(declare-function cider-eval-last-sexp "cider-eval")
 (declare-function cider-toggle-trace-ns "cider-tracing")
 (declare-function cider-toggle-trace-var "cider-tracing")
 (declare-function cider-find-resource "cider-find")
@@ -2318,9 +2317,11 @@ in an unexpected place."
     (define-key map (kbd "C-c M-p") #'cider-history)
     (define-key map (kbd "C-c M-t") #'cider-trace-menu)
     (define-key map (kbd "C-c C-x") #'cider-start-menu)
-    (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
     (define-key map (kbd "C-c C-r") 'clojure-refactor-map)
-    (define-key map (kbd "C-c C-v") #'cider-eval-menu)
+    ;; Shadow the global `eval-last-sexp' (Emacs Lisp) so `C-x C-e' is an
+    ;; explicit no-op in the REPL rather than evaluating the Clojure text as
+    ;; Emacs Lisp.  Evaluate at the prompt instead.
+    (define-key map (kbd "C-x C-e") #'undefined)
     ;; Deprecated REPL-only aliases; the canonical bindings live in the
     ;; `C-c C-x' start map, shared with `cider-mode'.
     ;; Soft-deprecated since the `C-c C-x' start map landed in 0.18.0; now
