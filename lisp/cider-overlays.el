@@ -255,30 +255,25 @@ END is the position where the sexp ends, and defaults to point."
     (with-current-buffer (if (markerp end)
                              (marker-buffer end)
                            (current-buffer))
-      ;; The fringe indicators track a source form's load/eval state, which is
-      ;; meaningless in the REPL (and other non-source buffers), so only place
-      ;; them in Clojure source buffers.  `cider-eval-last-sexp' is bound in the
-      ;; REPL, so without this guard `C-x C-e' there would leave a marker.
-      (when (derived-mode-p 'clojure-mode 'clojure-ts-mode)
-        (save-excursion
-          (if end
-              (goto-char end)
-            (setq end (point)))
-          (clojure-forward-logical-sexp -1)
-          ;; Drop any prior indicator on this form (e.g. a stale one) so a
-          ;; re-evaluation replaces it with a fresh in-sync indicator.
-          (remove-overlays (point) end 'category 'cider-fringe-indicator)
-          ;; Create the green-circle overlay.
-          (let ((ov (cider--make-overlay (point) end 'cider-fringe-indicator
-                                         'before-string cider--fringe-overlay-good)))
-            (when cider-mark-stale-after-edit
-              ;; `cider--make-overlay' installs a delete-on-edit hook; swap just
-              ;; that one out for mark-stale, leaving any other hooks intact.
-              (overlay-put ov 'modification-hooks
-                           (cons #'cider--fringe-overlay-mark-stale
-                                 (remq #'cider--delete-overlay
-                                       (overlay-get ov 'modification-hooks)))))
-            ov))))))
+      (save-excursion
+        (if end
+            (goto-char end)
+          (setq end (point)))
+        (clojure-forward-logical-sexp -1)
+        ;; Drop any prior indicator on this form (e.g. a stale one) so a
+        ;; re-evaluation replaces it with a fresh in-sync indicator.
+        (remove-overlays (point) end 'category 'cider-fringe-indicator)
+        ;; Create the green-circle overlay.
+        (let ((ov (cider--make-overlay (point) end 'cider-fringe-indicator
+                                       'before-string cider--fringe-overlay-good)))
+          (when cider-mark-stale-after-edit
+            ;; `cider--make-overlay' installs a delete-on-edit hook; swap just
+            ;; that one out for mark-stale, leaving any other hooks intact.
+            (overlay-put ov 'modification-hooks
+                         (cons #'cider--fringe-overlay-mark-stale
+                               (remq #'cider--delete-overlay
+                                     (overlay-get ov 'modification-hooks)))))
+          ov)))))
 
 (cl-defun cider--make-result-overlay (value &rest props &key where duration (type 'result)
                                             (format (concat " " cider-eval-result-prefix "%s "))
