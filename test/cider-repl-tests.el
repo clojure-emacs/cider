@@ -791,6 +791,12 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
     (expect (lookup-key cider-repl-mode-map (kbd "C-x C-e")) :to-be 'undefined)
     (expect (lookup-key cider-repl-mode-map (kbd "C-c C-v")) :to-be nil))
 
+  (it "does not inject clojure-mode's source-editing refactor map"
+    (expect (lookup-key cider-repl-mode-map (kbd "C-c C-r")) :to-be nil))
+
   (it "keeps the macroexpand and inspect commands"
     (expect (lookup-key cider-repl-mode-map (kbd "C-c C-m")) :to-be 'cider-macroexpand-1)
-    (expect (lookup-key cider-repl-mode-map (kbd "C-c M-i")) :to-be 'cider-inspect)))
+    (expect (lookup-key cider-repl-mode-map (kbd "C-c M-i")) :to-be 'cider-inspect))
+
+  (it "binds C-c M-m to the macroexpand menu, matching cider-mode"
+    (expect (lookup-key cider-repl-mode-map (kbd "C-c M-m")) :to-be 'cider-macroexpand-menu)))
