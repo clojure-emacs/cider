@@ -28,6 +28,28 @@ flexible alternative to the libraries mentioned above.
 IMPORTANT: For `fipp`, `puget`, and `zprint` printers to work, you need to add the
 respective dependency in your project explicitly.
 
+=== Why `orchard.pp` is the default
+
+The default `pprint` printer is backed by `orchard.pp` rather than
+`clojure.pprint`. It was made the default because it fits a tooling context
+better: it honors `+*print-length*+` and `+*print-level*+`, bounds the total
+size of what it prints (so a huge, deeply nested, or lazy/infinite value won't
+hang the REPL or flood the buffer), and it's noticeably faster. `clojure.pprint`,
+by contrast, realizes lazy seqs in full as it prints, so an infinite sequence
+can hang it.
+
+If you hit a value that `orchard.pp` renders differently than you'd like, you
+can switch back to the classic `clojure.pprint` output by pointing
+`cider-print-fn` at cider-nrepl's compatibility wrapper:
+
+[source,lisp]
+----
+(setq cider-print-fn "cider.nrepl.pprint/clojure-pprint")
+----
+
+Note that this brings back `clojure.pprint`'s trade-offs: it fully realizes lazy
+seqs and doesn't cap its output the way `orchard.pp` does.
+
 Alternatively, `cider-print-fn` can be set to the namespace-qualified name of a
 Clojure var whose function takes three arguments:
 
