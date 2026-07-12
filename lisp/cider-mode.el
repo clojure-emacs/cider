@@ -334,6 +334,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ["A sip of CIDER" cider-drink-a-sip]
     ["View user manual" cider-view-manual]
     ["View quick reference card" cider-view-refcard]
+    ["Diagnose your setup" cider-doctor]
     ["Report a bug" cider-report-bug]
     ["Version info" cider-version]
     "--"
@@ -733,7 +734,8 @@ loaded yet, this will be shown in Clojure buffers next to the Clojure menu."
                     ["Start a Clojure REPL, and a ClojureScript REPL" cider-jack-in-clj&cljs
                      :help "Starts an nREPL server, connects a Clojure REPL to it, and then a ClojureScript REPL."]
                     "--"
-                    ["View user manual" cider-view-manual]))
+                    ["View user manual" cider-view-manual]
+                    ["Diagnose your setup" cider-doctor]))
                 :visible (not cider-mode))))
 
 ;;;###autoload
