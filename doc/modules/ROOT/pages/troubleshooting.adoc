@@ -12,6 +12,23 @@ Generally, it's not a bad idea to configure Emacs to spit the backtrace on error
 (instead of just logging the error in the `+*Messages*+` buffer). You can toggle
 this behavior by using kbd:[M-x] `toggle-debug-on-error`.
 
+== Diagnosing your setup with cider-doctor
+
+Before digging deeper, run kbd:[M-x] `cider-doctor`. It checks your setup
+for the most common problems and shows the results in a `+*cider-doctor*+`
+buffer.
+
+Some checks run without a connection (the Emacs and CIDER versions, the
+Clojure major mode, CIDER's dependencies, the build tools on your
+executable path, stale byte-compiled files, and leftover obsolete
+configuration). When a REPL is connected, `cider-doctor` also reports the
+nREPL, `cider-nrepl` and Clojure versions and probes the middleware ops
+that back the major features - so a missing feature shows up as a named
+missing op rather than a mystery.
+
+TIP: The report is meant to be copied into a bug report, which usually saves a
+round of back-and-forth about your environment.
+
 == Debugging CIDER commands
 
 Emacs features a super powerful built-in
