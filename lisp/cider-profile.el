@@ -42,6 +42,22 @@
     ["Clear data" cider-profile-clear])
   "CIDER profiling submenu (for the menu bar).")
 
+;;;###autoload (autoload 'cider-profile-map "cider-profile" "CIDER profiling keymap." nil 'keymap)
+(defvar cider-profile-map
+  (let ((map (define-prefix-command 'cider-profile-map)))
+    (define-key map (kbd "t") #'cider-profile-toggle)
+    (define-key map (kbd "C-t") #'cider-profile-toggle)
+    (define-key map (kbd "c") #'cider-profile-clear)
+    (define-key map (kbd "C-c") #'cider-profile-clear)
+    (define-key map (kbd "s") #'cider-profile-summary)
+    (define-key map (kbd "C-s") #'cider-profile-summary)
+    (define-key map (kbd "n") #'cider-profile-ns-toggle)
+    (define-key map (kbd "C-n") #'cider-profile-ns-toggle)
+    map)
+  "CIDER profiler keymap, grouping the profiling commands.
+No longer bound by default - `C-c C-=' opens `cider-profile-menu' instead - but
+retained so existing user bindings into this prefix keep working.")
+
 ;;;###autoload (autoload 'cider-profile-menu "cider-profile" "Menu for CIDER's profiling commands." t)
 (transient-define-prefix cider-profile-menu ()
   "Transient menu for CIDER's profiling commands."
