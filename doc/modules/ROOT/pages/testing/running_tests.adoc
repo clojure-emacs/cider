@@ -86,7 +86,20 @@ the namespace inference logic as for kbd:[C-u C-c C-t C-n]
 
 Finally, you can execute the specific test at the point using
 kbd:[C-c C-t t] or kbd:[C-c C-t C-t]. It will also work for implementation functions,
-by searching for a matching test namespace with a matching deftest name. 
+by searching for a matching test namespace with a matching deftest name.
+
+== Running ClojureScript Tests
+
+The regular test commands work against a ClojureScript REPL too: when the
+active REPL is a ClojureScript one, `cider-test-run-ns-tests` and friends run
+your `cljs.test` tests instead of refusing them. In a `.cljc` file the commands
+dispatch to both the Clojure and the ClojureScript REPL, so you can exercise the
+same tests on both platforms at once.
+
+Asynchronous ClojureScript tests (those using `cljs.test/async`) are supported.
+This requires a recent enough `cider-nrepl`; with an older middleware the
+ClojureScript test ops aren't available and the commands fall back to reporting
+that they're unsupported.
 
 == Configuration
 
