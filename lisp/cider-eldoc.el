@@ -505,11 +505,16 @@ Unlike the synchronous path this never blocks Emacs, so it needs no
            "sym" ,thing
            "context" ,(cider-completion-get-context t))
          (lambda (response)
-           (setq accumulated (if accumulated
-                                 (nrepl-dict-merge accumulated response)
-                               response))
-           (when (member "done" (nrepl-dict-get response "status"))
-             (funcall k accumulated)))
+           (nrepl-dbind-response response (status id)
+             (setq accumulated (if accumulated
+                                   (nrepl-dict-merge accumulated response)
+                                 response))
+             (when (member "done" status)
+               ;; Eldoc fires on nearly every cursor move, so the request must
+               ;; be retired from `nrepl-pending-requests' once done - otherwise
+               ;; the table grows unbounded for the whole session.
+               (nrepl--mark-id-completed id)
+               (funcall k accumulated))))
          connection))
     (funcall k nil)))
 
