@@ -101,6 +101,7 @@
 (require 'cider-mode)
 (require 'cider-common)
 (require 'cider-debug)
+(require 'cider-doctor)
 (require 'cider-util)
 
 (require 'tramp-sh)
