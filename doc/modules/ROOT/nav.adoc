@@ -34,6 +34,7 @@
 ** xref:debugging/logging.adoc[Logging]
 ** xref:debugging/macroexpansion.adoc[Macroexpansion]
 ** xref:debugging/profiling.adoc[Profiling]
+** xref:debugging/tap.adoc[Tap Viewer]
 ** xref:debugging/tracing.adoc[Tracing]
 * Configuration
 ** xref:config/basic_config.adoc[Basic Configuration]
