@@ -846,6 +846,10 @@ If SILENT is non-nil, suppress all messages other then test results.
 If PROMPT-FOR-FILTERS is non-nil, prompt the user for a test selector filters.
 The include/exclude selectors will be used to filter the tests before
 running them."
+  ;; `cider-map-repls' with `:auto' does not ensure a connection (it maps over
+  ;; zero REPLs when disconnected), so guard here to fail fast with a clear
+  ;; error instead of silently doing nothing.
+  (cider-ensure-session)
   (cider-test-clear-highlights)
   (let ((include-selectors
          (if prompt-for-filters
