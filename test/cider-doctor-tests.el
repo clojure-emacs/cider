@@ -171,6 +171,25 @@
       (expect (plist-get result :status) :to-be 'warn)
       (expect (plist-get result :detail) :to-match "xref"))))
 
+(describe "cider-doctor"
+  (after-each
+    (when (get-buffer "*cider-doctor*")
+      (kill-buffer "*cider-doctor*")))
+
+  (it "renders into a cider-doctor-mode buffer"
+    (with-current-buffer (cider-doctor)
+      (expect major-mode :to-be 'cider-doctor-mode)
+      (expect (buffer-substring-no-properties (point-min) (min 13 (point-max)))
+              :to-equal "CIDER Doctor")))
+
+  (it "refreshes in place via revert-buffer"
+    (with-current-buffer (cider-doctor)
+      (expect revert-buffer-function :to-be #'cider-doctor--revert)
+      ;; a revert re-runs the checks without erroring and keeps the report
+      (revert-buffer)
+      (expect (buffer-substring-no-properties (point-min) (min 13 (point-max)))
+              :to-equal "CIDER Doctor"))))
+
 (provide 'cider-doctor-tests)
 
 ;;; cider-doctor-tests.el ends here

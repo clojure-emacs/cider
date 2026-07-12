@@ -302,24 +302,44 @@ detail names the affected feature."
   (mapc #'cider-doctor--insert-result results)
   (insert "\n"))
 
+(defun cider-doctor--render ()
+  "Render the diagnostics report into the current buffer.
+Runs the offline environment checks and, when a REPL is connected, the
+connection-health checks."
+  (let ((inhibit-read-only t))
+    (erase-buffer)
+    (insert "CIDER Doctor\n")
+    (insert "============\n\n")
+    (cider-doctor--insert-section "Environment" (cider-doctor--offline-checks))
+    (if (cider-doctor--online-p)
+        (cider-doctor--insert-section "Connection" (cider-doctor--online-checks))
+      (insert "Connection\n\nNo active REPL; connection checks skipped.\n\n"))
+    (goto-char (point-min))))
+
+(defun cider-doctor--revert (&rest _)
+  "Re-run the checks and re-render the report.
+Serves as the `revert-buffer-function', so \\[revert-buffer] refreshes the
+report in place."
+  (cider-doctor--render))
+
+(define-derived-mode cider-doctor-mode special-mode "CIDER Doctor"
+  "Major mode for the CIDER Doctor report.
+Press \\[revert-buffer] to re-run the checks and refresh the report.
+
+\\{cider-doctor-mode-map}"
+  (setq-local revert-buffer-function #'cider-doctor--revert))
+
 ;;;###autoload
 (defun cider-doctor ()
   "Diagnose the current CIDER setup and show a report.
 Runs offline environment checks and, when a REPL is connected, a set of
 connection-health checks.  The resulting buffer is meant to be pasted
-into bug reports."
+into bug reports.  Press \\<cider-doctor-mode-map>\\[revert-buffer] to
+refresh it."
   (interactive)
-  (let ((buffer (cider-popup-buffer "*cider-doctor*" 'select)))
+  (let ((buffer (cider-popup-buffer "*cider-doctor*" 'select #'cider-doctor-mode)))
     (with-current-buffer buffer
-      (let ((inhibit-read-only t))
-        (erase-buffer)
-        (insert "CIDER Doctor\n")
-        (insert "============\n\n")
-        (cider-doctor--insert-section "Environment" (cider-doctor--offline-checks))
-        (if (cider-doctor--online-p)
-            (cider-doctor--insert-section "Connection" (cider-doctor--online-checks))
-          (insert "Connection\n\nNo active REPL; connection checks skipped.\n\n"))
-        (goto-char (point-min))))
+      (cider-doctor--render))
     buffer))
 
 ;;; Helpers
