@@ -624,7 +624,7 @@ itself is present."
 
 (defun cider-interrupt ()
   "Interrupt any pending evaluations.
-In a `.cljc' buffer this interrupts every REPL evaluations are
+In a `.cljc' buffer this interrupts every REPL that evaluations are
 dispatched to (both Clojure and ClojureScript), mirroring `cider-map-repls'."
   (interactive)
   (cider-map-repls :auto #'cider-interrupt-repl))
