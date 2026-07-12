@@ -189,3 +189,12 @@
        (lambda () (setq captured (list cider-test-default-include-selectors
                                        cider-test-default-exclude-selectors))))
       (expect captured :to-equal '(("keep") ("skip"))))))
+
+(describe "cider-test-execute"
+  (it "fails fast without a session, before dispatching to any REPL"
+    (spy-on 'cider-ensure-session :and-call-fake
+            (lambda () (user-error "No linked CIDER sessions")))
+    (spy-on 'cider-map-repls)
+    (expect (cider-test-execute :loaded) :to-throw 'user-error)
+    ;; the guard must fire before any REPL dispatch / side effect
+    (expect 'cider-map-repls :not :to-have-been-called)))
