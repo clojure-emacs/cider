@@ -29,6 +29,7 @@
 (require 'cider-popup)
 (require 'cider-eval)
 (require 'cider-inspector)
+(require 'cider-util) ; for `cider-symbol-at-point'
 (require 'transient)
 
 
