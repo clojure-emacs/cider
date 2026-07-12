@@ -41,6 +41,7 @@
 (require 'cider-resolve)
 (require 'cider-doc) ; required only for the menu
 (require 'cider-profile) ; required only for the menu
+(require 'cider-enlighten) ; for the menu entries and `cider-enlightened-face'
 (require 'cider-completion)
 (require 'cider-completion-context)
 (require 'cider-inspector)
