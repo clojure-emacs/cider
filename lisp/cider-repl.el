@@ -2393,6 +2393,7 @@ in an unexpected place."
         ["A sip of CIDER" cider-drink-a-sip]
         ["View user manual" cider-view-manual]
         ["View quick reference card" cider-view-refcard]
+        ["Diagnose your setup" cider-doctor]
         ["Report a bug" cider-report-bug]
         ["Version info" cider-version]))
     map))
