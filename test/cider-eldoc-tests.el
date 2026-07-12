@@ -388,3 +388,25 @@ Relies on the spied `cider-eldoc-info-async' invoking its callback synchronously
             :and-return-value '(dict "inputs" (("$" "?first-name"))))
     (expect (cider--eldoc-add-datomic-query-inputs-to-arglists '(("query" "&" "inputs")))
             :to-equal '(("query" "$" "?first-name")))))
+
+(describe "cider-eldoc--request-async"
+  (it "retires the request id and calls back once done"
+    (spy-on 'cider-current-repl :and-return-value 'conn)
+    (spy-on 'cider-current-ns :and-return-value "user")
+    (spy-on 'cider-completion-get-context :and-return-value "nil")
+    (spy-on 'nrepl--mark-id-completed)
+    (spy-on 'cider-nrepl-send-request :and-call-fake
+            (lambda (_request callback &rest _)
+              (funcall callback '(dict "status" ("done") "id" "7" "eldoc" (("x"))))))
+    (let (result)
+      (cider-eldoc--request-async "foo" (lambda (r) (setq result r)))
+      ;; the pending request is retired so the table doesn't grow every lookup
+      (expect 'nrepl--mark-id-completed :to-have-been-called-with "7")
+      ;; and the accumulated dict is handed to the continuation
+      (expect (nrepl-dict-get result "eldoc") :to-equal '(("x")))))
+
+  (it "calls back with nil when there is no connection"
+    (spy-on 'cider-current-repl :and-return-value nil)
+    (let ((called 'unset))
+      (cider-eldoc--request-async "foo" (lambda (r) (setq called r)))
+      (expect called :to-be nil))))
