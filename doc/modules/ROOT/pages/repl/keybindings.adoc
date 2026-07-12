@@ -113,9 +113,22 @@ kbd:[C-c C-t C-r]
 kbd:[C-c C-t C-b]
 | Show the test report buffer.
 
+| kbd:[C-c M-m]
+| Open the macroexpansion menu (`cider-macroexpand-menu`) for the previous form.
+
+| kbd:[C-c C-x]
+| Open the jack-in/connect menu (`cider-start-menu`).
+
+| kbd:[C-c C-h]
+| Show the REPL command reference (`cider-repl-help`).
+
 | kbd:[C-c C-q]
 | Quit the current nREPL connection. With a prefix argument it will quit all connections.
 |===
+
+NOTE: kbd:[C-x C-e] is intentionally a no-op in the REPL: there's no "evaluate
+the last sexp" there, since pressing kbd:[RET] at the prompt already evaluates
+your input.
 
 TIP: There's no need to memorize this list. In any REPL buffer you'll have a `REPL`
 menu available, which lists the most important commands and their
