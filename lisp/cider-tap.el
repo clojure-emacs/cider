@@ -171,6 +171,14 @@ inspect it.  Killing the buffer stops the streaming."
     (with-current-buffer buffer
       (unless (eq major-mode 'cider-tap-mode)
         (cider-tap-mode))
+      ;; When reopening against a different (e.g. reconnected) REPL, the old
+      ;; subscription belongs to a connection we no longer track.  Drop it -
+      ;; best-effort unsubscribing from the old REPL if it's still live - so a
+      ;; fresh subscription gets established below instead of the buffer going
+      ;; silent.
+      (unless (eq cider-tap--repl connection)
+        (cider-tap--unsubscribe)
+        (setq cider-tap--subscription nil))
       (setq cider-tap--repl connection)
       ;; Pin the buffer to its REPL so the inspector opened from here resolves
       ;; to the same connection.
