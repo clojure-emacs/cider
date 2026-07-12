@@ -46,22 +46,29 @@ for more.
 
 == Starting and stopping CIDER
 
+kbd:[C-c C-x] opens the `cider-start-menu` transient, from which you pick how to
+start or connect to a session.  The most common entries:
+
 |===
 | Keyboard shortcut | Command | Description
 
-| kbd:[C-c C-x C-j C-j]
+| kbd:[C-c C-x j j]
 | `cider-jack-in-clj`
 | Start an nREPL server for the project and connect to it (Clojure).
 
-| kbd:[C-c C-x C-j C-s]
+| kbd:[C-c C-x j s]
 | `cider-jack-in-cljs`
 | Start an nREPL server and connect to it (ClojureScript).
 
-| kbd:[C-c C-x C-c C-j]
+| kbd:[C-c C-x j m]
+| `cider-jack-in-clj&cljs`
+| Start a server and connect both a Clojure and a ClojureScript REPL.
+
+| kbd:[C-c C-x c j]
 | `cider-connect-clj`
 | Connect to an already-running nREPL server (Clojure).
 
-| kbd:[C-c C-x C-c C-s]
+| kbd:[C-c C-x c s]
 | `cider-connect-cljs`
 | Connect to an already-running nREPL server (ClojureScript).
 
@@ -74,8 +81,8 @@ for more.
 | Restart the current connection.
 |===
 
-TIP: If you pause after the kbd:[C-c C-x] prefix, a menu pops up listing every way
-to start or connect to a session. See xref:basics/up_and_running.adoc[Up and Running].
+TIP: kbd:[C-c C-x] shows the whole menu (jack-in, connect, connect-sibling), so
+you don't have to memorize the suffixes.  See xref:basics/up_and_running.adoc[Up and Running].
 
 == Evaluating code
 
@@ -270,6 +277,9 @@ navigation and call-graph toolkit.
 TIP: See xref:usage/working_with_documentation.adoc[Working with Documentation] for more.
 
 == Macroexpansion
+
+NOTE: kbd:[C-c M-m] opens the `cider-macroexpand-menu` transient; the keys below
+are its suffixes, so kbd:[C-c M-m a] means "open the menu, then press kbd:[a]".
 
 |===
 | Keyboard shortcut | Command | Description

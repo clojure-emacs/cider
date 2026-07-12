@@ -346,7 +346,7 @@ reset automatically by the `track-state` middleware.
 
 [source,lisp]
 ----
-(setq cider-repl-history-size 1000) ; the default is 500
+(setq cider-repl-history-size 10000) ; the default is 5000
 ----
 
 * To store the REPL history of all projects in a single file:
