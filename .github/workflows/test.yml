@@ -23,6 +23,9 @@ jobs:
   integration:
     # Run integration tests for all OSs and EMACS_VERSIONs.
     runs-on: ${{matrix.os}}
+    # The Emacs snapshot build is an early-warning signal, not a gate, so a
+    # failure there mustn't fail the workflow.
+    continue-on-error: ${{ matrix.experimental || false }}
 
     strategy:
       # Don't cancel other matrix jobs when one fails.
@@ -43,6 +46,12 @@ jobs:
           - os: windows-latest
             emacs_version: '30.1'
             java_version: '21'
+          # Track the Emacs development snapshot on Ubuntu to catch upcoming
+          # deprecations early. Allowed to fail (see continue-on-error above).
+          - os: ubuntu-latest
+            emacs_version: 'snapshot'
+            java_version: '21'
+            experimental: true
 
     steps:
     - name: Set up Emacs
