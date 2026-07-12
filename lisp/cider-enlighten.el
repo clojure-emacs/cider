@@ -96,6 +96,7 @@ displaying its value.  Does nothing while `cider-enlighten--suppress' is set."
                 :type 'enlighten
                 'face 'cider-enlightened-local-face)))))))))
 
+;;;###autoload
 (define-minor-mode cider-enlighten-mode
   "Minor mode for displaying locals in debugger-instrumented evaluations."
   :lighter (cider-mode " light")
@@ -116,6 +117,7 @@ and off (and re-evaluate everything) just to light up one definition."
   (let ((cider-enlighten-mode t))
     (cider-eval-defun-at-point)))
 
+;;;###autoload
 (defun cider-enlighten-clear ()
   "Remove all enlighten value overlays from the current buffer."
   (interactive)
