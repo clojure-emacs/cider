@@ -123,7 +123,11 @@ The value selects which of the two run:
 In `both' mode the source matches lead, and runtime hits for files the source
 search already scanned are dropped (they would only duplicate the precise
 occurrences at a coarser granularity).  What survives is mainly references the
-compiler generated from macros, which leave no textual trace for the scan."
+compiler generated from macros, which leave no textual trace for the scan.
+
+When `source' is selected but the buffer isn't inside a project (so there are
+no files to scan), CIDER falls back to the runtime search if a REPL is
+connected, rather than reporting no references."
   :type '(choice (const :tag "Source matches only" source)
                  (const :tag "Runtime references only" runtime)
                  (const :tag "Runtime and source matches combined" both))
@@ -198,9 +202,18 @@ The runtime side (the `fn-refs' op) only sees loaded namespaces; the source
 side covers code on disk that hasn't been evaluated yet.  In `both' mode the
 two are combined, with runtime hits the source search already covers dropped."
   (let* ((ns (cider-current-ns))
-         (source (when (memq cider-xref-references-mode '(source both))
+         ;; With no project.el project there are no files to scan, so a `source'
+         ;; search can't run - fall back to the runtime op (when a REPL is
+         ;; connected) so it still answers, instead of falsely reporting "No
+         ;; references".
+         (mode (if (and (eq cider-xref-references-mode 'source)
+                        (not (project-current))
+                        (cider-connected-p))
+                   'runtime
+                 cider-xref-references-mode))
+         (source (when (memq mode '(source both))
                    (cider-xref--var-source-references var)))
-         (runtime (when (memq cider-xref-references-mode '(runtime both))
+         (runtime (when (memq mode '(runtime both))
                     (cider--fn-refs-xrefs ns var))))
     (when (and source runtime)
       (setq runtime (cider--xref-reject-runtime-overlap runtime source)))
