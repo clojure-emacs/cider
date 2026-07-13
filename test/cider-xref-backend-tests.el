@@ -50,6 +50,38 @@
              (kept (cider--xref-reject-runtime-overlap runtime source)))
         (expect (length kept) :to-equal 1)))))
 
+(describe "xref-backend-references reference-mode selection"
+  (before-each
+    (spy-on 'cider-current-ns :and-return-value "user")
+    (spy-on 'cider-xref--var-source-references :and-return-value nil)
+    (spy-on 'cider--fn-refs-xrefs :and-return-value nil))
+
+  (describe "in `source' mode with no project"
+    (it "falls back to the runtime search when a REPL is connected"
+      (let ((cider-xref-references-mode 'source))
+        (spy-on 'project-current :and-return-value nil)
+        (spy-on 'cider-connected-p :and-return-value t)
+        (xref-backend-references 'cider "foo")
+        (expect 'cider--fn-refs-xrefs :to-have-been-called)
+        (expect 'cider-xref--var-source-references :not :to-have-been-called)))
+
+    (it "does not fall back when no REPL is connected"
+      (let ((cider-xref-references-mode 'source))
+        (spy-on 'project-current :and-return-value nil)
+        (spy-on 'cider-connected-p :and-return-value nil)
+        (xref-backend-references 'cider "foo")
+        (expect 'cider--fn-refs-xrefs :not :to-have-been-called)
+        (expect 'cider-xref--var-source-references :to-have-been-called))))
+
+  (describe "in `source' mode inside a project"
+    (it "uses the source search, not the runtime fallback"
+      (let ((cider-xref-references-mode 'source))
+        (spy-on 'project-current :and-return-value '(vc Git "/tmp/proj/"))
+        (spy-on 'cider-connected-p :and-return-value t)
+        (xref-backend-references 'cider "foo")
+        (expect 'cider-xref--var-source-references :to-have-been-called)
+        (expect 'cider--fn-refs-xrefs :not :to-have-been-called)))))
+
 (provide 'cider-xref-backend-tests)
 
 ;;; cider-xref-backend-tests.el ends here
