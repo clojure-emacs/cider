@@ -559,3 +559,45 @@
             (cider-nrepl-send-eval-request "(+ 1 1)" #'ignore :connection repl)
             (expect 'cider-spinner-start :not :to-have-been-called))
         (kill-buffer repl)))))
+
+(describe "cider-need-input--prompt"
+  (it "uses a plain prompt with a single connection"
+    (spy-on 'cider-repls :and-return-value (list 'repl-a))
+    (expect (cider-need-input--prompt (generate-new-buffer " *repl*"))
+            :to-equal "Stdin (C-c C-c to cancel): "))
+
+  (it "names the REPL when the session has several connections"
+    (let ((repl (generate-new-buffer " *cider-repl foo*")))
+      (unwind-protect
+          (progn
+            (spy-on 'cider-repls :and-return-value (list repl 'repl-b))
+            (expect (cider-need-input--prompt repl)
+                    :to-equal (format "Stdin for %s (C-c C-c to cancel): "
+                                      (buffer-name repl))))
+        (kill-buffer repl)))))
+
+(describe "cider-need-input"
+  :var (repl)
+  (before-each
+    (setq repl (generate-new-buffer " *repl*"))
+    (spy-on 'cider-current-repl :and-return-value repl)
+    (spy-on 'cider-repls :and-return-value (list repl))
+    (spy-on 'nrepl-request:stdin)
+    (spy-on 'cider-interrupt-repl))
+  (after-each
+    (when (buffer-live-p repl) (kill-buffer repl)))
+
+  (it "sends the entered line, newline-terminated, to the blocked REPL"
+    (spy-on 'read-from-minibuffer :and-return-value "hello")
+    (with-temp-buffer
+      (cider-need-input (current-buffer)))
+    (expect 'nrepl-request:stdin :to-have-been-called)
+    (expect (car (spy-calls-args-for 'nrepl-request:stdin 0)) :to-equal "hello\n")
+    (expect 'cider-interrupt-repl :not :to-have-been-called))
+
+  (it "interrupts the evaluation when the prompt is cancelled"
+    (spy-on 'read-from-minibuffer :and-call-fake (lambda (&rest _) (signal 'quit nil)))
+    (with-temp-buffer
+      (cider-need-input (current-buffer)))
+    (expect 'cider-interrupt-repl :to-have-been-called-with repl)
+    (expect 'nrepl-request:stdin :not :to-have-been-called)))
