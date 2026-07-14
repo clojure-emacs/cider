@@ -1190,18 +1190,33 @@ Intentionally swallows value/out/err so the response is consumed without
 side effects; only the global handlers fire (need-input, eval-error, ...)."
   (cider-make-eval-handler :buffer (current-buffer)))
 
+(defun cider-need-input--prompt (repl)
+  "Return the stdin minibuffer prompt for REPL.
+When the session has more than one connection, name REPL so it's clear which
+evaluation is waiting for input."
+  (if (and (bufferp repl) (cdr (cider-repls)))
+      (format "Stdin for %s (C-c C-c to cancel): " (buffer-name repl))
+    "Stdin (C-c C-c to cancel): "))
+
 (defun cider-need-input (buffer)
-  "Handle a need-input request from BUFFER."
+  "Handle a need-input request from BUFFER.
+Read a line at the minibuffer and send it to the blocked evaluation.
+Cancelling the prompt interrupts that evaluation instead: the previous
+behavior sent nil, which bencodes to an empty list rather than a string, so
+the `stdin' op was malformed and the read never unblocked cleanly."
   (with-current-buffer buffer
-    (let ((map (make-sparse-keymap)))
+    (let ((repl (cider-current-repl))
+          (map (make-sparse-keymap)))
       (set-keymap-parent map minibuffer-local-map)
       (define-key map (kbd "C-c C-c") #'abort-recursive-edit)
-      (let ((stdin (condition-case nil
-                       (concat (read-from-minibuffer "Stdin: " nil map) "\n")
-                     (quit nil))))
-        (nrepl-request:stdin stdin
-                             (cider-stdin-handler buffer)
-                             (cider-current-repl))))))
+      (condition-case nil
+          (let ((input (read-from-minibuffer (cider-need-input--prompt repl) nil map)))
+            (nrepl-request:stdin (concat input "\n")
+                                 (cider-stdin-handler buffer)
+                                 repl))
+        (quit
+         (when (buffer-live-p repl)
+           (cider-interrupt-repl repl)))))))
 
 (provide 'cider-client)
 
