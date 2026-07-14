@@ -1214,8 +1214,9 @@ one `cider-current-repl' happens to resolve to."
   "Handle a need-input request from BUFFER.
 Read a line at the minibuffer and send it to the blocked evaluation.
 Cancelling the prompt interrupts that evaluation instead: the previous
-behavior sent nil, which bencodes to an empty list rather than a string, so
-the `stdin' op was malformed and the read never unblocked cleanly.
+behavior sent nil, which bencodes to an empty list rather than a string - a
+type-incorrect `stdin' op that nREPL treated as EOF, so cancelling silently
+ended the read and let the evaluation continue instead of cancelling it.
 
 RESPONSE is the nREPL need-input response (the message whose status is
 \"need-input\").  When given, its `session' selects the exact connection to
