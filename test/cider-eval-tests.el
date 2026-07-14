@@ -428,11 +428,12 @@
       (expect custom-called :to-be t)
       (expect 'cider-default-err-handler :not :to-have-been-called)))
 
-  (it "prompts via cider-need-input on need-input status"
+  (it "prompts via cider-need-input on need-input status, passing the response"
     (spy-on 'cider-need-input)
     (let ((handler (cider-make-eval-handler :buffer 'sentinel-buf)))
       (funcall handler '(dict "id" "1" "status" ("need-input"))))
-    (expect 'cider-need-input :to-have-been-called-with 'sentinel-buf))
+    (expect 'cider-need-input :to-have-been-called-with
+            'sentinel-buf '(dict "id" "1" "status" ("need-input"))))
 
   (it "prints a message on namespace-not-found status, with the ns name"
     (spy-on 'message)

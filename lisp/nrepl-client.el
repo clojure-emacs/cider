@@ -731,7 +731,9 @@ Called with one argument: the REPL buffer.")
 
 (defvar nrepl-need-input-handler-function nil
   "Function to call when the server requests stdin input.
-Called with one argument: the REPL buffer.
+Called with two arguments: the REPL buffer and the nREPL need-input response
+\(the message whose status is \"need-input\"; its `session' and `id' identify
+the blocked evaluation).
 When nil, need-input requests are ignored.")
 
 (defvar nrepl-namespace-handler-function nil
@@ -888,7 +890,7 @@ results in the corresponding response branch being a no-op."
                     (message "Namespace `%s' not found." ns)))
                 (when (and (member "need-input" status)
                            nrepl-need-input-handler-function)
-                  (funcall nrepl-need-input-handler-function buffer)))
+                  (funcall nrepl-need-input-handler-function buffer response)))
    :on-eval-error (cond (eval-error-handler
                          (lambda () (funcall eval-error-handler buffer)))
                         (nrepl-err-handler-function
@@ -972,11 +974,12 @@ positional shim retained for backward compatibility."
                       (not (and abort-on-input
                                 (input-pending-p))))
             (setq status (nrepl-dict-get response "status"))
-            ;; If we get a need-input message then the repl probably isn't going
-            ;; anywhere, and we'll just timeout.  So we forward it to the user.
+            ;; On a need-input response the eval is blocked reading stdin and
+            ;; won't finish on its own, so forward it to the user (who provides
+            ;; input or cancels) instead of waiting for the timeout.
             (if (and (member "need-input" status)
                      nrepl-need-input-handler-function)
-                (progn (funcall nrepl-need-input-handler-function (current-buffer))
+                (progn (funcall nrepl-need-input-handler-function (current-buffer) response)
                        ;; If the user took a few seconds to respond, we might
                        ;; unnecessarily timeout, so let's reset the timer.
                        (setq time0 (current-time)))

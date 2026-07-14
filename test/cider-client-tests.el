@@ -601,3 +601,47 @@
       (cider-need-input (current-buffer)))
     (expect 'cider-interrupt-repl :to-have-been-called-with repl)
     (expect 'nrepl-request:stdin :not :to-have-been-called)))
+
+(describe "cider--connection-for-session"
+  (it "finds the connection buffer whose session matches"
+    (let ((a (generate-new-buffer " *repl-a*"))
+          (b (generate-new-buffer " *repl-b*")))
+      (unwind-protect
+          (progn
+            (with-current-buffer a (setq-local nrepl-session "sess-a"))
+            (with-current-buffer b (setq-local nrepl-tooling-session "tool-b"))
+            (expect (cider--connection-for-session "sess-a") :to-be a)
+            (expect (cider--connection-for-session "tool-b") :to-be b)
+            (expect (cider--connection-for-session "nope") :to-be nil)
+            (expect (cider--connection-for-session nil) :to-be nil))
+        (kill-buffer a)
+        (kill-buffer b)))))
+
+(describe "cider-need-input session routing"
+  :var (conn)
+  (before-each
+    (setq conn (generate-new-buffer " *repl-s1*"))
+    (with-current-buffer conn (setq-local nrepl-session "s1"))
+    (spy-on 'cider-repls :and-return-value (list conn))
+    (spy-on 'nrepl-request:stdin)
+    (spy-on 'nrepl-request:interrupt)
+    (spy-on 'cider-interrupt-repl)
+    (spy-on 'cider-interrupt-handler :and-return-value #'ignore))
+  (after-each
+    (when (buffer-live-p conn) (kill-buffer conn)))
+
+  (it "sends stdin to the connection named by the response session"
+    (spy-on 'read-from-minibuffer :and-return-value "hi")
+    (with-temp-buffer
+      (cider-need-input (current-buffer) '(dict "session" "s1" "id" "42")))
+    (expect 'nrepl-request:stdin :to-have-been-called)
+    ;; third arg is the connection - the one matching the session, not
+    ;; whatever `cider-current-repl' would resolve to
+    (expect (nth 2 (spy-calls-args-for 'nrepl-request:stdin 0)) :to-be conn))
+
+  (it "interrupts only the blocked evaluation, by id, on cancel"
+    (spy-on 'read-from-minibuffer :and-call-fake (lambda (&rest _) (signal 'quit nil)))
+    (with-temp-buffer
+      (cider-need-input (current-buffer) '(dict "session" "s1" "id" "42")))
+    (expect 'nrepl-request:interrupt :to-have-been-called-with "42" #'ignore conn)
+    (expect 'cider-interrupt-repl :not :to-have-been-called)))

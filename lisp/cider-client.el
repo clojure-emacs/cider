@@ -1198,15 +1198,36 @@ evaluation is waiting for input."
       (format "Stdin for %s (C-c C-c to cancel): " (buffer-name repl))
     "Stdin (C-c C-c to cancel): "))
 
-(defun cider-need-input (buffer)
+(defun cider--connection-for-session (session)
+  "Return the connection buffer whose nREPL SESSION matches, or nil.
+Matches the main or the tooling session, so stdin and interrupts can be
+routed to the exact connection that requested input rather than whichever
+one `cider-current-repl' happens to resolve to."
+  (when session
+    (seq-find (lambda (buf)
+                (and (buffer-live-p buf)
+                     (or (equal session (buffer-local-value 'nrepl-session buf))
+                         (equal session (buffer-local-value 'nrepl-tooling-session buf)))))
+              (buffer-list))))
+
+(defun cider-need-input (buffer &optional response)
   "Handle a need-input request from BUFFER.
 Read a line at the minibuffer and send it to the blocked evaluation.
 Cancelling the prompt interrupts that evaluation instead: the previous
 behavior sent nil, which bencodes to an empty list rather than a string, so
-the `stdin' op was malformed and the read never unblocked cleanly."
+the `stdin' op was malformed and the read never unblocked cleanly.
+
+RESPONSE is the nREPL need-input response (the message whose status is
+\"need-input\").  When given, its `session' selects the exact connection to
+answer (important with several connections) and its `id' lets a cancel
+interrupt just the blocked evaluation.  Without it, both fall back to
+`cider-current-repl' and a connection-wide interrupt."
   (with-current-buffer buffer
-    (let ((repl (cider-current-repl))
-          (map (make-sparse-keymap)))
+    (let* ((session (and response (nrepl-dict-get response "session")))
+           (id (and response (nrepl-dict-get response "id")))
+           (repl (or (cider--connection-for-session session)
+                     (cider-current-repl)))
+           (map (make-sparse-keymap)))
       (set-keymap-parent map minibuffer-local-map)
       (define-key map (kbd "C-c C-c") #'abort-recursive-edit)
       (condition-case nil
@@ -1216,7 +1237,9 @@ the `stdin' op was malformed and the read never unblocked cleanly."
                                  repl))
         (quit
          (when (buffer-live-p repl)
-           (cider-interrupt-repl repl)))))))
+           (if id
+               (nrepl-request:interrupt id (cider-interrupt-handler repl) repl)
+             (cider-interrupt-repl repl))))))))
 
 (provide 'cider-client)
 

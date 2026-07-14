@@ -268,7 +268,7 @@ have the same semantics as in `nrepl-make-eval-handler'."
                   (nrepl-dbind-response response (ns)
                     (message "Namespace `%s' not found." ns)))
                 (when (member "need-input" status)
-                  (cider-need-input buffer)))
+                  (cider-need-input buffer response)))
    :on-eval-error (or on-eval-error
                       (lambda () (cider-default-err-handler buffer)))))
 
