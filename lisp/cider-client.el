@@ -1195,8 +1195,23 @@ side effects; only the global handlers fire (need-input, eval-error, ...)."
 When the session has more than one connection, name REPL so it's clear which
 evaluation is waiting for input."
   (if (and (bufferp repl) (cdr (cider-repls)))
-      (format "Stdin for %s (C-c C-c to cancel): " (buffer-name repl))
-    "Stdin (C-c C-c to cancel): "))
+      (format "Stdin for %s (C-c C-d = EOF, C-c C-c = cancel): " (buffer-name repl))
+    "Stdin (C-c C-d = EOF, C-c C-c = cancel): "))
+
+(defvar cider-need-input--eof nil
+  "Set by `cider-need-input-send-eof' while a stdin prompt is open.
+`cider-need-input' binds it and checks it after the read to decide whether to
+send end-of-input rather than a line.")
+
+(defun cider-need-input-send-eof ()
+  "End the current stdin read by sending end-of-input to the evaluation.
+Bound in the stdin minibuffer prompt (see `cider-need-input'); the empty
+string CIDER sends is what nREPL turns into EOF, so `read-line' returns nil,
+`slurp' completes, and read loops terminate - which pressing \\`RET' (an empty
+line) does not do."
+  (interactive)
+  (setq cider-need-input--eof t)
+  (exit-minibuffer))
 
 (defun cider--connection-for-session (session)
   "Return the connection buffer whose nREPL SESSION matches, or nil.
@@ -1222,7 +1237,10 @@ RESPONSE is the nREPL need-input response (the message whose status is
 \"need-input\").  When given, its `session' selects the exact connection to
 answer (important with several connections) and its `id' lets a cancel
 interrupt just the blocked evaluation.  Without it, both fall back to
-`cider-current-repl' and a connection-wide interrupt."
+`cider-current-repl' and a connection-wide interrupt.
+
+At the prompt, \\`RET' sends the line, `cider-need-input-send-eof' sends
+end-of-input, and cancelling (quit) interrupts the evaluation."
   (with-current-buffer buffer
     (let* ((session (and response (nrepl-dict-get response "session")))
            (id (and response (nrepl-dict-get response "id")))
@@ -1231,9 +1249,12 @@ interrupt just the blocked evaluation.  Without it, both fall back to
            (map (make-sparse-keymap)))
       (set-keymap-parent map minibuffer-local-map)
       (define-key map (kbd "C-c C-c") #'abort-recursive-edit)
+      (define-key map (kbd "C-c C-d") #'cider-need-input-send-eof)
       (condition-case nil
-          (let ((input (read-from-minibuffer (cider-need-input--prompt repl) nil map)))
-            (nrepl-request:stdin (concat input "\n")
+          (let* ((cider-need-input--eof nil)
+                 (input (read-from-minibuffer (cider-need-input--prompt repl) nil map)))
+            ;; An empty string is what nREPL turns into EOF; a line otherwise.
+            (nrepl-request:stdin (if cider-need-input--eof "" (concat input "\n"))
                                  (cider-stdin-handler buffer)
                                  repl))
         (quit

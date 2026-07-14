@@ -564,7 +564,7 @@
   (it "uses a plain prompt with a single connection"
     (spy-on 'cider-repls :and-return-value (list 'repl-a))
     (expect (cider-need-input--prompt (generate-new-buffer " *repl*"))
-            :to-equal "Stdin (C-c C-c to cancel): "))
+            :to-equal "Stdin (C-c C-d = EOF, C-c C-c = cancel): "))
 
   (it "names the REPL when the session has several connections"
     (let ((repl (generate-new-buffer " *cider-repl foo*")))
@@ -572,7 +572,7 @@
           (progn
             (spy-on 'cider-repls :and-return-value (list repl 'repl-b))
             (expect (cider-need-input--prompt repl)
-                    :to-equal (format "Stdin for %s (C-c C-c to cancel): "
+                    :to-equal (format "Stdin for %s (C-c C-d = EOF, C-c C-c = cancel): "
                                       (buffer-name repl))))
         (kill-buffer repl)))))
 
@@ -593,6 +593,16 @@
       (cider-need-input (current-buffer)))
     (expect 'nrepl-request:stdin :to-have-been-called)
     (expect (car (spy-calls-args-for 'nrepl-request:stdin 0)) :to-equal "hello\n")
+    (expect 'cider-interrupt-repl :not :to-have-been-called))
+
+  (it "sends EOF (an empty string) when end-of-input is requested"
+    ;; simulate C-c C-d: `cider-need-input-send-eof' sets the flag mid-read
+    (spy-on 'read-from-minibuffer :and-call-fake
+            (lambda (&rest _) (setq cider-need-input--eof t) ""))
+    (with-temp-buffer
+      (cider-need-input (current-buffer)))
+    ;; an empty string, not "\n" - that is what nREPL turns into EOF
+    (expect (car (spy-calls-args-for 'nrepl-request:stdin 0)) :to-equal "")
     (expect 'cider-interrupt-repl :not :to-have-been-called))
 
   (it "interrupts the evaluation when the prompt is cancelled"
@@ -645,3 +655,10 @@
       (cider-need-input (current-buffer) '(dict "session" "s1" "id" "42")))
     (expect 'nrepl-request:interrupt :to-have-been-called-with "42" #'ignore conn)
     (expect 'cider-interrupt-repl :not :to-have-been-called)))
+
+(describe "cider-need-input-send-eof"
+  (it "sets the EOF flag"
+    (let ((cider-need-input--eof nil))
+      ;; `exit-minibuffer' errors outside a minibuffer; the flag is set first
+      (ignore-errors (cider-need-input-send-eof))
+      (expect cider-need-input--eof :to-be t))))
