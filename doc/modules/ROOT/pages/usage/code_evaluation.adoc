@@ -159,6 +159,37 @@ for sync eval. You can adjust this default if needed:
 
 NOTE: CIDER internally increases the timeout to 30 seconds for the first sync eval request it does, as it might require a lot of namespaces and take more time to complete. See `cider--prep-interactive-eval` for details.
 
+== Reading Input from Running Code
+
+When code you evaluate reads from standard input - `(read-line)`, `(read)`,
+`(slurp *in*)`, and so on - the evaluation blocks until you supply that input.
+CIDER prompts for it at the minibuffer with a `Stdin` prompt. This happens for
+any evaluation, whether you triggered it from the REPL or from a source buffer,
+and the input is routed back to the exact connection that asked for it.
+
+At the prompt you have three options:
+
+|===
+| Key | Effect
+
+| kbd:[RET]
+| Send the typed text as one line (a trailing newline is added, so `read-line`
+returns it).
+
+| kbd:[C-c C-d]
+| Send *end-of-input* (EOF). `read-line` returns `nil`, `(slurp *in*)`
+completes, and read loops terminate. This is distinct from pressing kbd:[RET]
+on an empty line, which sends an empty line (so `read-line` returns `""` and the
+program keeps reading).
+
+| kbd:[C-c C-c]
+| Cancel: interrupt the blocked evaluation altogether.
+|===
+
+TIP: If code reads until end-of-stream (for example `(slurp *in*)` or a
+`(loop [] (when-let [line (read-line)] ... (recur)))`), you need kbd:[C-c C-d]
+to finish it - there is no other way to signal that no more input is coming.
+
 == Configuration
 
 === Enable evaluation interrupts on Java 21 and newer

@@ -4,6 +4,7 @@
 
 ### New features
 
+- [#4108](https://github.com/clojure-emacs/cider/pull/4108): Add `C-c C-d` at the stdin prompt (shown when evaluated code reads input) to send end-of-input, so `read-line` returns `nil` and `(slurp *in*)` completes - code reading to EOF can now be satisfied interactively instead of only by interrupting the evaluation.
 - [#4094](https://github.com/clojure-emacs/cider/pull/4094): Add `cider-doctor`, which checks your Emacs setup (and the active nREPL session, if any) for common problems and shows a copy-pasteable report - Emacs/CIDER/dependency versions, build tools on the path, stale byte-code, leftover obsolete config, and cider-nrepl/nREPL/Clojure compatibility.
 - Render fetched `text/html` content as formatted text (via `shr`) in the REPL and the rich-content popup, and make the URL of an external-content result a clickable link that opens in the browser (next to its `[show content]` button). Remote images in that HTML are not fetched, so rendering a result never makes a network request on its own (only inline `data:` images render).
 - Honor content types for interactive evaluations too ([#2476](https://github.com/clojure-emacs/cider/issues/2476)): a `cider-eval-last-sexp` returning an image can now render it, per the new `cider-eval-rich-content-destination` - `inline` (the default, in the result overlay at point), `repl` (like results of forms typed at the prompt, with the `[show content]` button for external references), `popup` (the `*cider-result*` buffer) or `nil` (plain values, the previous behavior).
