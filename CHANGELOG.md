@@ -47,6 +47,7 @@
 
 ### Bugs fixed
 
+- [#4107](https://github.com/clojure-emacs/cider/pull/4107): Route stdin input (and a cancel's interrupt) to the exact connection that requested it, so reads no longer misroute to the wrong session when several connections are active.
 - [#4106](https://github.com/clojure-emacs/cider/pull/4106): Cancelling a stdin prompt (when evaluated code reads input) now interrupts the evaluation instead of sending a malformed `stdin` op that left the read hung. The prompt also names the REPL when the session has more than one connection.
 - [#4093](https://github.com/clojure-emacs/cider/pull/4093): Fix a crash (`wrong-type-argument stringp nil`) when a REPL result is truncated by the print middleware.
 - [#4089](https://github.com/clojure-emacs/cider/issues/4089): Fix `cider-macroexpand-undo` failing with a read-only error in the macroexpansion buffer.
