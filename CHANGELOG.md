@@ -6,6 +6,8 @@
 
 ## master (unreleased)
 
+## 2.0.0 (2026-07-15)
+
 ### New features
 
 - Transient menus everywhere:
