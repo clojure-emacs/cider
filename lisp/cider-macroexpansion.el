@@ -136,7 +136,10 @@ required, so it is not meant to be called interactively."
   (pcase-let ((`(,beg . ,end) (or (cider-macroexpansion--form-bounds)
                                   (user-error "No sexp before point to expand"))))
     (let ((code (buffer-substring-no-properties beg end)))
-      (cider-ensure-macro (cider-macroexpansion--operator code))
+      ;; A fully-recursive expansion can reach macros in nested sub-forms, so
+      ;; it is useful even when the form's head is not a macro itself.
+      (unless (equal expander "macroexpand-all")
+        (cider-ensure-macro (cider-macroexpansion--operator code)))
       (cider-redraw-macroexpansion-buffer
        (cider-sync-request:macroexpand expander code)
        (current-buffer) beg end))))
@@ -173,11 +176,11 @@ If invoked with a PREFIX argument, use \\=`macroexpand\\=` instead of
 
 ;;;###autoload
 (defun cider-macroexpand-all ()
-  "Invoke \\=`macroexpand-all\\=` on the expression preceding point."
+  "Invoke \\=`macroexpand-all\\=` on the expression preceding point.
+The form's head needn't be a macro itself, since a fully-recursive
+expansion can reach macros in nested sub-forms."
   (interactive)
-  (let ((form (cider-last-sexp)))
-    (cider-ensure-macro (cider-macroexpansion--operator form))
-    (cider-macroexpand-expr "macroexpand-all" form)))
+  (cider-macroexpand-expr "macroexpand-all" (cider-last-sexp)))
 
 (defun cider-macroexpand-all-inplace ()
   "Perform inplace \\=`macroexpand-all\\=` on the form before point."

@@ -143,6 +143,37 @@
     (expect (cider-macroexpansion--operator "(defn- f [])") :to-equal "defn-")
     (expect (cider-macroexpansion--operator "(-> x f)") :to-equal "->")))
 
+(describe "cider-macroexpand-all"
+  (it "doesn't require the form's head to be a macro"
+    ;; #4111: a fully-recursive expansion can reach macros in nested
+    ;; sub-forms, so the operator must not be gated.
+    (spy-on 'cider-last-sexp :and-return-value "(inc (when x 1))")
+    (spy-on 'cider-ensure-macro)
+    (spy-on 'cider-macroexpand-expr)
+    (cider-macroexpand-all)
+    (expect 'cider-ensure-macro :not :to-have-been-called)
+    (expect 'cider-macroexpand-expr
+            :to-have-been-called-with "macroexpand-all" "(inc (when x 1))")))
+
+(describe "cider-macroexpand-expr-inplace"
+  (it "guards single-step expansion on the operator"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(inc 1)")
+      (spy-on 'cider-var-info :and-return-value (nrepl-dict "arglists" "([x])"))
+      (expect (cider-macroexpand-expr-inplace "macroexpand-1")
+              :to-throw 'user-error)))
+  (it "skips the operator guard for macroexpand-all"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(inc (when x 1))")
+      (spy-on 'cider-ensure-macro)
+      (spy-on 'cider-sync-request:macroexpand
+              :and-return-value "(inc (if x (do 1)))")
+      (cider-macroexpand-expr-inplace "macroexpand-all")
+      (expect 'cider-ensure-macro :not :to-have-been-called)
+      (expect (string-trim (buffer-string)) :to-equal "(inc (if x (do 1)))"))))
+
 (describe "cider-macroexpand-menu--apply-args"
   (it "binds the namespace display style from --ns="
     (let (captured)
