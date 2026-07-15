@@ -172,15 +172,23 @@
     (spy-on 'cider-var-info :and-return-value nil)
     (spy-on 'cider-resolution-failure-message :and-return-value "nope")
     (expect (cider-ensure-macro "my.ns/foo") :to-throw 'user-error))
+  (it "passes for macros that double as special forms (let, fn, loop, letfn)"
+    ;; #4111: these carry both `:macro' and `:special-form' metadata.
+    (spy-on 'cider-var-info :and-return-value (nrepl-dict "macro" "true"
+                                                          "special-form" "true"))
+    (expect (cider-ensure-macro "let") :not :to-throw))
   (it "rejects special forms"
     (spy-on 'cider-var-info :and-return-value (nrepl-dict "special-form" "true"))
     (expect (cider-ensure-macro "if") :to-throw 'user-error))
   (it "rejects ordinary (non-macro) vars"
     (spy-on 'cider-var-info :and-return-value (nrepl-dict "arglists" "([coll])"))
     (expect (cider-ensure-macro "map") :to-throw 'user-error))
-  (it "rejects non-symbol operators without consulting the runtime"
+  (it "passes non-symbol operators through without consulting the runtime"
+    ;; #4111: reader syntax (::kw, #(...), literals) is expanded as a no-op
+    ;; server-side, but the reader still normalizes it usefully.
     (spy-on 'cider-var-info)
-    (expect (cider-ensure-macro ":kw") :to-throw 'user-error)
+    (expect (cider-ensure-macro ":kw") :not :to-throw)
+    (expect (cider-ensure-macro nil) :not :to-throw)
     (expect 'cider-var-info :not :to-have-been-called)))
 
 (describe "cider-classpath-entries"

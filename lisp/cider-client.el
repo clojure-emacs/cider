@@ -772,19 +772,24 @@ last one being the out-of-sync case where the namespace is loaded but stale."
   "Signal a helpful `user-error' unless OPERATOR names a resolvable macro.
 This turns the silent \"nothing happens\" case (e.g. the namespace hasn't
 been evaluated yet) into an actionable message, distinguishing an unresolved
-symbol from a special form or an ordinary (non-macro) var."
-  (cond
-   ((not (cider--symbol-operator-p operator))
-    (user-error "`%s' is not a macro" (or operator "form")))
-   (t
+symbol from a special form or an ordinary (non-macro) var.
+
+A nil or non-symbol OPERATOR (a literal, reader syntax like \\=`::kw\\=` or
+\\=`#(...)\\=`, and so on) passes the check: expanding it is a no-op on the
+runtime side, but the reader may still normalize the form usefully."
+  (when (cider--symbol-operator-p operator)
     (let ((info (cider-var-info operator)))
       (cond
        ((null info)
         (user-error "%s" (cider-resolution-failure-message operator)))
+       ;; `let', `fn', `loop' and `letfn' carry both `:macro' and
+       ;; `:special-form' metadata - they are real macros delegating to the
+       ;; `*'-suffixed special forms - so the macro check must come first.
+       ((nrepl-dict-get info "macro") nil)
        ((nrepl-dict-get info "special-form")
         (user-error "`%s' is a special form; there's nothing to macroexpand" operator))
-       ((not (nrepl-dict-get info "macro"))
-        (user-error "`%s' is not a macro" operator)))))))
+       (t
+        (user-error "`%s' is not a macro" operator))))))
 
 
 ;;; Requests
