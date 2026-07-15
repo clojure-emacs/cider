@@ -88,6 +88,7 @@
 
 ### Changes
 
+- Bump the injected `cider-nrepl` to [0.62.1](https://github.com/clojure-emacs/cider-nrepl/blob/v0.62.1/CHANGELOG.md#0621-2026-07-15), which carries a batch of debugger and enlighten fixes (record literals survive instrumentation, clear errors for forms too large to instrument, and several `STATE__` crashes are gone).
 - [#4093](https://github.com/clojure-emacs/cider/pull/4093): In the REPL, `C-c M-m` now opens the macroexpand menu (matching `cider-mode`) instead of running `cider-macroexpand-all` directly, and `C-c C-r` no longer injects clojure-mode's source-editing refactor map.
 - [#4092](https://github.com/clojure-emacs/cider/pull/4092): Stop the `C-x C-e` and `C-c C-v` eval keybindings from running the source-buffer eval path in the REPL (which left fringe indicators and the like there) for a niche use case; evaluate at the prompt instead. `C-x C-e` is now a no-op in the REPL rather than falling through to Emacs's Emacs Lisp `eval-last-sexp`. Macroexpansion (`C-c C-m`/`C-c M-m`) and inspection (`C-c M-i`) stay bound.
 - [#4081](https://github.com/clojure-emacs/cider/pull/4081): Remove the long-obsolete (no-op since 1.18) `cider-stacktrace-analyze-at-point` and `cider-stacktrace-analyze-in-region` commands.
