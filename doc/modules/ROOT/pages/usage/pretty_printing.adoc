@@ -14,9 +14,9 @@ following possible values:
 bound value of `+nrepl.middleware.print/*print-fn*+`, which defaults to the
 equivalent of `clojure.core/pr`.
 * `pr` to use the equivalent of `clojure.core/pr`.
-* `pprint` to use a fast `clojure.pprint/pprint`-style printer (this is the
-default). As of `cider-nrepl` 0.61 it's backed by `orchard.pp`; with older
-versions of the middleware it's the built-in `clojure.pprint/pprint`.
+* `pprint` to use the classic `clojure.pprint` printer (this is the default).
+* `orchard` to use `orchard.pp`, a fast pretty-printer bundled with
+`cider-nrepl`. See <<trying-orchard-pp,below>> for why you might want it.
 * `fipp` to use the https://github.com/brandonbloom/fipp[Fast Idiomatic
 Pretty-Printer]. This is approximately 5-10x faster than `clojure.core/pprint`.
 * `puget` to use https://github.com/greglook/puget[Puget], which provides
@@ -28,27 +28,28 @@ flexible alternative to the libraries mentioned above.
 IMPORTANT: For `fipp`, `puget`, and `zprint` printers to work, you need to add the
 respective dependency in your project explicitly.
 
-=== Why `orchard.pp` is the default
+[#trying-orchard-pp]
+=== Give `orchard.pp` a try
 
-The default `pprint` printer is backed by `orchard.pp` rather than
-`clojure.pprint`. It was made the default because it fits a tooling context
-better: it honors `+*print-length*+` and `+*print-level*+`, bounds the total
-size of what it prints (so a huge, deeply nested, or lazy/infinite value won't
-hang the REPL or flood the buffer), and it's noticeably faster. `clojure.pprint`,
-by contrast, realizes lazy seqs in full as it prints, so an infinite sequence
-can hang it.
+The default `pprint` printer produces the `clojure.pprint` output everyone
+knows, but `orchard.pp` fits a tooling context better in a few ways:
 
-If you hit a value that `orchard.pp` renders differently than you'd like, you
-can switch back to the classic `clojure.pprint` output by pointing
-`cider-print-fn` at cider-nrepl's compatibility wrapper:
+* it's noticeably faster
+* it doesn't realize lazy seqs in full as it prints, so an infinite or huge
+lazy sequence won't hang the printer or trigger its side effects mid-print
+* it honors `+*print-length*+` and `+*print-level*+` and bounds the total size
+of what it prints, so a deeply nested value won't flood the REPL buffer
+
+Its output differs slightly from `clojure.pprint` in places, which is why it
+hasn't been made the default (yet), but it's well worth a try:
 
 [source,lisp]
 ----
-(setq cider-print-fn "cider.nrepl.pprint/clojure-pprint")
+(setq cider-print-fn 'orchard)
 ----
 
-Note that this brings back `clojure.pprint`'s trade-offs: it fully realizes lazy
-seqs and doesn't cap its output the way `orchard.pp` does.
+Like the default printer, it requires no extra dependencies - it ships with
+`cider-nrepl`.
 
 Alternatively, `cider-print-fn` can be set to the namespace-qualified name of a
 Clojure var whose function takes three arguments:
@@ -81,9 +82,9 @@ Here's one example:
 
 TIP: You can also pick a printer for a single evaluation, without changing
 `cider-print-fn`: the pretty-print menu (kbd:[C-c C-v f]) has a kbd:[-p]
-(`--print-fn=`) argument accepting `pr`, `pprint`, `fipp`, `puget`, `zprint`
-or the name of a custom var, honored by the pretty-printing commands invoked
-from the menu.
+(`--print-fn=`) argument accepting `pr`, `pprint`, `orchard`, `fipp`, `puget`,
+`zprint` or the name of a custom var, honored by the pretty-printing commands
+invoked from the menu.
 
 == Limiting printed output
 

@@ -487,6 +487,7 @@
 (describe "cider-eval-pprint-menu--print-fn"
   (it "interns a known printer to a symbol"
     (expect (cider-eval-pprint-menu--print-fn "pprint") :to-equal 'pprint)
+    (expect (cider-eval-pprint-menu--print-fn "orchard") :to-equal 'orchard)
     (expect (cider-eval-pprint-menu--print-fn "fipp") :to-equal 'fipp))
   (it "keeps a custom var name as a string"
     (expect (cider-eval-pprint-menu--print-fn "my.ns/printer") :to-equal "my.ns/printer")))

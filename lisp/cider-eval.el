@@ -1505,14 +1505,14 @@ passing arguments."
 PROMPT, INITIAL-INPUT and HISTORY are as for `completing-read'.  A value
 outside the known printers is treated as a namespace-qualified var name."
   (completing-read (or prompt "Print function: ")
-                   '("pr" "pprint" "fipp" "puget" "zprint")
+                   '("pr" "pprint" "orchard" "fipp" "puget" "zprint")
                    nil nil initial-input history))
 
 (defun cider-eval-pprint-menu--print-fn (value)
   "Convert VALUE, a string, into a `cider-print-fn' value.
 The known printers become symbols so `cider--print-fn' recognizes them;
 any other value (a custom var name) is kept as a string."
-  (if (member value '("pr" "pprint" "fipp" "puget" "zprint"))
+  (if (member value '("pr" "pprint" "orchard" "fipp" "puget" "zprint"))
       (intern value)
     value))
 

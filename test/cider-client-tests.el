@@ -230,6 +230,19 @@
     (setq cider-repl-type nil)
     (expect (cider-repl-type-for-buffer) :to-be nil)))
 
+(describe "cider--print-fn"
+  (it "maps the pprint symbol to the clojure.pprint-backed printer"
+    (let ((cider-print-fn 'pprint))
+      (expect (cider--print-fn) :to-equal "cider.nrepl.pprint/clojure-pprint")))
+
+  (it "maps the orchard symbol to the orchard.pp-backed printer"
+    (let ((cider-print-fn 'orchard))
+      (expect (cider--print-fn) :to-equal "cider.nrepl.pprint/orchard-pprint")))
+
+  (it "passes a custom var name through unchanged"
+    (let ((cider-print-fn "my.ns/printer"))
+      (expect (cider--print-fn) :to-equal "my.ns/printer"))))
+
 (describe "cider-nrepl-send-unhandled-request"
   (it "returns the id of the request sent to nREPL server and ignores the response"
     (spy-on 'process-send-string :and-return-value nil)

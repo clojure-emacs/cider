@@ -444,9 +444,13 @@ defaults to the equivalent of \\=`clojure.core/pr\\=`.
 
 `pr' – to use the equivalent of \\=`clojure.core/pr\\=`.
 
-`pprint' – to use cider-nrepl's bundled pretty-printer, which is backed by
-\\=`orchard.pp\\=` (as of cider-nrepl 0.61.0; it used \\=`clojure.pprint/pprint\\=`
-before).  This is the default.
+`pprint' – to use a printer backed by \\=`clojure.pprint\\=`.  This is the
+default.
+
+`orchard' – to use \\=`orchard.pp\\=`, a pretty-printer bundled with
+cider-nrepl.  It's significantly faster than \\=`clojure.pprint\\=` and
+doesn't realize lazy sequences while printing them, although its output
+differs from that of \\=`clojure.pprint\\=` in places.
 
 `fipp' – to use the Fast Idiomatic Pretty Printer, approximately 5-10x
 faster than \\=`clojure.core/pprint\\=`.
@@ -465,6 +469,7 @@ nil."
   :type '(choice (const nil)
                  (const pr)
                  (const pprint)
+                 (const orchard)
                  (const fipp)
                  (const puget)
                  (const zprint)
@@ -512,11 +517,14 @@ requests `cider-doc' on a Java class or a member of the class."
 (defun cider--print-fn ()
   "Return the value to send in the nrepl.middleware.print/print slot."
   (pcase cider-print-fn
-    (`pr     "cider.nrepl.pprint/pr")
-    (`pprint "cider.nrepl.pprint/pprint")
-    (`fipp   "cider.nrepl.pprint/fipp-pprint")
-    (`puget  "cider.nrepl.pprint/puget-pprint")
-    (`zprint "cider.nrepl.pprint/zprint-pprint")
+    (`pr      "cider.nrepl.pprint/pr")
+    ;; cider-nrepl 0.61 pointed its `pprint` var at orchard.pp, so target the
+    ;; explicit wrappers to keep `pprint` meaning clojure.pprint everywhere.
+    (`pprint  "cider.nrepl.pprint/clojure-pprint")
+    (`orchard "cider.nrepl.pprint/orchard-pprint")
+    (`fipp    "cider.nrepl.pprint/fipp-pprint")
+    (`puget   "cider.nrepl.pprint/puget-pprint")
+    (`zprint  "cider.nrepl.pprint/zprint-pprint")
     (_ cider-print-fn)))
 
 (defvar cider--print-options-mapping
