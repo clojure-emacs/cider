@@ -12,6 +12,10 @@ kbd:[C-x C-e]. Note that kbd:[C-c C-k] won't work.
 That's it! Once your code executes, the regular old buffer on the left will turn
 into the brilliant show of lights on the right.
 
+Here's an enlightened function lighting up as it runs with different inputs:
+
+image::cider-enlighten.gif[Enlighten showing local values inline as the code runs]
+
 |===
 | Enlighten Mode Disabled | Enlighten Mode Enabled
 

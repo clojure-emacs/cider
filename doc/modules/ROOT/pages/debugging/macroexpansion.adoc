@@ -168,6 +168,8 @@ a form (as with kbd:[C-x C-e]) and run `M-x cider-macrostep-expand`: the form is
 replaced by its one-step expansion and you enter a transient, read-only
 `cider-macrostep-mode` with these keybindings:
 
+image::cider-macrostep.gif[Stepping through a macro expansion inline and collapsing back]
+
 |===
 | Keyboard shortcut | Description
 

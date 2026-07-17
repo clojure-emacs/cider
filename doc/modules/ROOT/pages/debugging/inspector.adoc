@@ -5,6 +5,8 @@ The value inspector allows you to inspect and navigate the structure of data. Wh
 it for pretty much anything (e.g. primitive data types, var, ref types) it's most
 useful when you're dealing with (deeply) nested collection-like data types (e.g. a vector of maps).
 
+image::cider-inspector.gif[Inspecting a vector of maps: table view mode and drilling into a value]
+
 == Usage
 
 Typing kbd:[C-c M-i] (`cider-inspect`) after some form in a source
