@@ -745,8 +745,13 @@ key of a map, and it means \"go to the value associated with this key\"."
 
 (defun cider--debug-position-for-code (code)
   "Return non-nil if point is roughly before CODE.
-This might move point one line above."
-  (or (looking-at-p (regexp-quote code))
+This might move point one line above.
+
+A nil CODE counts as a match: enlighten events carry only the form's
+line/column (not its source text), so there is nothing to verify against
+and the position must be trusted as-is."
+  (or (null code)
+      (looking-at-p (regexp-quote code))
       (let ((trimmed (regexp-quote (cider--debug-trim-code code))))
         (or (looking-at-p trimmed)
             ;; If this is a fake #dbg injected by `C-u
