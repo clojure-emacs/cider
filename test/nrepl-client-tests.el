@@ -554,3 +554,36 @@
   (it "does not treat a server message as a format string"
     (expect (nrepl-notify "test %s and 100%" "warning") :not :to-throw)
     (expect (nrepl-notify "raw 50% done" nil) :not :to-throw)))
+
+(describe "nrepl--connection-eval-params"
+  ;; `nrepl-extra-eval-params-function' lives in the connection buffer, but
+  ;; eval requests are assembled in the source buffer (for their file/line
+  ;; context), so the params must be looked up against the connection - this
+  ;; is how `cider-enlighten-mode' gets its `enlighten' flag onto requests.
+  (it "contributes the connection's extra params from any buffer"
+    (let ((conn (generate-new-buffer " *fake-conn*")))
+      (unwind-protect
+          (progn
+            (with-current-buffer conn
+              (setq-local nrepl-extra-eval-params-function
+                          (lambda () '("enlighten" "true"))))
+            (with-temp-buffer ;; an unrelated source buffer
+              (spy-on 'nrepl-send-request)
+              (nrepl-send-eval-request "(inc 1)" #'ignore conn)
+              (let ((request (car (spy-calls-args-for 'nrepl-send-request 0))))
+                (expect (member "enlighten" request) :to-be-truthy))
+              (spy-on 'nrepl-sync-request)
+              (nrepl-sync-request:eval "(inc 1)" conn)
+              (let ((request (car (spy-calls-args-for 'nrepl-sync-request 0))))
+                (expect (member "enlighten" request) :to-be-truthy))))
+        (kill-buffer conn))))
+
+  (it "contributes nothing when the connection sets no params function"
+    (let ((conn (generate-new-buffer " *fake-conn*")))
+      (unwind-protect
+          (with-temp-buffer
+            (spy-on 'nrepl-send-request)
+            (nrepl-send-eval-request "(inc 1)" #'ignore conn)
+            (let ((request (car (spy-calls-args-for 'nrepl-send-request 0))))
+              (expect (member "enlighten" request) :not :to-be-truthy)))
+        (kill-buffer conn)))))

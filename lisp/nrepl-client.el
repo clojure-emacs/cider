@@ -1062,13 +1062,21 @@ If LINE and COLUMN are non-nil and current buffer is a file buffer, \"line\",
   `("op" "eval"
     "code" ,(substring-no-properties input)
     ,@(when ns `("ns" ,ns))
-    ,@(when nrepl-extra-eval-params-function
-        (funcall nrepl-extra-eval-params-function))
     ,@(let ((file (or (buffer-file-name) (buffer-name))))
         (when (and line column file)
           `("file" ,file
             "line" ,line
             "column" ,column)))))
+
+(defun nrepl--connection-eval-params (connection)
+  "Extra eval-request params contributed by CONNECTION's client.
+`nrepl-extra-eval-params-function' is local to the connection buffer, while
+eval requests are assembled in the originating source buffer (whose file and
+position they carry), so the lookup must target CONNECTION explicitly."
+  (when-let* ((buffer (cond ((buffer-live-p connection) connection)
+                            ((stringp connection) (get-buffer connection))))
+              (f (buffer-local-value 'nrepl-extra-eval-params-function buffer)))
+    (funcall f)))
 
 (cl-defun nrepl-send-eval-request (input callback connection
                                          &key ns line column additional-params tooling)
@@ -1082,7 +1090,9 @@ ADDITIONAL-PARAMS is a plist to be appended to the request message.
 
 This is the keyword-argument form; `nrepl-request:eval' is the legacy
 positional shim retained for backward compatibility."
-  (nrepl-send-request (append (nrepl--eval-request input ns line column) additional-params)
+  (nrepl-send-request (append (nrepl--eval-request input ns line column)
+                              (nrepl--connection-eval-params connection)
+                              additional-params)
                       callback
                       connection
                       tooling))
@@ -1147,7 +1157,8 @@ If NS is non-nil, include it in the request
 If TOOLING is non-nil the evaluation is done using the tooling nREPL
 session."
   (nrepl-sync-request
-   (nrepl--eval-request input ns)
+   (append (nrepl--eval-request input ns)
+           (nrepl--connection-eval-params connection))
    connection
    :tooling tooling))
 
