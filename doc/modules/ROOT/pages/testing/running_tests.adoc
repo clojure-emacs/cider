@@ -172,6 +172,8 @@ commands dispatched through the menu; the plain keybindings and the
 `cider-test-default-include-selectors`/`cider-test-default-exclude-selectors`
 variables are untouched.
 
+image::cider-test-menu.png[The test transient menu with selector flags]
+
 === Display Test Report on Success
 
 By default the test report is displayed only when there are test failures or

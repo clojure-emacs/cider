@@ -192,12 +192,16 @@ kbd:[p]
 | Collapse every expansion and leave `cider-macrostep-mode`.
 |===
 
+image::cider-macrostep-when-let.png[cider-macrostep expanding when-let inline]
+
 Each expansion remembers the exact text it replaced, so collapsing restores the
 original verbatim and nested expansions peel back in order. The operators of
 sub-forms that can be expanded further (those that resolve to a macro) are
 underlined so you can see what's left to expand, and kbd:[n]/kbd:[p] jump
 between them. The gensyms a macro introduces (e.g. `x__42__auto__`) are each
 given their own color, so a binding can be tracked through the expansion.
+
+image::cider-macrostep-for-gensyms.png[cider-macrostep expanding for, with colorized gensyms]
 
 NOTE: The expandable-head highlighting and gensym coloring rely on the
 `cider/classify-symbols` nREPL op, available in cider-nrepl 0.60 and newer.

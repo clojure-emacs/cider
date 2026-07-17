@@ -23,6 +23,8 @@ By default the trace output lands in the REPL, mixed in with everything else.
 functions, call them, and their calls and return values stream into that buffer
 live, indented to show the call nesting.  Kill the buffer to stop streaming.
 
+image::cider-trace-buffer.png[The cider-trace buffer with a nested call tree]
+
 Inside the buffer:
 
 * kbd:[TAB] (or a click) on a call line folds or unfolds the nested calls between

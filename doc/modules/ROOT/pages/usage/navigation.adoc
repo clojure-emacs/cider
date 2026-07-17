@@ -110,6 +110,8 @@ kbd:[n] and kbd:[p] move between nodes, kbd:[RET] (or kbd:[.]) jumps to a node's
 definition, and a function that calls back onto its own path is shown as a leaf
 so expansion can't loop forever.
 
+image::cider-who-calls.png[The cider-who-calls tree expanded three levels]
+
 [NOTE]
 ====
 Like the flat `cider-xref-fn-refs`, these browsers are powered by the runtime

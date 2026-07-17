@@ -26,6 +26,8 @@ nREPL, `cider-nrepl` and Clojure versions and probes the middleware ops
 that back the major features - so a missing feature shows up as a named
 missing op rather than a mystery.
 
+image::cider-doctor.png[A cider-doctor report]
+
 Press kbd:[g] in the report buffer to re-run the checks in place, for
 instance after installing a missing dependency or starting a REPL.
 

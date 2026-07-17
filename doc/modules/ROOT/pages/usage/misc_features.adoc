@@ -48,6 +48,17 @@ buffer, not just the scratchpad - they are handy in `.cljc` buffers too, when
 you want to pin evaluations to a specific REPL instead of the
 `cider-clojurec-eval-destination` default.
 
+== Browsing Namespaces
+
+kbd:[M-x] `cider-browse-ns` displays the vars of a namespace (defaulting to
+the current one) in a browsable buffer, along with the first sentence of each
+var's docstring; `cider-browse-ns-all` lists all loaded namespaces instead.
+The entries can be grouped (by type or visibility) and filtered from the
+header, groups fold with kbd:[TAB], kbd:[n]/kbd:[p] move between entries, and
+kbd:[RET] (or kbd:[.]) visits the definition of the var at point.
+
+image::cider-browse-ns.png[The namespace browser]
+
 == Browsing the Clojure Spec Registry
 
 If you already know which spec you're looking for, you can type

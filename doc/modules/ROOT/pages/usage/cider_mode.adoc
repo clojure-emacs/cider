@@ -95,6 +95,8 @@ kbd:[C-c C-d C-d] runs `cider-doc` immediately; the menu only appears if you
 *pause* after the prefix.  There's also a top-level `cider-menu` command (not
 bound by default) that dispatches into all of the group menus, magit-style.
 
+image::cider-menu.png[The top-level cider-menu transient]
+
 Some menus also offer *arguments* (toggled with kbd:[-] keys, magit-style)
 that tweak the commands for a single invocation, without touching your saved
 configuration:
