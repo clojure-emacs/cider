@@ -243,3 +243,20 @@
       (expect (cider-auto-select-buffer-p 'error nil) :to-be nil))
     (let ((cider-auto-select-buffer nil))
       (expect (cider-auto-select-buffer-p 'error t) :to-be-truthy))))
+
+(describe "cider--read-symbol"
+  (before-each
+    (spy-on 'cider-completing-read-symbol :and-return-value "via-completing-read")
+    (spy-on 'cider-read-from-minibuffer :and-return-value "via-minibuffer"))
+
+  (it "uses completing-read when the option is enabled"
+    (let ((cider-use-completing-read-for-symbol t))
+      (expect (cider--read-symbol "Sym" "map") :to-equal "via-completing-read")
+      (expect 'cider-completing-read-symbol :to-have-been-called-with "Sym" "map")
+      (expect 'cider-read-from-minibuffer :not :to-have-been-called)))
+
+  (it "uses the plain minibuffer read by default"
+    (let ((cider-use-completing-read-for-symbol nil))
+      (expect (cider--read-symbol "Sym" "map") :to-equal "via-minibuffer")
+      (expect 'cider-read-from-minibuffer :to-have-been-called-with "Sym" "map")
+      (expect 'cider-completing-read-symbol :not :to-have-been-called))))

@@ -65,3 +65,27 @@
         (expect completion-category-overrides
                 :to-equal '((cider (styles basic flex)
                                    (cycle t))))))))
+
+(describe "cider--symbol-completion-table"
+  (it "reports the `cider' category and an annotation function"
+    (let* ((table (cider--symbol-completion-table))
+           (md (cdr (funcall table "" nil 'metadata))))
+      (expect (cdr (assq 'category md)) :to-equal 'cider)
+      (expect (assq 'annotation-function md) :to-be-truthy)))
+
+  (it "does not query the runtime until the input reaches the min length"
+    (spy-on 'cider-complete :and-return-value '("reduce" "reductions"))
+    (let ((cider-completion-symbol-prompt-min-length 2)
+          (table (cider--symbol-completion-table)))
+      (expect (all-completions "r" table) :to-equal nil)
+      (expect 'cider-complete :not :to-have-been-called)
+      (expect (all-completions "re" table) :to-have-same-items-as '("reduce" "reductions"))
+      (expect 'cider-complete :to-have-been-called-with "re")))
+
+  (it "caches per input, so repeated table calls make one query"
+    (spy-on 'cider-complete :and-return-value '("map" "mapv" "mapcat"))
+    (let ((table (cider--symbol-completion-table)))
+      (all-completions "map" table)
+      (try-completion "map" table)
+      (test-completion "map" table)
+      (expect (spy-calls-count 'cider-complete) :to-equal 1))))
