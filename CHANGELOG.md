@@ -6,6 +6,10 @@
 
 ## master (unreleased)
 
+### Changes
+
+- [#4116](https://github.com/clojure-emacs/cider/pull/4116): Bump the injected `cider-nrepl` to [0.62.2](https://github.com/clojure-emacs/cider-nrepl/blob/v0.62.2/CHANGELOG.md#0622-2026-07-18), so a dead trace/tap subscriber no longer breaks every traced evaluation, and the debugger no longer shadows the enlighten middleware's evaluator.
+
 ### Bugs fixed
 
 - [#4115](https://github.com/clojure-emacs/cider/pull/4115): Fix inline macro stepping (`cider-macrostep`): pressing `e`/`RET` right after `n`/`p` now expands the operator you jumped to, instead of erroring with "No sexp before point to expand".
