@@ -6,6 +6,10 @@
 
 ## master (unreleased)
 
+### New features
+
+- [#4117](https://github.com/clojure-emacs/cider/pull/4117): Add `cider-use-completing-read-for-symbol` (off by default): when enabled, symbol prompts (e.g. `cider-doc`, `cider-find-var`) read through `completing-read` over a lazy, runtime-backed collection, so they work with `completing-read` UIs (Vertico, Ivy, Helm) and annotate candidates with their type and namespace.
+
 ## 2.0.1 (2026-07-23)
 
 ### Changes

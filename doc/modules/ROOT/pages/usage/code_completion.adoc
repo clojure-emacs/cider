@@ -46,6 +46,35 @@ which shows the top completion candidate inline as you type (accept it with
 kbd:[TAB]). It's a lightweight alternative to the popup UIs described below and
 works out-of-the-box with CIDER's completion.
 
+== Completion in minibuffer prompts
+
+Some commands ask you for a Clojure symbol in the minibuffer (for example
+`cider-doc` or `cider-find-var` when there's no symbol at point, or when
+`cider-prompt-for-symbol` is `t`). By default these prompts use a plain
+minibuffer read where kbd:[TAB] completes the symbol against the running REPL.
+
+If you drive completion with a `completing-read` UI such as
+https://github.com/minad/vertico[Vertico], Ivy or Helm, set
+`cider-use-completing-read-for-symbol` to `t`. The symbol prompts then go
+through `completing-read`, so your usual narrowing UI, sorting and annotations
+apply, and candidates are labelled with their type and namespace:
+
+[source,lisp]
+----
+(setq cider-use-completing-read-for-symbol t)
+----
+
+Candidates are fetched from the runtime lazily as you type, so nothing is
+transferred up front. Querying only starts once your input reaches
+`cider-completion-symbol-prompt-min-length` characters (2 by default), which
+keeps an empty prompt from asking the runtime for every symbol.
+
+TIP: The prompt also feeds eldoc, so the arglist of the symbol you're typing
+shows in the echo area. With a vertical completion UI the eldoc line and the
+minibuffer can compete for the echo area; if you rarely see the arglist, the
+per-candidate annotations (type and namespace) still give you the essentials,
+and you can widen the echo area with `max-mini-window-height`.
+
 == Auto-completion
 
 While the standard Emacs tooling works just fine, we suggest that CIDER users

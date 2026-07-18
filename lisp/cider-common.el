@@ -43,6 +43,20 @@ prompt if that throws an error."
   :group 'cider
   :package-version '(cider . "0.9.0"))
 
+(defcustom cider-use-completing-read-for-symbol nil
+  "Whether symbol prompts read the symbol via `completing-read'.
+
+When non-nil, prompts that ask for a Clojure symbol (e.g. `cider-doc',
+`cider-find-var') use `completing-read' over a dynamic, runtime-backed
+collection, so they compose with `completing-read' UIs such as Vertico,
+Ivy and Helm, and show type/namespace annotations for the candidates.
+
+When nil (the default for now), those prompts use a plain minibuffer read
+with the traditional \\<cider-minibuffer-map>\\[complete-symbol] completion."
+  :type 'boolean
+  :group 'cider
+  :package-version '(cider . "2.1.0"))
+
 (defcustom cider-special-mode-truncate-lines t
   "If non-nil, contents of CIDER's special buffers will be line-truncated.
 Should be set before loading CIDER."
@@ -147,10 +161,39 @@ If SKIP-COLON is non-nil, no \": \" is forced at the end of the prompt."
           value
         input))))
 
+(declare-function cider--symbol-completion-table "cider-completion")
+(defun cider-completing-read-symbol (prompt &optional default)
+  "Read a Clojure symbol with PROMPT via `completing-read'.
+DEFAULT, typically the symbol at point, is offered as the default value.
+Candidates come from the runtime through a dynamic collection, so this works
+with `completing-read'-based UIs (Vertico, Ivy, Helm, ...) without fetching
+every symbol up front, and it honors the user's completion styles and
+annotations."
+  (minibuffer-with-setup-hook
+      (lambda ()
+        (set-syntax-table clojure-mode-syntax-table)
+        (setq-local eldoc-documentation-function #'cider-eldoc)
+        (run-hooks 'eval-expression-minibuffer-setup-hook))
+    (let ((input (completing-read
+                  (if default
+                      (format "%s (default %s): " prompt default)
+                    (format "%s: " prompt))
+                  (cider--symbol-completion-table)
+                  nil nil nil 'cider-minibuffer-history default)))
+      (if (string-empty-p input) (or default input) input))))
+
+(defun cider--read-symbol (prompt &optional default)
+  "Read a Clojure symbol with PROMPT, defaulting to DEFAULT.
+Dispatches on `cider-use-completing-read-for-symbol' between the
+`completing-read' collection and the traditional minibuffer read."
+  (if cider-use-completing-read-for-symbol
+      (cider-completing-read-symbol prompt default)
+    (cider-read-from-minibuffer prompt default)))
+
 (defun cider-read-symbol-name (prompt callback)
   "Read a symbol name using PROMPT with a default of the one at point.
 Use CALLBACK as the completing read var callback."
-  (funcall callback (cider-read-from-minibuffer
+  (funcall callback (cider--read-symbol
                      prompt
                      ;; if the thing at point is a keyword we treat it as symbol
                      (cider--kw-to-symbol (cider-symbol-at-point 'look-back)))))
@@ -160,7 +203,7 @@ Use CALLBACK as the completing read var callback."
 On failure, read a symbol name using PROMPT and call CALLBACK with that."
   (condition-case nil
       (funcall callback (cider--kw-to-symbol (cider-symbol-at-point 'look-back)))
-    (error (funcall callback (cider-read-from-minibuffer prompt)))))
+    (error (funcall callback (cider--read-symbol prompt)))))
 
 (declare-function cider-mode "cider-mode")
 (declare-function cider-current-repl "cider-session")

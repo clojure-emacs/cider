@@ -232,6 +232,39 @@ has started."
   (interactive)
   (cider-sync-request:complete-flush-caches))
 
+(defcustom cider-completion-symbol-prompt-min-length 2
+  "Minimum input length before a symbol prompt queries the runtime.
+Completing an empty prompt would ask the runtime for every symbol, so
+`cider-completing-read-symbol' only starts querying once you've typed at
+least this many characters."
+  :type 'integer
+  :group 'cider
+  :package-version '(cider . "2.1.0"))
+
+(defun cider--symbol-completion-table ()
+  "Return a `completing-read' collection backed by the `complete' op.
+Candidates for the current input are fetched from the runtime lazily (so
+nothing is dumped up front), cached per input, and carry `type'/`ns' text
+properties so `cider-annotate-symbol' can annotate them.  Querying only
+starts once the input reaches `cider-completion-symbol-prompt-min-length'
+characters, which keeps an empty prompt from asking for every symbol."
+  (let ((cache-key 'none) cache-val)
+    (lambda (string pred action)
+      (cond
+       ((eq action 'metadata)
+        `(metadata
+          (category . cider)
+          (display-sort-function . identity)
+          (annotation-function . ,#'cider-annotate-symbol)))
+       ((eq (car-safe action) 'boundaries) nil)
+       (t
+        (unless (equal string cache-key)
+          (setq cache-key string
+                cache-val (when (>= (length string)
+                                    cider-completion-symbol-prompt-min-length)
+                            (cider-complete string))))
+        (complete-with-action action cache-val string pred))))))
+
 (defun cider-company-location (var)
   "Open VAR's definition in a buffer.
 Returns the cons of the buffer itself and the location of VAR's definition
