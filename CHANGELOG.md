@@ -8,6 +8,7 @@
 
 ### Bugs fixed
 
+- [#4115](https://github.com/clojure-emacs/cider/pull/4115): Fix inline macro stepping (`cider-macrostep`): pressing `e`/`RET` right after `n`/`p` now expands the operator you jumped to, instead of erroring with "No sexp before point to expand".
 - [#4111](https://github.com/clojure-emacs/cider/issues/4111): Fix the macroexpansion commands refusing to expand `let`, `fn`, `loop` and `letfn` (macros that double as special forms), restore the no-op expansion of non-macro forms (useful for normalizing reader syntax like `::auto/kw` and `#(...)`), and stop gating `cider-macroexpand-all` on the top-level operator (a fully-recursive expansion can reach macros in nested sub-forms).
 
 ## 2.0.0 (2026-07-15)

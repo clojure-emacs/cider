@@ -404,6 +404,28 @@ faces from `cider-macrostep-gensym-faces'.  A no-op when disabled."
        (or (seq-find (lambda (p) (< p (point))) (reverse positions))
            (car (last positions)))))))
 
+(defun cider-macrostep--expandable-overlay-at (pos)
+  "Return the expandable-operator overlay covering POS, if any."
+  (seq-find (lambda (ov)
+              (and (overlay-buffer ov)
+                   (<= (overlay-start ov) pos)
+                   (< pos (overlay-end ov))))
+            cider-macrostep--expandable-overlays))
+
+(defun cider-macrostep--expand-bounds ()
+  "Return the (BEG . END) bounds of the form to expand, or nil.
+When point sits on a highlighted expandable operator - where `n'/`p' leave
+it - expand that operator's enclosing form.  Otherwise fall back to the sexp
+before point, the `\\[cider-eval-last-sexp]' convention that
+`cider-macrostep-expand' documents."
+  (or (when-let* ((ov (cider-macrostep--expandable-overlay-at (point))))
+        (save-excursion
+          (goto-char (overlay-start ov))
+          (ignore-errors
+            (backward-up-list)
+            (cons (point) (progn (forward-sexp) (point))))))
+      (cider-macrostep--form-bounds)))
+
 (defvar cider-macrostep-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "e") #'cider-macrostep-expand)
@@ -473,13 +495,16 @@ Enter `cider-macrostep-mode' when it isn't already active."
 ;;;###autoload
 (defun cider-macrostep-expand ()
   "Expand the macro form before point one step, inline.
-Place point right after the form, as with `\\[cider-eval-last-sexp]'.
+Place point right after the form, as with `\\[cider-eval-last-sexp]'.  When
+point is on a highlighted expandable operator - where `n'/`p' land it - that
+operator's form is expanded, so you can step with `n' then expand without
+repositioning.
 
 Start a `cider-macrostep-mode' session when one isn't active; further
 expansions and collapses then use that mode's key bindings."
   (interactive)
   (cider-ensure-session)
-  (pcase-let ((`(,beg . ,end) (or (cider-macrostep--form-bounds)
+  (pcase-let ((`(,beg . ,end) (or (cider-macrostep--expand-bounds)
                                   (user-error "No sexp before point to expand"))))
     (let ((operator (cider-macrostep--operator beg)))
       (cider-ensure-macro operator)
@@ -499,11 +524,13 @@ every level.  Place point right after the form, as with
 `\\[cider-eval-last-sexp]'.
 
 Like `cider-macrostep-expand', this starts a `cider-macrostep-mode' session
-when one isn't active.  It does not require the form's head to be a macro,
-since a fully-recursive expansion can reach macros in nested sub-forms."
+when one isn't active, and expands the form of the expandable operator at
+point when `n'/`p' has landed there.  It does not require the form's head to
+be a macro, since a fully-recursive expansion can reach macros in nested
+sub-forms."
   (interactive)
   (cider-ensure-session)
-  (pcase-let ((`(,beg . ,end) (or (cider-macrostep--form-bounds)
+  (pcase-let ((`(,beg . ,end) (or (cider-macrostep--expand-bounds)
                                   (user-error "No sexp before point to expand"))))
     (let* ((code (buffer-substring-no-properties beg end))
            (expansion (cider-macrostep--expand code "macroexpand-all")))
