@@ -176,6 +176,25 @@
       (setq cider-macrostep--expandable-overlays nil)
       (expect (cider-macrostep-next-expandable) :to-throw 'user-error))))
 
+(describe "cider-macrostep--expand-bounds"
+  (it "expands the enclosing form when point is on an expandable operator"
+    ;; This is where `n'/`p' land point (the start of the operator).  Before,
+    ;; `e'/`RET' there errored with \"No sexp before point to expand\".
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(aaa (bbb ccc))")
+      (setq cider-macrostep--expandable-overlays
+            (list (make-overlay 7 10)))     ; `bbb' operator
+      (goto-char 7)                         ; point at the start of `bbb'
+      (expect (cider-macrostep--expand-bounds) :to-equal '(6 . 15))))
+  (it "falls back to the sexp before point elsewhere"
+    (with-temp-buffer
+      (clojure-mode)
+      (insert "(aaa (bbb))")
+      (setq cider-macrostep--expandable-overlays nil)
+      (goto-char (point-max))               ; after the whole form
+      (expect (cider-macrostep--expand-bounds) :to-equal '(1 . 12)))))
+
 (describe "cider-macrostep gensym coloring"
   (it "matches gensyms but not ordinary symbols"
     (with-temp-buffer
