@@ -807,7 +807,7 @@ positional shim retained for backward compatibility."
                               "file" ,file-contents
                               "file-path" ,file-path
                               "file-name" ,file-name
-                              ,@(cider--nrepl-print-request-plist))
+                              ,@(cider--nrepl-pr-request-plist))
                             (or callback
                                 (cider-load-file-handler (current-buffer)))
                             connection))
@@ -1280,4 +1280,3 @@ end-of-input, and cancelling (quit) interrupts the evaluation."
 (provide 'cider-client)
 
 ;;; cider-client.el ends here
-
