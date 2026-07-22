@@ -53,7 +53,36 @@
                 (list "cider-ensure-session" b)))))
 
   (it "raises a user-error in the absence of a connection"
-    (expect (cider-ensure-session) :to-throw 'user-error)))
+    (expect (cider-ensure-session) :to-throw 'user-error))
+
+  (it "resolves a REPL the buffer is pinned to, even with no linked session"
+    ;; A dependency's source buffer lives outside the session's project, so it
+    ;; has no linked session of its own - only a pin to the REPL it was
+    ;; navigated from (see #4120).  The guard must honor that pin instead of
+    ;; erroring with "No linked CIDER sessions".  Force "no linked session" by
+    ;; stubbing the sesman lookup, so the test doesn't depend on sesman's
+    ;; environment-sensitive directory/project linking.
+    (spy-on 'sesman-current-session :and-return-value nil)
+    (with-repl-buffer "cider-ensure-session" 'clj b
+      (with-temp-buffer
+        ;; Sanity check: without a pin there is no session reachable here.
+        (expect (cider-ensure-session) :to-throw 'user-error)
+        (setq-local cider--ancillary-buffer-repl b)
+        (expect (cider-ensure-session) :to-equal
+                (list "cider-ensure-session" b)))))
+
+  (it "resolves the default session even with no linked session"
+    ;; With `cider-default-session' set, evaluation targets that session
+    ;; regardless of project context (see `cider-repls'), so the guard has to
+    ;; accept it rather than only looking at sesman's linked sessions.
+    (spy-on 'sesman-current-session :and-return-value nil)
+    (let ((cider-default-session nil))
+      (with-repl-buffer "cider-ensure-session" 'clj b
+        (with-temp-buffer
+          (expect (cider-ensure-session) :to-throw 'user-error)
+          (setq cider-default-session "cider-ensure-session")
+          (expect (cider-ensure-session) :to-equal
+                  (list "cider-ensure-session" b)))))))
 
 (describe "cider-current-repl"
 

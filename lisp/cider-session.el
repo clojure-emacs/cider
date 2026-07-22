@@ -100,14 +100,30 @@ Set interactively with `cider-set-default-session'.")
   "Return t if CIDER is currently connected, nil otherwise."
   (process-live-p (get-buffer-process (cider-current-repl))))
 
+;; Forward declaration; the real definition is the `defvar-local' further down.
+(defvar cider--ancillary-buffer-repl)
+
 (defun cider-ensure-session ()
-  "Signal a `user-error' unless there is a linked CIDER session.
+  "Signal a `user-error' unless CIDER has a session available here.
 The CIDER-level nREPL senders (e.g. `cider-nrepl-send-request',
 `cider-nrepl-sync-request') already ensure a connection - they resolve the
 REPL with `cider-current-repl' ENSURE - so commands don't need this for
 correctness.  Use it only to fail fast, before doing interactive or
-side-effecting work, rather than at the point of the first request."
-  (sesman-ensure-session 'CIDER))
+side-effecting work, rather than at the point of the first request.
+
+Mirror the resolution precedence of `cider-current-repl' and `cider-repls':
+honor a buffer pinned to a REPL via `cider--ancillary-buffer-repl' and a
+`cider-default-session' before falling back to sesman's linked sessions.
+Otherwise this guard would reject buffers where evaluation actually works,
+such as a dependency's source jumped to via `cider-find-var' (which lives
+outside the project and so has no linked session, only a pin - see
+https://github.com/clojure-emacs/cider/issues/4120)."
+  (or (and (buffer-live-p cider--ancillary-buffer-repl)
+           (sesman-session-for-object
+            'CIDER cider--ancillary-buffer-repl 'no-error))
+      (and cider-default-session
+           (sesman-session 'CIDER cider-default-session))
+      (sesman-ensure-session 'CIDER)))
 
 (define-obsolete-function-alias 'cider-ensure-connected #'cider-ensure-session "2.0.0")
 
