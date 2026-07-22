@@ -84,6 +84,48 @@
           (expect (cider-ensure-session) :to-equal
                   (list "cider-ensure-session" b)))))))
 
+(describe "cider--pinned-repl"
+  (it "returns the pinned REPL when it is live"
+    (let ((repl (get-buffer-create "*cider--pinned-repl-test*")))
+      (unwind-protect
+          (with-temp-buffer
+            (setq-local cider--ancillary-buffer-repl repl)
+            (expect (cider--pinned-repl) :to-be repl))
+        (kill-buffer repl))))
+
+  (it "returns nil when the buffer isn't pinned"
+    (with-temp-buffer
+      (expect (cider--pinned-repl) :to-be nil)))
+
+  (it "returns nil when the pin is dead"
+    (let ((repl (get-buffer-create "*cider--pinned-repl-test*")))
+      (kill-buffer repl)
+      (with-temp-buffer
+        (setq-local cider--ancillary-buffer-repl repl)
+        (expect (cider--pinned-repl) :to-be nil)))))
+
+(describe "cider--pinned-session"
+  :var (sesman-sessions-hashmap sesman-links-alist)
+
+  (before-each
+    (setq sesman-sessions-hashmap (make-hash-table :test #'equal)
+          sesman-links-alist nil))
+
+  (it "returns the session of the REPL the buffer is pinned to"
+    (with-repl-buffer "cider--pinned-session" 'clj b
+      (with-temp-buffer
+        (setq-local cider--ancillary-buffer-repl b)
+        (expect (cider--pinned-session) :to-equal
+                (list "cider--pinned-session" b)))))
+
+  (it "returns nil for a stale pin whose REPL is in no session"
+    (let ((repl (get-buffer-create "*cider--pinned-session-test*")))
+      (unwind-protect
+          (with-temp-buffer
+            (setq-local cider--ancillary-buffer-repl repl)
+            (expect (cider--pinned-session) :to-be nil))
+        (kill-buffer repl)))))
+
 (describe "cider-current-repl"
 
   :var (sesman-sessions-hashmap sesman-links-alist ses-name ses-name2)
