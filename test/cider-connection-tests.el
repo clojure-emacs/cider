@@ -67,7 +67,7 @@
       (with-temp-buffer
         ;; Sanity check: without a pin there is no session reachable here.
         (expect (cider-ensure-session) :to-throw 'user-error)
-        (setq-local cider--ancillary-buffer-repl b)
+        (setq-local cider--pinned-repl-buffer b)
         (expect (cider-ensure-session) :to-equal
                 (list "cider-ensure-session" b)))))
 
@@ -89,7 +89,7 @@
     (let ((repl (get-buffer-create "*cider--pinned-repl-test*")))
       (unwind-protect
           (with-temp-buffer
-            (setq-local cider--ancillary-buffer-repl repl)
+            (setq-local cider--pinned-repl-buffer repl)
             (expect (cider--pinned-repl) :to-be repl))
         (kill-buffer repl))))
 
@@ -101,7 +101,7 @@
     (let ((repl (get-buffer-create "*cider--pinned-repl-test*")))
       (kill-buffer repl)
       (with-temp-buffer
-        (setq-local cider--ancillary-buffer-repl repl)
+        (setq-local cider--pinned-repl-buffer repl)
         (expect (cider--pinned-repl) :to-be nil)))))
 
 (describe "cider--pinned-session"
@@ -114,7 +114,7 @@
   (it "returns the session of the REPL the buffer is pinned to"
     (with-repl-buffer "cider--pinned-session" 'clj b
       (with-temp-buffer
-        (setq-local cider--ancillary-buffer-repl b)
+        (setq-local cider--pinned-repl-buffer b)
         (expect (cider--pinned-session) :to-equal
                 (list "cider--pinned-session" b)))))
 
@@ -122,7 +122,7 @@
     (let ((repl (get-buffer-create "*cider--pinned-session-test*")))
       (unwind-protect
           (with-temp-buffer
-            (setq-local cider--ancillary-buffer-repl repl)
+            (setq-local cider--pinned-repl-buffer repl)
             (expect (cider--pinned-session) :to-be nil))
         (kill-buffer repl)))))
 

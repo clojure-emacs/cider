@@ -164,13 +164,13 @@ On failure, read a symbol name using PROMPT and call CALLBACK with that."
 
 (declare-function cider-mode "cider-mode")
 (declare-function cider-current-repl "cider-session")
-(defvar cider--ancillary-buffer-repl)
+(defvar cider--pinned-repl-buffer)
 
 (defun cider--pin-repl-if-out-of-project (repl)
   "Pin REPL onto the current buffer if its file is outside REPL's project.
 When jumping to a definition or resource that lives outside the
 originating session's project directory (typically a dependency's
-source), associate the buffer with REPL via `cider--ancillary-buffer-repl'
+source), associate the buffer with REPL via `cider--pinned-repl-buffer'
 so that CIDER commands invoked there target the session the buffer was
 navigated from.  Buffers inside the project directory are left untouched
 so they keep tracking the current session."
@@ -180,7 +180,7 @@ so they keep tracking the current session."
       (when (or (null proj-dir)
                 (not (string-prefix-p (file-name-as-directory (file-truename proj-dir))
                                       (file-truename file))))
-        (setq-local cider--ancillary-buffer-repl repl)))))
+        (setq-local cider--pinned-repl-buffer repl)))))
 
 (defcustom cider-jump-to-pop-to-buffer-actions
   '((display-buffer-reuse-window display-buffer-same-window))

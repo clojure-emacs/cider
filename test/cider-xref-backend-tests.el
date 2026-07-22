@@ -112,7 +112,7 @@
   (it "pins the originating REPL onto an out-of-project dependency buffer"
     (cider--var-to-xref-location "dep/foo")
     (with-current-buffer "*cider-xref-pin-test-dep*"
-      (expect cider--ancillary-buffer-repl :to-be repl-buf))))
+      (expect cider--pinned-repl-buffer :to-be repl-buf))))
 
 (provide 'cider-xref-backend-tests)
 

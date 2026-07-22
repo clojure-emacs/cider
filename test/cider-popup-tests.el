@@ -51,7 +51,7 @@
                   ;; (1) project-awareness: default-directory follows the session
                   (expect default-directory :to-equal (expand-file-name "/tmp/proj/"))
                   ;; (2) explicit session pin
-                  (expect cider--ancillary-buffer-repl :to-equal repl)
+                  (expect cider--pinned-repl-buffer :to-equal repl)
                   ;; (3) resolution uses the pin even with a bogus default-directory,
                   ;; i.e. it no longer depends on sesman re-resolution at all
                   (setq-local default-directory (expand-file-name "/tmp/elsewhere/"))
@@ -63,7 +63,7 @@
       (let ((popup (cider-make-popup-buffer "*cider-proto-test-2*" nil 'ancillary)))
         (unwind-protect
             (with-current-buffer popup
-              (expect cider--ancillary-buffer-repl :to-be nil))
+              (expect cider--pinned-repl-buffer :to-be nil))
           (kill-buffer popup)))))
 
   ;; The pin identifies a *session*, not a lone REPL: `cider-repls' must still
@@ -77,7 +77,7 @@
               (unwind-protect
                   (with-current-buffer popup
                     ;; pinned to the clj REPL...
-                    (expect cider--ancillary-buffer-repl :to-equal clj-repl)
+                    (expect cider--pinned-repl-buffer :to-equal clj-repl)
                     ;; ...yet the cljs sibling in the same session is still reachable
                     (expect (cider-repls 'clj) :to-equal (list clj-repl))
                     (expect (cider-repls 'cljs) :to-equal (list cljs-repl))

@@ -2185,7 +2185,7 @@ under the session's project directory.  The checking is done as follows:
   directory.
 
 Buffers associated with their originating session explicitly through
-`cider--ancillary-buffer-repl' (e.g. popups, or a dependency's source
+`cider--pinned-repl-buffer' (e.g. popups, or a dependency's source
 jumped to via `cider-find-var') resolve via that pin and don't rely on
 this matcher.
 

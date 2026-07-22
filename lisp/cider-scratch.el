@@ -136,12 +136,12 @@ before point, and prints its value into the buffer, advancing point.
 (defun cider-scratch--attach (repl)
   "Associate the current scratch buffer with REPL's session.
 When REPL is a live buffer, pin the scratch to it (via
-`cider--ancillary-buffer-repl') and adopt its project directory, so that
+`cider--pinned-repl-buffer') and adopt its project directory, so that
 evaluations and project-aware commands target REPL's session.  The eval
 destination defaults to `cider-clojurec-eval-destination', unless one has
 already been chosen for this buffer."
   (when (buffer-live-p repl)
-    (setq-local cider--ancillary-buffer-repl repl)
+    (setq-local cider--pinned-repl-buffer repl)
     ;; Adopt the session's project dir so project-aware commands behave.
     (setq-local default-directory (buffer-local-value 'default-directory repl)))
   (unless cider-repl-type-override

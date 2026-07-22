@@ -50,7 +50,7 @@
           (unwind-protect
               (with-current-buffer buf
                 (expect (buffer-name) :to-equal "*cider-scratch: scratch-ses*")
-                (expect cider--ancillary-buffer-repl :to-equal repl)
+                (expect cider--pinned-repl-buffer :to-equal repl)
                 (expect cider-repl-type-override :to-equal 'multi))
             (kill-buffer buf)))))))
 
