@@ -205,25 +205,25 @@
       (with-temp-buffer
         (setq buffer-file-name (expand-file-name "/some/dep/src/ns.clj"))
         (cider--pin-repl-if-out-of-project repl-buf)
-        (expect cider--ancillary-buffer-repl :to-be repl-buf)))
+        (expect cider--pinned-repl-buffer :to-be repl-buf)))
 
   (it "leaves the buffer untouched when its file is inside the project dir"
       (with-temp-buffer
         (setq buffer-file-name (concat proj-root "src/ns.clj"))
         (cider--pin-repl-if-out-of-project repl-buf)
-        (expect cider--ancillary-buffer-repl :to-be nil)))
+        (expect cider--pinned-repl-buffer :to-be nil)))
 
   (it "does nothing for a dead REPL buffer"
       (kill-buffer repl-buf)
       (with-temp-buffer
         (setq buffer-file-name (expand-file-name "/some/dep/src/ns.clj"))
         (cider--pin-repl-if-out-of-project repl-buf)
-        (expect cider--ancillary-buffer-repl :to-be nil)))
+        (expect cider--pinned-repl-buffer :to-be nil)))
 
   (it "does nothing for a non-file buffer"
       (with-temp-buffer
         (cider--pin-repl-if-out-of-project repl-buf)
-        (expect cider--ancillary-buffer-repl :to-be nil))))
+        (expect cider--pinned-repl-buffer :to-be nil))))
 
 (describe "cider-auto-select-buffer-p"
   (it "follows cider-auto-select-buffer when the legacy option is `default'"

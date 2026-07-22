@@ -100,20 +100,22 @@ Set interactively with `cider-set-default-session'.")
   "Return t if CIDER is currently connected, nil otherwise."
   (process-live-p (get-buffer-process (cider-current-repl))))
 
-(defvar-local cider--ancillary-buffer-repl nil
-  "Special buffer-local variable that contains reference to the REPL connection.
-This should be set in ancillary CIDER buffers that originate from some
-event (e.g. *cider-inspector*, *cider-error*) and which never change the
-REPL (connection) which produced them.  It is also set on source buffers
-visited outside the project directory (e.g. a dependency's source jumped
-to via `cider-find-var'), pinning them to the session they were navigated
-from.")
+(defvar-local cider--pinned-repl-buffer nil
+  "The REPL buffer the current buffer is pinned to, or nil.
+Pinning ties a buffer to a specific REPL so that CIDER commands invoked
+there target that session regardless of sesman and `default-directory'.
+It is set on ancillary buffers that originate from a session and must never
+switch away from it (e.g. *cider-inspector*, *cider-error*, popups), and on
+source buffers visited outside the project directory (e.g. a dependency's
+source jumped to via `cider-find-var'), pinning them to the session they
+were navigated from.  Consult it through `cider--pinned-repl' and
+`cider--pinned-session' rather than directly.")
 
 (defun cider--pinned-repl ()
   "Return the REPL the current buffer is pinned to, or nil.
-The pin lives in `cider--ancillary-buffer-repl'; a dead pin yields nil."
-  (and (buffer-live-p cider--ancillary-buffer-repl)
-       cider--ancillary-buffer-repl))
+The pin lives in `cider--pinned-repl-buffer'; a dead pin yields nil."
+  (and (buffer-live-p cider--pinned-repl-buffer)
+       cider--pinned-repl-buffer))
 
 (defun cider--pinned-session ()
   "Return the sesman session of the REPL the current buffer is pinned to.
@@ -618,7 +620,7 @@ return only REPLs of type contained in the list.  If ENSURE is non-nil,
 throw an error if no linked session exists.  If REQUIRED-OPS is non-nil,
 filters out all the REPLs that do not support the designated ops.
 
-If the buffer is pinned to a REPL via `cider--ancillary-buffer-repl', that
+If the buffer is pinned to a REPL via `cider--pinned-repl-buffer', that
 REPL's session is used instead of the current one (taking precedence over
 `cider-default-session'); a stale pin falls through to normal resolution."
   (let* ((type (cond

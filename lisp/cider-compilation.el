@@ -267,7 +267,7 @@ REPL connection can be provided to set it as the connection for the created
            (error-buffer (cider-new-error-buffer #'cider-stacktrace-mode
                                                  error-types is-compilation)))
       (with-current-buffer error-buffer
-        (setq cider--ancillary-buffer-repl repl))
+        (setq cider--pinned-repl-buffer repl))
       (cider-stacktrace-render error-buffer causes error-types))))
 
 (defconst cider-clojure-compilation-error-phases-default-value

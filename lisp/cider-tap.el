@@ -27,7 +27,7 @@
 ;;; Code:
 
 (require 'cider-client)
-(require 'cider-session) ; for `cider-current-repl' and `cider--ancillary-buffer-repl'
+(require 'cider-session) ; for `cider-current-repl' and `cider--pinned-repl-buffer'
 (require 'cider-inspector) ; for rendering an inspected tap value
 (require 'cider-util) ; for `cider-font-lock-as-clojure'
 (require 'nrepl-dict)
@@ -182,7 +182,7 @@ inspect it.  Killing the buffer stops the streaming."
       (setq cider-tap--repl connection)
       ;; Pin the buffer to its REPL so the inspector opened from here resolves
       ;; to the same connection.
-      (setq-local cider--ancillary-buffer-repl connection)
+      (setq-local cider--pinned-repl-buffer connection)
       (unless cider-tap--subscription
         (cider-nrepl-send-request
          '("op" "cider/tap-subscribe")

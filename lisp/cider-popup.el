@@ -28,7 +28,7 @@
 (require 'subr-x)
 
 (declare-function cider-current-repl "cider-session")
-(defvar cider--ancillary-buffer-repl)
+(defvar cider--pinned-repl-buffer)
 
 (define-minor-mode cider-popup-buffer-mode
   "Mode for CIDER popup buffers."
@@ -119,7 +119,7 @@ If ANCILLARY is non-nil, the buffer is added to `cider-ancillary-buffers'
 and automatically removed when killed.
 
 The buffer is pinned to the REPL of the session it is created from (via
-`cider--ancillary-buffer-repl') and adopts that session's project
+`cider--pinned-repl-buffer') and adopts that session's project
 `default-directory', so its evaluations and project-aware commands target
 the originating session rather than relying on sesman re-resolution."
   ;; Resolve the originating REPL in the *calling* buffer's context (typically
@@ -141,7 +141,7 @@ the originating session rather than relying on sesman re-resolution."
       ;; `cider-current-repl' (see its definition) and makes project-aware
       ;; commands (project.el, magit) operate on the session's project.
       (when (buffer-live-p repl)
-        (setq-local cider--ancillary-buffer-repl repl)
+        (setq-local cider--pinned-repl-buffer repl)
         (setq-local default-directory
                     (buffer-local-value 'default-directory repl)))
       (when ancillary
