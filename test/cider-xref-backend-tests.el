@@ -82,6 +82,38 @@
         (expect 'cider-xref--var-source-references :to-have-been-called)
         (expect 'cider--fn-refs-xrefs :not :to-have-been-called)))))
 
+(describe "cider--var-to-xref-location"
+  :var (proj-root repl-buf dep-file)
+
+  (before-each
+    (setq proj-root (file-name-as-directory
+                     (file-truename (make-temp-file "cider-xref-pin-test-" t)))
+          repl-buf (get-buffer-create "*cider-xref-pin-test-repl*")
+          dep-file (expand-file-name "/some/dep/src/dep/ns.clj"))
+    (with-current-buffer repl-buf
+      (setq-local nrepl-project-dir proj-root))
+    (spy-on 'cider-current-repl :and-return-value repl-buf)
+    (spy-on 'cider-var-info :and-return-value
+            (nrepl-dict "line" 1 "file" dep-file))
+    ;; return a fresh buffer visiting the dependency file
+    (spy-on 'cider--find-buffer-for-file :and-call-fake
+            (lambda (_file)
+              (with-current-buffer (get-buffer-create "*cider-xref-pin-test-dep*")
+                (setq buffer-file-name dep-file)
+                (current-buffer)))))
+
+  (after-each
+    (dolist (name '("*cider-xref-pin-test-repl*" "*cider-xref-pin-test-dep*"))
+      (when-let* ((buf (get-buffer name)))
+        (kill-buffer buf)))
+    (when (and proj-root (file-directory-p proj-root))
+      (delete-directory proj-root t)))
+
+  (it "pins the originating REPL onto an out-of-project dependency buffer"
+    (cider--var-to-xref-location "dep/foo")
+    (with-current-buffer "*cider-xref-pin-test-dep*"
+      (expect cider--ancillary-buffer-repl :to-be repl-buf))))
+
 (provide 'cider-xref-backend-tests)
 
 ;;; cider-xref-backend-tests.el ends here

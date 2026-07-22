@@ -80,18 +80,27 @@ These are used for presentation purposes."
 
 (defun cider--var-to-xref-location (var)
   "Get location of definition of VAR."
-  (when-let* ((info (cider-var-info var))
-              (line (nrepl-dict-get info "line"))
-              (file (cider--xref-extract-file info))
-              (buf (cider--find-buffer-for-file file)))
-    (xref-make-buffer-location
-     buf
-     (with-current-buffer buf
-       (save-excursion
-         (goto-char 0)
-         (forward-line (1- line))
-         (back-to-indentation)
-         (point))))))
+  ;; Capture the originating session before opening the target buffer, so that
+  ;; a dependency's source (which lives outside the project) stays pinned to the
+  ;; REPL it was navigated from.  xref drives the navigation itself (via
+  ;; `switch-to-buffer'), bypassing `cider-jump-to', so we do the pinning here -
+  ;; otherwise evaluation in the opened buffer fails with "No linked CIDER
+  ;; sessions" (see https://github.com/clojure-emacs/cider/issues/4118).
+  (let ((origin-repl (ignore-errors (cider-current-repl))))
+    (when-let* ((info (cider-var-info var))
+                (line (nrepl-dict-get info "line"))
+                (file (cider--xref-extract-file info))
+                (buf (cider--find-buffer-for-file file)))
+      (with-current-buffer buf
+        (cider--pin-repl-if-out-of-project origin-repl))
+      (xref-make-buffer-location
+       buf
+       (with-current-buffer buf
+         (save-excursion
+           (goto-char 0)
+           (forward-line (1- line))
+           (back-to-indentation)
+           (point)))))))
 
 (cl-defmethod xref-backend-definitions ((_backend (eql cider)) var)
   "Find definitions of VAR."
