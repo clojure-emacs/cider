@@ -100,8 +100,27 @@ Set interactively with `cider-set-default-session'.")
   "Return t if CIDER is currently connected, nil otherwise."
   (process-live-p (get-buffer-process (cider-current-repl))))
 
-;; Forward declaration; the real definition is the `defvar-local' further down.
-(defvar cider--ancillary-buffer-repl)
+(defvar-local cider--ancillary-buffer-repl nil
+  "Special buffer-local variable that contains reference to the REPL connection.
+This should be set in ancillary CIDER buffers that originate from some
+event (e.g. *cider-inspector*, *cider-error*) and which never change the
+REPL (connection) which produced them.  It is also set on source buffers
+visited outside the project directory (e.g. a dependency's source jumped
+to via `cider-find-var'), pinning them to the session they were navigated
+from.")
+
+(defun cider--pinned-repl ()
+  "Return the REPL the current buffer is pinned to, or nil.
+The pin lives in `cider--ancillary-buffer-repl'; a dead pin yields nil."
+  (and (buffer-live-p cider--ancillary-buffer-repl)
+       cider--ancillary-buffer-repl))
+
+(defun cider--pinned-session ()
+  "Return the sesman session of the REPL the current buffer is pinned to.
+Return nil when the buffer isn't pinned or the pin is stale - its REPL is
+dead or its session has been quit."
+  (when-let* ((repl (cider--pinned-repl)))
+    (sesman-session-for-object 'CIDER repl 'no-error)))
 
 (defun cider-ensure-session ()
   "Signal a `user-error' unless CIDER has a session available here.
@@ -112,15 +131,13 @@ correctness.  Use it only to fail fast, before doing interactive or
 side-effecting work, rather than at the point of the first request.
 
 Mirror the resolution precedence of `cider-current-repl' and `cider-repls':
-honor a buffer pinned to a REPL via `cider--ancillary-buffer-repl' and a
+honor a buffer pinned to a REPL (via `cider--pinned-session') and a
 `cider-default-session' before falling back to sesman's linked sessions.
 Otherwise this guard would reject buffers where evaluation actually works,
 such as a dependency's source jumped to via `cider-find-var' (which lives
 outside the project and so has no linked session, only a pin - see
 https://github.com/clojure-emacs/cider/issues/4120)."
-  (or (and (buffer-live-p cider--ancillary-buffer-repl)
-           (sesman-session-for-object
-            'CIDER cider--ancillary-buffer-repl 'no-error))
+  (or (cider--pinned-session)
       (and cider-default-session
            (sesman-session 'CIDER cider-default-session))
       (sesman-ensure-session 'CIDER)))
@@ -530,15 +547,6 @@ Reverts to normal project-based session association."
     (user-error "No %s REPLs in current session \"%s\""
                 type (car (sesman-current-session 'CIDER)))))
 
-(defvar-local cider--ancillary-buffer-repl nil
-  "Special buffer-local variable that contains reference to the REPL connection.
-This should be set in ancillary CIDER buffers that originate from some
-event (e.g. *cider-inspector*, *cider-error*) and which never change the
-REPL (connection) which produced them.  It is also set on source buffers
-visited outside the project directory (e.g. a dependency's source jumped
-to via `cider-find-var'), pinning them to the session they were navigated
-from.")
-
 (defun cider-current-repl (&optional type ensure)
   "Get the most recent REPL of TYPE from the current session.
 TYPE is either clj, cljs, multi, infer or any.
@@ -553,8 +561,7 @@ no linked session or there is no REPL of TYPE within the current session."
                  (eq cider-repl-type type)))
         ;; shortcut when in REPL buffer
         (current-buffer)
-      (or (and (buffer-live-p cider--ancillary-buffer-repl)
-               cider--ancillary-buffer-repl)
+      (or (cider--pinned-repl)
           (let* ((type (if (or (null type)
                                (eq 'infer type))
                            (cider-repl-type-for-buffer)
@@ -626,11 +633,8 @@ REPL's session is used instead of the current one (taking precedence over
          ;; of sesman/`default-directory'.  We resolve the session - not just the
          ;; lone REPL - so type filtering and multi (clj+cljs) dispatch keep
          ;; working.  Takes precedence over `cider-default-session', matching
-         ;; `cider-current-repl', which checks the pin first.  A stale pin (its
-         ;; session has been quit) falls through to normal resolution.
-         (pinned-session (and (buffer-live-p cider--ancillary-buffer-repl)
-                              (sesman-session-for-object
-                               'CIDER cider--ancillary-buffer-repl 'no-error)))
+         ;; `cider-current-repl', which checks the pin first.
+         (pinned-session (cider--pinned-session))
          (repls (cond
                  (pinned-session (cdr pinned-session))
                  ;; A pinned default session bypasses sesman entirely and serves
