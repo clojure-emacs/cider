@@ -13,6 +13,7 @@
 
 ### Bugs fixed
 
+- [#4128](https://github.com/clojure-emacs/cider/pull/4128): Fix `cider-load-buffer`/`cider-load-file` potentially freezing Emacs on a huge last-form result, by honoring the print settings (notably `cider-print-quota`) for `load-file` requests, as `eval` requests already do.
 - [#4124](https://github.com/clojure-emacs/cider/pull/4124): Fix evaluation failing with "No linked CIDER sessions" after jumping to a dependency's source via `xref-find-references` (`M-?`): out-of-project reference buffers are now pinned to the originating REPL, like `xref-find-definitions` already was.
 - [#4126](https://github.com/clojure-emacs/cider/pull/4126): Fix the "No REPLs in current session" errors showing an empty session name when raised in a buffer pinned to a session (e.g. a dependency's source).
 - [#4120](https://github.com/clojure-emacs/cider/issues/4120): Fix evaluation, debugging and inspecting in a dependency's source buffer still erroring with "No linked CIDER sessions": `cider-ensure-session` now honors the pinned REPL (and `cider-default-session`) like the rest of the REPL resolution does, instead of only checking sesman's linked sessions.
