@@ -134,6 +134,17 @@ dead or its session has been quit."
   (when-let* ((repl (cider--pinned-repl)))
     (sesman-session-for-object 'CIDER repl 'no-error)))
 
+(defun cider--current-session-name ()
+  "Return the name of the session the current buffer resolves to, or nil.
+Follow the same precedence as REPL resolution - pinned session, then
+`cider-default-session', then sesman's current session - so error messages
+name the session evaluation would actually target, even in a buffer that is
+only pinned (e.g. a dependency's source) and thus has no linked sesman
+session of its own."
+  (car (or (cider--pinned-session)
+           (cider--default-session)
+           (sesman-current-session 'CIDER))))
+
 (defun cider-ensure-session ()
   "Signal a `user-error' unless CIDER has a session available here.
 The CIDER-level nREPL senders (e.g. `cider-nrepl-send-request',
@@ -556,7 +567,7 @@ Reverts to normal project-based session association."
                 (mapconcat #'identity type " or "))
                (type))))
     (user-error "No %s REPLs in current session \"%s\""
-                type (car (sesman-current-session 'CIDER)))))
+                type (cider--current-session-name))))
 
 (defun cider-current-repl (&optional type ensure)
   "Get the most recent REPL of TYPE from the current session.
