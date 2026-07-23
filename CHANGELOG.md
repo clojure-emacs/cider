@@ -6,6 +6,8 @@
 
 ## master (unreleased)
 
+## 2.0.1 (2026-07-23)
+
 ### Changes
 
 - [#4116](https://github.com/clojure-emacs/cider/pull/4116): Bump the injected `cider-nrepl` to [0.62.2](https://github.com/clojure-emacs/cider-nrepl/blob/v0.62.2/CHANGELOG.md#0622-2026-07-18), so a dead trace/tap subscriber no longer breaks every traced evaluation, and the debugger no longer shadows the enlighten middleware's evaluator.
