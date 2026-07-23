@@ -631,6 +631,20 @@
   (after-each
     (setq cider-default-session nil))
 
+  (describe "cider--default-session"
+    (it "returns nil when no default session is set"
+      (expect (cider--default-session) :to-be nil))
+
+    (it "returns the named session when it exists"
+      (with-repl-buffer ses-name 'clj b
+        (setq cider-default-session ses-name)
+        (expect (cider--default-session)
+                :to-equal (sesman-session 'CIDER ses-name))))
+
+    (it "returns nil when the named default session no longer exists"
+      (setq cider-default-session "no-such-session")
+      (expect (cider--default-session) :to-be nil)))
+
   (describe "cider-repls with default session"
     (it "returns REPLs from the default session regardless of project context"
       (let ((a-dir (expand-file-name "/tmp/a-dir"))

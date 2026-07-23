@@ -2198,8 +2198,7 @@ any nREPL requests."
      ;; If a default session is set and still exists, only that session is
      ;; friendly.  If the named session no longer exists we fall through to
      ;; the normal matching logic, matching `cider-repls' behavior.
-     ((and cider-default-session
-           (sesman-session 'CIDER cider-default-session))
+     ((cider--default-session)
       (equal (car session) cider-default-session))
 
      ((member (buffer-name) cider-ancillary-buffers)
