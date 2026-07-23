@@ -261,8 +261,9 @@ This cache is stored in the connection buffer.")
                   ;; for Clojure buffers directly related to this repl
                   ;; (specifically, we omit 'friendly' sessions because a given buffer may be friendly to multiple repls,
                   ;;  so we don't want a buffer to mix up font locking rules from different repls).
-                  ;; Note that `sesman--linked-sessions' only queries for the directly linked sessions.
-                  (when (member this-repl (car (sesman--linked-sessions 'CIDER)))
+                  ;; Note that we query only the directly linked sessions
+                  ;; (`sesman-sessions' with the `linked' type), not friendly ones.
+                  (when (member this-repl (car (sesman-sessions 'CIDER nil 'linked)))
                     ;; Metadata changed, so signatures may have changed too.
                     (setq cider-eldoc-last-symbol nil)
                     (when-let* ((ns-dict (or (nrepl-dict-get changed-namespaces (cider-current-ns))
