@@ -22,7 +22,8 @@
 
 ;;; Commentary:
 
-;; Smart REPL-powered code completion and integration with company-mode.
+;; Smart REPL-powered code completion, exposed through `completion-at-point'
+;; so it works with the built-in UI, `corfu' and `company' alike.
 
 ;;; Code:
 
@@ -99,7 +100,8 @@ backend, and ABBREVIATION is a short form of that type."
     ("static-method" interface)
     ("type" parameter)
     ("var" variable))
-  "Icon mapping for company-mode.")
+  "Kind mapping for the `:company-kind' capf property.
+Both company and corfu (via `kind-icon') use it to pick a candidate's icon.")
 
 (defcustom cider-completion-annotations-include-ns 'unqualified
   "Controls passing of namespaces to `cider-annotate-completion-function'.
@@ -179,6 +181,44 @@ performed by `cider-annotate-completion-function'."
            (ns (cider-completion--get-candidate-ns symbol)))
       (funcall cider-annotate-completion-function type ns))))
 
+(defun cider-affixate-symbol (candidates)
+  "Affixate CANDIDATES for display, aligning their annotations into a column.
+Return a list of (CANDIDATE PREFIX SUFFIX) triples, where SUFFIX carries the
+same type/namespace information as `cider-annotate-symbol', left-padded so the
+annotations line up across candidates.  This is the richer successor to
+`annotation-function' (Emacs 28+); completion UIs that support it (the
+built-in `*Completions*', Corfu, Vertico, ...) render aligned annotations,
+while `company' keeps using the `annotation-function' we provide alongside."
+  (let ((width (seq-reduce (lambda (acc cand) (max acc (length cand))) candidates 0)))
+    (mapcar
+     (lambda (cand)
+       (let ((annotation (cider-annotate-symbol cand)))
+         (list cand ""
+               (if (and annotation (not (string-empty-p annotation)))
+                   (concat (make-string (max 1 (- (1+ width) (length cand))) ?\s)
+                           (propertize (string-trim-left annotation)
+                                       'face 'completions-annotations))
+                 ""))))
+     candidates)))
+
+(defun cider--completion-table (candidates-fn &optional metadata-extra)
+  "Return a programmed-completion table over CANDIDATES-FN.
+CANDIDATES-FN is called with the current completion string and returns the
+candidate list, each candidate carrying `type'/`ns' text properties; it owns
+its own caching.  METADATA-EXTRA is spliced into the `metadata' response - use
+it for `completing-read' tables, which (unlike a capf, whose plist carries
+them) must announce their `annotation-function'/`affixation-function' through
+metadata.  See Info node `(elisp) Programmed Completion'."
+  (lambda (string pred action)
+    (cond
+     ((eq action 'metadata)
+      `(metadata
+        (category . cider) ;; our completion category, keyed on by `completion-category-overrides'
+        (display-sort-function . identity) ;; keep the backend's ranking
+        ,@metadata-extra))
+     ((eq (car-safe action) 'boundaries) nil)
+     (t (complete-with-action action (funcall candidates-fn string) string pred)))))
+
 (defun cider-complete-at-point ()
   "Complete the symbol at point."
   (when-let* ((bounds (or (bounds-of-thing-at-point 'symbol)
@@ -189,11 +229,10 @@ performed by `cider-annotate-completion-function'."
       (let* (last-bounds-string
              last-result
              (complete
-              (lambda ()
-                ;; We are Not using the prefix extracted within the (prefix pred action)
-                ;; lambda.  In certain completion styles, the prefix might be an empty
-                ;; string, which is unreliable. A more dependable method is to use the
-                ;; string defined by the bounds of the symbol at point.
+              (lambda (_string)
+                ;; We do NOT use the string the completion table is called with:
+                ;; under some completion styles it can be an empty string, which is
+                ;; unreliable.  The bounds of the symbol at point are dependable.
                 ;;
                 ;; Caching just within the function is sufficient. Keeping it local
                 ;; ensures that it will not extend across different CIDER sessions.
@@ -202,23 +241,9 @@ performed by `cider-annotate-completion-function'."
                   (setq last-result (cider-complete bounds-string)))
                 last-result)))
         (list (car bounds) (cdr bounds)
-              (lambda (prefix pred action)
-                ;; When the 'action is 'metadata, this lambda returns metadata about this
-                ;; capf, when action is (boundaries . suffix), it returns nil. With every
-                ;; other value of 'action (t, nil, or lambda), 'action is forwarded to
-                ;; (complete-with-action), together with (cider-complete), prefix and pred.
-                ;; And that function performs the completion based on those arguments.
-                ;;
-                ;; This api is better described in the section
-                ;; '21.6.7 Programmed Completion' of the elisp manual.
-                (cond ((eq action 'metadata)
-                       `(metadata
-                         (category . cider) ;; defines a completion category named 'cider, used later in our `completion-category-overrides` logic.
-                         (display-sort-function . identity))) ;; don't override sorting done by backend
-                      ((eq (car-safe action) 'boundaries) nil)
-                      (t (with-current-buffer (current-buffer)
-                           (complete-with-action action (funcall complete) prefix pred)))))
+              (cider--completion-table complete)
               :annotation-function #'cider-annotate-symbol
+              :affixation-function #'cider-affixate-symbol
               :company-kind #'cider-company-symbol-kind
               :company-doc-buffer #'cider-create-compact-doc-buffer
               :company-location #'cider-company-location
@@ -249,21 +274,18 @@ properties so `cider-annotate-symbol' can annotate them.  Querying only
 starts once the input reaches `cider-completion-symbol-prompt-min-length'
 characters, which keeps an empty prompt from asking for every symbol."
   (let ((cache-key 'none) cache-val)
-    (lambda (string pred action)
-      (cond
-       ((eq action 'metadata)
-        `(metadata
-          (category . cider)
-          (display-sort-function . identity)
-          (annotation-function . ,#'cider-annotate-symbol)))
-       ((eq (car-safe action) 'boundaries) nil)
-       (t
-        (unless (equal string cache-key)
-          (setq cache-key string
-                cache-val (when (>= (length string)
-                                    cider-completion-symbol-prompt-min-length)
-                            (cider-complete string))))
-        (complete-with-action action cache-val string pred))))))
+    (cider--completion-table
+     (lambda (string)
+       (unless (equal string cache-key)
+         (setq cache-key string
+               cache-val (when (>= (length string)
+                                   cider-completion-symbol-prompt-min-length)
+                           (cider-complete string))))
+       cache-val)
+     ;; `completing-read' has no capf plist, so the annotation/affixation
+     ;; functions must ride along in the metadata.
+     `((annotation-function . ,#'cider-annotate-symbol)
+       (affixation-function . ,#'cider-affixate-symbol)))))
 
 (defun cider-company-location (var)
   "Open VAR's definition in a buffer.
