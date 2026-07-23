@@ -1491,7 +1491,7 @@ Closes all open parentheses or bracketed expressions."
     (if other-repl
         (switch-to-buffer other-repl)
       (user-error "No other REPL in current session (%s)"
-                  (car (sesman-current-session 'CIDER))))))
+                  (cider--current-session-name)))))
 
 (defvar cider-repl-clear-buffer-hook)
 

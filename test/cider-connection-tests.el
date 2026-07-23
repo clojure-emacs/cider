@@ -126,6 +126,38 @@
             (expect (cider--pinned-session) :to-be nil))
         (kill-buffer repl)))))
 
+(describe "cider--current-session-name"
+  :var (sesman-sessions-hashmap sesman-links-alist)
+
+  (before-each
+    (setq sesman-sessions-hashmap (make-hash-table :test #'equal)
+          sesman-links-alist nil
+          cider-default-session nil)
+    ;; make "no linked session" deterministic, independent of sesman's
+    ;; environment-sensitive directory/project linking
+    (spy-on 'sesman-current-session :and-return-value nil))
+
+  (after-each
+    (setq cider-default-session nil))
+
+  (it "returns nil when nothing resolves"
+    (with-temp-buffer
+      (expect (cider--current-session-name) :to-be nil)))
+
+  (it "names the pinned session even with no linked session"
+    (with-repl-buffer "cider--current-session-name" 'clj b
+      (with-temp-buffer
+        (setq-local cider--pinned-repl-buffer b)
+        (expect (cider--current-session-name)
+                :to-equal "cider--current-session-name"))))
+
+  (it "names the default session when one is set"
+    (with-repl-buffer "cider--current-session-name" 'clj b
+      (with-temp-buffer
+        (setq cider-default-session "cider--current-session-name")
+        (expect (cider--current-session-name)
+                :to-equal "cider--current-session-name")))))
+
 (describe "cider-current-repl"
 
   :var (sesman-sessions-hashmap sesman-links-alist ses-name ses-name2)
