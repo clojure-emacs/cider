@@ -66,12 +66,38 @@
                 :to-equal '((cider (styles basic flex)
                                    (cycle t))))))))
 
+(describe "cider-affixate-symbol"
+  (it "returns (candidate prefix suffix) triples carrying type/ns"
+    (let* ((cand (propertize "map" 'type "function" 'ns "clojure.core"))
+           (triple (car (cider-affixate-symbol (list cand)))))
+      (expect (nth 0 triple) :to-equal "map")
+      (expect (nth 1 triple) :to-equal "")
+      (expect (nth 2 triple) :to-match "clojure.core")
+      (expect (nth 2 triple) :to-match "<f>")))
+
+  (it "left-pads suffixes so annotations align across candidates"
+    (let* ((short (propertize "map" 'type "function" 'ns "clojure.core"))
+           (long (propertize "reductions" 'type "function" 'ns "clojure.core"))
+           (result (cider-affixate-symbol (list short long)))
+           (col (lambda (triple)
+                  (let ((cand (nth 0 triple))
+                        (suffix (nth 2 triple)))
+                    (+ (length cand)
+                       (- (length suffix) (length (string-trim-left suffix))))))))
+      (expect (funcall col (nth 0 result)) :to-equal (funcall col (nth 1 result)))))
+
+  (it "produces empty affixes when annotations are disabled"
+    (let ((cider-annotate-completion-candidates nil)
+          (cand (propertize "map" 'type "function" 'ns "clojure.core")))
+      (expect (cider-affixate-symbol (list cand)) :to-equal '(("map" "" ""))))))
+
 (describe "cider--symbol-completion-table"
-  (it "reports the `cider' category and an annotation function"
+  (it "reports the `cider' category with annotation and affixation functions"
     (let* ((table (cider--symbol-completion-table))
            (md (cdr (funcall table "" nil 'metadata))))
       (expect (cdr (assq 'category md)) :to-equal 'cider)
-      (expect (assq 'annotation-function md) :to-be-truthy)))
+      (expect (assq 'annotation-function md) :to-be-truthy)
+      (expect (assq 'affixation-function md) :to-be-truthy)))
 
   (it "does not query the runtime until the input reaches the min length"
     (spy-on 'cider-complete :and-return-value '("reduce" "reductions"))
