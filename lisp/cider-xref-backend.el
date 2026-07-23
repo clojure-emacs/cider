@@ -147,42 +147,60 @@ connected, rather than reporting no references."
   "Find references of VAR in NS via runtime introspection (the `fn-refs' op).
 These cover only namespaces already loaded into the REPL."
   (when (cider-nrepl-op-supported-p "cider/fn-refs")
-    (when-let* ((results (cider-sync-request:fn-refs ns var))
-                (previously-existing-buffers (buffer-list)))
-      (thread-last results
-                   (mapcar (lambda (info)
-                             (let* ((filename (cider--xref-extract-file info))
-                                    (column (nrepl-dict-get info "column"))
-                                    (line (nrepl-dict-get info "line"))
-                                    (friendly-name (cider--xref-extract-friendly-file-name info))
-                                    ;; translate .jar urls and such:
-                                    (buf (cider--find-buffer-for-file filename))
-                                    (bfn (and buf (buffer-file-name buf)))
-                                    (loc (when buf
-                                           ;; favor `xref-make-file-location' when possible, since that way, we can close their buffers.
-                                           (if bfn
-                                               (xref-make-file-location bfn line (or column 0))
-                                             (xref-make-buffer-location buf (with-current-buffer buf
-                                                                              (save-excursion
-                                                                                (goto-char 0)
-                                                                                (forward-line (1- line))
-                                                                                (move-to-column (or column 0))
-                                                                                (point)))))))
-                                    (should-be-closed (and
-                                                       buf
-                                                       ;; if a buffer did not exist before,
-                                                       ;; then it is a side-effect of invoking `cider--find-buffer-for-file'.
-                                                       (not (member buf previously-existing-buffers))
-                                                       bfn
-                                                       ;; only buffers with a normally reachable filename are safe to close.
-                                                       ;; buffers not backed by such files may include .jars, TRAMP files, etc.
-                                                       ;; Sadly this means we will still 'leak' some open buffers, but it's what we can do atm.
-                                                       (file-exists-p bfn))))
-                               (when should-be-closed
-                                 (kill-buffer buf))
-                               (when loc
-                                 (xref-make friendly-name loc)))))
-                   (seq-filter #'identity)))))
+    ;; Capture the originating session up front, before opening any target
+    ;; buffer, so out-of-project reference hits (a dependency's source) stay
+    ;; pinned to the REPL they were navigated from.  xref opens the buffer
+    ;; itself (via `switch-to-buffer'), bypassing `cider-jump-to', so we pin
+    ;; here, mirroring `cider--var-to-xref-location' for definitions -
+    ;; otherwise evaluation there fails with "No linked CIDER sessions" (see
+    ;; https://github.com/clojure-emacs/cider/issues/4118).
+    (let ((origin-repl (ignore-errors (cider-current-repl))))
+      (when-let* ((results (cider-sync-request:fn-refs ns var))
+                  (previously-existing-buffers (buffer-list)))
+        (thread-last results
+                     (mapcar (lambda (info)
+                               (let* ((filename (cider--xref-extract-file info))
+                                      (column (nrepl-dict-get info "column"))
+                                      (line (nrepl-dict-get info "line"))
+                                      (friendly-name (cider--xref-extract-friendly-file-name info))
+                                      ;; translate .jar urls and such:
+                                      (buf (cider--find-buffer-for-file filename))
+                                      (bfn (and buf (buffer-file-name buf)))
+                                      ;; Pin an out-of-project hit to the origin REPL so evaluation
+                                      ;; there resolves the right session; a no-op (returns nil) for
+                                      ;; in-project buffers, which resolve via friendly sessions.
+                                      (pinned (when buf
+                                                (with-current-buffer buf
+                                                  (cider--pin-repl-if-out-of-project origin-repl))))
+                                      (loc (when buf
+                                             ;; favor `xref-make-file-location' when possible, since that way, we can close their buffers.
+                                             (if bfn
+                                                 (xref-make-file-location bfn line (or column 0))
+                                               (xref-make-buffer-location buf (with-current-buffer buf
+                                                                                (save-excursion
+                                                                                  (goto-char 0)
+                                                                                  (forward-line (1- line))
+                                                                                  (move-to-column (or column 0))
+                                                                                  (point)))))))
+                                      (should-be-closed (and
+                                                         buf
+                                                         ;; never close a buffer we pinned: it's an out-of-project
+                                                         ;; dependency the user may jump to and evaluate in, and
+                                                         ;; reopening it later would lose the pin (see #4118).
+                                                         (not pinned)
+                                                         ;; if a buffer did not exist before,
+                                                         ;; then it is a side-effect of invoking `cider--find-buffer-for-file'.
+                                                         (not (member buf previously-existing-buffers))
+                                                         bfn
+                                                         ;; only buffers with a normally reachable filename are safe to close.
+                                                         ;; buffers not backed by such files may include .jars, TRAMP files, etc.
+                                                         ;; Sadly this means we will still 'leak' some open buffers, but it's what we can do atm.
+                                                         (file-exists-p bfn))))
+                                 (when should-be-closed
+                                   (kill-buffer buf))
+                                 (when loc
+                                   (xref-make friendly-name loc)))))
+                     (seq-filter #'identity))))))
 
 (defun cider--xref-item-file (item)
   "Return the file backing xref ITEM, or nil for a non-file location."
