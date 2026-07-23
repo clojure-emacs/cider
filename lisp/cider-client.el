@@ -806,7 +806,11 @@ positional shim retained for backward compatibility."
   (cider-nrepl-send-request `("op" "load-file"
                               "file" ,file-contents
                               "file-path" ,file-path
-                              "file-name" ,file-name)
+                              "file-name" ,file-name
+                              ;; Honor the print settings (notably `cider-print-quota')
+                              ;; so a huge value from the last form doesn't flood the
+                              ;; echo area and freeze Emacs, matching `eval' requests.
+                              ,@(cider--nrepl-pr-request-plist))
                             (or callback
                                 (cider-load-file-handler (current-buffer)))
                             connection))

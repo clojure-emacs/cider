@@ -371,6 +371,23 @@
     (expect 'cider-nrepl-sync-request :to-have-been-called-with
             '("op" "lookup" "ns" "user" "sym" "foo") :connection 'fake-conn)))
 
+(describe "cider-load-file-request"
+  (it "includes the print settings so cider-print-quota is enforced"
+    (let (captured)
+      (spy-on 'cider-nrepl-send-request :and-call-fake
+              (lambda (request &rest _) (setq captured request)))
+      (spy-on 'cider-load-file-handler :and-return-value #'ignore)
+      (let ((cider-print-quota 12345))
+        (cider-load-file-request "contents" "/path" "name" :connection :fake-conn))
+      ;; string-keyed plist, so look up with `member' (`plist-get' compares with `eq')
+      (expect (cadr (member "op" captured)) :to-equal "load-file")
+      ;; the print middleware params (from `cider--nrepl-pr-request-plist') must
+      ;; ride along, otherwise a huge last-form result floods the echo area (#3052)
+      (expect (cadr (member "nrepl.middleware.print/print" captured))
+              :to-equal "cider.nrepl.pprint/pr")
+      (expect (cadr (member "nrepl.middleware.print/quota" captured))
+              :to-equal 12345))))
+
 (describe "cider-request:load-file"
   (it "delegates to cider-load-file-request with positional args mapped to keywords"
     (let (captured)
