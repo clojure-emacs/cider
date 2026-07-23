@@ -81,6 +81,16 @@ All other values do not combine any sessions."
   "When non-nil, bypass sesman and use this session for all REPL lookups.
 Set interactively with `cider-set-default-session'.")
 
+(defun cider--default-session ()
+  "Return the session named by `cider-default-session', or nil.
+Nil when no default session is set, or when the named one no longer exists
+\(e.g. it was quit) - callers then fall back to normal sesman resolution.
+This is the single source of truth for the `cider-default-session' override,
+shared by `cider-repls', `cider-ensure-session' and
+`cider--sesman-friendly-session-p'."
+  (when cider-default-session
+    (sesman-session 'CIDER cider-default-session)))
+
 (defcustom cider-clojurec-eval-destination 'multi
   "The REPL type to be chosen in .cljc buffers."
   :type '(choice (const :tag "Clojure" clj)
@@ -140,8 +150,7 @@ such as a dependency's source jumped to via `cider-find-var' (which lives
 outside the project and so has no linked session, only a pin - see
 https://github.com/clojure-emacs/cider/issues/4120)."
   (or (cider--pinned-session)
-      (and cider-default-session
-           (sesman-session 'CIDER cider-default-session))
+      (cider--default-session)
       (sesman-ensure-session 'CIDER)))
 
 (define-obsolete-function-alias 'cider-ensure-connected #'cider-ensure-session "2.0.0")
@@ -644,7 +653,7 @@ REPL's session is used instead of the current one (taking precedence over
                  ;; and treat it as having no REPLs, so the `ensure' check below
                  ;; reports the missing session.
                  (cider-default-session
-                  (if-let* ((session (sesman-session 'CIDER cider-default-session)))
+                  (if-let* ((session (cider--default-session)))
                       (cdr session)
                     (message "Default CIDER session '%s' no longer exists, ignoring" cider-default-session)
                     nil))
