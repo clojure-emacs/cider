@@ -134,6 +134,19 @@ To see the documentation of the candidates while completing, enable the
 or press kbd:[M-h] (`corfu-info-documentation`) on a candidate to display its
 documentation in a help buffer.
 
+To show a type icon next to each candidate, install the
+https://github.com/jdtsmith/kind-icon[`kind-icon`] package and add its
+formatter to corfu:
+
+[source,lisp]
+----
+(with-eval-after-load 'corfu
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+----
+
+CIDER tags every candidate with a kind (the `:company-kind` completion
+property), which `kind-icon` maps to an icon.
+
 === company-mode installation
 
 To install `company-mode`:
@@ -206,7 +219,9 @@ but it looks at the structure and tries to find the largest combination of these
 === Rich candidate matching
 
 Starting with version 1.18, CIDER by default enables a custom completion style
-that provides richer and more useful candidate matching, for example:
+(named `cider`) that defers matching to the backend (`compliment`). The backend
+matches candidates server-side and returns richer, more useful results than a
+plain prefix match, for example:
 
 - Long vars that contain dashes by first characters of individual parts, e.g.
   `mi` or `mai` complete to `map-indexed`.
@@ -238,6 +253,11 @@ included is configured by `cider-completion-annotations-include-ns.`
 
 image::completion-annotations.png[Completion Annotations]
 
+In frontends that support it (the built-in `*Completions*`, Corfu and Vertico)
+the type/namespace information is rendered as an aligned column, via an
+`affixation-function`; `company` shows the same information as a trailing
+annotation.
+
 TIP: Completion annotations can be disabled by setting
 `cider-annotate-completion-candidates` to `nil`.
 
@@ -263,6 +283,30 @@ completion alternatives are chosen].
 
 This specifies that the `cider` completion category should employ the basic completion style by
 default.
+
+For example, to route CIDER's candidates through `orderless`:
+
+[source,lisp]
+----
+(add-to-list 'completion-category-overrides '(cider (styles orderless)))
+----
+
+[IMPORTANT]
+====
+CIDER's candidates arrive already matched by the backend (see
+<<Rich candidate matching>>): `compliment` does its own prefix and fuzzy
+matching server-side and returns a ranked list for what you've typed.
+Client-side styles like `orderless` and `flex` then *filter that list
+further* - they narrow what the backend already returned and cannot surface
+candidates the backend didn't send.
+
+The default `cider` style does no client-side filtering, so it preserves the
+backend's richer matches verbatim. Layering `orderless`/`flex` on top is handy
+for extra narrowing (e.g. `orderless`'s space-separated components), but it is
+not a substitute for the backend's matching - and an aggressive client style
+can hide backend matches that don't look like a match to it (e.g. classname or
+initialism completions). If in doubt, keep the default.
+====
 
 === Notes on class disambiguation
 
