@@ -114,6 +114,66 @@
     (with-current-buffer "*cider-xref-pin-test-dep*"
       (expect cider--pinned-repl-buffer :to-be repl-buf))))
 
+(describe "cider--fn-refs-xrefs"
+  :var (proj-root repl-buf ref-file dep-file proj-file dep-buf-name)
+
+  (before-each
+    (setq proj-root (file-name-as-directory
+                     (file-truename (make-temp-file "cider-xref-refs-test-" t)))
+          repl-buf (get-buffer-create "*cider-xref-refs-test-repl*")
+          ;; a real, existing, OUT-OF-project file (so the pin fires and the
+          ;; `file-exists-p' close-candidate check would otherwise close it)
+          dep-file (make-temp-file "cider-xref-refs-dep-" nil ".clj" "(ns dep)\n")
+          ;; a real, existing IN-project file (pin is a no-op there)
+          proj-file (expand-file-name "in_proj.clj" proj-root)
+          ref-file dep-file
+          dep-buf-name "*cider-xref-refs-test-dep*")
+    (write-region "(ns in.proj)\n" nil proj-file)
+    (with-current-buffer repl-buf
+      (setq-local nrepl-project-dir proj-root))
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
+    (spy-on 'cider-current-repl :and-return-value repl-buf)
+    (spy-on 'cider-sync-request:fn-refs :and-return-value
+            (list (nrepl-dict "file" "dep-ref" "line" 1 "column" 0)))
+    ;; return a fresh buffer visiting the file under test (`ref-file')
+    (spy-on 'cider--find-buffer-for-file :and-call-fake
+            (lambda (_file)
+              (with-current-buffer (get-buffer-create dep-buf-name)
+                (setq buffer-file-name ref-file)
+                (current-buffer)))))
+
+  (after-each
+    (dolist (name (list "*cider-xref-refs-test-repl*" "*cider-xref-refs-test-dep*"))
+      (when-let* ((buf (get-buffer name)))
+        (kill-buffer buf)))
+    (when (and dep-file (file-exists-p dep-file))
+      (delete-file dep-file))
+    (when (and proj-root (file-directory-p proj-root))
+      (delete-directory proj-root t)))
+
+  (it "pins the originating REPL onto an out-of-project reference buffer"
+    (setq ref-file dep-file)
+    (cider--fn-refs-xrefs "dep" "dep/foo")
+    (let ((buf (get-buffer dep-buf-name)))
+      (expect (buffer-live-p buf) :to-be-truthy)
+      (with-current-buffer buf
+        (expect cider--pinned-repl-buffer :to-be repl-buf))))
+
+  (it "keeps the pinned out-of-project buffer open instead of closing it"
+    ;; The buffer is created during the scan and backs a file that exists, so
+    ;; without the pin guard `should-be-closed' would kill it.  The pin must
+    ;; keep it alive so the user can jump to and evaluate in it.
+    (setq ref-file dep-file)
+    (cider--fn-refs-xrefs "dep" "dep/foo")
+    (expect (buffer-live-p (get-buffer dep-buf-name)) :to-be-truthy))
+
+  (it "does not pin an in-project reference buffer"
+    (setq ref-file proj-file)
+    (cider--fn-refs-xrefs "dep" "dep/foo")
+    ;; in-project buffers resolve via friendly sessions, so no pin is set;
+    ;; the buffer is a scan side-effect backing a real file, so it is closed.
+    (expect (get-buffer dep-buf-name) :to-be nil)))
+
 (provide 'cider-xref-backend-tests)
 
 ;;; cider-xref-backend-tests.el ends here

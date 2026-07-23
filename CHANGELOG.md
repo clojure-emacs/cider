@@ -12,6 +12,7 @@
 
 ### Bugs fixed
 
+- [#4124](https://github.com/clojure-emacs/cider/pull/4124): Fix evaluation failing with "No linked CIDER sessions" after jumping to a dependency's source via `xref-find-references` (`M-?`): out-of-project reference buffers are now pinned to the originating REPL, like `xref-find-definitions` already was.
 - [#4120](https://github.com/clojure-emacs/cider/issues/4120): Fix evaluation, debugging and inspecting in a dependency's source buffer still erroring with "No linked CIDER sessions": `cider-ensure-session` now honors the pinned REPL (and `cider-default-session`) like the rest of the REPL resolution does, instead of only checking sesman's linked sessions.
 - [#4118](https://github.com/clojure-emacs/cider/issues/4118): Fix `xref-find-definitions` (`M-.`) onto a dependency's source breaking session linking: the opened buffer is now pinned to the REPL it was navigated from, so evaluation there no longer errors with "No linked CIDER sessions".
 - [#4115](https://github.com/clojure-emacs/cider/pull/4115): Fix inline macro stepping (`cider-macrostep`): pressing `e`/`RET` right after `n`/`p` now expands the operator you jumped to, instead of erroring with "No sexp before point to expand".
