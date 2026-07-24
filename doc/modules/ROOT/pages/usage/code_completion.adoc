@@ -338,29 +338,79 @@ completion backend to re-read all classes it can find on the classpath.
 
 == Embark integration
 
-If you use https://github.com/oantolin/embark[Embark], CIDER registers a set of
-actions for Clojure symbols automatically - there's nothing to configure beyond
-having Embark installed. Run `embark-act` (kbd:[C-.] in a typical Embark setup)
+If you use https://github.com/oantolin/embark[Embark], you can teach it to act
+on Clojure symbols with CIDER commands. CIDER doesn't ship this integration
+itself - which actions you want and how you bind them is personal, and it's the
+kind of thing that belongs in your own config - but here's a starting point you
+can drop in and tailor. Run `embark-act` (kbd:[C-.] in a typical Embark setup)
 on a Clojure symbol and you get a menu of CIDER actions:
 
 image::cider-embark.png[CIDER actions in Embark]
 
-[cols="1,3"]
-|===
-| kbd:[d] | documentation (`cider-doc`)
-| kbd:[.] | jump to definition (`cider-find-var`)
-| kbd:[r] | find references
-| kbd:[i] | inspect the value
-| kbd:[c] | ClojureDocs
-| kbd:[a] | apropos
-|===
+[source,lisp]
+----
+(defun my-cider-embark-doc (sym)
+  "Show CIDER documentation for SYM."
+  (interactive "sClojure symbol: ")
+  (cider-doc-lookup sym))
+
+(defun my-cider-embark-find-def (sym)
+  "Jump to the definition of SYM."
+  (interactive "sClojure symbol: ")
+  (cider-find-var nil sym))
+
+(defun my-cider-embark-fn-refs (sym)
+  "Find references to SYM via the runtime."
+  (interactive "sClojure symbol: ")
+  (cider-xref-fn-refs nil sym))
+
+(defun my-cider-embark-inspect (sym)
+  "Inspect the value of SYM."
+  (interactive "sClojure symbol: ")
+  (cider-inspect-expr sym (cider-current-ns)))
+
+(defun my-cider-embark-clojuredocs (sym)
+  "Show the ClojureDocs entry for SYM."
+  (interactive "sClojure symbol: ")
+  (cider-clojuredocs-lookup sym))
+
+(defun my-cider-embark-apropos (sym)
+  "Search with apropos for SYM."
+  (interactive "sClojure symbol: ")
+  (cider-apropos sym))
+
+(defvar my-cider-embark-symbol-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "d" #'my-cider-embark-doc)
+    (define-key map "." #'my-cider-embark-find-def)
+    (define-key map "r" #'my-cider-embark-fn-refs)
+    (define-key map "i" #'my-cider-embark-inspect)
+    (define-key map "c" #'my-cider-embark-clojuredocs)
+    (define-key map "a" #'my-cider-embark-apropos)
+    map)
+  "Embark actions for a Clojure symbol.")
+
+(defun my-cider-embark-target ()
+  "Embark target finder for the Clojure symbol at point."
+  (when (derived-mode-p 'clojure-mode 'clojurescript-mode 'clojurec-mode
+                        'clojure-ts-mode 'cider-repl-mode)
+    (when-let* ((bounds (bounds-of-thing-at-point 'symbol))
+                (sym (cider-symbol-at-point)))
+      (unless (string-empty-p sym)
+        `(cider-clojure-symbol ,sym . ,bounds)))))
+
+(with-eval-after-load 'embark
+  (add-to-list 'embark-target-finders #'my-cider-embark-target)
+  (add-to-list 'embark-keymap-alist '(cider-clojure-symbol my-cider-embark-symbol-map))
+  ;; the `cider' completion category gets the same actions on its candidates
+  (add-to-list 'embark-keymap-alist '(cider my-cider-embark-symbol-map)))
+----
 
 The target can be a symbol at point in a source or REPL buffer, or a candidate
 in a CIDER symbol prompt such as `cider-doc` or `cider-find-var` (see
-<<Completion in minibuffer prompts>>) - both share the same action set, so you
+<<Completion in minibuffer prompts>>) - both resolve to the same keymap, so you
 can start `cider-doc`, highlight a candidate, and pivot to jumping to its
-definition without retyping. The actions live in `cider-embark-symbol-map`;
-customize that keymap to add or remove them.
+definition without retyping.
 
 == Implementation Details
 
