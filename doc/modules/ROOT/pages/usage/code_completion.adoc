@@ -251,12 +251,12 @@ used to format the annotation can be configured by
 `cider-completion-annotations-alist` and the context in which their namespace is
 included is configured by `cider-completion-annotations-include-ns.`
 
-image::completion-annotations.png[Completion Annotations]
-
 In frontends that support it (the built-in `*Completions*`, Corfu and Vertico)
 the type/namespace information is rendered as an aligned column, via an
 `affixation-function`; `company` shows the same information as a trailing
 annotation.
+
+image::completion-annotations-aligned.png[Aligned completion annotations in the *Completions* buffer]
 
 TIP: Completion annotations can be disabled by setting
 `cider-annotate-completion-candidates` to `nil`.
