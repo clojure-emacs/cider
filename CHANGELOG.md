@@ -10,6 +10,7 @@
 
 - [#4117](https://github.com/clojure-emacs/cider/pull/4117): Add `cider-use-completing-read-for-symbol` (off by default): when enabled, symbol prompts (e.g. `cider-doc`, `cider-find-var`) read through `completing-read` over a lazy, runtime-backed collection, so they work with `completing-read` UIs (Vertico, Ivy, Helm) and annotate candidates with their type and namespace.
 - [#4129](https://github.com/clojure-emacs/cider/pull/4129): Render completion annotations as an aligned type/namespace column (via an `affixation-function`) in UIs that support it, such as the built-in `*Completions*`, Corfu and Vertico.
+- [#4132](https://github.com/clojure-emacs/cider/pull/4132): Add optional [Embark](https://github.com/oantolin/embark) integration: `embark-act` on a Clojure symbol (at point, or as a completion candidate) offers CIDER actions - documentation, jump to definition, references, inspect, ClojureDocs, apropos. Loaded automatically when Embark is present; no configuration or hard dependency.
 
 ## 2.0.1 (2026-07-23)
 

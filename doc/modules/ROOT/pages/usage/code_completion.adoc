@@ -336,6 +336,32 @@ Clojure 1.12 `add-lib`). Executing `M-x cider-completion-flush-caches` (or going
 through the menu `+CIDER Interaction->Misc->Flush completion cache+`) forces the
 completion backend to re-read all classes it can find on the classpath.
 
+== Embark integration
+
+If you use https://github.com/oantolin/embark[Embark], CIDER registers a set of
+actions for Clojure symbols automatically - there's nothing to configure beyond
+having Embark installed. Run `embark-act` (kbd:[C-.] in a typical Embark setup)
+on a Clojure symbol and you get a menu of CIDER actions:
+
+image::cider-embark.png[CIDER actions in Embark]
+
+[cols="1,3"]
+|===
+| kbd:[d] | documentation (`cider-doc`)
+| kbd:[.] | jump to definition (`cider-find-var`)
+| kbd:[r] | find references
+| kbd:[i] | inspect the value
+| kbd:[c] | ClojureDocs
+| kbd:[a] | apropos
+|===
+
+The target can be a symbol at point in a source or REPL buffer, or a candidate
+in a CIDER symbol prompt such as `cider-doc` or `cider-find-var` (see
+<<Completion in minibuffer prompts>>) - both share the same action set, so you
+can start `cider-doc`, highlight a candidate, and pivot to jumping to its
+definition without retyping. The actions live in `cider-embark-symbol-map`;
+customize that keymap to add or remove them.
+
 == Implementation Details
 
 NOTE: You don't really need to know any of this if you're using only `cider-jack-in`.
