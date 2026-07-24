@@ -657,10 +657,11 @@ alternative to the default is `cider-random-tip'."
      clojure-ts-mode-map)
    'clojure-ts-mode-hook))
 
-;; Optional Embark integration: load it once Embark is available, so
-;; `embark-act' on a Clojure symbol offers CIDER actions.  No hard dependency -
-;; nothing happens for users who don't have Embark.
-;;;###autoload
+;; Optional Embark integration: once CIDER is loaded, wire up the actions as
+;; soon as Embark is available, so `embark-act' on a Clojure symbol offers CIDER
+;; actions.  Deliberately NOT autoloaded: the hook must register only when CIDER
+;; itself is loaded, otherwise merely loading Embark would pull all of CIDER in
+;; (and, since `cider-embark' resolves against CIDER, risk a circular load).
 (with-eval-after-load 'embark
   (require 'cider-embark))
 

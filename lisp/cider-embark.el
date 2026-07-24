@@ -37,7 +37,21 @@
 
 ;;; Code:
 
-(require 'cider)
+(require 'subr-x)  ; for `when-let*' (a macro; needed at compile time)
+
+;; No `require' of CIDER here on purpose.  CIDER only loads this file once it is
+;; itself loaded (via the `with-eval-after-load' hook in cider.el), so the
+;; functions below are defined by the time an action runs.  Requiring `cider'
+;; back would create a circular load - and force all of CIDER to load whenever
+;; Embark does.  Declare what we call instead, to keep the byte-compiler happy.
+(declare-function cider-doc-lookup "cider-doc" (symbol))
+(declare-function cider-find-var "cider-find" (&optional arg var line))
+(declare-function cider-xref-fn-refs "cider-xref-backend" (&optional ns symbol))
+(declare-function cider-inspect-expr "cider-inspector" (expr ns))
+(declare-function cider-clojuredocs-lookup "cider-clojuredocs" (sym))
+(declare-function cider-apropos "cider-apropos" (query &optional ns docs-p privates-p case-sensitive-p))
+(declare-function cider-current-ns "cider-client" (&optional no-default no-repl-check))
+(declare-function cider-symbol-at-point "cider-common" (&optional look-back))
 
 ;; These belong to Embark.  This file only touches them inside the
 ;; `with-eval-after-load' below, i.e. when Embark is loaded and they are bound;
@@ -102,7 +116,7 @@ The target has type `cider-clojure-symbol', mapped to
                         'clojure-ts-mode 'cider-repl-mode)
     (when-let* ((bounds (bounds-of-thing-at-point 'symbol))
                 (sym (cider-symbol-at-point)))
-      (unless (string-empty-p sym)
+      (unless (string= sym "")
         `(cider-clojure-symbol ,sym . ,bounds)))))
 
 ;;; Registration (only once Embark is loaded)
