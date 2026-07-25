@@ -199,6 +199,44 @@
       (expect (cider-shadow-cljs-jack-in-dependencies "watch" nil)
               :to-equal "-d nrepl/nrepl:1.7.0 -d cider/cider-nrepl:0.60.0 watch"))))
 
+(describe "cider-gradle-jack-in-dependencies"
+  (it "builds a -P nrepl property from the required deps, then params and middleware"
+    (let ((cider-injected-nrepl-version "1.7.0")
+          (cider-injected-middleware-version "0.60.0")
+          (cider-enable-nrepl-jvmti-agent nil))
+      (expect (cider-gradle-jack-in-dependencies
+               "clojureRepl" nil '("cider.nrepl/cider-middleware"))
+              :to-equal
+              (concat (shell-quote-argument
+                       "-Pdev.clojurephant.jack-in.nrepl=nrepl:nrepl:1.7.0,cider:cider-nrepl:0.60.0")
+                      " clojureRepl "
+                      (shell-quote-argument "--middleware=cider.nrepl/cider-middleware")))))
+  (it "appends extra dependencies to the required ones"
+    (let ((cider-injected-nrepl-version "1.7.0")
+          (cider-injected-middleware-version "0.60.0")
+          (cider-enable-nrepl-jvmti-agent nil))
+      (expect (cider-gradle-jack-in-dependencies
+               "clojureRepl" '(("abc/def" "1.2.3")) nil)
+              :to-equal
+              (concat (shell-quote-argument
+                       "-Pdev.clojurephant.jack-in.nrepl=nrepl:nrepl:1.7.0,cider:cider-nrepl:0.60.0,abc:def:1.2.3")
+                      " clojureRepl "))))
+  (it "prepends the JVMTI attach flag when the agent is enabled"
+    (let ((cider-injected-nrepl-version "1.7.0")
+          (cider-injected-middleware-version "0.60.0")
+          (cider-enable-nrepl-jvmti-agent t))
+      (expect (cider-gradle-jack-in-dependencies "clojureRepl" nil nil)
+              :to-match "\\`-Pjdk\\.attach\\.allowAttachSelf ")))
+  (it "handles empty params without a stray separator"
+    (let ((cider-injected-nrepl-version "1.7.0")
+          (cider-injected-middleware-version "0.60.0")
+          (cider-enable-nrepl-jvmti-agent nil))
+      (expect (cider-gradle-jack-in-dependencies "" nil nil)
+              :to-equal
+              (concat (shell-quote-argument
+                       "-Pdev.clojurephant.jack-in.nrepl=nrepl:nrepl:1.7.0,cider:cider-nrepl:0.60.0")
+                      " ")))))
+
 (describe "cider-lein-jack-in-dependencies"
   (it "builds update-in clauses for deps, plugins and middlewares, ending with params"
     (let ((cider-enable-nrepl-jvmti-agent nil))
