@@ -357,15 +357,6 @@ The KEYS are used to lookup the values and are joined by SEPARATOR."
              (propertize (format " - %s" (cider-log--strip-whitespace annotation))
                          'face 'font-lock-comment-face)))))))
 
-(defun cider-log--read-appender-id (prompt initial-input history)
-  "Read a appender from the minibuffer using PROMPT, INITIAL-INPUT and HISTORY."
-  (let ((table (when cider-log-framework
-                 (when-let* ((framework (cider-log-framework-reload cider-log-framework)))
-                   (seq-map #'cider-log-appender-id (cider-log-framework-appenders framework))))))
-    (completing-read (or prompt "Log appender: ") table nil nil
-                     (or initial-input cider-log-appender-id)
-                     history cider-log-appender-id)))
-
 (defun cider-log--read-buffer (&optional prompt initial-input history)
   "Read the log buffer name using PROMPT, INITIAL-INPUT and HISTORY."
   (let ((table (seq-map #'buffer-name (cider-log--buffers-in-major-mode 'cider-log-mode))))

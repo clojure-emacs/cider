@@ -139,7 +139,6 @@ log warnings."
 ;;; Buffer Local Declarations
 
 ;; These variables are used to track the state of nREPL connections
-(defvar-local nrepl-connection-buffer nil)
 (defvar-local nrepl-server-buffer nil)
 (defvar-local nrepl-messages-buffer nil)
 (defvar-local nrepl-endpoint nil)
@@ -167,12 +166,6 @@ To be used for tooling calls (i.e. completion, eldoc, etc)")
 (defvar-local nrepl--completed-requests-order nil
   "FIFO of ids in `nrepl-completed-requests', used for bounded eviction.
 See `nrepl-completed-requests-max-size'.")
-
-(defvar-local nrepl-last-sync-response nil
-  "Result of the last sync request.")
-
-(defvar-local nrepl-last-sync-request-timestamp nil
-  "The time when the last sync request was initiated.")
 
 (defvar-local nrepl-ops nil
   "Available nREPL server ops (from describe).")
