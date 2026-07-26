@@ -1129,41 +1129,35 @@ The result entries are relative to the classpath."
                                        (nrepl-dict-get "resources-list"))))
     (seq-map (lambda (resource) (nrepl-dict-get resource "relpath")) resources)))
 
-(defun cider-sync-request:fn-refs (ns sym)
-  "Return a list of functions that reference the function identified by NS and SYM."
-  (thread-first `("op" "cider/fn-refs"
+(defun cider--sync-request-ns-sym (op ns sym)
+  "Send the ns/sym request OP for NS and SYM and return its like-named result.
+OP is the bare op name (without the \"cider/\" prefix), which is also the key
+the result is stored under."
+  (thread-first `("op" ,(concat "cider/" op)
                   "ns" ,ns
                   "sym" ,sym)
                 (cider-nrepl-sync-request)
-                (nrepl-dict-get "fn-refs")))
+                (nrepl-dict-get op)))
+
+(defun cider-sync-request:fn-refs (ns sym)
+  "Return a list of functions that reference the function identified by NS and SYM."
+  (cider--sync-request-ns-sym "fn-refs" ns sym))
 
 (defun cider-sync-request:fn-deps (ns sym)
   "Return a list of function deps for the function identified by NS and SYM."
-  (thread-first `("op" "cider/fn-deps"
-                  "ns" ,ns
-                  "sym" ,sym)
-                (cider-nrepl-sync-request)
-                (nrepl-dict-get "fn-deps")))
+  (cider--sync-request-ns-sym "fn-deps" ns sym))
 
 (defun cider-sync-request:who-implements (ns sym)
   "Return the implementations of the protocol or multimethod NS and SYM.
 The result is a dict with a \"kind\" of \"protocol\", \"multimethod\" or
 \"other\"; for a protocol an \"impls\" list, for a multimethod a
 \"dispatch-values\" list."
-  (thread-first `("op" "cider/who-implements"
-                  "ns" ,ns
-                  "sym" ,sym)
-                (cider-nrepl-sync-request)
-                (nrepl-dict-get "who-implements")))
+  (cider--sync-request-ns-sym "who-implements" ns sym))
 
 (defun cider-sync-request:type-protocols (ns sym)
   "Return the protocols implemented by the type NS and SYM.
 Each is a dict with a \"name\" and source location."
-  (thread-first `("op" "cider/type-protocols"
-                  "ns" ,ns
-                  "sym" ,sym)
-                (cider-nrepl-sync-request)
-                (nrepl-dict-get "type-protocols")))
+  (cider--sync-request-ns-sym "type-protocols" ns sym))
 
 (defun cider-sync-request:protocols-with-method (method)
   "Return the protocols declaring a method named METHOD.
