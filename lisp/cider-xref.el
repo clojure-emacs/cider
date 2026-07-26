@@ -122,16 +122,26 @@ namespace is a likelier cause than a var that genuinely has none."
       (message "No %s found for %S in currently loaded namespaces" noun symbol)
     (user-error "%s" (cider-resolution-failure-message symbol))))
 
+(defun cider-xref--show-fn-relation (ns symbol request-fn summary-fmt noun)
+  "Show the functions related to the var matching NS and SYMBOL via REQUEST-FN.
+NS and SYMBOL default to the current namespace and the symbol at point.
+Display the results with a summary built from SUMMARY-FMT (given the result
+count and the symbol).  NOUN names the relation for the no-results report."
+  (let ((ns (or ns (cider-current-ns)))
+        (symbol (or symbol (cider-symbol-at-point))))
+    (unless symbol (user-error "No symbol at point"))
+    (if-let* ((results (funcall request-fn ns symbol)))
+        (cider-show-xref (format summary-fmt (length results) symbol) results)
+      (cider-xref--report-no-results symbol noun))))
+
 ;;;###autoload
 (defun cider-xref-fn-refs (&optional ns symbol)
   "Show all functions that reference the var matching NS and SYMBOL."
   (interactive)
-  (let ((ns (or ns (cider-current-ns)))
-        (symbol (or symbol (cider-symbol-at-point))))
-    (unless symbol (user-error "No symbol at point"))
-    (if-let* ((results (cider-sync-request:fn-refs ns symbol)))
-        (cider-show-xref (format "Showing %d functions that reference %s in currently loaded namespaces" (length results) symbol) results)
-      (cider-xref--report-no-results symbol "references"))))
+  (cider-xref--show-fn-relation
+   ns symbol #'cider-sync-request:fn-refs
+   "Showing %d functions that reference %s in currently loaded namespaces"
+   "references"))
 
 ;;;###autoload
 (defun cider-xref-fn-refs-in-source (&optional symbol)
@@ -177,12 +187,10 @@ function `cider-who-calls' is usually the better tool."
 (defun cider-xref-fn-deps (&optional ns symbol)
   "Show all functions referenced by the var matching NS and SYMBOL."
   (interactive)
-  (let ((ns (or ns (cider-current-ns)))
-        (symbol (or symbol (cider-symbol-at-point))))
-    (unless symbol (user-error "No symbol at point"))
-    (if-let* ((results (cider-sync-request:fn-deps ns symbol)))
-        (cider-show-xref (format "Showing %d function dependencies for %s" (length results) symbol) results)
-      (cider-xref--report-no-results symbol "dependencies"))))
+  (cider-xref--show-fn-relation
+   ns symbol #'cider-sync-request:fn-deps
+   "Showing %d function dependencies for %s"
+   "dependencies"))
 
 (defun cider-xref-act-on-symbol (symbol)
   "Apply selected action on SYMBOL."
@@ -197,29 +205,33 @@ function `cider-who-calls' is usually the better tool."
         (funcall action-fn symbol)
       (user-error "Unknown action `%s`" action-key))))
 
+(defun cider-xref--select-fn-relation (ns symbol request-fn summary-prefix noun)
+  "Pick a function related to the var matching NS and SYMBOL and act on it.
+NS and SYMBOL default to the current namespace and the symbol at point.
+Prompt with `completing-read' over the names REQUEST-FN returns, using
+SUMMARY-PREFIX in the prompt, and run the selected xref action on the choice.
+NOUN names the relation for the no-results report."
+  (let ((ns (or ns (cider-current-ns)))
+        (symbol (or symbol (cider-symbol-at-point))))
+    (unless symbol (user-error "No symbol at point"))
+    (if-let* ((results (mapcar (lambda (d) (nrepl-dict-get d "name")) (funcall request-fn ns symbol)))
+              (summary (format "%s %s" summary-prefix symbol)))
+        (cider-xref-act-on-symbol (completing-read (concat summary ": ") results))
+      (cider-xref--report-no-results symbol noun))))
+
 ;;;###autoload
 (defun cider-xref-fn-refs-select (&optional ns symbol)
   "Display the references for NS and SYMBOL using completing read."
   (interactive)
-  (let ((ns (or ns (cider-current-ns)))
-        (symbol (or symbol (cider-symbol-at-point))))
-    (unless symbol (user-error "No symbol at point"))
-    (if-let* ((results (mapcar (lambda (d) (nrepl-dict-get d "name")) (cider-sync-request:fn-refs ns symbol)))
-              (summary (format "References for %s" symbol)))
-        (cider-xref-act-on-symbol (completing-read (concat summary ": ") results))
-      (cider-xref--report-no-results symbol "references"))))
+  (cider-xref--select-fn-relation
+   ns symbol #'cider-sync-request:fn-refs "References for" "references"))
 
 ;;;###autoload
 (defun cider-xref-fn-deps-select (&optional ns symbol)
   "Display the function dependencies for NS and SYMBOL using completing read."
   (interactive)
-  (let ((ns (or ns (cider-current-ns)))
-        (symbol (or symbol (cider-symbol-at-point))))
-    (unless symbol (user-error "No symbol at point"))
-    (if-let* ((results (mapcar (lambda (d) (nrepl-dict-get d "name")) (cider-sync-request:fn-deps ns symbol)))
-              (summary (format "Dependencies for %s" symbol)))
-        (cider-xref-act-on-symbol (completing-read (concat summary ": ") results))
-      (cider-xref--report-no-results symbol "dependencies"))))
+  (cider-xref--select-fn-relation
+   ns symbol #'cider-sync-request:fn-deps "Dependencies for" "dependencies"))
 
 (provide 'cider-xref)
 
