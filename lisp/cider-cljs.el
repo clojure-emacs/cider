@@ -245,9 +245,9 @@ The supplied string will be wrapped in a do form if needed."
   (or
    cider-custom-cljs-repl-init-form
    (let ((form (read-from-minibuffer "Please, provide a form to start a ClojureScript REPL: ")))
-     ;; TODO: We should probably make this more robust (e.g. by using a regexp or
-     ;; parsing the form).
-     (if (string-prefix-p "(do" form)
+     ;; Only skip the wrapping when the form is already a `do' block; a bare
+     ;; prefix check would also match calls like `(dorun ...)' or `(doseq ...)'.
+     (if (string-match-p "\\`(do[[:space:])]" form)
          form
        (format "(do %s)" form)))))
 
