@@ -351,12 +351,17 @@ In particular, it does not read `cider-sexp-at-point'."
     (cider-inspect-expr (cider-read-from-minibuffer prompt nil 'skip-colon)
                         ns)))
 
+(defun cider-inspector--send-op (op &optional point-action)
+  "Send the argument-less inspector OP and re-render the returned value, if any.
+POINT-ACTION is forwarded to `cider-inspector--render-value' to place point."
+  (let ((result (cider-nrepl-sync-request `("op" ,op))))
+    (when (nrepl-dict-get result "value")
+      (cider-inspector--render-value result point-action))))
+
 (defun cider-inspector-pop ()
   "Pop the last value off the inspector stack and render it."
   (interactive)
-  (let ((result (cider-nrepl-sync-request `("op" "cider/inspect-pop"))))
-    (when (nrepl-dict-get result "value")
-      (cider-inspector--render-value result :pop))))
+  (cider-inspector--send-op "cider/inspect-pop" :pop))
 
 (defun cider-inspector-push (idx)
   "Inspect the value at IDX in the inspector stack and render it."
@@ -382,16 +387,12 @@ If EX-DATA is true, inspect ex-data of the exception instead."
 (defun cider-inspector-previous-sibling ()
   "Inspect the previous sibling value within a sequential parent."
   (interactive)
-  (let ((result (cider-nrepl-sync-request `("op" "cider/inspect-previous-sibling"))))
-    (when (nrepl-dict-get result "value")
-      (cider-inspector--render-value result))))
+  (cider-inspector--send-op "cider/inspect-previous-sibling"))
 
 (defun cider-inspector-next-sibling ()
   "Inspect the next sibling value within a sequential parent."
   (interactive)
-  (let ((result (cider-nrepl-sync-request `("op" "cider/inspect-next-sibling"))))
-    (when (nrepl-dict-get result "value")
-      (cider-inspector--render-value result))))
+  (cider-inspector--send-op "cider/inspect-next-sibling"))
 
 (defun cider-inspector--refresh-with-opts (&rest opts)
   "Invokes `inspect-refresh' op with supplied extra OPTS.
@@ -410,18 +411,14 @@ Re-renders the currently inspected value."
 
 Does nothing if already on the last page."
   (interactive)
-  (let ((result (cider-nrepl-sync-request '("op" "cider/inspect-next-page"))))
-    (when (nrepl-dict-get result "value")
-      (cider-inspector--render-value result))))
+  (cider-inspector--send-op "cider/inspect-next-page"))
 
 (defun cider-inspector-prev-page ()
   "Jump to the previous page when inspecting a paginated sequence/map.
 
 Does nothing if already on the first page."
   (interactive)
-  (let ((result (cider-nrepl-sync-request '("op" "cider/inspect-prev-page"))))
-    (when (nrepl-dict-get result "value")
-      (cider-inspector--render-value result))))
+  (cider-inspector--send-op "cider/inspect-prev-page"))
 
 (defun cider-inspector-set-page-size (page-size)
   "Set the page size in pagination mode to the specified PAGE-SIZE.
@@ -450,9 +447,7 @@ MAX-NESTED-DEPTH is the new value."
 (defun cider-inspector-display-analytics ()
   "Toggle the display of analytics for the inspected object."
   (interactive)
-  (let ((result (cider-nrepl-sync-request `("op" "cider/inspect-display-analytics"))))
-    (when (nrepl-dict-get result "value")
-      (cider-inspector--render-value result :next-inspectable))))
+  (cider-inspector--send-op "cider/inspect-display-analytics" :next-inspectable))
 
 (defun cider-inspector-toggle-display-help ()
   "Toggle the display of help message in the inspector window."
@@ -484,9 +479,7 @@ MAX-NESTED-DEPTH is the new value."
 (defun cider-inspector-toggle-view-mode ()
   "Toggle the view mode of the inspector between normal and object view mode."
   (interactive)
-  (let ((result (cider-nrepl-sync-request `("op" "cider/inspect-toggle-view-mode"))))
-    (when (nrepl-dict-get result "value")
-      (cider-inspector--render-value result :next-inspectable))))
+  (cider-inspector--send-op "cider/inspect-toggle-view-mode" :next-inspectable))
 
 (defcustom cider-inspector-preferred-var-names nil
   "The preferred var names to be suggested by `cider-inspector-def-current-val'.
