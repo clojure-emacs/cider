@@ -154,27 +154,27 @@ opposite of what that option dictates."
     (insert "Not available\n"))
   (newline))
 
-(defun cider-clojuredocs--insert-examples (dict)
-  "Insert \"Examples\" section based on data from DICT."
-  (insert "== Examples\n")
+(defun cider-clojuredocs--insert-section (header key render-item dict)
+  "Insert a divider-delimited section of DICT under HEADER.
+Render each item found under KEY with RENDER-ITEM, or note that the section
+is unavailable when there are none."
+  (insert header "\n")
   (newline)
-  (if-let* ((examples (nrepl-dict-get dict "examples")))
-      (dolist (example examples)
-        (insert (cider-font-lock-as-clojure example) "\n")
+  (if-let* ((items (nrepl-dict-get dict key)))
+      (dolist (item items)
+        (insert (funcall render-item item) "\n")
         (insert "-------------------------------------------------\n"))
     (insert "Not available\n"))
   (newline))
 
+(defun cider-clojuredocs--insert-examples (dict)
+  "Insert \"Examples\" section based on data from DICT."
+  (cider-clojuredocs--insert-section
+   "== Examples" "examples" #'cider-font-lock-as-clojure dict))
+
 (defun cider-clojuredocs--insert-notes (dict)
   "Insert \"Notes\" section based on data from DICT."
-  (insert "== Notes\n")
-  (newline)
-  (if-let* ((notes (nrepl-dict-get dict "notes")))
-      (dolist (note notes)
-        (insert note "\n")
-        (insert "-------------------------------------------------\n"))
-    (insert "Not available\n"))
-  (newline))
+  (cider-clojuredocs--insert-section "== Notes" "notes" #'identity dict))
 
 (defun cider-clojuredocs--content (dict)
   "Generate a nice string from DICT."
