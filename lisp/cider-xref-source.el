@@ -70,6 +70,14 @@ Wrap in \"[...]\" to match one, or \"[^...]\" to match a boundary.  Used to guar
 the edges of a match so that, e.g., searching for `foo' does not match inside
 `foobar' or `other/foo'.")
 
+(defconst cider-xref--symbol-chars-no-slash
+  (replace-regexp-in-string "/" "" cider-xref--symbol-chars)
+  "Like `cider-xref--symbol-chars' but without the `/' namespace separator.
+Used only for the left edge of the candidate-narrowing search: a reference
+like `alias/foo' or `some.ns/foo' has a `/' right before the bare name, so
+treating `/' as a boundary (rather than a symbol constituent) is what lets a
+qualified reference still mark its file as a candidate for the precise scan.")
+
 (defun cider-xref--source-file-p (file)
   "Return non-nil when FILE has a Clojure source extension."
   (when-let* ((ext (file-name-extension file)))
@@ -88,7 +96,10 @@ search program, say) all of FILES are returned as candidates."
   (if (null files)
       nil
     (condition-case nil
-        (let ((regexp (concat "[^" cider-xref--symbol-chars "]"
+        ;; The left edge treats `/' as a boundary (via -no-slash) so that
+        ;; qualified references like `alias/foo' aren't filtered out here before
+        ;; the precise per-file scan - which knows how to match them - ever runs.
+        (let ((regexp (concat "[^" cider-xref--symbol-chars-no-slash "]"
                               (regexp-quote name)
                               "[^" cider-xref--symbol-chars "]")))
           (delete-dups
