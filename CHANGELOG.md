@@ -13,6 +13,7 @@
 
 ### Bugs fixed
 
+- [#4139](https://github.com/clojure-emacs/cider/pull/4139): Fix source-based find-usages (`M-?`) missing alias- and namespace-qualified references (e.g. `m/foo`), so a var used through its alias from other namespaces is now found, not just the bare occurrences in its defining namespace.
 - [#4136](https://github.com/clojure-emacs/cider/pull/4136): Fix a custom ClojureScript REPL init form being sent unwrapped when it starts with a call like `(dorun ...)` or `(doseq ...)`, which the previous `(do` prefix check mistook for an existing `do` block.
 
 ## 2.0.1 (2026-07-23)
