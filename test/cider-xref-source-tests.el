@@ -141,6 +141,41 @@ context, and scanned - exercising the whole non-REPL half of the engine."
                     "my.ns" "foo")))
       (expect (length matches) :to-equal 2))))
 
+(defun cider-xref-source-tests--candidates (files-by-name name)
+  "Return the basenames selected by `cider-xref--candidate-files' for NAME.
+FILES-BY-NAME is an alist of (BASENAME . CONTENT); each entry is written to a
+throwaway directory on disk, since the narrowing pass shells out to grep."
+  (let ((dir (make-temp-file "cider-xref-cand" t)))
+    (unwind-protect
+        (let ((paths (mapcar (lambda (entry)
+                               (let ((path (expand-file-name (car entry) dir)))
+                                 (with-temp-file path (insert (cdr entry)))
+                                 path))
+                             files-by-name)))
+          (sort (mapcar #'file-name-nondirectory
+                        (cider-xref--candidate-files name paths))
+                #'string<))
+      (delete-directory dir t))))
+
+(describe "cider-xref--candidate-files"
+  (it "selects files that reference the name via an alias or namespace qualifier"
+    ;; Regression test: a qualified reference such as `m/foo' has a `/' right
+    ;; before the bare name, and `/' is a Clojure symbol constituent, so a
+    ;; naive boundary would filter these files out before the precise scan.
+    (expect (cider-xref-source-tests--candidates
+             '(("aliased.clj"   . "(ns a (:require [my.ns :as m]))\n(m/foo)\n")
+               ("qualified.clj" . "(ns b)\n(my.ns/foo)\n")
+               ("bare.clj"      . "(ns my.ns)\n(defn foo [])\n(bar foo)\n")
+               ("unrelated.clj" . "(ns c)\n(baz)\n"))
+             "foo")
+            :to-equal '("aliased.clj" "bare.clj" "qualified.clj")))
+
+  (it "does not select files that only mention a longer symbol"
+    (expect (cider-xref-source-tests--candidates
+             '(("longer.clj" . "(ns a (:require [my.ns :as m]))\n(m/foobar)\n(foo-bar)\n"))
+             "foo")
+            :to-equal nil)))
+
 (describe "cider-xref--short-name"
   (it "drops a namespace or alias qualifier"
     (expect (cider-xref--short-name "my.ns/foo") :to-equal "foo")
