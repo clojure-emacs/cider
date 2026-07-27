@@ -783,3 +783,13 @@
                                   5)
           ;; kill server
           (delete-process (get-buffer-process client-buffer)))))))
+
+(describe "cider-quit"
+  (it "raises a user error if cider is not connected"
+    (spy-on 'cider-connected-p :and-return-value nil)
+    (expect (cider-quit) :to-throw 'user-error)))
+
+(describe "cider-restart"
+  (it "raises a user error if cider is not connected"
+    (spy-on 'cider-connected-p :and-return-value nil)
+    (expect (cider-restart) :to-throw 'user-error)))
