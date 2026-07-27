@@ -28,6 +28,7 @@
 (require 'buttercup)
 (require 'cider-eval)
 (require 'cider-test-utils "test/utils/cider-test-utils")
+(require 'cider-connection-test-utils "test/utils/cider-connection-test-utils")
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
@@ -173,7 +174,19 @@
             (lambda () (user-error "No linked CIDER sessions")))
     (spy-on 'cider-map-repls)
     (expect (cider-interactive-eval "42") :to-throw 'user-error)
-    (expect 'cider-map-repls :not :to-have-been-called)))
+    (expect 'cider-map-repls :not :to-have-been-called))
+
+  (it "works as expected in empty Clojure buffers"
+    (spy-on 'cider-nrepl-send-eval-request :and-return-value nil)
+    ;; Exercise the eval dispatch with a connection present.  Stub the
+    ;; connection check so the test doesn't depend on resolving the session
+    ;; from an unlinked temp buffer (which is platform-dependent).
+    (spy-on 'cider-ensure-session)
+    (let ((default-directory "/tmp/a-dir"))
+      (with-repl-buffer "interaction-session" 'clj _b
+        (with-temp-buffer
+          (clojure-mode)
+          (expect (cider-interactive-eval "(+ 1)") :not :to-throw))))))
 
 (describe "cider--comment-format"
   (it "returns the configured prefixes for the `line' style"
@@ -374,7 +387,11 @@
 
   (it "closes open maps and vectors"
     (expect (cider--insert-closing-delimiters "{:a [1 2")
-            :to-equal "{:a [1 2]}")))
+            :to-equal "{:a [1 2]}"))
+
+  (it "closes deeply nested mixed delimiters"
+    (expect (cider--insert-closing-delimiters "(let [a 1] (prn 1 [2 {3 4")
+            :to-equal "(let [a 1] (prn 1 [2 {3 4}]))")))
 
 (describe "cider-clojure-compilation-error-phases"
   (it "returns the default value when set to t"
@@ -585,3 +602,49 @@
                (lambda (html) (concat "rendered:" html))))
       (expect (cider--rich-content-fallback-string "<b>x</b>" (list "text/html" (nrepl-dict)))
               :to-equal "rendered:<b>x</b>"))))
+
+(describe "cider-to-nrepl-filename-function"
+  (it "translates file paths when running on cygwin systems"
+    (assume (eq system-type 'cygwin) "not running on cygwin")
+    (let ((windows-file-name "C:/foo/bar")
+          (unix-file-name "/cygdrive/c/foo/bar"))
+      (expect (funcall cider-from-nrepl-filename-function windows-file-name)
+              :to-equal unix-file-name)
+      (expect (funcall cider-to-nrepl-filename-function unix-file-name)
+              :to-equal windows-file-name)))
+
+  (it "leaves file paths alone on other systems"
+    (assume (not (eq system-type 'cygwin)) "running on cygwin")
+    (let ((unix-file-name "/cygdrive/c/foo/bar"))
+      (expect (funcall cider-from-nrepl-filename-function unix-file-name)
+              :to-equal unix-file-name)
+      (expect (funcall cider-to-nrepl-filename-function unix-file-name)
+              :to-equal unix-file-name)))
+  (it "translates file paths from container/vm location to host location"
+    (let* ((/docker/src (expand-file-name "/docker/src"))
+           (/cygdrive/c/project/src (expand-file-name "/cygdrive/c/project/src"))
+           (/docker/src/ns.clj (expand-file-name "/docker/src/ns.clj"))
+           (/cygdrive/c/project/src/ns.clj (expand-file-name "/cygdrive/c/project/src/ns.clj"))
+           (cider-path-translations `((,/docker/src . ,/cygdrive/c/project/src))))
+      (expect (funcall cider-from-nrepl-filename-function /docker/src/ns.clj)
+              :to-equal /cygdrive/c/project/src/ns.clj)
+      (expect (funcall cider-to-nrepl-filename-function /cygdrive/c/project/src/ns.clj)
+              :to-equal /docker/src/ns.clj))))
+
+(describe "cider-load-all-project-ns"
+  (it "raises a user error if cider is not connected"
+    (spy-on 'cider-connected-p :and-return-value nil)
+    (expect (cider-load-all-project-ns) :to-throw 'user-error))
+  (it "raises a user error if the op is not supported"
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
+    (expect (cider-load-all-project-ns) :to-throw 'user-error)))
+
+(describe "cider-load-file"
+  (it "works as expected in empty Clojure buffers"
+    (spy-on 'cider-load-file-request :and-return-value nil)
+    (let ((default-directory "/tmp/a-dir"))
+      (with-repl-buffer "load-file-session" 'clj _b
+        (with-temp-buffer
+          (clojure-mode)
+          (setq buffer-file-name (make-temp-name "tmp.clj"))
+          (expect (let ((inhibit-message t)) (cider-load-buffer)) :not :to-throw))))))
