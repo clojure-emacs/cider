@@ -1,4 +1,4 @@
-;;; cider-overlay-tests.el                       -*- lexical-binding: t; -*-
+;;; cider-overlays-tests.el                       -*- lexical-binding: t; -*-
 
 ;; Copyright © 2015-2026 Bozhidar Batsov, Artur Malabarba and CIDER contributors
 
@@ -320,4 +320,4 @@ being set that way"
       (setq overlay-position (mapcar #'overlay-start (overlays-at (point-min))))
       (expect overlay-position :to-be nil))))
 
-;;; cider-overlay-tests.el ends here
+;;; cider-overlays-tests.el ends here
