@@ -30,6 +30,11 @@
 (require 'cider-test-utils "test/utils/cider-test-utils")
 (require 'cider-connection-test-utils "test/utils/cider-connection-test-utils")
 
+;; Defined by clojure-ts-mode, which isn't loaded in the main test suite.
+;; Declare it special here so the `cider-eval-dwim' binding test observes a
+;; dynamic (not lexical) binding.
+(defvar clojure-ts-toplevel-inside-comment-form nil)
+
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
 (describe "cider-eval-pprint-with-multiline-comment-handler"
@@ -648,3 +653,19 @@
           (clojure-mode)
           (setq buffer-file-name (make-temp-name "tmp.clj"))
           (expect (let ((inhibit-message t)) (cider-load-buffer)) :not :to-throw))))))
+
+(describe "cider-eval-dwim"
+  (it "binds both comment-form toplevel vars around the eval"
+    ;; So evaluating inside a `comment' form picks up the enclosed form under
+    ;; both clojure-mode and clojure-ts-mode.
+    (let ((clojure-toplevel-inside-comment-form nil)
+          (clojure-ts-toplevel-inside-comment-form nil)
+          seen-clj seen-ts)
+      (spy-on 'use-region-p :and-return-value nil)
+      (spy-on 'cider-eval-defun-at-point :and-call-fake
+              (lambda (&rest _)
+                (setq seen-clj clojure-toplevel-inside-comment-form
+                      seen-ts clojure-ts-toplevel-inside-comment-form)))
+      (cider-eval-dwim)
+      (expect seen-clj :to-be t)
+      (expect seen-ts :to-be t))))

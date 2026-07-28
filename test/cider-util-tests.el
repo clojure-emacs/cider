@@ -229,7 +229,17 @@
         (with-clojure-buffer--go-to-point)
         (delay-mode-hooks ;; we just want to mark the mode as cider-nrepl, without running other code.
           (cider-repl-mode))
-        (expect (cider-defun-at-point) :to-equal "(. \"\")")))))
+        (expect (cider-defun-at-point) :to-equal "(. \"\")"))))
+
+  (describe "inside a comment form"
+    (it "returns the whole comment form by default"
+      (with-clojure-buffer "(comment (+ 1| 2))"
+        (let ((clojure-toplevel-inside-comment-form nil))
+          (expect (cider-defun-at-point) :to-equal "(comment (+ 1 2))"))))
+    (it "returns the enclosed form when clojure-toplevel-inside-comment-form is set"
+      (with-clojure-buffer "(comment (+ 1| 2))"
+        (let ((clojure-toplevel-inside-comment-form t))
+          (expect (cider-defun-at-point) :to-equal "(+ 1 2)"))))))
 
 (describe "cider-repl-prompt-function"
   (it "returns repl prompts"

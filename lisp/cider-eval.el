@@ -75,6 +75,10 @@
 (declare-function cider-repl--ns-form-changed-p "cider-repl")
 (declare-function cider-repl--cache-ns-form "cider-repl")
 
+;; Defined in clojure-ts-mode; declared here so we can bind it even when only
+;; clojure-mode is loaded.  clojure-mode uses `clojure-toplevel-inside-comment-form'.
+(defvar clojure-ts-toplevel-inside-comment-form)
+
 (defconst cider-read-eval-buffer "*cider-read-eval*")
 (defconst cider-result-buffer "*cider-result*")
 
@@ -1260,9 +1264,12 @@ buffer, else display in a popup buffer."
   "If no region is active, call `cider-eval-defun-at-point' with DEBUG-IT.
 If a region is active, run `cider-eval-region'.
 
-Always binds `clojure-toplevel-inside-comment-form' to t."
+Always binds `clojure-toplevel-inside-comment-form' (and its clojure-ts-mode
+counterpart `clojure-ts-toplevel-inside-comment-form') to t, so evaluating
+inside a `comment' form picks up the enclosed form."
   (interactive "P")
-  (let ((clojure-toplevel-inside-comment-form t))
+  (let ((clojure-toplevel-inside-comment-form t)
+        (clojure-ts-toplevel-inside-comment-form t))
     (if (use-region-p)
         (cider-eval-region (region-beginning) (region-end))
       (cider-eval-defun-at-point debug-it))))
