@@ -90,4 +90,14 @@ buffer."
       (expect (cider-keyword-at-point-p) :not :to-be-truthy)
       (expect (cider-keyword-at-point-p (point)) :not :to-be-truthy))))
 
+(describe "cider-defun-at-point inside a comment form"
+  (it "returns the whole comment form by default"
+    (with-clojure-ts-buffer "(comment (+ 1| 2))"
+      (let ((clojure-ts-toplevel-inside-comment-form nil))
+        (expect (cider-defun-at-point) :to-equal "(comment (+ 1 2))"))))
+  (it "returns the enclosed form when clojure-ts-toplevel-inside-comment-form is set"
+    (with-clojure-ts-buffer "(comment (+ 1| 2))"
+      (let ((clojure-ts-toplevel-inside-comment-form t))
+        (expect (cider-defun-at-point) :to-equal "(+ 1 2)")))))
+
 (provide 'cider-ts-util-tests)
