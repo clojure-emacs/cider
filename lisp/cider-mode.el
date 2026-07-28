@@ -50,6 +50,15 @@
 (require 'cider-xref-backend)
 (require 'subr-x)
 
+;; Optional tree-sitter font-lock support for clojure-ts-mode buffers.  These
+;; are only used behind `cider-clojure-ts-mode-p', so on Emacs < 29 (no
+;; treesit) the branch is never reached; declare them to keep the byte
+;; compiler happy there.
+(declare-function treesit-font-lock-rules "treesit")
+(declare-function treesit-font-lock-recompute-features "treesit")
+(defvar treesit-font-lock-settings)
+(defvar treesit-font-lock-feature-list)
+
 (defcustom cider-mode-line-show-connection t
   "If the mode-line lighter should detail the connection."
   :group 'cider
@@ -956,8 +965,12 @@ with the given LIMIT."
                       (get-text-property (point) 'cider-locals)))
     value))
 
-(defun cider--compile-font-lock-keywords (symbols-plist core-plist)
-  "Return a list of font-lock rules for symbols in SYMBOLS-PLIST, CORE-PLIST."
+(defun cider--dynamic-font-lock-symbols (symbols-plist core-plist)
+  "Categorize SYMBOLS-PLIST and CORE-PLIST for dynamic font-locking.
+Return a plist mapping :macros, :functions, :vars, :deprecated,
+:enlightened, :instrumented and :traced to lists of symbol names,
+honoring `cider-font-lock-dynamically'.  Both plists map a symbol name to
+its nREPL metadata dict, as returned by `cider-resolve-ns-symbols'."
   (let ((cider-font-lock-dynamically (if (eq cider-font-lock-dynamically t)
                                          '(function var macro core deprecated)
                                        cider-font-lock-dynamically))
@@ -999,6 +1012,20 @@ with the given LIMIT."
         (let ((cider-font-lock-dynamically '(function var macro core deprecated)))
           (handle-plist core-plist)))
       (handle-plist symbols-plist))
+    (list :macros macros :functions functions :vars vars
+          :deprecated deprecated :enlightened enlightened
+          :instrumented instrumented :traced traced)))
+
+(defun cider--compile-font-lock-keywords (symbols-plist core-plist)
+  "Return a list of font-lock rules for symbols in SYMBOLS-PLIST, CORE-PLIST."
+  (let* ((cats (cider--dynamic-font-lock-symbols symbols-plist core-plist))
+         (macros (plist-get cats :macros))
+         (functions (plist-get cats :functions))
+         (vars (plist-get cats :vars))
+         (deprecated (plist-get cats :deprecated))
+         (enlightened (plist-get cats :enlightened))
+         (instrumented (plist-get cats :instrumented))
+         (traced (plist-get cats :traced)))
     `(
       ,@(when macros
           `((,(concat (rx (or "(" "#'")) ; Can't take the value of macros.
@@ -1030,6 +1057,88 @@ with the given LIMIT."
 
 (defvar-local cider--dynamic-font-lock-keywords nil)
 
+;;;; Tree-sitter (clojure-ts-mode) dynamic font-lock
+
+(defconst cider--treesit-font-lock-feature 'cider-dynamic
+  "Feature name for CIDER's tree-sitter dynamic font-lock rules.")
+
+(defun cider--treesit-symbol-regexp (names)
+  "Return a regexp matching any of NAMES as a whole symbol name."
+  (concat "\\`" (regexp-opt names) "\\'"))
+
+(defun cider--treesit-font-lock-rules (symbols-plist core-plist)
+  "Return tree-sitter font-lock settings for SYMBOLS-PLIST and CORE-PLIST.
+The Clojure counterpart to `cider--compile-font-lock-keywords', producing
+`treesit-font-lock-rules' for a clojure-ts-mode buffer.  Return nil when
+there is nothing to highlight."
+  (let* ((cats (cider--dynamic-font-lock-symbols symbols-plist core-plist))
+         (queries
+          (cl-loop
+           for (key face anchor) in
+           ;; Order matters: later queries win (they are :override t and are
+           ;; appended after clojure-ts-mode's own settings), so put the
+           ;; \"strongest\" categories last.
+           '((:functions font-lock-function-name-face nil)
+             (:vars font-lock-variable-name-face nil)
+             (:macros font-lock-keyword-face call)
+             (:deprecated cider-deprecated-face nil)
+             (:enlightened cider-enlightened-face nil)
+             (:instrumented cider-instrumented-face nil)
+             (:traced cider-traced-face nil))
+           for names = (plist-get cats key)
+           when names
+           collect (let ((cap (intern (format "@%s" face)))
+                         (re (cider--treesit-symbol-regexp names)))
+                     (if (eq anchor 'call)
+                         ;; Macros only in call position, like the clojure-mode
+                         ;; rule that requires a preceding \"(\".
+                         `((list_lit :anchor (sym_lit (sym_name) ,cap))
+                           (:match ,re ,cap))
+                       `((sym_lit (sym_name) ,cap)
+                         (:match ,re ,cap)))))))
+    (when queries
+      ;; Pass all pattern/predicate groups as a single query (like
+      ;; clojure-ts-mode's own multi-pattern features), not as separate query
+      ;; arguments - `:language' only carries to the first of those.
+      (treesit-font-lock-rules
+       :language 'clojure
+       :feature cider--treesit-font-lock-feature
+       :override t
+       queries))))
+
+(defun cider--treesit-font-lock-teardown ()
+  "Remove CIDER's dynamic font-lock rules from the current ts buffer."
+  (when (boundp 'treesit-font-lock-settings)
+    (setq-local treesit-font-lock-settings
+                (seq-remove (lambda (s)
+                              (eq (nth 2 s) cider--treesit-font-lock-feature))
+                            treesit-font-lock-settings))
+    (treesit-font-lock-recompute-features)
+    (font-lock-flush)))
+
+(defun cider--treesit-refresh-dynamic-font-lock (symbols-plist core-plist)
+  "Install CIDER's tree-sitter dynamic font-lock from resolved symbols.
+SYMBOLS-PLIST and CORE-PLIST are as in `cider--treesit-font-lock-rules'."
+  ;; Drop our previous rules, then append the fresh ones so they run after
+  ;; (and thus override) clojure-ts-mode's own fontification.
+  (setq-local treesit-font-lock-settings
+              (seq-remove (lambda (s)
+                            (eq (nth 2 s) cider--treesit-font-lock-feature))
+                          treesit-font-lock-settings))
+  (when-let* ((rules (cider--treesit-font-lock-rules symbols-plist core-plist)))
+    (setq-local treesit-font-lock-settings
+                (append treesit-font-lock-settings rules))
+    ;; Enable our feature by adding it to the first (always-active) level,
+    ;; without shifting the existing levels or mutating the shared literal.
+    (unless (memq cider--treesit-font-lock-feature
+                  (apply #'append treesit-font-lock-feature-list))
+      (setq-local treesit-font-lock-feature-list
+                  (cons (cons cider--treesit-font-lock-feature
+                              (car treesit-font-lock-feature-list))
+                        (cdr treesit-font-lock-feature-list)))))
+  (treesit-font-lock-recompute-features)
+  (font-lock-flush))
+
 (defun cider-refresh-dynamic-font-lock (&optional ns)
   "Ensure that the current buffer has up-to-date font-lock rules.
 NS defaults to `cider-current-ns', and it can also be a dict describing the
@@ -1037,14 +1146,21 @@ namespace itself."
   (interactive)
   (when (and cider-font-lock-dynamically
              font-lock-mode)
-    (font-lock-remove-keywords nil cider--dynamic-font-lock-keywords)
-    (when-let* ((ns (or ns (cider-current-ns)))
-                (symbols (cider-resolve-ns-symbols ns)))
-      (setq-local cider--dynamic-font-lock-keywords
-                  (cider--compile-font-lock-keywords
-                   symbols (cider-resolve-ns-symbols (cider-resolve-core-ns))))
-      (font-lock-add-keywords nil cider--dynamic-font-lock-keywords 'end))
-    (font-lock-flush)))
+    (if (cider-clojure-ts-mode-p)
+        ;; clojure-ts-mode fontifies via tree-sitter, which ignores
+        ;; `font-lock-keywords', so drive it through `treesit-font-lock'.
+        (when-let* ((ns (or ns (cider-current-ns))))
+          (cider--treesit-refresh-dynamic-font-lock
+           (cider-resolve-ns-symbols ns)
+           (cider-resolve-ns-symbols (cider-resolve-core-ns))))
+      (font-lock-remove-keywords nil cider--dynamic-font-lock-keywords)
+      (when-let* ((ns (or ns (cider-current-ns)))
+                  (symbols (cider-resolve-ns-symbols ns)))
+        (setq-local cider--dynamic-font-lock-keywords
+                    (cider--compile-font-lock-keywords
+                     symbols (cider-resolve-ns-symbols (cider-resolve-core-ns))))
+        (font-lock-add-keywords nil cider--dynamic-font-lock-keywords 'end))
+      (font-lock-flush))))
 
 
 ;;; Detecting local variables
@@ -1310,6 +1426,8 @@ property."
     (font-lock-remove-keywords nil cider--reader-conditionals-font-lock-keywords)
     (font-lock-remove-keywords nil cider--dynamic-font-lock-keywords)
     (font-lock-remove-keywords nil cider--static-font-lock-keywords)
+    (when (cider-clojure-ts-mode-p)
+      (cider--treesit-font-lock-teardown))
     (font-lock-flush)))
 
 (defun cider-set-buffer-ns (ns)

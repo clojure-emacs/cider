@@ -24,6 +24,7 @@
 ;;; Code:
 
 (require 'buttercup)
+(require 'nrepl-dict)
 (require 'cider-mode)
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
@@ -37,6 +38,26 @@
     (expect (cider--var-namespace "a-two/var") :to-equal "a-two")
     (expect (cider--var-namespace "a.two-three.b/var-c")
             :to-equal "a.two-three.b")))
+
+(describe "cider--dynamic-font-lock-symbols"
+  (it "categorizes symbols by their nREPL metadata"
+    (let* ((cider-font-lock-dynamically t)
+           (cats (cider--dynamic-font-lock-symbols
+                  (list "a-macro" (nrepl-dict "macro" "true")
+                        "a-fn" (nrepl-dict "fn" "true")
+                        "a-var" (nrepl-dict))
+                  nil)))
+      (expect (plist-get cats :macros) :to-equal '("a-macro"))
+      (expect (plist-get cats :functions) :to-equal '("a-fn"))
+      (expect (plist-get cats :vars) :to-equal '("a-var"))))
+  (it "respects `cider-font-lock-dynamically'"
+    (let* ((cider-font-lock-dynamically '(macro))
+           (cats (cider--dynamic-font-lock-symbols
+                  (list "a-macro" (nrepl-dict "macro" "true")
+                        "a-fn" (nrepl-dict "fn" "true"))
+                  nil)))
+      (expect (plist-get cats :macros) :to-equal '("a-macro"))
+      (expect (plist-get cats :functions) :to-be nil))))
 
 (provide 'cider-mode-tests)
 
