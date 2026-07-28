@@ -527,7 +527,7 @@ Return nil when there's no REPL to render into."
 
 (defun cider--render-rich-content-popup (body content-type)
   "Render BODY of CONTENT-TYPE in the `*cider-result*' popup buffer."
-  (let ((buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode 'ancillary)))
+  (let ((buffer (cider-popup-buffer cider-result-buffer nil (cider--preferred-clojure-mode) 'ancillary)))
     (cider--popup-insert-rich-content buffer body content-type)
     t))
 
@@ -1219,7 +1219,7 @@ With an optional PRETTY-PRINT prefix it pretty-prints the result."
 (defun cider--pprint-eval-form (form)
   "Pretty print FORM in popup buffer."
   (let* ((buffer (current-buffer))
-         (result-buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode 'ancillary))
+         (result-buffer (cider-popup-buffer cider-result-buffer nil (cider--preferred-clojure-mode) 'ancillary))
          (handler (cider-popup-eval-handler result-buffer form buffer)))
     (with-current-buffer buffer
       (cider-interactive-eval (when (stringp form) form)

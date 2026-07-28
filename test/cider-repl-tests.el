@@ -290,7 +290,7 @@
       ;; fontifies partial code instead (tree-sitter is error-tolerant), so pin
       ;; the mode for a deterministic assertion.
       (let ((cider-repl-use-clojure-font-lock t)
-            (cider-clojure-font-lock-mode 'clojure-mode)
+            (cider-preferred-clojure-mode 'clojure-mode)
             (cider-repl-result-prefix ""))
         (cider-repl-reset-markers)
         (cider-repl-emit-result (current-buffer) "((" t)

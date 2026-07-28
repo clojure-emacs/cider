@@ -520,7 +520,7 @@ current-namespace."
   "Print the current value of the inspector."
   (interactive)
   (cider-ensure-session)
-  (let ((buffer (cider-popup-buffer cider-result-buffer nil 'clojure-mode 'ancillary)))
+  (let ((buffer (cider-popup-buffer cider-result-buffer nil (cider--preferred-clojure-mode) 'ancillary)))
     (cider-nrepl-send-request
      `("op" "cider/inspect-print-current-value"
        ,@(cider--nrepl-print-request-plist fill-column))

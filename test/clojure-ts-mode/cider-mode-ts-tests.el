@@ -91,6 +91,16 @@
         (cider--treesit-font-lock-teardown)
         (expect (length treesit-font-lock-settings) :to-equal base)))))
 
+(describe "cider popup buffers honoring the preferred mode"
+  (it "opens a clojure-ts-mode popup when clojure-ts-mode is preferred"
+    (let* ((cider-preferred-clojure-mode 'clojure-ts-mode)
+           (buf (cider-make-popup-buffer "*cider-ts-popup-test*"
+                                         (cider--preferred-clojure-mode))))
+      (unwind-protect
+          (with-current-buffer buf
+            (expect major-mode :to-be 'clojure-ts-mode))
+        (kill-buffer buf)))))
+
 (describe "static tree-sitter font-lock"
   (it "highlights the #break/#dbg/#light debugging reader tags"
     (with-clojure-ts-buffer "#break (+ 1 2)\n"

@@ -92,7 +92,7 @@ buffer."
 
 (describe "cider-font-lock-as-clojure with clojure-ts-mode"
   (it "fontifies a snippet via tree-sitter when so configured"
-    (let ((cider-clojure-font-lock-mode 'clojure-ts-mode))
+    (let ((cider-preferred-clojure-mode 'clojure-ts-mode))
       (let ((s (cider-font-lock-as-clojure "(defn foo [x] :kw)")))
         (expect (get-text-property (string-search "defn" s) 'face s)
                 :to-equal 'font-lock-keyword-face)
