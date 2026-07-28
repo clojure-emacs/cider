@@ -40,7 +40,6 @@
 (require 'tramp)
 (require 'tramp-sh)
 
-(require 'clojure-mode)
 (require 'nrepl-client)
 
 (require 'cider-common)

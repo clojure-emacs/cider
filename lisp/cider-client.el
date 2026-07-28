@@ -31,7 +31,6 @@
 (require 'subr-x)
 (require 'parseedn)
 
-(require 'clojure-mode)
 (require 'spinner)
 
 (require 'cider-session)

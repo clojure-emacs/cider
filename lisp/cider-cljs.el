@@ -39,7 +39,6 @@
 (require 'subr-x)
 
 (require 'parseedn)
-(require 'clojure-mode)
 
 (require 'cider-client)
 (require 'nrepl-dict)
