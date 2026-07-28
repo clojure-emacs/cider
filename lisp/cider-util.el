@@ -44,6 +44,12 @@
 (require 'clojure-mode)
 (require 'nrepl-dict)
 
+;; Optional clojure-ts-mode / tree-sitter support (Emacs 29+); guarded at
+;; runtime by `cider--clojure-ts-mode-available-p'.
+(declare-function treesit-ready-p "treesit")
+(declare-function major-mode-remap "subr")
+(defvar major-mode-remap-alist)
+
 (defalias 'cider-pop-back #'pop-tag-mark)
 
 ;;; Clojure syntax helpers
@@ -436,12 +442,62 @@ Unless you specify a BUFFER it will default to the current one."
       (goto-char beg)
       (insert (cider-font-lock-as mode text)))))
 
+(defcustom cider-clojure-font-lock-mode 'auto
+  "Which Clojure major mode to use when font-locking Clojure snippets.
+CIDER renders Clojure code (REPL input and results, doc examples, debug
+and enlighten overlays, xref labels, and so on) by font-locking it in a
+hidden buffer.  This controls which major mode does that fontification:
+
+  `auto' (the default): use `clojure-ts-mode' when Clojure source files
+  open in it and its tree-sitter grammar is ready, otherwise `clojure-mode'.
+  `clojure-mode': always use `clojure-mode'.
+  `clojure-ts-mode': use `clojure-ts-mode' when available, else fall back
+  to `clojure-mode'."
+  :type '(choice (const :tag "Auto-detect" auto)
+                 (const :tag "clojure-mode" clojure-mode)
+                 (const :tag "clojure-ts-mode" clojure-ts-mode))
+  :group 'cider
+  :package-version '(cider . "2.1.0"))
+
+(defun cider--clojure-ts-mode-available-p ()
+  "Return non-nil if `clojure-ts-mode' and the Clojure grammar are usable."
+  (and (fboundp 'clojure-ts-mode)
+       (featurep 'treesit)
+       (treesit-ready-p 'clojure t)))
+
+(defun cider--clojure-ts-mode-preferred-p ()
+  "Return non-nil when Clojure source files open in `clojure-ts-mode'.
+Handles both mechanisms clojure-ts-mode registers with: remapping
+`clojure-mode' and a direct `auto-mode-alist' entry for Clojure files."
+  (or (eq 'clojure-ts-mode
+          (if (fboundp 'major-mode-remap)
+              (major-mode-remap 'clojure-mode)
+            (and (boundp 'major-mode-remap-alist)
+                 (alist-get 'clojure-mode major-mode-remap-alist))))
+      (eq 'clojure-ts-mode
+          (assoc-default "a.clj" auto-mode-alist #'string-match-p))))
+
+(defun cider--clojure-font-lock-mode ()
+  "Return the major mode to use for font-locking Clojure snippets.
+Resolves `cider-clojure-font-lock-mode', falling back to `clojure-mode'
+whenever `clojure-ts-mode' or its grammar is unavailable."
+  (pcase cider-clojure-font-lock-mode
+    ('clojure-mode 'clojure-mode)
+    ('clojure-ts-mode (if (cider--clojure-ts-mode-available-p)
+                          'clojure-ts-mode
+                        'clojure-mode))
+    (_ (if (and (cider--clojure-ts-mode-available-p)
+                (cider--clojure-ts-mode-preferred-p))
+           'clojure-ts-mode
+         'clojure-mode))))
+
 (defun cider-font-lock-as-clojure (string)
-  "Font-lock STRING as Clojure code."
+  "Font-lock STRING as Clojure code.
+The major mode used is chosen by `cider-clojure-font-lock-mode'."
   ;; If something goes wrong (e.g. the code is not balanced)
   ;; we simply return the string.
   (condition-case nil
-      (cider-font-lock-as 'clojure-mode string)
+      (cider-font-lock-as (cider--clojure-font-lock-mode) string)
     (error string)))
 
 ;; Button allowing use of `font-lock-face', ignoring any inherited `face'

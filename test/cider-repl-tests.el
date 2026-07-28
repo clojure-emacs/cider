@@ -286,7 +286,11 @@
 
   (it "leaves a value that is unbalanced as a whole untouched, without error"
     (with-temp-buffer
+      ;; This exercises clojure-mode's bail-on-unbalanced path; clojure-ts-mode
+      ;; fontifies partial code instead (tree-sitter is error-tolerant), so pin
+      ;; the mode for a deterministic assertion.
       (let ((cider-repl-use-clojure-font-lock t)
+            (cider-clojure-font-lock-mode 'clojure-mode)
             (cider-repl-result-prefix ""))
         (cider-repl-reset-markers)
         (cider-repl-emit-result (current-buffer) "((" t)
