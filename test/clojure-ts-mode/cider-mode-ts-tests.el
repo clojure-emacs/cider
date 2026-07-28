@@ -74,9 +74,26 @@
             (cider-font-lock-dynamically t))
         (cider--treesit-refresh-dynamic-font-lock
          (list "my-fn" (nrepl-dict "fn" "true")) nil)
+        (cider--treesit-install-static-font-lock)
         (expect (length treesit-font-lock-settings) :to-be-greater-than base)
         (cider--treesit-font-lock-teardown)
         (expect (length treesit-font-lock-settings) :to-equal base)))))
+
+(describe "static tree-sitter font-lock"
+  (it "highlights the #break/#dbg/#light debugging reader tags"
+    (with-clojure-ts-buffer "#break (+ 1 2)\n"
+      (font-lock-mode 1)
+      (cider--treesit-install-static-font-lock)
+      (font-lock-ensure)
+      (expect (cider-mode-ts-tests--face-at "break")
+              :to-equal 'font-lock-warning-face)))
+  (it "leaves ordinary reader tags alone"
+    (with-clojure-ts-buffer "#uuid \"x\"\n"
+      (font-lock-mode 1)
+      (cider--treesit-install-static-font-lock)
+      (font-lock-ensure)
+      (expect (cider-mode-ts-tests--face-at "uuid")
+              :not :to-equal 'font-lock-warning-face))))
 
 (provide 'cider-mode-ts-tests)
 

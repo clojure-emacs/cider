@@ -1062,6 +1062,29 @@ its nREPL metadata dict, as returned by `cider-resolve-ns-symbols'."
 (defconst cider--treesit-font-lock-feature 'cider-dynamic
   "Feature name for CIDER's tree-sitter dynamic font-lock rules.")
 
+(defconst cider--treesit-static-font-lock-feature 'cider-static
+  "Feature name for CIDER's fixed tree-sitter font-lock rules.")
+
+(defun cider--treesit-install-font-lock (feature rules)
+  "Install RULES under FEATURE in the current buffer's treesit settings.
+Replace any prior settings for FEATURE.  RULES are appended so they run
+after (and thus override) clojure-ts-mode's own fontification; FEATURE is
+enabled by adding it to the first, always-active feature level, without
+shifting the existing levels or mutating the shared literal.  When RULES is
+nil, FEATURE is simply removed."
+  (setq-local treesit-font-lock-settings
+              (seq-remove (lambda (s) (eq (nth 2 s) feature))
+                          treesit-font-lock-settings))
+  (when rules
+    (setq-local treesit-font-lock-settings
+                (append treesit-font-lock-settings rules))
+    (unless (memq feature (apply #'append treesit-font-lock-feature-list))
+      (setq-local treesit-font-lock-feature-list
+                  (cons (cons feature (car treesit-font-lock-feature-list))
+                        (cdr treesit-font-lock-feature-list)))))
+  (treesit-font-lock-recompute-features)
+  (font-lock-flush))
+
 (defun cider--treesit-symbol-regexp (names)
   "Return a regexp matching any of NAMES as a whole symbol name."
   (concat "\\`" (regexp-opt names) "\\'"))
@@ -1106,12 +1129,33 @@ there is nothing to highlight."
        :override t
        queries))))
 
+(defun cider--treesit-static-font-lock-rules ()
+  "Return tree-sitter rules for CIDER's fixed reader-tag highlighting.
+Highlights the `#break', `#dbg' and `#light' debugging reader tags, the
+tree-sitter counterpart of `cider--static-font-lock-keywords'."
+  (treesit-font-lock-rules
+   :language 'clojure
+   :feature cider--treesit-static-font-lock-feature
+   :override t
+   '(((tagged_or_ctor_lit
+       marker: "#" @font-lock-warning-face
+       tag: (sym_lit (sym_name) @font-lock-warning-face @cider--ts-reader-tag))
+      (:match "\\`\\(?:break\\|dbg\\|light\\)\\'" @cider--ts-reader-tag)))))
+
+(defun cider--treesit-install-static-font-lock ()
+  "Install CIDER's fixed reader-tag highlighting for the current ts buffer."
+  (cider--treesit-install-font-lock
+   cider--treesit-static-font-lock-feature
+   (cider--treesit-static-font-lock-rules)))
+
 (defun cider--treesit-font-lock-teardown ()
-  "Remove CIDER's dynamic font-lock rules from the current ts buffer."
+  "Remove CIDER's font-lock rules from the current ts buffer."
   (when (boundp 'treesit-font-lock-settings)
     (setq-local treesit-font-lock-settings
                 (seq-remove (lambda (s)
-                              (eq (nth 2 s) cider--treesit-font-lock-feature))
+                              (memq (nth 2 s)
+                                    (list cider--treesit-font-lock-feature
+                                          cider--treesit-static-font-lock-feature)))
                             treesit-font-lock-settings))
     (treesit-font-lock-recompute-features)
     (font-lock-flush)))
@@ -1119,25 +1163,9 @@ there is nothing to highlight."
 (defun cider--treesit-refresh-dynamic-font-lock (symbols-plist core-plist)
   "Install CIDER's tree-sitter dynamic font-lock from resolved symbols.
 SYMBOLS-PLIST and CORE-PLIST are as in `cider--treesit-font-lock-rules'."
-  ;; Drop our previous rules, then append the fresh ones so they run after
-  ;; (and thus override) clojure-ts-mode's own fontification.
-  (setq-local treesit-font-lock-settings
-              (seq-remove (lambda (s)
-                            (eq (nth 2 s) cider--treesit-font-lock-feature))
-                          treesit-font-lock-settings))
-  (when-let* ((rules (cider--treesit-font-lock-rules symbols-plist core-plist)))
-    (setq-local treesit-font-lock-settings
-                (append treesit-font-lock-settings rules))
-    ;; Enable our feature by adding it to the first (always-active) level,
-    ;; without shifting the existing levels or mutating the shared literal.
-    (unless (memq cider--treesit-font-lock-feature
-                  (apply #'append treesit-font-lock-feature-list))
-      (setq-local treesit-font-lock-feature-list
-                  (cons (cons cider--treesit-font-lock-feature
-                              (car treesit-font-lock-feature-list))
-                        (cdr treesit-font-lock-feature-list)))))
-  (treesit-font-lock-recompute-features)
-  (font-lock-flush))
+  (cider--treesit-install-font-lock
+   cider--treesit-font-lock-feature
+   (cider--treesit-font-lock-rules symbols-plist core-plist)))
 
 (defun cider-refresh-dynamic-font-lock (&optional ns)
   "Ensure that the current buffer has up-to-date font-lock rules.
@@ -1391,7 +1419,11 @@ property."
         (cider-eldoc-setup)
         (cider-ns-state-setup)
         (add-hook 'completion-at-point-functions #'cider-complete-at-point nil t)
-        (font-lock-add-keywords nil cider--static-font-lock-keywords)
+        ;; clojure-mode's regexp keywords are a no-op under clojure-ts-mode's
+        ;; tree-sitter fontifier, so install the tree-sitter equivalent there.
+        (if (cider-clojure-ts-mode-p)
+            (cider--treesit-install-static-font-lock)
+          (font-lock-add-keywords nil cider--static-font-lock-keywords))
         (cider-refresh-dynamic-font-lock)
         (font-lock-add-keywords nil cider--reader-conditionals-font-lock-keywords)
         ;; `font-lock-mode' might get enabled after `cider-mode'.
