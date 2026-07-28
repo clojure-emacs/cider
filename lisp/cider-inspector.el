@@ -33,6 +33,7 @@
 (require 'transient)
 (require 'cider-client)
 (require 'cider-eval)
+(require 'cider-util)
 
 ;; ===================================
 ;; Inspector Key Map and Derived Mode
@@ -131,7 +132,7 @@ override it for this buffer."
 
 (defvar cider-inspector-uninteresting-regexp
   (concat "nil"                      ; nils are not interesting
-          "\\|:" clojure--sym-regexp ; nor keywords
+          "\\|:" cider--sym-regexp ; nor keywords
           ;; FIXME: This range also matches ",", is it on purpose?
           "\\|[+-.0-9]+")            ; nor numbers. Note: BigInts, ratios etc. are interesting
   "Regexp of uninteresting and skippable values.")

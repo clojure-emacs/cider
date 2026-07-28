@@ -46,6 +46,27 @@
 
 (defalias 'cider-pop-back #'pop-tag-mark)
 
+;;; Clojure syntax helpers
+;; CIDER-owned copies of a few small clojure-mode internals, so we don't
+;; reach into its private (`clojure--…') API - which is unstable across
+;; versions and absent from clojure-ts-mode.
+
+(eval-and-compile
+  (defconst cider--sym-forbidden-rest-chars "][\";@\\^`~\(\)\{\}\\,\s\t\n\r"
+    "Chars that a Clojure symbol or namespace alias cannot contain.")
+  (defconst cider--sym-forbidden-1st-chars (concat cider--sym-forbidden-rest-chars "0-9:'")
+    "Chars that a Clojure symbol or namespace alias cannot start with.")
+  (defconst cider--sym-regexp
+    (concat "[^" cider--sym-forbidden-1st-chars "][^" cider--sym-forbidden-rest-chars "]*")
+    "A regexp matching a Clojure symbol or namespace alias."))
+
+(defun cider--looking-at-non-logical-sexp ()
+  "Return non-nil if text after point is a \"non-logical\" sexp.
+\"Non-logical\" sexps are ^metadata and #reader.macros."
+  (comment-normalize-vars t) ;; `t': avoid prompts
+  (comment-forward (point-max))
+  (looking-at-p "\\(?:#?\\^\\)\\|#:?:?[[:alpha:]]"))
+
 (defcustom cider-font-lock-max-length 10000
   "The max length of strings to fontify in `cider-font-lock-as'.
 
@@ -278,7 +299,7 @@ instead."
 Skip any non-logical sexps like ^metadata or #reader macros.
 If SKIP is an integer, also skip that many logical sexps first.
 Can only error if SKIP is non-nil."
-  (while (clojure--looking-at-non-logical-sexp)
+  (while (cider--looking-at-non-logical-sexp)
     (forward-sexp 1))
   (when (and skip (> skip 0))
     (dotimes (_ skip)
@@ -685,7 +706,7 @@ restore it properly when going back."
     (rx-to-string
      `(or (: "`" (group-n 1 (+ (not space))) "`")  ; `var`
           (: "[[" (group-n 1 (+ (not space))) "]]") ; [[var]]
-          (group-n 1 (regexp ,clojure--sym-regexp) "/" (regexp ,clojure--sym-regexp))))) ;; Fully qualified
+          (group-n 1 (regexp ,cider--sym-regexp) "/" (regexp ,cider--sym-regexp))))) ;; Fully qualified
   "The regexp used to search Clojure vars in doc buffers."
   :type 'regexp
   :safe #'stringp
