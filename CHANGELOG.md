@@ -9,6 +9,7 @@
 ### New features
 
 - [#4142](https://github.com/clojure-emacs/cider/pull/4142): Bring CIDER's dynamic font-locking (highlighting REPL-defined macros, functions, vars and deprecated/instrumented/traced symbols) to `clojure-ts-mode` buffers via tree-sitter; previously it only worked under `clojure-mode`.
+- [#4145](https://github.com/clojure-emacs/cider/pull/4145): Add `cider-clojure-font-lock-mode` (default `auto`) controlling which Clojure major mode CIDER uses to font-lock the code it renders (REPL input/results, doc examples, overlays, xref labels, etc.); when set to (or auto-detecting) `clojure-ts-mode`, those snippets get tree-sitter highlighting instead of `clojure-mode`'s.
 - [#4143](https://github.com/clojure-emacs/cider/pull/4143): Highlight the `#break`/`#dbg`/`#light` debugging reader tags in `clojure-ts-mode` buffers too.
 - [#4117](https://github.com/clojure-emacs/cider/pull/4117): Add `cider-use-completing-read-for-symbol` (off by default): when enabled, symbol prompts (e.g. `cider-doc`, `cider-find-var`) read through `completing-read` over a lazy, runtime-backed collection, so they work with `completing-read` UIs (Vertico, Ivy, Helm) and annotate candidates with their type and namespace.
 - [#4129](https://github.com/clojure-emacs/cider/pull/4129): Render completion annotations as an aligned type/namespace column (via an `affixation-function`) in UIs that support it, such as the built-in `*Completions*`, Corfu and Vertico.
