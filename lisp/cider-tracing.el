@@ -99,7 +99,7 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
 
 (defun cider-list-traced--render (nses vars)
   "Render the traced NSES and VARS in `cider-traced-buffer'."
-  (with-current-buffer (cider-popup-buffer cider-traced-buffer 'select 'clojure-mode)
+  (with-current-buffer (cider-popup-buffer cider-traced-buffer 'select (cider--preferred-clojure-mode))
     (let ((inhibit-read-only t))
       (erase-buffer)
       (when nses

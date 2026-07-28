@@ -442,11 +442,12 @@ Unless you specify a BUFFER it will default to the current one."
       (goto-char beg)
       (insert (cider-font-lock-as mode text)))))
 
-(defcustom cider-clojure-font-lock-mode 'auto
-  "Which Clojure major mode to use when font-locking Clojure snippets.
-CIDER renders Clojure code (REPL input and results, doc examples, debug
-and enlighten overlays, xref labels, and so on) by font-locking it in a
-hidden buffer.  This controls which major mode does that fontification:
+(defcustom cider-preferred-clojure-mode 'auto
+  "Which Clojure major mode CIDER should use for the Clojure it produces.
+This governs both the font-locking of Clojure snippets CIDER renders (REPL
+input and results, doc examples, debug and enlighten overlays, xref labels,
+and so on) and the major mode of the Clojure display buffers it pops up
+\(macroexpansion, results, tracing, and the like):
 
   `auto' (the default): use `clojure-ts-mode' when Clojure source files
   open in it and its tree-sitter grammar is ready, otherwise `clojure-mode'.
@@ -477,11 +478,11 @@ Handles both mechanisms clojure-ts-mode registers with: remapping
       (eq 'clojure-ts-mode
           (assoc-default "a.clj" auto-mode-alist #'string-match-p))))
 
-(defun cider--clojure-font-lock-mode ()
-  "Return the major mode to use for font-locking Clojure snippets.
-Resolves `cider-clojure-font-lock-mode', falling back to `clojure-mode'
+(defun cider--preferred-clojure-mode ()
+  "Return the Clojure major mode CIDER should use for the code it produces.
+Resolves `cider-preferred-clojure-mode', falling back to `clojure-mode'
 whenever `clojure-ts-mode' or its grammar is unavailable."
-  (pcase cider-clojure-font-lock-mode
+  (pcase cider-preferred-clojure-mode
     ('clojure-mode 'clojure-mode)
     ('clojure-ts-mode (if (cider--clojure-ts-mode-available-p)
                           'clojure-ts-mode
@@ -493,11 +494,11 @@ whenever `clojure-ts-mode' or its grammar is unavailable."
 
 (defun cider-font-lock-as-clojure (string)
   "Font-lock STRING as Clojure code.
-The major mode used is chosen by `cider-clojure-font-lock-mode'."
+The major mode used is chosen by `cider-preferred-clojure-mode'."
   ;; If something goes wrong (e.g. the code is not balanced)
   ;; we simply return the string.
   (condition-case nil
-      (cider-font-lock-as (cider--clojure-font-lock-mode) string)
+      (cider-font-lock-as (cider--preferred-clojure-mode) string)
     (error string)))
 
 ;; Button allowing use of `font-lock-face', ignoring any inherited `face'
