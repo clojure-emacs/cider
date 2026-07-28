@@ -67,6 +67,18 @@
       (expect (cider-mode-ts-tests--face-at "my-fn")
               :to-equal 'font-lock-function-name-face)))
 
+  (it "does not highlight a local that shadows a resolved symbol"
+    (with-clojure-ts-buffer "(let [my-fn 1] my-fn)\n"
+      (font-lock-mode 1)
+      (let ((cider-font-lock-dynamically t))
+        (cider--treesit-refresh-dynamic-font-lock
+         (list "my-fn" (nrepl-dict "fn" "true")) nil))
+      ;; Simulate CIDER's locals detection marking `my-fn' as a local.
+      (put-text-property (point-min) (point-max) 'cider-locals '("my-fn"))
+      (font-lock-ensure)
+      (expect (cider-mode-ts-tests--face-at "my-fn")
+              :not :to-equal 'font-lock-function-name-face)))
+
   (it "tears down its rules, leaving clojure-ts-mode's own settings intact"
     (with-clojure-ts-buffer "(my-fn 1)\n"
       (font-lock-mode 1)
