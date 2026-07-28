@@ -639,3 +639,29 @@ and some other vars (like clojure.core/filter).
       (expect (string-match-p blocked "http://example.com/pixel.png") :to-be-truthy)
       (expect (string-match-p blocked "https://example.com/x.png") :to-be-truthy)
       (expect (string-match-p blocked "data:image/png;base64,AAAA") :to-be nil))))
+
+(describe "cider--clojure-font-lock-mode"
+  (it "always uses clojure-mode when configured to"
+    (let ((cider-clojure-font-lock-mode 'clojure-mode))
+      (spy-on 'cider--clojure-ts-mode-available-p :and-return-value t)
+      (spy-on 'cider--clojure-ts-mode-preferred-p :and-return-value t)
+      (expect (cider--clojure-font-lock-mode) :to-equal 'clojure-mode)))
+  (it "uses clojure-ts-mode when configured to and it is available"
+    (let ((cider-clojure-font-lock-mode 'clojure-ts-mode))
+      (spy-on 'cider--clojure-ts-mode-available-p :and-return-value t)
+      (expect (cider--clojure-font-lock-mode) :to-equal 'clojure-ts-mode)))
+  (it "falls back to clojure-mode when clojure-ts-mode is unavailable"
+    (let ((cider-clojure-font-lock-mode 'clojure-ts-mode))
+      (spy-on 'cider--clojure-ts-mode-available-p :and-return-value nil)
+      (expect (cider--clojure-font-lock-mode) :to-equal 'clojure-mode)))
+  (describe "auto"
+    (it "uses clojure-ts-mode when available and preferred"
+      (let ((cider-clojure-font-lock-mode 'auto))
+        (spy-on 'cider--clojure-ts-mode-available-p :and-return-value t)
+        (spy-on 'cider--clojure-ts-mode-preferred-p :and-return-value t)
+        (expect (cider--clojure-font-lock-mode) :to-equal 'clojure-ts-mode)))
+    (it "uses clojure-mode when clojure-ts-mode is not the preferred mode"
+      (let ((cider-clojure-font-lock-mode 'auto))
+        (spy-on 'cider--clojure-ts-mode-available-p :and-return-value t)
+        (spy-on 'cider--clojure-ts-mode-preferred-p :and-return-value nil)
+        (expect (cider--clojure-font-lock-mode) :to-equal 'clojure-mode)))))

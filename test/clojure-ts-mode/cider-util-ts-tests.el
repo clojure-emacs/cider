@@ -90,6 +90,15 @@ buffer."
       (expect (cider-keyword-at-point-p) :not :to-be-truthy)
       (expect (cider-keyword-at-point-p (point)) :not :to-be-truthy))))
 
+(describe "cider-font-lock-as-clojure with clojure-ts-mode"
+  (it "fontifies a snippet via tree-sitter when so configured"
+    (let ((cider-clojure-font-lock-mode 'clojure-ts-mode))
+      (let ((s (cider-font-lock-as-clojure "(defn foo [x] :kw)")))
+        (expect (get-text-property (string-search "defn" s) 'face s)
+                :to-equal 'font-lock-keyword-face)
+        (expect (get-text-property (string-search ":kw" s) 'face s)
+                :to-equal 'clojure-ts-keyword-face)))))
+
 (describe "cider-defun-at-point inside a comment form"
   (it "returns the whole comment form by default"
     (with-clojure-ts-buffer "(comment (+ 1| 2))"
