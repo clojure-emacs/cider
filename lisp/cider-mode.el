@@ -56,6 +56,8 @@
 ;; compiler happy there.
 (declare-function treesit-font-lock-rules "treesit")
 (declare-function treesit-font-lock-recompute-features "treesit")
+(declare-function treesit-node-start "treesit")
+(declare-function treesit-node-text "treesit")
 (defvar treesit-font-lock-settings)
 (defvar treesit-font-lock-feature-list)
 
@@ -1089,6 +1091,16 @@ nil, FEATURE is simply removed."
   "Return a regexp matching any of NAMES as a whole symbol name."
   (concat "\\`" (regexp-opt names) "\\'"))
 
+(defun cider--treesit-not-local-p (node)
+  "Return non-nil unless NODE is a local var or in a blocked region.
+Tree-sitter counterpart of `cider--unless-local-match': a symbol shadowed
+by a local binding (per the `cider-locals' text property) should keep its
+own face rather than the dynamic one."
+  (let ((start (treesit-node-start node)))
+    (not (or (get-text-property start 'cider-block-dynamic-font-lock)
+             (member (treesit-node-text node)
+                     (get-text-property start 'cider-locals))))))
+
 (defun cider--treesit-font-lock-rules (symbols-plist core-plist)
   "Return tree-sitter font-lock settings for SYMBOLS-PLIST and CORE-PLIST.
 The Clojure counterpart to `cider--compile-font-lock-keywords', producing
@@ -1116,9 +1128,11 @@ there is nothing to highlight."
                          ;; Macros only in call position, like the clojure-mode
                          ;; rule that requires a preceding \"(\".
                          `((list_lit :anchor (sym_lit (sym_name) ,cap))
-                           (:match ,re ,cap))
+                           (:match ,re ,cap)
+                           (:pred cider--treesit-not-local-p ,cap))
                        `((sym_lit (sym_name) ,cap)
-                         (:match ,re ,cap)))))))
+                         (:match ,re ,cap)
+                         (:pred cider--treesit-not-local-p ,cap)))))))
     (when queries
       ;; Pass all pattern/predicate groups as a single query (like
       ;; clojure-ts-mode's own multi-pattern features), not as separate query
