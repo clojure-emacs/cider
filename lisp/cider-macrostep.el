@@ -553,7 +553,9 @@ The buffer is a `clojure-mode' popup whose `cider-buffer-ns' is NS so the
 expander resolves vars as it would in the originating buffer.  Point is left
 right after the inserted form, ready for `cider-macrostep-expand'."
   (with-current-buffer
-      (cider-popup-buffer cider-macrostep-buffer 'select (cider--preferred-clojure-mode) 'ancillary)
+      ;; Stays clojure-mode: the `macrostep' package's stepping session relies
+      ;; on clojure-mode and breaks under clojure-ts-mode.
+      (cider-popup-buffer cider-macrostep-buffer 'select 'clojure-mode 'ancillary)
     (setq cider-buffer-ns ns
           cider-macrostep--popup t)
     (let ((inhibit-read-only t))
