@@ -650,10 +650,14 @@ REASON is a keyword describing why this buffer was necessary."
     (search-forward-regexp (concat "\\_<" (regexp-quote key) "\\_>")
                            limit 'noerror)))
 
+(defvar cider-debug--comment-macro-regexp
+  (rx (seq (+ (seq "#_" (* " ")))) (group-n 1 (not (any " "))))
+  "Regexp matching the start of a #_ reader-macro comment sexp.
+The beginning of match-group 1 is before the discarded sexp.")
+
 (defun cider--debug-skip-discarded-forms ()
   "Skip past all forms discarded with the #_ reader macro."
-  ;; Logic taken from `clojure--search-comment-macro-internal'
-  (while (looking-at (concat "[ ,\r\t\n]*" clojure--comment-macro-regexp))
+  (while (looking-at (concat "[ ,\r\t\n]*" cider-debug--comment-macro-regexp))
     (let ((md (match-data))
           (start (match-beginning 1)))
       (goto-char start)
@@ -684,7 +688,7 @@ key of a map, and it means \"go to the value associated with this key\"."
       ;; Navigate through sexps inside the sexp.
       (let ((in-syntax-quote nil))
         (while coordinates
-          (while (clojure--looking-at-non-logical-sexp)
+          (while (cider--looking-at-non-logical-sexp)
             (forward-sexp))
           ;; An `@x` is read as (deref x), so we pop coordinates once to account
           ;; for the extra depth, and move past the @ char.

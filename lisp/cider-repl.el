@@ -2164,6 +2164,10 @@ the history file is rewritten if `cider-repl-history-file' is set."
 (defvar cider-repl-mode-syntax-table
   (copy-syntax-table clojure-mode-syntax-table))
 
+(defconst cider-repl--prettify-symbols-alist
+  '(("fn" . ?λ))
+  "Alist used to seed `prettify-symbols-alist' in the REPL buffer.")
+
 (declare-function cider-toggle-trace-ns "cider-tracing")
 (declare-function cider-toggle-trace-var "cider-tracing")
 (declare-function cider-find-resource "cider-find")
@@ -2353,7 +2357,7 @@ the history file is rewritten if `cider-repl-history-file' is set."
   ;; Notice the interplay with `cider-repl-beginning-of-defun'.
   (setq-local beginning-of-defun-function #'cider-repl-mode-beginning-of-defun)
   (setq-local end-of-defun-function #'cider-repl-mode-end-of-defun)
-  (setq-local prettify-symbols-alist clojure--prettify-symbols-alist)
+  (setq-local prettify-symbols-alist cider-repl--prettify-symbols-alist)
   ;; apply dir-local variables to REPL buffers
   (hack-dir-local-variables-non-file-buffer)
   (cider-repl-history-load)
