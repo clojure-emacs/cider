@@ -43,7 +43,6 @@
 (require 'seq)
 (require 'subr-x)
 
-(require 'clojure-mode)
 (require 'nrepl-client)
 
 (require 'cider-util)

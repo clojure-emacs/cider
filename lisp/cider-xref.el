@@ -38,7 +38,6 @@
 (require 'cider-xref-source)
 (require 'nrepl-dict)
 
-(require 'clojure-mode)
 (require 'apropos)
 (require 'button)
 (require 'xref)
