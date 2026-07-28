@@ -1113,7 +1113,9 @@ later insertions (the eval-to-comment handler inserts the result there)."
           (set-marker beg (point))
           (insert trimmed)
           (set-marker end (point))
-          (indent-region (car bounds) block-end))
+          ;; Integer bounds, not the marker: see the `indent-region' note in
+          ;; `cider-macrostep--expand-region' (Emacs 30.1 tree-sitter bug).
+          (indent-region (car bounds) (marker-position block-end)))
       ;; no block yet: create one at the end of the buffer
       (goto-char (point-max))
       (skip-chars-backward " \t\n")
