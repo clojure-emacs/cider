@@ -480,7 +480,11 @@ Enter `cider-macrostep-mode' when it isn't already active."
           (let ((ins-beg (point-marker))
                 (ins-end (copy-marker (point) t)))
             (insert expansion)
-            (indent-region ins-beg ins-end)
+            ;; Pass integer positions, not the markers: `indent-region'
+            ;; forwards its args to `treesit-indent-region', and Emacs 30.1's
+            ;; tree-sitter chokes on marker bounds (bug in `treesit-query-capture'
+            ;; via the markdown-inline range update clojure-ts-mode installs).
+            (indent-region (marker-position ins-beg) (marker-position ins-end))
             (let ((ov (make-overlay ins-beg ins-end)))
               (overlay-put ov 'cider-macrostep-original-text original)
               (overlay-put ov 'priority (if parent
@@ -549,13 +553,12 @@ sub-forms."
 
 (defun cider-macrostep--popup-buffer (code ns)
   "Pop to the macrostep buffer seeded with CODE, expanded in namespace NS.
-The buffer is a `clojure-mode' popup whose `cider-buffer-ns' is NS so the
-expander resolves vars as it would in the originating buffer.  Point is left
-right after the inserted form, ready for `cider-macrostep-expand'."
+The buffer is a Clojure popup (see `cider-preferred-clojure-mode') whose
+`cider-buffer-ns' is NS so the expander resolves vars as it would in the
+originating buffer.  Point is left right after the inserted form, ready for
+`cider-macrostep-expand'."
   (with-current-buffer
-      ;; Stays clojure-mode: the `macrostep' package's stepping session relies
-      ;; on clojure-mode and breaks under clojure-ts-mode.
-      (cider-popup-buffer cider-macrostep-buffer 'select 'clojure-mode 'ancillary)
+      (cider-popup-buffer cider-macrostep-buffer 'select (cider--preferred-clojure-mode) 'ancillary)
     (setq cider-buffer-ns ns
           cider-macrostep--popup t)
     (let ((inhibit-read-only t))
