@@ -1214,12 +1214,28 @@ namespace itself."
     (ignore-errors
       (clojure-forward-logical-sexp 1)
       (let ((out nil)
-            (end (point)))
+            (end (point))
+            (or-regions nil))
         (forward-sexp -1)
-        ;; FIXME: This returns locals found inside the :or clause of a
-        ;; destructuring map.
+        ;; Record the bounds of any `:or' default maps.  Their contents are
+        ;; default *expressions* (references, not locals); the bound names
+        ;; come from the `:keys'/`:syms'/... side of the same destructuring
+        ;; form, so we skip anything found inside these regions below.
+        (save-excursion
+          (while (search-forward-regexp "\\_<:or\\_>" end 'noerror)
+            (ignore-errors
+              (let ((start (point)))
+                (forward-sexp 1)
+                (push (cons start (point)) or-regions)))))
         (while (search-forward-regexp "\\_<[^:&]\\(\\sw\\|\\s_\\)*\\_>" end 'noerror)
-          (push (match-string-no-properties 0) out))
+          (let ((beg (match-beginning 0))
+                (fin (match-end 0))
+                (in-or-map nil))
+            (dolist (region or-regions)
+              (when (and (>= beg (car region)) (<= fin (cdr region)))
+                (setq in-or-map t)))
+            (unless in-or-map
+              (push (match-string-no-properties 0) out))))
         out))))
 
 (defun cider--read-locals-from-bindings-vector ()
