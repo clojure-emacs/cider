@@ -355,7 +355,9 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ("nREPL" :active (cider-connected-p)
      ["List nREPL middleware" cider-list-nrepl-middleware]
      ["Describe nREPL session" cider-describe-nrepl-session]
-     ["Toggle message logging" nrepl-toggle-message-logging]))
+     ["Log protocol messages" nrepl-toggle-message-logging
+      :style toggle :selected nrepl-log-messages]
+     ["Show nREPL messages" nrepl-show-messages]))
   "Menu for CIDER mode.")
 
 (defconst cider-mode-eval-menu
