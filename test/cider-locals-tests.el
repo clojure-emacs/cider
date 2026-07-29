@@ -74,6 +74,11 @@
     (cider--test-with-content ("[a |^ints {:keys [my nombre]} c]"
                                "[a |^:type-hint #macro {:keys [my nombre]} c]")
         ("my" "nombre")
+      (cider--read-locals-from-next-sexp)))
+
+  (it "skips the default expressions in an :or destructuring clause"
+    (cider--test-with-content ("|{:keys [a b] :or {a (default-a) b some-ref}}")
+        ("a" "b")
       (cider--read-locals-from-next-sexp))))
 
 
