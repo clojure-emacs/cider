@@ -133,8 +133,7 @@ override it for this buffer."
 (defvar cider-inspector-uninteresting-regexp
   (concat "nil"                      ; nils are not interesting
           "\\|:" cider--sym-regexp ; nor keywords
-          ;; FIXME: This range also matches ",", is it on purpose?
-          "\\|[+-.0-9]+")            ; nor numbers. Note: BigInts, ratios etc. are interesting
+          "\\|[-+.0-9]+")            ; nor numbers. Note: BigInts, ratios etc. are interesting
   "Regexp of uninteresting and skippable values.")
 
 (defun cider-inspector-open-thing-at-point ()
