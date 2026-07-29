@@ -197,13 +197,18 @@ message in the REPL area."
                                  "CIDER %s requires cider-nrepl %s, but you're currently using cider-nrepl %s. The version mismatch might break some functionality!"
                                  cider-version cider-required-middleware-version middleware-version)))))
 
-(declare-function cider-interactive-eval-handler "cider-eval")
 (declare-function cider-nrepl-send-request "cider-client")
-;; TODO: Use some null handler here
+(declare-function cider-emit-interactive-eval-output "cider-eval")
+(declare-function cider-emit-interactive-eval-err-output "cider-eval")
 (defun cider--subscribe-repl-to-server-out ()
   "Subscribe to the nREPL server's *out*."
+  ;; Server *out* only streams stdout/stderr, so use a minimal handler that
+  ;; routes just those, rather than the full interactive-eval handler with its
+  ;; value/done/error machinery.
   (cider-nrepl-send-request '("op" "cider/out-subscribe")
-                            (cider-interactive-eval-handler (current-buffer))))
+                            (nrepl-make-eval-handler
+                             :on-stdout #'cider-emit-interactive-eval-output
+                             :on-stderr #'cider-emit-interactive-eval-err-output)))
 
 (defvar cider-mode)
 (declare-function cider-mode "cider-mode")
