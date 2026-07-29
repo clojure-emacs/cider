@@ -587,3 +587,22 @@
             (let ((request (car (spy-calls-args-for 'nrepl-send-request 0))))
               (expect (member "enlighten" request) :not :to-be-truthy)))
         (kill-buffer conn)))))
+
+(describe "nrepl-show-messages"
+  (before-each
+    ;; No message-log buffers exist, so exercise the "nothing to show" paths.
+    (spy-on 'buffer-list :and-return-value nil))
+  (it "offers to enable logging when it is disabled"
+    (let ((nrepl-log-messages nil))
+      (spy-on 'y-or-n-p :and-return-value t)
+      (nrepl-show-messages)
+      (expect 'y-or-n-p :to-have-been-called)
+      (expect nrepl-log-messages :to-be t)))
+  (it "leaves logging disabled when the user declines"
+    (let ((nrepl-log-messages nil))
+      (spy-on 'y-or-n-p :and-return-value nil)
+      (nrepl-show-messages)
+      (expect nrepl-log-messages :to-be nil)))
+  (it "errors when logging is on but nothing has been captured yet"
+    (let ((nrepl-log-messages t))
+      (expect (nrepl-show-messages) :to-throw 'user-error))))

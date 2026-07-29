@@ -1431,16 +1431,21 @@ This in effect enables or disables the logging of nREPL messages."
 (defun nrepl-show-messages ()
   "Pop up an nREPL messages buffer.
 With more than one active connection, prompt for which one to show.
-If `nrepl-log-messages' is nil no buffer exists yet, so signal an
-error pointing at `nrepl-toggle-message-logging'."
+When message logging is disabled (`nrepl-log-messages'), offer to enable
+it; the log then fills as nREPL traffic flows."
   (interactive)
   (let ((buffers (seq-filter (lambda (b)
                                (with-current-buffer b
                                  (derived-mode-p 'nrepl-messages-mode)))
                              (buffer-list))))
     (pcase (length buffers)
-      (0 (user-error "No nREPL messages buffer exists; enable logging with `nrepl-toggle-message-logging'"))
       (1 (pop-to-buffer (car buffers)))
+      (0 (cond
+          (nrepl-log-messages
+           (user-error "nREPL message logging is on, but nothing has been logged yet"))
+          ((y-or-n-p "nREPL message logging is disabled; enable it? ")
+           (setq nrepl-log-messages t)
+           (message "nREPL message logging enabled; the log will fill as traffic flows"))))
       (_ (pop-to-buffer
           (get-buffer
            (completing-read "nREPL messages buffer: "
