@@ -474,3 +474,10 @@
   (it "errors on an invalid direction"
     (expect (with-temp-buffer (cider-find-inspectable-object 'sideways (point-max)))
             :to-throw 'error)))
+
+(describe "cider-inspector-uninteresting-regexp"
+  (it "matches uninteresting scalar values (nil, keywords, numbers)"
+    (dolist (s '("nil" ":foo" "42" "-3" "1.5" "+7"))
+      (expect (string-match-p cider-inspector-uninteresting-regexp s) :to-be-truthy)))
+  (it "does not treat a comma as an uninteresting value"
+    (expect (string-match-p cider-inspector-uninteresting-regexp ",") :to-be nil)))
