@@ -21,6 +21,7 @@
 
 ### Bugs fixed
 
+- [#4150](https://github.com/clojure-emacs/cider/pull/4150): Stop dropping stray output from long-lived background processes (e.g. a `core.async` go-loop still printing under a finished eval's id): once that id is evicted from the completed-requests cache, its `out`/`err` is now routed to the REPL instead of being discarded with a "No response handler with id N found" warning.
 - [#4140](https://github.com/clojure-emacs/cider/pull/4140): Fix `cider-eval-dwim` (and defun evaluation) not descending into a `(comment ...)` form in `clojure-ts-mode` buffers: it now binds `clojure-ts-toplevel-inside-comment-form` alongside the `clojure-mode` variable.
 - [#4139](https://github.com/clojure-emacs/cider/pull/4139): Fix source-based find-usages (`M-?`) missing alias- and namespace-qualified references (e.g. `m/foo`), so a var used through its alias from other namespaces is now found, not just the bare occurrences in its defining namespace.
 - [#4136](https://github.com/clojure-emacs/cider/pull/4136): Fix a custom ClojureScript REPL init form being sent unwrapped when it starts with a call like `(dorun ...)` or `(doseq ...)`, which the previous `(do` prefix check mistook for an existing `do` block.
