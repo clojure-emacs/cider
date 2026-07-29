@@ -15,6 +15,10 @@
 - [#4117](https://github.com/clojure-emacs/cider/pull/4117): Add `cider-use-completing-read-for-symbol` (off by default): when enabled, symbol prompts (e.g. `cider-doc`, `cider-find-var`) read through `completing-read` over a lazy, runtime-backed collection, so they work with `completing-read` UIs (Vertico, Ivy, Helm) and annotate candidates with their type and namespace.
 - [#4129](https://github.com/clojure-emacs/cider/pull/4129): Render completion annotations as an aligned type/namespace column (via an `affixation-function`) in UIs that support it, such as the built-in `*Completions*`, Corfu and Vertico.
 
+### Changes
+
+- [#4149](https://github.com/clojure-emacs/cider/pull/4149): Make the nREPL message log easier to reach: add "Show nREPL messages" to the nREPL menu, reflect the logging toggle's on/off state there, and have `nrepl-show-messages` offer to enable logging when it's off instead of erroring.
+
 ### Bugs fixed
 
 - [#4140](https://github.com/clojure-emacs/cider/pull/4140): Fix `cider-eval-dwim` (and defun evaluation) not descending into a `(comment ...)` form in `clojure-ts-mode` buffers: it now binds `clojure-ts-toplevel-inside-comment-form` alongside the `clojure-mode` variable.
