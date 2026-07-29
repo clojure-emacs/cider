@@ -793,3 +793,10 @@
   (it "raises a user error if cider is not connected"
     (spy-on 'cider-connected-p :and-return-value nil)
     (expect (cider-restart) :to-throw 'user-error)))
+
+(describe "cider--subscribe-repl-to-server-out"
+  (it "sends the out-subscribe op"
+    (spy-on 'cider-nrepl-send-request)
+    (cider--subscribe-repl-to-server-out)
+    (expect (car (spy-calls-args-for 'cider-nrepl-send-request 0))
+            :to-equal '("op" "cider/out-subscribe"))))
