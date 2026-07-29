@@ -334,6 +334,14 @@ the server didn't supply one."
     (string-trim (or (nrepl-dict-get response "err")
                      "This operation isn't available in a ClojureScript REPL."))))
 
+(defvar nrepl-orphaned-output-function nil
+  "Function called with a RESPONSE whose id has no registered handler.
+It runs in the connection buffer and should return non-nil when it handled
+the response (e.g. emitted its stdout/stderr somewhere), or nil to let the
+dispatcher log the usual \"No response handler\" message.  Higher layers
+\(CIDER) set this to route stray output - such as prints from a long-lived
+core.async go-loop still using a completed eval's id - to the REPL.")
+
 (defun nrepl--dispatch-response (response)
   "Dispatch the RESPONSE to associated callback.
 First we check the callbacks of pending requests.  If no callback was found,
@@ -353,9 +361,18 @@ later responses sitting in the queue."
       (message "%s" msg))
     (let ((callback (or (gethash id nrepl-pending-requests)
                         (gethash id nrepl-completed-requests))))
-      (if callback
-          (funcall callback response)
-        (message "[nREPL] No response handler with id %s found for %s" id (buffer-name))))))
+      (cond
+       (callback (funcall callback response))
+       ;; No handler: the request finished long ago and was evicted from
+       ;; `nrepl-completed-requests', yet output keeps arriving (e.g. a
+       ;; core.async go-loop still printing under the original eval's id).
+       ;; Let a higher layer route the stray output rather than dropping it.
+       ;; This must never abort the dispatcher (see the #853 history), hence
+       ;; `with-demoted-errors'.
+       ((and nrepl-orphaned-output-function
+             (with-demoted-errors "[nREPL] orphaned-response handler error: %S"
+               (funcall nrepl-orphaned-output-function response))))
+       (t (message "[nREPL] No response handler with id %s found for %s" id (buffer-name)))))))
 
 (defun nrepl-client-sentinel (process message)
   "Handle sentinel events from PROCESS.

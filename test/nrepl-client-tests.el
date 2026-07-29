@@ -606,3 +606,31 @@
   (it "errors when logging is on but nothing has been captured yet"
     (let ((nrepl-log-messages t))
       (expect (nrepl-show-messages) :to-throw 'user-error))))
+
+(describe "nrepl--dispatch-response for an orphaned id"
+  (it "routes stray output through nrepl-orphaned-output-function"
+    (with-temp-buffer
+      (setq-local nrepl-pending-requests (make-hash-table :test 'equal)
+                  nrepl-completed-requests (make-hash-table :test 'equal))
+      (let* ((seen nil)
+             (nrepl-orphaned-output-function (lambda (r) (setq seen r) t)))
+        (spy-on 'message)
+        (nrepl--dispatch-response (nrepl-dict "id" "999" "out" "hi"))
+        (expect seen :not :to-be nil)
+        (expect 'message :not :to-have-been-called))))
+  (it "warns when the handler declines to handle the response"
+    (with-temp-buffer
+      (setq-local nrepl-pending-requests (make-hash-table :test 'equal)
+                  nrepl-completed-requests (make-hash-table :test 'equal))
+      (let ((nrepl-orphaned-output-function (lambda (_r) nil)))
+        (spy-on 'message)
+        (nrepl--dispatch-response (nrepl-dict "id" "999"))
+        (expect 'message :to-have-been-called))))
+  (it "warns when there is no orphaned-output handler at all"
+    (with-temp-buffer
+      (setq-local nrepl-pending-requests (make-hash-table :test 'equal)
+                  nrepl-completed-requests (make-hash-table :test 'equal))
+      (let ((nrepl-orphaned-output-function nil))
+        (spy-on 'message)
+        (nrepl--dispatch-response (nrepl-dict "id" "999"))
+        (expect 'message :to-have-been-called)))))

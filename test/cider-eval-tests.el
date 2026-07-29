@@ -654,6 +654,17 @@
           (setq buffer-file-name (make-temp-name "tmp.clj"))
           (expect (let ((inhibit-message t)) (cider-load-buffer)) :not :to-throw))))))
 
+(describe "cider--emit-orphaned-output"
+  (it "emits stray stdout/stderr and reports that it handled the response"
+    (spy-on 'cider-emit-interactive-eval-output)
+    (spy-on 'cider-emit-interactive-eval-err-output)
+    (expect (cider--emit-orphaned-output (nrepl-dict "id" "9" "out" "hi" "err" "oops"))
+            :to-be-truthy)
+    (expect 'cider-emit-interactive-eval-output :to-have-been-called-with "hi")
+    (expect 'cider-emit-interactive-eval-err-output :to-have-been-called-with "oops"))
+  (it "returns nil when the response carries no output"
+    (expect (cider--emit-orphaned-output (nrepl-dict "id" "9")) :to-be nil)))
+
 (describe "cider-eval-dwim"
   (it "binds both comment-form toplevel vars around the eval"
     ;; So evaluating inside a `comment' form picks up the enclosed form under
