@@ -339,6 +339,19 @@ REPL buffer.  This is controlled via
 `cider-eval-output-destination'."
   (cider--emit-interactive-eval-output output 'cider-repl-emit-interactive-stderr))
 
+(defun cider--emit-orphaned-output (response)
+  "Emit RESPONSE's stdout/stderr when no handler is registered for its id.
+Return non-nil when RESPONSE carried output.  Installed as
+`nrepl-orphaned-output-function', so prints from a background process (e.g. a
+core.async go-loop still using a completed eval's id) reach the REPL instead
+of being dropped with a \"No response handler\" warning."
+  (nrepl-dbind-response response (out err)
+    (when out (cider-emit-interactive-eval-output out))
+    (when err (cider-emit-interactive-eval-err-output err))
+    (or out err)))
+
+(setq nrepl-orphaned-output-function #'cider--emit-orphaned-output)
+
 (defun cider--make-fringe-overlays-for-region (beg end)
   "Place eval indicators on all sexps between BEG and END."
   (with-current-buffer (if (markerp end)
