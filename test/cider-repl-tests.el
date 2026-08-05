@@ -527,7 +527,12 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
       (expect (substring-no-properties s) :to-match "In the REPL")
       (expect (substring-no-properties s) :to-match "From a source buffer")
       (let ((i (string-search "User manual" s)))
-        (expect (get-text-property i 'action s) :to-be-truthy)))))
+        (expect (get-text-property i 'action s) :to-be-truthy))))
+
+  (it "offers a clickable way to the launch details"
+    (let* ((s (cider-repl--help-contents))
+           (i (string-search "REPL startup info" s)))
+      (expect (get-text-property i 'action s) :to-be-truthy))))
 
 (describe "cider-repl-help"
   (it "pops up a read-only help buffer in `cider-repl-help-mode'"
