@@ -157,6 +157,23 @@
             (nrepl-dict "version-string" "0.1.0"))
     (expect (plist-get (cider-doctor--check-middleware) :status) :to-be 'warn)))
 
+(describe "cider-doctor--check-startup"
+  (it "reports the jack-in command when the REPL was jacked in"
+    (with-temp-buffer
+      (setq-local cider-launch-params '(:jack-in-cmd "clojure -M:dev:cider/nrepl"))
+      (spy-on 'cider-current-repl :and-return-value (current-buffer))
+      (let ((result (cider-doctor--check-startup)))
+        (expect (plist-get result :status) :to-be 'info)
+        (expect (plist-get result :detail) :to-equal "clojure -M:dev:cider/nrepl"))))
+
+  (it "notes that no dependencies were injected for an external server"
+    (with-temp-buffer
+      (setq-local cider-launch-params nil)
+      (spy-on 'cider-current-repl :and-return-value (current-buffer))
+      (let ((result (cider-doctor--check-startup)))
+        (expect (plist-get result :status) :to-be 'info)
+        (expect (plist-get result :label) :to-match "external nREPL server")))))
+
 (describe "cider-doctor--check-ops"
   (it "is ok when every probed op is supported"
     (spy-on 'cider-current-repl :and-return-value nil)

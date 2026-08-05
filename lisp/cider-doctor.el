@@ -178,6 +178,7 @@ Leftover deprecated settings are a frequent cause of upgrade surprises."
 (defvar cider-required-nrepl-version)
 (defvar cider-minimum-clojure-version)
 (defvar cider-required-middleware-version)
+(defvar cider-launch-params)
 
 (defconst cider-doctor--expected-ops
   '(("cider/info"                   . "symbol info, docs, source")
@@ -238,6 +239,20 @@ connection-time warning agree on what \"compatible\" means."
                             :section "troubleshooting.html#cider-complains-of-the-cider-nrepl-version"))
      (t (cider-doctor--result 'ok (format "cider-nrepl %s" ver))))))
 
+(defun cider-doctor--check-startup ()
+  "Report how the current REPL was started.
+The jack-in command spells out which aliases were used and which dependencies
+CIDER injected, which is usually what explains a middleware version mismatch,
+so it is reported right after the middleware check."
+  (let* ((repl (cider-current-repl))
+         (params (and repl (buffer-local-value 'cider-launch-params repl)))
+         (cmd (plist-get params :jack-in-cmd)))
+    (if cmd
+        (cider-doctor--result 'info "Started via jack-in" :detail cmd)
+      (cider-doctor--result
+       'info "Connected to an external nREPL server"
+       :detail "CIDER did not start this server, so it injected no dependencies."))))
+
 (defun cider-doctor--check-ops ()
   "Probe `cider-doctor--expected-ops' and report any that are missing.
 A missing op is the usual reason a feature is silently dead, so the
@@ -259,6 +274,7 @@ detail names the affected feature."
   "Run the checks that need an active connection."
   (list (cider-doctor--check-nrepl-version)
         (cider-doctor--check-middleware)
+        (cider-doctor--check-startup)
         (cider-doctor--check-clojure-runtime)
         (cider-doctor--check-ops)))
 
