@@ -502,6 +502,9 @@ code, switching namespaces and moving between the REPL and source."
     'cider-mode-map)
    "\n"
    "More:  "
+   (cider-repl--help-button "REPL startup info" #'cider-repl-describe-startup
+                            "Show how this REPL was started")
+   "    "
    (cider-repl--help-button "User manual" #'cider-view-manual
                             "Open the CIDER user manual")
    "    "
@@ -2296,6 +2299,7 @@ the history file is rewritten if `cider-repl-history-file' is set."
         ["Interrupt evaluation" cider-interrupt]
         "--"
         ["Connection info" cider-describe-connection]
+        ["Startup info" cider-repl-describe-startup]
         "--"
         ["Close ancillary buffers" cider-close-ancillary-buffers]
         ["Quit" cider-quit]
@@ -2304,6 +2308,7 @@ the history file is rewritten if `cider-repl-history-file' is set."
         ["Clojure Cheatsheet" cider-cheatsheet]
         "--"
         ["A sip of CIDER" cider-drink-a-sip]
+        ["View REPL reference" cider-repl-help]
         ["View user manual" cider-view-manual]
         ["View quick reference card" cider-view-refcard]
         ["Diagnose your setup" cider-doctor]
