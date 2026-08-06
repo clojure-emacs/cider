@@ -90,6 +90,9 @@
 
 ### Bugs fixed
 
+- [#4155](https://github.com/clojure-emacs/cider/pull/4155): `cider-format-edn-last-sexp` now formats the sexp preceding point, as its name says, instead of the (possibly partial) sexp at point.
+- [#4155](https://github.com/clojure-emacs/cider/pull/4155): `cider-sexp-at-point` treats a closing delimiter as part of the form it closes and keeps leading metadata; this fixes `cider-eval-sexp-at-point` and `cider-tap-sexp-at-point` evaluating a lone trailing atom when invoked on a closing paren.
+- [#4155](https://github.com/clojure-emacs/cider/pull/4155): The point-based eval commands (`cider-eval-sexp-at-point`, `cider-eval-list-at-point` and friends) signal a proper `user-error` instead of crashing when there's no form at point.
 - [#4107](https://github.com/clojure-emacs/cider/pull/4107): Route stdin input (and a cancel's interrupt) to the exact connection that requested it, so reads no longer misroute when several connections are active.
 - [#4106](https://github.com/clojure-emacs/cider/pull/4106): Cancelling a stdin prompt now interrupts the evaluation, instead of sending a value nREPL treated as EOF and letting the evaluation continue.
 - [#4093](https://github.com/clojure-emacs/cider/pull/4093): Fix a crash (`wrong-type-argument stringp nil`) when a REPL result is truncated by the print middleware.
@@ -120,6 +123,7 @@
 
 ### Changes
 
+- [#4155](https://github.com/clojure-emacs/cider/pull/4155): `cider-eval-defun-at-point` (`C-c C-c`/`C-M-x`) now evaluates the enclosed form when invoked inside a `comment` block, matching `cider-eval-dwim` and other Clojure editors.
 - [#4002](https://github.com/clojure-emacs/cider/pull/4002), [#4050](https://github.com/clojure-emacs/cider/pull/4050): Bump the injected `cider-nrepl` from 0.59.0 to [0.62.1](https://github.com/clojure-emacs/cider-nrepl/blob/v0.62.1/CHANGELOG.md#0621-2026-07-15) (and `piggieback` to 0.7.0); besides backing many of the features above, the new middleware honors the project's cljfmt configuration when formatting and carries a batch of debugger fixes.
 - Enable rich content in the REPL by default (`cider-repl-use-content-types` is now `t`): image results render inline, and external content (files, URLs) renders a `[show content]` button that fetches only on demand - the automatic fetching that got the feature disabled back in 0.25 ([#2825](https://github.com/clojure-emacs/cider/issues/2825)) is gone, and the server side is hardened in `cider-nrepl` 0.62.
 - [#4092](https://github.com/clojure-emacs/cider/pull/4092), [#4093](https://github.com/clojure-emacs/cider/pull/4093): Clean up the REPL's keybindings: the source-buffer eval keys no longer run the source-buffer eval path there (`C-x C-e` is a no-op at the REPL; evaluate at the prompt instead), `C-c M-m` now opens the macroexpand menu (matching `cider-mode`), and `C-c C-r` no longer injects clojure-mode's source-editing refactor map.
