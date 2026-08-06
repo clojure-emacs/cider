@@ -261,19 +261,46 @@ keywords."
 
 
 ;;; sexp navigation
+(defun cider--include-leading-metadata (b)
+  "Extend the bounds cons B backwards over leading ^metadata, if any.
+The `thing-at-point' machinery doesn't know Clojure metadata belongs to
+the form it annotates; `clojure-backward-logical-sexp' does."
+  (let ((logical-start (ignore-errors
+                         (save-excursion
+                           (goto-char (cdr b))
+                           (clojure-backward-logical-sexp 1)
+                           (point)))))
+    (if (and logical-start
+             (< logical-start (car b))
+             (eq (char-after logical-start) ?^))
+        (cons logical-start (cdr b))
+      b)))
+
 (defun cider-sexp-at-point (&optional bounds)
   "Return the sexp at point as a string, otherwise nil.
+When point is on a closing delimiter, this is the sexp it closes; leading
+metadata is considered part of the sexp.
 If BOUNDS is non-nil, return a list of its starting and ending position
 instead."
-  (when-let* ((b (or (and (equal (char-after) ?\()
-                          (member (char-before) '(?\' ?\, ?\@))
-                          ;; hide stuff before ( to avoid quirks with '( etc.
-                          (save-restriction
-                            (narrow-to-region (point) (point-max))
-                            (bounds-of-thing-at-point 'sexp)))
-                     (bounds-of-thing-at-point 'sexp))))
-    (funcall (if bounds #'list #'buffer-substring-no-properties)
-             (car b) (cdr b))))
+  (when-let* ((b (cond
+                  ;; on a closing delimiter: the form it closes
+                  ((eq (char-syntax (or (char-after) ?\s)) ?\))
+                   (ignore-errors
+                     (save-excursion
+                       (up-list 1)
+                       (let ((end (point)))
+                         (backward-sexp 1)
+                         (cons (point) end)))))
+                  ;; hide stuff before ( to avoid quirks with '( etc.
+                  ((and (equal (char-after) ?\()
+                        (member (char-before) '(?\' ?\, ?\@)))
+                   (save-restriction
+                     (narrow-to-region (point) (point-max))
+                     (bounds-of-thing-at-point 'sexp)))
+                  (t (bounds-of-thing-at-point 'sexp)))))
+    (let ((b (cider--include-leading-metadata b)))
+      (funcall (if bounds #'list #'buffer-substring-no-properties)
+               (car b) (cdr b)))))
 
 (defun cider-list-at-point (&optional bounds)
   "Return the list (compound form) at point as a string, otherwise nil.
