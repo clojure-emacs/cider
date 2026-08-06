@@ -221,14 +221,21 @@
       (with-clojure-buffer ""
         (expect (cider-sexp-at-point) :to-equal nil)))
 
-    ;; Pinned warts, fixed later in this PR:
-    (it "returns the last atom inside when on a closing paren"
+    (it "returns the closed form when on a closing paren"
       (with-clojure-buffer "(foo (bar 1|) baz)"
-        (expect (cider-sexp-at-point) :to-equal "1")))
+        (expect (cider-sexp-at-point) :to-equal "(bar 1)")))
 
-    (it "drops leading metadata"
+    (it "returns the closed form when on the closing delimiter of a map"
+      (with-clojure-buffer "{:a 1|}"
+        (expect (cider-sexp-at-point) :to-equal "{:a 1}")))
+
+    (it "keeps leading metadata"
       (with-clojure-buffer "^:foo (bar)|"
-        (expect (cider-sexp-at-point) :to-equal "(bar)")))))
+        (expect (cider-sexp-at-point) :to-equal "^:foo (bar)")))
+
+    (it "keeps leading metadata when on the closing paren"
+      (with-clojure-buffer "^:foo (bar|)"
+        (expect (cider-sexp-at-point) :to-equal "^:foo (bar)")))))
 
 (describe "cider-last-sexp"
   (describe "when the param 'bounds is not given"
