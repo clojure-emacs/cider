@@ -926,7 +926,8 @@ buffer."
 If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
   (interactive "P")
   (save-excursion
-    (goto-char (cadr (cider-list-at-point 'bounds)))
+    (goto-char (cadr (or (cider-list-at-point 'bounds)
+                         (user-error "No list at point"))))
     (cider-eval-last-sexp output-to-current-buffer)))
 
 (defun cider-eval-sexp-at-point (&optional output-to-current-buffer)
@@ -934,7 +935,8 @@ If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
 If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
   (interactive "P")
   (save-excursion
-    (goto-char (cadr (cider-sexp-at-point 'bounds)))
+    (goto-char (cadr (or (cider-sexp-at-point 'bounds)
+                         (user-error "No sexp at point"))))
     (cider-eval-last-sexp output-to-current-buffer)))
 
 (defun cider-tap-last-sexp (&optional output-to-current-buffer)
@@ -953,7 +955,8 @@ buffer."
 If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
   (interactive "P")
   (save-excursion
-    (goto-char (cadr (cider-sexp-at-point 'bounds)))
+    (goto-char (cadr (or (cider-sexp-at-point 'bounds)
+                         (user-error "No sexp at point"))))
     (cider-tap-last-sexp output-to-current-buffer)))
 
 (defvar-local cider-previous-eval-context nil
@@ -1016,7 +1019,9 @@ The context is remembered between command invocations.
 When GUESS is non-nil, or called interactively with \\[universal-argument],
 attempt to extract the context from parent let-bindings."
   (interactive "P")
-  (cider--eval-in-context (cider-sexp-at-point 'bounds) guess))
+  (cider--eval-in-context (or (cider-sexp-at-point 'bounds)
+                              (user-error "No sexp at point"))
+                          guess))
 
 (defun cider-eval-defun-to-comment (&optional insert-before)
   "Evaluate the \"top-level\" form and insert result as comment.

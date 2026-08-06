@@ -193,6 +193,26 @@
           (clojure-mode)
           (expect (cider-interactive-eval "(+ 1)") :not :to-throw))))))
 
+(describe "the point-based eval commands with no form at point"
+  ;; These used to crash with (wrong-type-argument integer-or-marker-p nil)
+  ;; when the respective primitive found nothing (e.g. an empty buffer, or
+  ;; right after a top-level form for `cider-eval-list-at-point').
+  (it "cider-eval-sexp-at-point signals a user-error"
+    (with-clojure-buffer ""
+      (expect (cider-eval-sexp-at-point) :to-throw 'user-error)))
+
+  (it "cider-tap-sexp-at-point signals a user-error"
+    (with-clojure-buffer ""
+      (expect (cider-tap-sexp-at-point) :to-throw 'user-error)))
+
+  (it "cider-eval-sexp-at-point-in-context signals a user-error"
+    (with-clojure-buffer ""
+      (expect (cider-eval-sexp-at-point-in-context nil) :to-throw 'user-error)))
+
+  (it "cider-eval-list-at-point signals a user-error right after a top-level form"
+    (with-clojure-buffer "(foo 1)|"
+      (expect (cider-eval-list-at-point) :to-throw 'user-error))))
+
 (describe "cider--comment-format"
   (it "returns the configured prefixes for the `line' style"
     (let ((cider-comment-style 'line)
