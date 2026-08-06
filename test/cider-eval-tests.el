@@ -700,3 +700,12 @@
       (cider-eval-dwim)
       (expect seen-clj :to-be t)
       (expect seen-ts :to-be t))))
+
+(describe "cider-eval-defun-at-point"
+  (it "targets the enclosed form inside a comment form, like cider-eval-dwim"
+    (spy-on 'cider-interactive-eval)
+    (with-clojure-buffer "(comment (+ 1| 2))"
+      (cider-eval-defun-at-point)
+      (let ((bounds (nth 2 (spy-calls-args-for 'cider-interactive-eval 0))))
+        (expect (apply #'buffer-substring-no-properties bounds)
+                :to-equal "(+ 1 2)")))))

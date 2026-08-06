@@ -1296,6 +1296,8 @@ inside a `comment' form picks up the enclosed form."
 
 (defun cider-eval-defun-at-point (&optional debug-it)
   "Evaluate the current toplevel form, and print result in the minibuffer.
+Inside a `comment' form the enclosed form is treated as the toplevel one,
+matching `cider-eval-dwim'.
 With DEBUG-IT prefix argument, also debug the entire form as with the
 command `cider-debug-defun-at-point'."
   (interactive "P")
@@ -1307,11 +1309,13 @@ command `cider-debug-defun-at-point'."
         (user-error "The debugger does not support ClojureScript"))
       (when inline-debug
         (cider--prompt-and-insert-inline-dbg)))
-    (cider-interactive-eval (when (and debug-it (not inline-debug))
-                              (concat "#dbg\n" (cider-defun-at-point)))
-                            nil
-                            (cider-defun-at-point 'bounds)
-                            (cider--nrepl-pr-request-plist))))
+    (let ((clojure-toplevel-inside-comment-form t)
+          (clojure-ts-toplevel-inside-comment-form t))
+      (cider-interactive-eval (when (and debug-it (not inline-debug))
+                                (concat "#dbg\n" (cider-defun-at-point)))
+                              nil
+                              (cider-defun-at-point 'bounds)
+                              (cider--nrepl-pr-request-plist)))))
 
 (defun cider--insert-closing-delimiters (code)
   "Closes all open parenthesized or bracketed expressions of CODE."
