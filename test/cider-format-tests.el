@@ -29,6 +29,7 @@
 
 (require 'buttercup)
 (require 'cider-format)
+(require 'cider-test-utils)
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
@@ -50,9 +51,27 @@
               :to-equal "(def s \"a\nb\")"))))
 
 (describe "cider-format-edn-last-sexp"
-  (it "signals a user-error when there is no sexp at point"
-    (spy-on 'cider-sexp-at-point :and-return-value nil)
-    (expect (cider-format-edn-last-sexp) :to-throw 'user-error)))
+  (it "formats the sexp preceding point"
+    (spy-on 'cider-format-edn-region)
+    (with-clojure-buffer "{:a 1}|"
+      (cider-format-edn-last-sexp)
+      (expect 'cider-format-edn-region :to-have-been-called-with 1 7)))
+
+  (it "targets the preceding sexp, not the one ahead"
+    (spy-on 'cider-format-edn-region)
+    (with-clojure-buffer "{:a 1} |{:b 2}"
+      (cider-format-edn-last-sexp)
+      (expect 'cider-format-edn-region :to-have-been-called-with 1 7)))
+
+  (it "keeps leading metadata"
+    (spy-on 'cider-format-edn-region)
+    (with-clojure-buffer "^:foo {:a 1}|"
+      (cider-format-edn-last-sexp)
+      (expect 'cider-format-edn-region :to-have-been-called-with 1 13)))
+
+  (it "signals a user-error in an empty buffer"
+    (with-clojure-buffer ""
+      (expect (cider-format-edn-last-sexp) :to-throw 'user-error))))
 
 (provide 'cider-format-tests)
 
