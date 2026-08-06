@@ -171,7 +171,20 @@
       (with-clojure-buffer "(1 2 3|)"
         (delete-char -1)
         (insert "'")
-        (expect (cider-list-at-point 'bounds) :to-equal '(1 8))))))
+        (expect (cider-list-at-point 'bounds) :to-equal '(1 8)))))
+
+  (describe "across cursor positions"
+    (it "returns the enclosing list from inside an atom"
+      (with-clojure-buffer "(foo (b|ar 1) baz)"
+        (expect (cider-list-at-point) :to-equal "(bar 1)")))
+
+    (it "returns the enclosing list right after a nested closing paren"
+      (with-clojure-buffer "(foo (bar 1)| baz)"
+        (expect (cider-list-at-point) :to-equal "(foo (bar 1) baz)")))
+
+    (it "returns nil right after a top-level form"
+      (with-clojure-buffer "(foo 1)|"
+        (expect (cider-list-at-point) :to-equal nil)))))
 
 (describe "cider-sexp-at-point"
   (describe "when the param 'bounds is not given"
@@ -189,7 +202,33 @@
       (with-clojure-buffer "a\n\n,|(defn ...)\n\nb"
         (delete-char -1)
         (insert "'")
-        (expect (cider-sexp-at-point 'bounds) :to-equal '(5 15))))))
+        (expect (cider-sexp-at-point 'bounds) :to-equal '(5 15)))))
+
+  (describe "across cursor positions"
+    (it "returns the form ahead when on its opening paren"
+      (with-clojure-buffer "(foo |(bar 1) baz)"
+        (expect (cider-sexp-at-point) :to-equal "(bar 1)")))
+
+    (it "returns the atom at point when inside one"
+      (with-clojure-buffer "(foo (b|ar 1) baz)"
+        (expect (cider-sexp-at-point) :to-equal "bar")))
+
+    (it "returns the preceding form right after its closing paren"
+      (with-clojure-buffer "(foo (bar 1)| baz)"
+        (expect (cider-sexp-at-point) :to-equal "(bar 1)")))
+
+    (it "returns nil in an empty buffer"
+      (with-clojure-buffer ""
+        (expect (cider-sexp-at-point) :to-equal nil)))
+
+    ;; Pinned warts, fixed later in this PR:
+    (it "returns the last atom inside when on a closing paren"
+      (with-clojure-buffer "(foo (bar 1|) baz)"
+        (expect (cider-sexp-at-point) :to-equal "1")))
+
+    (it "drops leading metadata"
+      (with-clojure-buffer "^:foo (bar)|"
+        (expect (cider-sexp-at-point) :to-equal "(bar)")))))
 
 (describe "cider-last-sexp"
   (describe "when the param 'bounds is not given"
@@ -206,7 +245,22 @@
         (expect (cider-last-sexp 'bounds) :to-equal '(4 14))))
     (it "returns the bounds of last sexp event when there are whitespaces"
       (with-clojure-buffer "a\n\n(defn ...) ,\n|\nb"
-        (expect (cider-last-sexp 'bounds) :to-equal '(4 14))))))
+        (expect (cider-last-sexp 'bounds) :to-equal '(4 14)))))
+
+  (describe "across cursor positions"
+    (it "keeps leading metadata, unlike `cider-sexp-at-point'"
+      (with-clojure-buffer "^:foo (bar)|"
+        (expect (cider-last-sexp) :to-equal "^:foo (bar)")))
+
+    (it "keeps a leading quote"
+      (with-clojure-buffer "'(1 2 3)|"
+        (expect (cider-last-sexp) :to-equal "'(1 2 3)")))
+
+    (it "returns the following form at the beginning of the buffer"
+      ;; backward motion no-ops at (point-min), so the \"preceding\" sexp
+      ;; is the one ahead -- forgiving, and relied upon by callers
+      (with-clojure-buffer "|(foo 1)"
+        (expect (cider-last-sexp) :to-equal "(foo 1)")))))
 
 (describe "cider-defun-at-point"
   (describe "when the param 'bounds is not given"
