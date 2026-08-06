@@ -158,11 +158,11 @@ START and END represent the region's boundaries."
 
 ;;;###autoload
 (defun cider-format-edn-last-sexp ()
-  "Format the EDN data of the last sexp."
+  "Format the EDN data of the sexp preceding point."
   (interactive)
-  (if-let* ((bounds (cider-sexp-at-point 'bounds)))
+  (if-let* ((bounds (ignore-errors (cider-last-sexp 'bounds))))
       (apply #'cider-format-edn-region bounds)
-    (user-error "No sexp at point")))
+    (user-error "No sexp preceding point")))
 
 (provide 'cider-format)
 ;;; cider-format.el ends here
