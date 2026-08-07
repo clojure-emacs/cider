@@ -710,6 +710,14 @@
         (expect (apply #'buffer-substring-no-properties bounds)
                 :to-equal "(+ 1 2)")))))
 
+(describe "cider-toggle-form-targeting"
+  (it "flips between preceding and smart"
+    (let ((cider-form-targeting 'preceding))
+      (cider-toggle-form-targeting)
+      (expect cider-form-targeting :to-be 'smart)
+      (cider-toggle-form-targeting)
+      (expect cider-form-targeting :to-be 'preceding))))
+
 (describe "cider-eval-last-sexp under smart targeting"
   (it "evaluates the form point sits on, not just the one behind it"
     (spy-on 'cider-interactive-eval)

@@ -1503,6 +1503,7 @@ passing arguments."
     (define-key map (kbd ":") #'cider-read-and-eval)
     (define-key map (kbd ";") #'cider-eval-defun-to-comment)
     (define-key map (kbd "f") 'cider-eval-pprint-commands-map)
+    (define-key map (kbd "T") #'cider-toggle-form-targeting)
 
     ;; duplicates with C- for convenience
     (define-key map (kbd "C-w") #'cider-eval-last-sexp-and-replace)
@@ -1526,6 +1527,16 @@ passing arguments."
     (define-key map (kbd "C-f") 'cider-eval-pprint-commands-map)
     map))
 
+
+(defun cider-toggle-form-targeting ()
+  "Toggle `cider-form-targeting' between `preceding' and `smart'.
+The change applies to the rest of the session; use `customize' (or
+`setopt' in your init file) to make it permanent."
+  (interactive)
+  (setq cider-form-targeting
+        (if (eq cider-form-targeting 'smart) 'preceding 'smart))
+  (message "Form targeting is now `%s' (session-wide; customize `cider-form-targeting' to persist)"
+           cider-form-targeting))
 
 ;;; Transient menu
 
@@ -1632,6 +1643,17 @@ zprint, or a custom var) for this invocation only."
     (":" "Read & eval (minibuffer)" cider-read-and-eval)
     ("." "Read & eval defun at point" cider-read-and-eval-defun-at-point)
     ("f" "Pretty-print..." cider-eval-pprint-menu)]]
+  ;; Unlike the pprint/macroexpand menus' arguments, which are let-bound
+  ;; around a single invocation, this toggle persists for the session:
+  ;; form targeting is a workflow mode whose value lies in upgrading the
+  ;; plain keybindings (C-x C-e and friends), not a per-render option.
+  ["Options"
+   ("T" cider-toggle-form-targeting
+    :transient t
+    :description (lambda ()
+                   (format "Form targeting (%s)"
+                           (propertize (symbol-name cider-form-targeting)
+                                       'face 'transient-value))))]
   ;; Control-variant duplicates, hidden from the menu, so that existing muscle
   ;; memory (e.g. the doubled C-c C-v C-r) keeps working unchanged.
   [:hide (lambda () t)
