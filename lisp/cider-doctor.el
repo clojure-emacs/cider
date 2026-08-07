@@ -212,8 +212,8 @@ Probed by `cider-doctor--check-ops' to explain why a feature might be dead.")
 (defun cider-doctor--check-clojure-runtime ()
   "Check the connected runtime's Clojure version."
   (if-let* ((ver (cider--clojure-version))
-            (ver (car (split-string ver "-"))))
-      (if (version< ver cider-minimum-clojure-version)
+            (trunc-ver (car (split-string ver "-"))))
+      (if (version< trunc-ver cider-minimum-clojure-version)
           (cider-doctor--result 'error (format "Clojure %s is unsupported" ver)
                                 :detail (format "Minimum supported version is %s."
                                                 cider-minimum-clojure-version)

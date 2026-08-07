@@ -137,7 +137,12 @@
 
   (it "strips qualifiers before comparing"
     (spy-on 'cider--clojure-version :and-return-value "1.12.0-master-SNAPSHOT")
-    (expect (plist-get (cider-doctor--check-clojure-runtime) :status) :to-be 'ok)))
+    (expect (plist-get (cider-doctor--check-clojure-runtime) :status) :to-be 'ok))
+
+  (it "return full version including qualifier"
+    (spy-on 'cider--clojure-version :and-return-value "1.13.0-alpha6")
+    (expect (plist-get (cider-doctor--check-clojure-runtime) :label)
+            :to-equal "Clojure 1.13.0-alpha6")))
 
 (describe "cider-doctor--check-middleware"
   (it "errors when no cider-nrepl version is reported"
