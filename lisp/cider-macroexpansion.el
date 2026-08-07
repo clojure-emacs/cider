@@ -113,16 +113,17 @@ ARG is passed along to `undo-only'."
     (cider-initialize-macroexpansion-buffer expansion (cider-current-ns))))
 
 (defun cider-macroexpansion--form-bounds ()
-  "Return the bounds (BEG . END) of the sexp before point, or nil.
-This follows CIDER's usual convention (like `\\[cider-eval-last-sexp]'): place
-point right after the form.  To drill into a nested macro call in an
-expansion, put point after that form and expand again."
-  (save-excursion
-    (ignore-errors
-      (let ((beg (progn (clojure-backward-logical-sexp 1) (point)))
-            (end (progn (clojure-forward-logical-sexp 1) (point))))
-        (when (< beg end)
-          (cons beg end))))))
+  "Return the bounds (BEG . END) of the sexp to expand, or nil.
+The sexp is located per `cider-form-targeting' (by default the sexp
+before point, like `\\[cider-eval-last-sexp]').  With `smart' targeting
+the target is never narrower than a compound form, since a bare symbol
+is not expandable."
+  (ignore-errors
+    ;; `compound' because a bare symbol is not expandable - with smart
+    ;; targeting, point mid-symbol targets the enclosing call instead.
+    (let ((b (cider-form-bounds 'compound)))
+      (when (< (car b) (cadr b))
+        (cons (car b) (cadr b))))))
 
 (defun cider-macroexpansion--operator (form)
   "Return the operator (leading symbol) of the Clojure FORM string, or nil."
@@ -158,10 +159,14 @@ display options (see `cider-macroexpansion-display-namespaces' and
 ;;;###autoload
 (defun cider-macroexpand-1 (&optional prefix)
   "Invoke \\=`macroexpand-1\\=` on the expression preceding point.
+The expression is located per `cider-form-targeting'; with `smart'
+targeting it is never narrower than a compound form.
 If invoked with a PREFIX argument, use \\=`macroexpand\\=` instead of
 \\=`macroexpand-1\\=`."
   (interactive "P")
-  (let ((form (cider-last-sexp))
+  ;; `compound' because a bare symbol is not expandable - with smart
+  ;; targeting, point mid-symbol targets the enclosing call instead.
+  (let ((form (cider-form-string 'compound))
         (expander (if prefix "macroexpand" "macroexpand-1")))
     (cider-ensure-macro (cider-macroexpansion--operator form))
     (cider-macroexpand-expr expander form)))
@@ -177,10 +182,12 @@ If invoked with a PREFIX argument, use \\=`macroexpand\\=` instead of
 ;;;###autoload
 (defun cider-macroexpand-all ()
   "Invoke \\=`macroexpand-all\\=` on the expression preceding point.
+The expression is located per `cider-form-targeting'.
 The form's head needn't be a macro itself, since a fully-recursive
 expansion can reach macros in nested sub-forms."
   (interactive)
-  (cider-macroexpand-expr "macroexpand-all" (cider-last-sexp)))
+  ;; `compound' for the same reason as in `cider-macroexpand-1'
+  (cider-macroexpand-expr "macroexpand-all" (cider-form-string 'compound)))
 
 (defun cider-macroexpand-all-inplace ()
   "Perform inplace \\=`macroexpand-all\\=` on the form before point."

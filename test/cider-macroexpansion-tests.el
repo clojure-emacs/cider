@@ -28,8 +28,27 @@
 (require 'clojure-mode)
 (require 'nrepl-dict)
 (require 'cider-macroexpansion)
+(require 'cider-test-utils)
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
+
+(describe "cider-macroexpand-1's form targeting"
+  (it "expands the sexp preceding point by default"
+    (spy-on 'cider-ensure-macro)
+    (spy-on 'cider-macroexpand-expr)
+    (with-clojure-buffer "(when t 1)|"
+      (cider-macroexpand-1)
+      (expect 'cider-macroexpand-expr
+              :to-have-been-called-with "macroexpand-1" "(when t 1)")))
+
+  (it "expands the enclosing form from inside an atom under smart targeting"
+    (spy-on 'cider-ensure-macro)
+    (spy-on 'cider-macroexpand-expr)
+    (with-clojure-buffer "(when t| 1)"
+      (let ((cider-form-targeting 'smart))
+        (cider-macroexpand-1))
+      (expect 'cider-macroexpand-expr
+              :to-have-been-called-with "macroexpand-1" "(when t 1)"))))
 
 (describe "cider-sync-request:macroexpand"
   (it "sends the expander, code and namespace and returns the expansion"
@@ -147,7 +166,7 @@
   (it "doesn't require the form's head to be a macro"
     ;; #4111: a fully-recursive expansion can reach macros in nested
     ;; sub-forms, so the operator must not be gated.
-    (spy-on 'cider-last-sexp :and-return-value "(inc (when x 1))")
+    (spy-on 'cider-form-string :and-return-value "(inc (when x 1))")
     (spy-on 'cider-ensure-macro)
     (spy-on 'cider-macroexpand-expr)
     (cider-macroexpand-all)
