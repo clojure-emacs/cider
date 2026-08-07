@@ -290,6 +290,7 @@ This lets the inspector act on the tagged class directly, the way
 
 (defun cider-inspect-last-sexp ()
   "Inspect the result of the expression preceding point.
+How the expression is located is controlled by `cider-form-targeting'.
 When point is on a type tag (e.g. `^String'), inspect the tagged class
 itself rather than the form it applies to."
   (interactive)

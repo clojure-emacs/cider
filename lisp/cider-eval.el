@@ -898,6 +898,7 @@ arguments and only proceed with evaluation if it returns nil."
 
 (defun cider-eval-last-sexp (&optional output-to-current-buffer)
   "Evaluate the expression preceding point.
+How the expression is located is controlled by `cider-form-targeting'.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current
 buffer."
   (interactive "P")
@@ -907,15 +908,15 @@ buffer."
                           (cider--nrepl-pr-request-plist)))
 
 (defun cider-eval-last-sexp-and-replace ()
-  "Evaluate the expression preceding point and replace it with its result."
+  "Evaluate the expression preceding point and replace it with its result.
+How the expression is located is controlled by `cider-form-targeting'."
   (interactive)
-  (let ((last-sexp (cider-last-sexp)))
+  (let* ((bounds (cider-form-bounds))
+         (last-sexp (apply #'buffer-substring-no-properties bounds)))
     ;; we have to be sure the evaluation won't result in an error
     (cider-nrepl-sync-request:eval last-sexp)
     ;; seems like the sexp is valid, so we can safely kill it
-    (let ((opoint (point)))
-      (clojure-backward-logical-sexp)
-      (kill-region (point) opoint))
+    (apply #'kill-region bounds)
     (cider-interactive-eval last-sexp
                             (cider-eval-print-handler)
                             nil
@@ -941,6 +942,7 @@ If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
 
 (defun cider-tap-last-sexp (&optional output-to-current-buffer)
   "Evaluate and tap the expression preceding point.
+How the expression is located is controlled by `cider-form-targeting'.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current
 buffer."
   (interactive "P")
@@ -1214,6 +1216,7 @@ honoring SWITCH-TO-REPL, REQUEST-MAP."
 
 (defun cider-eval-last-sexp-to-repl (&optional prefix)
   "Evaluate the expression preceding point and insert its result in the REPL.
+How the expression is located is controlled by `cider-form-targeting'.
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
   (cider--eval-last-sexp-to-repl prefix (cider--nrepl-pr-request-plist)))
@@ -1227,6 +1230,7 @@ If invoked with a PREFIX argument, switch to the REPL buffer."
 (defun cider-eval-print-last-sexp (&optional pretty-print)
   "Evaluate the expression preceding point.
 Print its value into the current buffer.
+How the expression is located is controlled by `cider-form-targeting'.
 With an optional PRETTY-PRINT prefix it pretty-prints the result."
   (interactive "P")
   (cider-interactive-eval nil
@@ -1249,6 +1253,7 @@ With an optional PRETTY-PRINT prefix it pretty-prints the result."
 
 (defun cider-pprint-eval-last-sexp (&optional output-to-current-buffer)
   "Evaluate the sexp preceding point and pprint its value.
+How the sexp is located is controlled by `cider-form-targeting'.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, insert as comment in the current
 buffer, else display in a popup buffer."
   (interactive "P")
