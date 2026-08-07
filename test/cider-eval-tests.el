@@ -709,3 +709,34 @@
       (let ((bounds (nth 2 (spy-calls-args-for 'cider-interactive-eval 0))))
         (expect (apply #'buffer-substring-no-properties bounds)
                 :to-equal "(+ 1 2)")))))
+
+(describe "cider-eval-last-sexp under smart targeting"
+  (it "evaluates the form point sits on, not just the one behind it"
+    (spy-on 'cider-interactive-eval)
+    (with-clojure-buffer "(foo |(bar 1) baz)"
+      (let ((cider-form-targeting 'smart))
+        (cider-eval-last-sexp))
+      (let ((bounds (nth 2 (spy-calls-args-for 'cider-interactive-eval 0))))
+        (expect (apply #'buffer-substring-no-properties bounds)
+                :to-equal "(bar 1)"))))
+
+  (it "behaves classically by default"
+    (spy-on 'cider-interactive-eval)
+    (with-clojure-buffer "(foo |(bar 1) baz)"
+      (cider-eval-last-sexp)
+      (let ((bounds (nth 2 (spy-calls-args-for 'cider-interactive-eval 0))))
+        (expect (apply #'buffer-substring-no-properties bounds)
+                :to-equal "foo")))))
+
+(describe "cider-eval-last-sexp-and-replace"
+  (it "replaces the resolved form, not the region behind point"
+    (spy-on 'cider-nrepl-sync-request:eval)
+    (spy-on 'cider-interactive-eval)
+    (with-clojure-buffer "(+ 1 2|)"
+      (let ((cider-form-targeting 'smart))
+        (cider-eval-last-sexp-and-replace))
+      ;; under smart targeting, point on the closing paren targets the
+      ;; whole form, so the whole form is killed
+      (expect (buffer-string) :to-equal "")
+      (expect (nth 0 (spy-calls-args-for 'cider-interactive-eval 0))
+              :to-equal "(+ 1 2)"))))

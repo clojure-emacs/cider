@@ -158,7 +158,8 @@ START and END represent the region's boundaries."
 
 ;;;###autoload
 (defun cider-format-edn-last-sexp ()
-  "Format the EDN data of the sexp preceding point."
+  "Format the EDN data of the sexp preceding point.
+How the sexp is located is controlled by `cider-form-targeting'."
   (interactive)
   (if-let* ((bounds (ignore-errors (cider-last-sexp 'bounds))))
       (apply #'cider-format-edn-region bounds)

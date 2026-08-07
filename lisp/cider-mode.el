@@ -287,6 +287,7 @@ If EVAL is non-nil the form will also be evaluated.  Use
 
 (defun cider-insert-last-sexp-in-repl (&optional arg)
   "Insert the expression preceding point in the REPL buffer.
+How the expression is located is controlled by `cider-form-targeting'.
 If invoked with a prefix ARG eval the expression after inserting it."
   (interactive "P")
   (cider-insert-in-repl (cider-last-sexp) arg))
