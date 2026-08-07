@@ -19,6 +19,35 @@ confusing to people not familiar with it. Let's take a look at it:
 * `region` - the selected part of a buffer
 * `load` - a synonym for "evaluate"; most often used in the context of buffers/files
 
+== Form Targeting
+
+By default the `last-sexp` family of commands (`cider-eval-last-sexp`,
+`cider-macroexpand-1`, `cider-inspect-last-sexp`, etc) operates on the form
+preceding the cursor, so you have to place the cursor right after the form
+you're interested in. That's the classic behavior shared with Emacs Lisp's
+`eval-last-sexp`, SLIME and inf-clojure, but it can be unforgiving when the
+cursor sits on one of the form's delimiters, or inside it.
+
+You can make those commands resolve the target form from the cursor position
+instead:
+
+[source,lisp]
+----
+(setq cider-form-targeting 'smart)
+----
+
+With `smart` targeting: on an opening delimiter the target is the form it
+opens; on (or right after) a closing delimiter the form it closes; inside a
+symbol, keyword or string that atom; and in whitespace between forms the
+preceding form, as before. In other words - smart targeting agrees with the
+classic behavior at every position where "the form preceding the cursor" makes
+sense, and does something more useful everywhere else. (that's also how most
+non-Emacs Clojure editors handle evaluation targeting)
+
+Commands that can only operate on compound forms (e.g. the macroexpansion
+ones) never target a bare symbol - with smart targeting they widen to the
+enclosing form instead.
+
 == Basic Evaluation
 
 As CIDER derives almost all of its functionality by inspecting the runtime (REPL) state
