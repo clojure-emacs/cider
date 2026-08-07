@@ -267,7 +267,79 @@
       ;; backward motion no-ops at (point-min), so the \"preceding\" sexp
       ;; is the one ahead -- forgiving, and relied upon by callers
       (with-clojure-buffer "|(foo 1)"
-        (expect (cider-last-sexp) :to-equal "(foo 1)")))))
+        (expect (cider-last-sexp) :to-equal "(foo 1)")))
+
+    (it "returns the previous sibling when on an opening paren (classic)"
+      (with-clojure-buffer "(foo |(bar 1) baz)"
+        (expect (cider-last-sexp) :to-equal "foo")))))
+
+(describe "cider-form-targeting smart"
+  ;; positions where smart agrees with the classic preceding behavior
+  (it "matches classic targeting right after a form"
+    (with-clojure-buffer "(foo (bar 1)| baz)"
+      (let ((cider-form-targeting 'smart))
+        (expect (cider-last-sexp) :to-equal "(bar 1)"))))
+
+  (it "matches classic targeting in whitespace after a form"
+    (with-clojure-buffer "(foo bar |  baz)"
+      (let ((cider-form-targeting 'smart))
+        (expect (cider-last-sexp) :to-equal "bar"))))
+
+  (it "matches classic targeting for metadata"
+    (with-clojure-buffer "^:foo (bar)|"
+      (let ((cider-form-targeting 'smart))
+        (expect (cider-last-sexp) :to-equal "^:foo (bar)"))))
+
+  ;; positions where the classic answer was surprising
+  (it "targets the opened form when on an opening paren"
+    (with-clojure-buffer "(foo |(bar 1) baz)"
+      (let ((cider-form-targeting 'smart))
+        (expect (cider-last-sexp) :to-equal "(bar 1)"))))
+
+  (it "targets the closed form when on a closing paren"
+    (with-clojure-buffer "(foo (bar 1|) baz)"
+      (let ((cider-form-targeting 'smart))
+        (expect (cider-last-sexp) :to-equal "(bar 1)"))))
+
+  (it "targets the atom at point when inside one"
+    (with-clojure-buffer "(foo (b|ar 1) baz)"
+      (let ((cider-form-targeting 'smart))
+        (expect (cider-last-sexp) :to-equal "bar"))))
+
+  (it "targets the string literal when inside a string"
+    (with-clojure-buffer "(foo \"ba|r\" baz)"
+      (let ((cider-form-targeting 'smart))
+        (expect (cider-last-sexp) :to-equal "\"bar\""))))
+
+  (it "targets the adjacent form when right before one"
+    (with-clojure-buffer "(foo |bar baz)"
+      (let ((cider-form-targeting 'smart))
+        (expect (cider-last-sexp) :to-equal "bar")))))
+
+(describe "cider-form-string with the compound granularity"
+  (it "widens an atom target to the enclosing form under smart targeting"
+    (with-clojure-buffer "(when t| 1)"
+      (let ((cider-form-targeting 'smart))
+        (expect (cider-form-string 'compound) :to-equal "(when t 1)"))))
+
+  (it "widens a string target to the enclosing form under smart targeting"
+    (with-clojure-buffer "(foo \"ba|r\")"
+      (let ((cider-form-targeting 'smart))
+        (expect (cider-form-string 'compound) :to-equal "(foo \"bar\")"))))
+
+  (it "keeps a top-level atom that has no enclosing form"
+    (with-clojure-buffer "xy|z"
+      (let ((cider-form-targeting 'smart))
+        (expect (cider-form-string 'compound) :to-equal "xyz"))))
+
+  (it "does not widen an already-compound target"
+    (with-clojure-buffer "(foo (bar 1|) baz)"
+      (let ((cider-form-targeting 'smart))
+        (expect (cider-form-string 'compound) :to-equal "(bar 1)"))))
+
+  (it "is ignored under classic targeting"
+    (with-clojure-buffer "(when t| 1)"
+      (expect (cider-form-string 'compound) :to-equal "t"))))
 
 (describe "cider-defun-at-point"
   (describe "when the param 'bounds is not given"
