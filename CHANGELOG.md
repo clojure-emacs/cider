@@ -8,6 +8,7 @@
 
 ### New features
 
+- [#4156](https://github.com/clojure-emacs/cider/pull/4156): Add `cider-form-targeting`: when set to `smart`, the `last-sexp` commands (`cider-eval-last-sexp`, `cider-macroexpand-1`, `cider-inspect-last-sexp`, etc.) resolve their target form from the cursor position (on a delimiter, inside a form) instead of requiring point to sit right after it; the default `preceding` keeps the classic behavior.
 - [#4142](https://github.com/clojure-emacs/cider/pull/4142): Bring CIDER's dynamic font-locking (highlighting REPL-defined macros, functions, vars and deprecated/instrumented/traced symbols) to `clojure-ts-mode` buffers via tree-sitter; previously it only worked under `clojure-mode`.
 - [#4145](https://github.com/clojure-emacs/cider/pull/4145): Add `cider-preferred-clojure-mode` (default `auto`) controlling which Clojure major mode CIDER uses to font-lock the code it renders (REPL input/results, doc examples, overlays, xref labels, etc.); when set to (or auto-detecting) `clojure-ts-mode`, those snippets get tree-sitter highlighting instead of `clojure-mode`'s.
 - [#4146](https://github.com/clojure-emacs/cider/pull/4146): Have CIDER's own Clojure display buffers (macroexpansion, evaluation results, tracing) honor `cider-preferred-clojure-mode` too, so they open in `clojure-ts-mode` when that's your preference instead of always `clojure-mode`.
