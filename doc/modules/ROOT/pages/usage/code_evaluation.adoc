@@ -48,6 +48,10 @@ Commands that can only operate on compound forms (e.g. the macroexpansion
 ones) never target a bare symbol - with smart targeting they widen to the
 enclosing form instead.
 
+TIP: You can flip the targeting mode for the current session directly from
+the eval menu - kbd:[C-c C-v T] (or the `Options` section of `cider-eval-menu`),
+which also displays the active mode.
+
 == Basic Evaluation
 
 As CIDER derives almost all of its functionality by inspecting the runtime (REPL) state
