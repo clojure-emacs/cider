@@ -706,3 +706,28 @@
       (unwind-protect
           (expect (nrepl-extract-ports dir) :to-be nil)
         (delete-directory dir t)))))
+
+(describe "nrepl--port-alive-p"
+  (it "is true when a listener is found"
+    (let ((system-type 'gnu/linux))
+      (spy-on 'executable-find :and-return-value "/usr/bin/lsof")
+      (spy-on 'process-file-shell-command :and-call-fake
+              (lambda (&rest _) (insert "java 123")))
+      (expect (nrepl--port-alive-p 63213) :to-be-truthy)))
+
+  (it "is false when lsof finds no listener"
+    (let ((system-type 'gnu/linux))
+      (spy-on 'executable-find :and-return-value "/usr/bin/lsof")
+      (spy-on 'process-file-shell-command)
+      (expect (nrepl--port-alive-p 63213) :to-be nil)))
+
+  (it "errs on the side of liveness without lsof"
+    (let ((system-type 'gnu/linux))
+      (spy-on 'executable-find :and-return-value nil)
+      (expect (nrepl--port-alive-p 63213) :to-be-truthy)))
+
+  (it "errs on the side of liveness on Windows"
+    (let ((system-type 'windows-nt))
+      (spy-on 'process-file-shell-command)
+      (expect (nrepl--port-alive-p 63213) :to-be-truthy)
+      (expect 'process-file-shell-command :not :to-have-been-called))))
