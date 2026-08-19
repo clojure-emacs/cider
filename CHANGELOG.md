@@ -18,6 +18,7 @@
 
 ### Changes
 
+- [#4159](https://github.com/clojure-emacs/cider/pull/4159): Make `cider-default-nrepl-port` customizable, keep `cider-connect` usable when Tramp's ssh-config completion errors, and document how port suggestions are computed in a new "How CIDER Finds Ports" manual section.
 - [#4149](https://github.com/clojure-emacs/cider/pull/4149): Make the nREPL message log easier to reach: add "Show nREPL messages" to the nREPL menu, reflect the logging toggle's on/off state there, and have `nrepl-show-messages` offer to enable logging when it's off instead of erroring.
 
 ### Bugs fixed
