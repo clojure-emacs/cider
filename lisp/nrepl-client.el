@@ -274,14 +274,20 @@ Discards it if it can be determined that the port is not active."
                                (string-trim (buffer-string))))
                 ;; extract the number, most of all for not passing garbage to `lsof' (which might even be a security risk):
                 (port-number (nrepl--port-string-to-number port-string)))
-      (if (eq system-type 'windows-nt)
+      (if (or (eq system-type 'windows-nt)
+              ;; No lsof means we can't DETERMINE the port is dead, so
+              ;; keep it (minimal systems often lack lsof; discarding
+              ;; every port file there broke detection entirely).
+              (not (executable-find "lsof" (file-remote-p default-directory))))
           port-string
         ;; `process-file-shell-command' honors `default-directory' and so
         ;; runs lsof on the remote host when FILE lives on TRAMP.
+        ;; -sTCP:LISTEN: only a listening socket proves a live server; a
+        ;; mere established connection involving the port does not.
         (unless (equal ""
                        (with-temp-buffer
                          (process-file-shell-command
-                          (format "lsof -i:%s" port-number) nil t)
+                          (format "lsof -i:%s -sTCP:LISTEN" port-number) nil t)
                          (buffer-string)))
           port-string)))))
 
