@@ -56,8 +56,10 @@ This variable is used by `cider-connect'."
                        (string :tag "port")))
   :group 'cider)
 
-(defvar cider-ps-running-lein-nrepls-command "ps u | grep leiningen"
-  "Process snapshot command used in `cider-locate-running-nrepl-ports'.")
+(defvar cider-ps-running-lein-nrepls-command "ps ux | grep leiningen"
+  "Process snapshot command used in `cider-locate-running-nrepl-ports'.
+The `x' flag includes processes without a controlling terminal, so REPLs
+started by IDEs or services are found too.")
 
 (defvar cider-ps-running-lein-nrepl-path-regexp-list
   '("\\(?:leiningen.original.pwd=\\)\\(.+?\\) -D"
@@ -259,16 +261,21 @@ Use `cider-ps-running-lein-nrepls-command' and
                   paths))))
 
 (defun cider--running-non-lein-nrepl-paths ()
-  "Retrieve (directory, port) pairs of running nREPL servers other than Lein ones."
+  "Retrieve (directory, port) pairs of running nREPL servers other than Lein ones.
+This also covers `lein trampoline' REPLs: the trampolined JVM carries no
+\"leiningen\" marker at all in its command line (so the Lein scan can't
+see it), but it does run `clojure.main -i /tmp/form-init<...>.clj', which
+is what the form-init pattern below matches."
   (unless (eq system-type 'windows-nt)
     (let* ((bb-indicator "--nrepl-server")
            (non-lein-nrepl-pids
             (thread-last (split-string
                           (cider--shell-command-to-string
-                           ;; some of the `ps u` lines we intend to catch:
+                           ;; some of the `ps ux` lines we intend to catch:
                            ;; <username> 15411 0.0  0.0 37915744  16084 s000  S+ 3:02PM 0:00.02 bb --nrepl-server
                            ;; <username> 13835 0.1 11.2 37159036 7528432 s009 S+ 2:47PM 6:41.29 java -cp src -m nrepl.cmdline
-                           (format "ps u | grep -E 'java|%s' | grep -E 'nrepl.cmdline|%s' | grep -v -E 'leiningen|grep'"
+                           ;; <username> 49859 0.0  0.4 443188240 105040  ??  SN 3:13PM 0:00.89 java -classpath ... clojure.main -i /tmp/form-init123.clj
+                           (format "ps ux | grep -E 'java|%s' | grep -E 'nrepl.cmdline|%s|form-init' | grep -v -E 'leiningen|grep'"
                                    bb-indicator
                                    bb-indicator))
                           "\n")
