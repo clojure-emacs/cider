@@ -73,6 +73,40 @@
       (let ((default-directory "/tmp/b/")) (cider--running-nrepl-paths))
       (expect 'cider--running-nrepl-paths-uncached :to-have-been-called-times 2))))
 
+(describe "cider--running-non-lein-nrepl-paths"
+  ;; A `lein trampoline repl :headless' JVM has no "leiningen" marker in
+  ;; its command line at all (the Lein ps scan can't see it), but it runs
+  ;; the lein-generated init file: clojure.main -i /tmp/form-init<N>.clj.
+  (it "finds a trampolined lein REPL via its form-init fingerprint"
+    (spy-on 'cider--shell-command-to-string :and-return-value
+            "bbatsov 49859 0.0 0.4 443188240 105040 ?? SN 3:13PM 0:00.89 java -classpath /tmp/proj/src clojure.main -i /tmp/form-init123.clj
+")
+    (spy-on 'cider--lsof-fn-field :and-call-fake
+            (lambda (args)
+              (if (member "cwd" args) "/tmp/proj" "127.0.0.1:63213")))
+    (expect (cider--running-non-lein-nrepl-paths)
+            :to-equal '(("/tmp/proj" "63213"))))
+
+  (it "finds a babashka nREPL server"
+    (spy-on 'cider--shell-command-to-string :and-return-value
+            "bbatsov 15411 0.0 0.0 37915744 16084 s000 S+ 3:02PM 0:00.02 bb --nrepl-server
+")
+    (spy-on 'cider--lsof-fn-field :and-call-fake
+            (lambda (args)
+              (if (member "cwd" args) "/tmp/bb-proj" "127.0.0.1:1667")))
+    (expect (cider--running-non-lein-nrepl-paths)
+            :to-equal '(("/tmp/bb-proj" "1667"))))
+
+  (it "keeps the guard that excludes the parent leiningen JVM"
+    ;; the parent lein process is the Lein scan's job; the shell pipeline
+    ;; here must keep filtering it out
+    (spy-on 'cider--shell-command-to-string :and-return-value "")
+    (cider--running-non-lein-nrepl-paths)
+    (let ((cmd (car (spy-calls-args-for 'cider--shell-command-to-string 0))))
+      (expect cmd :to-match "grep -v -E 'leiningen|grep'")
+      (expect cmd :to-match "form-init")
+      (expect cmd :to-match "ps ux"))))
+
 (describe "cider--lsof-fn-field"
   (it "returns the name field with the leading \"n\" stripped"
     (spy-on 'cider--process-file-to-string
