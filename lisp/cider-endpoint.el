@@ -279,16 +279,22 @@ is what the form-init pattern below matches."
                                    bb-indicator
                                    bb-indicator))
                           "\n")
+                         ;; whitespace-split (not single-space): ps pads
+                         ;; columns, and a short pid would otherwise yield ""
                          (mapcar (lambda (s)
-                                   (nth 1 (split-string s " "))))
+                                   (nth 1 (split-string s))))
                          (seq-filter #'identity))))
       (when non-lein-nrepl-pids
         (thread-last non-lein-nrepl-pids
                      (mapcar (lambda (pid)
                                (let* ((directory (cider--lsof-fn-field
                                                   (list "-a" "-d" "cwd" "-n" "-Fn" "-p" pid)))
+                                      ;; -sTCP:LISTEN: only listening sockets.
+                                      ;; Without it the first socket may be an
+                                      ;; outbound connection, whose *remote*
+                                      ;; port we'd then extract.
                                       (port-line (cider--lsof-fn-field
-                                                  (list "-n" "-P" "-Fn" "-i" "-a" "-p" pid)))
+                                                  (list "-n" "-P" "-Fn" "-i" "-sTCP:LISTEN" "-a" "-p" pid)))
                                       (port (when port-line
                                               (replace-regexp-in-string ".*:" "" port-line)))
                                       (port (when (and port

@@ -87,6 +87,29 @@
     (expect (cider--running-non-lein-nrepl-paths)
             :to-equal '(("/tmp/proj" "63213"))))
 
+  (it "extracts the pid despite ps column padding (short pids)"
+    ;; ps pads columns; a naive single-space split yields "" for the pid
+    (spy-on 'cider--shell-command-to-string :and-return-value
+            "bbatsov   549   0.0 0.4 443188240 105040 ?? SN 3:13PM 0:00.89 java -classpath /tmp/proj/src clojure.main -i /tmp/form-init123.clj\n")
+    (spy-on 'cider--lsof-fn-field :and-call-fake
+            (lambda (args)
+              (expect (car (last args)) :to-equal "549")
+              (if (member "cwd" args) "/tmp/proj" "127.0.0.1:63213")))
+    (expect (cider--running-non-lein-nrepl-paths)
+            :to-equal '(("/tmp/proj" "63213"))))
+
+  (it "only considers listening sockets when extracting the port"
+    (spy-on 'cider--shell-command-to-string :and-return-value
+            "bbatsov 49859 0.0 0.4 1 2 ?? SN 3:13PM 0:00.89 java -cp src -m nrepl.cmdline\n")
+    (spy-on 'cider--lsof-fn-field :and-call-fake
+            (lambda (args)
+              (if (member "cwd" args)
+                  "/tmp/proj"
+                (progn (expect args :to-contain "-sTCP:LISTEN")
+                       "127.0.0.1:63213"))))
+    (cider--running-non-lein-nrepl-paths)
+    (expect 'cider--lsof-fn-field :to-have-been-called))
+
   (it "finds a babashka nREPL server"
     (spy-on 'cider--shell-command-to-string :and-return-value
             "bbatsov 15411 0.0 0.0 37915744 16084 s000 S+ 3:02PM 0:00.02 bb --nrepl-server

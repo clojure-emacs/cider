@@ -23,6 +23,7 @@
 ### Bugs fixed
 
 - [#4158](https://github.com/clojure-emacs/cider/pull/4158): Detect running `lein trampoline` REPLs in `cider-connect`'s port suggestions (the trampolined JVM has no "leiningen" marker for the process scan to find), and don't miss REPLs running without a controlling terminal.
+- [#4158](https://github.com/clojure-emacs/cider/pull/4158): Stop discarding `.nrepl-port` files on systems without `lsof` (absence of the tool is not evidence the port is dead), and only treat listening sockets as proof of a live server.
 - [#4152](https://github.com/clojure-emacs/cider/pull/4152): Stop the dynamic font-lock locals scanner from treating the default expressions in an `:or` destructuring clause (e.g. `{:keys [x] :or {x (some-default)}}`) as local variables, so references there keep their normal highlighting.
 - [#4150](https://github.com/clojure-emacs/cider/pull/4150): Stop dropping stray output from long-lived background processes (e.g. a `core.async` go-loop still printing under a finished eval's id): once that id is evicted from the completed-requests cache, its `out`/`err` is now routed to the REPL instead of being discarded with a "No response handler with id N found" warning.
 - [#4140](https://github.com/clojure-emacs/cider/pull/4140): Fix `cider-eval-dwim` (and defun evaluation) not descending into a `(comment ...)` form in `clojure-ts-mode` buffers: it now binds `clojure-ts-toplevel-inside-comment-form` alongside the `clojure-mode` variable.
