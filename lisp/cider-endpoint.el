@@ -62,8 +62,7 @@ The `x' flag includes processes without a controlling terminal, so REPLs
 started by IDEs or services are found too.")
 
 (defvar cider-ps-running-lein-nrepl-path-regexp-list
-  '("\\(?:leiningen.original.pwd=\\)\\(.+?\\) -D"
-    "\\(?:-classpath +:?\\(.+?\\)/self-installs\\)")
+  '("\\(?:leiningen.original.pwd=\\)\\(.+?\\) -D")
   "Regexp list to get project paths.
 Extract project paths from output of `cider-ps-running-lein-nrepls-command'.
 Sub-match 1 must be the project path.")
@@ -71,9 +70,12 @@ Sub-match 1 must be the project path.")
 (defvar cider-host-history nil
   "Completion history for connection hosts.")
 
-(defconst cider-default-nrepl-port "7888"
+(defcustom cider-default-nrepl-port "7888"
   "Use this port number when we couldn't infer a port.
-See also https://github.com/nrepl/nREPL/issues/6.")
+See also https://github.com/nrepl/nREPL/issues/6."
+  :type 'string
+  :group 'cider
+  :package-version '(cider . "2.1.0"))
 
 ;;; Endpoint selection
 
@@ -109,10 +111,13 @@ See also https://github.com/nrepl/nREPL/issues/6.")
     (cons host port)))
 
 (defun cider--ssh-hosts ()
-  "Retrieve all ssh host from local configuration files."
-  (seq-map (lambda (s) (list (replace-regexp-in-string ":$" "" s)))
-           (let ((non-essential t))
-             (tramp-completion-handle-file-name-all-completions "" "/ssh:"))))
+  "Retrieve all ssh host from local configuration files.
+Never signals: a Tramp hiccup here would otherwise abort the whole
+`cider-connect' flow before the first prompt."
+  (ignore-errors
+    (seq-map (lambda (s) (list (replace-regexp-in-string ":$" "" s)))
+             (let ((non-essential t))
+               (tramp-completion-handle-file-name-all-completions "" "/ssh:")))))
 
 (defun cider--completing-read-host (hosts)
   "Interactively select host from HOSTS.
@@ -208,29 +213,28 @@ called from a TRAMP buffer."
     (buffer-string)))
 
 (defun cider--invoke-running-nrepl-path (f)
-  "Invoke F safely.
+  "Invoke F safely, returning only pairs whose directory still exists.
 
 Necessary since we run some OS-specific commands that may fail."
   (condition-case nil
-      (let* ((x (funcall f)))
-        (mapcar (lambda (v)
-                  (if (and (listp v)
-                           (not (file-exists-p (car v))))
-                      nil
-                    v))
-                x))
+      (seq-filter (lambda (v)
+                    (or (not (listp v))
+                        (file-exists-p (car v))))
+                  (funcall f))
     (error nil)))
 
 (defun cider-locate-running-nrepl-ports (&optional dir)
   "Locate ports of running nREPL servers.
-When DIR is non-nil also look for nREPL port files in DIR.  Return a list
-of list of the form (project-dir port)."
+Combines three sources: a process scan for Leiningen servers, the open
+CIDER REPL buffers, and a process scan for other nREPL servers (bare
+`nrepl.cmdline', babashka, `lein trampoline').  When DIR is non-nil,
+nREPL port files in DIR's project are consulted too.  Return a list of
+lists of the form (project-dir port)."
   (let* ((pairs (cider--running-nrepl-paths))
          (pairs (if-let* ((c (and dir (cider-project-dir dir))))
                     (append (cider--path->path-port-pairs c) pairs)
                   pairs)))
     (thread-last pairs
-                 (delq nil)
                  (mapcar (lambda (x)
                            (list (file-name-nondirectory (directory-file-name (car x)))
                                  (nth 1 x))))

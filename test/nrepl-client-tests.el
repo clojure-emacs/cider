@@ -671,3 +671,36 @@
             (expect (nrepl--port-from-file f) :to-equal "63213")
             (expect 'process-file-shell-command :not :to-have-been-called))
         (delete-file f)))))
+
+(describe "nrepl--port-string-to-number"
+  (it "extracts a leading port number"
+    (expect (nrepl--port-string-to-number "63213") :to-equal 63213)
+    (expect (nrepl--port-string-to-number "63213 extra") :to-equal 63213))
+
+  (it "rejects garbage (guards the lsof shell command)"
+    (expect (nrepl--port-string-to-number "; rm -rf /") :to-be nil)
+    (expect (nrepl--port-string-to-number "") :to-be nil)))
+
+(describe "nrepl-extract-ports"
+  (it "reads all four port file locations"
+    (let ((dir (make-temp-file "nrepl-ports-test" 'dir)))
+      (unwind-protect
+          (progn
+            (make-directory (expand-file-name "target" dir))
+            (make-directory (expand-file-name ".shadow-cljs" dir))
+            (with-temp-file (expand-file-name "repl-port" dir) (insert "1001"))
+            (with-temp-file (expand-file-name ".nrepl-port" dir) (insert "1002"))
+            (with-temp-file (expand-file-name "target/repl-port" dir) (insert "1003"))
+            (with-temp-file (expand-file-name ".shadow-cljs/nrepl.port" dir) (insert "1004"))
+            (spy-on 'executable-find :and-return-value "/usr/bin/lsof")
+            (spy-on 'process-file-shell-command :and-call-fake
+                    (lambda (&rest _) (insert "listening")))
+            (expect (nrepl-extract-ports dir)
+                    :to-equal '("1001" "1002" "1003" "1004")))
+        (delete-directory dir t))))
+
+  (it "returns nil for a directory without port files"
+    (let ((dir (make-temp-file "nrepl-ports-test" 'dir)))
+      (unwind-protect
+          (expect (nrepl-extract-ports dir) :to-be nil)
+        (delete-directory dir t)))))
