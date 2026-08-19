@@ -190,6 +190,31 @@
       (expect (cider--running-non-lein-nrepl-paths) :to-be nil)
       (expect 'cider--shell-command-to-string :not :to-have-been-called))))
 
+(describe "cider--host-history-candidate"
+  (it "keeps the port when something is listening on it"
+    (spy-on 'nrepl--port-alive-p :and-return-value t)
+    (expect (cider--host-history-candidate "localhost:63213")
+            :to-equal '("localhost" "63213")))
+
+  (it "drops a stale port from a local host, keeping the host"
+    (spy-on 'nrepl--port-alive-p :and-return-value nil)
+    (expect (cider--host-history-candidate "localhost:63213")
+            :to-equal '("localhost")))
+
+  (it "does not try to check remote hosts"
+    (spy-on 'nrepl--port-alive-p)
+    (expect (cider--host-history-candidate "example.com:7888")
+            :to-equal '("example.com" "7888"))
+    (expect 'nrepl--port-alive-p :not :to-have-been-called))
+
+  (it "drops a non-numeric port"
+    (expect (cider--host-history-candidate "localhost:garbage")
+            :to-equal '("localhost")))
+
+  (it "handles a bare host entry"
+    (expect (cider--host-history-candidate "localhost")
+            :to-equal '("localhost"))))
+
 (describe "cider--lsof-fn-field"
   (it "returns the name field with the leading \"n\" stripped"
     (spy-on 'cider--process-file-to-string

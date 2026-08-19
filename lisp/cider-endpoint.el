@@ -94,8 +94,8 @@ See also https://github.com/nrepl/nREPL/issues/6."
                   (nth 0 endpoint))))
   (let* ((ssh-hosts (cider--ssh-hosts))
          (hosts (seq-uniq (append (when cider-host-history
-                                    ;; history elements are strings of the form "host:port"
-                                    (list (split-string (car cider-host-history) ":")))
+                                    (list (cider--host-history-candidate
+                                           (car cider-host-history))))
                                   (list (list (cider-current-host)))
                                   cider-known-endpoints
                                   ssh-hosts
@@ -109,6 +109,23 @@ See also https://github.com/nrepl/nREPL/issues/6."
                        (cider--completing-read-socket-file)
                      (cider--completing-read-port host (cider--infer-ports host ssh-hosts))))))
     (cons host port)))
+
+(defun cider--host-history-candidate (entry)
+  "Return a (HOST PORT) or (HOST) candidate from the history ENTRY.
+ENTRY is a \"host:port\" string from `cider-host-history'.  The port
+makes reconnecting to the same server a single RET - but it comes from
+a previous session, so when the host is local and nothing is listening
+on the port anymore, offer just the host and let port inference take
+over instead of defaulting to a stale endpoint."
+  (let* ((parts (split-string entry ":"))
+         (host (car parts))
+         (port (cadr parts))
+         (port-number (and port (nrepl--port-string-to-number port))))
+    (cond ((null port-number) (list host))
+          ((and (nrepl-local-host-p host)
+                (not (nrepl--port-alive-p port-number)))
+           (list host))
+          (t (list host port)))))
 
 (defun cider--ssh-hosts ()
   "Retrieve all ssh host from local configuration files.

@@ -261,6 +261,24 @@ PARAMS is as in `nrepl-make-buffer-name'."
   (when (string-match "^\\([0-9]+\\)" s)
     (string-to-number (match-string 0 s))))
 
+(defun nrepl--port-alive-p (port-number)
+  "Return non-nil unless PORT-NUMBER can be shown to have no listener.
+Checks for a listening TCP socket with lsof; errs on the side of
+liveness when that cannot be determined (Windows, or no lsof - minimal
+systems often lack it, and absence of the tool is not evidence the
+port is dead).  `process-file-shell-command' honors `default-directory'
+and so runs lsof on the remote host in TRAMP contexts."
+  (if (or (eq system-type 'windows-nt)
+          (not (executable-find "lsof" (file-remote-p default-directory))))
+      t
+    ;; -sTCP:LISTEN: only a listening socket proves a live server; a
+    ;; mere established connection involving the port does not.
+    (not (equal ""
+                (with-temp-buffer
+                  (process-file-shell-command
+                   (format "lsof -i:%s -sTCP:LISTEN" port-number) nil t)
+                  (buffer-string))))))
+
 (defun nrepl--port-from-file (file)
   "Attempt to read port from a file named by FILE.
 
@@ -274,22 +292,8 @@ Discards it if it can be determined that the port is not active."
                                (string-trim (buffer-string))))
                 ;; extract the number, most of all for not passing garbage to `lsof' (which might even be a security risk):
                 (port-number (nrepl--port-string-to-number port-string)))
-      (if (or (eq system-type 'windows-nt)
-              ;; No lsof means we can't DETERMINE the port is dead, so
-              ;; keep it (minimal systems often lack lsof; discarding
-              ;; every port file there broke detection entirely).
-              (not (executable-find "lsof" (file-remote-p default-directory))))
-          port-string
-        ;; `process-file-shell-command' honors `default-directory' and so
-        ;; runs lsof on the remote host when FILE lives on TRAMP.
-        ;; -sTCP:LISTEN: only a listening socket proves a live server; a
-        ;; mere established connection involving the port does not.
-        (unless (equal ""
-                       (with-temp-buffer
-                         (process-file-shell-command
-                          (format "lsof -i:%s -sTCP:LISTEN" port-number) nil t)
-                         (buffer-string)))
-          port-string)))))
+      (when (nrepl--port-alive-p port-number)
+        port-string))))
 
 (defun nrepl--ssh-file-name-matches-host-p (file-name host)
   "Return t, if FILE-NAME is a tramp-file-name on HOST via ssh."

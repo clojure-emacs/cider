@@ -448,6 +448,9 @@ servers it can discover, combining a few sources:
   Windows.
 * *Open CIDER REPL buffers*, so sibling connections to an already-connected
   server are easy.
+* *The most recent endpoint you connected to*, so reconnecting is a single
+  kbd:[RET] - unless its port is no longer listening, in which case only the
+  host is suggested.
 
 Ports read from port files are verified with `lsof` - a stale file whose
 port nobody is listening on is not suggested. When `lsof` isn't available
