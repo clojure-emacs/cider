@@ -634,3 +634,26 @@
         (spy-on 'message)
         (nrepl--dispatch-response (nrepl-dict "id" "999"))
         (expect 'message :to-have-been-called)))))
+
+(describe "nrepl--port-from-file"
+  (it "trims whitespace from the port file contents"
+    ;; lein and friends write a trailing newline; it must not leak into
+    ;; the returned port string (pollutes completion, breaks dedup)
+    (let ((f (make-temp-file "nrepl-port-test")))
+      (unwind-protect
+          (progn
+            (with-temp-file f (insert "63213\n"))
+            ;; pretend something is listening on the port
+            (spy-on 'process-file-shell-command :and-call-fake
+                    (lambda (&rest _) (insert "java 49859 bbatsov")))
+            (expect (nrepl--port-from-file f) :to-equal "63213"))
+        (delete-file f))))
+
+  (it "discards the port when nothing is listening on it"
+    (let ((f (make-temp-file "nrepl-port-test")))
+      (unwind-protect
+          (progn
+            (with-temp-file f (insert "63213\n"))
+            (spy-on 'process-file-shell-command) ;; no output = no listener
+            (expect (nrepl--port-from-file f) :to-be nil))
+        (delete-file f)))))
