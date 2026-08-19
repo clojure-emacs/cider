@@ -148,3 +148,7 @@ If you would prefer to evaluate `cljc` files in only one of the matching REPLs, 
 ----
 
 Note: This variable can also be set on a per-buffer basis using `setq-local`, or project-wide in `dir-locals.el`.
+
+You can also switch the destination interactively in a single buffer with
+kbd:[C-c C-M-d] (`cider-cycle-eval-destination`), which cycles through `clj`,
+`cljs`, `multi` and `auto`, and shows the active choice in the mode line.

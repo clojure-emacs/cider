@@ -246,6 +246,25 @@ If the session only has one of the two REPL types, that one is used regardless
 of the setting; the missing half is simply skipped until a matching REPL joins
 the session.
 
+==== Overriding the Destination per Buffer
+
+You don't have to commit globally - the destination can be changed for a
+single buffer at any time:
+
+* kbd:[C-c C-M-d] (`cider-cycle-eval-destination`) cycles the buffer's eval
+  destination through `clj`, `cljs`, `multi` and back to `auto` (the
+  file-type-based inference described above).
+* `M-x cider-set-eval-destination` sets it directly, with completion.
+
+The active override is shown in the mode line (e.g. `[cljs]`), so you can
+always tell where your evaluations will go. This also works in buffers with
+no inherent file type to dispatch on, like the scratch buffer.
+
+TIP: To make the choice stick for a whole project, set the underlying
+variable in
+https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html[.dir-locals.el],
+e.g. `((clojurec-mode . ((cider-repl-type-override . cljs))))`.
+
 == Context Links
 
 Sessions can be linked to contexts (projects, directories and buffers)
