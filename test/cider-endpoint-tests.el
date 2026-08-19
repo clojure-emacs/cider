@@ -73,6 +73,51 @@
       (let ((default-directory "/tmp/b/")) (cider--running-nrepl-paths))
       (expect 'cider--running-nrepl-paths-uncached :to-have-been-called-times 2))))
 
+(describe "cider--running-lein-nrepl-paths"
+  (it "extracts the project path from the leiningen.original.pwd property"
+    (spy-on 'cider--shell-command-to-string :and-return-value
+            "bbatsov 51642 0.0 0.4 443192976 93200 ?? SN 3:17PM 0:00.58 java -Dleiningen.original.pwd=/tmp/proj -Dfile.encoding=UTF-8 -Xbootclasspath/a:/home/me/.lein/self-installs/leiningen-2.11.2-standalone.jar clojure.main -m leiningen.core.main repl :headless\n")
+    (spy-on 'cider--path->path-port-pairs :and-call-fake
+            (lambda (path) (list (list path "63261"))))
+    (expect (cider--running-lein-nrepl-paths)
+            :to-equal '(("/tmp/proj" "63261"))))
+
+  (it "returns nil when no lein process is running"
+    (spy-on 'cider--shell-command-to-string :and-return-value "")
+    (expect (cider--running-lein-nrepl-paths) :to-be nil)))
+
+(describe "cider--path->path-port-pairs"
+  (it "pairs the path with each port found in it"
+    (spy-on 'cider--file-path :and-call-fake #'identity)
+    (spy-on 'nrepl-extract-ports :and-return-value '("63213" "63214"))
+    (expect (cider--path->path-port-pairs "/tmp/proj")
+            :to-equal '(("/tmp/proj" "63213") ("/tmp/proj" "63214")))))
+
+(describe "cider--infer-ports"
+  (it "consults the current directory's project for a local host"
+    (spy-on 'cider-locate-running-nrepl-ports :and-return-value '(("proj" "1234")))
+    (let ((default-directory "/tmp/proj/"))
+      (expect (cider--infer-ports "localhost" nil) :to-equal '(("proj" "1234")))
+      (expect 'cider-locate-running-nrepl-ports
+              :to-have-been-called-with "/tmp/proj/")))
+
+  (it "does not scan remote hosts unless cider-infer-remote-nrepl-ports is on"
+    (spy-on 'cider-locate-running-nrepl-ports)
+    (let ((cider-infer-remote-nrepl-ports nil))
+      (expect (cider--infer-ports "some-remote" '(("some-remote"))) :to-be nil)
+      (expect 'cider-locate-running-nrepl-ports :not :to-have-been-called))))
+
+(describe "cider--completing-read-port"
+  (it "resolves a (name port) candidate to its port number"
+    (spy-on 'completing-read :and-return-value "proj:63213")
+    (expect (cider--completing-read-port "localhost" '(("proj" "63213")))
+            :to-equal 63213))
+
+  (it "accepts a port typed directly"
+    (spy-on 'completing-read :and-return-value "7888")
+    (expect (cider--completing-read-port "localhost" '())
+            :to-equal 7888)))
+
 (describe "cider--running-non-lein-nrepl-paths"
   ;; A `lein trampoline repl :headless' JVM has no "leiningen" marker in
   ;; its command line at all (the Lein ps scan can't see it), but it runs
@@ -146,10 +191,10 @@
     (expect (cider--invoke-running-nrepl-path (lambda () '(("/p" "1"))))
             :to-equal '(("/p" "1"))))
 
-  (it "blanks out pairs whose path is gone (left for the caller to drop)"
+  (it "drops pairs whose path is gone"
     (spy-on 'file-exists-p :and-return-value nil)
     (expect (cider--invoke-running-nrepl-path (lambda () '(("/p" "1"))))
-            :to-equal '(nil)))
+            :to-equal nil))
 
   (it "swallows errors from the OS-specific probe and returns nil"
     (expect (cider--invoke-running-nrepl-path (lambda () (error "boom")))

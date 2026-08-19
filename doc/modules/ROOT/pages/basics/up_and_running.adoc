@@ -433,6 +433,36 @@ project.
 
 TIP: In Clojure(Script) buffers the command `cider-connect` is bound to kbd:[C-c C-x c s].
 
+=== How CIDER Finds Ports
+
+The port prompt is not a blank slate - CIDER suggests the ports of nREPL
+servers it can discover, combining a few sources:
+
+* *Port files* in the current project: `.nrepl-port`, `repl-port`,
+  `target/repl-port` and `.shadow-cljs/nrepl.port`. This is how a server
+  started with `lein repl :headless` or `clj` in your project directory is
+  found.
+* *A process scan* for running nREPL servers - Leiningen REPLs (including
+  `lein trampoline` ones), babashka's `--nrepl-server`, and servers started
+  via `nrepl.cmdline`. The scan uses `ps` and `lsof`, so it's skipped on
+  Windows.
+* *Open CIDER REPL buffers*, so sibling connections to an already-connected
+  server are easy.
+
+Ports read from port files are verified with `lsof` - a stale file whose
+port nobody is listening on is not suggested. When `lsof` isn't available
+the port is suggested as-is.
+
+The process scan is cached for a few seconds (see
+`cider-running-nrepl-paths-cache-ttl`); if you've just started or killed a
+server and the suggestions look stale, `M-x
+cider-clear-running-nrepl-paths-cache` discards the cache.
+
+For remote hosts no scanning happens by default; see
+xref:basics/remote.adoc[Remote Development] and
+`cider-infer-remote-nrepl-ports` if you want CIDER to look for ports over
+SSH.
+
 If you frequently connect to the same hosts and ports, you can tell
 CIDER about them and it will use the information to do completing
 reads for the host and port prompts when you invoke
