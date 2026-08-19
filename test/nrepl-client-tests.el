@@ -651,7 +651,9 @@
         (delete-file f))))
 
   (it "discards the port when nothing is listening on it"
-    (let ((f (make-temp-file "nrepl-port-test")))
+    (let ((f (make-temp-file "nrepl-port-test"))
+          ;; bind system-type: on windows-nt the liveness check is skipped
+          (system-type 'gnu/linux))
       (unwind-protect
           (progn
             (with-temp-file f (insert "63213\n"))
