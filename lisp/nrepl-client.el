@@ -268,7 +268,10 @@ Discards it if it can be determined that the port is not active."
   (when (file-exists-p file)
     (when-let* ((port-string (with-temp-buffer
                                (insert-file-contents file)
-                               (buffer-string)))
+                               ;; trim: some tools write a trailing newline,
+                               ;; which pollutes completion candidates and
+                               ;; breaks dedup against lsof-sourced ports
+                               (string-trim (buffer-string))))
                 ;; extract the number, most of all for not passing garbage to `lsof' (which might even be a security risk):
                 (port-number (nrepl--port-string-to-number port-string)))
       (if (eq system-type 'windows-nt)
@@ -1459,10 +1462,10 @@ it; the log then fills as nREPL traffic flows."
       (1 (pop-to-buffer (car buffers)))
       (0 (cond
           (nrepl-log-messages
-           (user-error "nREPL message logging is on, but nothing has been logged yet"))
-          ((y-or-n-p "nREPL message logging is disabled; enable it? ")
+           (user-error "No nREPL messages have been logged yet (logging is on)"))
+          ((y-or-n-p "Message logging is disabled; enable it? ")
            (setq nrepl-log-messages t)
-           (message "nREPL message logging enabled; the log will fill as traffic flows"))))
+           (message "Enabled nREPL message logging; the log will fill as traffic flows"))))
       (_ (pop-to-buffer
           (get-buffer
            (completing-read "nREPL messages buffer: "
