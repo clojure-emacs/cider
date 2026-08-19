@@ -74,17 +74,22 @@
       (expect 'cider--running-nrepl-paths-uncached :to-have-been-called-times 2))))
 
 (describe "cider--running-lein-nrepl-paths"
+  ;; The scans no-op on windows-nt before reaching the spied helpers, so
+  ;; bind system-type: these specs exercise the scan logic itself, which
+  ;; is platform-independent.
   (it "extracts the project path from the leiningen.original.pwd property"
-    (spy-on 'cider--shell-command-to-string :and-return-value
-            "bbatsov 51642 0.0 0.4 443192976 93200 ?? SN 3:17PM 0:00.58 java -Dleiningen.original.pwd=/tmp/proj -Dfile.encoding=UTF-8 -Xbootclasspath/a:/home/me/.lein/self-installs/leiningen-2.11.2-standalone.jar clojure.main -m leiningen.core.main repl :headless\n")
-    (spy-on 'cider--path->path-port-pairs :and-call-fake
-            (lambda (path) (list (list path "63261"))))
-    (expect (cider--running-lein-nrepl-paths)
-            :to-equal '(("/tmp/proj" "63261"))))
+    (let ((system-type 'gnu/linux))
+      (spy-on 'cider--shell-command-to-string :and-return-value
+              "bbatsov 51642 0.0 0.4 443192976 93200 ?? SN 3:17PM 0:00.58 java -Dleiningen.original.pwd=/tmp/proj -Dfile.encoding=UTF-8 -Xbootclasspath/a:/home/me/.lein/self-installs/leiningen-2.11.2-standalone.jar clojure.main -m leiningen.core.main repl :headless\n")
+      (spy-on 'cider--path->path-port-pairs :and-call-fake
+              (lambda (path) (list (list path "63261"))))
+      (expect (cider--running-lein-nrepl-paths)
+              :to-equal '(("/tmp/proj" "63261")))))
 
   (it "returns nil when no lein process is running"
-    (spy-on 'cider--shell-command-to-string :and-return-value "")
-    (expect (cider--running-lein-nrepl-paths) :to-be nil)))
+    (let ((system-type 'gnu/linux))
+      (spy-on 'cider--shell-command-to-string :and-return-value "")
+      (expect (cider--running-lein-nrepl-paths) :to-be nil))))
 
 (describe "cider--path->path-port-pairs"
   (it "pairs the path with each port found in it"
@@ -122,58 +127,68 @@
   ;; A `lein trampoline repl :headless' JVM has no "leiningen" marker in
   ;; its command line at all (the Lein ps scan can't see it), but it runs
   ;; the lein-generated init file: clojure.main -i /tmp/form-init<N>.clj.
+  ;; system-type is bound because the scan no-ops on windows-nt.
   (it "finds a trampolined lein REPL via its form-init fingerprint"
-    (spy-on 'cider--shell-command-to-string :and-return-value
-            "bbatsov 49859 0.0 0.4 443188240 105040 ?? SN 3:13PM 0:00.89 java -classpath /tmp/proj/src clojure.main -i /tmp/form-init123.clj
-")
-    (spy-on 'cider--lsof-fn-field :and-call-fake
-            (lambda (args)
-              (if (member "cwd" args) "/tmp/proj" "127.0.0.1:63213")))
-    (expect (cider--running-non-lein-nrepl-paths)
-            :to-equal '(("/tmp/proj" "63213"))))
+    (let ((system-type 'gnu/linux))
+      (spy-on 'cider--shell-command-to-string :and-return-value
+              "bbatsov 49859 0.0 0.4 443188240 105040 ?? SN 3:13PM 0:00.89 java -classpath /tmp/proj/src clojure.main -i /tmp/form-init123.clj\n")
+      (spy-on 'cider--lsof-fn-field :and-call-fake
+              (lambda (args)
+                (if (member "cwd" args) "/tmp/proj" "127.0.0.1:63213")))
+      (expect (cider--running-non-lein-nrepl-paths)
+              :to-equal '(("/tmp/proj" "63213")))))
 
   (it "extracts the pid despite ps column padding (short pids)"
     ;; ps pads columns; a naive single-space split yields "" for the pid
-    (spy-on 'cider--shell-command-to-string :and-return-value
-            "bbatsov   549   0.0 0.4 443188240 105040 ?? SN 3:13PM 0:00.89 java -classpath /tmp/proj/src clojure.main -i /tmp/form-init123.clj\n")
-    (spy-on 'cider--lsof-fn-field :and-call-fake
-            (lambda (args)
-              (expect (car (last args)) :to-equal "549")
-              (if (member "cwd" args) "/tmp/proj" "127.0.0.1:63213")))
-    (expect (cider--running-non-lein-nrepl-paths)
-            :to-equal '(("/tmp/proj" "63213"))))
+    (let ((system-type 'gnu/linux))
+      (spy-on 'cider--shell-command-to-string :and-return-value
+              "bbatsov   549   0.0 0.4 443188240 105040 ?? SN 3:13PM 0:00.89 java -classpath /tmp/proj/src clojure.main -i /tmp/form-init123.clj\n")
+      (spy-on 'cider--lsof-fn-field :and-call-fake
+              (lambda (args)
+                (expect (car (last args)) :to-equal "549")
+                (if (member "cwd" args) "/tmp/proj" "127.0.0.1:63213")))
+      (expect (cider--running-non-lein-nrepl-paths)
+              :to-equal '(("/tmp/proj" "63213")))))
 
   (it "only considers listening sockets when extracting the port"
-    (spy-on 'cider--shell-command-to-string :and-return-value
-            "bbatsov 49859 0.0 0.4 1 2 ?? SN 3:13PM 0:00.89 java -cp src -m nrepl.cmdline\n")
-    (spy-on 'cider--lsof-fn-field :and-call-fake
-            (lambda (args)
-              (if (member "cwd" args)
-                  "/tmp/proj"
-                (progn (expect args :to-contain "-sTCP:LISTEN")
-                       "127.0.0.1:63213"))))
-    (cider--running-non-lein-nrepl-paths)
-    (expect 'cider--lsof-fn-field :to-have-been-called))
+    (let ((system-type 'gnu/linux))
+      (spy-on 'cider--shell-command-to-string :and-return-value
+              "bbatsov 49859 0.0 0.4 1 2 ?? SN 3:13PM 0:00.89 java -cp src -m nrepl.cmdline\n")
+      (spy-on 'cider--lsof-fn-field :and-call-fake
+              (lambda (args)
+                (if (member "cwd" args)
+                    "/tmp/proj"
+                  (progn (expect args :to-contain "-sTCP:LISTEN")
+                         "127.0.0.1:63213"))))
+      (cider--running-non-lein-nrepl-paths)
+      (expect 'cider--lsof-fn-field :to-have-been-called)))
 
   (it "finds a babashka nREPL server"
-    (spy-on 'cider--shell-command-to-string :and-return-value
-            "bbatsov 15411 0.0 0.0 37915744 16084 s000 S+ 3:02PM 0:00.02 bb --nrepl-server
-")
-    (spy-on 'cider--lsof-fn-field :and-call-fake
-            (lambda (args)
-              (if (member "cwd" args) "/tmp/bb-proj" "127.0.0.1:1667")))
-    (expect (cider--running-non-lein-nrepl-paths)
-            :to-equal '(("/tmp/bb-proj" "1667"))))
+    (let ((system-type 'gnu/linux))
+      (spy-on 'cider--shell-command-to-string :and-return-value
+              "bbatsov 15411 0.0 0.0 37915744 16084 s000 S+ 3:02PM 0:00.02 bb --nrepl-server\n")
+      (spy-on 'cider--lsof-fn-field :and-call-fake
+              (lambda (args)
+                (if (member "cwd" args) "/tmp/bb-proj" "127.0.0.1:1667")))
+      (expect (cider--running-non-lein-nrepl-paths)
+              :to-equal '(("/tmp/bb-proj" "1667")))))
 
   (it "keeps the guard that excludes the parent leiningen JVM"
     ;; the parent lein process is the Lein scan's job; the shell pipeline
     ;; here must keep filtering it out
-    (spy-on 'cider--shell-command-to-string :and-return-value "")
-    (cider--running-non-lein-nrepl-paths)
-    (let ((cmd (car (spy-calls-args-for 'cider--shell-command-to-string 0))))
-      (expect cmd :to-match "grep -v -E 'leiningen|grep'")
-      (expect cmd :to-match "form-init")
-      (expect cmd :to-match "ps ux"))))
+    (let ((system-type 'gnu/linux))
+      (spy-on 'cider--shell-command-to-string :and-return-value "")
+      (cider--running-non-lein-nrepl-paths)
+      (let ((cmd (car (spy-calls-args-for 'cider--shell-command-to-string 0))))
+        (expect cmd :to-match "grep -v -E 'leiningen|grep'")
+        (expect cmd :to-match "form-init")
+        (expect cmd :to-match "ps ux"))))
+
+  (it "returns nil on Windows (ps/lsof are not available)"
+    (let ((system-type 'windows-nt))
+      (spy-on 'cider--shell-command-to-string)
+      (expect (cider--running-non-lein-nrepl-paths) :to-be nil)
+      (expect 'cider--shell-command-to-string :not :to-have-been-called))))
 
 (describe "cider--lsof-fn-field"
   (it "returns the name field with the leading \"n\" stripped"
