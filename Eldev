@@ -73,4 +73,8 @@
 
 ;; package-lint is disabled because nrepl-*.el files intentionally use
 ;; the `nrepl-' prefix instead of the `cider-' package prefix.
-(setf eldev-lint-default '(checkdoc))
+;; `doc' is the linter's canonical name; `checkdoc' is only a command-line
+;; alias, and the default-linter matching doesn't resolve aliases - with
+;; `(checkdoc)' here, a bare `eldev lint' (which is what CI runs) silently
+;; lints nothing.
+(setf eldev-lint-default '(doc))
