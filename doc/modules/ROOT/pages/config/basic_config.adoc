@@ -202,6 +202,7 @@ To prefer local resources to remote resources (tramp) when both are available:
 (setq cider-prefer-local-resources t)
 ----
 
+[#translate-file-paths]
 == Translate File Paths
 
 If you are running Clojure within a Docker image, or doing something similar (i.e. you're `cider-connect`ing to a process,

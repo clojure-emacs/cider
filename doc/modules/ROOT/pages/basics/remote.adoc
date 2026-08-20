@@ -90,11 +90,14 @@ A few things still need attention when jacking in over TRAMP:
   xref:basics/up_and_running.adoc#overriding-the-jack-in-command[Overriding the Jack-In Command])
   to the exact command line you want to run.
 - *Endpoint discovery for `cider-connect`* (`cider-locate-running-nrepl-ports`)
-  inspects processes via `ps`/`lsof` on the host given by the buffer's
-  `default-directory`.  When you invoke `cider-connect` from a TRAMP
-  buffer, CIDER queries the remote host -- assuming `ps` and `lsof` are
-  installed there.  If they aren't, the completion list will simply be
-  empty.  The scan result is cached per `default-directory` for
+  runs on the host given by the buffer's `default-directory`, so from a
+  TRAMP buffer CIDER queries the remote host.  Port files (`.nrepl-port`
+  and friends) are read over TRAMP and work without any extra tooling;
+  the *process scan* additionally needs `ps` and `lsof` installed on the
+  remote (in a container that usually means `apt-get install procps
+  lsof` or the image's equivalent).  Without them you still get the
+  port-file suggestions, just not the scan's.  The scan result is
+  cached per `default-directory` for
   `cider-running-nrepl-paths-cache-ttl` seconds (5 by default), so
   back-to-back completions don't re-spawn the subprocesses; call
   `cider-clear-running-nrepl-paths-cache` to discard it on demand.
@@ -108,8 +111,18 @@ A few things still need attention when jacking in over TRAMP:
   remote host's shell, so cross-OS jack-ins (e.g. Linux Emacs ->
   Windows host) may need an explicit `cider-jack-in-cmd`.
 
-NOTE: For Docker containers, running `cider-jack-in-\*` over TRAMP may technically work but it may give mixed results.
-Please check out the following section for the recommended approaches.
+[NOTE]
+====
+For Docker containers (e.g. a buffer opened via Emacs 29+'s built-in
+`/docker:container:/path` TRAMP method) the *server-starting* half of
+`cider-jack-in-\*` generally works: project detection, executable lookup and
+the build tool all run inside the container.  What fails is the
+*connect-back* step - the container's name is not a host your Emacs can
+reach, and CIDER's SSH tunneling doesn't apply to container methods.  So the
+recommended approach is the one described in the next section: start the
+server in the container yourself, publish the port, and `cider-connect` to
+it.
+====
 
 == Working with Containers (Docker or others)
 
@@ -131,6 +144,25 @@ There are several solutions for this depending on the concrete scenario.
 
 The nREPL port should be set to a fixed value as we need to give this during the `docker start` command in order to forward the port from
 container to host. This requires as well that nREPL server listens to "0.0.0.0" and not only to "localhost".
+
+TIP: Publish the port under the *same* number on both sides (e.g.
+`-p 7888:7888`).  A mismatched mapping like `-p 12345:7888` technically
+works, but it blinds CIDER's port suggestions: a `.nrepl-port` file in a
+mounted project directory records the *container's* port, which on the host
+side is either wrong or (correctly) discarded as dead, so `cider-connect`
+can't suggest anything and you have to type the forwarded port yourself.
+
+If your source directories are mounted into the container, also set
+`cider-path-translations` so that stacktraces and jump-to-definition
+resolve container paths (like `/app/src/...`) back to the files on your
+machine - see
+xref:config/basic_config.adoc#translate-file-paths[Translate File Paths].
+A `.dir-locals.el` in the project root is the natural place for it:
+
+[source,lisp]
+----
+((nil . ((cider-path-translations . (("/app" . "/Users/me/projects/foo"))))))
+----
 
 === Working with Containers running on remote hosts
 
@@ -214,6 +246,11 @@ $ clj -R:nREPL -m nrepl.cmdline --socket nrepl.sock
 
 you can then connect CIDER by using the `local-unix-domain-socket`
 special hostname with `cider-connect`: kbd:[M-x] `cider-connect` kbd:[RET] `local-unix-domain-socket` kbd:[RET] `nrepl.sock` kbd:[RET].
+
+NOTE: Sharing a socket file with a container via a volume mount only works
+where the container runs directly on your kernel (i.e. Linux).  Docker
+Desktop on macOS and Windows runs containers inside a VM, and unix domain
+sockets can't cross that boundary - use a forwarded TCP port there instead.
 
 At the moment only with `leiningen`, commands like `cider-jack-in`
 will detect and use the unix domain socket if one is requested via the
