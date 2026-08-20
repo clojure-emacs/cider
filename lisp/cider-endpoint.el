@@ -166,10 +166,27 @@ of remote SSH hosts."
   (let ((localp (or (nrepl-local-host-p host)
                     (not (assoc-string host ssh-hosts)))))
     (if localp
-        ;; change dir: current file might be remote
-        (let* ((change-dir-p (file-remote-p default-directory))
+        (let* ((container-method (nrepl--tramp-container-method))
+               (container (and container-method
+                               (file-remote-p default-directory 'host)))
+               ;; A container's nREPL is only reachable through the ports it
+               ;; publishes on the local host, so scan inside the container
+               ;; and translate each suggestion; unpublished ports are
+               ;; unreachable from Emacs and get dropped.
+               (container-pairs
+                (when container-method
+                  (delq nil
+                        (mapcar (lambda (pair)
+                                  (when-let* ((published (nrepl--container-published-port
+                                                          container-method container
+                                                          (string-to-number (cadr pair)))))
+                                    (list (car pair) (number-to-string published))))
+                                (cider-locate-running-nrepl-ports default-directory)))))
+               ;; change dir: current file might be remote
+               (change-dir-p (file-remote-p default-directory))
                (default-directory (if change-dir-p "~/" default-directory)))
-          (cider-locate-running-nrepl-ports (unless change-dir-p default-directory)))
+          (append container-pairs
+                  (cider-locate-running-nrepl-ports (unless change-dir-p default-directory))))
       (when cider-infer-remote-nrepl-ports
         (let ((vec (vector "sshx" nil host "" nil))
               ;; change dir: user might want to connect to a different remote

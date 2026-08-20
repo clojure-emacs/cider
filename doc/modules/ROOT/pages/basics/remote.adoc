@@ -116,13 +116,23 @@ A few things still need attention when jacking in over TRAMP:
 For Docker containers (e.g. a buffer opened via Emacs 29+'s built-in
 `/docker:container:/path` TRAMP method) the *server-starting* half of
 `cider-jack-in-\*` generally works: project detection, executable lookup and
-the build tool all run inside the container.  What fails is the
+the build tool all run inside the container.  The tricky part is the
 *connect-back* step - the container's name is not a host your Emacs can
-reach, and CIDER's SSH tunneling doesn't apply to container methods.  So the
-recommended approach is the one described in the next section: start the
-server in the container yourself, publish the port, and `cider-connect` to
-it.
+reach, and CIDER's SSH tunneling doesn't apply to container methods.  CIDER
+resolves this automatically when the container *publishes* the nREPL port:
+it asks `docker port` (or `podman port`) which local port the server is
+reachable on and connects there.  Since a jack-in's nREPL port is random by
+default, this only helps if you fix the port and publish it; for anything
+else, the approach described in the next section - start the server in the
+container yourself, publish the port, and `cider-connect` to it - remains
+the recommended one.
 ====
+
+TIP: The same published-port resolution applies to `cider-connect`'s port
+suggestions: from a `/docker:...` buffer, ports discovered inside the
+container are offered as the local ports they're published on, and
+unpublished (unreachable) ones are dropped.
+
 
 == Working with Containers (Docker or others)
 

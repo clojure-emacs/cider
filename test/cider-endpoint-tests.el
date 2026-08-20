@@ -112,6 +112,26 @@
       (expect (cider--infer-ports "some-remote" '(("some-remote"))) :to-be nil)
       (expect 'cider-locate-running-nrepl-ports :not :to-have-been-called))))
 
+(describe "cider--infer-ports from a container buffer"
+  (it "translates container suggestions to their published host ports"
+    (spy-on 'cider-locate-running-nrepl-ports :and-call-fake
+            (lambda (&optional dir)
+              (if dir '(("app" "7888")) nil)))
+    (spy-on 'nrepl--container-published-port :and-call-fake
+            (lambda (_method _container port)
+              (when (= port 7888) 12345)))
+    (let ((default-directory "/docker:zz-app:/app/"))
+      (expect (cider--infer-ports "localhost" nil)
+              :to-equal '(("app" "12345")))))
+
+  (it "drops container ports that aren't published"
+    (spy-on 'cider-locate-running-nrepl-ports :and-call-fake
+            (lambda (&optional dir)
+              (if dir '(("app" "7888")) nil)))
+    (spy-on 'nrepl--container-published-port :and-return-value nil)
+    (let ((default-directory "/docker:zz-app:/app/"))
+      (expect (cider--infer-ports "localhost" nil) :to-equal nil))))
+
 (describe "cider--completing-read-port"
   (it "resolves a (name port) candidate to its port number"
     (spy-on 'completing-read :and-return-value "proj:63213")
