@@ -295,6 +295,26 @@ Discards it if it can be determined that the port is not active."
       (when (nrepl--port-alive-p port-number)
         port-string))))
 
+(defun nrepl--tramp-container-method (&optional dir)
+  "Return DIR's TRAMP container method (\"docker\" or \"podman\"), or nil.
+DIR defaults to `default-directory'.  Purely syntactic; no connection is
+opened."
+  (when-let* ((method (file-remote-p (or dir default-directory) 'method)))
+    (car (member method '("docker" "podman")))))
+
+(defun nrepl--container-published-port (method container port)
+  "Return the host port CONTAINER publishes PORT on, or nil.
+METHOD is the container CLI to use (\"docker\" or \"podman\"), run on
+the local machine.  Ports that the container doesn't publish yield nil."
+  (with-temp-buffer
+    (when (eq 0 (ignore-errors
+                  (call-process method nil t nil
+                                "port" container (format "%s/tcp" port))))
+      ;; output looks like "0.0.0.0:12345\n[::]:12345"
+      (goto-char (point-min))
+      (when (re-search-forward ":\\([0-9]+\\)$" nil t)
+        (string-to-number (match-string 1))))))
+
 (defun nrepl--ssh-file-name-matches-host-p (file-name host)
   "Return t, if FILE-NAME is a tramp-file-name on HOST via ssh."
   (when (tramp-tramp-file-p file-name)
@@ -469,9 +489,13 @@ key-values depending on the connection type."
           (or (nrepl--direct-connect host port 'no-error)
               ;; direct connection failed
               ;; fallback to ssh tunneling if enabled
-              (and nrepl-use-ssh-fallback-for-remote-hosts
-                   (message "[nREPL] Falling back to SSH tunneled connection ...")
-                   (nrepl--ssh-tunnel-connect host port))
+              (when nrepl-use-ssh-fallback-for-remote-hosts
+                ;; `when' rather than an `and' threaded through `message':
+                ;; `message' returning its string is not guaranteed in every
+                ;; environment (Eldev's batch wrapper returns nil), and control
+                ;; flow must not hinge on it
+                (message "[nREPL] Falling back to SSH tunneled connection ...")
+                (nrepl--ssh-tunnel-connect host port))
               ;; fallback is either not enabled or it failed as well
               (if (and (null nrepl-use-ssh-fallback-for-remote-hosts)
                        (not localp))
@@ -1299,20 +1323,34 @@ up."
                       ((string-match nrepl-listening-inet-address-regexp output)
                        (let* ((printed-host (match-string 2 output))
                               (tramp-host (file-remote-p default-directory 'host))
+                              (container-method (nrepl--tramp-container-method))
+                              (port (string-to-number (match-string 1 output)))
+                              (published (and container-method tramp-host
+                                              (nrepl--container-published-port
+                                               container-method tramp-host port)))
                               ;; When the server prints a wildcard or loopback
                               ;; address, use the TRAMP host (if any) so we
                               ;; connect to the remote machine, not the local
                               ;; one.  Otherwise trust the printed host.
+                              ;; Containers are special: their TRAMP host (the
+                              ;; container name) is not a reachable address, so
+                              ;; resolve the port the container publishes on
+                              ;; the local host instead.
                               (host (cond
+                                     (published "localhost")
                                      ((or (null printed-host)
                                           (member printed-host
                                                   '("localhost" "127.0.0.1"
                                                     "0.0.0.0" "::1" "::")))
                                       (or tramp-host "localhost"))
-                                     (t printed-host)))
-                             (port (string-to-number (match-string 1 output))))
-                         (message "[nREPL] server started on %s" port)
-                         (list :host host :port port))))))
+                                     (t printed-host))))
+                         (when (and container-method (not published))
+                           (message "[nREPL] Warning: container %s doesn't publish port %s; connecting will likely fail (publish it, e.g. `-p %s:%s`, and make sure the server binds 0.0.0.0)"
+                                    tramp-host port port port))
+                         (when published
+                           (message "[nREPL] Container port %s is published on localhost:%s; connecting there" port published))
+                         (message "[nREPL] server started on %s" (or published port))
+                         (list :host host :port (or published port)))))))
             (when end
               (setq nrepl-endpoint end)
               (nrepl--process-plist-put process :nrepl-server-ready t)

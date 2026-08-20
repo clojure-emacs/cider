@@ -731,3 +731,86 @@
       (spy-on 'process-file-shell-command)
       (expect (nrepl--port-alive-p 63213) :to-be-truthy)
       (expect 'process-file-shell-command :not :to-have-been-called))))
+
+(describe "nrepl--tramp-container-method"
+  (it "recognizes docker and podman paths"
+    (expect (nrepl--tramp-container-method "/docker:foo:/app/") :to-equal "docker")
+    (expect (nrepl--tramp-container-method "/podman:u@c:/x") :to-equal "podman"))
+
+  (it "is nil for local and ssh paths"
+    (expect (nrepl--tramp-container-method "/tmp/proj/") :to-be nil)
+    (expect (nrepl--tramp-container-method "/ssh:host:/app/") :to-be nil)))
+
+(describe "nrepl--container-published-port"
+  (it "parses the published host port"
+    (spy-on 'call-process :and-call-fake
+            (lambda (&rest _) (insert "0.0.0.0:12345\n[::]:12345\n") 0))
+    (expect (nrepl--container-published-port "docker" "app" 7888) :to-equal 12345))
+
+  (it "returns nil when the port is not published"
+    (spy-on 'call-process :and-return-value 1)
+    (expect (nrepl--container-published-port "docker" "app" 7888) :to-be nil))
+
+  (it "returns nil when the CLI is missing"
+    (spy-on 'call-process :and-throw-error 'file-missing)
+    (expect (nrepl--container-published-port "docker" "app" 7888) :to-be nil)))
+
+(describe "nrepl-server-filter in a container context"
+  (it "resolves the endpoint to the published localhost port"
+    (spy-on 'nrepl--container-published-port :and-return-value 12345)
+    (with-temp-buffer
+      (setq-local default-directory "/docker:zz-app:/app/")
+      (let ((proc (make-pipe-process :name "nrepl-test-server"
+                                     :buffer (current-buffer)
+                                     :noquery t)))
+        (unwind-protect
+            (progn
+              (nrepl-server-filter proc "nREPL server started on port 7888 on host 0.0.0.0 - nrepl://0.0.0.0:7888\n")
+              (expect (plist-get nrepl-endpoint :host) :to-equal "localhost")
+              (expect (plist-get nrepl-endpoint :port) :to-equal 12345)
+              (expect 'nrepl--container-published-port
+                      :to-have-been-called-with "docker" "zz-app" 7888))
+          (delete-process proc)))))
+
+  (it "keeps the container host when nothing is published (with a warning)"
+    (spy-on 'nrepl--container-published-port :and-return-value nil)
+    (spy-on 'message)
+    (with-temp-buffer
+      (setq-local default-directory "/docker:zz-app:/app/")
+      (let ((proc (make-pipe-process :name "nrepl-test-server"
+                                     :buffer (current-buffer)
+                                     :noquery t)))
+        (unwind-protect
+            (progn
+              (nrepl-server-filter proc "nREPL server started on port 7888 on host 0.0.0.0 - nrepl://0.0.0.0:7888\n")
+              (expect (plist-get nrepl-endpoint :port) :to-equal 7888)
+              (expect 'message :to-have-been-called))
+          (delete-process proc))))))
+
+(describe "nrepl-connect dispatch"
+  (it "connects directly to local hosts"
+    (spy-on 'nrepl--direct-connect :and-return-value '(:proc fake))
+    (spy-on 'nrepl--ssh-tunnel-connect)
+    (expect (nrepl-connect "localhost" 7888) :to-equal '(:proc fake))
+    (expect 'nrepl--ssh-tunnel-connect :not :to-have-been-called))
+
+  (it "tries direct first for remote hosts, then falls back to ssh when enabled"
+    (spy-on 'nrepl--direct-connect :and-return-value nil)
+    (spy-on 'nrepl--ssh-tunnel-connect :and-return-value '(:proc tunnel))
+    (let ((nrepl-use-ssh-fallback-for-remote-hosts t)
+          (nrepl-force-ssh-for-remote-hosts nil))
+      (expect (nrepl-connect "remote.example.com" 7888) :to-equal '(:proc tunnel))
+      (expect 'nrepl--direct-connect :to-have-been-called)))
+
+  (it "skips the direct attempt entirely when ssh is forced"
+    (spy-on 'nrepl--direct-connect)
+    (spy-on 'nrepl--ssh-tunnel-connect :and-return-value '(:proc tunnel))
+    (let ((nrepl-force-ssh-for-remote-hosts t))
+      (expect (nrepl-connect "remote.example.com" 7888) :to-equal '(:proc tunnel))
+      (expect 'nrepl--direct-connect :not :to-have-been-called)))
+
+  (it "errors helpfully when direct fails and no fallback is enabled"
+    (spy-on 'nrepl--direct-connect :and-return-value nil)
+    (let ((nrepl-use-ssh-fallback-for-remote-hosts nil)
+          (nrepl-force-ssh-for-remote-hosts nil))
+      (expect (nrepl-connect "remote.example.com" 7888) :to-throw 'error))))
