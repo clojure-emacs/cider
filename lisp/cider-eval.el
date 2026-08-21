@@ -75,10 +75,6 @@
 (declare-function cider-repl--ns-form-changed-p "cider-repl")
 (declare-function cider-repl--cache-ns-form "cider-repl")
 
-;; Defined in clojure-ts-mode; declared here so we can bind it even when only
-;; clojure-mode is loaded.  clojure-mode uses `clojure-toplevel-inside-comment-form'.
-(defvar clojure-ts-toplevel-inside-comment-form)
-
 (defconst cider-read-eval-buffer "*cider-read-eval*")
 (defconst cider-result-buffer "*cider-result*")
 
@@ -1288,21 +1284,17 @@ buffer, else display in a popup buffer."
 (defun cider-eval-dwim (&optional debug-it)
   "If no region is active, call `cider-eval-defun-at-point' with DEBUG-IT.
 If a region is active, run `cider-eval-region'.
-
-Always binds `clojure-toplevel-inside-comment-form' (and its clojure-ts-mode
-counterpart `clojure-ts-toplevel-inside-comment-form') to t, so evaluating
-inside a `comment' form picks up the enclosed form."
+Inside a `comment' form the enclosed form is evaluated - a property of
+`cider-defun-at-point', shared by the whole defun-operating family."
   (interactive "P")
-  (let ((clojure-toplevel-inside-comment-form t)
-        (clojure-ts-toplevel-inside-comment-form t))
-    (if (use-region-p)
-        (cider-eval-region (region-beginning) (region-end))
-      (cider-eval-defun-at-point debug-it))))
+  (if (use-region-p)
+      (cider-eval-region (region-beginning) (region-end))
+    (cider-eval-defun-at-point debug-it)))
 
 (defun cider-eval-defun-at-point (&optional debug-it)
   "Evaluate the current toplevel form, and print result in the minibuffer.
-Inside a `comment' form the enclosed form is treated as the toplevel one,
-matching `cider-eval-dwim'.
+Inside a `comment' form the enclosed form is treated as the toplevel
+one; see `cider-defun-at-point'.
 With DEBUG-IT prefix argument, also debug the entire form as with the
 command `cider-debug-defun-at-point'."
   (interactive "P")
@@ -1314,13 +1306,11 @@ command `cider-debug-defun-at-point'."
         (user-error "The debugger does not support ClojureScript"))
       (when inline-debug
         (cider--prompt-and-insert-inline-dbg)))
-    (let ((clojure-toplevel-inside-comment-form t)
-          (clojure-ts-toplevel-inside-comment-form t))
-      (cider-interactive-eval (when (and debug-it (not inline-debug))
-                                (concat "#dbg\n" (cider-defun-at-point)))
-                              nil
-                              (cider-defun-at-point 'bounds)
-                              (cider--nrepl-pr-request-plist)))))
+    (cider-interactive-eval (when (and debug-it (not inline-debug))
+                              (concat "#dbg\n" (cider-defun-at-point)))
+                            nil
+                            (cider-defun-at-point 'bounds)
+                            (cider--nrepl-pr-request-plist))))
 
 (defun cider--insert-closing-delimiters (code)
   "Closes all open parenthesized or bracketed expressions of CODE."
