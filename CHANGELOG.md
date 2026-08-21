@@ -20,6 +20,7 @@
 
 ### Changes
 
+- [#4166](https://github.com/clojure-emacs/cider/pull/4166): Treat the contents of a `comment` form as top level in the whole defun command family (pretty-printing, eval-to-comment, inspect, format, debug, etc.), not just `cider-eval-defun-at-point` and `cider-eval-dwim`; CIDER's commands no longer depend on `clojure-toplevel-inside-comment-form`.
 - [#4160](https://github.com/clojure-emacs/cider/pull/4160): Stop offering the previous session's port as the `cider-connect` default when nothing is listening on it anymore; the host is still offered and port inference takes over.
 - [#4159](https://github.com/clojure-emacs/cider/pull/4159): Make `cider-default-nrepl-port` customizable, keep `cider-connect` usable when Tramp's ssh-config completion errors, and document how port suggestions are computed in a new "How CIDER Finds Ports" manual section.
 - [#4149](https://github.com/clojure-emacs/cider/pull/4149): Make the nREPL message log easier to reach: add "Show nREPL messages" to the nREPL menu, reflect the logging toggle's on/off state there, and have `nrepl-show-messages` offer to enable logging when it's off instead of erroring.
