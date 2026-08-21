@@ -212,7 +212,7 @@ With a prefix argument, prompt for function to run instead of -main."
 (defvar cider-insert-commands-map
   (let ((map (define-prefix-command 'cider-insert-commands-map)))
     ;; single key bindings defined last for display in menu
-    (define-key map (kbd "e") #'cider-insert-last-sexp-in-repl)
+    (define-key map (kbd "e") #'cider-insert-form-in-repl)
     (define-key map (kbd "d") #'cider-insert-defun-in-repl)
     (define-key map (kbd "r") #'cider-insert-region-in-repl)
     (define-key map (kbd "n") #'cider-insert-ns-form-in-repl)
@@ -220,7 +220,7 @@ With a prefix argument, prompt for function to run instead of -main."
     (define-key map (kbd "v") #'cider-jump-to-comment)
 
     ;; duplicates with C- for convenience
-    (define-key map (kbd "C-e") #'cider-insert-last-sexp-in-repl)
+    (define-key map (kbd "C-e") #'cider-insert-form-in-repl)
     (define-key map (kbd "C-d") #'cider-insert-defun-in-repl)
     (define-key map (kbd "C-r") #'cider-insert-region-in-repl)
     (define-key map (kbd "C-n") #'cider-insert-ns-form-in-repl)
@@ -232,7 +232,7 @@ With a prefix argument, prompt for function to run instead of -main."
 (transient-define-prefix cider-insert-menu ()
   "Transient menu for inserting forms into the REPL."
   [["Insert into REPL"
-    ("e" "Last sexp" cider-insert-last-sexp-in-repl)
+    ("e" "Form" cider-insert-form-in-repl)
     ("d" "Defun at point" cider-insert-defun-in-repl)
     ("r" "Region" cider-insert-region-in-repl)
     ("n" "Namespace form" cider-insert-ns-form-in-repl)]
@@ -240,7 +240,7 @@ With a prefix argument, prompt for function to run instead of -main."
     ("c" "Send to comment" cider-send-to-comment)
     ("v" "Jump to comment" cider-jump-to-comment)]]
   [:hide (lambda () t)
-   ("C-e" "Last sexp" cider-insert-last-sexp-in-repl)
+   ("C-e" "Form" cider-insert-form-in-repl)
    ("C-d" "Defun at point" cider-insert-defun-in-repl)
    ("C-r" "Region" cider-insert-region-in-repl)
    ("C-n" "Namespace form" cider-insert-ns-form-in-repl)
@@ -285,8 +285,8 @@ If EVAL is non-nil the form will also be evaluated.  Use
           (cider-repl-return))
         (goto-char (point-max))))))
 
-(defun cider-insert-last-sexp-in-repl (&optional arg)
-  "Insert the expression preceding point in the REPL buffer.
+(defun cider-insert-form-in-repl (&optional arg)
+  "Insert the form point indicates in the REPL buffer.
 How the expression is located is controlled by `cider-form-targeting'.
 If invoked with a prefix ARG eval the expression after inserting it."
   (interactive "P")
@@ -363,11 +363,11 @@ If invoked with a prefix ARG eval the expression after inserting it."
 
 (defconst cider-mode-eval-menu
   '("CIDER Eval" :visible (cider-connected-p)
-    ["Eval top-level sexp" cider-eval-defun-at-point]
+    ["Eval top-level sexp" cider-eval-defun]
     ["Eval top-level sexp to point" cider-eval-defun-up-to-point]
     ["Eval top-level sexp to comment" cider-eval-defun-to-comment]
     ["Eval top-level sexp and pretty-print to comment" cider-pprint-eval-defun-to-comment]
-    ["Eval top-level sexp in popup buffer" cider-pprint-eval-defun-at-point]
+    ["Eval top-level sexp in popup buffer" cider-pprint-eval-defun]
     "--"
     ["Eval current list" cider-eval-list-at-point]
     ["Eval current sexp" cider-eval-sexp-at-point]
@@ -375,16 +375,16 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ["Eval current sexp to point" cider-eval-sexp-up-to-point]
     ["Eval current sexp in context" cider-eval-sexp-at-point-in-context]
     "--"
-    ["Eval last sexp" cider-eval-last-sexp]
-    ["Eval and tap last sexp" cider-tap-last-sexp]
-    ["Eval last sexp in context" cider-eval-last-sexp-in-context]
-    ["Eval last sexp and insert" cider-eval-print-last-sexp
-     :keys "\\[universal-argument] \\[cider-eval-last-sexp]"]
-    ["Eval last sexp in popup buffer" cider-pprint-eval-last-sexp]
-    ["Eval last sexp and replace" cider-eval-last-sexp-and-replace]
-    ["Eval last sexp to REPL" cider-eval-last-sexp-to-repl]
-    ["Eval last sexp and pretty-print to REPL" cider-pprint-eval-last-sexp-to-repl]
-    ["Eval last sexp and pretty-print to comment" cider-pprint-eval-last-sexp-to-comment]
+    ["Eval form" cider-eval-form]
+    ["Eval and tap form" cider-tap-form]
+    ["Eval form in context" cider-eval-form-in-context]
+    ["Eval form and insert" cider-eval-print-form
+     :keys "\\[universal-argument] \\[cider-eval-form]"]
+    ["Eval form in popup buffer" cider-pprint-eval-form]
+    ["Eval form and replace" cider-eval-form-and-replace]
+    ["Eval form to REPL" cider-eval-form-to-repl]
+    ["Eval form and pretty-print to REPL" cider-pprint-eval-form-to-repl]
+    ["Eval last sexp and pretty-print to comment" cider-pprint-eval-form-to-comment]
     "--"
     ["Eval selected region if active, otherwise top-level sexp" cider-eval-dwim]
     ["Eval selected region" cider-eval-region]
@@ -396,9 +396,9 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ["Undefine a symbol" cider-undef]
     ["Undefine all symbols in ns" cider-undef-all]
     "--"
-    ["Insert last sexp in REPL" cider-insert-last-sexp-in-repl]
-    ["Insert last sexp in REPL and eval" (cider-insert-last-sexp-in-repl t)
-     :keys "\\[universal-argument] \\[cider-insert-last-sexp-in-repl]"]
+    ["Insert last sexp in REPL" cider-insert-form-in-repl]
+    ["Insert last sexp in REPL and eval" (cider-insert-form-in-repl t)
+     :keys "\\[universal-argument] \\[cider-insert-form-in-repl]"]
     ["Insert top-level sexp in REPL" cider-insert-defun-in-repl]
     ["Insert region in REPL" cider-insert-region-in-repl]
     ["Insert ns form in REPL" cider-insert-ns-form-in-repl]
@@ -474,7 +474,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
      ["Browse classpath" cider-classpath]
      ["Browse classpath entry" cider-open-classpath-entry])
     ("Format"
-     ["Format EDN last sexp" cider-format-edn-last-sexp]
+     ["Format EDN last sexp" cider-format-edn-form]
      ["Format EDN region" cider-format-edn-region]
      ["Format EDN buffer" cider-format-edn-buffer])
     ("Macroexpand"
@@ -494,8 +494,8 @@ If invoked with a prefix ARG eval the expression after inserting it."
      ["Untrace all" cider-untrace-all]
      ["Trace events buffer" cider-trace]
      "--"
-     ["Debug top-level form" cider-debug-defun-at-point
-      :keys "\\[universal-argument] \\[cider-eval-defun-at-point]"]
+     ["Debug top-level form" cider-debug-defun
+      :keys "\\[universal-argument] \\[cider-eval-defun]"]
      ["List instrumented defs" cider-browse-instrumented-defs]
      "--"
      ["Enlighten top-level form" cider-enlighten-defun-at-point]
@@ -662,17 +662,17 @@ higher precedence."
     (define-key map (kbd "C-c C-:") #'cider-find-keyword)
     (define-key map (kbd "C-c M-.") #'cider-find-resource)
     (define-key map (kbd "M-TAB") #'complete-symbol)
-    (define-key map (kbd "C-M-x")   #'cider-eval-defun-at-point)
-    (define-key map (kbd "C-c C-c") #'cider-eval-defun-at-point)
-    (define-key map (kbd "C-x C-e") #'cider-eval-last-sexp)
-    (define-key map (kbd "C-c C-e") #'cider-eval-last-sexp)
-    (define-key map (kbd "C-c C-p") #'cider-pprint-eval-last-sexp)
-    (define-key map (kbd "C-c C-f") #'cider-pprint-eval-defun-at-point)
+    (define-key map (kbd "C-M-x")   #'cider-eval-defun)
+    (define-key map (kbd "C-c C-c") #'cider-eval-defun)
+    (define-key map (kbd "C-x C-e") #'cider-eval-form)
+    (define-key map (kbd "C-c C-e") #'cider-eval-form)
+    (define-key map (kbd "C-c C-p") #'cider-pprint-eval-form)
+    (define-key map (kbd "C-c C-f") #'cider-pprint-eval-defun)
     (define-key map (kbd "C-c C-v") #'cider-eval-menu)
     (define-key map (kbd "C-c C-j") #'cider-insert-menu)
     (define-key map (kbd "C-c M-;") #'cider-eval-defun-to-comment)
-    (define-key map (kbd "C-c M-e") #'cider-eval-last-sexp-to-repl)
-    (define-key map (kbd "C-c M-p") #'cider-insert-last-sexp-in-repl)
+    (define-key map (kbd "C-c M-e") #'cider-eval-form-to-repl)
+    (define-key map (kbd "C-c M-p") #'cider-insert-form-in-repl)
     (define-key map (kbd "C-c M-:") #'cider-read-and-eval)
     (define-key map (kbd "C-c C-u") #'cider-undef)
     (define-key map (kbd "C-c C-M-u") #'cider-undef-all)

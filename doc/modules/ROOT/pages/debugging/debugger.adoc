@@ -13,7 +13,7 @@ Check out https://github.com/jpmonettas/cider-storm[Cider Storm] if you need to 
 
 During normal CIDER development, it's common for a programmer to
 evaluate a form, often a function definition, by typing
-kbd:[C-M-x] (`cider-eval-defun-at-point`). CIDER can also
+kbd:[C-M-x] (`cider-eval-defun`). CIDER can also
 instrument a form for debugging when you add a prefix to the
 evaluation command: kbd:[C-u C-M-x]. During the instrumentation
 process, CIDER will insert as many breakpoints as possible into the

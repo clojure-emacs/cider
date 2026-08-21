@@ -288,8 +288,8 @@ This lets the inspector act on the tagged class directly, the way
       (when (eq (char-before) ?^)
         sym))))
 
-(defun cider-inspect-last-sexp ()
-  "Inspect the result of the expression preceding point.
+(defun cider-inspect-form ()
+  "Inspect the result of the form point indicates.
 How the expression is located is controlled by `cider-form-targeting'.
 When point is on a type tag (e.g. `^String'), inspect the tagged class
 itself rather than the form it applies to."
@@ -299,7 +299,7 @@ itself rather than the form it applies to."
                       (cider-current-ns)))
 
 ;;;###autoload
-(defun cider-inspect-defun-at-point ()
+(defun cider-inspect-defun ()
   "Inspect the result of the \"top-level\" expression at point."
   (interactive)
   (cider-inspect-expr (cider-defun-at-point) (cider-current-ns)))
@@ -318,8 +318,8 @@ With a prefix argument ARG it inspects the result of the \"top-level\" form.
 With a second prefix argument it prompts for an expression to eval and inspect."
   (interactive "p")
   (pcase arg
-    (1 (cider-inspect-last-sexp))
-    (4 (cider-inspect-defun-at-point))
+    (1 (cider-inspect-form))
+    (4 (cider-inspect-defun))
     (16 (call-interactively #'cider-inspect-expr))))
 
 (defvar cider-inspector-location-stack nil

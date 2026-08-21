@@ -40,7 +40,7 @@
 
 (defvar cider-mode) ; for the lighter; the variable lives in cider-mode.el
 (declare-function cider--debug-find-source-position "cider-debug")
-(declare-function cider-eval-defun-at-point "cider-eval")
+(declare-function cider-eval-defun "cider-eval")
 
 (defvar cider-enlighten--suppress nil
   "When non-nil, drop incoming enlighten values instead of rendering them.
@@ -115,7 +115,7 @@ and off (and re-evaluate everything) just to light up one definition."
   (interactive)
   (setq cider-enlighten--suppress nil)
   (let ((cider-enlighten-mode t))
-    (cider-eval-defun-at-point)))
+    (cider-eval-defun)))
 
 ;;;###autoload
 (defun cider-enlighten-clear ()

@@ -13,7 +13,7 @@ confusing to people not familiar with it. Let's take a look at it:
 
 * `defun` - top-level expression
 * `sexp` - s-expression, form
-* `last-sexp` - the form preceding the cursor (`point` in Emacs lingo)
+* `last-sexp` - the form the cursor indicates (classically, the form preceding `point`)
 * `sexp-at-point` - the form under/around the cursor
 * `buffer` - the abstraction used by Emacs to represent any content; most often backed by a file.
 * `region` - the selected part of a buffer
@@ -21,8 +21,8 @@ confusing to people not familiar with it. Let's take a look at it:
 
 == Form Targeting
 
-The `last-sexp` family of commands (`cider-eval-last-sexp`,
-`cider-macroexpand-1`, `cider-inspect-last-sexp`, etc) resolves its target
+The `last-sexp` family of commands (`cider-eval-form`,
+`cider-macroexpand-1`, `cider-inspect-form`, etc) resolves its target
 form from the cursor position: on an opening delimiter the target is the form
 it opens; on (or right after) a closing delimiter the form it closes; inside
 a symbol, keyword or string that atom; and in whitespace between forms the
@@ -59,7 +59,7 @@ of your application, you need to evaluate something before functionality like co
 Typically the first thing you'd do when visiting a Clojure buffer would be to load (evaluate) the buffer with `cider-load-buffer` (kbd:[C-c C-k]).
 
 Afterwards most of the time you'd be evaluating expressions one at a time either using
-`cider-eval-last-sexp` (kbd:[C-c C-e] or kbd:[C-x C-e]) or `cider-eval-defun-at-point`
+`cider-eval-form` (kbd:[C-c C-e] or kbd:[C-x C-e]) or `cider-eval-defun`
 (kbd:[C-c C-c] or kbd:[C-M-x]).
 
 .What happens if I don't evaluate the entire buffer first?
@@ -88,7 +88,7 @@ the source buffer.
 
 In case the result of the evaluation is big (e.g. a map with dozens of keys) it might be best
 to display it in a dedicated buffer. You can do this with
-`cider-pprint-eval-last-sexp` (kbd:[C-c C-p]). As a bonus -
+`cider-pprint-eval-form` (kbd:[C-c C-p]). As a bonus -
 the result will be pretty-printed in the result buffer.
 
 .Why aren't results always pretty-printed?
@@ -117,7 +117,7 @@ Broadly speaking the exotic evaluation commands can be grouped in the following
 categories:
 
 - commands that are a variation of some basic commands (e.g. `cider-eval-list-at-point` and `cider-eval-sexp-at-point`)
-- commands that insert the result in the current buffer (e.g. `cider-eval-last-sexp-and-replace`)
+- commands that insert the result in the current buffer (e.g. `cider-eval-form-and-replace`)
 - commands that evaluate an expression in a different context (e.g. with user-supplied bindings)
 - commands that evaluate some particular part of a buffer (e.g. `cider-eval-ns-form`)
 
@@ -434,7 +434,7 @@ To remove the prefix altogether, just set it to the empty string (`""`).
 === Change the eval-to-comment style
 
 The eval-to-comment commands (e.g. `cider-eval-defun-to-comment` and
-`cider-pprint-eval-last-sexp-to-comment`) insert the evaluation result next to
+`cider-pprint-eval-form-to-comment`) insert the evaluation result next to
 the form that produced it. The format is controlled by `cider-comment-style`:
 
 [source,lisp]
@@ -511,7 +511,7 @@ in the text register `e`. You can access these contents via `insert-register`
 
 This is often useful for closer inspection or textual manipulation of a
 transiently displayed eval result, without having to re-evaluate the form with a
-specialized command like `cider-insert-last-sexp-in-repl`.
+specialized command like `cider-insert-form-in-repl`.
 
 You can customize which register is used with the variable `cider-eval-register`, or set
 it to `nil` to disable the feature.
@@ -559,7 +559,7 @@ wrapper. Let's revisit the previous example:
   *e)
 ----
 
-With `cider-eval-defun-at-point` we get:
+With `cider-eval-defun` we get:
 
 [source,clojure]
 ----
@@ -618,7 +618,7 @@ tried to find a common ground by adopting them both.
 On top of this, at some point when it became clear that CIDER has set the world record
 for evaluation command, we've introduced a dedicated keymap for all eval commands
 (that's everything with the prefix kbd:[C-c C-v]). This leads to funny situations
-like `cider-eval-defun-at-point` having 3 keybindings:
+like `cider-eval-defun` having 3 keybindings:
 
 * kbd:[C-M-x] (Emacs style)
 * kbd:[C-c C-c] (SLIME style)
@@ -628,7 +628,7 @@ Okay, those are technically 4 keybindings, but who's counting!
 
 NOTE: Some of you are probably wondering why kbd:[C-c C-v] instead of
 kbd:[C-c C-e], right? Again - legacy. Historically kbd:[C-c C-e]
-was mapped to `cider-eval-last-sexp`, otherwise we would have picked
+was mapped to `cider-eval-form`, otherwise we would have picked
 this binding. It's still possible to recycle it down the road, as
 most people are probably using kbd:[C-x C-e] for `cider-eval-last-result`
 and good keybindings are too precious to be wasted like this.
@@ -638,38 +638,38 @@ Below is a listing of most keybindings for evaluation commands:
 |===
 | Command | Keyboard shortcut | Description
 
-| `cider-eval-last-sexp`
+| `cider-eval-form`
 | kbd:[C-x C-e] +
 kbd:[C-c C-e]
-| Evaluate the form preceding point and display the result in the echo area and/or in a buffer overlay (according to `cider-eval-result-display`).  If invoked with a prefix argument, insert the result into the current buffer.
+| Evaluate the form point indicates and display the result in the echo area and/or in a buffer overlay (according to `cider-eval-result-display`).  If invoked with a prefix argument, insert the result into the current buffer.
 
-| `cider-tap-last-sexp`
+| `cider-tap-form`
 | kbd:[C-c C-v q] +
 kbd:[C-c C-v C-q]
-| Like `cider-eval-last-sexp` but also taps the result.
+| Like `cider-eval-form` but also taps the result.
 
-| `cider-eval-last-sexp-and-replace`
+| `cider-eval-form-and-replace`
 | kbd:[C-c C-v w]
-| Evaluate the form preceding point and replace it with its result.
+| Evaluate the form point indicates and replace it with its result.
 
-| `cider-eval-last-sexp-to-repl`
+| `cider-eval-form-to-repl`
 | kbd:[C-c M-e]
-| Evaluate the form preceding point and output its result to the REPL buffer.  If invoked with a prefix argument, takes you to the REPL buffer after being invoked.
+| Evaluate the form point indicates and output its result to the REPL buffer.  If invoked with a prefix argument, takes you to the REPL buffer after being invoked.
 
-| `cider-insert-last-sexp-in-repl`
+| `cider-insert-form-in-repl`
 | kbd:[C-u C-c M-p]
-| Load the form preceding point in the REPL buffer and eval.
+| Load the form point indicates in the REPL buffer and eval.
 
-| `cider-pprint-eval-last-sexp`
+| `cider-pprint-eval-form`
 | kbd:[C-c C-p] +
 kbd:[C-c C-v C-f e]
-| Evaluate the form preceding point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.
+| Evaluate the form point indicates and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.
 
-| `cider-pprint-eval-defun-at-point`
+| `cider-pprint-eval-defun`
 | kbd:[C-c C-v C-f d]
 | Evaluate the top level form under point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.
 
-| `cider-eval-defun-at-point`
+| `cider-eval-defun`
 | kbd:[C-M-x] +
 kbd:[C-c C-c]
 | Evaluate the top level form under point and display the result in the echo area.
@@ -684,7 +684,7 @@ kbd:[C-c C-v C-l]
 kbd:[C-c C-v C-v]
 | Evaluate the form around point.
 
-| `cider-eval-defun-at-point`
+| `cider-eval-defun`
 | kbd:[C-u C-M-x] +
 kbd:[C-u C-c C-c]
 | Debug the top level form under point and walk through its evaluation

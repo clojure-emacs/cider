@@ -296,7 +296,7 @@
       (search-backward "x")
       (expect (cider--type-tag-at-point) :to-be nil))))
 
-(describe "cider-inspect-last-sexp"
+(describe "cider-inspect-form"
   (it "inspects the tagged class when point is on a type tag (#3679)"
     (spy-on 'cider-inspect-expr)
     (spy-on 'cider-current-ns :and-return-value "user")
@@ -306,7 +306,7 @@
       (goto-char (point-min))
       (search-forward "String")
       (backward-char 1)
-      (cider-inspect-last-sexp)
+      (cider-inspect-form)
       (expect 'cider-inspect-expr :to-have-been-called-with "String" "user")))
   (it "falls back to the preceding sexp otherwise"
     (spy-on 'cider-inspect-expr)
@@ -314,7 +314,7 @@
     (with-temp-buffer
       (clojure-mode)
       (insert "(+ 1 2)")
-      (cider-inspect-last-sexp)
+      (cider-inspect-form)
       (expect 'cider-inspect-expr :to-have-been-called-with "(+ 1 2)" "user"))))
 
 (describe "cider-inspector-render*"
