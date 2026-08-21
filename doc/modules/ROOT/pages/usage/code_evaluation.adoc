@@ -21,32 +21,30 @@ confusing to people not familiar with it. Let's take a look at it:
 
 == Form Targeting
 
-By default the `last-sexp` family of commands (`cider-eval-last-sexp`,
-`cider-macroexpand-1`, `cider-inspect-last-sexp`, etc) operates on the form
-preceding the cursor, so you have to place the cursor right after the form
-you're interested in. That's the classic behavior shared with Emacs Lisp's
-`eval-last-sexp`, SLIME and inf-clojure, but it can be unforgiving when the
-cursor sits on one of the form's delimiters, or inside it.
+The `last-sexp` family of commands (`cider-eval-last-sexp`,
+`cider-macroexpand-1`, `cider-inspect-last-sexp`, etc) resolves its target
+form from the cursor position: on an opening delimiter the target is the form
+it opens; on (or right after) a closing delimiter the form it closes; inside
+a symbol, keyword or string that atom; and in whitespace between forms the
+preceding form. That's also how most non-Emacs Clojure editors (Calva,
+Conjure, vim-fireplace) handle evaluation targeting.
 
-You can make those commands resolve the target form from the cursor position
-instead:
+Commands that can only operate on compound forms (e.g. the macroexpansion
+ones) never target a bare symbol - they widen to the enclosing form instead.
+
+If you'd rather have the classic Emacs behavior - shared with Emacs Lisp's
+`eval-last-sexp`, SLIME and inf-clojure - where the target is strictly the
+form *preceding* the cursor and you have to place the cursor right after it:
 
 [source,lisp]
 ----
-(setq cider-form-targeting 'smart)
+(setq cider-form-targeting 'preceding)
 ----
 
-With `smart` targeting: on an opening delimiter the target is the form it
-opens; on (or right after) a closing delimiter the form it closes; inside a
-symbol, keyword or string that atom; and in whitespace between forms the
-preceding form, as before. In other words - smart targeting agrees with the
-classic behavior at every position where "the form preceding the cursor" makes
-sense, and does something more useful everywhere else. (that's also how most
-non-Emacs Clojure editors handle evaluation targeting)
-
-Commands that can only operate on compound forms (e.g. the macroexpansion
-ones) never target a bare symbol - with smart targeting they widen to the
-enclosing form instead.
+The default (`smart`) agrees with the classic behavior at every position
+where "the form preceding the cursor" makes sense, so this is only worth
+setting if your muscle memory depends on the delimiter edge cases (e.g.
+evaluating the previous sibling while the cursor sits on an opening paren).
 
 TIP: You can flip the targeting mode for the current session directly from
 the eval menu - kbd:[C-c C-v T] (or the `Options` section of `cider-eval-menu`),

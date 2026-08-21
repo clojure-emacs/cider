@@ -57,10 +57,17 @@
       (cider-format-edn-last-sexp)
       (expect 'cider-format-edn-region :to-have-been-called-with 1 7)))
 
-  (it "targets the preceding sexp, not the one ahead"
+  (it "targets the adjacent map under the default smart targeting"
     (spy-on 'cider-format-edn-region)
     (with-clojure-buffer "{:a 1} |{:b 2}"
       (cider-format-edn-last-sexp)
+      (expect 'cider-format-edn-region :to-have-been-called-with 8 14)))
+
+  (it "targets the preceding sexp under preceding targeting"
+    (spy-on 'cider-format-edn-region)
+    (with-clojure-buffer "{:a 1} |{:b 2}"
+      (let ((cider-form-targeting 'preceding))
+        (cider-format-edn-last-sexp))
       (expect 'cider-format-edn-region :to-have-been-called-with 1 7)))
 
   (it "keeps leading metadata"
