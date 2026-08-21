@@ -199,18 +199,29 @@ positions.  Else returns the substring from START to END."
   (funcall (if bounds #'list #'buffer-substring-no-properties)
            start end))
 
+;; The clojure-mode var is a defcustom that comes with the required
+;; clojure-mode; the clojure-ts-mode one is declared so we can bind it
+;; even when only clojure-mode is loaded.
+(defvar clojure-ts-toplevel-inside-comment-form)
+
 (defun cider-defun-at-point (&optional bounds)
   "Return the text of the top level sexp at point.
+Inside a `comment' form the enclosed form is treated as the top level
+one, so the whole CIDER command family (eval, pprint, inspect, debug,
+format...) behaves consistently in rich-comment blocks - evaluating a
+whole `(comment ...)' yields nil, which is never what anyone wants.
 If BOUNDS is non-nil, return a list of its starting and ending position
 instead."
   (save-excursion
     (save-match-data
-      (if (derived-mode-p 'cider-repl-mode)
-          (goto-char (point-max)) ;; in repls, end-of-defun won't work, so we perform the closest reasonable thing
-        (end-of-defun))
-      (let ((end (point)))
-        (clojure-backward-logical-sexp 1)
-        (cider--text-or-limits bounds (point) end)))))
+      (let ((clojure-toplevel-inside-comment-form t)
+            (clojure-ts-toplevel-inside-comment-form t))
+        (if (derived-mode-p 'cider-repl-mode)
+            (goto-char (point-max)) ;; in repls, end-of-defun won't work, so we perform the closest reasonable thing
+          (end-of-defun))
+        (let ((end (point)))
+          (clojure-backward-logical-sexp 1)
+          (cider--text-or-limits bounds (point) end))))))
 
 (defun cider-get-ns-name ()
   "Return the current namespace in the buffer, suppressing any errors.

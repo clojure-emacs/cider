@@ -371,13 +371,14 @@
         (expect (cider-defun-at-point) :to-equal "(. \"\")"))))
 
   (describe "inside a comment form"
-    (it "returns the whole comment form by default"
+    (it "treats the enclosed form as the top level one"
+      (with-clojure-buffer "(comment (+ 1| 2))"
+        (expect (cider-defun-at-point) :to-equal "(+ 1 2)")))
+    (it "does so regardless of the user's clojure-toplevel-inside-comment-form"
+      ;; the primitive binds the variable itself, so the whole command
+      ;; family behaves the same in rich-comment blocks
       (with-clojure-buffer "(comment (+ 1| 2))"
         (let ((clojure-toplevel-inside-comment-form nil))
-          (expect (cider-defun-at-point) :to-equal "(comment (+ 1 2))"))))
-    (it "returns the enclosed form when clojure-toplevel-inside-comment-form is set"
-      (with-clojure-buffer "(comment (+ 1| 2))"
-        (let ((clojure-toplevel-inside-comment-form t))
           (expect (cider-defun-at-point) :to-equal "(+ 1 2)"))))))
 
 (describe "cider-repl-prompt-function"

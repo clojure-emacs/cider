@@ -685,21 +685,33 @@
   (it "returns nil when the response carries no output"
     (expect (cider--emit-orphaned-output (nrepl-dict "id" "9")) :to-be nil)))
 
-(describe "cider-eval-dwim"
-  (it "binds both comment-form toplevel vars around the eval"
-    ;; So evaluating inside a `comment' form picks up the enclosed form under
-    ;; both clojure-mode and clojure-ts-mode.
-    (let ((clojure-toplevel-inside-comment-form nil)
-          (clojure-ts-toplevel-inside-comment-form nil)
-          seen-clj seen-ts)
-      (spy-on 'use-region-p :and-return-value nil)
-      (spy-on 'cider-eval-defun-at-point :and-call-fake
-              (lambda (&rest _)
-                (setq seen-clj clojure-toplevel-inside-comment-form
-                      seen-ts clojure-ts-toplevel-inside-comment-form)))
+(describe "comment-form awareness across the defun family"
+  ;; All defun-operating commands go through `cider-defun-at-point', which
+  ;; treats the enclosed form as top level inside a `comment' block.
+  (it "cider-eval-dwim evaluates the enclosed form"
+    (spy-on 'cider-interactive-eval)
+    (spy-on 'use-region-p :and-return-value nil)
+    (with-clojure-buffer "(comment (+ 1| 2))"
       (cider-eval-dwim)
-      (expect seen-clj :to-be t)
-      (expect seen-ts :to-be t))))
+      (let ((bounds (nth 2 (spy-calls-args-for 'cider-interactive-eval 0))))
+        (expect (apply #'buffer-substring-no-properties bounds)
+                :to-equal "(+ 1 2)"))))
+
+  (it "cider-pprint-eval-defun-at-point pretty-prints the enclosed form"
+    (spy-on 'cider--pprint-eval-form)
+    (with-clojure-buffer "(comment (+ 1| 2))"
+      (cider-pprint-eval-defun-at-point)
+      (let ((bounds (car (spy-calls-args-for 'cider--pprint-eval-form 0))))
+        (expect (apply #'buffer-substring-no-properties bounds)
+                :to-equal "(+ 1 2)"))))
+
+  (it "cider-eval-defun-to-comment targets the enclosed form"
+    (spy-on 'cider-interactive-eval)
+    (with-clojure-buffer "(comment (+ 1| 2))"
+      (cider-eval-defun-to-comment)
+      (let ((bounds (nth 2 (spy-calls-args-for 'cider-interactive-eval 0))))
+        (expect (apply #'buffer-substring-no-properties bounds)
+                :to-equal "(+ 1 2)")))))
 
 (describe "cider-eval-defun-at-point"
   (it "targets the enclosed form inside a comment form, like cider-eval-dwim"
