@@ -343,7 +343,7 @@ differs where the classic answer was surprising (e.g. point sitting on
 a delimiter), but if your muscle memory says otherwise, this setting
 restores the old rules exactly.
 
-Consulted by `cider-eval-last-sexp', `cider-macroexpand-1' and the rest
+Consulted by `cider-eval-form', `cider-macroexpand-1' and the rest
 of the commands that operate on the preceding sexp."
   :group 'cider
   :type '(choice (const :tag "Smart: infer the form from the cursor position" smart)

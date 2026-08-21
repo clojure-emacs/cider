@@ -55,14 +55,14 @@
 (defvar cider-clojure-interaction-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map clojure-mode-map)
-    (define-key map (kbd "C-j") #'cider-eval-print-last-sexp)
-    (define-key map [remap paredit-newline] #'cider-eval-print-last-sexp)
-    (define-key map [remap paredit-C-j] #'cider-eval-print-last-sexp)
+    (define-key map (kbd "C-j") #'cider-eval-print-form)
+    (define-key map [remap paredit-newline] #'cider-eval-print-form)
+    (define-key map [remap paredit-C-j] #'cider-eval-print-form)
     (easy-menu-define cider-clojure-interaction-mode-menu map
       "Menu for Clojure Interaction mode"
       '("Clojure Interaction"
-        ["Eval and print last sexp" cider-eval-print-last-sexp]
-        ["Eval and pretty-print last sexp" (cider-eval-print-last-sexp '(4))
+        ["Eval and print last sexp" cider-eval-print-form]
+        ["Eval and pretty-print last sexp" (cider-eval-print-form '(4))
          :keys "C-u C-j"]
         "--"
         ("Eval destination"
@@ -123,7 +123,7 @@ With no REPL, use the session-less scratch buffer."
 
 (define-derived-mode cider-clojure-interaction-mode clojure-mode "Clojure Interaction"
   "Major mode for typing and evaluating Clojure forms.
-Like `clojure-mode' except that \\[cider-eval-print-last-sexp] evals the Lisp expression
+Like `clojure-mode' except that \\[cider-eval-print-form] evals the Lisp expression
 before point, and prints its value into the buffer, advancing point.
 
 \\{cider-clojure-interaction-mode-map}"

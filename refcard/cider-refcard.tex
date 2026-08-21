@@ -94,10 +94,10 @@
 
 \subsection{Evaluation}
 \begin{keylist}[labelwidth=\widthof{\keyify{C-c M-m a}}]
-  \item[C-x C-e]   \ns{cider-eval-last-sexp}
+  \item[C-x C-e]   \ns{cider-eval-form}
   \item[C-c M-e]   \ns                     -to-repl
-  \item[C-M-x]     cider-eval-defun-at-point
-\&\item[C-c C-c]   cider-eval-defun-at-point
+  \item[C-M-x]     cider-eval-defun
+\&\item[C-c C-c]   cider-eval-defun
   \item[C-c C-p]   \ns{cider-pprint-eval}-last-sexp
   \item[C-c C-f]   \ns                   -defun-at-point
   \item[C-c M-;]   cider-eval-defun-to-comment
@@ -138,7 +138,7 @@
 
 \section{Debugging \& Testing}
 \begin{keylist}[labelwidth=\widthof{\keyify{C-u C-M-x}}]
-  \item[C-u C-M-x] cider-eval-defun-at-point
+  \item[C-u C-M-x] cider-eval-defun
   \item[C-c M-t v] \ns{cider-toggle-trace}-var
   \item[C-c M-t n] \ns                    -ns
   \item[C-c C-t t] \ns{cider-test}-run-test
@@ -155,7 +155,7 @@
 \section{REPL control}
 \begin{keylist}[labelwidth=\widthof{\keyify{C-c C-z}}]
   \item[C-c C-z] cider-switch-to-repl-buffer
-  \item[C-c M-p] cider-insert-last-sexp-in-repl
+  \item[C-c M-p] cider-insert-form-in-repl
   \item[C-c C-o] cider-find-and-clear-repl-output
   \item[C-c M-d] cider-describe-connection
   \item[C-c C-b] cider-interrupt

@@ -115,7 +115,7 @@ ARG is passed along to `undo-only'."
 (defun cider-macroexpansion--form-bounds ()
   "Return the bounds (BEG . END) of the sexp to expand, or nil.
 The sexp is located per `cider-form-targeting' (by default the sexp
-before point, like `\\[cider-eval-last-sexp]').  With `smart' targeting
+before point, like `\\[cider-eval-form]').  With `smart' targeting
 the target is never narrower than a compound form, since a bare symbol
 is not expandable."
   (ignore-errors

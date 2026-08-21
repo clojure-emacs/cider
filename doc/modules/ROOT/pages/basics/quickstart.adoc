@@ -57,9 +57,9 @@ xref:basics/remote.adoc[Remote and Container Connections].
 You now have a running Clojure process you can interact with without ever
 restarting it. From your source buffer:
 
-* kbd:[C-x C-e] (`cider-eval-last-sexp`) - evaluate the expression right before
+* kbd:[C-x C-e] (`cider-eval-form`) - evaluate the expression right before
   the cursor and show the result in the echo area.
-* kbd:[C-c C-c] (`cider-eval-defun-at-point`) - evaluate the top-level form the
+* kbd:[C-c C-c] (`cider-eval-defun`) - evaluate the top-level form the
   cursor is in. Use this after editing a function to redefine it in the running
   program.
 * kbd:[C-c C-k] (`cider-load-buffer`) - load the whole current buffer.

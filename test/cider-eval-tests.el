@@ -193,25 +193,24 @@
           (clojure-mode)
           (expect (cider-interactive-eval "(+ 1)") :not :to-throw))))))
 
-(describe "the point-based eval commands with no form at point"
-  ;; These used to crash with (wrong-type-argument integer-or-marker-p nil)
-  ;; when the respective primitive found nothing (e.g. an empty buffer, or
-  ;; right after a top-level form for `cider-eval-list-at-point').
-  (it "cider-eval-sexp-at-point signals a user-error"
-    (with-clojure-buffer ""
-      (expect (cider-eval-sexp-at-point) :to-throw 'user-error)))
-
-  (it "cider-tap-sexp-at-point signals a user-error"
-    (with-clojure-buffer ""
-      (expect (cider-tap-sexp-at-point) :to-throw 'user-error)))
-
-  (it "cider-eval-sexp-at-point-in-context signals a user-error"
-    (with-clojure-buffer ""
-      (expect (cider-eval-sexp-at-point-in-context nil) :to-throw 'user-error)))
-
-  (it "cider-eval-list-at-point signals a user-error right after a top-level form"
-    (with-clojure-buffer "(foo 1)|"
-      (expect (cider-eval-list-at-point) :to-throw 'user-error))))
+(describe "the legacy eval command names"
+  ;; Renamed for 2.1 (form family / defun family); the old names live on
+  ;; as obsolete aliases, including the point-based escape hatches that
+  ;; are now simply the smart-targeting form commands.
+  (it "are aliased to their replacements"
+    (dolist (pair '((cider-eval-last-sexp . cider-eval-form)
+                    (cider-pprint-eval-last-sexp . cider-pprint-eval-form)
+                    (cider-tap-last-sexp . cider-tap-form)
+                    (cider-eval-defun-at-point . cider-eval-defun)
+                    (cider-pprint-eval-defun-at-point . cider-pprint-eval-defun)
+                    (cider-eval-sexp-at-point . cider-eval-form)
+                    (cider-eval-list-at-point . cider-eval-form)
+                    (cider-tap-sexp-at-point . cider-tap-form)
+                    (cider-eval-sexp-at-point-in-context . cider-eval-form-in-context)))
+      (expect (fboundp (car pair)) :to-be-truthy)
+      (expect (indirect-function (car pair))
+              :to-equal (indirect-function (cdr pair)))
+      (expect (get (car pair) 'byte-obsolete-info) :to-be-truthy))))
 
 (describe "cider--comment-format"
   (it "returns the configured prefixes for the `line' style"
@@ -697,10 +696,10 @@
         (expect (apply #'buffer-substring-no-properties bounds)
                 :to-equal "(+ 1 2)"))))
 
-  (it "cider-pprint-eval-defun-at-point pretty-prints the enclosed form"
+  (it "cider-pprint-eval-defun pretty-prints the enclosed form"
     (spy-on 'cider--pprint-eval-form)
     (with-clojure-buffer "(comment (+ 1| 2))"
-      (cider-pprint-eval-defun-at-point)
+      (cider-pprint-eval-defun)
       (let ((bounds (car (spy-calls-args-for 'cider--pprint-eval-form 0))))
         (expect (apply #'buffer-substring-no-properties bounds)
                 :to-equal "(+ 1 2)"))))
@@ -713,11 +712,11 @@
         (expect (apply #'buffer-substring-no-properties bounds)
                 :to-equal "(+ 1 2)")))))
 
-(describe "cider-eval-defun-at-point"
+(describe "cider-eval-defun"
   (it "targets the enclosed form inside a comment form, like cider-eval-dwim"
     (spy-on 'cider-interactive-eval)
     (with-clojure-buffer "(comment (+ 1| 2))"
-      (cider-eval-defun-at-point)
+      (cider-eval-defun)
       (let ((bounds (nth 2 (spy-calls-args-for 'cider-interactive-eval 0))))
         (expect (apply #'buffer-substring-no-properties bounds)
                 :to-equal "(+ 1 2)")))))
@@ -730,12 +729,12 @@
       (cider-toggle-form-targeting)
       (expect cider-form-targeting :to-be 'preceding))))
 
-(describe "cider-eval-last-sexp under smart targeting"
+(describe "cider-eval-form under smart targeting"
   (it "evaluates the form point sits on, not just the one behind it"
     (spy-on 'cider-interactive-eval)
     (with-clojure-buffer "(foo |(bar 1) baz)"
       (let ((cider-form-targeting 'smart))
-        (cider-eval-last-sexp))
+        (cider-eval-form))
       (let ((bounds (nth 2 (spy-calls-args-for 'cider-interactive-eval 0))))
         (expect (apply #'buffer-substring-no-properties bounds)
                 :to-equal "(bar 1)"))))
@@ -743,7 +742,7 @@
   (it "behaves smartly by default"
     (spy-on 'cider-interactive-eval)
     (with-clojure-buffer "(foo |(bar 1) baz)"
-      (cider-eval-last-sexp)
+      (cider-eval-form)
       (let ((bounds (nth 2 (spy-calls-args-for 'cider-interactive-eval 0))))
         (expect (apply #'buffer-substring-no-properties bounds)
                 :to-equal "(bar 1)"))))
@@ -752,18 +751,18 @@
     (spy-on 'cider-interactive-eval)
     (with-clojure-buffer "(foo |(bar 1) baz)"
       (let ((cider-form-targeting 'preceding))
-        (cider-eval-last-sexp))
+        (cider-eval-form))
       (let ((bounds (nth 2 (spy-calls-args-for 'cider-interactive-eval 0))))
         (expect (apply #'buffer-substring-no-properties bounds)
                 :to-equal "foo")))))
 
-(describe "cider-eval-last-sexp-and-replace"
+(describe "cider-eval-form-and-replace"
   (it "replaces the resolved form, not the region behind point"
     (spy-on 'cider-nrepl-sync-request:eval)
     (spy-on 'cider-interactive-eval)
     (with-clojure-buffer "(+ 1 2|)"
       (let ((cider-form-targeting 'smart))
-        (cider-eval-last-sexp-and-replace))
+        (cider-eval-form-and-replace))
       ;; under smart targeting, point on the closing paren targets the
       ;; whole form, so the whole form is killed
       (expect (buffer-string) :to-equal "")

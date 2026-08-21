@@ -145,7 +145,7 @@ If `output-buffer', it's sent to a dedicated `*cider-out*' buffer."
 
 (defcustom cider-eval-rich-content-destination 'inline
   "Where rich (content-typed) interactive evaluation results are rendered.
-When an interactive evaluation (e.g. `cider-eval-last-sexp') produces a
+When an interactive evaluation (e.g. `cider-eval-form') produces a
 value with a recognized content type - an image, or a reference to external
 content such as a file or URL - this controls where that content shows up:
 
@@ -892,8 +892,8 @@ arguments and only proceed with evaluation if it returns nil."
                           (list start end)
                           (cider--nrepl-pr-request-plist)))
 
-(defun cider-eval-last-sexp (&optional output-to-current-buffer)
-  "Evaluate the expression preceding point.
+(defun cider-eval-form (&optional output-to-current-buffer)
+  "Evaluate the form point indicates.
 How the expression is located is controlled by `cider-form-targeting'.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current
 buffer."
@@ -903,8 +903,8 @@ buffer."
                           (cider-last-sexp 'bounds)
                           (cider--nrepl-pr-request-plist)))
 
-(defun cider-eval-last-sexp-and-replace ()
-  "Evaluate the expression preceding point and replace it with its result.
+(defun cider-eval-form-and-replace ()
+  "Evaluate the form point indicates and replace it with its result.
 How the expression is located is controlled by `cider-form-targeting'."
   (interactive)
   (let* ((bounds (cider-form-bounds))
@@ -918,26 +918,8 @@ How the expression is located is controlled by `cider-form-targeting'."
                             nil
                             (cider--nrepl-pr-request-plist))))
 
-(defun cider-eval-list-at-point (&optional output-to-current-buffer)
-  "Evaluate the list (eg.  a function call, surrounded by parens) around point.
-If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
-  (interactive "P")
-  (save-excursion
-    (goto-char (cadr (or (cider-list-at-point 'bounds)
-                         (user-error "No list at point"))))
-    (cider-eval-last-sexp output-to-current-buffer)))
-
-(defun cider-eval-sexp-at-point (&optional output-to-current-buffer)
-  "Evaluate the expression around point.
-If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
-  (interactive "P")
-  (save-excursion
-    (goto-char (cadr (or (cider-sexp-at-point 'bounds)
-                         (user-error "No sexp at point"))))
-    (cider-eval-last-sexp output-to-current-buffer)))
-
-(defun cider-tap-last-sexp (&optional output-to-current-buffer)
-  "Evaluate and tap the expression preceding point.
+(defun cider-tap-form (&optional output-to-current-buffer)
+  "Evaluate and tap the form point indicates.
 How the expression is located is controlled by `cider-form-targeting'.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current
 buffer."
@@ -948,18 +930,9 @@ buffer."
                             nil
                             (cider--nrepl-pr-request-plist))))
 
-(defun cider-tap-sexp-at-point (&optional output-to-current-buffer)
-  "Evaluate and tap the expression around point.
-If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
-  (interactive "P")
-  (save-excursion
-    (goto-char (cadr (or (cider-sexp-at-point 'bounds)
-                         (user-error "No sexp at point"))))
-    (cider-tap-last-sexp output-to-current-buffer)))
-
 (defvar-local cider-previous-eval-context nil
   "The previous evaluation context if any.
-That's set by commands like `cider-eval-last-sexp-in-context'.")
+That's set by commands like `cider-eval-form-in-context'.")
 
 
 (defun cider--guess-eval-context ()
@@ -998,8 +971,8 @@ When GUESS is non-nil, attempt to extract the context from parent let-bindings."
                             bounds
                             (cider--nrepl-pr-request-plist))))
 
-(defun cider-eval-last-sexp-in-context (guess)
-  "Evaluate the preceding sexp in user-supplied context.
+(defun cider-eval-form-in-context (guess)
+  "Evaluate the form point indicates in user-supplied context.
 The context is just a let binding vector (without the brackets).
 The context is remembered between command invocations.
 
@@ -1007,19 +980,6 @@ When GUESS is non-nil, or called interactively with \\[universal-argument],
 attempt to extract the context from parent let-bindings."
   (interactive "P")
   (cider--eval-in-context (cider-last-sexp 'bounds) guess))
-
-(defun cider-eval-sexp-at-point-in-context (guess)
-  "Evaluate the sexp around point in user-supplied context.
-
-The context is just a let binding vector (without the brackets).
-The context is remembered between command invocations.
-
-When GUESS is non-nil, or called interactively with \\[universal-argument],
-attempt to extract the context from parent let-bindings."
-  (interactive "P")
-  (cider--eval-in-context (or (cider-sexp-at-point 'bounds)
-                              (user-error "No sexp at point"))
-                          guess))
 
 (defun cider-eval-defun-to-comment (&optional insert-before)
   "Evaluate the \"top-level\" form and insert result as comment.
@@ -1067,8 +1027,8 @@ Any existing eval comment is replaced."
                             bounds
                             (cider--nrepl-print-request-plist fill-column))))
 
-(defun cider-pprint-eval-last-sexp-to-comment (&optional insert-before)
-  "Evaluate the last sexp and insert result as comment.
+(defun cider-pprint-eval-form-to-comment (&optional insert-before)
+  "Evaluate the form and insert result as comment.
 
 The comment style is controlled by `cider-comment-style'.
 
@@ -1196,8 +1156,8 @@ onto the mark ring, so \\[universal-argument] \\[set-mark-command] returns to it
 
 (declare-function cider-switch-to-repl-buffer "cider-mode")
 
-(defun cider--eval-last-sexp-to-repl (switch-to-repl request-map)
-  "Evaluate the expression preceding point and insert its result in the REPL,
+(defun cider--eval-form-to-repl (switch-to-repl request-map)
+  "Evaluate the form point indicates and insert its result in the REPL,
 honoring SWITCH-TO-REPL, REQUEST-MAP."
   (let ((bounds (cider-last-sexp 'bounds)))
     (cider-interactive-eval nil
@@ -1210,21 +1170,21 @@ honoring SWITCH-TO-REPL, REQUEST-MAP."
                             bounds
                             request-map)))
 
-(defun cider-eval-last-sexp-to-repl (&optional prefix)
-  "Evaluate the expression preceding point and insert its result in the REPL.
+(defun cider-eval-form-to-repl (&optional prefix)
+  "Evaluate the form point indicates and insert its result in the REPL.
 How the expression is located is controlled by `cider-form-targeting'.
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
-  (cider--eval-last-sexp-to-repl prefix (cider--nrepl-pr-request-plist)))
+  (cider--eval-form-to-repl prefix (cider--nrepl-pr-request-plist)))
 
-(defun cider-pprint-eval-last-sexp-to-repl (&optional prefix)
-  "Evaluate expr before point and insert its pretty-printed result in the REPL.
+(defun cider-pprint-eval-form-to-repl (&optional prefix)
+  "Evaluate the form point indicates and insert its pprinted result in the REPL.
 If invoked with a PREFIX argument, switch to the REPL buffer."
   (interactive "P")
-  (cider--eval-last-sexp-to-repl prefix (cider--nrepl-print-request-plist fill-column)))
+  (cider--eval-form-to-repl prefix (cider--nrepl-print-request-plist fill-column)))
 
-(defun cider-eval-print-last-sexp (&optional pretty-print)
-  "Evaluate the expression preceding point.
+(defun cider-eval-print-form (&optional pretty-print)
+  "Evaluate the form point indicates.
 Print its value into the current buffer.
 How the expression is located is controlled by `cider-form-targeting'.
 With an optional PRETTY-PRINT prefix it pretty-prints the result."
@@ -1247,14 +1207,14 @@ With an optional PRETTY-PRINT prefix it pretty-prints the result."
                               (when (consp form) form)
                               (cider--nrepl-print-request-plist fill-column)))))
 
-(defun cider-pprint-eval-last-sexp (&optional output-to-current-buffer)
-  "Evaluate the sexp preceding point and pprint its value.
+(defun cider-pprint-eval-form (&optional output-to-current-buffer)
+  "Evaluate the form point indicates and pprint its value.
 How the sexp is located is controlled by `cider-form-targeting'.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, insert as comment in the current
 buffer, else display in a popup buffer."
   (interactive "P")
   (if output-to-current-buffer
-      (cider-pprint-eval-last-sexp-to-comment)
+      (cider-pprint-eval-form-to-comment)
     (cider--pprint-eval-form (cider-last-sexp 'bounds))))
 
 (defun cider--prompt-and-insert-inline-dbg ()
@@ -1282,21 +1242,21 @@ buffer, else display in a popup buffer."
                    :type 'cider-fragile))))
 
 (defun cider-eval-dwim (&optional debug-it)
-  "If no region is active, call `cider-eval-defun-at-point' with DEBUG-IT.
+  "If no region is active, call `cider-eval-defun' with DEBUG-IT.
 If a region is active, run `cider-eval-region'.
 Inside a `comment' form the enclosed form is evaluated - a property of
 `cider-defun-at-point', shared by the whole defun-operating family."
   (interactive "P")
   (if (use-region-p)
       (cider-eval-region (region-beginning) (region-end))
-    (cider-eval-defun-at-point debug-it)))
+    (cider-eval-defun debug-it)))
 
-(defun cider-eval-defun-at-point (&optional debug-it)
+(defun cider-eval-defun (&optional debug-it)
   "Evaluate the current toplevel form, and print result in the minibuffer.
 Inside a `comment' form the enclosed form is treated as the toplevel
 one; see `cider-defun-at-point'.
 With DEBUG-IT prefix argument, also debug the entire form as with the
-command `cider-debug-defun-at-point'."
+command `cider-debug-defun'."
   (interactive "P")
   (let ((inline-debug (eq 16 (car-safe debug-it))))
     (when debug-it
@@ -1375,7 +1335,7 @@ buffer.  It constructs an expression to eval in the following manner:
                             (list beg-of-sexp (point))
                             (cider--nrepl-pr-request-plist))))
 
-(defun cider-pprint-eval-defun-at-point (&optional output-to-current-buffer)
+(defun cider-pprint-eval-defun (&optional output-to-current-buffer)
   "Evaluate the \"top-level\" form at point and pprint its value.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, insert as comment in the current
 buffer, else display in a popup buffer."
@@ -1393,7 +1353,7 @@ When UNDEF-ALL is non-nil, unmap all symbols and aliases first."
       (goto-char (match-beginning 0))
       (when undef-all
         (cider-undef-all ns))
-      (cider-eval-defun-at-point))))
+      (cider-eval-defun))))
 
 (defun cider-read-and-eval (&optional value)
   "Read a sexp from the minibuffer and output its result to the echo area.
@@ -1414,7 +1374,7 @@ If VALUE is non-nil, it is inserted into the minibuffer as initial input."
                                 nil
                                 (cider--nrepl-pr-request-plist))))))
 
-(defun cider-read-and-eval-defun-at-point ()
+(defun cider-read-and-eval-defun ()
   "Insert the toplevel form at point in the minibuffer and output its result.
 The point is placed next to the function name in the minibuffer to allow
 passing arguments."
@@ -1449,72 +1409,101 @@ passing arguments."
      "ns" ,(or ns (cider-current-ns)))))
 
 ;; Eval keymaps
+
+;;; Legacy names
+;;
+;; The eval commands were renamed for CIDER 2.1: with smart form targeting
+;; as the default, the historical "last-sexp" wording no longer described
+;; what the commands do, and the "-at-point" suffix on the defun family was
+;; redundant.  The point-based escape hatches (`cider-eval-sexp-at-point'
+;; and friends) are folded into the form commands outright - smart
+;; targeting is their behavior.
+(define-obsolete-function-alias 'cider-eval-last-sexp #'cider-eval-form "2.1.0")
+(define-obsolete-function-alias 'cider-eval-last-sexp-and-replace #'cider-eval-form-and-replace "2.1.0")
+(define-obsolete-function-alias 'cider-eval-last-sexp-in-context #'cider-eval-form-in-context "2.1.0")
+(define-obsolete-function-alias 'cider-eval-last-sexp-to-repl #'cider-eval-form-to-repl "2.1.0")
+(define-obsolete-function-alias 'cider-pprint-eval-last-sexp-to-repl #'cider-pprint-eval-form-to-repl "2.1.0")
+(define-obsolete-function-alias 'cider-eval-print-last-sexp #'cider-eval-print-form "2.1.0")
+(define-obsolete-function-alias 'cider-pprint-eval-last-sexp #'cider-pprint-eval-form "2.1.0")
+(define-obsolete-function-alias 'cider-pprint-eval-last-sexp-to-comment #'cider-pprint-eval-form-to-comment "2.1.0")
+(define-obsolete-function-alias 'cider-tap-last-sexp #'cider-tap-form "2.1.0")
+(define-obsolete-function-alias 'cider-eval-defun-at-point #'cider-eval-defun "2.1.0")
+(define-obsolete-function-alias 'cider-pprint-eval-defun-at-point #'cider-pprint-eval-defun "2.1.0")
+(define-obsolete-function-alias 'cider-read-and-eval-defun-at-point #'cider-read-and-eval-defun "2.1.0")
+(define-obsolete-function-alias 'cider-eval-sexp-at-point #'cider-eval-form "2.1.0")
+(define-obsolete-function-alias 'cider-eval-list-at-point #'cider-eval-form "2.1.0")
+(define-obsolete-function-alias 'cider-tap-sexp-at-point #'cider-tap-form "2.1.0")
+(define-obsolete-function-alias 'cider-eval-sexp-at-point-in-context #'cider-eval-form-in-context "2.1.0")
+
+
 (defvar cider-eval-pprint-commands-map
   (let ((map (define-prefix-command 'cider-eval-pprint-commands-map)))
     ;; single key bindings defined last for display in menu
-    (define-key map (kbd "e") #'cider-pprint-eval-last-sexp)
-    (define-key map (kbd "d") #'cider-pprint-eval-defun-at-point)
-    (define-key map (kbd "c e") #'cider-pprint-eval-last-sexp-to-comment)
+    (define-key map (kbd "e") #'cider-pprint-eval-form)
+    (define-key map (kbd "d") #'cider-pprint-eval-defun)
+    (define-key map (kbd "c e") #'cider-pprint-eval-form-to-comment)
     (define-key map (kbd "c d") #'cider-pprint-eval-defun-to-comment)
-    (define-key map (kbd "j e") #'cider-pprint-eval-last-sexp-to-repl)
+    (define-key map (kbd "j e") #'cider-pprint-eval-form-to-repl)
 
     ;; duplicates with C- for convenience
-    (define-key map (kbd "C-e") #'cider-pprint-eval-last-sexp)
-    (define-key map (kbd "C-d") #'cider-pprint-eval-defun-at-point)
-    (define-key map (kbd "C-c e") #'cider-pprint-eval-last-sexp-to-comment)
-    (define-key map (kbd "C-c C-e") #'cider-pprint-eval-last-sexp-to-comment)
+    (define-key map (kbd "C-e") #'cider-pprint-eval-form)
+    (define-key map (kbd "C-d") #'cider-pprint-eval-defun)
+    (define-key map (kbd "C-c e") #'cider-pprint-eval-form-to-comment)
+    (define-key map (kbd "C-c C-e") #'cider-pprint-eval-form-to-comment)
     (define-key map (kbd "C-c d") #'cider-pprint-eval-defun-to-comment)
     (define-key map (kbd "C-c C-d") #'cider-pprint-eval-defun-to-comment)
-    (define-key map (kbd "C-j e") #'cider-pprint-eval-last-sexp-to-repl)
-    (define-key map (kbd "C-j C-e") #'cider-pprint-eval-last-sexp-to-repl)
+    (define-key map (kbd "C-j e") #'cider-pprint-eval-form-to-repl)
+    (define-key map (kbd "C-j C-e") #'cider-pprint-eval-form-to-repl)
     map))
 
 (defvar cider-eval-commands-map
   (let ((map (define-prefix-command 'cider-eval-commands-map)))
     ;; single key bindings defined last for display in menu
-    (define-key map (kbd "w") #'cider-eval-last-sexp-and-replace)
+    (define-key map (kbd "w") #'cider-eval-form-and-replace)
     (define-key map (kbd "r") #'cider-eval-region)
     (define-key map (kbd "n") #'cider-eval-ns-form)
     (define-key map (kbd "s") #'cider-eval-dwim)
-    (define-key map (kbd "d") #'cider-eval-defun-at-point)
-    (define-key map (kbd "e") #'cider-eval-last-sexp)
-    (define-key map (kbd "q") #'cider-tap-last-sexp)
-    (define-key map (kbd "l") #'cider-eval-list-at-point)
-    (define-key map (kbd "v") #'cider-eval-sexp-at-point)
-    (define-key map (kbd "t") #'cider-tap-sexp-at-point)
+    (define-key map (kbd "d") #'cider-eval-defun)
+    (define-key map (kbd "e") #'cider-eval-form)
+    (define-key map (kbd "q") #'cider-tap-form)
     (define-key map (kbd "o") #'cider-eval-sexp-up-to-point)
-    (define-key map (kbd ".") #'cider-read-and-eval-defun-at-point)
+    (define-key map (kbd ".") #'cider-read-and-eval-defun)
     (define-key map (kbd "z") #'cider-eval-defun-up-to-point)
-    (define-key map (kbd "c") #'cider-eval-last-sexp-in-context)
-    (define-key map (kbd "b") #'cider-eval-sexp-at-point-in-context)
+    (define-key map (kbd "c") #'cider-eval-form-in-context)
     (define-key map (kbd "k") #'cider-kill-last-result)
-    (define-key map (kbd "j") #'cider-eval-last-sexp-to-repl)
-    (define-key map (kbd "p") #'cider-eval-print-last-sexp)
+    (define-key map (kbd "j") #'cider-eval-form-to-repl)
+    (define-key map (kbd "p") #'cider-eval-print-form)
     (define-key map (kbd ":") #'cider-read-and-eval)
     (define-key map (kbd ";") #'cider-eval-defun-to-comment)
     (define-key map (kbd "f") 'cider-eval-pprint-commands-map)
     (define-key map (kbd "T") #'cider-toggle-form-targeting)
 
     ;; duplicates with C- for convenience
-    (define-key map (kbd "C-w") #'cider-eval-last-sexp-and-replace)
+    (define-key map (kbd "C-w") #'cider-eval-form-and-replace)
     (define-key map (kbd "C-r") #'cider-eval-region)
     (define-key map (kbd "C-n") #'cider-eval-ns-form)
     (define-key map (kbd "C-s") #'cider-eval-dwim)
-    (define-key map (kbd "C-d") #'cider-eval-defun-at-point)
-    (define-key map (kbd "C-e") #'cider-eval-last-sexp)
-    (define-key map (kbd "C-q") #'cider-tap-last-sexp)
-    (define-key map (kbd "C-l") #'cider-eval-list-at-point)
-    (define-key map (kbd "C-v") #'cider-eval-sexp-at-point)
-    (define-key map (kbd "C-t") #'cider-tap-sexp-at-point)
+    (define-key map (kbd "C-d") #'cider-eval-defun)
+    (define-key map (kbd "C-e") #'cider-eval-form)
+    (define-key map (kbd "C-q") #'cider-tap-form)
     (define-key map (kbd "C-o") #'cider-eval-sexp-up-to-point)
-    (define-key map (kbd "C-.") #'cider-read-and-eval-defun-at-point)
+    (define-key map (kbd "C-.") #'cider-read-and-eval-defun)
     (define-key map (kbd "C-z") #'cider-eval-defun-up-to-point)
-    (define-key map (kbd "C-c") #'cider-eval-last-sexp-in-context)
-    (define-key map (kbd "C-b") #'cider-eval-sexp-at-point-in-context)
+    (define-key map (kbd "C-c") #'cider-eval-form-in-context)
     (define-key map (kbd "C-k") #'cider-kill-last-result)
-    (define-key map (kbd "C-j") #'cider-eval-last-sexp-to-repl)
-    (define-key map (kbd "C-p") #'cider-eval-print-last-sexp)
+    (define-key map (kbd "C-j") #'cider-eval-form-to-repl)
+    (define-key map (kbd "C-p") #'cider-eval-print-form)
     (define-key map (kbd "C-f") 'cider-eval-pprint-commands-map)
+    ;; The point-based escape hatches folded into the form commands (which
+    ;; smart-target by default); their keys forward with a one-time hint.
+    (cider--define-deprecated-key map "v" #'cider-eval-form "e (cider-eval-form)" "2.1.0")
+    (cider--define-deprecated-key map "l" #'cider-eval-form "e (cider-eval-form)" "2.1.0")
+    (cider--define-deprecated-key map "b" #'cider-eval-form-in-context "c (cider-eval-form-in-context)" "2.1.0")
+    (cider--define-deprecated-key map "t" #'cider-tap-form "q (cider-tap-form)" "2.1.0")
+    (cider--define-deprecated-key map "C-v" #'cider-eval-form "C-e (cider-eval-form)" "2.1.0")
+    (cider--define-deprecated-key map "C-l" #'cider-eval-form "C-e (cider-eval-form)" "2.1.0")
+    (cider--define-deprecated-key map "C-b" #'cider-eval-form-in-context "C-c (cider-eval-form-in-context)" "2.1.0")
+    (cider--define-deprecated-key map "C-t" #'cider-tap-form "C-q (cider-tap-form)" "2.1.0")
     map))
 
 
@@ -1562,30 +1551,30 @@ The chosen printer is `let'-bound around the call, for this invocation only."
            cider-print-fn)))
     (funcall command)))
 
-(transient-define-suffix cider-eval-pprint-menu--last-sexp (args)
-  "Pretty-print the last sexp, applying the menu's ARGS."
+(transient-define-suffix cider-eval-pprint-menu--form (args)
+  "Pretty-print the form, applying the menu's ARGS."
   (interactive (list (transient-args 'cider-eval-pprint-menu)))
-  (cider-eval-pprint-menu--apply-args args #'cider-pprint-eval-last-sexp))
+  (cider-eval-pprint-menu--apply-args args #'cider-pprint-eval-form))
 
 (transient-define-suffix cider-eval-pprint-menu--defun (args)
   "Pretty-print the defun at point, applying the menu's ARGS."
   (interactive (list (transient-args 'cider-eval-pprint-menu)))
-  (cider-eval-pprint-menu--apply-args args #'cider-pprint-eval-defun-at-point))
+  (cider-eval-pprint-menu--apply-args args #'cider-pprint-eval-defun))
 
-(transient-define-suffix cider-eval-pprint-menu--last-sexp-to-comment (args)
-  "Pretty-print the last sexp into a comment, applying the menu's ARGS."
+(transient-define-suffix cider-eval-pprint-menu--form-to-comment (args)
+  "Pretty-print the form into a comment, applying the menu's ARGS."
   (interactive (list (transient-args 'cider-eval-pprint-menu)))
-  (cider-eval-pprint-menu--apply-args args #'cider-pprint-eval-last-sexp-to-comment))
+  (cider-eval-pprint-menu--apply-args args #'cider-pprint-eval-form-to-comment))
 
 (transient-define-suffix cider-eval-pprint-menu--defun-to-comment (args)
   "Pretty-print the defun at point into a comment, applying the menu's ARGS."
   (interactive (list (transient-args 'cider-eval-pprint-menu)))
   (cider-eval-pprint-menu--apply-args args #'cider-pprint-eval-defun-to-comment))
 
-(transient-define-suffix cider-eval-pprint-menu--last-sexp-to-repl (args)
-  "Pretty-print the last sexp into the REPL, applying the menu's ARGS."
+(transient-define-suffix cider-eval-pprint-menu--form-to-repl (args)
+  "Pretty-print the form into the REPL, applying the menu's ARGS."
   (interactive (list (transient-args 'cider-eval-pprint-menu)))
-  (cider-eval-pprint-menu--apply-args args #'cider-pprint-eval-last-sexp-to-repl))
+  (cider-eval-pprint-menu--apply-args args #'cider-pprint-eval-form-to-repl))
 
 ;;;###autoload (autoload 'cider-eval-pprint-menu "cider-eval" "Menu for CIDER's pretty-printing eval commands." t)
 (transient-define-prefix cider-eval-pprint-menu ()
@@ -1595,43 +1584,39 @@ zprint, or a custom var) for this invocation only."
   ["Argument"
    ("-p" "Print function" "--print-fn=" :reader cider-eval-pprint-menu--read-print-fn)]
   [["Pretty-print"
-    ("e" "Last sexp" cider-eval-pprint-menu--last-sexp)
-    ("d" "Defun at point" cider-eval-pprint-menu--defun)]
+    ("e" "Form" cider-eval-pprint-menu--form)
+    ("d" "Defun" cider-eval-pprint-menu--defun)]
    ["Send pretty-printed value to"
-    ("c" "Comment (last sexp)" cider-eval-pprint-menu--last-sexp-to-comment)
+    ("c" "Comment (form)" cider-eval-pprint-menu--form-to-comment)
     ("D" "Comment (defun)" cider-eval-pprint-menu--defun-to-comment)
-    ("r" "REPL (last sexp)" cider-eval-pprint-menu--last-sexp-to-repl)]]
+    ("r" "REPL (form)" cider-eval-pprint-menu--form-to-repl)]]
   [:hide (lambda () t)
-   ("C-e" "Last sexp" cider-eval-pprint-menu--last-sexp)
-   ("C-d" "Defun at point" cider-eval-pprint-menu--defun)])
+   ("C-e" "Form" cider-eval-pprint-menu--form)
+   ("C-d" "Defun" cider-eval-pprint-menu--defun)])
 
 ;;;###autoload (autoload 'cider-eval-menu "cider-eval" "Menu for CIDER's evaluation commands." t)
 (transient-define-prefix cider-eval-menu ()
   "Transient menu for CIDER's evaluation commands."
   [["Evaluate"
     ("s" "Dwim (region or defun)" cider-eval-dwim)
-    ("e" "Last sexp" cider-eval-last-sexp)
-    ("d" "Defun at point" cider-eval-defun-at-point)
-    ("v" "Sexp at point" cider-eval-sexp-at-point)
-    ("l" "List at point" cider-eval-list-at-point)
+    ("e" "Form" cider-eval-form)
+    ("d" "Defun" cider-eval-defun)
     ("r" "Region" cider-eval-region)
     ("n" "Namespace form" cider-eval-ns-form)]
    ["Up to point / in context"
     ("o" "Sexp up to point" cider-eval-sexp-up-to-point)
     ("z" "Defun up to point" cider-eval-defun-up-to-point)
-    ("c" "Last sexp in context" cider-eval-last-sexp-in-context)
-    ("b" "Sexp at point in context" cider-eval-sexp-at-point-in-context)]
+    ("c" "Form in context" cider-eval-form-in-context)]
    ["Send result to"
-    ("j" "REPL" cider-eval-last-sexp-to-repl)
-    ("p" "Print inline" cider-eval-print-last-sexp)
+    ("j" "REPL" cider-eval-form-to-repl)
+    ("p" "Print inline" cider-eval-print-form)
     (";" "Comment" cider-eval-defun-to-comment)
-    ("w" "Replace form with value" cider-eval-last-sexp-and-replace)
+    ("w" "Replace form with value" cider-eval-form-and-replace)
     ("k" "Kill last result" cider-kill-last-result)]
    ["More"
-    ("q" "Tap last sexp" cider-tap-last-sexp)
-    ("t" "Tap sexp at point" cider-tap-sexp-at-point)
+    ("q" "Tap form" cider-tap-form)
     (":" "Read & eval (minibuffer)" cider-read-and-eval)
-    ("." "Read & eval defun at point" cider-read-and-eval-defun-at-point)
+    ("." "Read & eval defun" cider-read-and-eval-defun)
     ("f" "Pretty-print..." cider-eval-pprint-menu)]]
   ;; Unlike the pprint/macroexpand menus' arguments, which are let-bound
   ;; around a single invocation, this toggle persists for the session:
@@ -1648,23 +1633,23 @@ zprint, or a custom var) for this invocation only."
   ;; memory (e.g. the doubled C-c C-v C-r) keeps working unchanged.
   [:hide (lambda () t)
    ("C-s" "Dwim" cider-eval-dwim)
-   ("C-e" "Last sexp" cider-eval-last-sexp)
-   ("C-d" "Defun at point" cider-eval-defun-at-point)
+   ("C-e" "Form" cider-eval-form)
+   ("C-d" "Defun at point" cider-eval-defun)
    ("C-v" "Sexp at point" cider-eval-sexp-at-point)
    ("C-l" "List at point" cider-eval-list-at-point)
    ("C-r" "Region" cider-eval-region)
    ("C-n" "Namespace form" cider-eval-ns-form)
    ("C-o" "Sexp up to point" cider-eval-sexp-up-to-point)
    ("C-z" "Defun up to point" cider-eval-defun-up-to-point)
-   ("C-c" "Last sexp in context" cider-eval-last-sexp-in-context)
+   ("C-c" "Form in context" cider-eval-form-in-context)
    ("C-b" "Sexp at point in context" cider-eval-sexp-at-point-in-context)
-   ("C-j" "REPL" cider-eval-last-sexp-to-repl)
-   ("C-p" "Print inline" cider-eval-print-last-sexp)
-   ("C-w" "Replace form with value" cider-eval-last-sexp-and-replace)
+   ("C-j" "REPL" cider-eval-form-to-repl)
+   ("C-p" "Print inline" cider-eval-print-form)
+   ("C-w" "Replace form with value" cider-eval-form-and-replace)
    ("C-k" "Kill last result" cider-kill-last-result)
-   ("C-q" "Tap last sexp" cider-tap-last-sexp)
+   ("C-q" "Tap form" cider-tap-form)
    ("C-t" "Tap sexp at point" cider-tap-sexp-at-point)
-   ("C-." "Read & eval defun at point" cider-read-and-eval-defun-at-point)
+   ("C-." "Read & eval defun at point" cider-read-and-eval-defun)
    ("C-f" "Pretty-print..." cider-eval-pprint-menu)])
 
 (defun cider--file-string (file)

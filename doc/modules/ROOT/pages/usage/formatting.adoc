@@ -60,6 +60,6 @@ shelling out.
 Similarly to the `cljfmt` integration, CIDER also provides a convenient interface
 to format EDN using `clojure.tools.reader.edn`. The following commands are provided:
 
-* `cider-format-edn-last-sexp`
+* `cider-format-edn-form`
 * `cider-format-edn-region`
 * `cider-format-edn-buffer`
