@@ -269,9 +269,14 @@
       (with-clojure-buffer "|(foo 1)"
         (expect (cider-last-sexp) :to-equal "(foo 1)")))
 
+    (it "returns the opened form when on an opening paren (smart default)"
+      (with-clojure-buffer "(foo |(bar 1) baz)"
+        (expect (cider-last-sexp) :to-equal "(bar 1)")))
+
     (it "returns the previous sibling when on an opening paren (classic)"
       (with-clojure-buffer "(foo |(bar 1) baz)"
-        (expect (cider-last-sexp) :to-equal "foo")))))
+        (let ((cider-form-targeting 'preceding))
+          (expect (cider-last-sexp) :to-equal "foo"))))))
 
 (describe "cider-form-targeting smart"
   ;; positions where smart agrees with the classic preceding behavior
@@ -339,7 +344,8 @@
 
   (it "is ignored under classic targeting"
     (with-clojure-buffer "(when t| 1)"
-      (expect (cider-form-string 'compound) :to-equal "t"))))
+      (let ((cider-form-targeting 'preceding))
+        (expect (cider-form-string 'compound) :to-equal "t")))))
 
 (describe "cider-defun-at-point"
   (describe "when the param 'bounds is not given"

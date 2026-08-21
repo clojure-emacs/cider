@@ -316,26 +316,28 @@ instead."
     (funcall (if bounds #'list #'buffer-substring-no-properties)
              (car b) (cdr b))))
 
-(defcustom cider-form-targeting 'preceding
+(defcustom cider-form-targeting 'smart
   "How commands locate the form they operate on.
 
-`preceding' is the classic behavior: the target is the sexp before
-point, so point must sit right after the form (like `eval-last-sexp'
-in Emacs Lisp).
+`smart' (the default) resolves the intended form from the cursor
+position: on an opening delimiter it targets the form it opens, on a
+closing delimiter the form it closes, inside an atom or string that
+atom, and otherwise the sexp preceding point.
 
-`smart' resolves the intended form from the cursor position: on an
-opening delimiter it targets the form it opens, on a closing delimiter
-the form it closes, inside an atom or string that atom, and otherwise
-the sexp preceding point.  It agrees with `preceding' at every position
-where the preceding sexp is well-defined, and only differs where the
-classic answer was surprising (e.g. point sitting on a delimiter).
+`preceding' is the classic behavior shared with Emacs Lisp's
+`eval-last-sexp' and SLIME: the target is strictly the sexp before
+point, so point must sit right after the form.  `smart' agrees with it
+at every position where the preceding sexp is well-defined and only
+differs where the classic answer was surprising (e.g. point sitting on
+a delimiter), but if your muscle memory says otherwise, this setting
+restores the old rules exactly.
 
 Consulted by `cider-eval-last-sexp', `cider-macroexpand-1' and the rest
 of the commands that operate on the preceding sexp."
   :group 'cider
-  :type '(choice (const :tag "Classic: the sexp preceding point" preceding)
-                 (const :tag "Smart: infer the form from the cursor position" smart))
-  :package-version '(cider . "2.0.0"))
+  :type '(choice (const :tag "Smart: infer the form from the cursor position" smart)
+                 (const :tag "Classic: the sexp preceding point" preceding))
+  :package-version '(cider . "2.1.0"))
 
 (defun cider--preceding-form-bounds ()
   "Return the bounds (START . END) of the logical sexp preceding point."

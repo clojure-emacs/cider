@@ -728,10 +728,19 @@
         (expect (apply #'buffer-substring-no-properties bounds)
                 :to-equal "(bar 1)"))))
 
-  (it "behaves classically by default"
+  (it "behaves smartly by default"
     (spy-on 'cider-interactive-eval)
     (with-clojure-buffer "(foo |(bar 1) baz)"
       (cider-eval-last-sexp)
+      (let ((bounds (nth 2 (spy-calls-args-for 'cider-interactive-eval 0))))
+        (expect (apply #'buffer-substring-no-properties bounds)
+                :to-equal "(bar 1)"))))
+
+  (it "restores the classic behavior under preceding targeting"
+    (spy-on 'cider-interactive-eval)
+    (with-clojure-buffer "(foo |(bar 1) baz)"
+      (let ((cider-form-targeting 'preceding))
+        (cider-eval-last-sexp))
       (let ((bounds (nth 2 (spy-calls-args-for 'cider-interactive-eval 0))))
         (expect (apply #'buffer-substring-no-properties bounds)
                 :to-equal "foo")))))
