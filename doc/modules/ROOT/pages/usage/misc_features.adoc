@@ -20,7 +20,7 @@ around with some code without having to create source files or pollute
 the REPL buffer and is very similar to Emacs's own `+*scratch*+` buffer.
 
 In the scratchpad, kbd:[C-j] (`cider-eval-print-form`) evaluates the
-expression before point and prints its value inline, advancing point;
+form point indicates and prints its value inline, advancing point;
 kbd:[C-u C-j] pretty-prints the result instead. `cider-scratch-reset`
 clears the buffer back to its initial state (keeping its session and
 eval destination).

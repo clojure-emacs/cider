@@ -46,10 +46,10 @@ When you expand into a buffer you'll have access to additional keybindings there
 | Keyboard shortcut | Description
 
 | kbd:[m]
-| Invoke `macroexpand-1` on the form before point and replace the original form with its expansion.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
+| Invoke `macroexpand-1` on the form point indicates and replace the original form with its expansion.  If invoked with a prefix argument, `macroexpand` is used instead of `macroexpand-1`.
 
 | kbd:[a]
-| Invoke `clojure.walk/macroexpand-all` on the form before point and replace the original form with its expansion.
+| Invoke `clojure.walk/macroexpand-all` on the form point indicates and replace the original form with its expansion.
 
 | kbd:[g]
 | Re-expand the original form. This picks up the latest definition of the macro as well as any change to the display options below.
@@ -176,10 +176,10 @@ image::cider-macrostep.gif[Stepping through a macro expansion inline and collaps
 | kbd:[e] +
 kbd:[=] +
 kbd:[RET]
-| Expand the form before point one step further. Inside an existing expansion, put point after a nested form to step into it.
+| Expand the form point indicates one step further. Inside an existing expansion, put point after a nested form to step into it.
 
 | kbd:[a]
-| Fully expand the form before point in one step (`macroexpand-all`), instead of stepping level by level.
+| Fully expand the form point indicates in one step (`macroexpand-all`), instead of stepping level by level.
 
 | kbd:[c] +
 kbd:[u] +
@@ -211,7 +211,7 @@ Without it the stepping still works, just without those visual aids.
 
 If you'd rather not touch the source buffer, `cider-macrostep-expand-in-buffer`
 runs the same stepping session in a dedicated `+*cider-macrostep*+` popup: it
-copies the form before point there and you step through it exactly as above,
+copies the form point indicates there and you step through it exactly as above,
 with the source left untouched. In the popup kbd:[q] dismisses the whole buffer
 in one step.
 

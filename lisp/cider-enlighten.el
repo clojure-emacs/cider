@@ -107,7 +107,7 @@ displaying its value.  Does nothing while `cider-enlighten--suppress' is set."
     (setq cider-enlighten--suppress nil)))
 
 ;;;###autoload
-(defun cider-enlighten-defun-at-point ()
+(defun cider-enlighten-defun ()
   "Evaluate the top-level form at point with enlightenment enabled.
 This is like enabling `cider-enlighten-mode' and evaluating the form, but
 scoped to this single evaluation, so you needn't toggle the global mode on
@@ -116,6 +116,8 @@ and off (and re-evaluate everything) just to light up one definition."
   (setq cider-enlighten--suppress nil)
   (let ((cider-enlighten-mode t))
     (cider-eval-defun)))
+
+(define-obsolete-function-alias 'cider-enlighten-defun-at-point #'cider-enlighten-defun "2.1.0")
 
 ;;;###autoload
 (defun cider-enlighten-clear ()
@@ -130,7 +132,7 @@ Turn off `cider-enlighten-mode', remove the existing overlays, and ignore
 any further enlighten values still streaming from previously-instrumented
 code.  This quiets things down at once - unlike disabling the mode alone,
 which leaves already-instrumented definitions lighting up every time they
-run.  Re-enabling the mode (or `cider-enlighten-defun-at-point') resumes
+run.  Re-enabling the mode (or `cider-enlighten-defun') resumes
 display."
   (interactive)
   (setq cider-enlighten--suppress t)

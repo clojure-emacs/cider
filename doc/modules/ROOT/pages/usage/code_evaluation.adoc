@@ -13,15 +13,18 @@ confusing to people not familiar with it. Let's take a look at it:
 
 * `defun` - top-level expression
 * `sexp` - s-expression, form
-* `last-sexp` - the form the cursor indicates (classically, the form preceding `point`)
+* `form` - the form the cursor indicates: the one point is on, in, or right
+  after (classically called `last-sexp`, when it strictly meant the form
+  preceding `point` - see <<form-targeting,Form Targeting>>)
 * `sexp-at-point` - the form under/around the cursor
 * `buffer` - the abstraction used by Emacs to represent any content; most often backed by a file.
 * `region` - the selected part of a buffer
 * `load` - a synonym for "evaluate"; most often used in the context of buffers/files
 
+[#form-targeting]
 == Form Targeting
 
-The `last-sexp` family of commands (`cider-eval-form`,
+The `form` family of commands (`cider-eval-form`,
 `cider-macroexpand-1`, `cider-inspect-form`, etc) resolves its target
 form from the cursor position: on an opening delimiter the target is the form
 it opens; on (or right after) a closing delimiter the form it closes; inside
