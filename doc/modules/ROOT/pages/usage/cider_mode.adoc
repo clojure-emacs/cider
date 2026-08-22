@@ -62,7 +62,7 @@ Those few essential commands can get you really far in your day to day work. Kee
 Many of CIDER's keybindings are modeled on
 https://slime.common-lisp.dev/[SLIME] (the venerable Common Lisp environment)
 and on Emacs's own bindings for evaluating Emacs Lisp.  The essentials line up
-almost everywhere - kbd:[C-x C-e] (eval last sexp), kbd:[C-M-x] (eval
+almost everywhere - kbd:[C-x C-e] (eval form), kbd:[C-M-x] (eval
 top-level form), kbd:[C-c C-k] (load), kbd:[C-c C-m] / kbd:[C-c M-m]
 (macroexpand), kbd:[M-.] / kbd:[M-,] (jump to a definition and back),
 kbd:[C-c C-d C-d] (docs), kbd:[C-c C-z] (switch to the REPL) and kbd:[C-c C-b]

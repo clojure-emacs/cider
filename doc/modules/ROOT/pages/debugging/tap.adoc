@@ -56,7 +56,7 @@ You don't have to edit your source to tap a value. Two commands wrap the form at
 point in a `tap>` for you, evaluating it and sending the result to any tap
 targets (including the viewer above):
 
-* `cider-tap-form` taps the result of the last sexp.
+* `cider-tap-form` taps the result of the form point indicates.
 * `cider-tap-sexp-at-point` taps the sexp around point.
 
 The original value is returned unchanged, so these are safe to drop into a larger

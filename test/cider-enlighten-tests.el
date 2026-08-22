@@ -65,13 +65,13 @@
         (cider--handle-enlighten (nrepl-dict "debug-value" "3")))
       (expect (cider-enlighten-tests--overlays) :to-be nil))))
 
-(describe "cider-enlighten-defun-at-point"
+(describe "cider-enlighten-defun"
   (it "evaluates the form with the enlighten mode bound on, then restores it"
     (let ((mode-during 'unset))
       (spy-on 'cider-eval-defun :and-call-fake
               (lambda (&rest _) (setq mode-during cider-enlighten-mode)))
       (let ((cider-enlighten-mode nil))
-        (cider-enlighten-defun-at-point)
+        (cider-enlighten-defun)
         (expect 'cider-eval-defun :to-have-been-called)
         ;; the eval saw the mode enabled...
         (expect mode-during :to-be t)
