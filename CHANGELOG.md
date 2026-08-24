@@ -20,6 +20,7 @@
 
 ### Changes
 
+- [#4168](https://github.com/clojure-emacs/cider/pull/4168): Round out the form-targeting work: report "No form found at point" as a proper `user-error`, rename `cider-eval-sexp-up-to-point` to `cider-eval-form-up-to-point`, retire the misnamed `cider-last-sexp` primitive in favor of `cider-form-bounds`/`cider-form-string` (all old names remain as obsolete aliases), and document why CIDER deviates from the traditional "last-sexp" naming.
 - [#4167](https://github.com/clojure-emacs/cider/pull/4167): Rename the eval commands to the `form` and `defun` families (`cider-eval-last-sexp` -> `cider-eval-form`, `cider-eval-defun-at-point` -> `cider-eval-defun`, and so on for pprint/tap/inspect/insert/debug variants); all old names keep working as obsolete aliases. The point-based escape hatches (`cider-eval-sexp-at-point` and friends) are folded into the form commands - smart targeting is their behavior - and their `C-c C-v` keys forward with a one-time deprecation hint.
 - [#4166](https://github.com/clojure-emacs/cider/pull/4166): Treat the contents of a `comment` form as top level in the whole defun command family (pretty-printing, eval-to-comment, inspect, format, debug, etc.), not just `cider-eval-defun-at-point` and `cider-eval-dwim`; CIDER's commands no longer depend on `clojure-toplevel-inside-comment-form`.
 - [#4160](https://github.com/clojure-emacs/cider/pull/4160): Stop offering the previous session's port as the `cider-connect` default when nothing is listening on it anymore; the host is still offered and port inference takes over.
