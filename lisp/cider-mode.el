@@ -290,7 +290,7 @@ If EVAL is non-nil the form will also be evaluated.  Use
 How the expression is located is controlled by `cider-form-targeting'.
 If invoked with a prefix ARG eval the expression after inserting it."
   (interactive "P")
-  (cider-insert-in-repl (cider-last-sexp) arg))
+  (cider-insert-in-repl (cider-form-string) arg))
 
 (defun cider-insert-defun-in-repl (&optional arg)
   "Insert the top level form at point in the REPL buffer.
@@ -372,7 +372,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ["Eval current list" cider-eval-list-at-point]
     ["Eval current sexp" cider-eval-sexp-at-point]
     ["Eval and tap current sexp" cider-tap-sexp-at-point]
-    ["Eval current sexp to point" cider-eval-sexp-up-to-point]
+    ["Eval current sexp to point" cider-eval-form-up-to-point]
     ["Eval current sexp in context" cider-eval-sexp-at-point-in-context]
     "--"
     ["Eval form" cider-eval-form]

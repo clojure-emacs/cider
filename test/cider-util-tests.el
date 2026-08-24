@@ -805,3 +805,24 @@ and some other vars (like clojure.core/filter).
         (spy-on 'cider--clojure-ts-mode-available-p :and-return-value t)
         (spy-on 'cider--clojure-ts-mode-preferred-p :and-return-value nil)
         (expect (cider--preferred-clojure-mode) :to-equal 'clojure-mode)))))
+
+(describe "cider-form-bounds error behavior"
+  (it "signals a friendly user-error when the buffer has no form"
+    (with-clojure-buffer ""
+      (expect (cider-form-bounds) :to-throw 'user-error)))
+
+  (it "signals a friendly user-error under classic targeting too"
+    (with-clojure-buffer ""
+      (let ((cider-form-targeting 'preceding))
+        (expect (cider-form-bounds) :to-throw 'user-error)))))
+
+(describe "cider-form-bounds*"
+  (it "follows the cider-defun-at-point calling convention"
+    (with-clojure-buffer "(foo 1)|"
+      (expect (cider-form-bounds*) :to-equal "(foo 1)")
+      (expect (cider-form-bounds* 'bounds) :to-equal '(1 8))))
+
+  (it "carries the legacy cider-last-sexp name as an obsolete alias"
+    (expect (indirect-function 'cider-last-sexp)
+            :to-equal (indirect-function 'cider-form-bounds*))
+    (expect (get 'cider-last-sexp 'byte-obsolete-info) :to-be-truthy)))

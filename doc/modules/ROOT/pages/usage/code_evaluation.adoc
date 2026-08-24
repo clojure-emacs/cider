@@ -11,15 +11,30 @@ TIP: All evaluation commands are defined in `cider-eval.el`.
 CIDER's evaluation commands use a terminology that's popular within Emacs, but somewhat
 confusing to people not familiar with it. Let's take a look at it:
 
-* `defun` - top-level expression
-* `sexp` - s-expression, form
+* `defun` - a top-level form (Emacs tradition calls any top-level expression
+  a "defun", even when it defines nothing)
+* `sexp` - an s-expression: one balanced expression as Emacs's syntax-driven
+  commands see it
 * `form` - the form the cursor indicates: the one point is on, in, or right
-  after (classically called `last-sexp`, when it strictly meant the form
-  preceding `point` - see <<form-targeting,Form Targeting>>)
-* `sexp-at-point` - the form under/around the cursor
+  after (see <<form-targeting,Form Targeting>>)
 * `buffer` - the abstraction used by Emacs to represent any content; most often backed by a file.
 * `region` - the selected part of a buffer
 * `load` - a synonym for "evaluate"; most often used in the context of buffers/files
+
+[NOTE]
+====
+Sharp-eyed Emacs veterans will notice CIDER deviates from the traditional
+naming here: Emacs Lisp's own eval command is `eval-last-sexp`, and CIDER's
+commands also used "last-sexp" names for most of their history. The deviation
+is deliberate, for two reasons. First, CIDER resolves the target form from
+the cursor position (see <<form-targeting,Form Targeting>>), so "the last
+sexp" - the expression strictly *preceding* point - no longer describes what
+the commands act on. Second, in Clojure a syntax-level sexp isn't even the
+unit you evaluate: metadata (`^:private x`) and reader tags (`#inst "..."`)
+make a single *form* span several sexps. So the commands speak of forms -
+the reader's unit of evaluation - and are named for what they actually
+operate on. The old names keep working as aliases.
+====
 
 [#form-targeting]
 == Form Targeting

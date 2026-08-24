@@ -174,7 +174,7 @@
     "Press <\\[cider-eval-dwim]> to run cider-eval-region if a region is active, and cider-eval-defun otherwise."
     "Press <\\[cider-eval-region]> to evaluate the selected region."
     "Press <\\[cider-eval-defun-up-to-point]> to eval the top-level form up to the point."
-    "Press <\\[cider-eval-sexp-up-to-point]> to eval the current form up to the point."
+    "Press <\\[cider-eval-form-up-to-point]> to eval the current form up to the point."
     "Press <\\[cider-eval-sexp-at-point]> to eval the current form around the point."
     "Press <\\[cider-eval-sexp-at-point-in-context]> to eval the current form around the point in a user-provided context."
     "Press <\\[cider-eval-buffer]> to eval the entire source buffer."

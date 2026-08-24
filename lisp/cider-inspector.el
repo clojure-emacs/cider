@@ -295,7 +295,7 @@ When point is on a type tag (e.g. `^String'), inspect the tagged class
 itself rather than the form it applies to."
   (interactive)
   (cider-inspect-expr (or (cider--type-tag-at-point)
-                          (cider-last-sexp))
+                          (cider-form-string))
                       (cider-current-ns)))
 
 ;;;###autoload
