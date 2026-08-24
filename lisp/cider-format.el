@@ -159,11 +159,11 @@ START and END represent the region's boundaries."
 ;;;###autoload
 (defun cider-format-edn-form ()
   "Format the EDN data of the form point indicates.
-How the sexp is located is controlled by `cider-form-targeting'."
+How the form is located is controlled by `cider-form-targeting'."
   (interactive)
-  (if-let* ((bounds (ignore-errors (cider-last-sexp 'bounds))))
-      (apply #'cider-format-edn-region bounds)
-    (user-error "No sexp preceding point")))
+  ;; `cider-form-bounds' signals a friendly `user-error' when there's no
+  ;; form to target, so no extra guarding is needed here
+  (apply #'cider-format-edn-region (cider-form-bounds)))
 
 (provide 'cider-format)
 ;;; cider-format.el ends here

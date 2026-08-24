@@ -411,9 +411,17 @@ narrower than a compound form, since some operations (macroexpansion,
 notably) can only consume a call form, never a bare symbol.  It is
 only consulted by `smart' targeting; `preceding' targeting always
 returns the classic preceding sexp, atoms included."
-  (let ((b (if (eq cider-form-targeting 'smart)
-               (cider--smart-form-bounds min)
-             (cider--preceding-form-bounds))))
+  (let ((b (condition-case nil
+               (if (eq cider-form-targeting 'smart)
+                   (cider--smart-form-bounds min)
+                 (cider--preceding-form-bounds))
+             ;; an unbalanced buffer surfaces as a raw scan-error deep in
+             ;; sexp motion; give the user a real answer instead
+             (scan-error (user-error "No form found at point")))))
+    ;; sexp motion no-ops at buffer boundaries (e.g. an empty buffer),
+    ;; yielding empty bounds - equally not a form
+    (when (= (car b) (cdr b))
+      (user-error "No form found at point"))
     (list (car b) (cdr b))))
 
 (defun cider-form-string (&optional min)
@@ -421,15 +429,13 @@ returns the classic preceding sexp, atoms included."
 MIN is passed to `cider-form-bounds'."
   (apply #'buffer-substring-no-properties (cider-form-bounds min)))
 
-(defun cider-last-sexp (&optional bounds)
-  "Return the sexp preceding the point.
-If BOUNDS is non-nil, return a list of its starting and ending position
-instead.
-How the sexp is located is controlled by `cider-form-targeting': the
-default matches the classic behavior exactly, while `smart' also
-resolves the form when point sits on its delimiters or inside it."
-  (let ((b (cider-form-bounds)))
-    (if bounds b (apply #'buffer-substring-no-properties b))))
+(defun cider-form-bounds* (&optional bounds)
+  "Return the form point targets: its text, or its bounds when BOUNDS.
+A thin adapter over `cider-form-bounds'/`cider-form-string' for callers
+of the `cider-defun-at-point' calling convention (a single BOUNDS flag)."
+  (if bounds (cider-form-bounds) (cider-form-string)))
+
+(define-obsolete-function-alias 'cider-last-sexp #'cider-form-bounds* "2.1.0")
 
 (defun cider-start-of-next-sexp (&optional skip)
   "Move to the start of the next sexp.

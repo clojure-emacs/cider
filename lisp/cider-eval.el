@@ -900,7 +900,7 @@ buffer."
   (interactive "P")
   (cider-interactive-eval nil
                           (when output-to-current-buffer (cider-eval-print-handler))
-                          (cider-last-sexp 'bounds)
+                          (cider-form-bounds)
                           (cider--nrepl-pr-request-plist)))
 
 (defun cider-eval-form-and-replace ()
@@ -924,7 +924,7 @@ How the expression is located is controlled by `cider-form-targeting'.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current
 buffer."
   (interactive "P")
-  (let ((tapped-form (concat "(clojure.core/doto " (cider-last-sexp) " (clojure.core/tap>))")))
+  (let ((tapped-form (concat "(clojure.core/doto " (cider-form-string) " (clojure.core/tap>))")))
     (cider-interactive-eval tapped-form
                             (when output-to-current-buffer (cider-eval-print-handler))
                             nil
@@ -979,7 +979,7 @@ The context is remembered between command invocations.
 When GUESS is non-nil, or called interactively with \\[universal-argument],
 attempt to extract the context from parent let-bindings."
   (interactive "P")
-  (cider--eval-in-context (cider-last-sexp 'bounds) guess))
+  (cider--eval-in-context (cider-form-bounds) guess))
 
 (defun cider-eval-defun-to-comment (&optional insert-before)
   "Evaluate the \"top-level\" form and insert result as comment.
@@ -1003,7 +1003,7 @@ With the prefix arg INSERT-BEFORE, insert before the form, otherwise afterwards.
 
 (defun cider-pprint-form-to-comment (form-fn insert-before)
   "Evaluate the form selected by FORM-FN and insert result as comment.
-FORM-FN can be either `cider-last-sexp' or `cider-defun-at-point'.
+FORM-FN can be either `cider-form-bounds*' or `cider-defun-at-point'.
 
 The comment style is controlled by `cider-comment-style'.  For the default
 `line' style the formatting is further controlled via the `cider-comment-prefix',
@@ -1034,7 +1034,7 @@ The comment style is controlled by `cider-comment-style'.
 
 If INSERT-BEFORE is non-nil, insert before the form, otherwise afterwards."
   (interactive "P")
-  (cider-pprint-form-to-comment 'cider-last-sexp insert-before))
+  (cider-pprint-form-to-comment #'cider-form-bounds* insert-before))
 
 (defun cider-pprint-eval-defun-to-comment (&optional insert-before)
   "Evaluate the \"top-level\" form and insert result as comment.
@@ -1159,7 +1159,7 @@ onto the mark ring, so \\[universal-argument] \\[set-mark-command] returns to it
 (defun cider--eval-form-to-repl (switch-to-repl request-map)
   "Evaluate the form point indicates and insert its result in the REPL,
 honoring SWITCH-TO-REPL, REQUEST-MAP."
-  (let ((bounds (cider-last-sexp 'bounds)))
+  (let ((bounds (cider-form-bounds)))
     (cider-interactive-eval nil
                             (cider-insert-eval-handler (cider-current-repl)
                                                        bounds
@@ -1191,7 +1191,7 @@ With an optional PRETTY-PRINT prefix it pretty-prints the result."
   (interactive "P")
   (cider-interactive-eval nil
                           (cider-eval-print-handler)
-                          (cider-last-sexp 'bounds)
+                          (cider-form-bounds)
                           (if pretty-print
                               (cider--nrepl-print-request-plist fill-column)
                             (cider--nrepl-pr-request-plist))))
@@ -1215,7 +1215,7 @@ buffer, else display in a popup buffer."
   (interactive "P")
   (if output-to-current-buffer
       (cider-pprint-eval-form-to-comment)
-    (cider--pprint-eval-form (cider-last-sexp 'bounds))))
+    (cider--pprint-eval-form (cider-form-bounds))))
 
 (defun cider--prompt-and-insert-inline-dbg ()
   "Insert a #dbg button at the current sexp."
@@ -1304,6 +1304,8 @@ buffer.  It constructs an expression to eval in the following manner:
                             (list beg-of-defun (point))
                             (cider--nrepl-pr-request-plist))))
 
+(define-obsolete-function-alias 'cider-eval-sexp-up-to-point #'cider-eval-form-up-to-point "2.1.0")
+
 (defun cider--matching-delimiter (delimiter)
   "Get the matching (opening/closing) delimiter for DELIMITER."
   (pcase delimiter
@@ -1314,12 +1316,12 @@ buffer.  It constructs an expression to eval in the following manner:
     (?\] ?\[)
     (?\} ?\{)))
 
-(defun cider-eval-sexp-up-to-point (&optional  output-to-current-buffer)
-  "Evaluate the current sexp form up to point.
+(defun cider-eval-form-up-to-point (&optional  output-to-current-buffer)
+  "Evaluate the current enclosing form up to point.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current
 buffer.  It constructs an expression to eval in the following manner:
 
-- It finds the code between the point and the start of the sexp expression;
+- It finds the code between the point and the start of the enclosing form;
 - It balances this bit of code by closing the expression;
 - It evaluates the resulting code using `cider-interactive-eval'."
   (interactive "P")
@@ -1466,7 +1468,7 @@ passing arguments."
     (define-key map (kbd "d") #'cider-eval-defun)
     (define-key map (kbd "e") #'cider-eval-form)
     (define-key map (kbd "q") #'cider-tap-form)
-    (define-key map (kbd "o") #'cider-eval-sexp-up-to-point)
+    (define-key map (kbd "o") #'cider-eval-form-up-to-point)
     (define-key map (kbd ".") #'cider-read-and-eval-defun)
     (define-key map (kbd "z") #'cider-eval-defun-up-to-point)
     (define-key map (kbd "c") #'cider-eval-form-in-context)
@@ -1486,7 +1488,7 @@ passing arguments."
     (define-key map (kbd "C-d") #'cider-eval-defun)
     (define-key map (kbd "C-e") #'cider-eval-form)
     (define-key map (kbd "C-q") #'cider-tap-form)
-    (define-key map (kbd "C-o") #'cider-eval-sexp-up-to-point)
+    (define-key map (kbd "C-o") #'cider-eval-form-up-to-point)
     (define-key map (kbd "C-.") #'cider-read-and-eval-defun)
     (define-key map (kbd "C-z") #'cider-eval-defun-up-to-point)
     (define-key map (kbd "C-c") #'cider-eval-form-in-context)
@@ -1604,7 +1606,7 @@ zprint, or a custom var) for this invocation only."
     ("r" "Region" cider-eval-region)
     ("n" "Namespace form" cider-eval-ns-form)]
    ["Up to point / in context"
-    ("o" "Sexp up to point" cider-eval-sexp-up-to-point)
+    ("o" "Form up to point" cider-eval-form-up-to-point)
     ("z" "Defun up to point" cider-eval-defun-up-to-point)
     ("c" "Form in context" cider-eval-form-in-context)]
    ["Send result to"
@@ -1639,7 +1641,7 @@ zprint, or a custom var) for this invocation only."
    ("C-l" "List at point" cider-eval-list-at-point)
    ("C-r" "Region" cider-eval-region)
    ("C-n" "Namespace form" cider-eval-ns-form)
-   ("C-o" "Sexp up to point" cider-eval-sexp-up-to-point)
+   ("C-o" "Form up to point" cider-eval-form-up-to-point)
    ("C-z" "Defun up to point" cider-eval-defun-up-to-point)
    ("C-c" "Form in context" cider-eval-form-in-context)
    ("C-b" "Sexp at point in context" cider-eval-sexp-at-point-in-context)
