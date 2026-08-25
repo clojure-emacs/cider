@@ -44,11 +44,14 @@
           cider-codename "Victory")
     (expect (cider--version) :to-equal "0.11.0 (Victory)"))
 
-  (xit "handles snapshot versions"
+  (it "handles snapshot versions"
     (setq cider-version "0.11.0-snapshot"
           cider-codename "Victory")
+    ;; `package-get-version' is declared pure, so byte-compiled (packaged)
+    ;; runs have the real package version baked in and the spy only takes
+    ;; effect when running from source.  Assert the shape, not the value.
     (spy-on 'package-get-version :and-return-value "20160301.2217")
-    (expect (cider--version) :to-equal "0.11.0-snapshot (package: 20160301.2217)")))
+    (expect (cider--version) :to-match "\\`0\\.11\\.0-snapshot (package: .+)\\'")))
 
 (defvar some-cider-hook)
 
@@ -157,10 +160,9 @@
       (with-clojure-buffer "[1 2 3|]"
         (expect (cider-list-at-point) :to-equal "[1 2 3]")))
 
-    ;; making this work will require changes to clojure-mode
-    (xit "handles sets"
+    (it "handles sets"
       (with-clojure-buffer "#{1 2 3|}"
-        (expect (cider-list-at-point) :to-equal "{1 2 3}")))
+        (expect (cider-list-at-point) :to-equal "#{1 2 3}")))
 
     (it "handles maps"
       (with-clojure-buffer "{1 2 3 4|}"
