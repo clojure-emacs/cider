@@ -118,6 +118,12 @@ or all tests with:
  # Or:
  $ make test-all
 
+The main suite sets up its buffers with `clojure-mode`. To run the very same
+specs on top of `clojure-ts-mode` instead (this is what CI does as an advisory
+check), add `--under-clojure-ts-mode`:
+
+ $ eldev[.bat] test --under-clojure-ts-mode
+
 NOTE: Tests may not run correctly inside Emacs' `shell-mode` buffers. Running
 them in a terminal is recommended.
 
