@@ -1283,11 +1283,7 @@ match groups:
 (defun nrepl--process-plist-put (proc prop val)
   "Change value in PROC's plist of PROP to VAL.
 Value is changed using `plist-put', of which see."
-  (thread-first
-    proc
-    (process-plist)
-    (plist-put prop val)
-    (thread-last (set-process-plist proc))))
+  (set-process-plist proc (plist-put (process-plist proc) prop val)))
 
 (defun nrepl-server-filter (process output)
   "Process nREPL server output from PROCESS contained in OUTPUT.
