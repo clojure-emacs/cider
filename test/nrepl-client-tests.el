@@ -814,3 +814,16 @@
     (let ((nrepl-use-ssh-fallback-for-remote-hosts nil)
           (nrepl-force-ssh-for-remote-hosts nil))
       (expect (nrepl-connect "remote.example.com" 7888) :to-throw 'error))))
+
+(describe "nrepl--process-plist-put"
+  (it "sets and replaces a property on the process plist"
+    (let ((proc (make-pipe-process :name "nrepl-plist-put-test" :noquery t)))
+      (unwind-protect
+          (progn
+            (nrepl--process-plist-put proc :nrepl-server-ready t)
+            (expect (process-get proc :nrepl-server-ready) :to-be t)
+            (nrepl--process-plist-put proc :nrepl-server-ready nil)
+            (expect (process-get proc :nrepl-server-ready) :to-be nil)
+            (nrepl--process-plist-put proc :keep-server t)
+            (expect (process-plist proc) :to-equal '(:nrepl-server-ready nil :keep-server t)))
+        (delete-process proc)))))
