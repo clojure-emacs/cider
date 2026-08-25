@@ -129,3 +129,14 @@ jobs:
       if: startsWith (matrix.emacs_version, '30')
       run: |
         eldev -p -dtTC test --test-type clojure-ts-mode || eldev -p -dtTC test --test-type clojure-ts-mode
+
+    # Runs the whole main suite with clojure-mode buffers switched to
+    # clojure-ts-mode.  Advisory for now: a few specs still diverge under
+    # tree-sitter (cider-in-comment-p, data-reader tags in locals and debug
+    # coordinates, cider-list-at-point after a top-level form).  Drop
+    # continue-on-error once those are fixed.
+    - name: Test under clojure-ts-mode (advisory)
+      if: startsWith (matrix.emacs_version, '30')
+      continue-on-error: true
+      run: |
+        eldev -p -dtTC test --under-clojure-ts-mode

@@ -51,13 +51,33 @@
     (signal 'eldev-wrong-option-usage `("unknown test type `%s'" ,type)))
   (setf cider-test-type (intern type)))
 
+;; The main suite sets up its buffers with `clojure-mode'.  This option
+;; reroutes every such call to `clojure-ts-mode', so the whole suite (not
+;; just the handful of specs under test/clojure-ts-mode/) exercises the
+;; tree-sitter code paths.
+(defvar cider-test-under-clojure-ts-mode nil)
+(eldev-defoption cider-test-under-clojure-ts-mode ()
+  "Run the specs with `clojure-mode' buffers switched to `clojure-ts-mode'"
+  :options        (--under-clojure-ts-mode)
+  :for-command    test
+  (setf cider-test-under-clojure-ts-mode t))
+
 (add-hook 'eldev-load-dependencies-hook
           (lambda (type additional-sets)
-            (when (and (eq cider-test-type 'clojure-ts-mode)
+            (when (and (or (eq cider-test-type 'clojure-ts-mode)
+                           cider-test-under-clojure-ts-mode)
                        (member 'runtime additional-sets))
               (message "Installing tree-sitter grammars")
+              ;; An already-installed optional dependency isn't activated
+              ;; this early in the run (a fresh install is), so activate it
+              ;; explicitly before requiring it.
+              (package-activate 'clojure-ts-mode)
               (require 'clojure-ts-mode)
-              (clojure-ts--ensure-grammars))))
+              (clojure-ts--ensure-grammars)
+              (when cider-test-under-clojure-ts-mode
+                (message "Routing `clojure-mode' to `clojure-ts-mode' for this run")
+                (advice-add 'clojure-mode :override
+                            (lambda (&rest _) (clojure-ts-mode)))))))
 
 (add-hook 'eldev-test-hook
           (lambda ()
