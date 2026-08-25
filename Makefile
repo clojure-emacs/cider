@@ -1,4 +1,4 @@
-.PHONY: clean compile lint test-all test-integration test-unit
+.PHONY: clean compile lint test-all test-coverage test-integration test-unit
 .DEFAULT_GOAL := test
 
 # Per our CircleCI, linting/compiling assumes Emacs 28.
@@ -27,5 +27,9 @@ test-integration: clean
 
 test-unit: clean
 	eldev -dtT -p test
+
+# Line coverage of the unit tests (needs the sources as-is, hence no -p).
+test-coverage: clean
+	eldev -dtT test -u on,text
 
 test: lint test-unit compile

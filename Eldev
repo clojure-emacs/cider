@@ -78,3 +78,11 @@
 ;; `(checkdoc)' here, a bare `eldev lint' (which is what CI runs) silently
 ;; lints nothing.
 (setf eldev-lint-default '(doc))
+
+;; Coverage reports via undercover.  Off unless asked for, so this changes
+;; nothing for regular runs and CI; the flags given to `-u' take precedence.
+;; Use `eldev test -u on,text' for a summary or
+;; `eldev test -u on,simplecov -U coverage.json' for a per-line report.
+;; Don't combine with `-p': the instrumentation needs the sources as-is.
+(eldev-use-plugin 'undercover)
+(setf eldev-undercover-config '(off))

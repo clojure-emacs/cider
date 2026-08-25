@@ -121,6 +121,20 @@ or all tests with:
 NOTE: Tests may not run correctly inside Emacs' `shell-mode` buffers. Running
 them in a terminal is recommended.
 
+==== Measuring test coverage
+
+Eldev's `undercover` plugin is enabled, but stays inert unless you ask for a
+report. To see which lines the unit tests reach:
+
+ $ eldev test -u on,text
+ # Or, as a SimpleCov-style JSON report with per-line hit counts:
+ $ eldev test -u on,simplecov -U coverage.json
+ # Or:
+ $ make test-coverage
+
+Don't pass `-p` here: coverage instrumentation needs the sources loaded as they
+are, not byte-compiled.
+
 You can also check for compliance with a variety of coding standards in batch mode (including docstrings):
 
  $ eldev lint
