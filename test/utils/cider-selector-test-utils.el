@@ -38,9 +38,13 @@
   (with-temp-buffer
     (rename-buffer buffer-name)
     (setq major-mode buffer-mode)
+    ;; The selector picks the most recently *selected* buffer of the mode, so
+    ;; select this one to put it ahead of whatever else happens to be open.
+    (switch-to-buffer (current-buffer))
     (let ((expected-buffer (current-buffer)))
       ;; switch to another buffer
       (with-temp-buffer
+        (switch-to-buffer (current-buffer))
         (cider-invoke-selector-method-by-key method)
         (expect (current-buffer) :to-equal expected-buffer)))))
 
