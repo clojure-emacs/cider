@@ -30,6 +30,11 @@
 (require 'buttercup)
 (require 'cl-lib)
 
+(defconst cider-transport-lint-tests--lisp-dir
+  (expand-file-name "../lisp" (file-name-directory
+                               (or load-file-name buffer-file-name default-directory)))
+  "The project's `lisp' directory, located relative to this file.")
+
 (describe "low-level nREPL sender usage"
   (it "is confined to the transport layer and a known allowlist"
     ;; These two files *are* the transport layers, so they legitimately call the
@@ -47,8 +52,8 @@
            ;; resolves and ensures its own connection before the low-level send.
            (allowlist '(("cider-repl.el" . "nrepl-sync-request")))
            (found '()))
-      (expect (file-directory-p "lisp") :to-be-truthy)
-      (dolist (file (directory-files "lisp" t "\\.el\\'"))
+      (expect (file-directory-p cider-transport-lint-tests--lisp-dir) :to-be-truthy)
+      (dolist (file (directory-files cider-transport-lint-tests--lisp-dir t "\\.el\\'"))
         (let ((base (file-name-nondirectory file)))
           (unless (member base layer-files)
             (with-temp-buffer
