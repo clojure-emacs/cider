@@ -219,7 +219,7 @@ EXPANDER is a `cider/macroexpand' expander name, such as \"macroexpand-1\"
 
 (defun cider-macrostep--form-bounds ()
   "Return the bounds (BEG . END) of the sexp before point, or nil.
-This follows CIDER's usual convention (like `\\[cider-eval-form]'): you
+This follows CIDER's usual convention (like `\\[cider-eval-last-sexp]'): you
 place point right after the form you want to expand.  When stepping inside an
 expansion, put point after the nested form to drill into it."
   (save-excursion
@@ -416,7 +416,7 @@ faces from `cider-macrostep-gensym-faces'.  A no-op when disabled."
   "Return the (BEG . END) bounds of the form to expand, or nil.
 When point sits on a highlighted expandable operator - where `n'/`p' leave
 it - expand that operator's enclosing form.  Otherwise fall back to the sexp
-before point, the `\\[cider-eval-form]' convention that
+before point, the `\\[cider-eval-last-sexp]' convention that
 `cider-macrostep-expand' documents."
   (or (when-let* ((ov (cider-macrostep--expandable-overlay-at (point))))
         (save-excursion
@@ -499,7 +499,7 @@ Enter `cider-macrostep-mode' when it isn't already active."
 ;;;###autoload
 (defun cider-macrostep-expand ()
   "Expand the macro form before point one step, inline.
-Place point right after the form, as with `\\[cider-eval-form]'.  When
+Place point right after the form, as with `\\[cider-eval-last-sexp]'.  When
 point is on a highlighted expandable operator - where `n'/`p' land it - that
 operator's form is expanded, so you can step with `n' then expand without
 repositioning.
@@ -525,7 +525,7 @@ expansions and collapses then use that mode's key bindings."
 Unlike `cider-macrostep-expand', which expands one level at a time, this
 expands the form all the way (`macroexpand-all'), so you needn't step through
 every level.  Place point right after the form, as with
-`\\[cider-eval-form]'.
+`\\[cider-eval-last-sexp]'.
 
 Like `cider-macrostep-expand', this starts a `cider-macrostep-mode' session
 when one isn't active, and expands the form of the expandable operator at
@@ -574,7 +574,7 @@ originating buffer.  Point is left right after the inserted form, ready for
 Like `cider-macrostep-expand', but instead of rewriting the form in place it
 copies it into a separate `cider-macrostep-buffer' and starts the stepping
 session there, leaving the source buffer untouched.  Place point right after
-the form, as with `\\[cider-eval-form]'.
+the form, as with `\\[cider-eval-last-sexp]'.
 
 The session uses the same overlay engine and key bindings as the inline
 flow, except that `q' dismisses the whole popup in one step."

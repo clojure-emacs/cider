@@ -50,35 +50,28 @@
       (expect (cider--format-reindent "(def s \"a\nb\")" (point))
               :to-equal "(def s \"a\nb\")"))))
 
-(describe "cider-format-edn-form"
+(describe "cider-format-edn-last-sexp"
   (it "formats the sexp preceding point"
     (spy-on 'cider-format-edn-region)
     (with-clojure-buffer "{:a 1}|"
-      (cider-format-edn-form)
+      (cider-format-edn-last-sexp)
       (expect 'cider-format-edn-region :to-have-been-called-with 1 7)))
 
-  (it "targets the adjacent map under the default smart targeting"
+  (it "targets the preceding sexp, not the one ahead"
     (spy-on 'cider-format-edn-region)
     (with-clojure-buffer "{:a 1} |{:b 2}"
-      (cider-format-edn-form)
-      (expect 'cider-format-edn-region :to-have-been-called-with 8 14)))
-
-  (it "targets the preceding sexp under preceding targeting"
-    (spy-on 'cider-format-edn-region)
-    (with-clojure-buffer "{:a 1} |{:b 2}"
-      (let ((cider-form-targeting 'preceding))
-        (cider-format-edn-form))
+      (cider-format-edn-last-sexp)
       (expect 'cider-format-edn-region :to-have-been-called-with 1 7)))
 
   (it "keeps leading metadata"
     (spy-on 'cider-format-edn-region)
     (with-clojure-buffer "^:foo {:a 1}|"
-      (cider-format-edn-form)
+      (cider-format-edn-last-sexp)
       (expect 'cider-format-edn-region :to-have-been-called-with 1 13)))
 
   (it "signals a user-error in an empty buffer"
     (with-clojure-buffer ""
-      (expect (cider-format-edn-form) :to-throw 'user-error))))
+      (expect (cider-format-edn-last-sexp) :to-throw 'user-error))))
 
 (provide 'cider-format-tests)
 
