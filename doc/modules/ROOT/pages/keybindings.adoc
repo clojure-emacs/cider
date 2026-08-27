@@ -90,11 +90,11 @@ you don't have to memorize the suffixes.  See xref:basics/up_and_running.adoc[Up
 | Keyboard shortcut | Command | Description
 
 | kbd:[C-x C-e] (also kbd:[C-c C-e])
-| `cider-eval-form`
-| Evaluate the form point indicates and show the result in the echo area.
+| `cider-eval-last-sexp`
+| Evaluate the form preceding point and show the result in the echo area.
 
 | kbd:[C-c C-c] (also kbd:[C-M-x])
-| `cider-eval-defun`
+| `cider-eval-defun-at-point`
 | Evaluate the top-level form containing point (redefine it in the running program).
 
 | kbd:[C-c C-v v]
@@ -118,19 +118,19 @@ you don't have to memorize the suffixes.  See xref:basics/up_and_running.adoc[Up
 | Evaluate the enclosing top-level form up to point.
 
 | kbd:[C-c C-v w]
-| `cider-eval-form-and-replace`
-| Evaluate the form point indicates and replace it with the result.
+| `cider-eval-last-sexp-and-replace`
+| Evaluate the form preceding point and replace it with the result.
 
 | kbd:[C-c M-e]
-| `cider-eval-form-to-repl`
-| Evaluate the form point indicates and send the result to the REPL.
+| `cider-eval-last-sexp-to-repl`
+| Evaluate the form preceding point and send the result to the REPL.
 
 | kbd:[C-c C-p]
-| `cider-pprint-eval-form`
-| Evaluate the form point indicates and pretty-print the result in a popup.
+| `cider-pprint-eval-last-sexp`
+| Evaluate the form preceding point and pretty-print the result in a popup.
 
 | kbd:[C-c C-f]
-| `cider-pprint-eval-defun`
+| `cider-pprint-eval-defun-at-point`
 | Evaluate the top-level form and pretty-print the result in a popup.
 
 | kbd:[C-c M-;]
@@ -385,7 +385,7 @@ TIP: See xref:testing/running_tests.adoc[Running Tests] for the full test runner
 | Keyboard shortcut | Command | Description
 
 | kbd:[C-u C-M-x] (also kbd:[C-u C-c C-c])
-| `cider-eval-defun`
+| `cider-eval-defun-at-point`
 | Instrument the top-level form and step through it in the debugger.
 
 | kbd:[C-c M-t v]
@@ -413,8 +413,8 @@ TIP: See xref:debugging/debugger.adoc[Debugger] and xref:debugging/tracing.adoc[
 | Load the current buffer and switch to the REPL.
 
 | kbd:[C-c M-p]
-| `cider-insert-form-in-repl`
-| Copy the form point indicates into the REPL prompt.
+| `cider-insert-last-sexp-in-repl`
+| Copy the form preceding point into the REPL prompt.
 
 | kbd:[C-c C-j c]
 | `cider-send-to-comment`

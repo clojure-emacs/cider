@@ -327,115 +327,16 @@ instead."
     (funcall (if bounds #'list #'buffer-substring-no-properties)
              (car b) (cdr b))))
 
-(defcustom cider-form-targeting 'smart
-  "How commands locate the form they operate on.
-
-`smart' (the default) resolves the intended form from the cursor
-position: on an opening delimiter it targets the form it opens, on a
-closing delimiter the form it closes, inside an atom or string that
-atom, and otherwise the sexp preceding point.
-
-`preceding' is the classic behavior shared with Emacs Lisp's
-`eval-last-sexp' and SLIME: the target is strictly the sexp before
-point, so point must sit right after the form.  `smart' agrees with it
-at every position where the preceding sexp is well-defined and only
-differs where the classic answer was surprising (e.g. point sitting on
-a delimiter), but if your muscle memory says otherwise, this setting
-restores the old rules exactly.
-
-Consulted by `cider-eval-form', `cider-macroexpand-1' and the rest
-of the commands that operate on the preceding sexp."
-  :group 'cider
-  :type '(choice (const :tag "Smart: infer the form from the cursor position" smart)
-                 (const :tag "Classic: the sexp preceding point" preceding))
-  :package-version '(cider . "2.1.0"))
-
-(defun cider--preceding-form-bounds ()
-  "Return the bounds (START . END) of the logical sexp preceding point."
-  (save-excursion
-    (clojure-backward-logical-sexp 1)
-    (cons (point)
-          (progn (clojure-forward-logical-sexp 1)
-                 (point)))))
-
-(defun cider--smart-form-bounds (&optional min)
-  "Return the bounds (START . END) of the form point targets, resolved smartly.
-See `cider-form-targeting' for the resolution rules.  When MIN is the
-symbol `compound' and the resolved target is an atom or a string, widen
-to the enclosing compound form, if there is one."
-  (let* ((ppss (syntax-ppss))
-         (b (cond
-             ;; inside a string: the string literal is the form
-             ((nth 3 ppss)
-              (let ((start (nth 8 ppss)))
-                (cons start (save-excursion
-                              (goto-char start)
-                              (forward-sexp 1)
-                              (point)))))
-             ;; right after a closing delimiter: the form just closed
-             ((eq (char-syntax (or (char-before) ?\s)) ?\))
-              (cider--preceding-form-bounds))
-             ;; on an opening delimiter: the form it opens
-             ((eq (char-syntax (or (char-after) ?\s)) ?\()
-              (cons (point) (save-excursion (forward-sexp 1) (point))))
-             ;; on a closing delimiter: the form it closes
-             ((eq (char-syntax (or (char-after) ?\s)) ?\))
-              (save-excursion
-                (up-list 1)
-                (let ((end (point)))
-                  (backward-sexp 1)
-                  (cons (point) end))))
-             ;; inside or right next to an atom: the atom
-             ((bounds-of-thing-at-point 'sexp))
-             ;; in whitespace between forms: the preceding sexp
-             (t (cider--preceding-form-bounds)))))
-    ;; A compound form (list, vector, map, set...) always ends in a
-    ;; closing delimiter, regardless of any reader-macro prefix; anything
-    ;; else is an atom-ish target that widens to its enclosing form when
-    ;; the caller asked for a compound one.
-    (if (and (eq min 'compound)
-             (not (eq (char-syntax (char-before (cdr b))) ?\)))
-             (nth 1 ppss))
-        (save-excursion
-          (goto-char (nth 1 ppss))
-          (cons (point) (progn (forward-sexp 1) (point))))
-      b)))
-
-(defun cider-form-bounds (&optional min)
-  "Return the list (START END) of the form point targets.
-Honors `cider-form-targeting'; with the default `preceding' targeting
-this is exactly the bounds of the sexp preceding point.
-MIN expresses a constraint of the operation itself, not a user
-preference: the symbol `compound' means the target should be no
-narrower than a compound form, since some operations (macroexpansion,
-notably) can only consume a call form, never a bare symbol.  It is
-only consulted by `smart' targeting; `preceding' targeting always
-returns the classic preceding sexp, atoms included."
-  (let ((b (condition-case nil
-               (if (eq cider-form-targeting 'smart)
-                   (cider--smart-form-bounds min)
-                 (cider--preceding-form-bounds))
-             ;; an unbalanced buffer surfaces as a raw scan-error deep in
-             ;; sexp motion; give the user a real answer instead
-             (scan-error (user-error "No form found at point")))))
-    ;; sexp motion no-ops at buffer boundaries (e.g. an empty buffer),
-    ;; yielding empty bounds - equally not a form
-    (when (= (car b) (cdr b))
-      (user-error "No form found at point"))
-    (list (car b) (cdr b))))
-
-(defun cider-form-string (&optional min)
-  "Return the text of the form point targets, per `cider-form-bounds'.
-MIN is passed to `cider-form-bounds'."
-  (apply #'buffer-substring-no-properties (cider-form-bounds min)))
-
-(defun cider-form-bounds* (&optional bounds)
-  "Return the form point targets: its text, or its bounds when BOUNDS.
-A thin adapter over `cider-form-bounds'/`cider-form-string' for callers
-of the `cider-defun-at-point' calling convention (a single BOUNDS flag)."
-  (if bounds (cider-form-bounds) (cider-form-string)))
-
-(define-obsolete-function-alias 'cider-last-sexp #'cider-form-bounds* "2.1.0")
+(defun cider-last-sexp (&optional bounds)
+  "Return the sexp preceding the point.
+If BOUNDS is non-nil, return a list of its starting and ending position
+instead."
+  (apply (if bounds #'list #'buffer-substring-no-properties)
+         (save-excursion
+           (clojure-backward-logical-sexp 1)
+           (list (point)
+                 (progn (clojure-forward-logical-sexp 1)
+                        (point))))))
 
 (defun cider-start-of-next-sexp (&optional skip)
   "Move to the start of the next sexp.

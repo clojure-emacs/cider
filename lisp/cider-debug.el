@@ -19,7 +19,7 @@
 
 ;;; Commentary:
 
-;; Instrument code with `cider-debug-defun', and when the code is
+;; Instrument code with `cider-debug-defun-at-point', and when the code is
 ;; executed cider-debug will kick in.  See this function's doc for more
 ;; information.
 
@@ -365,7 +365,7 @@ In order to work properly, this mode must be activated by
               (recursive-edit)))
         (cider--debug-mode -1)
         (if (called-interactively-p 'any)
-            (user-error (substitute-command-keys "Don't call this mode manually, use `\\[universal-argument] \\[cider-eval-defun]' instead"))
+            (user-error (substitute-command-keys "Don't call this mode manually, use `\\[universal-argument] \\[cider-eval-defun-at-point]' instead"))
           (error "Attempt to activate `cider--debug-mode' without setting `cider--debug-mode-response' first")))
     (setq cider-interactive-eval-override nil)
     (setq cider--debug-mode-response nil)
@@ -919,7 +919,7 @@ The boolean value of FORCE will be sent in the reply."
 
 ;;; User commands
 ;;;###autoload
-(defun cider-debug-defun ()
+(defun cider-debug-defun-at-point ()
   "Instrument the \"top-level\" expression at point.
 If it is a defn, dispatch the instrumented definition.  Otherwise,
 immediately evaluate the instrumented expression.
@@ -928,7 +928,7 @@ While debugged code is being evaluated, the user is taken through the
 source code and displayed the value of various expressions.  At each step,
 a number of keys will be prompted to the user."
   (interactive)
-  (cider-eval-defun 'debug-it))
+  (cider-eval-defun-at-point 'debug-it))
 
 (provide 'cider-debug)
 ;;; cider-debug.el ends here

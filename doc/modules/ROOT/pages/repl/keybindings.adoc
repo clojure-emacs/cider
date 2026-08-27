@@ -127,7 +127,7 @@ kbd:[C-c C-t C-b]
 |===
 
 NOTE: kbd:[C-x C-e] is intentionally a no-op in the REPL: there's no "evaluate
-the form" there, since pressing kbd:[RET] at the prompt already evaluates
+the last sexp" there, since pressing kbd:[RET] at the prompt already evaluates
 your input.
 
 TIP: There's no need to memorize this list. In any REPL buffer you'll have a `REPL`
