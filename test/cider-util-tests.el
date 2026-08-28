@@ -239,6 +239,33 @@
       (with-clojure-buffer "^:foo (bar|)"
         (expect (cider-sexp-at-point) :to-equal "^:foo (bar)")))))
 
+(describe "cider-last-sexp with comments"
+  (it "skips a trailing comment on the same line"
+    (with-clojure-buffer "(+ 1 2) ; hey|"
+      (expect (cider-last-sexp) :to-equal "(+ 1 2)")))
+
+  (it "skips a whole comment line"
+    (with-clojure-buffer "(defn foo [])\n;; a comment|"
+      (expect (cider-last-sexp) :to-equal "(defn foo [])")))
+
+  (it "skips several comments in a row"
+    (with-clojure-buffer "(+ 1 2) ;; c1\n;; c2|"
+      (expect (cider-last-sexp) :to-equal "(+ 1 2)")))
+
+  (it "is not fooled by a semicolon inside a string"
+    (with-clojure-buffer "(str \";\")|"
+      (expect (cider-last-sexp) :to-equal "(str \";\")")))
+
+  (it "finds nothing when only comments precede point"
+    (with-clojure-buffer ";; only a comment|"
+      (expect (cider-last-sexp) :to-equal "")
+      (expect (cider--last-sexp-bounds) :to-be nil)))
+
+  (it "still reads a comment form as the code it is"
+    ;; (comment ...) is a list, not a line comment
+    (with-clojure-buffer "(comment (+ 1 2))|"
+      (expect (cider-last-sexp) :to-equal "(comment (+ 1 2))"))))
+
 (describe "cider--last-sexp-bounds"
   (it "returns the bounds of the sexp before point"
     (with-clojure-buffer "a\n\n(defn ...)|\n\nb"

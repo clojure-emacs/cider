@@ -327,16 +327,32 @@ instead."
     (funcall (if bounds #'list #'buffer-substring-no-properties)
              (car b) (cdr b))))
 
+(defun cider--skip-back-over-comment ()
+  "Move to the start of the line comment point sits in, if any.
+Sexp motion has no notion of comments once point is inside one: it
+happily walks over the prose as if the words were symbols.  Stepping out
+of the comment first means the search for a form resumes from the code
+that precedes it."
+  (let ((ppss (syntax-ppss)))
+    (when (nth 4 ppss)
+      (goto-char (nth 8 ppss)))))
+
 (defun cider-last-sexp (&optional bounds)
   "Return the sexp preceding the point.
 If BOUNDS is non-nil, return a list of its starting and ending position
-instead."
+instead.
+A line comment before point is skipped over rather than read as code."
   (apply (if bounds #'list #'buffer-substring-no-properties)
          (save-excursion
+           (cider--skip-back-over-comment)
            (clojure-backward-logical-sexp 1)
            (list (point)
-                 (progn (clojure-forward-logical-sexp 1)
-                        (point))))))
+                 (if (looking-at-p "\\s<")
+                     ;; nothing but comments behind us; walking forward from
+                     ;; here would hand back the comment as if it were code
+                     (point)
+                   (progn (clojure-forward-logical-sexp 1)
+                          (point)))))))
 
 (defun cider--last-sexp-bounds ()
   "Return the bounds (BEG . END) of the sexp before point, or nil.
