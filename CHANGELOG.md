@@ -20,6 +20,7 @@
 
 ### Changes
 
+- [#4177](https://github.com/clojure-emacs/cider/pull/4177): Rename `cider-format-defun` to `cider-format-defun-at-point` and `cider-send-to-comment` to `cider-send-defun-to-comment`, so they name the form they operate on like the rest of the form commands; the old names remain as obsolete aliases.
 - [#4175](https://github.com/clojure-emacs/cider/pull/4175): Have the "at point" commands (`cider-eval-sexp-at-point` and friends) fall back to the form preceding point when there's nothing at point, instead of erroring, so they can stand in for their `last-sexp` counterparts.
 - [#4166](https://github.com/clojure-emacs/cider/pull/4166): Treat the contents of a `comment` form as top level in the whole defun command family (pretty-printing, eval-to-comment, inspect, format, debug, etc.), not just `cider-eval-defun-at-point` and `cider-eval-dwim`; CIDER's commands no longer depend on `clojure-toplevel-inside-comment-form`.
 - [#4160](https://github.com/clojure-emacs/cider/pull/4160): Stop offering the previous session's port as the `cider-connect` default when nothing is listening on it anymore; the host is still offered and port inference takes over.
