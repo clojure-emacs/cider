@@ -779,7 +779,8 @@
                                     (with-current-buffer repl
                                       (setq endpoint-aft nrepl-endpoint)
                                       ;; (message ":endpoints %S %S" endpoint-bef endpoint-aft)
-                                      (not (= (plist-get endpoint-bef :port) (plist-get endpoint-aft :port)))))
+                                      (not (equal (plist-get endpoint-bef :port)
+                                                  (plist-get endpoint-aft :port)))))
                                   5)
           ;; kill server
           (delete-process (get-buffer-process client-buffer)))))))

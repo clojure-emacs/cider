@@ -827,3 +827,21 @@
             (nrepl--process-plist-put proc :keep-server t)
             (expect (process-plist proc) :to-equal '(:nrepl-server-ready nil :keep-server t)))
         (delete-process proc)))))
+
+(describe "nrepl--normalize-port"
+  (it "turns a number into the string form the client uses everywhere"
+    (expect (nrepl--normalize-port 1234) :to-equal "1234"))
+
+  (it "leaves a string alone"
+    (expect (nrepl--normalize-port "1234") :to-equal "1234"))
+
+  (it "leaves nil alone, so a missing port still reads as missing"
+    (expect (nrepl--normalize-port nil) :to-be nil))
+
+  (it "makes the two spellings of a port compare equal"
+    ;; this is the point: session and REPL matching compares ports with
+    ;; `equal', so a number and its string must not look like different ports
+    (expect (equal (nrepl--normalize-port 1234)
+                   (nrepl--normalize-port "1234"))
+            :to-be-truthy)))
+

@@ -470,6 +470,16 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
                  (error msg))
                nil)))))
 
+(defun nrepl--normalize-port (port)
+  "Return PORT as a string, whatever it arrived as.
+Ports are strings throughout the client, but a number is the natural thing
+to hand to `nrepl-connect' or `cider-connect' from Lisp.  Accepting both and
+settling on one keeps the `equal' comparisons that match sessions and REPLs
+from failing on a number that looks just like the string beside it."
+  (if (numberp port)
+      (number-to-string port)
+    port))
+
 (defun nrepl-connect (host port)
   "Connect to the nREPL server identified by HOST and PORT.
 For local hosts use a direct connection.  For remote hosts, if
@@ -517,7 +527,7 @@ If NO-ERROR is non-nil, show messages instead of throwing an error."
     (message "[nREPL] Establishing direct connection to %s:%s ..." host port)
     (condition-case nil
         (prog1 (list :proc (open-network-stream "nrepl-connection" nil host port)
-                     :host host :port port)
+                     :host host :port (nrepl--normalize-port port))
           (message "[nREPL] Direct connection to %s:%s established" host port))
       (error (let ((msg (format "[nREPL] Direct connection to %s:%s failed" host port)))
                (if no-error
