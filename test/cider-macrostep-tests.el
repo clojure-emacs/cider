@@ -31,23 +31,6 @@
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
-(describe "cider-macrostep--form-bounds"
-  (it "returns the bounds of the sexp before point"
-    (with-temp-buffer
-      (clojure-mode)
-      (insert "(when x (foo))")
-      ;; point is at the end, right after the whole form
-      (pcase-let ((`(,beg . ,end) (cider-macrostep--form-bounds)))
-        (expect (buffer-substring-no-properties beg end) :to-equal "(when x (foo))"))))
-  (it "targets the nested form when point is right after it"
-    (with-temp-buffer
-      (clojure-mode)
-      (insert "(when x (foo))")
-      (goto-char (point-min))
-      (search-forward "(foo)")           ; point right after the nested form
-      (pcase-let ((`(,beg . ,end) (cider-macrostep--form-bounds)))
-        (expect (buffer-substring-no-properties beg end) :to-equal "(foo)")))))
-
 (describe "cider-macrostep--operator"
   (it "returns the operator symbol of a list form"
     (with-temp-buffer

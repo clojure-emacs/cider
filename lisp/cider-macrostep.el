@@ -217,18 +217,6 @@ EXPANDER is a `cider/macroexpand' expander name, such as \"macroexpand-1\"
                      (< (overlay-end ov) end)))
               cider-macrostep--overlays))
 
-(defun cider-macrostep--form-bounds ()
-  "Return the bounds (BEG . END) of the sexp before point, or nil.
-This follows CIDER's usual convention (like `\\[cider-eval-last-sexp]'): you
-place point right after the form you want to expand.  When stepping inside an
-expansion, put point after the nested form to drill into it."
-  (save-excursion
-    (ignore-errors
-      (let ((beg (progn (clojure-backward-logical-sexp 1) (point)))
-            (end (progn (clojure-forward-logical-sexp 1) (point))))
-        (when (< beg end)
-          (cons beg end))))))
-
 (defun cider-macrostep--operator (beg)
   "Return the operator (a string) of the list form starting at BEG, or nil."
   (save-excursion
@@ -424,7 +412,7 @@ before point, the `\\[cider-eval-last-sexp]' convention that
           (ignore-errors
             (backward-up-list)
             (cons (point) (progn (forward-sexp) (point))))))
-      (cider-macrostep--form-bounds)))
+      (cider--last-sexp-bounds)))
 
 (defvar cider-macrostep-mode-map
   (let ((map (make-sparse-keymap)))
@@ -580,7 +568,7 @@ The session uses the same overlay engine and key bindings as the inline
 flow, except that `q' dismisses the whole popup in one step."
   (interactive)
   (cider-ensure-session)
-  (pcase-let ((`(,beg . ,end) (or (cider-macrostep--form-bounds)
+  (pcase-let ((`(,beg . ,end) (or (cider--last-sexp-bounds)
                                   (user-error "No sexp before point to expand"))))
     (let ((operator (cider-macrostep--operator beg)))
       (cider-ensure-macro operator)

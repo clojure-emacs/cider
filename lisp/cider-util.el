@@ -338,6 +338,20 @@ instead."
                  (progn (clojure-forward-logical-sexp 1)
                         (point))))))
 
+(defun cider--last-sexp-bounds ()
+  "Return the bounds (BEG . END) of the sexp before point, or nil.
+A forgiving wrapper around `cider-last-sexp': it answers nil where that
+signals (unbalanced code) or where the answer is degenerate, which suits
+callers that want to fall back rather than fail.
+
+Note that sexp motion no-ops at the start of a buffer, so there the
+answer is the *following* form.  That quirk belongs to `cider-last-sexp'
+and is preserved here."
+  (ignore-errors
+    (pcase-let ((`(,beg ,end) (cider-last-sexp 'bounds)))
+      (when (< beg end)
+        (cons beg end)))))
+
 (defun cider-start-of-next-sexp (&optional skip)
   "Move to the start of the next sexp.
 Skip any non-logical sexps like ^metadata or #reader macros.
