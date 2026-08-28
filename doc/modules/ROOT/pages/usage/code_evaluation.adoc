@@ -15,9 +15,116 @@ confusing to people not familiar with it. Let's take a look at it:
 * `sexp` - s-expression, form
 * `last-sexp` - the form preceding the cursor (`point` in Emacs lingo)
 * `sexp-at-point` - the form under/around the cursor
+* `list-at-point` - the innermost compound form (list, vector, map...) around the cursor
 * `buffer` - the abstraction used by Emacs to represent any content; most often backed by a file.
 * `region` - the selected part of a buffer
 * `load` - a synonym for "evaluate"; most often used in the context of buffers/files
+
+The first four are the ones worth internalizing, as they name the ways every
+CIDER command decides which form to act on. That's the subject of the next
+section.
+
+== Selecting the Form to Operate On
+
+Plenty of CIDER commands operate on "a form" - evaluating it, inspecting it,
+macroexpanding it, pretty-printing it, sending it to the REPL. They all pick
+that form the same way, so learning the rules once buys you the whole family.
+
+There are three ways to say which form you mean:
+
+[cols="1,2,2"]
+|===
+| Target | How you say it | Naming
+
+| The preceding form
+| Put the cursor right after the form
+| `+...-last-sexp+`
+
+| The form at the cursor
+| Put the cursor on or inside the form
+| `+...-sexp-at-point+`
+
+| The top-level form
+| Put the cursor anywhere inside it
+| `+...-defun-at-point+`
+|===
+
+*The preceding form is the default*, and it's what the flagship keybindings
+use: kbd:[C-x C-e] evaluates the form before the cursor, kbd:[C-c M-i]
+inspects it, kbd:[C-c C-m] macroexpands it.
+
+.Why is the cursor _after_ the form, rather than on it?
+****
+This is a deliberate design decision rather than an accident, and it long
+predates CIDER.
+
+Emacs Lisp's own `eval-last-sexp` (kbd:[C-x C-e]) works exactly this way, and
+so do SLIME and SLY, the Common Lisp environments that CIDER's command set was
+modelled on. Anyone arriving from another Lisp mode in Emacs already has the
+muscle memory, and the same keys do the same thing.
+
+There's a practical argument too: you've usually _just typed_ the form you want
+to evaluate, which leaves the cursor exactly where the command expects it.
+
+CIDER has stuck to this convention for over a decade, and intends to keep
+doing so. What it also offers, for those who prefer to point at a form rather
+than stand after it, is the `+at-point+` family below.
+****
+
+=== Acting on the form at the cursor
+
+Every operation also has a variant that works from _inside_ the form, so you
+don't have to move the cursor to its end first:
+
+[cols="1,1"]
+|===
+| Command | Operation
+
+| `cider-eval-sexp-at-point`
+| Evaluate
+
+| `cider-eval-list-at-point`
+| Evaluate the enclosing compound form
+
+| `cider-pprint-eval-sexp-at-point`
+| Evaluate and pretty-print
+
+| `cider-inspect-sexp-at-point`
+| Inspect
+
+| `cider-macroexpand-1-at-point`
+| Macroexpand one step
+
+| `cider-macroexpand-all-at-point`
+| Macroexpand fully
+
+| `cider-tap-sexp-at-point`
+| Tap
+
+| `cider-format-edn-sexp-at-point`
+| Format as EDN
+
+| `cider-insert-sexp-at-point-in-repl`
+| Insert into the REPL
+|===
+
+These resolve the form generously: with the cursor on an opening delimiter you
+get the form it opens, on a closing delimiter the form it closes, and inside a
+symbol that symbol.
+
+If you'd rather have this behavior on the keys you already use, rebind them.
+Nothing else changes:
+
+[source,lisp]
+----
+(with-eval-after-load 'cider-mode
+  (define-key cider-mode-map (kbd "C-x C-e") #'cider-eval-sexp-at-point)
+  (define-key cider-mode-map (kbd "C-c C-e") #'cider-eval-sexp-at-point))
+----
+
+NOTE: Macroexpansion resolves its target slightly differently, since an
+expansion needs a call form. See
+xref:debugging/macroexpansion.adoc#target[Choosing what to expand].
 
 == Basic Evaluation
 

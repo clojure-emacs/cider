@@ -17,6 +17,12 @@ form-expanding commands:
 | kbd:[C-c M-m a]
 | `macroexpand-all` into a macroexpansion buffer.
 
+| kbd:[C-c M-m v]
+| `macroexpand-1` the call at point (see xref:#target[Choosing what to expand]).
+
+| kbd:[C-c M-m V]
+| `macroexpand-all` the call at point.
+
 | kbd:[C-c M-m e]
 | Expand the macro at point one step, inline in the source buffer (see xref:#inline[inline macro stepping] below).
 
@@ -26,6 +32,43 @@ form-expanding commands:
 | kbd:[C-c M-m b]
 | Run an inline-style stepping session in a dedicated popup buffer.
 |===
+
+[[target]]
+== Choosing what to expand
+
+Like the rest of CIDER's form commands, the expansion commands act on the form
+_preceding_ the cursor; see
+xref:usage/code_evaluation.adoc#_selecting_the_form_to_operate_on[Selecting the
+Form to Operate On] for why that's the convention.
+
+Macroexpansion has one wrinkle the other operations don't, though: an expansion
+only makes sense for a *call form*. Expanding a bare symbol tells you nothing,
+and CIDER will refuse with "Not a macro" rather than pretend otherwise.
+
+That's why `cider-macroexpand-1-at-point` and `cider-macroexpand-all-at-point`
+resolve their target a little differently from their `+sexp-at-point+` cousins.
+Given `+(when x (foo bar))+`, with `+|+` marking the cursor:
+
+[cols="1,1"]
+|===
+| Cursor | Target
+
+| `+(when x (fo\|o bar))+`
+| `+(foo bar)+` - a bare symbol widens to the call around it
+
+| `+(when x \|(foo bar))+`
+| `+(foo bar)+` - the form you're standing on, not its parent
+
+| `+(when x (foo bar)\|)+`
+| `+(when x (foo bar))+` - the form the delimiter closes
+|===
+
+In other words: point at the call you're interested in, anywhere in it, and
+you'll expand that call.
+
+TIP: The inline commands let you drill into a nested call without leaving the
+source buffer, and kbd:[g] re-runs the last expansion from inside the
+macroexpansion buffer.
 
 [TIP]
 ====
