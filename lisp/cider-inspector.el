@@ -304,6 +304,14 @@ itself rather than the form it applies to."
   (cider-inspect-expr (cider-defun-at-point) (cider-current-ns)))
 
 ;;;###autoload
+(defun cider-inspect-sexp-at-point ()
+  "Inspect the result of the expression around point."
+  (interactive)
+  (save-excursion
+    (cider--goto-end-of-thing-at-point 'sexp)
+    (cider-inspect-last-sexp)))
+
+;;;###autoload
 (defun cider-inspect-last-result ()
   "Inspect the most recent eval result."
   (interactive)

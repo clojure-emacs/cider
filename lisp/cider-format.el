@@ -164,5 +164,12 @@ START and END represent the region's boundaries."
       (apply #'cider-format-edn-region bounds)
     (user-error "No sexp preceding point")))
 
+(defun cider-format-edn-sexp-at-point ()
+  "Format the EDN data of the sexp around point."
+  (interactive)
+  (save-excursion
+    (cider--goto-end-of-thing-at-point 'sexp)
+    (cider-format-edn-last-sexp)))
+
 (provide 'cider-format)
 ;;; cider-format.el ends here

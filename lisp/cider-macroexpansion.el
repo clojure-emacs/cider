@@ -175,6 +175,27 @@ expansion can reach macros in nested sub-forms."
   (interactive)
   (cider-macroexpand-expr-inplace "macroexpand-all"))
 
+;;;###autoload
+(defun cider-macroexpand-1-at-point (&optional prefix)
+  "Invoke \\=`macroexpand-1\\=` on the call form around point.
+The target is the form at point, widened to the enclosing call when point
+is on a bare symbol: an expansion needs a call form.
+If invoked with a PREFIX argument, use \\=`macroexpand\\=` instead."
+  (interactive "P")
+  (save-excursion
+    (cider--goto-end-of-call-at-point)
+    (cider-macroexpand-1 prefix)))
+
+;;;###autoload
+(defun cider-macroexpand-all-at-point ()
+  "Invoke \\=`macroexpand-all\\=` on the call form around point.
+The target is the form at point, widened to the enclosing call when point
+is on a bare symbol."
+  (interactive)
+  (save-excursion
+    (cider--goto-end-of-call-at-point)
+    (cider-macroexpand-all)))
+
 (defun cider-initialize-macroexpansion-buffer (expansion ns)
   "Create a new Macroexpansion buffer with EXPANSION and namespace NS."
   (pop-to-buffer (cider-create-macroexpansion-buffer))
@@ -331,6 +352,16 @@ macroexpansion honors them for this invocation only."
   (interactive (list (transient-args 'cider-macroexpand-menu)))
   (cider-macroexpand-menu--apply-args args #'cider-macroexpand-1))
 
+(transient-define-suffix cider-macroexpand-menu--expand-1-at-point (args)
+  "Macroexpand-1 the call form around point, applying the menu's ARGS."
+  (interactive (list (transient-args 'cider-macroexpand-menu)))
+  (cider-macroexpand-menu--apply-args args #'cider-macroexpand-1-at-point))
+
+(transient-define-suffix cider-macroexpand-menu--expand-all-at-point (args)
+  "Fully macroexpand the call form around point, applying the menu's ARGS."
+  (interactive (list (transient-args 'cider-macroexpand-menu)))
+  (cider-macroexpand-menu--apply-args args #'cider-macroexpand-all-at-point))
+
 (transient-define-suffix cider-macroexpand-menu--expand-all (args)
   "Fully macroexpand into a popup buffer, applying the menu's ARGS."
   (interactive (list (transient-args 'cider-macroexpand-menu)))
@@ -347,7 +378,9 @@ namespaces and metadata for this invocation."
    ("-m" "Include metadata" "--meta")]
   [["Macroexpand (popup buffer)"
     ("1" "Macroexpand-1" cider-macroexpand-menu--expand-1)
-    ("a" "Macroexpand all" cider-macroexpand-menu--expand-all)]
+    ("a" "Macroexpand all" cider-macroexpand-menu--expand-all)
+    ("v" "Macroexpand-1 at point" cider-macroexpand-menu--expand-1-at-point)
+    ("V" "Macroexpand all at point" cider-macroexpand-menu--expand-all-at-point)]
    ["Inline (macrostep)"
     ("e" "Expand-1 inline" cider-macrostep-expand)
     ("E" "Expand all inline" cider-macrostep-expand-all)

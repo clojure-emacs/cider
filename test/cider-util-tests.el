@@ -266,6 +266,41 @@
     (with-clojure-buffer "(comment (+ 1 2))|"
       (expect (cider-last-sexp) :to-equal "(comment (+ 1 2))"))))
 
+(describe "cider--goto-end-of-thing-at-point"
+  (it "moves to the end of the sexp around point"
+    (with-clojure-buffer "(when x (fo|o bar))"
+      (cider--goto-end-of-thing-at-point 'sexp)
+      (expect (buffer-substring-no-properties (point-min) (point)) :to-equal "(when x (foo")))
+
+  (it "moves to the end of the list around point"
+    (with-clojure-buffer "(when x (fo|o bar))"
+      (cider--goto-end-of-thing-at-point 'list)
+      (expect (buffer-substring-no-properties (point-min) (point)) :to-equal "(when x (foo bar)")))
+
+  (it "signals a user-error when there is nothing there"
+    (with-clojure-buffer "|"
+      (expect (cider--goto-end-of-thing-at-point 'sexp) :to-throw 'user-error))))
+
+(describe "cider--goto-end-of-call-at-point"
+  (it "widens a bare symbol to the call that encloses it"
+    (with-clojure-buffer "(when x (fo|o bar))"
+      (cider--goto-end-of-call-at-point)
+      (expect (buffer-substring-no-properties (point-min) (point)) :to-equal "(when x (foo bar)")))
+
+  (it "takes the form point opens, not its parent"
+    (with-clojure-buffer "(when x |(foo bar))"
+      (cider--goto-end-of-call-at-point)
+      (expect (buffer-substring-no-properties (point-min) (point)) :to-equal "(when x (foo bar)")))
+
+  (it "takes the form point closes"
+    (with-clojure-buffer "(when x (foo bar)|)"
+      (cider--goto-end-of-call-at-point)
+      (expect (buffer-substring-no-properties (point-min) (point)) :to-equal "(when x (foo bar))")))
+
+  (it "signals a user-error when there is no call form"
+    (with-clojure-buffer "|"
+      (expect (cider--goto-end-of-call-at-point) :to-throw 'user-error))))
+
 (describe "cider--last-sexp-bounds"
   (it "returns the bounds of the sexp before point"
     (with-clojure-buffer "a\n\n(defn ...)|\n\nb"

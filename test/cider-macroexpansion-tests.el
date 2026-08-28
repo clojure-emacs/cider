@@ -205,6 +205,35 @@
       ;; The undo actually took effect (the last change is gone).
       (expect (buffer-string) :not :to-match "bar"))))
 
+(describe "the at-point macroexpansion commands"
+  (it "expands the call around point, widening from a bare symbol"
+    (spy-on 'cider-macroexpand-expr)
+    (spy-on 'cider-ensure-macro)
+    (with-clojure-buffer "(when x (fo|o bar))"
+      (cider-macroexpand-1-at-point)
+      (expect (nth 1 (spy-calls-args-for 'cider-macroexpand-expr 0))
+              :to-equal "(foo bar)")))
+
+  (it "expands the form point opens rather than its parent"
+    (spy-on 'cider-macroexpand-expr)
+    (spy-on 'cider-ensure-macro)
+    (with-clojure-buffer "(when x |(foo bar))"
+      (cider-macroexpand-all-at-point)
+      (expect (nth 1 (spy-calls-args-for 'cider-macroexpand-expr 0))
+              :to-equal "(foo bar)")))
+
+  (it "leaves point where it was"
+    (spy-on 'cider-macroexpand-expr)
+    (spy-on 'cider-ensure-macro)
+    (with-clojure-buffer "(when x (fo|o bar))"
+      (let ((start (point)))
+        (cider-macroexpand-1-at-point)
+        (expect (point) :to-equal start))))
+
+  (it "signals a user-error when there is no call form"
+    (with-clojure-buffer "|"
+      (expect (cider-macroexpand-1-at-point) :to-throw 'user-error))))
+
 (provide 'cider-macroexpansion-tests)
 
 ;;; cider-macroexpansion-tests.el ends here
