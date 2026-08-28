@@ -19,6 +19,7 @@
 
 ### Changes
 
+- [#4175](https://github.com/clojure-emacs/cider/pull/4175): Have the "at point" commands (`cider-eval-sexp-at-point` and friends) fall back to the form preceding point when there's nothing at point, instead of erroring, so they can stand in for their `last-sexp` counterparts.
 - [#4166](https://github.com/clojure-emacs/cider/pull/4166): Treat the contents of a `comment` form as top level in the whole defun command family (pretty-printing, eval-to-comment, inspect, format, debug, etc.), not just `cider-eval-defun-at-point` and `cider-eval-dwim`; CIDER's commands no longer depend on `clojure-toplevel-inside-comment-form`.
 - [#4160](https://github.com/clojure-emacs/cider/pull/4160): Stop offering the previous session's port as the `cider-connect` default when nothing is listening on it anymore; the host is still offered and port inference takes over.
 - [#4159](https://github.com/clojure-emacs/cider/pull/4159): Make `cider-default-nrepl-port` customizable, keep `cider-connect` usable when Tramp's ssh-config completion errors, and document how port suggestions are computed in a new "How CIDER Finds Ports" manual section.
