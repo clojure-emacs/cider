@@ -115,6 +115,26 @@ whitespace between forms, which is where you land after typing one - they fall
 back to the preceding form, so they're drop-in replacements for their
 `+...-last-sexp+` siblings rather than a separate mode of working.
 
+=== Seeing what was picked
+
+If you'd like CIDER to show you which form it acted on, rather than leaving you
+to infer it, turn on `cider-flash-evaluated-region`:
+
+[source,lisp]
+----
+(setq cider-flash-evaluated-region t)
+----
+
+Every evaluation then briefly flashes the region it sent, using
+`cider-flash-face`. Set the option to a face instead of `t` to flash with that
+face. It's off by default.
+
+TIP: This one is borrowed from SLY, which flashes the region it compiles.
+It's especially handy while you're getting a feel for the difference between
+the targets above.
+
+=== Rebinding the keys
+
 If you'd rather have this behavior on the keys you already use, rebind them.
 Nothing else changes:
 

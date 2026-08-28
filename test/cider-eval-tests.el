@@ -721,3 +721,41 @@
       (let ((bounds (nth 2 (spy-calls-args-for 'cider-interactive-eval 0))))
         (expect (apply #'buffer-substring-no-properties bounds)
                 :to-equal "(+ 1 2)")))))
+
+(describe "cider--flash-region"
+  (it "does nothing when the option is off"
+    (let ((cider-flash-evaluated-region nil)
+          (pulsed nil))
+      (cl-letf (((symbol-function 'pulse-momentary-highlight-region)
+                 (lambda (&rest args) (setq pulsed args))))
+        (cider--flash-region 1 5))
+      (expect pulsed :to-be nil)))
+
+  (it "flashes with `cider-flash-face' when simply enabled"
+    (let ((cider-flash-evaluated-region t)
+          (pulsed nil))
+      (cl-letf (((symbol-function 'pulse-momentary-highlight-region)
+                 (lambda (&rest args) (setq pulsed args))))
+        (cider--flash-region 1 5))
+      (expect pulsed :to-equal '(1 5 cider-flash-face))))
+
+  (it "honors a face given as the option's value"
+    (let ((cider-flash-evaluated-region 'cider-error-overlay-face)
+          (pulsed nil))
+      (cl-letf (((symbol-function 'pulse-momentary-highlight-region)
+                 (lambda (&rest args) (setq pulsed args))))
+        (cider--flash-region 1 5))
+      (expect pulsed :to-equal '(1 5 cider-error-overlay-face)))))
+
+(describe "flashing the evaluated region"
+  (it "happens for any command that evaluates a region of the buffer"
+    (let ((cider-flash-evaluated-region t)
+          (pulsed nil))
+      (cl-letf (((symbol-function 'pulse-momentary-highlight-region)
+                 (lambda (&rest args) (setq pulsed args)))
+                ((symbol-function 'cider-ensure-session) #'ignore)
+                ((symbol-function 'cider-map-repls) (lambda (&rest _) nil)))
+        (with-clojure-buffer "(+ 1 2)|"
+          (cider-interactive-eval nil nil (list 1 8))))
+      (expect pulsed :to-equal '(1 8 cider-flash-face)))))
+
