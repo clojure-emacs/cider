@@ -25,6 +25,7 @@
 
 ### Bugs fixed
 
+- [#4172](https://github.com/clojure-emacs/cider/pull/4172): Stop treating the text of a line comment as code: with point in or after a comment, `cider-eval-last-sexp` and friends now target the form preceding the comment, and the in-place macroexpansion commands no longer overwrite the comment with an expansion.
 - [#4158](https://github.com/clojure-emacs/cider/pull/4158): Detect running `lein trampoline` REPLs in `cider-connect`'s port suggestions (the trampolined JVM has no "leiningen" marker for the process scan to find), and don't miss REPLs running without a controlling terminal.
 - [#4158](https://github.com/clojure-emacs/cider/pull/4158): Stop discarding `.nrepl-port` files on systems without `lsof` (absence of the tool is not evidence the port is dead), and only treat listening sockets as proof of a live server.
 - [#4152](https://github.com/clojure-emacs/cider/pull/4152): Stop the dynamic font-lock locals scanner from treating the default expressions in an `:or` destructuring clause (e.g. `{:keys [x] :or {x (some-default)}}`) as local variables, so references there keep their normal highlighting.
