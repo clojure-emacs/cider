@@ -53,6 +53,12 @@ There are three ways to say which form you mean:
 use: kbd:[C-x C-e] evaluates the form before the cursor, kbd:[C-c M-i]
 inspects it, kbd:[C-c C-m] macroexpands it.
 
+Here are all three, on the same expression: kbd:[C-x C-e] with the cursor
+after `+(* 2 3)+`, then `cider-eval-sexp-at-point` with the cursor on it, then
+kbd:[C-M-x] from inside the enclosing form.
+
+image::cider-form-selection.gif[Evaluating the preceding form, the form at the cursor, and the top-level form]
+
 .Why is the cursor _after_ the form, rather than on it?
 ****
 This is a deliberate design decision rather than an accident, and it long

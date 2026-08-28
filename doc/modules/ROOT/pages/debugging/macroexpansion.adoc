@@ -64,7 +64,11 @@ Given `+(when x (foo bar))+`, with `+|+` marking the cursor:
 |===
 
 In other words: point at the call you're interested in, anywhere in it, and
-you'll expand that call.
+you'll expand that call. Here the cursor is sitting on the bare symbol
+`+when+`, and the expansion is of the whole `+when+` form rather than of the
+symbol:
+
+image::cider-macroexpand-at-point.gif[Expanding the call around the cursor from a bare symbol]
 
 TIP: The inline commands let you drill into a nested call without leaving the
 source buffer, and kbd:[g] re-runs the last expansion from inside the
