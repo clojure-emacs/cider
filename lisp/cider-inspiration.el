@@ -206,7 +206,7 @@
     "Press <\\[cider-history]> to start CIDER's REPL input history browser."
     ;; Format
     "Press <\\[cider-format-buffer]> to format the entire buffer using cljfmt."
-    "Press <\\[cider-format-defun]> to format the top-level form at point using cljfmt."
+    "Press <\\[cider-format-defun-at-point]> to format the top-level form at point using cljfmt."
     "Use <M-x cider-format-edn-buffer RET> to pretty-print the current EDN buffer."
     ;; Namespace ops
     "Press <\\[cider-ns-refresh]> to reload modified and unloaded namespaces."

@@ -13,7 +13,7 @@ that uses different editors and IDEs.
 
 CIDER provides several commands to interact with `cljfmt`:
 
-* `cider-format-defun`
+* `cider-format-defun-at-point`
 * `cider-format-region`
 * `cider-format-buffer`
 

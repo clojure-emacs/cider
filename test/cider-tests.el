@@ -37,6 +37,16 @@
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
+(describe "the renamed form commands"
+  (it "keeps the old names working as obsolete aliases"
+    (dolist (pair '((cider-format-defun . cider-format-defun-at-point)
+                    (cider-send-to-comment . cider-send-defun-to-comment)))
+      (let ((old (car pair))
+            (new (cdr pair)))
+        (expect (fboundp new) :to-be-truthy)
+        (expect (indirect-function old) :to-be (indirect-function new))
+        (expect (get old 'byte-obsolete-info) :to-be-truthy)))))
+
 (describe "cider-inspect-menu"
   (it "is bound where the docs say it is"
     (expect (lookup-key cider-mode-map (kbd "C-c C-i")) :to-be 'cider-inspect-menu)

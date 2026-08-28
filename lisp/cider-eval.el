@@ -1141,7 +1141,7 @@ later insertions (the eval-to-comment handler inserts the result there)."
         (indent-region block-start (point))))
     (cons (marker-position beg) end)))
 
-(defun cider-send-to-comment (&optional eval)
+(defun cider-send-defun-to-comment (&optional eval)
   "Copy the top-level form at point into the namespace's rich `comment' block.
 The form is appended to the last top-level `comment' form in the buffer,
 creating one at the end of the buffer when none exists.  Point stays where it
@@ -1166,6 +1166,9 @@ it, honoring `cider-comment-style'."
            nil
            (cider--nrepl-print-request-plist fill-column)))))))
 
+
+(define-obsolete-function-alias 'cider-send-to-comment
+  #'cider-send-defun-to-comment "2.1.0")
 (defun cider-jump-to-comment ()
   "Move point into the namespace's rich `comment' block.
 Jump to the last top-level `comment' form in the buffer, creating an empty one

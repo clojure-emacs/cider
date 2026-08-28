@@ -417,7 +417,7 @@ TIP: See xref:debugging/debugger.adoc[Debugger] and xref:debugging/tracing.adoc[
 | Copy the form preceding point into the REPL prompt.
 
 | kbd:[C-c C-j c]
-| `cider-send-to-comment`
+| `cider-send-defun-to-comment`
 | Copy the top-level form into the namespace's rich `comment` block.
 
 | kbd:[C-c C-j v]
