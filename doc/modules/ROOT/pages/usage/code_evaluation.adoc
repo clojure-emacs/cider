@@ -110,7 +110,10 @@ don't have to move the cursor to its end first:
 
 These resolve the form generously: with the cursor on an opening delimiter you
 get the form it opens, on a closing delimiter the form it closes, and inside a
-symbol that symbol.
+symbol that symbol. Where there's nothing at the cursor at all - in the
+whitespace between forms, which is where you land after typing one - they fall
+back to the preceding form, so they're drop-in replacements for their
+`+...-last-sexp+` siblings rather than a separate mode of working.
 
 If you'd rather have this behavior on the keys you already use, rebind them.
 Nothing else changes:

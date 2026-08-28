@@ -277,7 +277,15 @@
       (cider--goto-end-of-thing-at-point 'list)
       (expect (buffer-substring-no-properties (point-min) (point)) :to-equal "(when x (foo bar)")))
 
-  (it "signals a user-error when there is nothing there"
+  (it "falls back to the preceding form in the whitespace between forms"
+    (with-clojure-buffer "(+ 1 2) |"
+      (cider--goto-end-of-thing-at-point 'sexp)
+      (expect (buffer-substring-no-properties (point-min) (point)) :to-equal "(+ 1 2)"))
+    (with-clojure-buffer "(foo bar)\n\n|"
+      (cider--goto-end-of-thing-at-point 'sexp)
+      (expect (buffer-substring-no-properties (point-min) (point)) :to-equal "(foo bar)")))
+
+  (it "signals a user-error when there is nothing to fall back to either"
     (with-clojure-buffer "|"
       (expect (cider--goto-end-of-thing-at-point 'sexp) :to-throw 'user-error))))
 
@@ -297,7 +305,12 @@
       (cider--goto-end-of-call-at-point)
       (expect (buffer-substring-no-properties (point-min) (point)) :to-equal "(when x (foo bar))")))
 
-  (it "signals a user-error when there is no call form"
+  (it "falls back to the preceding form in the whitespace between forms"
+    (with-clojure-buffer "(foo bar) |"
+      (cider--goto-end-of-call-at-point)
+      (expect (buffer-substring-no-properties (point-min) (point)) :to-equal "(foo bar)")))
+
+  (it "signals a user-error when there is nothing to fall back to either"
     (with-clojure-buffer "|"
       (expect (cider--goto-end-of-call-at-point) :to-throw 'user-error))))
 
