@@ -166,6 +166,14 @@ This function also removes itself from `post-command-hook'."
   (remove-hook 'post-command-hook #'cider--remove-result-overlay-after-command 'local)
   (add-hook 'post-command-hook #'cider--remove-result-overlay nil 'local))
 
+(defface cider-flash-face
+  '((t (:inherit highlight)))
+  "Face for the brief flash over the region CIDER just evaluated.
+See `cider-flash-evaluated-region'."
+  ;; Emacs 28 refuses to infer the group
+  :group 'cider
+  :package-version '(cider . "2.1.0"))
+
 (defface cider-fringe-good-face
   '((((class color) (background light)) :foreground "lightgreen")
     (((class color) (background dark)) :foreground "darkgreen"))

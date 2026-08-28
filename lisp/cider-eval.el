@@ -58,6 +58,7 @@
 (require 'cider-common)
 (require 'cider-compilation)
 (require 'cider-overlays)
+(require 'pulse)
 (require 'cider-popup)
 (require 'cider-stacktrace)
 (require 'cider-util)
@@ -820,6 +821,33 @@ window."
 (defvar-local cider-interactive-eval-override nil
   "Function to call instead of `cider-interactive-eval'.")
 
+(defcustom cider-flash-evaluated-region nil
+  "Whether to briefly flash the region CIDER evaluated.
+
+Evaluation commands differ in which form they act on, and the answer
+isn\='t always obvious from where the cursor sits - on a delimiter, say,
+or in the whitespace after a form.  Flashing the region shows you what
+was actually sent, right where you are looking.
+
+nil, the default, flashes nothing.  t flashes with `cider-flash-face'.
+A face flashes with that face instead."
+  :type '(choice (const :tag "Don\='t flash" nil)
+                 (const :tag "Flash with `cider-flash-face'" t)
+                 (face :tag "Flash with this face"))
+  :group 'cider
+  :package-version '(cider . "2.1.0"))
+
+(defun cider--flash-region (start end)
+  "Briefly flash the region between START and END.
+Does nothing unless `cider-flash-evaluated-region' asks for it."
+  (when cider-flash-evaluated-region
+    (let ((pulse-flag t))
+      (pulse-momentary-highlight-region
+       start end
+       (if (facep cider-flash-evaluated-region)
+           cider-flash-evaluated-region
+         'cider-flash-face)))))
+
 (defun cider-interactive-eval (form &optional callback bounds additional-params)
   "Evaluate FORM and dispatch the response to CALLBACK.
 If the code to be evaluated comes from a buffer, it is preferred to use a
@@ -843,7 +871,8 @@ arguments and only proceed with evaluation if it returns nil."
       ;; partial overlays, leading to duplicate eval results in some situations.
       (dolist (ov (overlays-in start end))
         (when (eq (overlay-get ov 'cider-temporary) t)
-          (delete-overlay ov))))
+          (delete-overlay ov)))
+      (cider--flash-region start end))
     (unless (and cider-interactive-eval-override
                  (functionp cider-interactive-eval-override)
                  (condition-case _
