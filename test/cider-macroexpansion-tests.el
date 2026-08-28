@@ -106,17 +106,6 @@
         (cider-macroexpansion-toggle-print-metadata)
         (expect cider-macroexpansion-print-metadata :to-be nil)))))
 
-(describe "cider-macroexpansion--form-bounds"
-  (it "returns the bounds of the sexp before point"
-    (with-temp-buffer
-      (clojure-mode)
-      (insert "(if x (do (println y)))")
-      ;; point right after the nested form
-      (goto-char (point-min))
-      (search-forward "(println y)")
-      (pcase-let ((`(,beg . ,end) (cider-macroexpansion--form-bounds)))
-        (expect (buffer-substring-no-properties beg end) :to-equal "(println y)")))))
-
 (describe "cider-redraw-macroexpansion-buffer"
   (it "replaces the region from START to END with the expansion"
     (with-temp-buffer

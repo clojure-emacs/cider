@@ -239,6 +239,41 @@
       (with-clojure-buffer "^:foo (bar|)"
         (expect (cider-sexp-at-point) :to-equal "^:foo (bar)")))))
 
+(describe "cider--last-sexp-bounds"
+  (it "returns the bounds of the sexp before point"
+    (with-clojure-buffer "a\n\n(defn ...)|\n\nb"
+      (expect (cider--last-sexp-bounds) :to-equal '(4 . 14))))
+
+  (it "targets the nested form when point is right after it"
+    (with-clojure-buffer "(when x (foo)|)"
+      (pcase-let ((`(,beg . ,end) (cider--last-sexp-bounds)))
+        (expect (buffer-substring-no-properties beg end) :to-equal "(foo)"))))
+
+  (it "targets the whole form from the end of it"
+    (with-clojure-buffer "(when x (foo))|"
+      (pcase-let ((`(,beg . ,end) (cider--last-sexp-bounds)))
+        (expect (buffer-substring-no-properties beg end) :to-equal "(when x (foo))"))))
+
+  (it "agrees with `cider-last-sexp' where both have an answer"
+    (with-clojure-buffer "(foo (bar 1) baz)|"
+      (expect (cider--last-sexp-bounds)
+              :to-equal (apply #'cons (cider-last-sexp 'bounds)))))
+
+  (it "returns the following form at the start of a buffer"
+    ;; backward sexp motion no-ops at point-min, so the forward motion
+    ;; lands on the next form instead.  Long-standing `cider-last-sexp'
+    ;; behavior; pinned here because callers rely on it
+    (with-clojure-buffer "|(foo)"
+      (expect (cider--last-sexp-bounds) :to-equal '(1 . 6))))
+
+  (it "answers nil rather than signalling when there is no sexp at all"
+    (with-clojure-buffer "|"
+      (expect (cider--last-sexp-bounds) :to-be nil))
+    ;; unbalanced code with nothing complete before point
+    (with-clojure-buffer "(foo (bar"
+      (goto-char (point-min))
+      (expect (cider--last-sexp-bounds) :to-be nil))))
+
 (describe "cider-last-sexp"
   (describe "when the param 'bounds is not given"
     (it "returns the last sexp"
