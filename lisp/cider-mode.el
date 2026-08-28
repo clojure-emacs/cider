@@ -688,6 +688,7 @@ higher precedence."
     (define-key map (kbd "C-c C-m") #'cider-macroexpand-1)
     (define-key map (kbd "C-c M-m") #'cider-macroexpand-menu)
     (define-key map (kbd "C-c M-n") #'cider-ns-menu)
+    (define-key map (kbd "C-c C-i") #'cider-inspect-menu)
     (define-key map (kbd "C-c M-i") #'cider-inspect)
     (define-key map (kbd "C-c M-t") #'cider-trace-menu)
     (define-key map (kbd "C-c C-z") #'cider-switch-to-repl-buffer)

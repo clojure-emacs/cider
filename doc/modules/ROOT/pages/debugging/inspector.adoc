@@ -15,6 +15,38 @@ in a new buffer. You can also use kbd:[C-u C-c M-i] to inspect
 the result of the current top-level form and kbd:[C-u C-u C-c M-i] to
 read an expression from the minibuffer and inspect its result.
 
+Each of those is a command in its own right, and kbd:[C-c C-i]
+(`cider-inspect-menu`) lists them all, so you don't have to count prefix
+arguments:
+
+[cols="1,2"]
+|===
+| Keyboard shortcut | Inspects
+
+| kbd:[C-c C-i e]
+| The value of the form preceding the cursor (`cider-inspect-last-sexp`).
+
+| kbd:[C-c C-i v]
+| The value of the form at the cursor (`cider-inspect-sexp-at-point`).
+
+| kbd:[C-c C-i d]
+| The value of the top-level form (`cider-inspect-defun-at-point`).
+
+| kbd:[C-c C-i r]
+| The last evaluation result (`cider-inspect-last-result`).
+
+| kbd:[C-c C-i :]
+| An expression read from the minibuffer (`cider-inspect-expr`).
+|===
+
+The sub-keys are the same ones the evaluation menu uses, so `e`, `v` and
+`d` name the same three targets wherever you are; see
+xref:usage/code_evaluation.adoc#_selecting_the_form_to_operate_on[Selecting
+the Form to Operate On].
+
+NOTE: This menu is about _what_ to inspect. Once you're looking at a
+value, the inspector has its own menu for navigating it, on kbd:[m].
+
 Alternatively, after a regular eval command, you can inspect the last
 evaluated value using `cider-inspect-last-result`. When an inspector
 buffer is visible in the background, it is automatically updated with
