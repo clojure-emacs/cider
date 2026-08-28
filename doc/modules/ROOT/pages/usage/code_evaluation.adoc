@@ -656,7 +656,7 @@ The `(comment ...)` form (often called a "rich comment" or RCF) is a popular
 place to keep throwaway experiments and usage examples that live with the code
 but never run when the namespace is loaded.
 
-`cider-send-to-comment` (kbd:[C-c C-j c]) copies the top-level form at point
+`cider-send-defun-to-comment` (kbd:[C-c C-j c]) copies the top-level form at point
 into the namespace's rich `comment` block, appending it to the last top-level
 `comment` form in the buffer (or creating one at the end of the buffer if there
 isn't any). Successive entries are separated by a blank line for readability.

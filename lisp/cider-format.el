@@ -110,11 +110,14 @@ START and END represent the region's boundaries."
 ;;; Format defun
 
 ;;;###autoload
-(defun cider-format-defun ()
+(defun cider-format-defun-at-point ()
   "Format the code in the current defun."
   (interactive)
   (let ((defun-bounds (cider-defun-at-point 't)))
     (cider-format-region (car defun-bounds) (cadr defun-bounds))))
+
+(define-obsolete-function-alias 'cider-format-defun
+  #'cider-format-defun-at-point "2.1.0")
 
 
 ;;; Format buffer
