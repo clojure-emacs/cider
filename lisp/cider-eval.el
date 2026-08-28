@@ -931,8 +931,7 @@ If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
 If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
   (interactive "P")
   (save-excursion
-    (goto-char (cadr (or (cider-sexp-at-point 'bounds)
-                         (user-error "No sexp at point"))))
+    (cider--goto-end-of-thing-at-point 'sexp)
     (cider-eval-last-sexp output-to-current-buffer)))
 
 (defun cider-tap-last-sexp (&optional output-to-current-buffer)
@@ -951,8 +950,7 @@ buffer."
 If invoked with OUTPUT-TO-CURRENT-BUFFER, output the result to current buffer."
   (interactive "P")
   (save-excursion
-    (goto-char (cadr (or (cider-sexp-at-point 'bounds)
-                         (user-error "No sexp at point"))))
+    (cider--goto-end-of-thing-at-point 'sexp)
     (cider-tap-last-sexp output-to-current-buffer)))
 
 (defvar-local cider-previous-eval-context nil
@@ -1251,6 +1249,15 @@ buffer, else display in a popup buffer."
   (if output-to-current-buffer
       (cider-pprint-eval-last-sexp-to-comment)
     (cider--pprint-eval-form (cider-last-sexp 'bounds))))
+
+(defun cider-pprint-eval-sexp-at-point (&optional output-to-current-buffer)
+  "Evaluate the sexp around point and pprint its value.
+If invoked with OUTPUT-TO-CURRENT-BUFFER, insert as comment in the current
+buffer, else display in a popup buffer."
+  (interactive "P")
+  (save-excursion
+    (cider--goto-end-of-thing-at-point 'sexp)
+    (cider-pprint-eval-last-sexp output-to-current-buffer)))
 
 (defun cider--prompt-and-insert-inline-dbg ()
   "Insert a #dbg button at the current sexp."
@@ -1551,6 +1558,11 @@ The chosen printer is `let'-bound around the call, for this invocation only."
   (interactive (list (transient-args 'cider-eval-pprint-menu)))
   (cider-eval-pprint-menu--apply-args args #'cider-pprint-eval-last-sexp))
 
+(transient-define-suffix cider-eval-pprint-menu--sexp-at-point (args)
+  "Pretty-print the sexp around point, applying the menu's ARGS."
+  (interactive (list (transient-args 'cider-eval-pprint-menu)))
+  (cider-eval-pprint-menu--apply-args args #'cider-pprint-eval-sexp-at-point))
+
 (transient-define-suffix cider-eval-pprint-menu--defun (args)
   "Pretty-print the defun at point, applying the menu's ARGS."
   (interactive (list (transient-args 'cider-eval-pprint-menu)))
@@ -1580,6 +1592,7 @@ zprint, or a custom var) for this invocation only."
    ("-p" "Print function" "--print-fn=" :reader cider-eval-pprint-menu--read-print-fn)]
   [["Pretty-print"
     ("e" "Last sexp" cider-eval-pprint-menu--last-sexp)
+    ("v" "Sexp at point" cider-eval-pprint-menu--sexp-at-point)
     ("d" "Defun at point" cider-eval-pprint-menu--defun)]
    ["Send pretty-printed value to"
     ("c" "Comment (last sexp)" cider-eval-pprint-menu--last-sexp-to-comment)

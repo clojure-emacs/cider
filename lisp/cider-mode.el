@@ -213,6 +213,7 @@ With a prefix argument, prompt for function to run instead of -main."
   (let ((map (define-prefix-command 'cider-insert-commands-map)))
     ;; single key bindings defined last for display in menu
     (define-key map (kbd "e") #'cider-insert-last-sexp-in-repl)
+    (define-key map (kbd "v") #'cider-insert-sexp-at-point-in-repl)
     (define-key map (kbd "d") #'cider-insert-defun-in-repl)
     (define-key map (kbd "r") #'cider-insert-region-in-repl)
     (define-key map (kbd "n") #'cider-insert-ns-form-in-repl)
@@ -290,6 +291,14 @@ If EVAL is non-nil the form will also be evaluated.  Use
 If invoked with a prefix ARG eval the expression after inserting it."
   (interactive "P")
   (cider-insert-in-repl (cider-last-sexp) arg))
+
+(defun cider-insert-sexp-at-point-in-repl (&optional arg)
+  "Insert the expression around point in the REPL buffer.
+If invoked with a prefix ARG eval the expression after inserting it."
+  (interactive "P")
+  (save-excursion
+    (cider--goto-end-of-thing-at-point 'sexp)
+    (cider-insert-last-sexp-in-repl arg)))
 
 (defun cider-insert-defun-in-repl (&optional arg)
   "Insert the top level form at point in the REPL buffer.
@@ -474,6 +483,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
      ["Browse classpath entry" cider-open-classpath-entry])
     ("Format"
      ["Format EDN last sexp" cider-format-edn-last-sexp]
+     ["Format EDN sexp at point" cider-format-edn-sexp-at-point]
      ["Format EDN region" cider-format-edn-region]
      ["Format EDN buffer" cider-format-edn-buffer])
     ("Macroexpand"
