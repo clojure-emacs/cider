@@ -370,30 +370,38 @@ and is preserved here."
 
 (defun cider--goto-end-of-thing-at-point (thing)
   "Move point to the end of the THING at point, `sexp' or `list'.
-Signals a `user-error' when there is none.  The commands that operate on
-the thing at point are all built this way: step to its end, then hand off
-to the command that operates on the sexp preceding point, so the two
-share their handlers and their options."
-  (goto-char (cadr (or (pcase thing
+Where there is none - in the whitespace between forms, say - falls back to
+the sexp preceding point, and only then signals a `user-error'.  The
+commands that operate on the thing at point are all built this way: step
+to its end, then hand off to the command that operates on the sexp
+preceding point, so the two share their handlers and their options."
+  (goto-char (or (cadr (pcase thing
                          ('sexp (cider-sexp-at-point 'bounds))
                          ('list (cider-list-at-point 'bounds))
-                         (_ (error "Unknown thing: %S" thing)))
-                       (user-error "No %s at point" thing)))))
+                         (_ (error "Unknown thing: %S" thing))))
+                 ;; Nothing is at point in the whitespace between forms,
+                 ;; which is where you land after typing one.  Fall back
+                 ;; to the preceding form, so these commands can serve as
+                 ;; drop-in replacements for their `last-sexp' siblings.
+                 (cdr (cider--last-sexp-bounds))
+                 (user-error "No %s at point" thing))))
 
 (defun cider--goto-end-of-call-at-point ()
   "Move point to the end of the call form around point.
 That is the sexp at point when it is a compound form, and the enclosing
 list when it is a bare symbol or another atom, since an expansion needs a
-call form and never a lone symbol.  Signals a `user-error' when there is
-neither."
+call form and never a lone symbol.  Where there is neither, falls back to
+the sexp preceding point before signalling a `user-error'."
   (let ((sexp (cider-sexp-at-point 'bounds)))
-    (goto-char (cadr (or (and sexp
-                              ;; a compound form always ends in a closing
-                              ;; delimiter, whatever reader prefix it carries
-                              (eq (char-syntax (char-before (cadr sexp))) ?\))
-                              sexp)
-                         (cider-list-at-point 'bounds)
-                         (user-error "No call form at point"))))))
+    (goto-char (or (cadr (or (and sexp
+                                  ;; a compound form always ends in a closing
+                                  ;; delimiter, whatever reader prefix it carries
+                                  (eq (char-syntax (char-before (cadr sexp))) ?\))
+                                  sexp)
+                             (cider-list-at-point 'bounds)))
+                   ;; as above: in whitespace, act on the preceding form
+                   (cdr (cider--last-sexp-bounds))
+                   (user-error "No call form at point")))))
 
 (defun cider-start-of-next-sexp (&optional skip)
   "Move to the start of the next sexp.
