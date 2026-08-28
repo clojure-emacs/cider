@@ -322,12 +322,33 @@ itself rather than the form it applies to."
   "Inspect the result of the preceding sexp.
 
 With a prefix argument ARG it inspects the result of the \"top-level\" form.
-With a second prefix argument it prompts for an expression to eval and inspect."
+With a second prefix argument it prompts for an expression to eval and inspect.
+
+Each of those is also a command of its own - `cider-inspect-last-sexp',
+`cider-inspect-defun-at-point' and `cider-inspect-expr' - and
+`cider-inspect-menu' lists them all, along with
+`cider-inspect-sexp-at-point', which this command has no prefix for."
   (interactive "p")
   (pcase arg
     (1 (cider-inspect-last-sexp))
     (4 (cider-inspect-defun-at-point))
     (16 (call-interactively #'cider-inspect-expr))))
+
+(transient-define-prefix cider-inspect-menu ()
+  "Transient menu for starting an inspection from a source buffer.
+This menu is about what to inspect.  The inspector's own commands, for
+navigating a value once you are looking at it, live on
+`cider-inspector-menu', reachable with the m key from inside the
+inspector.
+The sub-keys match the ones `cider-eval-menu' uses, so the same letter
+names the same target across CIDER's menus."
+  [["Inspect the value of"
+    ("e" "Last sexp" cider-inspect-last-sexp)
+    ("v" "Sexp at point" cider-inspect-sexp-at-point)
+    ("d" "Defun at point" cider-inspect-defun-at-point)]
+   ["Inspect"
+    ("r" "Last result" cider-inspect-last-result)
+    (":" "An expression you type" cider-inspect-expr)]])
 
 (defvar cider-inspector-location-stack nil
   "A stack used to save point locations in inspector buffers.
