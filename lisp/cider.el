@@ -545,7 +545,7 @@ PARAMS is a plist with the following keys (non-exhaustive list)
           (plist-put params :socket-file (cdr endpoint))
         (thread-first params
                       (plist-put :host (car endpoint))
-                      (plist-put :port (cdr endpoint)))))))
+                      (plist-put :port (nrepl--normalize-port (cdr endpoint))))))))
 
 (defun cider--update-cljs-init-function (params)
   "Update repl type and any init PARAMS for cljs connections.
