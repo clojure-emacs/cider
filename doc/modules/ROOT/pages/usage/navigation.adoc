@@ -23,7 +23,7 @@ There are two ways to use find references in CIDER:
 
 Here's how they look in action:
 
-image::cider_find_usages.gif[CIDER Find References]
+image::cider-find-usages.gif[Finding the usages of a function, first in a dedicated buffer and then in the minibuffer]
 
 Keep in mind the following limitations:
 

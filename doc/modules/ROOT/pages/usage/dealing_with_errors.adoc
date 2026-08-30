@@ -225,10 +225,11 @@ them in the cause chain), that specific exception will be inspected with the
 CIDER xref:debugging/inspector.adoc[Inspector]. You can also click on the
 rendered exception data to inspect it directly.
 
-This clicking is defined and customizable in `cider-stacktrace-exception-map`
-and `cider-stacktrace-ex-data-map`.
+Both targets also respond to kbd:[RET] (or kbd:[i]) with point on them, so you
+don't have to reach for the mouse. This is defined and customizable in
+`cider-stacktrace-exception-map` and `cider-stacktrace-ex-data-map`.
 
-image::cider-stacktrace-inspect.gif[Inspect the exceptions and ex-data]
+image::cider-stacktrace-inspect.gif[Inspecting an exception, and then its ex-data, from the error buffer]
 
 === Keybindings
 
