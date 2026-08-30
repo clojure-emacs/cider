@@ -8,6 +8,7 @@
 
 ### New features
 
+- [#4179](https://github.com/clojure-emacs/cider/pull/4179): Add `cider-flash-evaluated-region` (off by default), which briefly flashes the region an evaluation command sent, so you can see which form it picked.
 - [#4176](https://github.com/clojure-emacs/cider/pull/4176): Add `cider-inspect-menu` (`C-c C-i`), listing every way to start an inspection (last sexp, sexp at point, defun, last result, or an expression you type), so they're no longer reachable only by counting prefix arguments to `cider-inspect`.
 - [#4173](https://github.com/clojure-emacs/cider/pull/4173): Give the rest of the form commands an "at point" variant, as evaluation and tap already had: `cider-inspect-sexp-at-point`, `cider-pprint-eval-sexp-at-point`, `cider-macroexpand-1-at-point`, `cider-macroexpand-all-at-point`, `cider-format-edn-sexp-at-point` and `cider-insert-sexp-at-point-in-repl`, so you no longer have to move point after a form to act on it.
 - [#4164](https://github.com/clojure-emacs/cider/pull/4164): Resolve container-published nREPL ports: `cider-connect` suggestions from a `/docker:`/`/podman:` buffer are translated to the host ports they're published on, and jack-in over tramp-container connects back through the published port instead of failing on the unreachable container name.
