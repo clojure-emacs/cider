@@ -135,6 +135,12 @@ Every evaluation then briefly flashes the region it sent, using
 `cider-flash-face`. Set the option to a face instead of `t` to flash with that
 face. It's off by default.
 
+Here it is on one expression twice: kbd:[C-x C-e] flashes just the
+`+(map :price items)+` call it sent, while kbd:[C-M-x] from inside the same
+line flashes the whole `+defn+`.
+
+image::cider-flash-evaluated-region.gif[The flash covering an inner call, then the whole enclosing defn]
+
 TIP: This one is borrowed from SLY, which flashes the region it compiles.
 It's especially handy while you're getting a feel for the difference between
 the targets above.
