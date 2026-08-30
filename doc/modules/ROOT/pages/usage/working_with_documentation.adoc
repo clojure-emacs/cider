@@ -146,7 +146,7 @@ example, if you want to use Latex-style references
 (setq cider-doc-xref-regexp "\\\\ref{\\(?1:[^}]+\\)}")
 ----
 
-image::cider_see_also.gif[CIDER See Also]
+image::cider-see-also.gif[Following an Also see cross-reference from one docstring to another]
 
 == Displaying Documentation as Tooltips
 
