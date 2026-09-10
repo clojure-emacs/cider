@@ -775,11 +775,13 @@ COMMAND is the resolved jack-in command, used to handle PowerShell quoting."
    (cider-add-clojure-dependencies-maybe cider-jack-in-dependencies)
    (cider-jack-in-normalized-nrepl-middlewares)))
 
-(defun cider--clojure-clr-cli-inject-deps (params _project-type _command)
-  "Inject CIDER deps into PARAMS for a ClojureCLR CLI project."
+(defun cider--clojure-clr-cli-inject-deps (params _project-type command)
+  "Inject CIDER deps into PARAMS for a ClojureCLR CLI project.
+COMMAND is the resolved jack-in command, used to handle PowerShell quoting."
   (cider-clojure-clr-cli-jack-in-dependencies
    params
-   `(("io.github.clojure/clr.tools.nrepl" ,cider-clojure-clr-cli-nrepl-sha))))
+   `(("io.github.clojure/clr.tools.nrepl" ,cider-clojure-clr-cli-nrepl-sha))
+   command))
 
 (defun cider-inject-jack-in-dependencies (params project-type &optional command)
   "Return PARAMS with injected REPL dependencies for PROJECT-TYPE.
