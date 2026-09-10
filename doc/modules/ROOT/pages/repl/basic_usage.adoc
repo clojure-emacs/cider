@@ -7,7 +7,7 @@ can experiment with your running program, test functions, or just
 explore a new library you're interested in using. The CIDER REPL offers a number of advanced features:
 
 * code completion
-* font-locking (the same as in `clojure-mode`)
+* font-locking (the same as in your Clojure major mode, see `cider-preferred-clojure-mode`)
 * quick access to many CIDER commands (e.g. definition and documentation lookup, tracing, etc)
 * pretty-printing of evaluation results
 * inline display of images
