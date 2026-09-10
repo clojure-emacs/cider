@@ -96,6 +96,8 @@ commands:
       - run:
           name: Run Elisp-lint
           command: eldev lint -c
+  compile:
+    steps:
       - run:
           name: Byte-compile .el files
           command: eldev -dtT compile --warnings-as-errors
@@ -122,12 +124,15 @@ jobs:
       - test
       - save-eldev-cache
 
+  # Also byte-compiles here: newer Emacsen warn about obsoletions the
+  # Emacs 28 lint job can't see.
   test-ubuntu-emacs-30:
     docker:
       - image: silex/emacs:30-ci
         entrypoint: bash
     steps:
       - setup
+      - compile
       - test
       - save-eldev-cache
 
@@ -164,6 +169,7 @@ jobs:
     steps:
       - setup
       - lint
+      - compile
       - save-eldev-cache
 
 workflows:
