@@ -93,6 +93,29 @@ jobs:
     - name: Check out the source code
       uses: actions/checkout@v6
 
+    # Eldev keeps the project's dependencies under .eldev/ and its own
+    # bootstrap plus the package-archive contents under ~/.cache/eldev.
+    # Cached per OS and Emacs version, keyed on the files that decide what
+    # gets installed, and rotated monthly so the MELPA snapshot doesn't go
+    # stale.  The project's own package (.eldev/*/local) is rebuilt every
+    # run and must not come from the cache.
+    - name: Compute the cache month
+      id: cache-month
+      shell: bash
+      run: echo "month=$(date +%Y-%m)" >> "$GITHUB_OUTPUT"
+    - name: Cache Eldev dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          .eldev
+          ~/.cache/eldev
+        key: eldev-v1-${{ runner.os }}-${{ runner.arch }}-${{ matrix.emacs_version }}-${{ steps.cache-month.outputs.month }}-${{ hashFiles('Eldev', 'lisp/cider.el') }}
+        restore-keys: |
+          eldev-v1-${{ runner.os }}-${{ runner.arch }}-${{ matrix.emacs_version }}-${{ steps.cache-month.outputs.month }}-
+    - name: Drop the cached project package
+      shell: bash
+      run: rm -rf .eldev/*/local
+
     - name: Prepare java
       uses: actions/setup-java@v5
       with:

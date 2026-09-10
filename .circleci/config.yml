@@ -5,9 +5,37 @@ orbs:
 
 # Default actions to perform on each Emacs version
 commands:
+  # Eldev keeps the project's dependencies under .eldev/ and its own
+  # bootstrap plus the package-archive contents under ~/.cache/eldev.
+  # Both are cached per job, keyed on the files that decide what gets
+  # installed, and rotated monthly so the MELPA snapshot doesn't go stale.
+  # The project's own package (.eldev/*/local) is rebuilt every run and
+  # must not come from the cache.
+  restore-eldev-cache:
+    steps:
+      - run:
+          name: Compute the cache month
+          command: date +%Y-%m > .cache-month
+      - restore_cache:
+          keys:
+            - eldev-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".cache-month" }}-{{ checksum "Eldev" }}-{{ checksum "lisp/cider.el" }}
+            - eldev-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".cache-month" }}-
+      - run:
+          name: Drop the cached project package
+          command: rm -rf .eldev/*/local
+
+  save-eldev-cache:
+    steps:
+      - save_cache:
+          key: eldev-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".cache-month" }}-{{ checksum "Eldev" }}-{{ checksum "lisp/cider.el" }}
+          paths:
+            - .eldev
+            - ~/.cache/eldev
+
   setup:
     steps:
       - checkout
+      - restore-eldev-cache
       - run:
           name: Install Eldev
           command: curl -fsSL https://raw.github.com/doublep/eldev/master/webinstall/circle-eldev > x.sh && source ./x.sh
@@ -18,6 +46,7 @@ commands:
   macos-setup:
     steps:
       - checkout
+      - restore-eldev-cache
       - run:
           name: Install Emacs latest
           command: |
@@ -26,9 +55,33 @@ commands:
           name: Install Eldev
           command: curl -fsSL https://raw.github.com/doublep/eldev/master/webinstall/circle-eldev > x.sh && source ./x.sh
 
+  # On Windows Emacs resolves ~ differently from the shell, so only the
+  # project-local dependency directory is cached there.
+  restore-eldev-cache-windows:
+    steps:
+      - run:
+          name: Compute the cache month
+          command: Get-Date -Format "yyyy-MM" | Out-File -FilePath .cache-month -Encoding ascii
+      - restore_cache:
+          keys:
+            - eldev-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".cache-month" }}-{{ checksum "Eldev" }}-{{ checksum "lisp/cider.el" }}
+            - eldev-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".cache-month" }}-
+      - run:
+          name: Drop the cached project package
+          shell: bash.exe
+          command: rm -rf .eldev/*/local
+
+  save-eldev-cache-windows:
+    steps:
+      - save_cache:
+          key: eldev-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".cache-month" }}-{{ checksum "Eldev" }}-{{ checksum "lisp/cider.el" }}
+          paths:
+            - .eldev
+
   setup-windows:
     steps:
       - checkout
+      - restore-eldev-cache-windows
       - run:
           name: Install Eldev
           command: |
@@ -55,6 +108,7 @@ jobs:
     steps:
       - setup
       - test
+      - save-eldev-cache
 
   test-ubuntu-emacs-29:
     docker:
@@ -63,6 +117,7 @@ jobs:
     steps:
       - setup
       - test
+      - save-eldev-cache
 
   test-ubuntu-emacs-30:
     docker:
@@ -71,6 +126,7 @@ jobs:
     steps:
       - setup
       - test
+      - save-eldev-cache
 
   test-macos-emacs-latest:
     macos:
@@ -78,6 +134,7 @@ jobs:
     steps:
       - macos-setup
       - test
+      - save-eldev-cache
 
   test-windows-emacs-latest:
     executor: win/default
@@ -88,6 +145,7 @@ jobs:
             choco install emacs -y
       - setup-windows
       - test
+      - save-eldev-cache-windows
 
   test-lint:
     docker:
@@ -95,6 +153,7 @@ jobs:
     steps:
       - setup
       - lint
+      - save-eldev-cache
 
 workflows:
   version: 2.1
