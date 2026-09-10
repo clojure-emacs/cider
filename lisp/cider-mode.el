@@ -218,15 +218,16 @@ With a prefix argument, prompt for function to run instead of -main."
     (define-key map (kbd "r") #'cider-insert-region-in-repl)
     (define-key map (kbd "n") #'cider-insert-ns-form-in-repl)
     (define-key map (kbd "c") #'cider-send-defun-to-comment)
-    (define-key map (kbd "v") #'cider-jump-to-comment)
+    (define-key map (kbd "j") #'cider-jump-to-comment)
 
     ;; duplicates with C- for convenience
     (define-key map (kbd "C-e") #'cider-insert-last-sexp-in-repl)
+    (define-key map (kbd "C-v") #'cider-insert-sexp-at-point-in-repl)
     (define-key map (kbd "C-d") #'cider-insert-defun-in-repl)
     (define-key map (kbd "C-r") #'cider-insert-region-in-repl)
     (define-key map (kbd "C-n") #'cider-insert-ns-form-in-repl)
     (define-key map (kbd "C-c") #'cider-send-defun-to-comment)
-    (define-key map (kbd "C-v") #'cider-jump-to-comment)
+    (define-key map (kbd "C-j") #'cider-jump-to-comment)
     map))
 
 ;;;###autoload (autoload 'cider-insert-menu "cider-mode" "Menu for inserting forms into the REPL." t)
@@ -234,19 +235,21 @@ With a prefix argument, prompt for function to run instead of -main."
   "Transient menu for inserting forms into the REPL."
   [["Insert into REPL"
     ("e" "Last sexp" cider-insert-last-sexp-in-repl)
+    ("v" "Sexp at point" cider-insert-sexp-at-point-in-repl)
     ("d" "Defun at point" cider-insert-defun-in-repl)
     ("r" "Region" cider-insert-region-in-repl)
     ("n" "Namespace form" cider-insert-ns-form-in-repl)]
    ["Rich comment"
     ("c" "Send to comment" cider-send-defun-to-comment)
-    ("v" "Jump to comment" cider-jump-to-comment)]]
+    ("j" "Jump to comment" cider-jump-to-comment)]]
   [:hide (lambda () t)
    ("C-e" "Last sexp" cider-insert-last-sexp-in-repl)
+   ("C-v" "Sexp at point" cider-insert-sexp-at-point-in-repl)
    ("C-d" "Defun at point" cider-insert-defun-in-repl)
    ("C-r" "Region" cider-insert-region-in-repl)
    ("C-n" "Namespace form" cider-insert-ns-form-in-repl)
    ("C-c" "Send to comment" cider-send-defun-to-comment)
-   ("C-v" "Jump to comment" cider-jump-to-comment)])
+   ("C-j" "Jump to comment" cider-jump-to-comment)])
 
 (defcustom cider-switch-to-repl-on-insert t
   "Whether to switch to the REPL when inserting a form into the REPL."
