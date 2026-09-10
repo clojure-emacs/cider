@@ -466,6 +466,11 @@ xref:basics/remote.adoc[Remote Development] and
 `cider-infer-remote-nrepl-ports` if you want CIDER to look for ports over
 SSH.
 
+When none of the sources turns anything up, the prompt falls back to
+`cider-default-nrepl-port` (`"7888"` by default). If you always start your
+servers on some other port, set that variable and a bare kbd:[RET] at the
+prompt will do.
+
 If you frequently connect to the same hosts and ports, you can tell
 CIDER about them and it will use the information to do completing
 reads for the host and port prompts when you invoke
