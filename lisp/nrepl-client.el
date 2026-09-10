@@ -1356,7 +1356,7 @@ up."
                          (when published
                            (message "[nREPL] Container port %s is published on localhost:%s; connecting there" port published))
                          (message "[nREPL] server started on %s" (or published port))
-                         (list :host host :port (or published port)))))))
+                         (list :host host :port (nrepl--normalize-port (or published port))))))))
             (when end
               (setq nrepl-endpoint end)
               (nrepl--process-plist-put process :nrepl-server-ready t)
