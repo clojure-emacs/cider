@@ -27,11 +27,14 @@ SECTION_RE = re.compile(r"^=+\s+(.+?)\s*$", re.MULTILINE)
 
 
 def section_id(title):
-    """Approximate Asciidoctor's auto id for TITLE (idprefix `_', idseparator `_')."""
+    """Approximate the auto id for TITLE the way the site builds it.
+
+    The playbook sets idprefix to the empty string and idseparator to `-',
+    so a section titled "Up and Running" gets the id `up-and-running'.
+    """
     title = re.sub(r"`|\*|_(?=\w)|(?<=\w)_", "", title)  # strip inline formatting marks
     title = re.sub(r"kbd:\[([^\]]*)\]", r"\1", title)
-    slug = re.sub(r"[^a-z0-9]+", "_", title.lower()).strip("_")
-    return "_" + slug
+    return re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
 
 
 def anchors_in(path):
