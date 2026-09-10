@@ -7,8 +7,8 @@ those values for you: kbd:[M-x] `cider-tap` opens a `+*cider-tap*+` buffer that
 streams every value sent to `tap>`.
 
 Any `+(tap> some-value)+` in your code shows up in that buffer as it happens, as
-does anything you tap from the xref:inspector.adoc[inspector]. The buffer follows
-the tail, so the newest value is always in view.
+does anything you tap from the xref:debugging/inspector.adoc[inspector]. The
+buffer follows the tail, so the newest value is always in view.
 
 image::cider-tap-buffer.png[The cider-tap buffer streaming tapped values]
 

@@ -99,15 +99,17 @@ That's CIDER's way of representing the request (marked with `+-->+`) and respons
 nREPL message logging is not enabled by default. Set `nrepl-log-messages` to `t`
 to activate it. Alternatively you can use kbd:[M-x]
 `nrepl-toggle-message-logging` to enable/disable logging temporarily within your
-current Emacs session. Note that enabling message logging can impact
-performance.
+current Emacs session (the "Log protocol messages" entry in the nREPL menu does
+the same and shows whether logging is currently on). Note that enabling message
+logging can impact performance.
 
 You can find the message log in the `+*nrepl-messages repl-info*+` buffer,
 provided you've enabled nREPL message logging. There's going to be one buffer
 per each active REPL.
 
 TIP: You can jump quickly to the relevant messages buffer by pressing
-kbd:[C-c M-s m].
+kbd:[C-c M-s m], or via "Show nREPL messages" in the nREPL menu. When logging
+is off, `nrepl-show-messages` offers to turn it on for you.
 
 == Commonly encountered problems (and how to solve them)
 
@@ -131,8 +133,9 @@ you can step forward until you find the problem.
 nREPL message logging is not enabled by default. Set `nrepl-log-messages` to `t`
 to activate it. Alternatively you can use kbd:[M-x]
 `nrepl-toggle-message-logging` to enable/disable logging temporarily within your
-current Emacs session. Note that enabling message logging can impact
-performance.
+current Emacs session, or just run kbd:[M-x] `nrepl-show-messages`, which
+offers to enable logging when it's off. Note that enabling message logging can
+impact performance.
 
 === `cider-debug` complains that it "`failed to instrument ...`"
 
