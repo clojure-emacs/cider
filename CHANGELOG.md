@@ -18,6 +18,7 @@
 - [#4143](https://github.com/clojure-emacs/cider/pull/4143): Highlight the `#break`/`#dbg`/`#light` debugging reader tags in `clojure-ts-mode` buffers too.
 - [#4117](https://github.com/clojure-emacs/cider/pull/4117): Add `cider-use-completing-read-for-symbol` (off by default): when enabled, symbol prompts (e.g. `cider-doc`, `cider-find-var`) read through `completing-read` over a lazy, runtime-backed collection, so they work with `completing-read` UIs (Vertico, Ivy, Helm) and annotate candidates with their type and namespace; `cider-completion-symbol-prompt-min-length` (default 2) sets how much you type before the runtime is queried.
 - [#4129](https://github.com/clojure-emacs/cider/pull/4129): Render completion annotations as an aligned type/namespace column (via an `affixation-function`) in UIs that support it, such as the built-in `*Completions*`, Corfu and Vertico.
+- [#3839](https://github.com/clojure-emacs/cider/pull/3839): Add jack-in support for ClojureCLR.
 
 ### Changes
 

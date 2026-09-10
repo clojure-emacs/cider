@@ -64,19 +64,6 @@ loaded. As a workaround remove
 
 from your Emacs config.
 
-== ClojureCLR Support
-
-CIDER currently has very basic support for ClojureCLR (via Arcadia's nREPL server). The reasons for this are the following:
-
-* nREPL itself runs only on the JVM (because it leverages Java APIs
-internally). There's an
-https://github.com/clojure/clr.tools.nrepl[nREPL port for ClojureCLR], but
-it's not actively maintained and it doesn't behave like the Clojure nREPL.
-* `cider-nrepl` uses a lot of Java code internally itself.
-
-Those issues are not insurmountable, but are beyond the scope of our current roadmap.
-If someone would like to tackle them, we'd be happy to provide assistance.
-
 == Injecting dependencies and Leiningen pedantic: abort mode
 
 Because injection currently creates an override of the nREPL dependency that

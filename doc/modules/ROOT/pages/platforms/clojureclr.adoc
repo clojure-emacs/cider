@@ -2,27 +2,30 @@
 
 == Current Status
 
-ClojureCLR on CIDER is not great due to the lack of a fully-functional nREPL
-server for ClojureCLR. There are currently two options:
+You will get basic CIDER functionality with ClojureCLR. Two nREPL server options:
 
-- https://github.com/clojure/clr.tools.nrepl[clr.tools.nrepl]: A direct (but incomplete) port of the reference Clojure nREPL server.
-- https://github.com/arcadia-unity/Arcadia/blob/master/Editor/NRepl.cs[Arcadia's nREPL]: A basic, but working nREPL implementation in C#.
+- https://github.com/clojure/clr.tools.nrepl[clr.tools.nrepl]: currently a port of https://github.com/babashka/babashka.nrepl[babashka.nrepl] to ClojureCLR.
+- https://github.com/clojure/clr.tools.nrepl/tree/master/partial-nrepl-nrepl-port[port of nrepl/nrepl]: A non-working, work-in-progress port of nrepl/nrepl, which may
+  ultimately better integrate with CIDER once CIDER's middleware (cider-nrepl) is also adapted/ported.
 
-If you need to use CIDER with ClojureCLR today Arcadia's nREPL is your only usable option. That being said - `clr.tools.nrepl` is a much
-more sophisticated project and ideally we should get it over to the finish line.
+CIDER's support is basic because `cider-nrepl`, the middleware behind most of
+CIDER's features, uses a lot of Java internally and would need to be ported to
+ClojureCLR like any other Clojure library.
+
+Alternatives to using CIDER with ClojureCLR include https://github.com/clojure-emacs/inf-clojure[inf-clojure] and https://github.com/nrepl/neat[neat].
 
 == Usage
 
 NOTE: Contributions welcome!
 
-As `cider-jack-in` doesn't support ClojureCLR projects out-of-the-box currently, you'll need to start an nREPL server externally and
-connect to it with `cider-connect`.
+`cider-jack-in-universal` will jack into a clr.tools.nrepl server as long as a `deps-clr.edn` file
+exists in the project directory, otherwise you may call `cider-jack-in-universal` with prefix
+argument 6, by either `M-6` or `C-u 6` followed by `M-x cider-jack-in-universal`.
 
 == Plans
 
 In an ideal world we'll achieve the following objectives:
 
-- out-of-the-box ClojureCLR support with `cider-jack-in`
 - feature parity between Clojure's nREPL implementation and `clr.tools.nrepl` (the project can use some help)
 - adapting `cider-nrepl` for ClojureCLR (some of its codebase is JVM-specific)
 
