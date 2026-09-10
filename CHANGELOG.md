@@ -30,6 +30,7 @@
 
 ### Bugs fixed
 
+- [#4188](https://github.com/clojure-emacs/cider/pull/4188): Fix the `cider-connect` port suggestions taken from open REPL buffers coming out with a quoted port (`proj:"1234"`) and being silently discarded.
 - [#4180](https://github.com/clojure-emacs/cider/pull/4180): Accept a `:port` given as a number, not just a string, in `cider-connect` and friends: the two spellings are now stored the same way, so a connection made with one is recognized when looked up with the other.
 - [#4172](https://github.com/clojure-emacs/cider/pull/4172): Stop treating the text of a line comment as code: with point in or after a comment, `cider-eval-last-sexp` and friends now target the form preceding the comment, and the in-place macroexpansion commands no longer overwrite the comment with an expansion.
 - [#4158](https://github.com/clojure-emacs/cider/pull/4158): Detect running `lein trampoline` REPLs in `cider-connect`'s port suggestions (the trampolined JVM has no "leiningen" marker for the process scan to find), and don't miss REPLs running without a controlling terminal.
