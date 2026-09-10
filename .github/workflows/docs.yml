@@ -1,0 +1,27 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'doc/**'
+      - 'scripts/check-docs-xrefs.py'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    paths:
+      - 'doc/**'
+      - 'scripts/check-docs-xrefs.py'
+      - '.github/workflows/docs.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  xrefs:
+    name: Check cross-references and images
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - run: python3 scripts/check-docs-xrefs.py
