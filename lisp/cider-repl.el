@@ -918,6 +918,24 @@ Clear the part where `cider-repl-buffer-size-limit' is exceeded."
   (when (> (buffer-size) cider-repl-buffer-size-limit)
     (cider-repl-trim-top-of-buffer buffer)))
 
+(defvar cider-repl-mode-syntax-table
+  (copy-syntax-table clojure-mode-syntax-table))
+
+(defvar cider-repl--output-syntax-table
+  (let ((table (make-syntax-table cider-repl-mode-syntax-table)))
+    ;; Turn every delimiter - parens, string quotes, comment starters,
+    ;; escapes and their generic variants - into punctuation, leaving words,
+    ;; symbols and whitespace as they are.
+    (map-char-table (lambda (range syntax)
+                      (when (memq (syntax-class syntax) '(4 5 7 8 9 10 11 14 15))
+                        (modify-syntax-entry range "." table)))
+                    cider-repl-mode-syntax-table)
+    table)
+  "Syntax table for REPL output, with every delimiter demoted to punctuation.
+Attached to output via the `syntax-table' text property (see #3102), so
+unbalanced parens or quotes in it can't confuse the sexp scanner, while word
+motion and isearch keep working on the rest (see #4154).")
+
 (defun cider-repl--emit-output (buffer string face)
   "Using BUFFER, emit STRING as output font-locked using FACE.
 Before inserting, run `cider-repl-preoutput-hook' on STRING."
@@ -929,13 +947,14 @@ Before inserting, run `cider-repl-preoutput-hook' on STRING."
                                  'font-lock-face face
                                  'rear-nonsticky '(font-lock-face)))
         (setq string (cider-run-chained-hook 'cider-repl-preoutput-hook string))
-        ;; #3102: give output punctuation syntax so unbalanced parens, brackets
-        ;; or quotes in it don't break sexp navigation or paredit in the REPL.
-        ;; Applied after the preoutput hooks (e.g. ANSI coloring) so it survives
-        ;; on the final string.  Relies on `parse-sexp-lookup-properties', set
-        ;; in `cider-repl-mode'.
+        ;; #3102: give output a syntax table where delimiters are punctuation,
+        ;; so unbalanced parens, brackets or quotes in it don't break sexp
+        ;; navigation or paredit in the REPL.  Applied after the preoutput hooks
+        ;; (e.g. ANSI coloring) so it survives on the final string.  Relies on
+        ;; `parse-sexp-lookup-properties', set in `cider-repl-mode'.
         (add-text-properties 0 (length string)
-                             '(syntax-table (1) rear-nonsticky (font-lock-face syntax-table))
+                             `(syntax-table ,cider-repl--output-syntax-table
+                               rear-nonsticky (font-lock-face syntax-table))
                              string)
         (insert-before-markers string))
       (when (and (= (point) cider-repl-prompt-start-mark)
@@ -2164,9 +2183,6 @@ the history file is rewritten if `cider-repl-history-file' is set."
 (defvar cider-repl-mode-hook nil
   "Hook executed when entering `cider-repl-mode'.")
 
-(defvar cider-repl-mode-syntax-table
-  (copy-syntax-table clojure-mode-syntax-table))
-
 (defconst cider-repl--prettify-symbols-alist
   '(("fn" . ?λ))
   "Alist used to seed `prettify-symbols-alist' in the REPL buffer.")
@@ -2356,6 +2372,9 @@ the history file is rewritten if `cider-repl-history-file' is set."
   ;; #3102: honor the `syntax-table' text property that `cider-repl--emit-output'
   ;; puts on output, so unbalanced parens in output don't break sexp commands.
   (setq-local parse-sexp-lookup-properties t)
+  ;; ...but don't let it travel with text yanked from output into the input,
+  ;; where the parens have to count again for `cider-repl--input-complete-p'.
+  (setq-local yank-excluded-properties (cons 'syntax-table yank-excluded-properties))
   (cider-eldoc-setup)
   ;; At the REPL, we define beginning-of-defun and end-of-defun to be
   ;; the start of the previous prompt or next prompt respectively.

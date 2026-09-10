@@ -245,10 +245,47 @@
       (cider-repl-reset-markers)
       (cider-repl--emit-output (current-buffer) ")))))" 'cider-repl-stdout-face)
       ;; the output parens carry punctuation syntax, not close-paren syntax
-      (expect (get-text-property (point-min) 'syntax-table)
-              :to-equal (string-to-syntax "."))
+      (expect (syntax-after (point-min)) :to-equal (string-to-syntax "."))
       ;; so scanning backwards across them no longer raises a scan-error
-      (expect (ignore-errors (scan-sexps (point-max) -1) t) :to-be-truthy))))
+      (expect (ignore-errors (scan-sexps (point-max) -1) t) :to-be-truthy)))
+
+  (it "neutralizes non-ASCII delimiters too"
+    (with-temp-buffer
+      (clojure-mode)
+      (setq-local parse-sexp-lookup-properties t)
+      (cider-repl-reset-markers)
+      (cider-repl--emit-output (current-buffer) "oops）「x" 'cider-repl-stdout-face)
+      (expect (syntax-after 5) :to-equal (string-to-syntax "."))
+      (expect (syntax-after 6) :to-equal (string-to-syntax "."))))
+
+  (it "neutralizes only the delimiters, so word motion still works in output (#4154)"
+    (with-temp-buffer
+      (clojure-mode)
+      (setq-local parse-sexp-lookup-properties t)
+      (cider-repl-reset-markers)
+      (cider-repl--emit-output (current-buffer) "FAIL in (foo-test) (core_test.clj:1)"
+                               'cider-repl-stdout-face)
+      ;; the parens are punctuation, the words keep their word syntax
+      (expect (syntax-after 9) :to-equal (string-to-syntax "."))
+      (expect (syntax-after (point-min)) :to-equal (string-to-syntax "w"))
+      (goto-char (point-min))
+      (forward-word)
+      (expect (point) :to-equal 5)      ; after "FAIL"
+      (forward-word)
+      (expect (point) :to-equal 8)))    ; after "in", not the end of the output
+
+  (it "doesn't carry the neutralized syntax over to text yanked from output"
+    (with-temp-buffer
+      (cider-repl-mode)
+      (cider-repl-reset-markers)
+      (cider-repl--emit-output (current-buffer) "(foo bar" 'cider-repl-stdout-face)
+      (kill-new (buffer-substring (point-min) (point-max)))
+      (goto-char (point-max))
+      (let ((yank-start (point)))
+        (yank)
+        ;; the yanked paren counts again
+        (expect (get-text-property yank-start 'syntax-table) :to-be nil)
+        (expect (syntax-class (syntax-after yank-start)) :to-equal 4)))))
 
 (describe "cider-repl-emit-result with streamed (chunked) values"
   (it "font-locks a value streamed in several chunks as one whole form"
