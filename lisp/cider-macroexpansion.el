@@ -319,14 +319,17 @@ buffer's key bindings."
   (let ((map (define-prefix-command 'cider-macroexpand-map)))
     (define-key map (kbd "1") #'cider-macroexpand-1)
     (define-key map (kbd "a") #'cider-macroexpand-all)
+    (define-key map (kbd "v") #'cider-macroexpand-1-at-point)
+    (define-key map (kbd "V") #'cider-macroexpand-all-at-point)
     (define-key map (kbd "e") #'cider-macrostep-expand)
     (define-key map (kbd "E") #'cider-macrostep-expand-all)
     (define-key map (kbd "b") #'cider-macrostep-expand-in-buffer)
     map)
   "CIDER macroexpansion keymap, grouping the form-expanding commands.
-Keys 1 and a open the macroexpansion buffer on one level or the full expansion;
-e and E expand inline (a single step, or all the way) via `cider-macrostep'; b
-runs an inline-style stepping session in a dedicated popup buffer.")
+Keys 1 and a open the macroexpansion buffer on one level or the full
+expansion; v and V do the same for the call at point; e and E expand inline
+\(a single step, or all the way) via `cider-macrostep'; b runs an inline-style
+stepping session in a dedicated popup buffer.")
 
 (defun cider-macroexpand-menu--read-display-ns (prompt initial-input history)
   "Read a namespace-display style for the macroexpand transient.

@@ -707,7 +707,7 @@ self-documenting record of what you tried:
   )
 ----
 
-To visit the block itself, use `cider-jump-to-comment` (kbd:[C-c C-j v]). It
+To visit the block itself, use `cider-jump-to-comment` (kbd:[C-c C-j j]). It
 moves point into the last `comment` form (creating an empty one when there is
 none), pushing your previous location onto the mark ring so kbd:[C-u C-SPC]
 takes you back.
@@ -771,10 +771,18 @@ kbd:[C-c C-v C-q]
 | kbd:[C-u C-c M-p]
 | Load the form preceding point in the REPL buffer and eval.
 
+| `cider-insert-sexp-at-point-in-repl`
+| kbd:[C-c C-j v]
+| Copy the form at point into the REPL buffer; with a prefix argument, evaluate it there too.
+
 | `cider-pprint-eval-last-sexp`
 | kbd:[C-c C-p] +
 kbd:[C-c C-v C-f e]
 | Evaluate the form preceding point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.
+
+| `cider-pprint-eval-sexp-at-point`
+| kbd:[C-c C-v C-f v]
+| Evaluate the form at point and pretty-print the result in a popup buffer. If invoked with a prefix argument, insert the result into the current buffer as a comment.
 
 | `cider-pprint-eval-defun-at-point`
 | kbd:[C-c C-v C-f d]

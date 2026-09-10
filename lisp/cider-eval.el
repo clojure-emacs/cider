@@ -1487,6 +1487,7 @@ passing arguments."
   (let ((map (define-prefix-command 'cider-eval-pprint-commands-map)))
     ;; single key bindings defined last for display in menu
     (define-key map (kbd "e") #'cider-pprint-eval-last-sexp)
+    (define-key map (kbd "v") #'cider-pprint-eval-sexp-at-point)
     (define-key map (kbd "d") #'cider-pprint-eval-defun-at-point)
     (define-key map (kbd "c e") #'cider-pprint-eval-last-sexp-to-comment)
     (define-key map (kbd "c d") #'cider-pprint-eval-defun-to-comment)
@@ -1494,6 +1495,7 @@ passing arguments."
 
     ;; duplicates with C- for convenience
     (define-key map (kbd "C-e") #'cider-pprint-eval-last-sexp)
+    (define-key map (kbd "C-v") #'cider-pprint-eval-sexp-at-point)
     (define-key map (kbd "C-d") #'cider-pprint-eval-defun-at-point)
     (define-key map (kbd "C-c e") #'cider-pprint-eval-last-sexp-to-comment)
     (define-key map (kbd "C-c C-e") #'cider-pprint-eval-last-sexp-to-comment)
@@ -1632,6 +1634,7 @@ zprint, or a custom var) for this invocation only."
     ("r" "REPL (last sexp)" cider-eval-pprint-menu--last-sexp-to-repl)]]
   [:hide (lambda () t)
    ("C-e" "Last sexp" cider-eval-pprint-menu--last-sexp)
+   ("C-v" "Sexp at point" cider-eval-pprint-menu--sexp-at-point)
    ("C-d" "Defun at point" cider-eval-pprint-menu--defun)])
 
 ;;;###autoload (autoload 'cider-eval-menu "cider-eval" "Menu for CIDER's evaluation commands." t)

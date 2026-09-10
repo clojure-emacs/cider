@@ -133,6 +133,10 @@ you don't have to memorize the suffixes.  See xref:basics/up_and_running.adoc[Up
 | `cider-pprint-eval-defun-at-point`
 | Evaluate the top-level form and pretty-print the result in a popup.
 
+| kbd:[C-c C-v C-f v]
+| `cider-pprint-eval-sexp-at-point`
+| Evaluate the form at point and pretty-print the result in a popup.
+
 | kbd:[C-c M-;]
 | `cider-eval-defun-to-comment`
 | Evaluate the top-level form and insert the result as a comment.
@@ -144,6 +148,10 @@ you don't have to memorize the suffixes.  See xref:basics/up_and_running.adoc[Up
 | kbd:[C-c M-i]
 | `cider-inspect`
 | Evaluate an expression and open the result in the xref:debugging/inspector.adoc[inspector].
+
+| kbd:[C-c C-i]
+| `cider-inspect-menu`
+| Open a menu listing every way to start an inspection (last sexp, sexp at point, defun, last result, or an expression you type).
 |===
 
 TIP: See xref:usage/code_evaluation.adoc[Code Evaluation] for the evaluation
@@ -292,6 +300,14 @@ are its suffixes, so kbd:[C-c M-m a] means "open the menu, then press kbd:[a]".
 | `cider-macroexpand-all`
 | Fully expand the macro call at point.
 
+| kbd:[C-c M-m v]
+| `cider-macroexpand-1-at-point`
+| Expand the call at point once, without moving point after it first.
+
+| kbd:[C-c M-m V]
+| `cider-macroexpand-all-at-point`
+| Fully expand the call at point.
+
 | kbd:[C-c M-m e]
 | `cider-macrostep-expand`
 | Step through the expansion inline in the source buffer (requires `macrostep`).
@@ -416,11 +432,15 @@ TIP: See xref:debugging/debugger.adoc[Debugger] and xref:debugging/tracing.adoc[
 | `cider-insert-last-sexp-in-repl`
 | Copy the form preceding point into the REPL prompt.
 
+| kbd:[C-c C-j v]
+| `cider-insert-sexp-at-point-in-repl`
+| Copy the form at point into the REPL prompt.
+
 | kbd:[C-c C-j c]
 | `cider-send-defun-to-comment`
 | Copy the top-level form into the namespace's rich `comment` block.
 
-| kbd:[C-c C-j v]
+| kbd:[C-c C-j j]
 | `cider-jump-to-comment`
 | Move point into the namespace's rich `comment` block.
 

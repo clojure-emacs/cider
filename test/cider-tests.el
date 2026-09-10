@@ -61,6 +61,36 @@
                    cider-inspect-expr))
       (expect (commandp cmd) :to-be-truthy))))
 
+(describe "the at-point variants in the prefix keymaps"
+  (it "sit on v, like cider-eval-sexp-at-point does"
+    (expect (lookup-key cider-eval-commands-map (kbd "v")) :to-be 'cider-eval-sexp-at-point)
+    (expect (lookup-key cider-eval-pprint-commands-map (kbd "v")) :to-be 'cider-pprint-eval-sexp-at-point)
+    (expect (lookup-key cider-eval-pprint-commands-map (kbd "C-v")) :to-be 'cider-pprint-eval-sexp-at-point)
+    (expect (lookup-key cider-insert-commands-map (kbd "v")) :to-be 'cider-insert-sexp-at-point-in-repl)
+    (expect (lookup-key cider-insert-commands-map (kbd "C-v")) :to-be 'cider-insert-sexp-at-point-in-repl)
+    (expect (lookup-key cider-macroexpand-map (kbd "v")) :to-be 'cider-macroexpand-1-at-point)
+    (expect (lookup-key cider-macroexpand-map (kbd "V")) :to-be 'cider-macroexpand-all-at-point))
+
+  (it "moved cider-jump-to-comment to j to make room"
+    (expect (lookup-key cider-insert-commands-map (kbd "j")) :to-be 'cider-jump-to-comment)
+    (expect (lookup-key cider-insert-commands-map (kbd "C-j")) :to-be 'cider-jump-to-comment))
+
+  (it "is mirrored by the transient menus"
+    (cl-flet ((command-at (prefix key)
+                ;; `transient-get-suffix' returns the layout spec, whose
+                ;; shape differs between transient versions: the plist
+                ;; holding :command is either spliced into the spec or
+                ;; nested as its own element, so search it flattened.
+                (let ((suffix (transient-get-suffix prefix key)))
+                  (if (eieio-object-p suffix)
+                      (oref suffix command)
+                    (cadr (memq :command (flatten-tree suffix)))))))
+      (dolist (pair '((cider-insert-menu . cider-insert-sexp-at-point-in-repl)
+                      (cider-eval-pprint-menu . cider-eval-pprint-menu--sexp-at-point)
+                      (cider-macroexpand-menu . cider-macroexpand-menu--expand-1-at-point)))
+        (expect (command-at (car pair) "v") :to-be (cdr pair)))
+      (expect (command-at 'cider-insert-menu "j") :to-be 'cider-jump-to-comment))))
+
 (describe "customize-menu"
   (it "opens without error"
     (let ((inhibit-message t)) (customize-group 'cider))))

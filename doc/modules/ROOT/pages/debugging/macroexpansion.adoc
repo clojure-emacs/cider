@@ -4,7 +4,7 @@
 Typing kbd:[C-c C-m] after some form in a source buffer or the REPL will show
 you the `macroexpand-1` expansion of the form in a new buffer.
 
-kbd:[C-c M-m] is a prefix map (`cider-macroexpand-map`) gathering all of CIDER's
+kbd:[C-c M-m] opens a menu (`cider-macroexpand-menu`) gathering all of CIDER's
 form-expanding commands:
 
 [cols="1,3"]
@@ -76,7 +76,8 @@ macroexpansion buffer.
 
 [TIP]
 ====
-Prefer kbd:[C-c C-m] as the prefix instead? Point it at the same map:
+Prefer kbd:[C-c C-m] as the prefix instead? Point it at `cider-macroexpand-map`,
+a plain keymap with the same keys as the menu:
 
 [source,lisp]
 ----
