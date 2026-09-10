@@ -576,8 +576,10 @@ is included in the request if non-nil."
                          (map-pairs)
                          (seq-mapcat #'identity)
                          (apply #'nrepl-dict))))
+    ;; An empty list is nREPL's spelling of false here; nil would drop
+    ;; the key and leave streaming to the session's default.
     `("nrepl.middleware.print/print" "cider.nrepl.pprint/pr"
-      "nrepl.middleware.print/stream?" nil
+      "nrepl.middleware.print/stream?" []
       ,@(unless (nrepl-dict-empty-p print-options)
           `("nrepl.middleware.print/options" ,print-options))
       ,@(when cider-print-quota

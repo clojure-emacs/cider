@@ -327,6 +327,18 @@
       (expect (length calls) :to-equal 2)
       (expect (nth 0 calls) :to-equal (nth 1 calls)))))
 
+(describe "nrepl-send-request"
+  (it "omits nil-valued keys from the message it sends (#2854)"
+    (spy-on 'process-send-string)
+    (with-temp-buffer
+      (setq-local nrepl-pending-requests (make-hash-table :test 'equal))
+      (nrepl-send-request '("op" "eval" "code" "1" "ns" nil) #'ignore (current-buffer))
+      (let ((sent (cadr (spy-calls-args-for 'process-send-string 0))))
+        (expect sent :to-match "2:op4:eval")
+        (expect sent :to-match "4:code1:1")
+        (expect sent :to-match "2:id")
+        (expect sent :not :to-match "2:ns")))))
+
 (describe "nrepl-send-sync-request"
   (it "delegates to nrepl-sync-request with positional args mapped to keywords"
     (let (captured)

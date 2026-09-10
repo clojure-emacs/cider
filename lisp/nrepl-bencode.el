@@ -221,22 +221,30 @@ According to the Bittorrent protocol specification[1], when bencoding
 dictionaries, keys must be strings and appear in sorted order (sorted as
 raw strings, not alphanumerics).
 
+Entries whose value is nil are left out: bencode has no nil, and an
+absent key is how the protocol says \"not set\".  Pass an empty vector
+when an empty list is really meant.
+
 [1] https://www.bittorrent.org/beps/bep_0003.html#bencoding"
   (mapconcat (lambda (k)
-               (concat (nrepl-bencode k)
-                       (nrepl-bencode (nrepl-dict-get dict k))))
+               (let ((v (nrepl-dict-get dict k)))
+                 (if v
+                     (concat (nrepl-bencode k) (nrepl-bencode v))
+                   "")))
              (sort (nrepl-dict-keys dict) #'string<)
              ""))
 
 (defun nrepl-bencode (object)
   "Encode OBJECT with bencode.
-Integers, lists and nrepl-dicts are treated according to bencode
-specification.  Everything else is coerced to a string via `format' and
-encoded as such."
+Integers, lists, vectors and nrepl-dicts are treated according to bencode
+specification (vectors encode as lists, so [] is the way to spell an empty
+list where nil would be dropped from a dict).  Everything else is coerced
+to a string via `format' and encoded as such."
   (cond
    ((integerp object) (format "i%de" object))
    ((nrepl-dict-p object) (format "d%se" (nrepl--bencode-dict object)))
-   ((listp object) (format "l%se" (mapconcat #'nrepl-bencode object "")))
+   ((or (listp object) (vectorp object))
+    (format "l%se" (mapconcat #'nrepl-bencode object "")))
    (t (let ((s (if (stringp object) object (format "%s" object))))
         (format "%s:%s" (string-bytes s) s)))))
 
