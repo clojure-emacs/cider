@@ -72,6 +72,14 @@ jobs:
       - setup
       - test
 
+  test-ubuntu-emacs-31:
+    docker:
+      - image: silex/emacs:31-ci
+        entrypoint: bash
+    steps:
+      - setup
+      - test
+
   test-macos-emacs-latest:
     macos:
       xcode: "16.4.0"
@@ -108,6 +116,9 @@ workflows:
           requires:
             - test-lint
       - test-ubuntu-emacs-30:
+          requires:
+            - test-lint
+      - test-ubuntu-emacs-31:
           requires:
             - test-lint
       - test-windows-emacs-latest:
