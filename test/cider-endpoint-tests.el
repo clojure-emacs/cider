@@ -41,6 +41,22 @@
     (expect (cider-locate-running-nrepl-ports "from-dir")
             :to-equal '(("from-dir" "4567") ("lein" "1234") ("local" "2345") ("non-lein" "3456")))))
 
+(describe "cider--running-local-nrepl-paths"
+  (it "offers the port of an open REPL buffer as a plain string"
+    (spy-on 'cider--gather-connect-params
+            :and-return-value '(:project-dir "/proj/" :host "localhost" :port "2345"))
+    (with-current-buffer (get-buffer-create "*cider-repl fake*")
+      (unwind-protect
+          (expect (cider--running-local-nrepl-paths) :to-equal '(("/proj/" "2345")))
+        (kill-buffer))))
+  (it "stringifies a numeric port"
+    (spy-on 'cider--gather-connect-params
+            :and-return-value '(:project-dir "/proj/" :host "localhost" :port 2345))
+    (with-current-buffer (get-buffer-create "*cider-repl fake*")
+      (unwind-protect
+          (expect (cider--running-local-nrepl-paths) :to-equal '(("/proj/" "2345")))
+        (kill-buffer)))))
+
 (describe "cider--running-nrepl-paths cache"
   (before-each
     (cider-clear-running-nrepl-paths-cache)
