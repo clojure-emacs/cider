@@ -34,7 +34,8 @@
                                     (eldev-pcase-exhaustive cider-test-type
                                                             (`main            "./test/*/")
                                                             (`integration     '("./test/"   "!./test/integration"))
-                                                            (`clojure-ts-mode '("./test/*/" "!./test/clojure-ts-mode"))
+                                                            ;; Only the tree-sitter specs; the main suite has its own run.
+                                                            (`clojure-ts-mode '("./test/*.el" "./test/*/" "!./test/clojure-ts-mode"))
                                                             (`all             '("./test/*/" "!./test/integration")))
                                     "test/integration/projects"
                                     ;; This file is _supposed_ to be excluded
