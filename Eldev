@@ -91,6 +91,22 @@
 ;; CIDER cannot be compiled otherwise.
 (setf eldev-build-load-before-byte-compiling t)
 
+;; Emacs 31 stamps source positions onto compiler-macro expansions in place
+;; (`macroexp--posify-form'), which corrupts the stored inline body of any
+;; argument-less `cl-defsubst' - `queue-create' is the one that bites us -
+;; once something calling it has been byte-compiled in this process.  In
+;; packaged mode Eldev compiles CIDER right before loading the specs, so the
+;; first test run after a source change failed 9 specs with
+;; `invalid-function cl-block' (Emacs bug#79599).  Upstream added this switch
+;; for exactly that kind of trouble; the only cost is less precise positions
+;; in byte-compile warnings.
+(setq macroexp-enable-preserve-posification nil)
+
+;; On macOS bsdtar stores extended attributes as `._*' AppleDouble entries,
+;; and Eldev's packaged copy of the project would then get a hundred of them
+;; byte-compiled as Lisp.
+(setenv "COPYFILE_DISABLE" "1")
+
 ;; package-lint is disabled because nrepl-*.el files intentionally use
 ;; the `nrepl-' prefix instead of the `cider-' package prefix.
 ;; `doc' is the linter's canonical name; `checkdoc' is only a command-line
