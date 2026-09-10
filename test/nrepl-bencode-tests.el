@@ -377,11 +377,20 @@ If object is incomplete, return a decoded path."
             :to-equal "d3:cowd3:bar3:baz3:foo6:foobare4:spam4:eggse")
     (expect (nrepl-bencode '(dict)) :to-equal "de"))
 
-  (it "handles nils"
-    (expect (nrepl-bencode '("" nil (dict "" nil)))
-            :to-equal "l0:led0:leee")
-    (expect (nrepl-bencode '("" nil (dict "cow" nil "" 6)))
-            :to-equal "l0:led0:i6e3:cowleee"))
+  (it "encodes vectors as lists"
+    (expect (nrepl-bencode []) :to-equal "le")
+    (expect (nrepl-bencode ["spam" 1]) :to-equal "l4:spami1ee"))
+
+  (it "encodes a nil list element as an empty list"
+    (expect (nrepl-bencode '("" nil)) :to-equal "l0:lee"))
+
+  (it "leaves nil-valued dict entries out, at any depth (#2854)"
+    (expect (nrepl-bencode '(dict "" nil)) :to-equal "de")
+    (expect (nrepl-bencode '(dict "cow" nil "" 6)) :to-equal "d0:i6ee")
+    (expect (nrepl-bencode '(dict "opts" (dict "length" nil "level" 2) "ns" nil "op" "eval"))
+            :to-equal "d2:op4:eval4:optsd5:leveli2eee")
+    ;; an empty vector is the explicit spelling of an empty list
+    (expect (nrepl-bencode '(dict "stream?" [])) :to-equal "d7:stream?lee"))
 
   (it "coerces non-string scalars via `format'"
     ;; The fallback branch used to crash on anything that wasn't a
