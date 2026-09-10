@@ -33,7 +33,7 @@ jobs:
       matrix:
         # Test all Emacs versions on Ubuntu.
         os: [ubuntu-latest]
-        emacs_version: ['28.2', '29.3', '30.1', '30.2']
+        emacs_version: ['28.2', '29.4', '30.1', '30.2']
         java_version: ['21']
         include:
           # For other OSes, test only the latest stable Emacs version.
@@ -65,7 +65,7 @@ jobs:
     # instead.
     - name: Setup Scoop and GPG on Windows
       if: startsWith (matrix.os, 'windows')
-      uses: MinoruSekine/setup-scoop@v4.0.2
+      uses: MinoruSekine/setup-scoop@v5.0.1
       with:
         apps: gpg
         scoop_update: false
@@ -100,23 +100,23 @@ jobs:
         java-version: ${{matrix.java_version}}
 
     - name: Install Clojure Tools
-      uses: DeLaGuardo/setup-clojure@13.5.2
+      uses: DeLaGuardo/setup-clojure@13.7.0
       with:
-        bb: '1.12.214'
-        cli: '1.12.4.1597'
+        bb: '1.13.220'
+        cli: '1.12.6.1673'
         lein: '2.12.0'
 
     - uses: actions/setup-node@v6
       with:
         node-version: 22
-    - run: npm install shadow-cljs@2.28.23 -g
-    - run: npm install nbb@1.4.206 -g
+    - run: npm install shadow-cljs@3.5.0 -g
+    - run: npm install nbb@1.5.212 -g
 
     - uses: actions/setup-python@v6
       with:
         python-version: '3.12'
     - run: |
-        pip install basilisp==0.5.0
+        pip install basilisp==0.5.1
 
     - name: Test integration
       run: |
