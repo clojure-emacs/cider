@@ -8,10 +8,9 @@ You will get basic CIDER functionality with ClojureCLR. Two nREPL server options
 - https://github.com/clojure/clr.tools.nrepl/tree/master/partial-nrepl-nrepl-port[port of nrepl/nrepl]: A non-working, work-in-progress port of nrepl/nrepl, which may
   ultimately better integrate with CIDER once CIDER's middleware (cider-nrepl) is also adapted/ported.
 
-CIDER currently has basic support for ClojureCLR via a port of Babashka's nREPL
-  server. The reasons for the basic support is that: `cider-nrepl`, the CIDER
-  middleware, uses a lot of Java code internally itself and would need to be
-  adapted/ported like any other clojure library adapted/ported to ClojureCLR.
+CIDER's support is basic because `cider-nrepl`, the middleware behind most of
+CIDER's features, uses a lot of Java internally and would need to be ported to
+ClojureCLR like any other Clojure library.
 
 Alternatives to using CIDER with ClojureCLR include https://github.com/clojure-emacs/inf-clojure[inf-clojure] and https://github.com/nrepl/neat[neat].
 
