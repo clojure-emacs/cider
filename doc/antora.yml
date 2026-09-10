@@ -1,7 +1,11 @@
 name: cider
 title: CIDER
-# We always provide version without patch here (e.g. 1.1),
-# as patch versions should not appear in the docs.
+# The release commit sets this to the major.minor version, quoted (e.g. "2.1"):
+# unquoted, YAML reads 2.0 as the number 2 and the site shows "2".  Patch
+# versions never appear here.  Between releases it stays unversioned (~),
+# which makes master the site's default version.
 version: ~
+# What the version menu calls the unversioned master docs (otherwise "default").
+display_version: master
 nav:
 - modules/ROOT/nav.adoc
