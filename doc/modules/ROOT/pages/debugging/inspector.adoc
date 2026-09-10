@@ -41,7 +41,7 @@ arguments:
 
 The sub-keys are the same ones the evaluation menu uses, so `e`, `v` and
 `d` name the same three targets wherever you are; see
-xref:usage/code_evaluation.adoc#_selecting_the_form_to_operate_on[Selecting
+xref:usage/code_evaluation.adoc#selecting-the-form-to-operate-on[Selecting
 the Form to Operate On].
 
 NOTE: This menu is about _what_ to inspect. Once you're looking at a

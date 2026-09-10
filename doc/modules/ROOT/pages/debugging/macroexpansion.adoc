@@ -38,7 +38,7 @@ form-expanding commands:
 
 Like the rest of CIDER's form commands, the expansion commands act on the form
 _preceding_ the cursor; see
-xref:usage/code_evaluation.adoc#_selecting_the_form_to_operate_on[Selecting the
+xref:usage/code_evaluation.adoc#selecting-the-form-to-operate-on[Selecting the
 Form to Operate On] for why that's the convention.
 
 Macroexpansion has one wrinkle the other operations don't, though: an expansion
