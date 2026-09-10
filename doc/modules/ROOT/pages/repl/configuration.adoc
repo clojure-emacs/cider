@@ -208,8 +208,10 @@ details.
 
 == Font-locking
 
-Normally, code in the REPL is font-locked the same way as in
-`clojure-mode`. Alternatively, REPL input can be font-locked with
+Normally, code in the REPL is font-locked the same way as in your Clojure
+major mode - `clojure-mode` or `clojure-ts-mode`, as selected by
+xref:config/clojure_ts_mode.adoc#preferred-clojure-mode[`cider-preferred-clojure-mode`].
+Alternatively, REPL input can be font-locked with
 `cider-repl-input-face` (after pressing kbd:[Return]) and results
 with `cider-repl-result-face`. If you prefer that behavior use:
 

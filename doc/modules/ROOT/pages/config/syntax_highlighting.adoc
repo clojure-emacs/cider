@@ -9,6 +9,14 @@ code that has already been loaded into nREPL, so it can provide a richer and mor
 syntax highlighting. We call this functionality "dynamic syntax highlighting" (as opposed to
 the somewhat static syntax highlighting you'd get from `clojure-mode`).
 
+Everything below applies to `clojure-ts-mode` buffers as well - the dynamic
+highlighting is implemented on top of tree-sitter there. See
+xref:config/clojure_ts_mode.adoc[Using clojure-ts-mode] for the details, and
+for `cider-preferred-clojure-mode`, which decides which of the two modes
+highlights the Clojure that CIDER itself renders (REPL results, doc examples,
+overlays and so on).
+
+[#dynamic-syntax-highlighting]
 == Dynamic syntax highlighting
 
 NOTE: The Emacs term for "syntax highlighting" is "font-locking". That's why

@@ -30,11 +30,21 @@ xref:basics/quickstart.adoc[Quick Start]).
 
 == Current state and limitations
 
-CIDER has solid, but still-evolving, support for `clojure-ts-mode`. The important
-thing to know is that it *still depends on `clojure-mode`* for some of its work -
-notably for extracting information about the Clojure code in a buffer. So even
-when you edit with `clojure-ts-mode`, you should keep `clojure-mode` installed
-(it's a hard dependency of CIDER anyway, so it will be).
+CIDER has solid, but still-evolving, support for `clojure-ts-mode`. Most of
+what CIDER does in a buffer now works natively with tree-sitter:
+
+* xref:config/syntax_highlighting.adoc#dynamic-syntax-highlighting[dynamic
+  syntax highlighting] of REPL-defined macros, functions and vars, including
+  the markers for deprecated, instrumented and traced symbols
+* highlighting of the `#break`, `#dbg` and `#light` debugging reader tags
+* CIDER's own Clojure buffers (macroexpansions, evaluation results, tracing
+  output and the like), which open in `clojure-ts-mode` when that's your
+  preferred mode (see below)
+
+The important thing to know is that CIDER *still depends on `clojure-mode`* for
+some of its work - notably for extracting information about the Clojure code in
+a buffer. So even when you edit with `clojure-ts-mode`, you should keep
+`clojure-mode` installed (it's a hard dependency of CIDER anyway, so it will be).
 
 The long-term plan is to make `clojure-ts-mode` capable of providing CIDER with
 everything it needs directly, at which point the `clojure-mode` dependency for
@@ -45,3 +55,27 @@ smoothly, that mismatch is the usual cause.
 TIP: If you're deciding whether to switch, `clojure-ts-mode`'s own README tracks
 its maturity and feature coverage. CIDER will keep supporting `clojure-mode` for
 the foreseeable future, so there's no rush.
+
+[#preferred-clojure-mode]
+== Choosing the mode CIDER renders Clojure with
+
+Besides the buffers you edit, CIDER produces a fair amount of Clojure of its own:
+REPL input and results, examples in documentation buffers, debugger and enlighten
+overlays, xref labels, and the display buffers for macroexpansion, evaluation
+results and tracing. `cider-preferred-clojure-mode` controls which major mode
+font-locks all of that:
+
+* `auto` (the default) picks `clojure-ts-mode` when your Clojure source files
+  open in it and its tree-sitter grammar is ready, and `clojure-mode` otherwise.
+* `clojure-mode` always uses `clojure-mode`.
+* `clojure-ts-mode` uses `clojure-ts-mode` when it's available and falls back
+  to `clojure-mode` when it isn't.
+
+The default follows your editing setup, so you rarely need to touch it. Set it
+explicitly if, say, you edit with `clojure-ts-mode` but prefer the classic
+highlighting in the REPL:
+
+[source,lisp]
+----
+(setq cider-preferred-clojure-mode 'clojure-mode)
+----
