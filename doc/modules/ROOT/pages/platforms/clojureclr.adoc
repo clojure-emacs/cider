@@ -4,7 +4,7 @@
 
 You will get basic CIDER functionality with ClojureCLR. Two nREPL server options:
 
-- https://github.com/clojure/clr.tools.nrepl[clr.tools.nrepl]: At present port of babashka's nREPL server (https://github.com/babashka/babashka.nrepl[babashka.nrepl]).
+- https://github.com/clojure/clr.tools.nrepl[clr.tools.nrepl]: currently a port of https://github.com/babashka/babashka.nrepl[babashka.nrepl] to ClojureCLR.
 - https://github.com/clojure/clr.tools.nrepl/tree/master/partial-nrepl-nrepl-port[port of nrepl/nrepl]: A non-working, work-in-progress port of nrepl/nrepl, which may
   ultimately better integrate with CIDER once CIDER's middleware (cider-nrepl) is also adapted/ported.
 
