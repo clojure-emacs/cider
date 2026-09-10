@@ -156,11 +156,14 @@ The nREPL port should be set to a fixed value as we need to give this during the
 container to host. This requires as well that nREPL server listens to "0.0.0.0" and not only to "localhost".
 
 TIP: Publish the port under the *same* number on both sides (e.g.
-`-p 7888:7888`).  A mismatched mapping like `-p 12345:7888` technically
-works, but it blinds CIDER's port suggestions: a `.nrepl-port` file in a
-mounted project directory records the *container's* port, which on the host
-side is either wrong or (correctly) discarded as dead, so `cider-connect`
-can't suggest anything and you have to type the forwarded port yourself.
+`-p 7888:7888`).  A mismatched mapping like `-p 12345:7888` works when you
+edit the project through a `/docker:` or `/podman:` Tramp path: CIDER asks
+the container CLI which host port it publishes and suggests (or, for
+`cider-jack-in`, connects to) that one.  It does blind the suggestions when
+the project is opened from the host through a mounted directory, though: the
+`.nrepl-port` file there records the *container's* port, which on the host
+side is either wrong or (correctly) discarded as dead, so you have to type
+the forwarded port yourself.
 
 If your source directories are mounted into the container, also set
 `cider-path-translations` so that stacktraces and jump-to-definition
