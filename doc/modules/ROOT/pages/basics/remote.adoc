@@ -1,5 +1,4 @@
 = Remote and Container Connections
-:experimental:
 
 Most of the time you'll run CIDER against an nREPL server on your own machine,
 as described in xref:basics/up_and_running.adoc[Up and Running]. This page

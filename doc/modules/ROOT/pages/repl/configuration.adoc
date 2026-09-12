@@ -1,5 +1,4 @@
 = REPL Configuration
-:experimental:
 
 == Behavior on connect
 

@@ -1,5 +1,4 @@
 = Running Tests
-:experimental:
 
 The Clojure ecosystem provides a lot of support for test-driven
 development (TDD) and other test-centric patterns. First, Clojure

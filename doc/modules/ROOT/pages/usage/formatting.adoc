@@ -1,5 +1,4 @@
 = Formatting Code
-:experimental:
 
 CIDER has its own code formatting (indentation) engine, described in
 xref:config/indentation.adoc[Indentation], but it can also drive the popular

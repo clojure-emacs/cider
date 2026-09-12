@@ -1,5 +1,5 @@
 = Quick Start
-:experimental:
+:description: From an empty Emacs to a live CIDER session with a local Clojure project in a few minutes.
 
 This page gets you from nothing to a live CIDER session in a few minutes. It
 sticks to the common happy path - a local Clojure project and Emacs on the same

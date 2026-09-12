@@ -1,5 +1,4 @@
 = Logging
-:experimental:
 
 CIDER Log Mode allows you to capture, debug, inspect and view log
 events emitted by Java logging frameworks. The captured log events can

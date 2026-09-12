@@ -1,5 +1,4 @@
 = REPL history browser
-:experimental:
 
 You can browse your REPL input history with the command kbd:[M-x]
 `cider-history`.  This command is bound to kbd:[C-c M-p]

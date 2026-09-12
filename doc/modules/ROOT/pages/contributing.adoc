@@ -1,4 +1,5 @@
 = Contributing
+:description: How to report issues, propose changes and contribute code or documentation to CIDER.
 
 == Issues
 

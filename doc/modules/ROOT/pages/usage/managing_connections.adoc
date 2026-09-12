@@ -1,5 +1,4 @@
 = Managing Connections
-:experimental:
 
 NOTE: Because nREPL connections map one-to-one to REPL buffers in
 CIDER, for the purpose of this section we use "REPL" and "connection"

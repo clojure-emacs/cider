@@ -1,5 +1,4 @@
 = Basic Usage
-:experimental:
 
 CIDER comes with a powerful REPL that complements the interactive
 development functionality in `cider-mode`. Using the CIDER REPL you

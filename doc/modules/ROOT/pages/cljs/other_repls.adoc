@@ -1,5 +1,4 @@
 = Using Other ClojureScript REPLs
-:experimental:
 
 While these days most people are using `figwheel` and `shadow-cljs`,
 CIDER supports other ClojureScript REPLs as well.

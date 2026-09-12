@@ -1,5 +1,5 @@
 = Troubleshooting
-:experimental:
+:description: How to diagnose CIDER problems: cider-doctor, debugging and profiling commands, inspecting nREPL traffic, and fixes for commonly encountered issues.
 
 In case you run into issues here are a few tips that can help you diagnose the
 problem.

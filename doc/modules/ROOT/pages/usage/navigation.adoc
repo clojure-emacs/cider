@@ -1,5 +1,4 @@
 = Code Navigation and Browsing
-:experimental:
 
 CIDER offers a rich set of commands for finding your way around a codebase and
 exploring a running program's structure. Jumping to a definition is covered in

@@ -1,5 +1,4 @@
 = Using clojure-ts-mode
-:experimental:
 
 https://github.com/clojure-emacs/clojure-ts-mode[clojure-ts-mode] is a
 tree-sitter-powered major mode for editing Clojure, and the eventual successor to

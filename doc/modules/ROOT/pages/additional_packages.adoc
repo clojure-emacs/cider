@@ -1,4 +1,5 @@
 = Additional Packages
+:description: Emacs packages that extend CIDER, from clj-refactor and cider-storm to kaocha-runner, plus generic Emacs extensions worth enabling alongside it.
 
 There are many additional Emacs packages that can enhance your Clojure programming
 experience. The majority of the minor modes listed here should be enabled for both

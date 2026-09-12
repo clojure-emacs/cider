@@ -1,5 +1,4 @@
 = Up and Running
-:experimental:
 
 == Piggieback Setup
 

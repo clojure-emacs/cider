@@ -1,5 +1,4 @@
 = Macroexpansion
-:experimental:
 
 Typing kbd:[C-c C-m] after some form in a source buffer or the REPL will show
 you the `macroexpand-1` expansion of the form in a new buffer.

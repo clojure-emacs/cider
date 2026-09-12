@@ -1,5 +1,4 @@
 = Using CIDER with clojure-lsp
-:experimental:
 
 A lot of Clojure programmers run CIDER alongside
 https://clojure-lsp.io[clojure-lsp] (through

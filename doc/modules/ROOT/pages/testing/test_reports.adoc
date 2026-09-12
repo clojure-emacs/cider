@@ -1,5 +1,4 @@
 = Interacting with Test Result Reports
-:experimental:
 
 Should tests fail then CIDER displays a test result report in the
 `+*cider-test-report*+` buffer. This buffer uses `cider-test-report-mode`,

@@ -1,4 +1,5 @@
 = CIDER
+:description: CIDER turns Emacs into an interactive development environment for Clojure and ClojureScript, built around a REPL connection to your running program.
 
 CIDER is the **C**lojure(Script) **I**nteractive **D**evelopment **E**nvironment
 that **R**ocks!

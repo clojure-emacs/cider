@@ -1,5 +1,5 @@
 = Up and Running
-:experimental:
+:description: Starting a CIDER session with cider-jack-in or cider-connect, and how CIDER works with tools.deps, Leiningen, Gradle and other build tools.
 
 To use CIDER, you'll need to connect it to a running nREPL server that
 is associated with your program. Most Clojure developers use standard

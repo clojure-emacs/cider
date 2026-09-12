@@ -1,5 +1,4 @@
 = Miscellaneous Features
-:experimental:
 
 As the infomercials always say, "But wait, there's more!" If
 simultaneous Clojure and ClojureScript REPLs, interactive programming,
