@@ -12,8 +12,11 @@ dependencies to your Clojure project (explained in the following sections).
 
 == Setting Up a Standalone REPL
 
-=== Using Leiningen
-
+[tabs]
+======
+Leiningen::
++
+--
 Use the convenient plugin for defaults, either in your project's
 `project.clj` file or in the `:repl` profile in `~/.lein/profiles.clj`.
 
@@ -32,9 +35,11 @@ A minimal `profiles.clj` for CIDER would be:
 WARNING: Be careful not to place this in the `:user` profile, as this way CIDER's
 middleware will always get loaded, causing `lein` to start slower.  You really
 need it just for `lein repl` and this is what the `:repl` profile is for.
+--
 
-=== Using tools.deps
-
+tools.deps::
++
+--
 You can add the following aliases to your deps.edn in order to launch
 a standalone Clojure(Script) nREPL server with CIDER middleware from
 the commandline with something like `clj -A:cider-clj`. Then from emacs
@@ -55,13 +60,15 @@ run `cider-connect` or `cider-connect-cljs`.
 NOTE: the suggested ClojureScript setup is apt for e.g. library development, but not for frontend development.
 For those cases, you may want to check out our xref:cljs/shadow-cljs.adoc#using-cider-connect-cljs[shadow-cljs]
 or xref:cljs/figwheel.adoc#clojure-cli-setup[figwheel] setups instead.
+--
 
-=== Using Launchpad
-
-[Launchpad](https://github.com/lambdaisland/launchpad) lets you start a nREPL server from the command line,
+Launchpad::
++
+--
+https://github.com/lambdaisland/launchpad[Launchpad] lets you start a nREPL server from the command line,
 while including the middleware your editor requires and providing additional developer conveniences.
 
-In your project, create `bin/launchpad`. The only requirement is [babashka](https://babashka.org/).
+In your project, create `bin/launchpad`. The only requirement is https://babashka.org/[babashka].
 
 [source,clojure]
 ----
@@ -80,17 +87,18 @@ Now `bin/launchpad --emacs` will start a Clojure process, and connect Emacs to y
 
 To load additional middleware, configure it inside `bin/launchpad`
 
-
 [source,clojure]
 ----
 ;; <snip> ... as before ... <snip>
 (launchpad/main {:middleware [your.custom/nrepl-middleware]})
 ----
 
-See `bin/launchpad --help` or the [README](https://github.com/lambdaisland/launchpad) for more info.
+See `bin/launchpad --help` or the https://github.com/lambdaisland/launchpad[README] for more info.
+--
 
-=== Using Gradle
-
+Gradle::
++
+--
 NOTE: Make sure you're using https://github.com/clojurephant/clojurephant[Clojurephant] 0.4.0 or newer.
 
 .build.gradle
@@ -109,10 +117,14 @@ tasks.named('clojureRepl') {
 You can then launch the nREPL server from the command line via: `./gradlew clojureRepl`.
 
 For more information, see the https://clojurephant.dev[Clojurephant docs].
+--
 
-=== Using Maven
-
+Maven::
++
+--
 NOTE: This section is currently a stub. Contributions welcome!
+--
+======
 
 == Using Embedded nREPL Server
 

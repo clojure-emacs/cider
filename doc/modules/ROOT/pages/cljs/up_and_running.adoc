@@ -27,26 +27,33 @@ To setup piggieback, add the following dependencies to your project
 [org.clojure/clojure "1.12.0"]
 ----
 
-as well as `piggieback` nREPL middleware:
+as well as the `piggieback` nREPL middleware:
 
-in `project.clj`:
-
+[tabs]
+======
+project.clj::
++
+--
 [source,clojure]
 ----
 :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
 ----
+--
 
-or in `deps.edn`:
-
+deps.edn::
++
+--
 [source,clojure]
 ----
 {:aliases { :cider-cljs { :main-opts
   ["-m" "nrepl.cmdline" "--middleware"
    "[cider.nrepl/cider-middleware,cider.piggieback/wrap-cljs-repl]"]}}}
 ----
+--
 
-or in `build.gradle`:
-
+build.gradle::
++
+--
 [source,groovy,subs="attributes+"]
 ----
 dependencies {
@@ -59,6 +66,8 @@ tasks.named('clojureRepl') {
   middleware = ['cider.nrepl/cider-middleware', 'cider.piggieback/wrap-cljs-repl']
 }
 ----
+--
+======
 
 == Starting a ClojureScript REPL
 
