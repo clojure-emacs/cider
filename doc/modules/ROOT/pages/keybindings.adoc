@@ -468,7 +468,7 @@ xref:usage/code_completion.adoc[Code Completion] for details.
 == Printable reference card
 
 CIDER also ships a one-page, printable quick-reference card covering these
-essentials, meant to be printed and kept on your desk. You can find the PDF (and
-its source) in the
+essentials, meant to be printed and kept on your desk:
+xref:attachment$cider-refcard.pdf[download the PDF]. Its LaTeX source is in the
 https://github.com/clojure-emacs/cider/tree/master/refcard[`refcard` directory]
 of the CIDER repository.

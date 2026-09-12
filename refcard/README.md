@@ -3,16 +3,18 @@
 CIDER's quick reference is a single-page pdf containing the essential commands one needs to know
 to use CIDER effectively. You're encouraged to print it, laminate it and keep it on your desk.
 
-If you want to make changes to it you should first edit `cider-refcard.tex` and then regenerate the pdf file.
+If you want to make changes to it you should first edit `cider-refcard.tex` and then regenerate the
+pdf file. The PDF lives with the manual, in `doc/modules/ROOT/attachments/`, so that the docs site
+can serve it; `make refcard` from the repository root rebuilds it there.
 
 The easiest way is [Tectonic](https://tectonic-typesetting.github.io/), a modern, self-contained TeX
 engine that downloads any packages it needs on the fly (no full TeX installation required):
 
-    $ tectonic cider-refcard.tex
+    $ tectonic -o ../doc/modules/ROOT/attachments cider-refcard.tex
 
 Alternatively, you can use a traditional TeX distribution and run:
 
-    $ pdflatex cider-refcard.tex
+    $ pdflatex -output-directory ../doc/modules/ROOT/attachments cider-refcard.tex
 
 You can find installation instructions for `pdflatex` on all major operating
 systems [here](https://www.latex-project.org/get/).

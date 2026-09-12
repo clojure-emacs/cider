@@ -8,9 +8,9 @@ NOTE: Feel free to submit any useful CIDER resources that you've come across.
 
 == Quick reference
 
-A single-page quick reference PDF for CIDER commands is available
-https://github.com/clojure-emacs/cider/blob/master/refcard/cider-refcard.pdf[here]. This PDF can be created manually by running
-`pdflatex` on https://github.com/clojure-emacs/cider/blob/master/refcard/cider-refcard.tex[the CIDER refcard LaTeX file].
+A single-page xref:attachment$cider-refcard.pdf[quick reference PDF] for CIDER
+commands ships with this manual. It is generated from
+https://github.com/clojure-emacs/cider/blob/master/refcard/cider-refcard.tex[the CIDER refcard LaTeX file].
 
 == Demos
 
