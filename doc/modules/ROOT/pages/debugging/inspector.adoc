@@ -1,5 +1,5 @@
 = Inspector
-:experimental:
+:page-aliases: debugging/misc.adoc
 
 The value inspector allows you to inspect and navigate the structure of data. While you can use
 it for pretty much anything (e.g. primitive data types, var, ref types) it's most

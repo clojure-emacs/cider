@@ -1,5 +1,4 @@
 = nREPL Middleware Setup
-:experimental:
 
 NOTE: You can skip this section if you don't plan to use `cider-connect` or don't care
 about the advanced functionality that requires `cider-nrepl`.

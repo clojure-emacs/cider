@@ -1,5 +1,4 @@
 = Caveats
-:experimental:
 
 CIDER is certainly not perfect and has some limitations that everyone
 should be aware of.

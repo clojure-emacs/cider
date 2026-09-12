@@ -1,5 +1,4 @@
 = Enlighten
-:experimental:
 
 Enlighten Mode displays the value of locals in realtime, as your code
 runs. This feature is somewhat similar to a feature in the Light Table

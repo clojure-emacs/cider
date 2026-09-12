@@ -1,5 +1,5 @@
 = Dealing with Errors
-:experimental:
+:page-aliases: usage/navigating_stacktraces.adoc
 
 Every now and then you'll make some mistake in your code which is
 going to result in an evaluation error. Clojure's errors are

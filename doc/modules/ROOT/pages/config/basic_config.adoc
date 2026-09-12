@@ -1,5 +1,5 @@
 = Basic Configuration
-:experimental:
+:page-aliases: config/misc.adoc
 
 Like Emacs itself, almost every part of CIDER is configurable. The
 CIDER developers have tried to implement some reasonable defaults that

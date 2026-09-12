@@ -1,4 +1,5 @@
 = Other Platforms
+:page-aliases: platforms/scittle_and_friends.adoc
 
 == Overview
 

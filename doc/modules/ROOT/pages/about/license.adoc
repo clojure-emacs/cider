@@ -1,5 +1,4 @@
 = License & Copyright
-:experimental:
 
 == Code License
 

@@ -1,5 +1,4 @@
 = REPL Keybindings
-:experimental:
 
 Here's a list of the keybindings that are available in CIDER's REPL:
 

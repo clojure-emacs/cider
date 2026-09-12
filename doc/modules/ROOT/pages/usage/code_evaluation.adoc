@@ -1,4 +1,5 @@
 = Code Evaluation
+:description: The evaluation commands CIDER provides, which form each one targets, and how results are displayed.
 
 Code evaluation is at the heart of interactive programming.
 CIDER provides a ton of evaluation-related commands that can cover

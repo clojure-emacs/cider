@@ -1,5 +1,4 @@
 = Project-specific Configuration
-:experimental:
 
 A pretty common question about CIDER is how to handle project-specific configuration.
 There are many reasons for wanting to do something like this, but probably the first

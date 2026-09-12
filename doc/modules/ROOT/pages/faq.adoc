@@ -1,4 +1,5 @@
 = Frequently Asked Questions
+:description: Answers to common questions about CIDER's name and history, its relationship to nrepl.el, monroe, inf-clojure and Cursive, and its release cadence.
 
 [TIP]
 ====

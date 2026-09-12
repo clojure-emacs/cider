@@ -1,5 +1,4 @@
 = Using Krell
-:experimental:
 
 https://github.com/vouch-opensource/krell[Krell] is the newest
 ClojureScript React Native REPL. In this section we'll discuss how to

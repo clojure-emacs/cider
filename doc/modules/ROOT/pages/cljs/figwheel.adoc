@@ -1,5 +1,4 @@
 = Using Figwheel
-:experimental:
 
 Figwheel is one of the most popular ClojureScript REPLs today. Below you'll find
 instructions on how to set up and use it with CIDER.

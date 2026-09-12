@@ -1,4 +1,5 @@
 = Overview
+:description: Using CIDER with Babashka, nbb, Basilisp, ClojureCLR and other Clojure-like languages that ship an nREPL server.
 
 CIDER is first and foremost a *Clojure* programming environment. Because all of
 its interaction with a running program goes through https://nrepl.org[nREPL],

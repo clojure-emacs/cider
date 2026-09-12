@@ -1,5 +1,4 @@
 = Tap Viewer
-:experimental:
 
 Clojure's `tap>` is a lightweight way to send a value somewhere without
 littering your code with prints or disturbing the value flow. CIDER can collect

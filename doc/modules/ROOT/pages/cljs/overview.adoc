@@ -1,5 +1,6 @@
 = ClojureScript
-:experimental:
+:page-aliases: basics/clojurescript.adoc
+:description: How CIDER supports ClojureScript, which features carry over from Clojure and which don't, and where to start.
 
 NOTE: CIDER works well with ClojureScript, but ClojureScript's
 compile-on-the-JVM, run-in-a-JavaScript-runtime model means a few Clojure

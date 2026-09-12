@@ -1,5 +1,5 @@
 = Installation
-:experimental:
+:description: How to install CIDER from MELPA or MELPA Stable with package.el, and what Emacs, Java and Clojure versions it supports.
 
 The canonical way to install CIDER is via `package.el` (Emacs's built-in package
 manager).

@@ -1,5 +1,5 @@
 = Interactive Programming
-:experimental:
+:description: What interactive, REPL-driven programming with CIDER looks like, and why it beats the edit-compile-run cycle.
 
 == Overview
 

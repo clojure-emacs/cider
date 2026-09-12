@@ -1,5 +1,4 @@
 = Using cider-mode
-:experimental:
 
 `cider-mode` is a pretty standard Emacs minor mode, which exists mostly to provide a
 common keymap for all of CIDER's REPL-powered commands that are meant to be used

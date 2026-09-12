@@ -1,5 +1,4 @@
 = Tracing Function Execution
-:experimental:
 
 You can trace the arguments supplied to, and the result values produced
 by functions using kbd:[C-c M-t v]. CIDER will prompt you for the

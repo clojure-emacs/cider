@@ -1,5 +1,5 @@
 = Keybindings
-:experimental:
+:description: The complete reference of cider-mode keybindings, grouped by task, with a printable quick-reference card.
 
 This is the reference for `cider-mode`'s keybindings - the commands available in
 Clojure(Script) source buffers once you've connected a REPL. They're grouped by
