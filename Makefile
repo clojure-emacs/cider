@@ -1,4 +1,4 @@
-.PHONY: clean compile lint test-all test-coverage test-integration test-unit
+.PHONY: clean compile lint refcard test-all test-coverage test-integration test-unit
 .DEFAULT_GOAL := test
 
 # Per our CircleCI, linting/compiling assumes Emacs 28.
@@ -31,5 +31,9 @@ test-unit: clean
 # Line coverage of the unit tests (needs the sources as-is, hence no -p).
 test-coverage: clean
 	eldev -dtT test -u on,text
+
+# Rebuild the printable quick-reference card into the manual's attachments.
+refcard:
+	tectonic -o doc/modules/ROOT/attachments refcard/cider-refcard.tex
 
 test: lint test-unit compile

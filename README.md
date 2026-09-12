@@ -107,7 +107,7 @@ this [intro to CIDER demo](https://www.youtube.com/watch?v=aYA4AAjLfT0) as well.
 ## Quick Reference Card
 
 You'll find all of CIDER's essential commands and their keybindings in its
-one-page printable [quick reference card](https://github.com/clojure-emacs/cider/blob/master/refcard/cider-refcard.pdf).
+one-page printable [quick reference card](https://github.com/clojure-emacs/cider/blob/master/doc/modules/ROOT/attachments/cider-refcard.pdf).
 
 New CIDER users might benefit from keeping a copy close to their keyboard.
 
