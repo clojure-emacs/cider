@@ -21,10 +21,10 @@ to connect to an already running nREPL server using
 To setup piggieback, add the following dependencies to your project
 (`project.clj` or `deps.edn`):
 
-[source,clojure]
+[source,clojure,subs="attributes+"]
 ----
 ;; use whatever are the most recent versions here
-[cider/piggieback "0.6.1"]
+[cider/piggieback "{piggieback-version}"]
 [org.clojure/clojure "1.12.0"]
 ----
 
@@ -48,12 +48,12 @@ or in `deps.edn`:
 
 or in `build.gradle`:
 
-[source, groovy]
+[source,groovy,subs="attributes+"]
 ----
 dependencies {
-  devImplementation 'nrepl:nrepl:1.7.0'
-  devImplementation 'cider:cider-nrepl:0.59.0'
-  devImplementation 'cider:cider-piggieback:0.6.1'
+  devImplementation 'nrepl:nrepl:{nrepl-version}'
+  devImplementation 'cider:cider-nrepl:{cider-nrepl-version}'
+  devImplementation 'cider:cider-piggieback:{piggieback-version}'
 }
 
 tasks.named('clojureRepl') {

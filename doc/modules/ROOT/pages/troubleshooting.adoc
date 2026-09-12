@@ -260,7 +260,7 @@ in the "Middleware Setup" section.
 ==== You see `not installed` or `nil`, and you're starting the REPL with `cider-jack-in`
 
 * Do `C-h v cider-inject-dependencies-at-jack-in`, and check that this variable is non-nil.
-* Make sure your project depends on at least Clojure `1.7.0`.
+* Make sure your project depends on at least Clojure `{clojure-min-version}`.
 * If you use Leiningen, make sure your `lein --version` is at least `2.9.0`.
 
 If the above doesn't work, you can try specifying the cider-nrepl middleware

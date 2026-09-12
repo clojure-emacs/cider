@@ -9,3 +9,15 @@ version: ~
 display_version: master
 nav:
 - modules/ROOT/nav.adoc
+asciidoc:
+  attributes:
+    # Versions quoted in the manual's setup snippets.  Keep them in sync with
+    # what CIDER injects: cider-required-middleware-version and
+    # cider-injected-nrepl-version in lisp/cider-jack-in.el, the piggieback
+    # entry in cider-jack-in-cljs-dependencies, and
+    # cider-minimum-clojure-version.  Pages reference them as
+    # {cider-nrepl-version} and so on (code blocks need subs="attributes+").
+    cider-nrepl-version: '0.62.2'
+    nrepl-version: '1.7.0'
+    piggieback-version: '0.7.0'
+    clojure-min-version: '1.10'
