@@ -23,9 +23,9 @@ You'll also have to configure Piggieback manually if you're planning to use
 
 . Add this to your dev `:dependencies` (not needed for `cider-jack-in-cljs`):
 +
-[source,clojure]
+[source,clojure,subs="attributes+"]
 ----
-[cider/piggieback "0.6.1"]
+[cider/piggieback "{piggieback-version}"]
 ----
 +
 . Add this to your dev `:repl-options` (not needed for `cider-jack-in-cljs`):
@@ -121,9 +121,9 @@ You can also use https://github.com/bhauman/lein-figwheel[Figwheel] with CIDER.
 in the root of your Leiningen project definition.
 . Add these to your dev `:dependencies`:
 +
-[source,clojure]
+[source,clojure,subs="attributes+"]
 ----
-[cider/piggieback "0.6.1"] ; not needed for cider-jack-in-cljs
+[cider/piggieback "{piggieback-version}"] ; not needed for cider-jack-in-cljs
 [figwheel-sidecar "0.5.19"] ; use here whatever the current version of figwheel is
 ----
 +

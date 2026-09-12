@@ -18,16 +18,16 @@ dependencies to your Clojure project (explained in the following sections).
 Use the convenient plugin for defaults, either in your project's
 `project.clj` file or in the `:repl` profile in `~/.lein/profiles.clj`.
 
-[source,clojure]
+[source,clojure,subs="attributes+"]
 ----
-:plugins [[cider/cider-nrepl "0.59.0"]]
+:plugins [[cider/cider-nrepl "{cider-nrepl-version}"]]
 ----
 
 A minimal `profiles.clj` for CIDER would be:
 
-[source,clojure]
+[source,clojure,subs="attributes+"]
 ----
-{:repl {:plugins [[cider/cider-nrepl "0.59.0"]]}}
+{:repl {:plugins [[cider/cider-nrepl "{cider-nrepl-version}"]]}}
 ----
 
 WARNING: Be careful not to place this in the `:user` profile, as this way CIDER's
@@ -41,14 +41,14 @@ a standalone Clojure(Script) nREPL server with CIDER middleware from
 the commandline with something like `clj -A:cider-clj`. Then from emacs
 run `cider-connect` or `cider-connect-cljs`.
 
-[source,clojure]
+[source,clojure,subs="attributes+"]
 ----
-  :cider-clj {:extra-deps {cider/cider-nrepl {:mvn/version "0.59.0"}}
+  :cider-clj {:extra-deps {cider/cider-nrepl {:mvn/version "{cider-nrepl-version}"}}
               :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"]}
 
   :cider-cljs {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.339"}
-                            cider/cider-nrepl {:mvn/version "0.59.0"}
-                            cider/piggieback {:mvn/version "0.6.1"}}
+                            cider/cider-nrepl {:mvn/version "{cider-nrepl-version}"}
+                            cider/piggieback {:mvn/version "{piggieback-version}"}}
                :main-opts ["-m" "nrepl.cmdline" "--middleware"
                            "[cider.nrepl/cider-middleware,cider.piggieback/wrap-cljs-repl]"]}
 ----
@@ -95,11 +95,11 @@ See `bin/launchpad --help` or the [README](https://github.com/lambdaisland/launc
 NOTE: Make sure you're using https://github.com/clojurephant/clojurephant[Clojurephant] 0.4.0 or newer.
 
 .build.gradle
-[source, groovy]
+[source,groovy,subs="attributes+"]
 ----
 dependencies {
-  devImplementation 'nrepl:nrepl:1.7.0'
-  devImplementation 'cider:cider-nrepl:0.59.0'
+  devImplementation 'nrepl:nrepl:{nrepl-version}'
+  devImplementation 'cider:cider-nrepl:{cider-nrepl-version}'
 }
 
 tasks.named('clojureRepl') {

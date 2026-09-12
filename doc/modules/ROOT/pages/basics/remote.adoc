@@ -208,11 +208,11 @@ devcontainer up --workspace-folder /home/me/my-clj-code
 Then we can start a nREPL server inside the container on the remote host as shown below (executed from your local machine).
 The command tunnels as well the remote port 12345 to local machine on port 12345:
 
-[source,sh]
+[source,sh,subs="attributes+"]
 ----
 ssh -t -L 12345:localhost:12345 MY_REMOTE_SERVER \
     devcontainer exec  --workspace-folder /home/me/my-clj-code \
-    "clojure -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"1.7.0\"} cider/cider-nrepl {:mvn/version \"0.59.0\"}}}' -m nrepl.cmdline -p 12345 -b 0.0.0.0 --middleware '[\"cider.nrepl/cider-middleware\"]' "
+    "clojure -Sdeps '{:deps {nrepl/nrepl {:mvn/version \"{nrepl-version}\"} cider/cider-nrepl {:mvn/version \"{cider-nrepl-version}\"}}}' -m nrepl.cmdline -p 12345 -b 0.0.0.0 --middleware '[\"cider.nrepl/cider-middleware\"]' "
 ----
 
 For this to work, we need as well to configure `devcontainer.json` with a snippet that exposes port `12345` from the container to the (remote) host:
