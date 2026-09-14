@@ -23,6 +23,8 @@ jobs:
   integration:
     # Run integration tests for all OSs and EMACS_VERSIONs.
     runs-on: ${{matrix.os}}
+    # A hung mock server shouldn't burn the six-hour default.
+    timeout-minutes: 30
     # The Emacs snapshot build is an early-warning signal, not a gate, so a
     # failure there mustn't fail the workflow.
     continue-on-error: ${{ matrix.experimental || false }}
