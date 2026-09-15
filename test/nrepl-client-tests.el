@@ -767,7 +767,7 @@
             (progn
               (nrepl-server-filter proc "nREPL server started on port 7888 on host 0.0.0.0 - nrepl://0.0.0.0:7888\n")
               (expect (plist-get nrepl-endpoint :host) :to-equal "localhost")
-              (expect (plist-get nrepl-endpoint :port) :to-equal 12345)
+              (expect (plist-get nrepl-endpoint :port) :to-equal "12345")
               (expect 'nrepl--container-published-port
                       :to-have-been-called-with "docker" "zz-app" 7888))
           (delete-process proc)))))
@@ -783,7 +783,7 @@
         (unwind-protect
             (progn
               (nrepl-server-filter proc "nREPL server started on port 7888 on host 0.0.0.0 - nrepl://0.0.0.0:7888\n")
-              (expect (plist-get nrepl-endpoint :port) :to-equal 7888)
+              (expect (plist-get nrepl-endpoint :port) :to-equal "7888")
               (expect 'message :to-have-been-called))
           (delete-process proc))))))
 
