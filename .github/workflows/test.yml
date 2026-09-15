@@ -100,7 +100,7 @@ jobs:
         java-version: ${{matrix.java_version}}
 
     - name: Install Clojure Tools
-      uses: DeLaGuardo/setup-clojure@13.5.2
+      uses: DeLaGuardo/setup-clojure@13.7.0
       with:
         bb: '1.12.214'
         cli: '1.12.4.1597'
