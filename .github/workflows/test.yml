@@ -91,7 +91,7 @@ jobs:
         get-command deps.exe | split-path -parent | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
     - name: Check out the source code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     # Eldev keeps the project's dependencies under .eldev/ and its own
     # bootstrap plus the package-archive contents under ~/.cache/eldev.
@@ -104,7 +104,7 @@ jobs:
       shell: bash
       run: echo "month=$(date +%Y-%m)" >> "$GITHUB_OUTPUT"
     - name: Cache Eldev dependencies
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: |
           .eldev
@@ -117,7 +117,7 @@ jobs:
       run: rm -rf .eldev/*/local
 
     - name: Prepare java
-      uses: actions/setup-java@v5
+      uses: actions/setup-java@v6
       with:
         distribution: 'temurin'
         java-version: ${{matrix.java_version}}
@@ -129,13 +129,13 @@ jobs:
         cli: '1.12.6.1673'
         lein: '2.12.0'
 
-    - uses: actions/setup-node@v6
+    - uses: actions/setup-node@v7
       with:
         node-version: 22
     - run: npm install shadow-cljs@3.5.0 -g
     - run: npm install nbb@1.5.212 -g
 
-    - uses: actions/setup-python@v6
+    - uses: actions/setup-python@v7
       with:
         python-version: '3.12'
     - run: |
