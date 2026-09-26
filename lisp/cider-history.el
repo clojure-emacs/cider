@@ -595,6 +595,8 @@ text from the *cider-history* buffer."
   (with-current-buffer cider-history-repl-buffer
     (undo)))
 
+(defvar cider-repl-input-history)
+
 (defun cider-history-delete-entry-at-point ()
   "Delete history entry (at point)."
   (interactive)

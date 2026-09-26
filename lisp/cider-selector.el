@@ -38,6 +38,8 @@
 (defconst cider-selector-help-buffer "*CIDER Selector Help*"
   "The name of the selector's help buffer.")
 
+(defvar cider-doc-buffer)
+
 (defvar cider-selector-methods nil
   "List of buffer-selection methods for the `cider-selector' command.
 Each element is a list (KEY DESCRIPTION FUNCTION).

@@ -407,6 +407,8 @@ later responses sitting in the queue."
                (funcall nrepl-orphaned-output-function response))))
        (t (message "[nREPL] No response handler with id %s found for %s" id (buffer-name)))))))
 
+(defvar nrepl-client-disconnected-handler-function)
+
 (defun nrepl-client-sentinel (process message)
   "Handle sentinel events from PROCESS.
 Notify MESSAGE and if the process is closed run `nrepl-disconnected-hook'

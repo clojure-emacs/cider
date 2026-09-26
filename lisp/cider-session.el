@@ -179,6 +179,19 @@ https://github.com/clojure-emacs/cider/issues/4120)."
               (buffer-local-value 'nrepl-server-buffer r))
             (cdr session)))
 
+(defvar-local cider-cljs-repl-type nil
+  "The type of the ClojureScript runtime (`browser', `node', `figwheel', etc.).")
+
+(defvar-local cider-repl-type nil
+  "The type of this REPL buffer, usually either clj or cljs.")
+
+(defvar-local cider-repl-cljs-upgrade-pending nil
+  "Is the cljs repl currently pending?")
+
+(defvar-local cider-session-name nil)
+(defvar-local cider-repl-init-function nil)
+(defvar-local cider-launch-params nil)
+
 (defun cider--gather-connect-params (&optional params proc-buffer)
   "Gather all relevant connection parameters into PARAMS plist.
 PROC-BUFFER is either server or client buffer, defaults to current buffer."
@@ -312,19 +325,6 @@ By default it assumes the connection buffer is current."
 
 
 ;;; REPL Buffer Init
-
-(defvar-local cider-cljs-repl-type nil
-  "The type of the ClojureScript runtime (`browser', `node', `figwheel', etc.).")
-
-(defvar-local cider-repl-type nil
-  "The type of this REPL buffer, usually either clj or cljs.")
-
-(defvar-local cider-repl-cljs-upgrade-pending nil
-  "Is the cljs repl currently pending?")
-
-(defvar-local cider-session-name nil)
-(defvar-local cider-repl-init-function nil)
-(defvar-local cider-launch-params nil)
 
 (defun cider-repl-type (repl-buffer)
   "Get REPL-BUFFER's type."
