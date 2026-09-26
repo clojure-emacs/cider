@@ -99,6 +99,9 @@ commands:
       - run:
           name: Byte-compile .el files
           command: eldev -dtT compile --warnings-as-errors
+      - run:
+          name: Byte-compile each file on its own
+          command: eldev compile-isolated
 
 jobs:
   test-ubuntu-emacs-28:

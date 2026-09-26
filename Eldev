@@ -122,3 +122,39 @@
 ;; Don't combine with `-p': the instrumentation needs the sources as-is.
 (eldev-use-plugin 'undercover)
 (setf eldev-undercover-config '(off))
+
+;; Native compilation byte-compiles every file in a fresh Emacs that only
+;; knows what the file itself requires or declares.  `eldev compile' builds
+;; everything in one process, where functions defined by earlier files hide
+;; a missing `require' or `declare-function', so native-comp users saw
+;; warnings that CI never did.  This compiles each file on its own instead.
+(eldev-defcommand cider-compile-isolated (&rest _)
+  "Byte-compile each source file in a separate Emacs and fail on warnings."
+  :command compile-isolated
+  (eldev-load-project-dependencies 'runtime nil t)
+  (let ((out-dir (make-temp-file "cider-isolated" t))
+        (failed nil))
+    (unwind-protect
+        (dolist (file (directory-files (expand-file-name "lisp") t "\\`[^.].*\\.el\\'"))
+          (eldev-call-process eldev-emacs-executable
+              (list "-Q" "-batch" "-eval"
+                    (prin1-to-string
+                     `(progn
+                        (require 'bytecomp)
+                        (setq load-path ',load-path
+                              load-prefer-newer t
+                              byte-compile-docstring-max-column ,byte-compile-docstring-max-column
+                              byte-compile-dest-file-function
+                              (lambda (_) ,(expand-file-name
+                                            (concat (file-name-base file) ".elc")
+                                            out-dir)))
+                        (byte-compile-file ,file))))
+            :trace-command-line t
+            (goto-char (point-min))
+            (when (or (/= exit-code 0)
+                      (re-search-forward "\\(Warning\\|Error\\):" nil t))
+              (setq failed t)
+              (eldev-warn "%s" (buffer-string)))))
+      (delete-directory out-dir t))
+    (when failed
+      (signal 'eldev-error '("Some files don't compile cleanly on their own")))))
