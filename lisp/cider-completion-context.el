@@ -26,6 +26,8 @@
 
 ;;; Code:
 
+(require 'cider-util)
+
 (defcustom cider-completion-use-context t
   "When true, uses context at point to improve completion suggestions."
   :type 'boolean
