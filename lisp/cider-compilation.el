@@ -129,16 +129,6 @@ for leaving the message as-is."
   :group 'cider
   :package-version '(cider . "1.19.0"))
 
-(defun cider--shorten-error-message (err)
-  "Remove from ERR the prefix matched by `cider-clojure-compilation-regexp',
-and the suffix matched by `cider-module-info-regexp'."
-  (thread-last err
-               (replace-regexp-in-string cider-clojure-compilation-regexp
-                                         "")
-               (replace-regexp-in-string cider-module-info-regexp
-                                         "")
-               (string-trim)))
-
 ;;; Utilities
 
 (defun cider--clear-compilation-highlights ()
@@ -447,6 +437,16 @@ Show error overlay in BUFFER if needed."
       " of loader "
       (minimal-match (one-or-more anything))
       ")"))
+
+(defun cider--shorten-error-message (err)
+  "Remove from ERR the prefix matched by `cider-clojure-compilation-regexp',
+and the suffix matched by `cider-module-info-regexp'."
+  (thread-last err
+               (replace-regexp-in-string cider-clojure-compilation-regexp
+                                         "")
+               (replace-regexp-in-string cider-module-info-regexp
+                                         "")
+               (string-trim)))
 
 (defvar cider-compilation-regexp
   (list cider-clojure-compilation-regexp
