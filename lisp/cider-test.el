@@ -191,6 +191,9 @@ Return nil when VALUE is nil."
     (mapcar (lambda (selector) (replace-regexp-in-string "\\`:+" "" selector))
             (split-string value))))
 
+(defvar cider-test-default-include-selectors)
+(defvar cider-test-default-exclude-selectors)
+
 (defun cider-test-menu--apply-args (args thunk)
   "Call THUNK with the `cider-test-menu' selector ARGS applied.
 The include/exclude selectors are `let'-bound around the call, so the run
