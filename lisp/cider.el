@@ -187,6 +187,8 @@ PROMPT, INITIAL-INPUT and HISTORY are as for `completing-read'."
                            cider-cljs-repl-types)
                    nil t initial-input history))
 
+(defvar cider-edit-jack-in-command)
+
 (defun cider-start-menu--apply-args (args command)
   "Call jack-in COMMAND with the `cider-start-menu' ARGS applied.
 Each active argument is translated into a `let'-binding of the matching

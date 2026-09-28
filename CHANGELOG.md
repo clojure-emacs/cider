@@ -34,6 +34,7 @@
 
 ### Bugs fixed
 
+- [#4205](https://github.com/clojure-emacs/cider/pull/4205): Fix the "not known to be defined" warnings native compilation reported, and the `cider-test-menu` selectors, the `cider-start-menu` edit-command option and the `cider-doctor` version fallback that didn't work in natively compiled builds.
 - [#4182](https://github.com/clojure-emacs/cider/issues/4182): Stop the server-output subscription made on connect from overwriting the `cider-eval-register` register (`e` by default) with an empty string.
 - [#4154](https://github.com/clojure-emacs/cider/issues/4154): Keep word motion and `isearch-yank-word-or-char` working in REPL output: only the delimiters in output get the sexp-neutralizing punctuation syntax now, not every character, so `M-f`/`M-b` no longer jump over a whole output block.
 - [#4180](https://github.com/clojure-emacs/cider/pull/4180): Accept a `:port` given as a number, not just a string, in `cider-connect` and friends: the two spellings are now stored the same way, so a connection made with one is recognized when looked up with the other.

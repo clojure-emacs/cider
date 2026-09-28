@@ -39,6 +39,7 @@
 (require 'subr-x)
 
 (require 'cider-util)
+(eval-when-compile (require 'lisp-mnt)) ; for the `lm-with-file' macro
 
 ;;; Check results
 ;;
@@ -360,6 +361,12 @@ refresh it."
 
 ;;; Helpers
 
+(declare-function cider-popup-buffer "cider-popup")
+(declare-function package-desc-version "package")
+(declare-function package-version-join "package")
+(declare-function find-library-name "find-func")
+(defvar package-alist)
+
 (defun cider-doctor--library-dir (library)
   "Return the directory LIBRARY was loaded from, or nil."
   (when-let* ((file (locate-library library)))
@@ -383,14 +390,6 @@ built-in libraries like `seq')."
      (require 'find-func)
      (lm-with-file (find-library-name (symbol-name feature))
        (lm-header "version")))))
-
-(declare-function cider-popup-buffer "cider-popup")
-(declare-function package-desc-version "package")
-(declare-function package-version-join "package")
-(declare-function find-library-name "find-func")
-(declare-function lm-header "lisp-mnt")
-(declare-function lm-with-file "lisp-mnt")
-(defvar package-alist)
 
 (provide 'cider-doctor)
 

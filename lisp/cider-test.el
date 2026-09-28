@@ -191,6 +191,9 @@ Return nil when VALUE is nil."
     (mapcar (lambda (selector) (replace-regexp-in-string "\\`:+" "" selector))
             (split-string value))))
 
+(defvar cider-test-default-include-selectors)
+(defvar cider-test-default-exclude-selectors)
+
 (defun cider-test-menu--apply-args (args thunk)
   "Call THUNK with the `cider-test-menu' selector ARGS applied.
 The include/exclude selectors are `let'-bound around the call, so the run
@@ -350,8 +353,6 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
 
 ;;; Error stacktraces
 
-(defvar cider-auto-select-error-buffer)
-
 (defun cider-test-stacktrace-for (ns var index)
   "Display stacktrace for the erring NS VAR test with the assertion INDEX."
   (let (causes)
@@ -367,8 +368,8 @@ prompt and whether to use a new window.  Similar to `cider-find-var'."
                (status (when causes
                          (cider-stacktrace-render
                           (cider-popup-buffer cider-error-buffer
-                                              (cider-auto-select-buffer-p
-                                               'error cider-auto-select-error-buffer)
+                                              (with-suppressed-warnings ((obsolete cider-auto-select-error-buffer))
+                                                (cider-auto-select-buffer-p 'error cider-auto-select-error-buffer))
                                               #'cider-stacktrace-mode
                                               'ancillary)
                           (reverse causes)))

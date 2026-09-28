@@ -35,6 +35,7 @@
 
 (require 'cider-client)
 (require 'cider-popup)
+(require 'cider-xref-backend)
 (require 'cider-xref-source)
 (require 'nrepl-dict)
 

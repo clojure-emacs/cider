@@ -31,6 +31,9 @@
 (require 'shr)
 (require 'subr-x)
 
+(require 'cider-util)
+(require 'nrepl-dict)
+
 (defsubst cider--render-pre* (dom)
   "Render DOM nodes, formatting them as Java if they are strings."
   (dolist (sub (dom-children dom))

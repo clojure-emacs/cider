@@ -1,4 +1,4 @@
-.PHONY: clean compile docs-check lint refcard test test-all test-coverage test-integration test-ts test-under-ts test-unit
+.PHONY: clean compile compile-isolated docs-check lint refcard test test-all test-coverage test-integration test-ts test-under-ts test-unit
 .DEFAULT_GOAL := test
 
 # Per our CircleCI, linting/compiling assumes Emacs 28.
@@ -18,6 +18,11 @@ lint: clean
 # Checks for byte-compilation warnings.
 compile: clean
 	eldev -dtT compile --warnings-as-errors
+
+# Compiles each file in a fresh Emacs, as native compilation does, to catch
+# missing requires and declarations that the one-process build hides.
+compile-isolated: compile
+	eldev compile-isolated
 
 test-all: clean
 	eldev -dtT -p test --test-type all
@@ -48,4 +53,4 @@ docs-check:
 refcard:
 	tectonic -o doc/modules/ROOT/attachments refcard/cider-refcard.tex
 
-test: lint compile test-unit
+test: lint compile compile-isolated test-unit

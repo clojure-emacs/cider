@@ -2202,6 +2202,8 @@ the history file is rewritten if `cider-repl-history-file' is set."
 (declare-function cider-jack-in-cljs "cider")
 (declare-function cider-connect-clj "cider")
 (declare-function cider-connect-cljs "cider")
+(declare-function cider-start-menu "cider")
+(declare-function cider-trace-menu "cider-tracing")
 
 (defvar cider-repl-mode-map
   (let ((map (make-sparse-keymap)))
