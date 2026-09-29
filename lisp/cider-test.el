@@ -452,6 +452,15 @@ With the actual value, the outermost `(not ...)' s-expression is removed."
   :type 'boolean
   :package-version '(cider . "1.8.0"))
 
+(defcustom cider-test-stream-results t
+  "When non-nil, report test progress while the tests are running.
+The echo area shows the running totals after each test var, and a var
+that fails is added to the test report right away, instead of everything
+arriving once the whole run is over.  This needs cider-nrepl 0.63.0 or
+newer; with an older one the report arrives at the end, as usual."
+  :type 'boolean
+  :package-version '(cider . "2.1.0"))
+
 (defun cider-test-toggle-fail-fast ()
   "Toggle `cider-test-fail-fast' t <-> nil for the current buffer."
   (interactive)
@@ -695,6 +704,90 @@ The optional arg TEST denotes an individual test name."
                          (propertize ": " 'face 'default))
                  test var fail error ms)))))
 
+;;; Streamed progress
+;;
+;; With `cider-test-stream-results', cider-nrepl sends a test-event for each
+;; namespace it starts and each test var it finishes, ahead of the final
+;; report.  Failures go into the report buffer as they arrive; the final
+;; report then replaces that buffer's contents as usual.
+
+(defvar cider-test--last-progress-echo 0
+  "When the progress of a test run was last echoed.")
+
+(defun cider-test--echo-progress (ns summary)
+  "Echo the running SUMMARY of a test run that has reached NS.
+Updates come at most every tenth of a second, as a run can go through
+many test vars in that time."
+  (let ((now (float-time)))
+    (when (> (- now cider-test--last-progress-echo) 0.1)
+      (setq cider-test--last-progress-echo now)
+      (nrepl-dbind-response summary (test fail error)
+        ;; one of these per test var would flood *Messages*
+        (let ((message-log-max nil))
+          (message "Running tests in %s... %d assertions, %d failures, %d errors"
+                   (cider-propertize ns 'ns) test fail error))))))
+
+(defun cider-test--popup-report (&optional no-select)
+  "Pop up the test report buffer, emptied, and return it.
+It's selected as `cider-auto-select-test-report-buffer' says, unless
+NO-SELECT is non-nil."
+  (cider-popup-buffer cider-test-report-buffer
+                      (and (not no-select)
+                           (cider-auto-select-buffer-p
+                            'test-report cider-auto-select-test-report-buffer))))
+
+(defun cider-test--start-streamed-report ()
+  "Pop up an empty test report for the failures of a run in progress."
+  (with-current-buffer (cider-test--popup-report)
+    (let ((inhibit-read-only t))
+      (cider-test-report-mode)
+      (cider-insert "Running tests..." 'bold t "\n"))
+    (current-buffer)))
+
+(defun cider-test--append-to-report (buffer fn)
+  "Call FN to insert at the end of the report BUFFER, if it's still live."
+  (when (buffer-live-p buffer)
+    (with-current-buffer buffer
+      (let ((inhibit-read-only t))
+        (save-excursion
+          (goto-char (point-max))
+          (funcall fn))))))
+
+(defun cider-test--render-streamed-problems (buffer ns problems)
+  "Append the non-passing PROBLEMS of a test var in NS to the report BUFFER."
+  (cider-test--append-to-report
+   buffer
+   (lambda ()
+     (let ((beg (point)))
+       (cider-test--render-problems buffer ns problems)
+       (cider-test--unescape-newlines beg (point))))))
+
+(defun cider-test--abandon-streamed-report (buffer)
+  "Note in the streamed report BUFFER that the run ended without a report."
+  (cider-test--append-to-report
+   buffer
+   (lambda ()
+     (cider-insert "The test run ended before its report arrived."
+                   'cider-test-error-face t))))
+
+(defun cider-test--handle-event (event report silent)
+  "Show the progress carried by the test EVENT of a streamed run.
+REPORT is the report buffer the run has put failures into so far, or nil.
+If SILENT is non-nil, don't echo the progress.  Return the report buffer."
+  (nrepl-dbind-response event (type ns results summary)
+    (pcase type
+      ("begin-ns"
+       (unless silent
+         (cider-test-echo-running ns)))
+      ("end-var"
+       (unless silent
+         (cider-test--echo-progress ns summary))
+       (when results
+         (unless (buffer-live-p report)
+           (setq report (cider-test--start-streamed-report)))
+         (cider-test--render-streamed-problems report ns results))))
+    report))
+
 ;;; Test definition highlighting
 ;;
 ;; On receipt of test results, failing/erring test definitions are highlighted.
@@ -881,6 +974,8 @@ running them."
         (cider-test-spinner-start (current-buffer))
         (setq cider-test--current-repl conn)
         (let* ((retest? (eq :non-passing ns))
+               ;; the report buffer a streamed run has put failures into
+               (streamed-report nil)
                (request `("op" ,(cond ((stringp ns)         "cider/test")
                                       ((eq :project ns)     "cider/test-all")
                                       ((eq :loaded ns)      "cider/test-all")
@@ -899,20 +994,28 @@ running them."
           (when (and cider-test-fail-fast
                      (not retest?))
             (setq request (append request `("fail-fast" ,"true"))))
+          (when cider-test-stream-results
+            (setq request (append request `("stream" "true"))))
           (cider-nrepl-send-request
            request
            (lambda (response)
-             (nrepl-dbind-response response (summary results status out err elapsed-time ns-elapsed-time var-elapsed-time id)
+             (nrepl-dbind-response response (summary results status out err elapsed-time ns-elapsed-time var-elapsed-time id test-event)
                (when (or (member "done" status)
                          (member "error" status)
                          (member "namespace-not-found" status))
                  (cider-test-spinner-stop)
-                 (nrepl--mark-id-completed id))
+                 (nrepl--mark-id-completed id)
+                 ;; the final report clears this; still set means none came
+                 (unless results
+                   (cider-test--abandon-streamed-report streamed-report)))
                (cond ((member "namespace-not-found" status)
                       (unless silent
                         (message "No test namespace: %s" (cider-propertize ns 'ns))))
                      (out (cider-emit-interactive-eval-output out))
                      (err (cider-emit-interactive-eval-err-output err))
+                     (test-event
+                      (setq streamed-report
+                            (cider-test--handle-event test-event streamed-report silent)))
                      (results
                       (nrepl-dbind-response summary (error fail)
                         (setq cider-test-last-summary summary)
@@ -921,14 +1024,16 @@ running them."
                         (cider-test-echo-summary summary results elapsed-time)
                         (if (or (not (zerop (+ error fail)))
                                 cider-test-show-report-on-success)
-                            (let ((b (cider-popup-buffer
-                                      cider-test-report-buffer
-                                      (cider-auto-select-buffer-p
-                                       'test-report cider-auto-select-test-report-buffer))))
+                            ;; don't select the report again if the streamed
+                            ;; one is still on display
+                            (let ((b (cider-test--popup-report
+                                      (and (buffer-live-p streamed-report)
+                                           (get-buffer-window streamed-report t)))))
                               ;; `cider-make-popup-buffer' now pins the report to
                               ;; its originating REPL and adopts that session's
                               ;; project dir, so no `default-directory' override
                               ;; is needed here anymore.
+                              (setq streamed-report nil)
                               (cider-test-render-report
                                b
                                summary

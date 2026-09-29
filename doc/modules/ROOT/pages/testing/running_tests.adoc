@@ -104,6 +104,7 @@ that they're unsupported.
 
 You can configure CIDER's test execution behavior in multiple ways.
 
+[#fail-fast]
 === Fail-fast
 
 Starting from 1.8.0, CIDER has standard fail-fast functionality,
@@ -114,6 +115,27 @@ You can toggle its value for the current buffer using `cider-test-toggle-fail-fa
 NOTE: fail-fast will never be chosen for the "retest" functionality,
 since that would cause you to lose the majority of the tests
 that previously failed.
+
+=== Progress While Tests Run
+
+With `cider-test-stream-results` (on by default), CIDER reports progress while
+a run is under way instead of all at once at the end. The echo area shows the
+running totals after each test var, and a var that fails lands in the test
+report as soon as it's done, so you can start looking at it while the rest of
+the tests keep going. When the run finishes, the report is replaced by the usual
+full one.
+
+This needs cider-nrepl 0.63.0 or newer. With an older one, or for ClojureScript
+tests, the report still arrives at the end.
+
+TIP: Progress matters most for long runs, so it pairs well with turning
+<<fail-fast,fail-fast>> off.
+
+[source,lisp]
+----
+;; wait for the whole run, as before
+(setq cider-test-stream-results nil)
+----
 
 === Test Namespace Naming Convention
 

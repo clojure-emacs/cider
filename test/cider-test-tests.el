@@ -198,3 +198,168 @@
     (expect (cider-test-execute :loaded) :to-throw 'user-error)
     ;; the guard must fire before any REPL dispatch / side effect
     (expect 'cider-map-repls :not :to-have-been-called)))
+
+(defun cider-test-tests--event (&rest plist)
+  "Build a test-event dict out of PLIST."
+  (apply #'nrepl-dict plist))
+
+(defun cider-test-tests--failure (ns var)
+  "A non-passing assertion of VAR in NS, as cider-nrepl sends it."
+  (nrepl-dict "type" "fail" "ns" ns "var" var "index" 0
+              "expected" "1\n" "actual" "2\n"))
+
+(describe "cider-test--handle-event"
+  :var (report)
+  (before-each
+    (spy-on 'message)
+    (spy-on 'cider-popup-buffer-display :and-call-fake
+            (lambda (buffer-name &optional _select) (get-buffer buffer-name))))
+
+  (after-each
+    (when (buffer-live-p report)
+      (kill-buffer report))
+    (setq report nil))
+
+  (it "echoes the namespace being tested"
+    (cider-test--handle-event (cider-test-tests--event "type" "begin-ns" "ns" "foo-test")
+                              nil nil)
+    (expect 'message :to-have-been-called))
+
+  (it "echoes nothing when silent"
+    (cider-test--handle-event (cider-test-tests--event "type" "begin-ns" "ns" "foo-test")
+                              nil t)
+    (expect 'message :not :to-have-been-called))
+
+  (it "leaves the report alone for a var without failures"
+    (expect (cider-test--handle-event
+             (cider-test-tests--event "type" "end-var" "ns" "foo-test" "var" "a"
+                                      "results" nil
+                                      "summary" (nrepl-dict "test" 1 "fail" 0 "error" 0))
+             nil nil)
+            :to-be nil))
+
+  (it "puts failures into the report as they arrive"
+    (let ((summary (nrepl-dict "test" 2 "fail" 1 "error" 0)))
+      (setq report (cider-test--handle-event
+                    (cider-test-tests--event "type" "end-var" "ns" "foo-test" "var" "a"
+                                             "results" (list (cider-test-tests--failure "foo-test" "a"))
+                                             "summary" summary)
+                    nil nil))
+      (expect (buffer-live-p report) :to-be-truthy)
+      (expect (cider-test--handle-event
+               (cider-test-tests--event "type" "end-var" "ns" "foo-test" "var" "b"
+                                        "results" (list (cider-test-tests--failure "foo-test" "b"))
+                                        "summary" summary)
+               report nil)
+              :to-be report)
+      (with-current-buffer report
+        (expect (buffer-string) :to-match "Running tests")
+        (expect (buffer-string) :to-match "Fail in a")
+        (expect (buffer-string) :to-match "Fail in b")
+        (expect buffer-read-only :to-be-truthy)))))
+
+(describe "cider-test-execute with streaming"
+  :var (sent callback)
+  (before-each
+    (setq sent nil callback nil)
+    (spy-on 'cider-ensure-session)
+    (spy-on 'cider-test-clear-highlights)
+    (spy-on 'cider-test-spinner-start)
+    (spy-on 'cider-test-spinner-stop)
+    (spy-on 'cider-test-highlight-problems)
+    (spy-on 'nrepl--mark-id-completed)
+    (spy-on 'message)
+    (spy-on 'cider-map-repls :and-call-fake
+            (lambda (_type function) (funcall function 'conn)))
+    (spy-on 'cider-nrepl-send-request :and-call-fake
+            (lambda (request cb &rest _)
+              (setq sent request callback cb)))
+    (spy-on 'cider-popup-buffer :and-call-through)
+    (spy-on 'cider-popup-buffer-display :and-call-fake
+            (lambda (buffer-name &optional _select)
+              (let ((buffer (get-buffer buffer-name)))
+                (set-window-buffer (selected-window) buffer)
+                buffer))))
+
+  (after-each
+    (when (get-buffer cider-test-report-buffer)
+      (kill-buffer cider-test-report-buffer)))
+
+  (it "asks for streamed results"
+    (let ((cider-test-stream-results t))
+      (cider-test-execute "foo-test")
+      (expect (lax-plist-get sent "stream") :to-equal "true")))
+
+  (it "doesn't ask for them when turned off"
+    (let ((cider-test-stream-results nil))
+      (cider-test-execute "foo-test")
+      (expect (member "stream" sent) :to-be nil)))
+
+  (it "doesn't select the final report again while the streamed one is on display"
+    (let ((cider-test-stream-results t)
+          (cider-auto-select-test-report-buffer t)
+          (failure (cider-test-tests--failure "foo-test" "a")))
+      (cider-test-execute "foo-test")
+      (funcall callback
+               (nrepl-dict "test-event"
+                           (nrepl-dict "type" "end-var" "ns" "foo-test" "var" "a"
+                                       "results" (list failure)
+                                       "summary" (nrepl-dict "test" 1 "fail" 1 "error" 0))))
+      (expect (spy-calls-args-for 'cider-popup-buffer 0)
+              :to-equal (list cider-test-report-buffer t))
+      (funcall callback
+               (nrepl-dict "summary" (nrepl-dict "ns" 1 "var" 1 "test" 1 "pass" 0 "fail" 1 "error" 0)
+                           "results" (nrepl-dict "foo-test" (nrepl-dict "a" (list failure)))
+                           "status" '("done")))
+      (expect (spy-calls-args-for 'cider-popup-buffer 1)
+              :to-equal (list cider-test-report-buffer nil))
+      (with-current-buffer cider-test-report-buffer
+        (expect (buffer-string) :to-match "Test Summary")
+        (expect (buffer-string) :not :to-match "Running tests"))))
+
+  (it "selects the final report again when the streamed one was dismissed"
+    (let ((cider-test-stream-results t)
+          (cider-auto-select-test-report-buffer t)
+          (failure (cider-test-tests--failure "foo-test" "a")))
+      (cider-test-execute "foo-test")
+      (funcall callback
+               (nrepl-dict "test-event"
+                           (nrepl-dict "type" "end-var" "ns" "foo-test" "var" "a"
+                                       "results" (list failure)
+                                       "summary" (nrepl-dict "test" 1 "fail" 1 "error" 0))))
+      (set-window-buffer (selected-window) (get-buffer-create "*scratch*"))
+      (funcall callback
+               (nrepl-dict "summary" (nrepl-dict "ns" 1 "var" 1 "test" 1 "pass" 0 "fail" 1 "error" 0)
+                           "results" (nrepl-dict "foo-test" (nrepl-dict "a" (list failure)))))
+      (expect (spy-calls-args-for 'cider-popup-buffer 1)
+              :to-equal (list cider-test-report-buffer t))))
+
+  (it "starts a new streamed report when the first was killed mid-run"
+    (let ((cider-test-stream-results t)
+          (summary (nrepl-dict "test" 1 "fail" 1 "error" 0)))
+      (cider-test-execute "foo-test")
+      (funcall callback
+               (nrepl-dict "test-event"
+                           (nrepl-dict "type" "end-var" "ns" "foo-test" "var" "a"
+                                       "results" (list (cider-test-tests--failure "foo-test" "a"))
+                                       "summary" summary)))
+      (kill-buffer cider-test-report-buffer)
+      (funcall callback
+               (nrepl-dict "test-event"
+                           (nrepl-dict "type" "end-var" "ns" "foo-test" "var" "b"
+                                       "results" (list (cider-test-tests--failure "foo-test" "b"))
+                                       "summary" summary)))
+      (with-current-buffer cider-test-report-buffer
+        (expect (buffer-string) :to-match "Fail in b"))))
+
+  (it "notes in the streamed report when the run ends without a report"
+    (let ((cider-test-stream-results t))
+      (cider-test-execute "foo-test")
+      (funcall callback
+               (nrepl-dict "test-event"
+                           (nrepl-dict "type" "end-var" "ns" "foo-test" "var" "a"
+                                       "results" (list (cider-test-tests--failure "foo-test" "a"))
+                                       "summary" (nrepl-dict "test" 1 "fail" 1 "error" 0))))
+      (funcall callback (nrepl-dict "status" '("done" "interrupted")))
+      (with-current-buffer cider-test-report-buffer
+        (expect (buffer-string) :to-match "ended before its report arrived")))))
