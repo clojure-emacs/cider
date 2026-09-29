@@ -572,6 +572,24 @@ If ELAPSED-TIME is provided it will be included in the summary."
                   test))
               tests))
 
+(defun cider-test--render-problems (buffer ns problems)
+  "Emit into BUFFER the non-passing PROBLEMS of a test var in NS."
+  (with-current-buffer buffer
+    (insert (format "%s\n%d non-passing tests:\n\n"
+                    (cider-propertize ns 'ns) (length problems)))
+    (dolist (test problems)
+      (cider-test-render-assertion buffer test))))
+
+(defun cider-test--unescape-newlines (beg end)
+  "Turn the escaped newlines between BEG and END into real ones.
+This makes long error messages more readable."
+  (save-excursion
+    (goto-char beg)
+    (let ((end (copy-marker end)))
+      (while (search-forward "\\n" end t)
+        (replace-match "\n" t t))
+      (set-marker end nil))))
+
 (defun cider-test-render-report (buffer summary results &optional elapsed-time ns-elapsed-time var-elapsed-time)
   "Emit into BUFFER the report for the SUMMARY, and test RESULTS.
 Optional ELAPSED-TIME, NS-ELAPSED-TIME, and VAR-ELAPSED-TIME provide
@@ -609,21 +627,11 @@ timing data for the overall run, per-namespace, and per-var respectively."
            (lambda (ns vars)
              (nrepl-dict-map
               (lambda (_var tests)
-                (let* ((problems (cider-test-non-passing tests))
-                       (count (length problems)))
-                  (when (< 0 count)
-                    (insert (format "%s\n%d non-passing tests:\n\n"
-                                    (cider-propertize ns 'ns) count))
-                    (dolist (test problems)
-                      (cider-test-render-assertion buffer test)))))
+                (when-let* ((problems (cider-test-non-passing tests)))
+                  (cider-test--render-problems buffer ns problems)))
               vars))
            results)))
-      ;; Replace any newline chars with actual newlines to make long error
-      ;; messages more readable
-      (goto-char (point-min))
-      (while (search-forward "\\n" nil t)
-        (replace-match "
-"))
+      (cider-test--unescape-newlines (point-min) (point-max))
       (goto-char (point-min))
       (current-buffer))))
 
