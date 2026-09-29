@@ -521,7 +521,10 @@ If ELAPSED-TIME is provided it will be included in the summary."
                 (insert-align-label (s)
                   (insert (format "%12s" s)))
                 (insert-rect (s)
-                  (let ((start (point)))
+                  (let ((start (point))
+                        ;; `insert-rectangle' pushes the mark and says so
+                        (inhibit-message t)
+                        (message-log-max nil))
                     (insert-rectangle (thread-first
                                         s
                                         cider-font-lock-as-clojure

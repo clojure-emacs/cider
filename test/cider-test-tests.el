@@ -208,6 +208,19 @@
   (nrepl-dict "type" "fail" "ns" ns "var" var "index" 0
               "expected" "1\n" "actual" "2\n"))
 
+(describe "cider-test-render-assertion"
+  (it "doesn't echo \"Mark set\" for the values it inserts"
+    (let (echoed)
+      (spy-on 'message :and-call-fake
+              (lambda (&rest args)
+                (unless inhibit-message
+                  (push (car args) echoed))))
+      (with-temp-buffer
+        (cider-test-render-assertion
+         (current-buffer)
+         (nrepl-dict "type" "fail" "var" "a" "expected" "1\n" "actual" "2\n")))
+      (expect echoed :to-be nil))))
+
 (describe "cider-test--handle-event"
   :var (report)
   (before-each
