@@ -773,14 +773,16 @@ NO-SELECT is non-nil."
      (cider-insert "The test run ended before its report arrived."
                    'cider-test-error-face t))))
 
-(defun cider-test--handle-event (event report silent)
+(defun cider-test--handle-event (event report silent &optional one-ns)
   "Show the progress carried by the test EVENT of a streamed run.
 REPORT is the report buffer the run has put failures into so far, or nil.
-If SILENT is non-nil, don't echo the progress.  Return the report buffer."
+If SILENT is non-nil, don't echo the progress.  ONE-NS non-nil means the
+run is for a single namespace, which was announced as the run started,
+so it isn't announced again.  Return the report buffer."
   (nrepl-dbind-response event (type ns results summary)
     (pcase type
       ("begin-ns"
-       (unless silent
+       (unless (or silent one-ns)
          (cider-test-echo-running ns)))
       ("end-var"
        (unless silent
@@ -1018,7 +1020,8 @@ running them."
                      (err (cider-emit-interactive-eval-err-output err))
                      (test-event
                       (setq streamed-report
-                            (cider-test--handle-event test-event streamed-report silent)))
+                            (cider-test--handle-event test-event streamed-report silent
+                                                      (stringp ns))))
                      (results
                       (nrepl-dbind-response summary (error fail)
                         (setq cider-test-last-summary summary)
