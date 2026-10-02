@@ -308,6 +308,11 @@
       (cider-test-execute "foo-test")
       (expect (member "stream" sent) :to-be nil)))
 
+  (it "runs all the tests by default instead of stopping at the first failure"
+    (let ((cider-test-fail-fast (default-toplevel-value 'cider-test-fail-fast)))
+      (cider-test-execute "foo-test")
+      (expect (member "fail-fast" sent) :to-be nil)))
+
   (it "doesn't select the final report again while the streamed one is on display"
     (let ((cider-test-stream-results t)
           (cider-auto-select-test-report-buffer t)

@@ -22,6 +22,7 @@
 
 ### Changes
 
+- [#4207](https://github.com/clojure-emacs/cider/pull/4207): Turn `cider-test-fail-fast` off by default, so a test run goes through all the tests and streams their failures as they come in, instead of stopping at the first one.
 - [#4206](https://github.com/clojure-emacs/cider/pull/4206): Bump the injected `cider-nrepl` to [0.63.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.63.0/CHANGELOG.md#0630-2026-10-02), which streams test progress while the tests run.
 - [#4184](https://github.com/clojure-emacs/cider/pull/4184): Move `cider-jump-to-comment` from `C-c C-j v` to `C-c C-j j`, so `v` under the insert prefix is `cider-insert-sexp-at-point-in-repl` like the other at-point commands; the macroexpand and pretty-print at-point variants are now also in the plain `cider-macroexpand-map`/`cider-eval-pprint-commands-map`, not just the menus.
 - [#2854](https://github.com/clojure-emacs/cider/issues/2854): Leave keys with a `nil` value out of nREPL requests (at any nesting depth) instead of sending them as empty lists; `nrepl-bencode` now encodes vectors as lists, so `[]` is the way to send an empty list on purpose.
