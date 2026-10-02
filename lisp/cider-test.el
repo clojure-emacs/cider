@@ -447,10 +447,10 @@ With the actual value, the outermost `(not ...)' s-expression is removed."
 
 ;;; Report rendering
 
-(defcustom cider-test-fail-fast t
+(defcustom cider-test-fail-fast nil
   "Controls whether to stop a test run on failure/error."
   :type 'boolean
-  :package-version '(cider . "1.8.0"))
+  :package-version '(cider . "2.1.0"))
 
 (defcustom cider-test-stream-results t
   "When non-nil, report test progress while the tests are running.
