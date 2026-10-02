@@ -243,6 +243,11 @@
                               nil t)
     (expect 'message :not :to-have-been-called))
 
+  (it "doesn't announce the namespace again in a single-namespace run"
+    (cider-test--handle-event (cider-test-tests--event "type" "begin-ns" "ns" "foo-test")
+                              nil nil t)
+    (expect 'message :not :to-have-been-called))
+
   (it "leaves the report alone for a var without failures"
     (expect (cider-test--handle-event
              (cider-test-tests--event "type" "end-var" "ns" "foo-test" "var" "a"
@@ -375,4 +380,20 @@
                                        "summary" (nrepl-dict "test" 1 "fail" 1 "error" 0))))
       (funcall callback (nrepl-dict "status" '("done" "interrupted")))
       (with-current-buffer cider-test-report-buffer
-        (expect (buffer-string) :to-match "ended before its report arrived")))))
+        (expect (buffer-string) :to-match "ended before its report arrived"))))
+
+  (it "announces a namespace only once in a single-namespace run"
+    (let ((cider-test-stream-results t))
+      (spy-on 'cider-test-echo-running)
+      (cider-test-execute "foo-test")
+      (funcall callback (nrepl-dict "test-event"
+                                    (nrepl-dict "type" "begin-ns" "ns" "foo-test")))
+      (expect 'cider-test-echo-running :to-have-been-called-times 1)))
+
+  (it "announces each namespace of a multi-namespace run"
+    (let ((cider-test-stream-results t))
+      (spy-on 'cider-test-echo-running)
+      (cider-test-execute :loaded)
+      (funcall callback (nrepl-dict "test-event"
+                                    (nrepl-dict "type" "begin-ns" "ns" "foo-test")))
+      (expect 'cider-test-echo-running :to-have-been-called-times 2))))
