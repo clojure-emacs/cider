@@ -19,5 +19,5 @@ asciidoc:
     # {cider-nrepl-version} and so on (code blocks need subs="attributes+").
     cider-nrepl-version: '0.63.1'
     nrepl-version: '1.7.0'
-    piggieback-version: '0.7.0'
+    piggieback-version: '0.7.1'
     clojure-min-version: '1.10'
