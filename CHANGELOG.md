@@ -36,6 +36,7 @@
 
 ### Bugs fixed
 
+- [#4210](https://github.com/clojure-emacs/cider/pull/4210): Bump the injected `piggieback` to [0.7.1](https://github.com/nrepl/piggieback/blob/0.7.1/CHANGES.md#071-2026-10-07), fixing `cider-load-buffer` and `cider-load-file` in ClojureScript, which failed with "No such namespace" when the code required a foreign lib such as a cljsjs package.
 - [#4206](https://github.com/clojure-emacs/cider/pull/4206): Stop the test report from echoing "Mark set" for every expected and actual value it renders.
 - [#4182](https://github.com/clojure-emacs/cider/issues/4182): Stop the server-output subscription made on connect from overwriting the `cider-eval-register` register (`e` by default) with an empty string.
 - [#4154](https://github.com/clojure-emacs/cider/issues/4154): Keep word motion and `isearch-yank-word-or-char` working in REPL output: only the delimiters in output get the sexp-neutralizing punctuation syntax now, not every character, so `M-f`/`M-b` no longer jump over a whole output block.
