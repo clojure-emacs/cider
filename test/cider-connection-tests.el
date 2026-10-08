@@ -801,3 +801,39 @@
     (cider--subscribe-repl-to-server-out)
     (expect (car (spy-calls-args-for 'cider-nrepl-send-request 0))
             :to-equal '("op" "cider/out-subscribe"))))
+
+(describe "cider--connected-handler"
+  :var (init)
+  (before-each
+    (setq init nil)
+    (spy-on 'cider--gather-connect-params)
+    (spy-on 'cider-set-repl-type)
+    (spy-on 'cider-repl-init :and-call-fake (lambda (_buffer callback) (setq init callback)))
+    (spy-on 'cider-runtime-clojure-p :and-return-value t)
+    (spy-on 'cider--check-required-nrepl-version)
+    (spy-on 'cider--check-clojure-version-supported)
+    (spy-on 'cider--check-middleware-compatibility)
+    (spy-on 'cider--subscribe-repl-to-server-out)
+    (spy-on 'cider--debug-init-connection)
+    (spy-on 'cider--set-connection-capabilities)
+    (spy-on 'cider--cache-session-project-dir))
+
+  (it "initializes the debugger when cider-nrepl provides it"
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
+    (let ((cider-connected-hook nil)
+          (cider-auto-mode nil)
+          (cider-repl-init-function nil))
+      (cider--connected-handler)
+      (funcall init))
+    (expect 'cider--debug-init-connection :to-have-been-called))
+
+  (it "finishes connecting to a server without cider-nrepl"
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
+    (let* ((connected nil)
+           (cider-connected-hook (list (lambda () (setq connected t))))
+           (cider-auto-mode nil)
+           (cider-repl-init-function nil))
+      (cider--connected-handler)
+      (funcall init)
+      (expect 'cider--debug-init-connection :not :to-have-been-called)
+      (expect connected :to-be t))))
