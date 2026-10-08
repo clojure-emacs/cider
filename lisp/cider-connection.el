@@ -300,7 +300,8 @@ buffer."
          ;; (likely a Clojure bug). Thus, we load the heavy debug middleware towards
          ;; the end, allowing for the faster "server-out" middleware to load
          ;; first.
-         (cider--debug-init-connection))
+         (when (cider-nrepl-op-supported-p "cider/init-debugger")
+           (cider--debug-init-connection)))
 
        (cider--set-connection-capabilities)
 

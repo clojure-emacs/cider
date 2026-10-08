@@ -36,6 +36,7 @@
 
 ### Bugs fixed
 
+- [#4212](https://github.com/clojure-emacs/cider/pull/4212): Finish setting up connections to servers without cider-nrepl (e.g. a plain nREPL server or Babashka), where the attempt to start the debugger stopped `cider-connected-hook`, `cider-repl-init-function` and `cider-auto-mode` from running.
 - [#4211](https://github.com/clojure-emacs/cider/pull/4211): Bump the injected `piggieback` to [0.8.0](https://github.com/nrepl/piggieback/blob/0.8.0/CHANGES.md#080-2026-10-08), fixing `:cljs/quit`, which left the REPL stuck in ClojureScript mode, and keeping the `cljs-repl` options (e.g. `:warnings`) and the bindings tools like figwheel-main set up around it in effect for every evaluation.
 - [#4210](https://github.com/clojure-emacs/cider/pull/4210): Bump the injected `piggieback` to [0.7.1](https://github.com/nrepl/piggieback/blob/0.7.1/CHANGES.md#071-2026-10-07), fixing `cider-load-buffer` and `cider-load-file` in ClojureScript, which failed with "No such namespace" when the code required a foreign lib such as a cljsjs package.
 - [#4206](https://github.com/clojure-emacs/cider/pull/4206): Stop the test report from echoing "Mark set" for every expected and actual value it renders.
