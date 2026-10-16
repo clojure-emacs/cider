@@ -705,6 +705,43 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
     (dolist (entry cider-repl-content-type-handler-alist)
       (expect (functionp (cdr entry)) :to-be-truthy))))
 
+(describe "cider-repl--input-complete-p"
+  :var (input-complete-p)
+  (before-all
+    (setq input-complete-p
+          (lambda (input)
+            (with-temp-buffer
+              (clojure-mode)
+              (insert input)
+              (cider-repl--input-complete-p (point-min) (point-max))))))
+
+  (it "treats unbalanced lists and strings as incomplete"
+    (expect (funcall input-complete-p "(+ 1") :not :to-be-truthy)
+    (expect (funcall input-complete-p "'(1 2") :not :to-be-truthy)
+    (expect (funcall input-complete-p "\"foo") :not :to-be-truthy))
+
+  (it "treats unbalanced maps, vectors and sets as incomplete (#4203)"
+    (expect (funcall input-complete-p "{:a \"foo\"") :not :to-be-truthy)
+    (expect (funcall input-complete-p "[1 2") :not :to-be-truthy)
+    (expect (funcall input-complete-p "#{1 2") :not :to-be-truthy)
+    (expect (funcall input-complete-p "^{:x 1} [a") :not :to-be-truthy))
+
+  (it "treats balanced input as complete"
+    (expect (funcall input-complete-p "(+ 1 2)") :to-be-truthy)
+    (expect (funcall input-complete-p "{:a \"foo\" :b 2}") :to-be-truthy)
+    (expect (funcall input-complete-p "[1 2] [3 4]") :to-be-truthy)
+    (expect (funcall input-complete-p "#{1 2}") :to-be-truthy)
+    (expect (funcall input-complete-p "^{:x 1} [a]") :to-be-truthy))
+
+  (it "tolerates extra closing delimiters"
+    (expect (funcall input-complete-p "(+ 1 2))") :to-be-truthy)
+    (expect (funcall input-complete-p "[1 2]]") :to-be-truthy)
+    (expect (funcall input-complete-p "{:a 1}}") :to-be-truthy))
+
+  (it "treats input not starting with a delimiter as complete"
+    (expect (funcall input-complete-p "foo") :to-be-truthy)
+    (expect (funcall input-complete-p "42") :to-be-truthy)))
+
 (describe "cider-repl-mode-map"
   ;; The plain-eval commands were removed from the REPL keymap: they ran
   ;; source-buffer eval machinery (fringe indicators and the like) in the REPL
