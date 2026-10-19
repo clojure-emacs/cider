@@ -266,3 +266,347 @@
   (it "passes nil for a plain smart reload when no switches are set"
     (cider-ns-menu--refresh nil)
     (expect 'cider-ns-refresh :to-have-been-called-with nil)))
+
+(describe "cider-ns-add-require"
+  :var (cider-ns-edit-actions)
+
+  (before-each
+    (setq cider-ns-edit-actions '(sort))
+    (spy-on 'cider-connected-p :and-return-value nil))
+
+  (it "adds a :require clause when there's none"
+    (with-clojure-buffer "(ns foo.bar)\n\n(defn x [] |1)"
+      (cider-ns-add-require "clojure.string" "str")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [clojure.string :as str]))\n\n(defn x [] 1)")))
+
+  (it "puts a new :require clause before the :import clause"
+    (with-clojure-buffer "(ns foo.bar\n  \"Docs.\"\n  (:import java.util.Date))\n|"
+      (cider-ns-add-require "clojure.string" "str")
+      (expect (buffer-string) :to-equal
+              (concat "(ns foo.bar\n  \"Docs.\"\n"
+                      "  (:require [clojure.string :as str])\n"
+                      "  (:import java.util.Date))\n"))))
+
+  (it "adds to the :require clause and keeps it sorted"
+    (with-clojure-buffer "(ns foo.bar\n  (:require [clojure.set :as set]\n            [zebra.core :as z]))\n|"
+      (cider-ns-add-require "clojure.string" "str")
+      (expect (buffer-string) :to-equal
+              (concat "(ns foo.bar\n"
+                      "  (:require [clojure.set :as set]\n"
+                      "            [clojure.string :as str]\n"
+                      "            [zebra.core :as z]))\n"))))
+
+  (it "leaves a comment trailing the last libspec on its line"
+    (with-clojure-buffer "(ns foo.bar\n  (:require\n   [clojure.set :as set] ; sets\n   ))\n|"
+      (cider-ns-add-require "clojure.string" "str")
+      (expect (buffer-string) :to-equal
+              (concat "(ns foo.bar\n  (:require\n"
+                      "   [clojure.set :as set] ; sets\n"
+                      "   [clojure.string :as str]\n"
+                      "   ))\n"))))
+
+  (it "fills an empty :require clause"
+    (with-clojure-buffer "(ns foo.bar\n  (:require))\n|"
+      (cider-ns-add-require "clojure.string" "str")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [clojure.string :as str]))\n")))
+
+  (it "requires the namespace without an alias when there's none"
+    (with-clojure-buffer "(ns foo.bar\n  (:require [clojure.set :as set]))\n|"
+      (cider-ns-add-require "clojure.string")
+      (expect (buffer-string) :to-equal
+              (concat "(ns foo.bar\n"
+                      "  (:require [clojure.set :as set]\n"
+                      "            clojure.string))\n"))))
+
+  (it "leaves the ns form alone when the namespace is already required"
+    (dolist (libspec '("[clojure.string :as string]" "clojure.string" "(clojure.string)"))
+      (let ((contents (format "(ns foo.bar\n  (:require %s))\n" libspec)))
+        (with-clojure-buffer contents
+          (spy-on 'cider-ns-edit--sort)
+          (spy-on 'message)
+          (cider-ns-add-require "clojure.string" "str")
+          (expect 'message :to-have-been-called-with
+                  "%s is already required: %s" "clojure.string" libspec)
+          (expect (buffer-string) :to-equal contents)
+          (expect 'cider-ns-edit--sort :not :to-have-been-called)))))
+
+  (it "ignores what's discarded with #_"
+    (with-clojure-buffer (concat "#_(ns old.one)\n"
+                                 "(ns foo.bar\n"
+                                 "  #_(:require [old.dep :as od])\n"
+                                 "  (:require [a.b :as b]\n"
+                                 "            #_[clojure.string :as str]))\n|")
+      (setq cider-ns-edit-actions nil)
+      (cider-ns-add-require "clojure.string" "str")
+      (expect (buffer-string) :to-equal
+              (concat "#_(ns old.one)\n"
+                      "(ns foo.bar\n"
+                      "  #_(:require [old.dep :as od])\n"
+                      "  (:require [a.b :as b]\n"
+                      "            [clojure.string :as str]\n"
+                      "            #_[clojure.string :as str]))\n"))))
+
+  (it "keeps the new libspec inside the clause after a trailing comma"
+    (with-clojure-buffer "(ns foo.bar\n  (:require [a.b :as b],))\n|"
+      (cider-ns-add-require "c.d" "d")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [a.b :as b],\n            [c.d :as d]))\n")))
+
+  (it "finds ns forms written in other ways"
+    (dolist (ns-form '("(clojure.core/ns foo.bar)" "(ns ^:no-doc foo.bar)"
+                       "(ns foo.bar\n  \"Not (:require [x.y]) really.\")"))
+      (with-clojure-buffer (concat ns-form "\n|")
+        (cider-ns-add-require "clojure.string" "str")
+        (expect (buffer-string) :to-equal
+                (concat (substring ns-form 0 -1)
+                        "\n  (:require [clojure.string :as str]))\n")))))
+
+  (it "doesn't look into reader conditionals"
+    (with-clojure-buffer "(ns foo.bar\n  (:require #?(:clj [a.b :as b])))\n|"
+      (setq cider-ns-edit-actions nil)
+      (cider-ns-add-require "a.b" "b")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require #?(:clj [a.b :as b])\n            [a.b :as b]))\n")))
+
+  (it "doesn't sort when told not to"
+    (with-clojure-buffer "(ns foo.bar\n  (:require [zebra.core :as z]))\n|"
+      (setq cider-ns-edit-actions nil)
+      (cider-ns-add-require "clojure.string" "str")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [zebra.core :as z]\n            [clojure.string :as str]))\n")))
+
+  (it "signals an error in a read-only buffer"
+    (with-clojure-buffer "(ns foo.bar)\n"
+      (setq buffer-read-only t)
+      (expect (cider-ns-add-require "clojure.string" "str") :to-throw 'buffer-read-only)))
+
+  (it "doesn't mistake :require-macros for :require"
+    (with-clojure-buffer "(ns foo.bar\n  (:require-macros [clojure.string :as string]))\n|"
+      (cider-ns-add-require "clojure.string" "str")
+      (expect (buffer-string) :to-equal
+              (concat "(ns foo.bar\n"
+                      "  (:require-macros [clojure.string :as string])\n"
+                      "  (:require [clojure.string :as str]))\n"))))
+
+  (it "edits the ns form above point"
+    (with-clojure-buffer "(ns a.one)\n\n(ns a.two)\n|"
+      (cider-ns-add-require "clojure.string" "str")
+      (expect (buffer-string) :to-equal
+              "(ns a.one)\n\n(ns a.two\n  (:require [clojure.string :as str]))\n")))
+
+  (it "edits the first ns form when there's none above point"
+    (with-clojure-buffer "|\n(ns a.one)\n"
+      (cider-ns-add-require "clojure.string" "str")
+      (expect (buffer-string) :to-equal
+              "\n(ns a.one\n  (:require [clojure.string :as str]))\n")))
+
+  (it "keeps point on the code it was on"
+    (with-clojure-buffer "(ns foo.bar)\n\n(defn x [] |1)"
+      (cider-ns-add-require "clojure.string" "str")
+      (expect (buffer-substring (point) (point-max)) :to-equal "1)")))
+
+  (it "undoes the edit and the sort in one step"
+    (with-clojure-buffer "(ns foo.bar\n  (:require [zebra.core :as z]))\n|"
+      (buffer-enable-undo)
+      (undo-boundary)
+      ;; a boundary between the edit and the sort, which the command loop
+      ;; could put there
+      (let ((boundary (lambda (&rest _) (undo-boundary))))
+        (advice-add 'cider-ns-edit--sort :before boundary)
+        (unwind-protect
+            (cider-ns-add-require "clojure.string" "str")
+          (advice-remove 'cider-ns-edit--sort boundary)))
+      (undo-boundary)
+      (let ((last-command nil))
+        (undo))
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [zebra.core :as z]))\n")))
+
+  (it "signals an error when the buffer has no ns form"
+    (with-clojure-buffer "(defn x [])"
+      (expect (cider-ns-add-require "clojure.string" "str") :to-throw 'user-error)))
+
+  (it "signals an error for an alias another namespace has"
+    (dolist (ns-form '("(ns foo.bar\n  (:require [clojure.set :as str]))"
+                       "(ns foo.bar\n  (:require [clojure.set :as-alias str]))"))
+      (with-clojure-buffer (concat ns-form "\n|")
+        (expect (cider-ns-add-require "clojure.string" "str")
+                :to-throw 'user-error '("str is already the alias of clojure.set"))
+        (expect (buffer-string) :to-equal (concat ns-form "\n")))))
+
+  (it "evaluates the edited ns form when connected"
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'cider-interactive-eval)
+    (with-clojure-buffer "(ns a.one)\n\n(ns a.two)\n|"
+      (setq cider-ns-edit-actions '(eval))
+      (cider-ns-add-require "clojure.string" "str")
+      (expect 'cider-interactive-eval :to-have-been-called-times 1)
+      (expect (apply #'buffer-substring (nth 2 (spy-calls-args-for 'cider-interactive-eval 0)))
+              :to-equal "(ns a.two\n  (:require [clojure.string :as str]))")))
+
+  (it "keeps the value of the ns form out of the echo area"
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'cider-interactive-eval)
+    (spy-on 'cider--display-interactive-eval-result)
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (setq cider-ns-edit-actions '(eval))
+      (cider-ns-add-require "clojure.string" "str")
+      (funcall (nth 1 (spy-calls-args-for 'cider-interactive-eval 0))
+               (nrepl-dict "id" "1" "value" "nil"))
+      (expect 'cider--display-interactive-eval-result :not :to-have-been-called)))
+
+  (it "marks the ns form as evaluated once the evaluation is done"
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'nrepl--mark-id-completed)
+    (spy-on 'cider-interactive-eval)
+    (spy-on 'cider--make-fringe-overlays-for-region)
+    (with-clojure-buffer "(ns a.one)\n\n(ns a.two)\n|"
+      (setq cider-ns-edit-actions '(eval))
+      (cider-ns-add-require "clojure.string" "str")
+      (funcall (nth 1 (spy-calls-args-for 'cider-interactive-eval 0))
+               (nrepl-dict "id" "1" "status" '("done")))
+      (expect (apply #'buffer-substring
+                     (spy-calls-args-for 'cider--make-fringe-overlays-for-region 0))
+              :to-equal "(ns a.two\n  (:require [clojure.string :as str]))")))
+
+  (it "reports the errors of the evaluation"
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'nrepl--mark-id-completed)
+    (spy-on 'cider-interactive-eval)
+    (spy-on 'cider-emit-interactive-eval-err-output)
+    (spy-on 'cider-handle-compilation-errors)
+    (spy-on 'cider-default-err-handler)
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (setq cider-ns-edit-actions '(eval))
+      (cider-ns-add-require "clojure.string" "str")
+      (let ((handler (nth 1 (spy-calls-args-for 'cider-interactive-eval 0))))
+        (funcall handler (nrepl-dict "id" "1" "err" "Syntax error compiling"))
+        (funcall handler (nrepl-dict "id" "1" "status" '("eval-error")))
+        (funcall handler (nrepl-dict "id" "1" "status" '("done"))))
+      (expect 'cider-handle-compilation-errors :to-have-been-called)
+      (expect 'cider-default-err-handler :to-have-been-called)))
+
+  (it "doesn't evaluate the ns form when not connected"
+    (spy-on 'cider-interactive-eval)
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (setq cider-ns-edit-actions '(eval))
+      (cider-ns-add-require "clojure.string" "str")
+      (expect 'cider-interactive-eval :not :to-have-been-called)))
+
+  (it "offers the REPL's namespaces and the last segment as the alias"
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
+    (spy-on 'cider-sync-request:ns-list :and-return-value '("clojure.set" "clojure.string"))
+    (spy-on 'completing-read :and-return-value "clojure.string")
+    (spy-on 'read-string :and-return-value "string")
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (call-interactively #'cider-ns-add-require)
+      (expect (cadr (spy-calls-args-for 'completing-read 0))
+              :to-equal '("clojure.set" "clojure.string"))
+      (expect (cadr (spy-calls-args-for 'read-string 0)) :to-equal "string")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [clojure.string :as string]))\n")))
+
+  (it "reads the namespace without candidates when cider-nrepl is missing"
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
+    (spy-on 'cider-sync-request:ns-list)
+    (spy-on 'completing-read :and-return-value "clojure.string")
+    (spy-on 'read-string :and-return-value "str")
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (call-interactively #'cider-ns-add-require)
+      (expect 'cider-sync-request:ns-list :not :to-have-been-called)
+      (expect (cadr (spy-calls-args-for 'completing-read 0)) :to-be nil)))
+
+  (it "doesn't prompt for an alias without a namespace"
+    (spy-on 'completing-read :and-return-value " ")
+    (spy-on 'read-string)
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (expect (call-interactively #'cider-ns-add-require) :to-throw 'user-error)
+      (expect 'read-string :not :to-have-been-called)))
+
+  (it "requires without an alias when the alias prompt is cleared"
+    (spy-on 'completing-read :and-return-value "clojure.string")
+    (spy-on 'read-string :and-return-value "  ")
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (call-interactively #'cider-ns-add-require)
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require clojure.string))\n"))))
+
+(describe "cider-ns-add-import"
+  :var (cider-ns-edit-actions)
+
+  (before-each
+    (setq cider-ns-edit-actions '(sort))
+    (spy-on 'cider-connected-p :and-return-value nil))
+
+  (it "adds an :import clause when there's none"
+    (with-clojure-buffer "(ns foo.bar\n  (:require [a.b :as b]))\n|"
+      (cider-ns-add-import "java.io.File")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [a.b :as b])\n  (:import java.io.File))\n")))
+
+  (it "adds to the :import clause and keeps it sorted"
+    (with-clojure-buffer "(ns foo.bar\n  (:import java.util.Date))\n|"
+      (cider-ns-add-import "java.io.File")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:import java.io.File\n           java.util.Date))\n")))
+
+  (it "adds the class to an import list for its package"
+    (dolist (group '("(java.util Date List)" "[java.util Date List]"))
+      (with-clojure-buffer (format "(ns foo.bar\n  (:import %s))\n" group)
+        (cider-ns-add-import "java.util.Map")
+        (expect (buffer-string) :to-equal
+                (format "(ns foo.bar\n  (:import %s))\n"
+                        (replace-regexp-in-string "List" "List Map" group))))))
+
+  (it "leaves the ns form alone when the class is already imported"
+    (dolist (import '("java.util.List" "(java.util Date List)" "[java.util List]"))
+      (let ((contents (format "(ns foo.bar\n  (:import %s))\n" import)))
+        (with-clojure-buffer contents
+          (spy-on 'cider-ns-edit--sort)
+          (cider-ns-add-import "java.util.List")
+          (expect (buffer-string) :to-equal contents)
+          (expect 'cider-ns-edit--sort :not :to-have-been-called)))))
+
+  (it "doesn't join an import list that's discarded with #_"
+    (with-clojure-buffer "(ns foo.bar\n  (:import #_(java.util Date) java.io.File))\n|"
+      (setq cider-ns-edit-actions nil)
+      (cider-ns-add-import "java.util.List")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:import #_(java.util Date) java.io.File\n           java.util.List))\n")))
+
+  (it "signals an error for a class name that isn't fully qualified"
+    (with-clojure-buffer "(ns foo.bar)\n"
+      (expect (cider-ns-add-import "Date") :to-throw 'user-error)))
+
+  (it "completes over the REPL's classes when connected"
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'completing-read :and-return-value "java.io.File")
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (call-interactively #'cider-ns-add-import)
+      (let ((pred (nth 2 (spy-calls-args-for 'completing-read 0))))
+        (expect (funcall pred (propertize "java.io.File" 'type "class")) :to-be-truthy)
+        (expect (funcall pred (propertize "java.io" 'type "namespace")) :not :to-be-truthy))
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:import java.io.File))\n")))
+
+  (it "reads the class without completion when not connected"
+    (spy-on 'read-string :and-return-value "java.io.File")
+    (spy-on 'completing-read)
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (call-interactively #'cider-ns-add-import)
+      (expect 'completing-read :not :to-have-been-called)
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:import java.io.File))\n"))))
+
+(describe "cider-ns-edit--default-alias"
+  (it "picks the last segment of the namespace"
+    (expect (cider-ns-edit--default-alias "clojure.string") :to-equal "string")
+    (expect (cider-ns-edit--default-alias "medley") :to-equal "medley"))
+
+  (it "handles npm package names"
+    (expect (cider-ns-edit--default-alias "\"react\"") :to-equal "react")
+    (expect (cider-ns-edit--default-alias "\"@mui/material\"") :to-equal "material")))

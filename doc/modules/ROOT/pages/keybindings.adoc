@@ -336,6 +336,14 @@ TIP: See xref:debugging/macroexpansion.adoc[Macroexpansion] for details.
 | `cider-eval-ns-form`
 | Evaluate the `ns` form of the current buffer.
 
+| kbd:[C-c M-n a]
+| `cider-ns-add-require`
+| Add a require to the `ns` form.
+
+| kbd:[C-c M-n i]
+| `cider-ns-add-import`
+| Add an import to the `ns` form.
+
 | kbd:[C-c M-n r]
 | `cider-ns-refresh`
 | Reload changed namespaces (via `clojure.tools.namespace`).
@@ -357,7 +365,8 @@ TIP: See xref:debugging/macroexpansion.adoc[Macroexpansion] for details.
 | Undefine all symbols and aliases in the namespace.
 |===
 
-TIP: See xref:usage/code_reloading.adoc[Code Reloading] for the reloading workflow.
+TIP: See xref:usage/code_reloading.adoc[Code Reloading] for the reloading workflow and
+xref:usage/ns_form.adoc[Editing the ns Form] for adding requires and imports.
 
 == Testing
 

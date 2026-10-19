@@ -8,6 +8,7 @@
 
 ### New features
 
+- [#4216](https://github.com/clojure-emacs/cider/pull/4216): Add `cider-ns-add-require` (`C-c M-n a`) and `cider-ns-add-import` (`C-c M-n i`), which add a require or an import to the `ns` form, completing against the REPL when connected; `cider-ns-edit-actions` controls whether the `ns` form then gets sorted and evaluated.
 - [#4206](https://github.com/clojure-emacs/cider/pull/4206): Show test progress while the tests run: with `cider-test-stream-results` (on by default) the echo area keeps a running count and failing tests land in the report as soon as they finish.
 - [#4179](https://github.com/clojure-emacs/cider/pull/4179): Add `cider-flash-evaluated-region` (off by default), which briefly flashes the region an evaluation command sent, so you can see which form it picked.
 - [#4176](https://github.com/clojure-emacs/cider/pull/4176): Add `cider-inspect-menu` (`C-c C-i`), listing every way to start an inspection (last sexp, sexp at point, defun, last result, or an expression you type), so they're no longer reachable only by counting prefix arguments to `cider-inspect`.

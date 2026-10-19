@@ -456,6 +456,9 @@ If invoked with a prefix ARG eval the expression after inserting it."
      "--"
      ["Cycle eval destination" cider-cycle-eval-destination :keys "C-c C-M-d"])
     ,cider-doc-easy-menu
+    ("Namespace form"
+     ["Add require" cider-ns-add-require]
+     ["Add import" cider-ns-add-import])
     ("Find (jump to)"
      ["Find definition" cider-find-var]
      ["Find namespace" cider-find-ns]
@@ -527,6 +530,8 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (declare-function cider-ns-refresh "cider-ns")
 (declare-function cider-ns-reload "cider-ns")
 (declare-function cider-ns-reload-all "cider-ns")
+(declare-function cider-ns-add-require "cider-ns")
+(declare-function cider-ns-add-import "cider-ns")
 (declare-function cider-browse-ns "cider-browse-ns")
 (declare-function cider-eval-ns-form "cider-eval")
 (declare-function cider-repl-set-ns "cider-repl")
@@ -546,6 +551,10 @@ If invoked with a prefix ARG eval the expression after inserting it."
     (define-key map (kbd "M-r") #'cider-ns-refresh)
     (define-key map (kbd "l") #'cider-ns-reload)
     (define-key map (kbd "M-l") #'cider-ns-reload-all)
+    (define-key map (kbd "a") #'cider-ns-add-require)
+    (define-key map (kbd "M-a") #'cider-ns-add-require)
+    (define-key map (kbd "i") #'cider-ns-add-import)
+    (define-key map (kbd "M-i") #'cider-ns-add-import)
     map)
   "CIDER NS keymap.")
 
@@ -576,7 +585,10 @@ via prefix arguments) explicit toggles."
    ["Reload"
     ("r" "Refresh (smart reload)" cider-ns-menu--refresh)
     ("l" "Require and reload" cider-ns-reload)
-    ("L" "Require and reload all" cider-ns-reload-all)]]
+    ("L" "Require and reload all" cider-ns-reload-all)]
+   ["Edit ns form"
+    ("a" "Add require" cider-ns-add-require)
+    ("i" "Add import" cider-ns-add-import)]]
   ;; Meta-variant duplicates, hidden from the menu, preserving muscle memory.
   [:hide (lambda () t)
    ("M-b" "Browse namespace" cider-browse-ns)
@@ -584,7 +596,9 @@ via prefix arguments) explicit toggles."
    ("M-n" "Set REPL namespace" cider-repl-set-ns)
    ("M-e" "Eval namespace form" cider-eval-ns-form)
    ("M-r" "Refresh (smart reload)" cider-ns-menu--refresh)
-   ("M-l" "Require and reload all" cider-ns-reload-all)])
+   ("M-l" "Require and reload all" cider-ns-reload-all)
+   ("M-a" "Add require" cider-ns-add-require)
+   ("M-i" "Add import" cider-ns-add-import)])
 
 ;;;###autoload (autoload 'cider-menu "cider-mode" "Top-level transient menu for CIDER." t)
 (transient-define-prefix cider-menu ()
