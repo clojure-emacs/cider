@@ -321,16 +321,37 @@
                       "            clojure.string))\n"))))
 
   (it "leaves the ns form alone when the namespace is already required"
-    (dolist (libspec '("[clojure.string :as string]" "clojure.string" "(clojure.string)"))
-      (let ((contents (format "(ns foo.bar\n  (:require %s))\n" libspec)))
+    (dolist (case '(("[clojure.string :as str]" "str")
+                    ("clojure.string" nil)
+                    ("(clojure.string :refer [join])" nil)))
+      (let ((contents (format "(ns foo.bar\n  (:require %s))\n" (car case))))
         (with-clojure-buffer contents
           (spy-on 'cider-ns-edit--sort)
           (spy-on 'message)
-          (cider-ns-add-require "clojure.string" "str")
+          (cider-ns-add-require "clojure.string" (cadr case))
           (expect 'message :to-have-been-called-with
-                  "%s is already required: %s" "clojure.string" libspec)
+                  "%s is already required: %s" "clojure.string" (car case))
           (expect (buffer-string) :to-equal contents)
           (expect 'cider-ns-edit--sort :not :to-have-been-called)))))
+
+  (it "signals an error for a second alias"
+    (let ((contents "(ns foo.bar\n  (:require [clojure.string :as string]))\n"))
+      (with-clojure-buffer contents
+        (expect (cider-ns-add-require "clojure.string" "str")
+                :to-throw 'user-error '("clojure.string is already required as string"))
+        (expect (buffer-string) :to-equal contents))))
+
+  (it "adds the alias to a libspec that has none"
+    (dolist (case '(("clojure.string" . "[clojure.string :as str]")
+                    ("(clojure.string)" . "(clojure.string :as str)")
+                    ("[clojure.string :refer [join]]" . "[clojure.string :as str :refer [join]]")))
+      (with-clojure-buffer (format "(ns foo.bar\n  (:require %s))\n" (car case))
+        (spy-on 'message)
+        (cider-ns-add-require "clojure.string" "str")
+        (expect 'message :to-have-been-called-with
+                "Updated the ns form: %s" (cdr case))
+        (expect (buffer-string) :to-equal
+                (format "(ns foo.bar\n  (:require %s))\n" (cdr case))))))
 
   (it "ignores what's discarded with #_"
     (with-clojure-buffer (concat "#_(ns old.one)\n"
@@ -601,6 +622,212 @@
       (expect 'completing-read :not :to-have-been-called)
       (expect (buffer-string) :to-equal
               "(ns foo.bar\n  (:import java.io.File))\n"))))
+
+(describe "cider-ns-add-missing"
+  :var (cider-ns-edit-actions)
+
+  (before-each
+    (setq cider-ns-edit-actions '(sort))
+    (spy-on 'cider-connected-p :and-return-value nil)
+    (spy-on 'cider-current-repl :and-return-value 'a-repl)
+    (spy-on 'nrepl-op-supported-p :and-return-value t)
+    (spy-on 'cider-current-ns :and-return-value "foo.bar"))
+
+  (it "refers an unqualified symbol"
+    (spy-on 'cider-sync-request:resolve-missing
+            :and-return-value (list (nrepl-dict "name" "clojure.string" "type" "ns")))
+    (spy-on 'message)
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (cider-ns-add-missing "join")
+      (expect 'cider-sync-request:resolve-missing :to-have-been-called-with "join" "foo.bar")
+      (expect 'message :to-have-been-called-with
+              "Resolved %s with %s" "join" "[clojure.string :refer [join]]")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [clojure.string :refer [join]]))\n")))
+
+  (it "adds the refer to the namespace's libspec"
+    (spy-on 'cider-sync-request:resolve-missing
+            :and-return-value (list (nrepl-dict "name" "clojure.string" "type" "ns")))
+    (dolist (case '(("[clojure.string :as str]" . "[clojure.string :as str :refer [join]]")
+                    ("[clojure.string :refer [split]]" . "[clojure.string :refer [split join]]")
+                    ("(clojure.string :refer ())" . "(clojure.string :refer (join))")
+                    ("[clojure.string :refer [ ]]" . "[clojure.string :refer [join]]")
+                    ("[clojure.string :refer [split] ; strings\n            ]"
+                     . "[clojure.string :refer [split join] ; strings\n            ]")
+                    ("clojure.string" . "[clojure.string :refer [join]]")))
+      (with-clojure-buffer (format "(ns foo.bar\n  (:require %s))\n" (car case))
+        (cider-ns-add-missing "join")
+        (expect (buffer-string) :to-equal
+                (format "(ns foo.bar\n  (:require %s))\n" (cdr case))))))
+
+  (it "requires the namespace as the alias the symbol uses"
+    (spy-on 'cider-sync-request:resolve-missing
+            :and-return-value (list (nrepl-dict "name" "clojure.string" "type" "ns")))
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (cider-ns-add-missing "str/join")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [clojure.string :as str]))\n")))
+
+  (it "requires the namespace a fully qualified symbol names"
+    (spy-on 'cider-sync-request:resolve-missing
+            :and-return-value (list (nrepl-dict "name" "clojure.string" "type" "ns")))
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (cider-ns-add-missing "clojure.string/join")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require clojure.string))\n")))
+
+  (it "signals an error when the lookup fails"
+    (spy-on 'cider-nrepl-sync-request
+            :and-return-value (nrepl-dict "status" '("done" "cider/resolve-missing-error")
+                                          "ex" "class java.lang.NullPointerException"))
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (expect (cider-ns-add-missing "join")
+              :to-throw 'error
+              '("Looking up join failed: class java.lang.NullPointerException"))))
+
+  (it "signals an error when the namespace has another alias"
+    (spy-on 'cider-sync-request:resolve-missing
+            :and-return-value (list (nrepl-dict "name" "clojure.string" "type" "ns")))
+    (let ((contents "(ns foo.bar\n  (:require [clojure.string :as string]))\n"))
+      (with-clojure-buffer contents
+        (expect (cider-ns-add-missing "str/join")
+                :to-throw 'user-error '("clojure.string is already required as string"))
+        (expect (buffer-string) :to-equal contents))))
+
+  (it "goes by the names :rename leaves referred"
+    (spy-on 'cider-sync-request:resolve-missing
+            :and-return-value (list (nrepl-dict "name" "clojure.string" "type" "ns")))
+    (with-clojure-buffer "(ns foo.bar\n  (:require [clojure.set :refer [join] :rename {join set-join}]))\n|"
+      (setq cider-ns-edit-actions nil)
+      (cider-ns-add-missing "join")
+      (expect (buffer-string) :to-equal
+              (concat "(ns foo.bar\n"
+                      "  (:require [clojure.set :refer [join] :rename {join set-join}]\n"
+                      "            [clojure.string :refer [join]]))\n")))
+    (let ((contents "(ns foo.bar\n  (:require [clojure.set :refer [union] :rename {union join}]))\n"))
+      (with-clojure-buffer contents
+        (expect (cider-ns-add-missing "join")
+                :to-throw 'user-error '("join is already referred from clojure.set"))
+        (expect (buffer-string) :to-equal contents))))
+
+  (it "signals an error when another namespace refers the name"
+    (spy-on 'cider-sync-request:resolve-missing
+            :and-return-value (list (nrepl-dict "name" "clojure.string" "type" "ns")))
+    (let ((contents "(ns foo.bar\n  (:require [clojure.set :refer [join]]))\n"))
+      (with-clojure-buffer contents
+        (expect (cider-ns-add-missing "join")
+                :to-throw 'user-error '("join is already referred from clojure.set"))
+        (expect (buffer-string) :to-equal contents))))
+
+  (it "imports a class"
+    (spy-on 'cider-sync-request:resolve-missing
+            :and-return-value (list (nrepl-dict "name" "java.util.Date" "type" "class")))
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (cider-ns-add-missing "Date")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:import java.util.Date))\n")))
+
+  (it "requires the namespace that defines a type and imports the type"
+    (spy-on 'cider-sync-request:resolve-missing
+            :and-return-value (list (nrepl-dict "name" "my_app.core.Thing"
+                                                "type" "type"
+                                                "ns" "my-app.core")))
+    (spy-on 'message)
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (cider-ns-add-missing "Thing")
+      (expect 'message :to-have-been-called-with
+              "Resolved %s with %s" "Thing" "my-app.core and my_app.core.Thing")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require my-app.core)\n  (:import my_app.core.Thing))\n")))
+
+  (it "asks which candidate to add, showing their types"
+    (spy-on 'cider-sync-request:resolve-missing
+            :and-return-value (list (nrepl-dict "name" "java.sql.Date" "type" "class")
+                                    (nrepl-dict "name" "java.util.Date" "type" "class")))
+    (spy-on 'completing-read :and-return-value "java.sql.Date")
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (cider-ns-add-missing "Date")
+      (let* ((collection (nth 1 (spy-calls-args-for 'completing-read 0)))
+             (annotate (alist-get 'annotation-function
+                                  (cdr (funcall collection "" nil 'metadata)))))
+        (expect (all-completions "" collection) :to-equal '("java.sql.Date" "java.util.Date"))
+        (expect (funcall annotate "java.util.Date") :to-equal " class"))
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:import java.sql.Date))\n")))
+
+  (it "shows the namespace that defines a type"
+    (spy-on 'cider-sync-request:resolve-missing
+            :and-return-value (list (nrepl-dict "name" "a.Thing" "type" "class")
+                                    (nrepl-dict "name" "b_c.Thing" "type" "type" "ns" "b-c")))
+    (spy-on 'completing-read :and-return-value "a.Thing")
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (cider-ns-add-missing "Thing")
+      (let* ((collection (nth 1 (spy-calls-args-for 'completing-read 0)))
+             (annotate (alist-get 'annotation-function
+                                  (cdr (funcall collection "" nil 'metadata)))))
+        (expect (funcall annotate "b_c.Thing") :to-equal " type (b-c)"))))
+
+  (it "signals an error when nothing gets chosen"
+    (spy-on 'cider-sync-request:resolve-missing
+            :and-return-value (list (nrepl-dict "name" "java.sql.Date" "type" "class")
+                                    (nrepl-dict "name" "java.util.Date" "type" "class")))
+    (spy-on 'completing-read :and-return-value "")
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (expect (cider-ns-add-missing "Date") :to-throw 'user-error)
+      (expect (buffer-string) :to-equal "(ns foo.bar)\n")))
+
+  (it "doesn't ask when there's one candidate"
+    (spy-on 'cider-sync-request:resolve-missing
+            :and-return-value (list (nrepl-dict "name" "java.util.Date" "type" "class")))
+    (spy-on 'completing-read)
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (cider-ns-add-missing "Date")
+      (expect 'completing-read :not :to-have-been-called)))
+
+  (it "signals an error when nothing provides the symbol"
+    (spy-on 'cider-sync-request:resolve-missing :and-return-value nil)
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (expect (cider-ns-add-missing "nope") :to-throw 'user-error)
+      (expect (buffer-string) :to-equal "(ns foo.bar)\n")))
+
+  (it "signals an error when cider-nrepl doesn't have cider/resolve-missing"
+    ;; refactor-nrepl's resolve-missing would answer in another format
+    (spy-on 'nrepl-op-supported-p :and-return-value nil)
+    (spy-on 'cider-nrepl-sync-request)
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (expect (cider-ns-add-missing "join") :to-throw 'user-error)
+      (expect 'cider-nrepl-sync-request :not :to-have-been-called)))
+
+  (it "signals an error for a keyword"
+    (spy-on 'cider-sync-request:resolve-missing)
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (expect (cider-ns-add-missing "::str/join") :to-throw 'user-error)
+      (expect 'cider-sync-request:resolve-missing :not :to-have-been-called)))
+
+  (it "adds a libspec next to one that only has :as-alias"
+    ;; :as-alias doesn't load the namespace, so a refer there would fail
+    (spy-on 'cider-sync-request:resolve-missing
+            :and-return-value (list (nrepl-dict "name" "a.b" "type" "ns")))
+    (with-clojure-buffer "(ns foo.bar\n  (:require [a.b :as-alias b]))\n|"
+      (setq cider-ns-edit-actions nil)
+      (cider-ns-add-missing "thing")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [a.b :as-alias b]\n            [a.b :refer [thing]]))\n")))
+
+  (it "resolves the symbol at point"
+    (spy-on 'cider-sync-request:resolve-missing
+            :and-return-value (list (nrepl-dict "name" "java.util.Date" "type" "class")))
+    (with-clojure-buffer "(ns foo.bar)\n\n(defn now [] (|Date.))"
+      (call-interactively #'cider-ns-add-missing)
+      (expect 'cider-sync-request:resolve-missing :to-have-been-called-with "Date" "foo.bar")))
+
+  (it "reads the symbol when there's none at point"
+    (spy-on 'cider-sync-request:resolve-missing
+            :and-return-value (list (nrepl-dict "name" "clojure.string" "type" "ns")))
+    (spy-on 'read-string :and-return-value "join")
+    (with-clojure-buffer "(ns foo.bar)\n\n|\n"
+      (call-interactively #'cider-ns-add-missing)
+      (expect 'cider-sync-request:resolve-missing :to-have-been-called-with "join" "foo.bar"))))
 
 (describe "cider-ns-edit--default-alias"
   (it "picks the last segment of the namespace"

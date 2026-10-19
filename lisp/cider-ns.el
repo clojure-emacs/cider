@@ -59,7 +59,8 @@
 ;;
 ;; Commands that add requires and imports to the ns form of a Clojure
 ;; buffer.  The edits are plain text manipulation, so they work without a
-;; REPL; when one is connected, the prompts complete against it.
+;; REPL; when one is connected, the prompts complete against it.  Only
+;; `cider-ns-add-missing' needs a REPL, to find what provides a symbol.
 ;;
 ;; The ns form is walked with `scan-sexps' and `syntax-ppss', which follow
 ;; the syntax table, rather than with `forward-sexp', which clojure-ts-mode
@@ -437,6 +438,9 @@ A list that can hold:
 (defvar cider-ns-edit--class-history nil
   "History of the classes read by `cider-ns-add-import'.")
 
+(defvar cider-ns-edit--symbol-history nil
+  "History of the symbols read by `cider-ns-add-missing'.")
+
 (defconst cider-ns-edit--ns-regexp
   (rx "(" (? "clojure.core/") "ns" symbol-end)
   "Regexp matching the start of an ns form.")
@@ -646,32 +650,135 @@ element for a vector or a list."
         (setq elements (cdr elements)))
       aliases)))
 
-(defun cider-ns-edit--add-require (ns-start ns alias)
-  "Require NS as ALIAS in the ns form at NS-START.
-Return (t . LIBSPEC) after adding LIBSPEC, or (nil . LIBSPEC) when NS is
-already required by LIBSPEC.  Signal an error when ALIAS belongs to
-another namespace."
-  (let* ((libspec (if alias (format "[%s :as %s]" ns alias) ns))
-         (clause (cider-ns-edit--clause ns-start ":require"))
+(defun cider-ns-edit--libspec (ns alias refer)
+  "Return a libspec that requires NS as ALIAS and refers REFER from it.
+ALIAS and REFER can be nil."
+  (if (or alias refer)
+      (concat "[" ns
+              (and alias (concat " :as " alias))
+              (and refer (format " :refer [%s]" refer))
+              "]")
+    ns))
+
+(defun cider-ns-edit--libspec-option (pos keyword)
+  "Return the start of the value of KEYWORD in the libspec at POS, or nil."
+  (let ((elements (cdr (cider-ns-edit--elements pos))))
+    (while (and elements
+                (not (equal (cider-ns-edit--text (car elements)) keyword)))
+      (setq elements (cdr elements)))
+    (cadr elements)))
+
+(defun cider-ns-edit--referred (pos)
+  "Return the names in the :refer list or vector of the libspec at POS."
+  (when-let* ((referred (and (cider-ns-edit--seq-p pos)
+                             (cider-ns-edit--libspec-option pos ":refer"))))
+    (when (cider-ns-edit--seq-p referred)
+      (mapcar #'cider-ns-edit--text (cider-ns-edit--elements referred)))))
+
+(defun cider-ns-edit--refers (pos)
+  "Return the names the libspec at POS refers into the namespace.
+A name that its :rename map renames gets referred by the new name."
+  (let ((names (cider-ns-edit--referred pos))
+        (renames (when-let* ((rename (and (cider-ns-edit--seq-p pos)
+                                          (cider-ns-edit--libspec-option pos ":rename"))))
+                   (when (eq (char-after rename) ?{)
+                     (mapcar #'cider-ns-edit--text (cider-ns-edit--elements rename))))))
+    (while renames
+      (when (member (car renames) names)
+        (setq names (cons (cadr renames) (remove (car renames) names))))
+      (setq renames (cddr renames)))
+    names))
+
+(defun cider-ns-edit--merge-libspec (pos alias refer)
+  "Give the libspec at POS the ALIAS and REFER it lacks.
+Return non-nil if that changed it.  Signal an error when the libspec has
+another alias, since a libspec can't have two."
+  (if (not (cider-ns-edit--seq-p pos))
+      ;; a bare namespace name
+      (when (or alias refer)
+        (let ((ns (cider-ns-edit--text pos)))
+          (delete-region pos (scan-sexps pos 1))
+          (goto-char pos)
+          (insert (cider-ns-edit--libspec ns alias refer))
+          t))
+    (let* ((as (cider-ns-edit--libspec-option pos ":as"))
+           (referred (cider-ns-edit--libspec-option pos ":refer"))
+           (add-as (and alias (not as)))
+           (add-refer (and refer
+                           (cond
+                            ((null referred) t)
+                            ((cider-ns-edit--seq-p referred)
+                             (not (member refer (cider-ns-edit--referred pos))))))))
+      (when (and alias as (not (equal alias (cider-ns-edit--text as))))
+        (user-error "%s is already required as %s"
+                    (cider-ns-edit--libspec-ns pos) (cider-ns-edit--text as)))
+      (when (or add-as add-refer)
+        ;; Back to front, so that the positions in front stay valid.
+        (when add-refer
+          (if-let* ((last-referred (car (last (and referred
+                                                   (cider-ns-edit--elements referred))))))
+              (progn
+                (goto-char (scan-sexps last-referred 1))
+                (insert " " refer))
+            (if referred
+                (progn
+                  (goto-char (1+ referred))
+                  (delete-region (point) (progn (skip-chars-forward " \t,") (point)))
+                  (insert refer))
+              (goto-char (scan-sexps (car (last (cider-ns-edit--elements pos))) 1))
+              (insert " :refer [" refer "]"))))
+        (when add-as
+          (goto-char (scan-sexps (car (cider-ns-edit--elements pos)) 1))
+          (insert " :as " alias))
+        t))))
+
+(defun cider-ns-edit--loads-p (pos)
+  "Return non-nil if the libspec at POS loads its namespace.
+One with :as-alias but no :as only gives the namespace an alias."
+  (not (and (cider-ns-edit--seq-p pos)
+            (cider-ns-edit--libspec-option pos ":as-alias")
+            (not (cider-ns-edit--libspec-option pos ":as")))))
+
+(defun cider-ns-edit--add-require (ns-start ns alias &optional refer)
+  "Require NS as ALIAS, referring REFER, in the ns form at NS-START.
+ALIAS and REFER can be nil.  When NS is already required, its libspec
+gets the ALIAS and REFER it lacks.  Return (STATUS . LIBSPEC), where
+STATUS is `added' for a new LIBSPEC, `updated' for a changed one, and
+nil when NS is already required by LIBSPEC as asked.  Signal an error
+when NS has another alias, or another namespace has ALIAS or REFER."
+  (let* ((clause (cider-ns-edit--clause ns-start ":require"))
          (libspecs (and clause (cdr (cider-ns-edit--elements clause))))
-         (existing (seq-find (lambda (pos) (equal (cider-ns-edit--libspec-ns pos) ns))
+         (others (seq-remove (lambda (pos) (equal (cider-ns-edit--libspec-ns pos) ns))
+                             libspecs))
+         (existing (seq-find (lambda (pos)
+                               (and (equal (cider-ns-edit--libspec-ns pos) ns)
+                                    (cider-ns-edit--loads-p pos)))
                              libspecs)))
     (when-let* ((owner (and alias
-                            (seq-find (lambda (pos)
-                                        (and (not (equal (cider-ns-edit--libspec-ns pos) ns))
-                                             (member alias (cider-ns-edit--aliases pos))))
-                                      libspecs))))
+                            (seq-find (lambda (pos) (member alias (cider-ns-edit--aliases pos)))
+                                      others))))
       (user-error "%s is already the alias of %s"
                   alias (cider-ns-edit--libspec-ns owner)))
-    (cond
-     (existing
-      (cons nil (cider-ns-edit--text existing)))
-     (clause
-      (cider-ns-edit--append clause libspec)
-      (cons t libspec))
-     (t
-      (cider-ns-edit--add-clause ns-start ":require" libspec)
-      (cons t libspec)))))
+    (when-let* ((owner (and refer
+                            (seq-find (lambda (pos) (member refer (cider-ns-edit--refers pos)))
+                                      others))))
+      (user-error "%s is already referred from %s"
+                  refer (cider-ns-edit--libspec-ns owner)))
+    (if existing
+        (cons (and (cider-ns-edit--merge-libspec existing alias refer) 'updated)
+              (cider-ns-edit--text existing))
+      (let ((libspec (cider-ns-edit--libspec ns alias refer)))
+        (if clause
+            (cider-ns-edit--append clause libspec)
+          (cider-ns-edit--add-clause ns-start ":require" libspec))
+        (cons 'added libspec)))))
+
+(defun cider-ns-edit--require-message (ns status libspec)
+  "Report on requiring NS, which ended with STATUS and LIBSPEC."
+  (pcase status
+    ('added (message "Added %s to the ns form" libspec))
+    ('updated (message "Updated the ns form: %s" libspec))
+    (_ (message "%s is already required: %s" ns libspec))))
 
 (defun cider-ns-edit--default-alias (ns)
   "Return the last segment of NS, the usual pick for its alias."
@@ -690,8 +797,9 @@ When connected, complete over the namespaces loaded in the REPL."
 (defun cider-ns-add-require (ns &optional alias)
   "Add NS to the :require clause of the buffer's ns form.
 With ALIAS, require NS as [NS :as ALIAS].  The clause gets created when
-it's missing.  Nothing changes when NS is already required, and an alias
-that another namespace has is an error.
+it's missing.  When NS is already required, ALIAS gets added to its
+libspec if that has no alias.  Another alias for NS, or ALIAS belonging
+to another namespace, is an error.
 
 Interactively, prompt for NS, completing over the namespaces loaded in
 the REPL when connected, then for ALIAS, which starts out as the last
@@ -710,12 +818,10 @@ After a change, do what `cider-ns-edit-actions' asks for."
          (list ns (unless (string-empty-p alias) alias))))))
   (when (string-empty-p ns)
     (user-error "No namespace given"))
-  (pcase-let ((`(,added . ,libspec)
+  (pcase-let ((`(,status . ,libspec)
                (cider-ns-edit--edit
                 (lambda (start) (cider-ns-edit--add-require start ns alias)))))
-    (if added
-        (message "Added %s to the ns form" libspec)
-      (message "%s is already required: %s" ns libspec))))
+    (cider-ns-edit--require-message ns status libspec)))
 
 (defun cider-ns-edit--add-import (ns-start class)
   "Import CLASS, a fully qualified class name, in the ns form at NS-START.
@@ -776,6 +882,105 @@ After a change, do what `cider-ns-edit-actions' asks for."
   (if (car (cider-ns-edit--edit (lambda (start) (cider-ns-edit--add-import start class))))
       (message "Imported %s" class)
     (message "%s is already imported" class)))
+
+(defun cider-ns-edit--qualifier (symbol)
+  "Return the part of SYMBOL before its slash, or nil when it has none."
+  (when (string-match "\\`\\([^/]+\\)/." symbol)
+    (match-string 1 symbol)))
+
+(defun cider-ns-edit--choose (symbol candidates)
+  "Return the one of CANDIDATES to add for SYMBOL.
+Ask which when there's more than one, showing the type of each."
+  (if (cdr candidates)
+      (let* ((table (mapcar (lambda (c) (cons (nrepl-dict-get c "name") c))
+                            candidates))
+             (annotate (lambda (name)
+                         (when-let* ((candidate (cdr (assoc name table))))
+                           (concat " " (nrepl-dict-get candidate "type")
+                                   (when-let* ((ns (nrepl-dict-get candidate "ns")))
+                                     (format " (%s)" ns))))))
+             (choice (completing-read
+                      (format "Resolve %s with: " symbol)
+                      (lambda (string pred action)
+                        (if (eq action 'metadata)
+                            `(metadata (annotation-function . ,annotate))
+                          (complete-with-action action table string pred)))
+                      nil t)))
+        (or (cdr (assoc choice table))
+            (user-error "Nothing chosen")))
+    (car candidates)))
+
+(defun cider-ns-edit--add-missing (ns-start symbol candidate)
+  "Add CANDIDATE, which provides SYMBOL, to the ns form at NS-START.
+CANDIDATE is one of the dicts `cider-sync-request:resolve-missing'
+returns.  Return (CHANGED . TEXTS), where TEXTS are the libspecs and
+classes in the ns form that provide SYMBOL."
+  (let ((name (nrepl-dict-get candidate "name"))
+        (qualifier (cider-ns-edit--qualifier symbol)))
+    (pcase (nrepl-dict-get candidate "type")
+      ((or "ns" "macro")
+       (let ((required (cond
+                        ((null qualifier)
+                         (cider-ns-edit--add-require ns-start name nil symbol))
+                        ((equal qualifier name)
+                         (cider-ns-edit--add-require ns-start name nil))
+                        (t
+                         (cider-ns-edit--add-require ns-start name qualifier)))))
+         (list (car required) (cdr required))))
+      ("type"
+       ;; The class exists only once the namespace defining it is loaded.
+       (let ((required (cider-ns-edit--add-require
+                        ns-start (nrepl-dict-get candidate "ns") nil))
+             (imported (cider-ns-edit--add-import ns-start name)))
+         (list (or (car required) (car imported)) (cdr required) (cdr imported))))
+      (_
+       (let ((imported (cider-ns-edit--add-import ns-start name)))
+         (list (car imported) (cdr imported)))))))
+
+;;;###autoload
+(defun cider-ns-add-missing (symbol)
+  "Require or import what SYMBOL needs, in the buffer's ns form.
+Ask the REPL which loaded namespaces have a public var named like SYMBOL
+and which classes have its name, and add the one picked from those.  A
+SYMBOL that already resolves gets nothing, so its meaning stays put.
+
+What gets added depends on how SYMBOL is written:
+
+- for foo, refer it, as in [some.ns :refer [foo]];
+- for alias/foo, require the namespace as alias, as in [some.ns :as alias];
+- for some.ns/foo, require some.ns;
+- for a class, import it, and require the namespace that defines it too
+  when it's made by `deftype' or `defrecord'.
+
+A namespace that's already required gets the alias or the refer added
+to its libspec.  A second alias for it, or an alias or a refer that
+another libspec already has, is an error.
+
+Interactively, SYMBOL is the symbol at point, or one read from the
+minibuffer when there's none.
+
+After a change, do what `cider-ns-edit-actions' asks for."
+  (interactive
+   (progn
+     (cider-ns-edit--check)
+     (cider-current-repl 'infer 'ensure)
+     (list (or (cider-symbol-at-point)
+               (read-string "Add missing symbol: " nil 'cider-ns-edit--symbol-history)))))
+  (let ((symbol (string-trim symbol)))
+    (when (string-empty-p symbol)
+      (user-error "No symbol given"))
+    (when (string-prefix-p ":" symbol)
+      (user-error "%s is a keyword, not a symbol" symbol))
+    (let* ((candidates (or (cider-sync-request:resolve-missing symbol (cider-current-ns))
+                           (user-error "Found nothing to add for %s" symbol)))
+           (candidate (cider-ns-edit--choose symbol candidates)))
+      (pcase-let ((`(,changed . ,texts)
+                   (cider-ns-edit--edit
+                    (lambda (start) (cider-ns-edit--add-missing start symbol candidate)))))
+        (if changed
+            (message "Resolved %s with %s" symbol (string-join texts " and "))
+          (message "Nothing to add for %s, the ns form has %s"
+                   symbol (string-join texts " and ")))))))
 
 (provide 'cider-ns)
 ;;; cider-ns.el ends here

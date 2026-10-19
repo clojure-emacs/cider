@@ -458,7 +458,8 @@ If invoked with a prefix ARG eval the expression after inserting it."
     ,cider-doc-easy-menu
     ("Namespace form"
      ["Add require" cider-ns-add-require]
-     ["Add import" cider-ns-add-import])
+     ["Add import" cider-ns-add-import]
+     ["Add require or import for symbol" cider-ns-add-missing])
     ("Find (jump to)"
      ["Find definition" cider-find-var]
      ["Find namespace" cider-find-ns]
@@ -532,6 +533,7 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (declare-function cider-ns-reload-all "cider-ns")
 (declare-function cider-ns-add-require "cider-ns")
 (declare-function cider-ns-add-import "cider-ns")
+(declare-function cider-ns-add-missing "cider-ns")
 (declare-function cider-browse-ns "cider-browse-ns")
 (declare-function cider-eval-ns-form "cider-eval")
 (declare-function cider-repl-set-ns "cider-repl")
@@ -555,6 +557,8 @@ If invoked with a prefix ARG eval the expression after inserting it."
     (define-key map (kbd "M-a") #'cider-ns-add-require)
     (define-key map (kbd "i") #'cider-ns-add-import)
     (define-key map (kbd "M-i") #'cider-ns-add-import)
+    (define-key map (kbd "m") #'cider-ns-add-missing)
+    (define-key map (kbd "M-m") #'cider-ns-add-missing)
     map)
   "CIDER NS keymap.")
 
@@ -588,7 +592,8 @@ via prefix arguments) explicit toggles."
     ("L" "Require and reload all" cider-ns-reload-all)]
    ["Edit ns form"
     ("a" "Add require" cider-ns-add-require)
-    ("i" "Add import" cider-ns-add-import)]]
+    ("i" "Add import" cider-ns-add-import)
+    ("m" "Add require or import for symbol" cider-ns-add-missing)]]
   ;; Meta-variant duplicates, hidden from the menu, preserving muscle memory.
   [:hide (lambda () t)
    ("M-b" "Browse namespace" cider-browse-ns)
@@ -598,7 +603,8 @@ via prefix arguments) explicit toggles."
    ("M-r" "Refresh (smart reload)" cider-ns-menu--refresh)
    ("M-l" "Require and reload all" cider-ns-reload-all)
    ("M-a" "Add require" cider-ns-add-require)
-   ("M-i" "Add import" cider-ns-add-import)])
+   ("M-i" "Add import" cider-ns-add-import)
+   ("M-m" "Add require or import for symbol" cider-ns-add-missing)])
 
 ;;;###autoload (autoload 'cider-menu "cider-mode" "Top-level transient menu for CIDER." t)
 (transient-define-prefix cider-menu ()
