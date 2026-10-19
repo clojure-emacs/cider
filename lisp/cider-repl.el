@@ -1106,14 +1106,14 @@ the symbol."
   "Return t if the region from START to END is a complete sexp."
   (save-excursion
     (goto-char start)
-    (cond ((looking-at-p "\\s *[@'`#]?[(\"]")
+    (cond ((looking-at-p "\\s *[@'`#^]?[([{\"]")
            (ignore-errors
              (save-restriction
                (narrow-to-region start end)
                ;; Keep stepping over blanks and sexps until the end of
                ;; buffer is reached or an error occurs. Tolerate extra
-               ;; close parens.
-               (cl-loop do (skip-chars-forward " \t\r\n)")
+               ;; closing delimiters.
+               (cl-loop do (skip-chars-forward " \t\r\n)]}")
                         until (eobp)
                         do (forward-sexp))
                t)))
