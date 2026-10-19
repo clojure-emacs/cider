@@ -15,6 +15,7 @@
 ** xref:usage/code_reloading.adoc[Code Reloading]
 ** xref:usage/pretty_printing.adoc[Pretty Printing]
 ** xref:usage/formatting.adoc[Formatting Code]
+** xref:usage/ns_form.adoc[Editing the ns Form]
 ** xref:usage/dealing_with_errors.adoc[Dealing with Errors]
 ** xref:usage/managing_connections.adoc[Managing Connections]
 ** xref:usage/misc_features.adoc[Misc Features]
