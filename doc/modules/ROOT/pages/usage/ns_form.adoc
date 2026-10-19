@@ -4,11 +4,14 @@ CIDER can add requires and imports to the `ns` form of the current buffer,
 so you don't have to jump to the top of the file and back whenever you need
 another namespace.
 
-The edits are plain text manipulation, so they work without a REPL. When one
-is connected, the prompts complete against it.
+The edits are plain text manipulation, so adding a require or an import
+works without a REPL. When one is connected, the prompts complete against it.
+Adding what a symbol needs is the exception, since only the REPL knows where
+the symbol could come from.
 
 NOTE: If you're coming from clj-refactor, these commands cover what
-`cljr-add-require-to-ns` and `cljr-add-import-to-ns` do, without yasnippet.
+`cljr-add-require-to-ns`, `cljr-add-import-to-ns` and
+`cljr-add-missing-libspec` do, without yasnippet or refactor-nrepl.
 
 == Adding a Require
 
@@ -35,8 +38,10 @@ into
 ----
 
 The `:require` clause gets created when there isn't one, ahead of the
-`:import` clause if the `ns` form has it. Nothing changes when the namespace is
-already required, and an alias that another namespace already has is refused.
+`:import` clause if the `ns` form has it. When the namespace is already
+required without an alias, the alias goes into its libspec. CIDER refuses to
+give the namespace a second alias, or to use an alias another namespace already
+has.
 
 CIDER doesn't look into reader conditionals (`#?(:clj ...)`): a require
 inside one doesn't count, and a new require always goes into the top-level
@@ -66,6 +71,45 @@ into
 
 Without such a list, the fully qualified name goes into the `:import` clause,
 which gets created when it's missing.
+
+== Adding What a Symbol Needs
+
+kbd:[C-c M-n m] (`cider-ns-add-missing`) takes the symbol at point and asks the
+REPL where it could come from: the loaded namespaces with a public var of that
+name, and the classes of that name. With more than one candidate, you pick one.
+A symbol that already resolves gets nothing, so the command never changes what
+it means.
+
+What gets added depends on how the symbol is written:
+
+[cols="1,2"]
+|===
+| Symbol | Added to the `ns` form
+
+| `join`
+| `[clojure.string :refer [join]]`
+
+| `str/join`
+| `[clojure.string :as str]`
+
+| `clojure.string/join`
+| `clojure.string`
+
+| `Date` or `Date.`
+| `java.util.Date` (an import)
+|===
+
+When the namespace is already required, its libspec gets the refer or the
+alias, so `join` turns `[clojure.string :as str]` into
+`[clojure.string :as str :refer [join]]`. When that can't work, CIDER says why
+and changes nothing: the namespace already has another alias, or another libspec
+already has the alias or refers the name. A type made by `deftype` or
+`defrecord` gets imported, and the namespace that defines it gets required as
+well, because the class doesn't exist until that namespace is loaded.
+
+Only namespaces that are loaded in the REPL count, so load the one you're after
+first if it isn't. In ClojureScript buffers the ClojureScript REPL gets asked,
+and it knows about namespaces but not about JavaScript classes.
 
 == After an Edit
 

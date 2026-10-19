@@ -344,6 +344,10 @@ TIP: See xref:debugging/macroexpansion.adoc[Macroexpansion] for details.
 | `cider-ns-add-import`
 | Add an import to the `ns` form.
 
+| kbd:[C-c M-n m]
+| `cider-ns-add-missing`
+| Add the require or import the symbol at point needs to the `ns` form.
+
 | kbd:[C-c M-n r]
 | `cider-ns-refresh`
 | Reload changed namespaces (via `clojure.tools.namespace`).

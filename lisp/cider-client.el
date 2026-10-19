@@ -1115,6 +1115,27 @@ in which case we'll fall back to the resource name."
                 (cider-nrepl-sync-request)
                 (nrepl-dict-get "loaded-ns")))
 
+(defun cider-sync-request:resolve-missing (symbol &optional ns)
+  "Return what could provide SYMBOL, as written in the code of NS.
+That's a list of dicts, each with the \"name\" of a namespace or class
+and its \"type\": \"ns\" or \"macro\" for a namespace to require,
+\"class\" for a class to import, and \"type\" for a class made by
+`deftype' or `defrecord', which also has the \"ns\" defining it."
+  (let ((repl (cider-current-repl 'infer 'ensure)))
+    ;; No falling back to the unprefixed op: refactor-nrepl has a
+    ;; `resolve-missing' that answers in another format.
+    (unless (nrepl-op-supported-p "cider/resolve-missing" repl)
+      (user-error "`%s' requires the nREPL op \"cider/resolve-missing\" (provided by cider-nrepl)"
+                  (or this-command "This request")))
+    (let ((response (cider-nrepl-sync-request `("op" "cider/resolve-missing"
+                                                "symbol" ,symbol
+                                                "ns" ,ns)
+                                              :connection repl)))
+      ;; Not the same as finding nothing.
+      (when (member "cider/resolve-missing-error" (nrepl-dict-get response "status"))
+        (error "Looking up %s failed: %s" symbol (nrepl-dict-get response "ex")))
+      (nrepl-dict-get response "candidates"))))
+
 (defun cider-sync-request:resource (name)
   "Perform nREPL \"resource\" op with resource name NAME."
   (thread-first `("op" "cider/resource"
