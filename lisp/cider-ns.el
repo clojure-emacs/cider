@@ -567,15 +567,22 @@ the usual order; otherwise the clause goes last."
       (goto-char (1+ ns-start))
       (clojure-sort-ns))))
 
+(defvar cider-ns-edit--select-error-buffer t
+  "Whether an error evaluating the edited ns form can select the error buffer.
+Magic requires turn that off, as the user is in the middle of typing.")
+
 (defun cider-ns-edit--eval (ns-start)
   "Evaluate the ns form at NS-START.
 Its value, nil, stays out of the echo area, where it would replace the
-message about the edit.  Output and errors show up as usual."
+message about the edit.  Output and errors show up as usual, but the
+error buffer gets selected only if `cider-ns-edit--select-error-buffer'
+says so."
   ;; Not `cider-eval-ns-form', which picks the buffer's first ns form
   ;; under clojure-ts-mode.
   (let ((buffer (current-buffer))
         (beg (copy-marker ns-start))
-        (end (copy-marker (scan-sexps ns-start 1))))
+        (end (copy-marker (scan-sexps ns-start 1)))
+        (select-error cider-ns-edit--select-error-buffer))
     (cider-interactive-eval
      nil
      (cider-make-eval-handler
@@ -584,6 +591,12 @@ message about the edit.  Output and errors show up as usual."
       :on-stderr (lambda (err)
                    (cider-emit-interactive-eval-err-output err)
                    (cider-handle-compilation-errors err buffer t))
+      :on-eval-error (unless select-error
+                       (lambda ()
+                         ;; It takes precedence over `cider-auto-select-buffer'.
+                         (with-suppressed-warnings ((obsolete cider-auto-select-error-buffer))
+                           (let ((cider-auto-select-error-buffer nil))
+                             (cider-default-err-handler buffer)))))
       ;; The edit marked the ns form as changed since its last evaluation.
       :on-done (lambda ()
                  (when (buffer-live-p buffer)
@@ -981,6 +994,219 @@ After a change, do what `cider-ns-edit-actions' asks for."
             (message "Resolved %s with %s" symbol (string-join texts " and "))
           (message "Nothing to add for %s, the ns form has %s"
                    symbol (string-join texts " and ")))))))
+
+;;; Magic requires
+
+;;;###autoload
+(defcustom cider-ns-magic-requires nil
+  "Whether typing a slash after an alias the ns form lacks requires it.
+With magic requires on, typing str/ in a buffer whose ns form has no
+str alias adds the namespace str stands for: the one the project's
+source files give that alias, or failing that, the one
+`cider-ns-magic-require-aliases' has for it.
+
+nil    - never;
+t      - add it right away when there's one candidate, ask otherwise;
+`prompt' - always ask.
+
+Picking none of the candidates leaves the alias alone in that buffer
+from then on.  After a change, CIDER does what `cider-ns-edit-actions'
+asks for."
+  :type '(choice (const :tag "Off" nil)
+                 (const :tag "On" t)
+                 (const :tag "Ask every time" prompt))
+  :group 'cider
+  :package-version '(cider . "2.1.0"))
+
+(defcustom cider-ns-magic-require-aliases
+  '(("edn" . "clojure.edn")
+    ("io" "clojure.java.io" "clj")
+    ("math" . "clojure.math")
+    ("set" . "clojure.set")
+    ("str" . "clojure.string")
+    ("walk" . "clojure.walk")
+    ("zip" . "clojure.zip"))
+  "Aliases for magic requires to fall back on, and the namespaces they stand for.
+An entry is (ALIAS . NAMESPACE), or (ALIAS NAMESPACE PLATFORM...) for a
+namespace that's there only on the PLATFORMs it lists, \"clj\" or
+\"cljs\".  The entries count for an alias the project's source files
+don't use, and a cider-nrepl recent enough to look at those files also
+leaves out a namespace it can't find.  See `cider-ns-magic-requires'."
+  :type '(alist :key-type (string :tag "Alias")
+                :value-type (choice (string :tag "Namespace")
+                                    (cons :tag "Namespace for some platforms"
+                                          (string :tag "Namespace")
+                                          (repeat (choice (const "clj") (const "cljs"))))))
+  :safe #'listp
+  :group 'cider
+  :package-version '(cider . "2.1.0"))
+
+(defvar-local cider-ns-edit--declined-aliases nil
+  "The aliases magic requires leave alone in this buffer.
+They're the ones nothing got picked for.")
+
+(defconst cider-ns-edit--primitive-types
+  '("boolean" "byte" "char" "short" "int" "long" "float" "double")
+  "The names in front of the slash of an array class, as in long/1.")
+
+(defun cider-ns-edit--platform ()
+  "Return the platform of the buffer: \"clj\", \"cljs\" or \"cljc\"."
+  (cond
+   ((cider-clojurec-major-mode-p) "cljc")
+   ((cider-clojurescript-major-mode-p) "cljs")
+   (t "clj")))
+
+(defun cider-ns-edit--in-discarded-p (pos)
+  "Return non-nil if POS is in a form discarded with #_."
+  ;; `syntax-ppss' moves point to its argument
+  (seq-some #'cider-ns-edit--discarded-p (nth 9 (save-excursion (syntax-ppss pos)))))
+
+(defun cider-ns-edit--destructuring-p (pos)
+  "Return non-nil if POS is in the vector of a :keys, :syms or :strs."
+  (when-let* ((open (nth 1 (save-excursion (syntax-ppss pos)))))
+    (and (eq (char-after open) ?\[)
+         (save-excursion
+           (goto-char open)
+           (skip-chars-backward " \t\n,")
+           (looking-back "[:/]\\(?:keys\\|syms\\|strs\\)" (line-beginning-position))))))
+
+(defun cider-ns-edit--alias-before-slash ()
+  "Return the alias in front of the slash before point, or nil.
+Nothing in a string, a comment or a discarded form counts, and neither
+does what comes before the slash of a qualified keyword (:foo/), a
+number (1/2), a tagged literal (#foo/), a quoted symbol, a namespace or
+a class name, an array class (long/1), or a name in a :keys vector.  The
+alias of an auto-resolved keyword (::foo/) does."
+  (let ((slash (1- (point)))
+        (case-fold-search nil))
+    (when (and (eq (char-after slash) ?/)
+               (not (nth 8 (syntax-ppss))))
+      (let* ((start (save-excursion
+                      (goto-char slash)
+                      (skip-chars-backward "^][(){}\"'` \t\n,;~@^")
+                      (point)))
+             (token (buffer-substring-no-properties start slash))
+             (auto-resolved (string-prefix-p "::" token))
+             (alias (if auto-resolved (substring token 2) token)))
+        (when (and (string-match-p (if auto-resolved
+                                       ;; nothing but an alias can go there
+                                       "\\`[[:alpha:]][^/]*\\'"
+                                     ;; dotted for a namespace, capitalized
+                                     ;; for a class
+                                     "\\`[[:lower:]][^/.]*\\'")
+                                   alias)
+                   (not (member alias cider-ns-edit--primitive-types))
+                   (not (and (equal alias "js")
+                             (not (equal (cider-ns-edit--platform) "clj"))))
+                   ;; 'a/b needs no alias, unlike #'a/b
+                   (not (and (eq (char-before start) ?\')
+                             (not (eq (char-before (1- start)) ?#))))
+                   (not (cider-ns-edit--in-discarded-p slash))
+                   (or auto-resolved
+                       (not (cider-ns-edit--destructuring-p slash))))
+          alias)))))
+
+(defun cider-ns-edit--has-alias-p (ns-start ns-end alias)
+  "Return non-nil if the ns form from NS-START to NS-END gives a namespace ALIAS.
+That's anywhere in the form, reader conditionals included, but not in a
+comment, a string or a discarded form."
+  (save-excursion
+    (goto-char ns-start)
+    (let ((case-fold-search nil)
+          (regexp (concat ":as\\(?:-alias\\)?[ \t\n,]+" (regexp-quote alias) "[] \t\n,)]"))
+          found)
+      (while (and (not found) (re-search-forward regexp ns-end t))
+        (let ((beg (match-beginning 0)))
+          (unless (or (nth 8 (save-excursion (syntax-ppss beg)))
+                      (cider-ns-edit--in-discarded-p beg))
+            (setq found t))))
+      found)))
+
+(defun cider-ns-edit--magic-require-namespaces (alias platform)
+  "Return the namespaces `cider-ns-magic-require-aliases' has for ALIAS.
+Only the ones for PLATFORM count, and for \"cljc\" that's both."
+  (let ((platforms (if (equal platform "cljc") '("clj" "cljs") (list platform))))
+    (delq nil
+          (mapcar (lambda (entry)
+                    (when (equal (car entry) alias)
+                      (let ((value (cdr entry)))
+                        (cond
+                         ((stringp value) value)
+                         ((seq-every-p (lambda (p) (member p (cdr value))) platforms)
+                          (car value))))))
+                  cider-ns-magic-require-aliases))))
+
+(defun cider-ns-edit--alias-candidates (alias)
+  "Return the namespaces ALIAS could stand for.
+They come as dicts like the ones of `cider-sync-request:resolve-alias'.
+When the REPL can't tell, they're the ones `cider-ns-magic-require-aliases'
+has for ALIAS."
+  (let* ((platform (cider-ns-edit--platform))
+         (preferred (cider-ns-edit--magic-require-namespaces alias platform)))
+    (if (and (cider-connected-p) (cider-nrepl-op-supported-p "cider/resolve-alias"))
+        (cider-sync-request:resolve-alias alias (cider-current-ns) platform preferred)
+      (mapcar (lambda (ns) (nrepl-dict "ns" ns "source" "preferred")) preferred))))
+
+(defun cider-ns-edit--choose-alias-ns (alias candidates)
+  "Return the namespace to require as ALIAS, out of CANDIDATES, or nil.
+Ask which when there's more than one, or `cider-ns-magic-requires' says
+to ask.  Picking none, or quitting, declines ALIAS for the buffer."
+  (if (and (null (cdr candidates)) (eq cider-ns-magic-requires t))
+      (nrepl-dict-get (car candidates) "ns")
+    (let* ((table (mapcar (lambda (c) (cons (nrepl-dict-get c "ns") c)) candidates))
+           (annotate (lambda (ns)
+                       (when-let* ((candidate (cdr (assoc ns table))))
+                         (pcase (nrepl-dict-get candidate "source")
+                           ("project" (let ((n (nrepl-dict-get candidate "count")))
+                                        (format " used in %s file%s" n (if (eql n 1) "" "s"))))
+                           (source (concat " " source))))))
+           (choice (condition-case nil
+                       (completing-read
+                        (format "Require as %s (empty for none): " alias)
+                        (lambda (string pred action)
+                          (if (eq action 'metadata)
+                              `(metadata (annotation-function . ,annotate)
+                                         (display-sort-function . identity))
+                            (complete-with-action action table string pred)))
+                        nil t)
+                     (quit ""))))
+      (if (string-empty-p choice)
+          (progn (push alias cider-ns-edit--declined-aliases)
+                 nil)
+        choice))))
+
+(defun cider-ns-edit--magic-require ()
+  "Require the namespace the alias before the slash at point stands for.
+See `cider-ns-magic-requires'.  This runs as the user types, so instead
+of signaling an error it says what went wrong in the echo area."
+  (with-demoted-errors "Magic require failed: %S"
+    (when-let* ((alias (cider-ns-edit--alias-before-slash))
+                (ns-start (cider-ns-edit--ns-form-start))
+                ;; nil while the ns form is still unbalanced, or out of
+                ;; reach in a narrowed buffer
+                (ns-end (ignore-errors (scan-sexps ns-start 1))))
+      (unless (or buffer-read-only
+                  ;; typing in the ns form itself
+                  (< ns-start (point) ns-end)
+                  (member alias cider-ns-edit--declined-aliases)
+                  (cider-ns-edit--has-alias-p ns-start ns-end alias))
+        (when-let* ((candidates (cider-ns-edit--alias-candidates alias))
+                    (ns (cider-ns-edit--choose-alias-ns alias candidates)))
+          ;; The require undoes on its own, apart from the typing around it.
+          (undo-boundary)
+          (condition-case err
+              (pcase-let ((`(,status . ,libspec)
+                           ;; An error from the evaluation of the ns form
+                           ;; mustn't take the keystrokes that follow.
+                           (let ((cider-ns-edit--select-error-buffer nil))
+                             (cider-ns-edit--edit
+                              (lambda (start) (cider-ns-edit--add-require start ns alias))))))
+                (when status
+                  ;; so that the next keystroke doesn't join the require's
+                  ;; undo step
+                  (setq this-command #'cider-ns-edit--magic-require))
+                (cider-ns-edit--require-message ns status libspec))
+            (user-error (message "%s" (error-message-string err)))))))))
 
 (provide 'cider-ns)
 ;;; cider-ns.el ends here

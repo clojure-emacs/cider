@@ -539,6 +539,17 @@ If invoked with a prefix ARG eval the expression after inserting it."
 (declare-function cider-repl-set-ns "cider-repl")
 (declare-function cider-find-ns "cider-find")
 
+(defvar cider-ns-magic-requires)
+(declare-function cider-ns-edit--magic-require "cider-ns")
+
+(defun cider--magic-require-after-slash ()
+  "Require the namespace an alias stands for, once its slash is typed.
+That's when `cider-ns-magic-requires' is on."
+  (when (and (eq last-command-event ?/)
+             (bound-and-true-p cider-ns-magic-requires))
+    (require 'cider-ns)
+    (cider-ns-edit--magic-require)))
+
 (defvar cider-ns-map
   (let ((map (define-prefix-command 'cider-ns-map)))
     (define-key map (kbd "b") #'cider-browse-ns)
@@ -1494,6 +1505,7 @@ property."
         (cider-eldoc-setup)
         (cider-ns-state-setup)
         (add-hook 'completion-at-point-functions #'cider-complete-at-point nil t)
+        (add-hook 'post-self-insert-hook #'cider--magic-require-after-slash nil t)
         ;; clojure-mode's regexp keywords are a no-op under clojure-ts-mode's
         ;; tree-sitter fontifier, so install the tree-sitter equivalent there.
         (if (cider-clojure-ts-mode-p)
@@ -1527,6 +1539,7 @@ property."
                                   clojure-get-indent-function
                                   clojure-ts-get-indent-function))
     (remove-hook 'completion-at-point-functions #'cider-complete-at-point t)
+    (remove-hook 'post-self-insert-hook #'cider--magic-require-after-slash t)
     (when cider-use-xref
       (remove-hook 'xref-backend-functions #'cider--xref-backend 'local))
     (remove-hook 'font-lock-mode-hook #'cider-refresh-dynamic-font-lock 'local)
