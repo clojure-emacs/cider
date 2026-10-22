@@ -9,9 +9,10 @@ works without a REPL. When one is connected, the prompts complete against it.
 Adding what a symbol needs is the exception, since only the REPL knows where
 the symbol could come from.
 
-NOTE: If you're coming from clj-refactor, these commands cover what
-`cljr-add-require-to-ns`, `cljr-add-import-to-ns` and
-`cljr-add-missing-libspec` do, without yasnippet or refactor-nrepl.
+NOTE: If you're coming from clj-refactor, these commands and the magic
+requires cover what `cljr-add-require-to-ns`, `cljr-add-import-to-ns`,
+`cljr-add-missing-libspec` and `cljr-slash` do, without yasnippet or
+refactor-nrepl.
 
 == Adding a Require
 
@@ -113,6 +114,61 @@ and it knows about namespaces but not about JavaScript classes.
 
 This needs cider-nrepl 0.64.0 or newer. With an older one, the command says
 the op it needs is missing.
+
+== Magic Requires
+
+With magic requires on, typing a slash after an alias the `ns` form doesn't
+have yet adds the require it needs. Type `str/` in a buffer without a `str`
+alias, and `[clojure.string :as str]` goes into the `:require` clause, while
+you carry on typing `str/join` where you are.
+
+They're off by default. To turn them on:
+
+[source,lisp]
+----
+(setq cider-ns-magic-requires t)
+----
+
+With `t`, CIDER adds the namespace right away when it's the only one the alias
+could stand for, and asks which when there are several. Set it to `prompt` to
+be asked every time. Picking none leaves that alias alone in the buffer from
+then on. The require is an undo step of its own, so kbd:[C-/] right after it
+takes it back without touching what you typed.
+
+The project's own source files decide what an alias stands for: the namespaces
+they give it, the most used first, so the codebase's conventions carry over.
+For an alias the project doesn't use yet, CIDER falls back on
+`cider-ns-magic-require-aliases`, which has the usual aliases of Clojure's own
+namespaces (`str`, `set`, `io` and so on), and on the project namespaces named
+like the alias, such as `acme.billing` for `billing`. An entry of
+`cider-ns-magic-require-aliases` can list the platforms its namespace is there
+on:
+
+[source,lisp]
+----
+(add-to-list 'cider-ns-magic-require-aliases '("json" "cheshire.core" "clj"))
+----
+
+The slash counts only where an alias can go: not in strings, comments or
+discarded forms, and not after a keyword like `:foo/` (though `::foo/` counts),
+a number, a quoted symbol, a namespace or class name, or a name in a `:keys`
+vector. In ClojureScript, `js/` is left alone. In a `.cljc` file, the namespace
+has to work for both Clojure and ClojureScript.
+
+Magic requires work in the buffers where `cider-mode` is on, which is the
+Clojure buffers of a project you're connected to. Going by the project's source
+files needs cider-nrepl 0.64.0 or newer. With an older one, CIDER uses
+`cider-ns-magic-require-aliases` only.
+
+NOTE: clj-refactor binds kbd:[/] to its own magic requires, so CIDER's don't
+run in buffers where `clj-refactor-mode` is on. To use CIDER's there, unbind
+it:
+
+[source,lisp]
+----
+(with-eval-after-load 'clj-refactor
+  (define-key clj-refactor-map (kbd "/") nil))
+----
 
 == After an Edit
 

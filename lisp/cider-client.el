@@ -1136,6 +1136,26 @@ and its \"type\": \"ns\" or \"macro\" for a namespace to require,
         (error "Looking up %s failed: %s" symbol (nrepl-dict-get response "ex")))
       (nrepl-dict-get response "candidates"))))
 
+(defun cider-sync-request:resolve-alias (alias &optional ns platform preferred)
+  "Return the namespaces ALIAS could stand for in NS.
+PLATFORM is \"clj\" (the default), \"cljs\", or \"cljc\", where a
+namespace has to work for both.  PREFERRED is a list of namespaces to
+offer when the project's source files don't use ALIAS.  The result is a
+list of dicts, each with the \"ns\" as written in a libspec and its
+\"source\": \"project\", with the \"count\" of the files giving it
+ALIAS, \"preferred\" or \"suggested\".  Typing aborts the request,
+which then finds nothing."
+  (let ((response (cider-nrepl-sync-request `("op" "cider/resolve-alias"
+                                              "alias" ,alias
+                                              "ns" ,ns
+                                              "platform" ,platform
+                                              "preferred" ,preferred)
+                                            :abort-on-input 'abort-on-input)))
+    ;; Not the same as finding nothing.
+    (when (member "cider/resolve-alias-error" (nrepl-dict-get response "status"))
+      (error "Looking up %s failed: %s" alias (nrepl-dict-get response "ex")))
+    (nrepl-dict-get response "candidates")))
+
 (defun cider-sync-request:resource (name)
   "Perform nREPL \"resource\" op with resource name NAME."
   (thread-first `("op" "cider/resource"

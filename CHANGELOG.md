@@ -8,6 +8,7 @@
 
 ### New features
 
+- [#4218](https://github.com/clojure-emacs/cider/pull/4218): Add magic requires (`cider-ns-magic-requires`, off by default): typing a slash after an alias the `ns` form lacks adds the require it needs, going by the aliases the project already uses, with `cider-ns-magic-require-aliases` as the fallback.
 - [#4217](https://github.com/clojure-emacs/cider/pull/4217): Add `cider-ns-add-missing` (`C-c M-n m`), which adds the require or import the symbol at point needs, using cider-nrepl's `cider/resolve-missing` op.
 - [#4216](https://github.com/clojure-emacs/cider/pull/4216): Add `cider-ns-add-require` (`C-c M-n a`) and `cider-ns-add-import` (`C-c M-n i`), which add a require or an import to the `ns` form, completing against the REPL when connected; `cider-ns-edit-actions` controls whether the `ns` form then gets sorted and evaluated.
 - [#4206](https://github.com/clojure-emacs/cider/pull/4206): Show test progress while the tests run: with `cider-test-stream-results` (on by default) the echo area keeps a running count and failing tests land in the report as soon as they finish.

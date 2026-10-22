@@ -837,3 +837,281 @@
   (it "handles npm package names"
     (expect (cider-ns-edit--default-alias "\"react\"") :to-equal "react")
     (expect (cider-ns-edit--default-alias "\"@mui/material\"") :to-equal "material")))
+
+(defun cider-ns-tests--type (string)
+  "Type STRING a key at a time, the way the command loop would."
+  (add-hook 'post-self-insert-hook #'cider--magic-require-after-slash nil t)
+  (dolist (char (string-to-list string))
+    (setq this-command 'self-insert-command)
+    (let ((last-command-event char))
+      (self-insert-command 1))
+    (undo-auto--add-boundary)
+    (setq last-command this-command)))
+
+(defun cider-ns-tests--undo ()
+  "Undo the way the command loop would, continuing an undo before."
+  (setq this-command 'undo)
+  (undo 1)
+  (setq last-command 'undo))
+
+(defun cider-ns-tests--type-slash ()
+  "Type a slash at point the way the user would, magic requires and all."
+  (add-hook 'post-self-insert-hook #'cider--magic-require-after-slash nil t)
+  (let ((last-command-event ?/))
+    (self-insert-command 1)))
+
+(describe "magic requires"
+  :var (cider-ns-edit-actions cider-ns-magic-requires)
+
+  (before-each
+    (setq cider-ns-edit-actions '(sort)
+          cider-ns-magic-requires t)
+    (spy-on 'cider-connected-p :and-return-value nil)
+    (spy-on 'message))
+
+  (it "requires the namespace a known alias stands for"
+    (with-clojure-buffer "(ns foo.bar)\n\n(str|"
+      (cider-ns-tests--type-slash)
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [clojure.string :as str]))\n\n(str/")
+      (expect (point) :to-equal (point-max))
+      (expect 'message :to-have-been-called-with
+              "Added %s to the ns form" "[clojure.string :as str]")))
+
+  (it "goes by the alias of an auto-resolved keyword"
+    (with-clojure-buffer "(ns foo.bar)\n\n(::str|"
+      (cider-ns-tests--type-slash)
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [clojure.string :as str]))\n\n(::str/")))
+
+  (it "asks the REPL when connected"
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
+    (spy-on 'cider-current-ns :and-return-value "foo.bar")
+    (spy-on 'cider-sync-request:resolve-alias
+            :and-return-value (list (nrepl-dict "ns" "acme.strings" "source" "project" "count" 3)))
+    (with-clojure-buffer "(ns foo.bar)\n\n(str|"
+      (cider-ns-tests--type-slash)
+      (expect 'cider-sync-request:resolve-alias :to-have-been-called-with
+              "str" "foo.bar" "clj" '("clojure.string"))
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [acme.strings :as str]))\n\n(str/")))
+
+  (it "falls back on the table when the REPL lacks the op"
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
+    (spy-on 'cider-sync-request:resolve-alias)
+    (with-clojure-buffer "(ns foo.bar)\n\n(str|"
+      (cider-ns-tests--type-slash)
+      (expect 'cider-sync-request:resolve-alias :not :to-have-been-called)
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [clojure.string :as str]))\n\n(str/")))
+
+  (it "asks which namespace when there are several"
+    (spy-on 'cider-ns-edit--alias-candidates
+            :and-return-value (list (nrepl-dict "ns" "a.strings" "source" "project" "count" 2)
+                                    (nrepl-dict "ns" "b.strings" "source" "project" "count" 1)))
+    (spy-on 'completing-read :and-return-value "b.strings")
+    (with-clojure-buffer "(ns foo.bar)\n\n(str|"
+      (cider-ns-tests--type-slash)
+      (expect 'completing-read :to-have-been-called)
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [b.strings :as str]))\n\n(str/")))
+
+  (it "asks even about one namespace when told to"
+    (setq cider-ns-magic-requires 'prompt)
+    (spy-on 'completing-read :and-return-value "clojure.string")
+    (with-clojure-buffer "(ns foo.bar)\n\n(str|"
+      (cider-ns-tests--type-slash)
+      (expect 'completing-read :to-have-been-called)
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [clojure.string :as str]))\n\n(str/")))
+
+  (it "leaves the ns form alone when nothing gets picked"
+    (setq cider-ns-magic-requires 'prompt)
+    (spy-on 'completing-read :and-return-value "")
+    (with-clojure-buffer "(ns foo.bar)\n\n(str|"
+      (cider-ns-tests--type-slash)
+      (expect (buffer-string) :to-equal "(ns foo.bar)\n\n(str/")))
+
+  (it "does nothing when off"
+    (setq cider-ns-magic-requires nil)
+    (spy-on 'cider-ns-edit--alias-candidates)
+    (with-clojure-buffer "(ns foo.bar)\n\n(str|"
+      (cider-ns-tests--type-slash)
+      (expect 'cider-ns-edit--alias-candidates :not :to-have-been-called)
+      (expect (buffer-string) :to-equal "(ns foo.bar)\n\n(str/")))
+
+  (it "does nothing for an alias nothing stands for"
+    (with-clojure-buffer "(ns foo.bar)\n\n(nope|"
+      (cider-ns-tests--type-slash)
+      (expect (buffer-string) :to-equal "(ns foo.bar)\n\n(nope/")))
+
+  (it "ignores what isn't an alias"
+    (spy-on 'cider-ns-edit--alias-candidates)
+    (dolist (text '("(ns foo.bar)\n\n\"str|\""
+                    "(ns foo.bar)\n\n; str|"
+                    "(ns foo.bar)\n\n(:str|"
+                    "(ns foo.bar)\n\n(1|"
+                    "(ns foo.bar)\n\n#str|"
+                    "(ns foo.bar)\n\n(clojure.string|"
+                    "(ns foo.bar)\n\n(Math|"
+                    "(ns foo.bar)\n\n(let [{:keys [str|]} m])"
+                    "(ns foo.bar)\n\n(|"
+                    "(ns foo.bar\n  (:require [acme :refer [str|]]))"))
+      (with-clojure-buffer text
+        (cider-ns-tests--type-slash)
+        (expect (buffer-string) :to-equal (replace-regexp-in-string "|" "/" text))))
+    (expect 'cider-ns-edit--alias-candidates :not :to-have-been-called))
+
+  (it "ignores an alias the ns form has, in a reader conditional too"
+    (spy-on 'cider-ns-edit--alias-candidates)
+    (dolist (text '("(ns foo.bar\n  (:require [clojure.string :as str]))\n\n(str|"
+                    "(ns foo.bar\n  (:require #?(:clj [clojure.string :as str])))\n\n(str|"
+                    "(ns foo.bar\n  (:require [acme.strings :as-alias str]))\n\n(str|"))
+      (with-clojure-buffer text
+        (cider-ns-tests--type-slash)
+        (expect (buffer-string) :to-equal (replace-regexp-in-string "|" "/" text))))
+    (expect 'cider-ns-edit--alias-candidates :not :to-have-been-called))
+
+  (it "skips js in ClojureScript"
+    (with-clojure-buffer "(ns foo.bar)\n\n(js/|"
+      (clojurescript-mode)
+      (expect (cider-ns-edit--alias-before-slash) :to-be nil))
+    (with-clojure-buffer "(ns foo.bar)\n\n(str/|"
+      (clojurescript-mode)
+      (expect (cider-ns-edit--alias-before-slash) :to-equal "str")))
+
+  (it "asks the REPL without holding up typing, and tells a failure from finding nothing"
+    (spy-on 'cider-nrepl-sync-request
+            :and-return-value (nrepl-dict "status" '("done")
+                                          "candidates" (list (nrepl-dict "ns" "clojure.string"))))
+    (expect (cider-sync-request:resolve-alias "str" "foo.bar" "clj" '("clojure.string"))
+            :to-equal (list (nrepl-dict "ns" "clojure.string")))
+    (expect 'cider-nrepl-sync-request :to-have-been-called-with
+            '("op" "cider/resolve-alias" "alias" "str" "ns" "foo.bar"
+              "platform" "clj" "preferred" ("clojure.string"))
+            :abort-on-input 'abort-on-input)
+    (spy-on 'cider-nrepl-sync-request
+            :and-return-value (nrepl-dict "status" '("done" "cider/resolve-alias-error")
+                                          "ex" "class java.lang.NullPointerException"))
+    (expect (cider-sync-request:resolve-alias "str")
+            :to-throw 'error '("Looking up str failed: class java.lang.NullPointerException")))
+
+  (it "takes what's around the slash into account"
+    (dolist (case '(("(ns foo.bar)\n\n{:keys [::str/|" . "str")
+                    ("(ns foo.bar)\n\n(::db.schema/|" . "db.schema")
+                    ("(ns foo.bar)\n\n(#'str/|" . "str")
+                    ("(ns foo.bar)\n\n'str/|" . nil)
+                    ("(ns foo.bar)\n\n(long/|" . nil)
+                    ("(ns foo.bar)\n\n(%1/|" . nil)
+                    ("(ns foo.bar)\n\n#_(str/|" . nil)))
+      (with-clojure-buffer (car case)
+        (expect (cider-ns-edit--alias-before-slash) :to-equal (cdr case)))))
+
+  (it "goes by the ns form's aliases, but not in comments or discarded forms"
+    (dolist (case '(("[clojure.string :as str]" . t)
+                    ("#?(:cljs [clojure.string :as str])" . t)
+                    ("[acme.S :as S]" . nil)
+                    ("#_[clojure.string :as str]" . nil)
+                    (";; [clojure.string :as str]\n" . nil)
+                    ("\"[clojure.string :as str]\"" . nil)))
+      (with-clojure-buffer (format "(ns foo.bar\n  (:require %s))\n\n(str/|" (car case))
+        (expect (cider-ns-edit--has-alias-p 1 (scan-sexps 1 1) "str")
+                :to-equal (cdr case)))))
+
+  (it "takes from the fallback table only what works on the platform"
+    (expect (cider-ns-edit--magic-require-namespaces "io" "clj") :to-equal '("clojure.java.io"))
+    (expect (cider-ns-edit--magic-require-namespaces "io" "cljs") :to-be nil)
+    (expect (cider-ns-edit--magic-require-namespaces "io" "cljc") :to-be nil)
+    (expect (cider-ns-edit--magic-require-namespaces "str" "cljc") :to-equal '("clojure.string"))
+    (let ((cider-ns-magic-require-aliases '(("x" "acme.x" "clj" "cljs"))))
+      (expect (cider-ns-edit--magic-require-namespaces "x" "cljc") :to-equal '("acme.x"))))
+
+  (it "goes by the buffer's platform"
+    (with-temp-buffer
+      (clojure-mode)
+      (expect (cider-ns-edit--platform) :to-equal "clj")
+      (clojurescript-mode)
+      (expect (cider-ns-edit--platform) :to-equal "cljs")
+      (clojurec-mode)
+      (expect (cider-ns-edit--platform) :to-equal "cljc")))
+
+  (it "says what went wrong instead of signaling an error"
+    (with-clojure-buffer "(ns foo.bar\n  (:require [clojure.string :as string]))\n\n(str|"
+      (cider-ns-tests--type-slash)
+      (expect 'message :to-have-been-called-with
+              "%s" "clojure.string is already required as string")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [clojure.string :as string]))\n\n(str/"))
+    (spy-on 'cider-ns-edit--alias-candidates :and-throw-error 'error)
+    (with-clojure-buffer "(ns foo.bar)\n\n(str|"
+      ;; which lets errors through for debugging
+      (let ((debug-on-error nil))
+        (expect (cider-ns-tests--type-slash) :not :to-throw))
+      (expect (buffer-string) :to-equal "(ns foo.bar)\n\n(str/")))
+
+  (it "leaves an unbalanced ns form alone"
+    (with-clojure-buffer "(ns foo.bar\n  (:require\n\n(str|"
+      (expect (cider-ns-tests--type-slash) :not :to-throw)
+      (expect (buffer-string) :to-equal "(ns foo.bar\n  (:require\n\n(str/")))
+
+  (it "undoes the require apart from the typing around it"
+    (let (this-command last-command)
+      (with-clojure-buffer "(ns foo.bar)\n\n|"
+        (buffer-enable-undo)
+        (undo-boundary)
+        (setq last-command 'ignore)
+        (cider-ns-tests--type "(str/join")
+        (expect (buffer-string) :to-equal
+                "(ns foo.bar\n  (:require [clojure.string :as str]))\n\n(str/join")
+        (cider-ns-tests--undo)
+        (expect (buffer-string) :to-equal
+                "(ns foo.bar\n  (:require [clojure.string :as str]))\n\n(str/")
+        (cider-ns-tests--undo)
+        (expect (buffer-string) :to-equal "(ns foo.bar)\n\n(str/"))))
+
+  (it "leaves an alias alone in the buffer once nothing got picked for it"
+    (setq cider-ns-magic-requires 'prompt)
+    (spy-on 'completing-read :and-return-value "")
+    (with-clojure-buffer "(ns foo.bar)\n\n(str|"
+      (cider-ns-tests--type-slash)
+      (insert " (str")
+      (cider-ns-tests--type-slash)
+      (expect 'completing-read :to-have-been-called-times 1)
+      (expect (buffer-string) :to-equal "(ns foo.bar)\n\n(str/ (str/")))
+
+  (it "leaves a narrowed buffer alone when the ns form is out of reach"
+    (spy-on 'cider-ns-edit--alias-candidates)
+    (with-clojure-buffer "(ns foo.bar)\n\n(str|"
+      (narrow-to-region (- (point) 4) (point))
+      (expect (cider-ns-tests--type-slash) :not :to-throw)
+      (widen)
+      (expect (buffer-string) :to-equal "(ns foo.bar)\n\n(str/")
+      (expect 'cider-ns-edit--alias-candidates :not :to-have-been-called)))
+
+  (it "doesn't let an error from the evaluation take the keystrokes that follow"
+    (setq cider-ns-edit-actions '(eval))
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value nil)
+    (spy-on 'cider-interactive-eval)
+    (let (selects)
+      (spy-on 'cider-default-err-handler
+              :and-call-fake (lambda (&rest _)
+                               (setq selects (with-suppressed-warnings
+                                                 ((obsolete cider-auto-select-error-buffer))
+                                               (cider-auto-select-buffer-p
+                                                'error cider-auto-select-error-buffer)))))
+      (with-clojure-buffer "(ns foo.bar)\n\n(str|"
+        (cider-ns-tests--type-slash)
+        (let ((handler (nth 1 (spy-calls-args-for 'cider-interactive-eval 0))))
+          (funcall handler (nrepl-dict "status" '("eval-error"))))
+        (expect 'cider-default-err-handler :to-have-been-called)
+        (expect selects :to-be nil))))
+
+  (it "gets hooked up by cider-mode"
+    (with-clojure-buffer ""
+      (cider-mode 1)
+      (expect (memq #'cider--magic-require-after-slash post-self-insert-hook) :to-be-truthy)
+      (cider-mode -1)
+      (expect (memq #'cider--magic-require-after-slash post-self-insert-hook) :not :to-be-truthy))))
