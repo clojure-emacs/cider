@@ -111,6 +111,9 @@ Only namespaces that are loaded in the REPL count, so load the one you're after
 first if it isn't. In ClojureScript buffers the ClojureScript REPL gets asked,
 and it knows about namespaces but not about JavaScript classes.
 
+This needs cider-nrepl 0.64.0 or newer. With an older one, the command says
+the op it needs is missing.
+
 == After an Edit
 
 `cider-ns-edit-actions` says what happens after a change to the `ns` form. By
