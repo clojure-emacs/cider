@@ -25,6 +25,7 @@
 
 ### Changes
 
+- [#4218](https://github.com/clojure-emacs/cider/pull/4218): Bump the injected `cider-nrepl` to [0.64.0-alpha2](https://github.com/clojure-emacs/cider-nrepl/blob/v0.64.0-alpha2/CHANGELOG.md#0640-alpha2-2026-10-24), which adds the `cider/resolve-alias` op behind magic requires.
 - [#4217](https://github.com/clojure-emacs/cider/pull/4217): Bump the injected `cider-nrepl` to [0.64.0-alpha1](https://github.com/clojure-emacs/cider-nrepl/blob/v0.64.0-alpha1/CHANGELOG.md#0640-alpha1-2026-10-22), which adds the `cider/resolve-missing` op behind `cider-ns-add-missing`.
 - [#4206](https://github.com/clojure-emacs/cider/pull/4206): Bump the injected `cider-nrepl` to [0.63.1](https://github.com/clojure-emacs/cider-nrepl/blob/v0.63.1/CHANGELOG.md#0631-2026-10-03), which streams test progress while the tests run.
 - [#4207](https://github.com/clojure-emacs/cider/pull/4207): Turn `cider-test-fail-fast` off by default, so a test run goes through all the tests and streams their failures as they come in, instead of stopping at the first one.
