@@ -1047,7 +1047,9 @@ positional shim retained for backward compatibility."
                          (time-less-p
                           nrepl-sync-request-timeout
                           (time-subtract nil time0)))
-                (error "Sync nREPL request timed out %s after %s secs" request nrepl-sync-request-timeout)))
+                ;; Not the whole request, which can hold a whole file.
+                (error "Sync nREPL request (op %s) timed out after %s secs"
+                       (nrepl-plist-get request "op") nrepl-sync-request-timeout)))
             ;; Clean up the response, otherwise we might repeatedly ask for input.
             (nrepl-dict-put response "status" (remove "need-input" status))
             (accept-process-output nil 0.01))
