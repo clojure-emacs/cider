@@ -1156,6 +1156,32 @@ which then finds nothing."
       (error "Looking up %s failed: %s" alias (nrepl-dict-get response "ex")))
     (nrepl-dict-get response "candidates")))
 
+(defun cider-sync-request:clean-ns (code &optional line platform)
+  "Return what the ns form at the start of CODE has that CODE doesn't use.
+LINE is the line CODE starts on, and PLATFORM is \"clj\", \"cljs\", or
+\"cljc\" for both.  The result is a dict with the \"libspecs\" and the
+\"imports\" that can go, as the cider/clean-ns op describes them.
+Signal a `user-error' when CODE doesn't read."
+  (let ((repl (cider-current-repl 'infer 'ensure)))
+    ;; No falling back to the unprefixed op: refactor-nrepl has a
+    ;; `clean-ns' that answers in another format.
+    (unless (nrepl-op-supported-p "cider/clean-ns" repl)
+      (user-error "`%s' requires the nREPL op \"cider/clean-ns\" (provided by cider-nrepl)"
+                  (or this-command "This request")))
+    (let ((response (cider-nrepl-sync-request `("op" "cider/clean-ns"
+                                                "code" ,code
+                                                "line" ,line
+                                                "platform" ,platform)
+                                              :connection repl)))
+      (when (member "cider/clean-ns-error" (nrepl-dict-get response "status"))
+        (let ((err (or (nrepl-dict-get response "error")
+                       (nrepl-dict-get response "ex")))
+              (err-line (nrepl-dict-get response "line")))
+          (if err-line
+              (user-error "Unreadable code at line %s: %s" err-line err)
+            (user-error "Cleaning the ns form failed: %s" err))))
+      response)))
+
 (defun cider-sync-request:resource (name)
   "Perform nREPL \"resource\" op with resource name NAME."
   (thread-first `("op" "cider/resource"

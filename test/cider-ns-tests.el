@@ -829,6 +829,190 @@
       (call-interactively #'cider-ns-add-missing)
       (expect 'cider-sync-request:resolve-missing :to-have-been-called-with "join" "foo.bar"))))
 
+(describe "cider-ns-edit--delete-elements"
+  (it "keeps the layout of what stays"
+    (dolist (case '(;; a line of its own goes, a comment trailing it with it
+                    ("(:require\n [a]\n [b]\n [c])" (1) "(:require\n [b]\n [c])")
+                    ("(:require\n [a] ; for a\n [b])" (1) "(:require\n [b])")
+                    ;; a comment above the next element stays with it
+                    ("(:require\n [a]\n ;; for b\n [b])" (1) "(:require\n ;; for b\n [b])")
+                    ;; the next element takes the place of the first
+                    ("(:require [a :as a]\n          [b :as b])" (1) "(:require [b :as b])")
+                    ;; the last element takes the blanks before it
+                    ("(:require [a :as a]\n          [b :as b])" (2) "(:require [a :as a])")
+                    ("[a b c d]" (1 2) "[a d]")
+                    ("[a b c]" (2 1) "[a]")
+                    ("[a b c d]" (0 2) "[b d]")
+                    ("[a, b, c]" (1) "[a, c]")
+                    ("[a\n b]" (0) "[b]")
+                    ;; one that ends a line other elements start stays apart
+                    ("(:require\n [a] [b]\n [c])" (2) "(:require\n [a]\n [c])")
+                    ;; what's before the last element stays
+                    ("(:require [a] ; for a\n          [b])" (2) "(:require [a] ; for a\n          )")
+                    ("(:require [a]\n #_[x]\n [b])" (2) "(:require [a]\n #_[x])")
+                    ("(java.util Date #_Foo List)" (2) "(java.util Date #_Foo)")
+                    ("(:require [a]\n ;; for b\n [b])" (1) "(:require\n ;; for b\n [b])")
+                    ;; the last element's comment goes with it
+                    ("(:require [a]\n [b] ; for b\n )" (2) "(:require [a]\n )")))
+      (with-clojure-buffer (car case)
+        (cider-ns-edit--delete-elements (point-min) (cadr case))
+        (expect (buffer-string) :to-equal (caddr case))))))
+
+(describe "cider-ns-clean"
+  :var (cider-ns-edit-actions)
+
+  (before-each
+    (setq cider-ns-edit-actions nil)
+    (spy-on 'message))
+
+  (it "removes what the REPL says goes unused, and leaves the rest as it's written"
+    (spy-on 'cider-sync-request:clean-ns
+            :and-return-value
+            (nrepl-dict "libspecs" (list (nrepl-dict "ns" "clojure.set" "clause" "require" "remove" "true")
+                                         (nrepl-dict "ns" "clojure.string" "clause" "require"
+                                                     "as" "str" "refer" '("split")))
+                        "imports" '("java.util.List" "java.io.File")))
+    (with-clojure-buffer (concat "(ns foo.bar\n"
+                                 "  (:require [clojure.set :as set]\n"
+                                 "            [clojure.string :as str :refer [join split]]\n"
+                                 "            [clojure.walk :as walk]) ; walking\n"
+                                 "  (:import (java.util Date List)\n"
+                                 "           java.io.File))\n"
+                                 "|")
+      (cider-ns-clean t)
+      (expect (buffer-string) :to-equal
+              (concat "(ns foo.bar\n"
+                      "  (:require [clojure.string :refer [join]]\n"
+                      "            [clojure.walk :as walk]) ; walking\n"
+                      "  (:import (java.util Date)))\n"))
+      (expect 'message :to-have-been-called-with
+              "Removed %s from the ns form"
+              "clojure.set, :as str, split, java.util.List and java.io.File")))
+
+  (it "removes a clause with nothing left in it"
+    (spy-on 'cider-sync-request:clean-ns
+            :and-return-value
+            (nrepl-dict "libspecs" (list (nrepl-dict "ns" "clojure.set" "clause" "require" "remove" "true"))
+                        "imports" '("java.io.File")))
+    (with-clojure-buffer "(ns foo.bar\n  \"Docs.\"\n  (:require [clojure.set :as set])\n  (:import java.io.File))\n|"
+      (cider-ns-clean t)
+      (expect (buffer-string) :to-equal "(ns foo.bar\n  \"Docs.\")\n")))
+
+  (it "removes the parts of a libspec"
+    (dolist (case '(("[clojure.string :as str :refer [join]]" ("refer" ("join")) "[clojure.string :as str]")
+                    ("[clojure.string :refer [join split] :as str]" ("as" "str") "[clojure.string :refer [join split]]")
+                    ("[foo.spec :as foo :as-alias spec]" ("as-alias" "spec") "[foo.spec :as foo]")
+                    ("[foo.core :refer-macros [a b] :include-macros true]" ("refer-macros" ("a"))
+                     "[foo.core :refer-macros [b] :include-macros true]")
+                    ("[clojure.string :as str\n             :refer [join\n                     split]]"
+                     ("refer" ("join")) "[clojure.string :as str\n             :refer [split]]")))
+      (spy-on 'cider-sync-request:clean-ns
+              :and-return-value
+              (nrepl-dict "libspecs" (list (apply #'nrepl-dict "ns" (car (split-string (substring (car case) 1)))
+                                                  "clause" "require" (cadr case)))))
+      (with-clojure-buffer (format "(ns foo.bar\n  (:require %s))\n|" (car case))
+        (cider-ns-clean t)
+        (expect (buffer-string) :to-equal (format "(ns foo.bar\n  (:require %s))\n" (caddr case))))))
+
+  (it "keeps a clause with a comment left in it, and one it didn't touch"
+    (spy-on 'cider-sync-request:clean-ns
+            :and-return-value
+            (nrepl-dict "libspecs" (list (nrepl-dict "ns" "clojure.set" "clause" "require" "remove" "true"))))
+    (with-clojure-buffer "(ns foo.bar\n  (:require\n   ;; [old.thing :as old]\n   [clojure.set :as set])\n  (:require-macros))\n|"
+      (cider-ns-clean t)
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require\n   ;; [old.thing :as old]\n   )\n  (:require-macros))\n")))
+
+  (it "says only what it removed"
+    (spy-on 'cider-sync-request:clean-ns
+            :and-return-value
+            (nrepl-dict "libspecs" (list (nrepl-dict "ns" "foo.spec" "clause" "require" "as" "f"
+                                                     "refer" '("x")))))
+    (with-clojure-buffer "(ns foo.bar\n  (:require [foo.spec :as-alias fs]))\n|"
+      (cider-ns-clean t)
+      (expect (buffer-string) :to-equal "(ns foo.bar\n  (:require [foo.spec :as-alias fs]))\n")
+      (expect 'message :to-have-been-called-with "Nothing to clean in the ns form")))
+
+  (it "finds a JavaScript module and a require-macros clause"
+    (spy-on 'cider-sync-request:clean-ns
+            :and-return-value
+            (nrepl-dict "libspecs" (list (nrepl-dict "ns" "\"react\"" "clause" "require" "remove" "true")
+                                         (nrepl-dict "ns" "foo.macros" "clause" "require-macros" "remove" "true"))))
+    (with-clojure-buffer "(ns foo.bar\n  (:require [\"react\" :as react]\n            [foo.core :as core])\n  (:require-macros [foo.macros :as m]))\n|"
+      (cider-ns-clean t)
+      (expect (buffer-string) :to-equal "(ns foo.bar\n  (:require [foo.core :as core]))\n")))
+
+  (it "leaves alone what it can't find"
+    (spy-on 'cider-sync-request:clean-ns
+            :and-return-value
+            (nrepl-dict "libspecs" (list (nrepl-dict "ns" "clojure.set" "clause" "require" "remove" "true"))
+                        "imports" '("java.io.File")))
+    (with-clojure-buffer "(ns foo.bar\n  (:require [clojure [set :as set]]\n            #?(:clj [clojure.set :as set])))\n|"
+      (cider-ns-clean t)
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [clojure [set :as set]]\n            #?(:clj [clojure.set :as set])))\n")
+      (expect 'message :to-have-been-called-with "Nothing to clean in the ns form")))
+
+  (it "sends the code from the ns form on, with the line it starts on"
+    (spy-on 'cider-sync-request:clean-ns :and-return-value (nrepl-dict))
+    (with-clojure-buffer ";; header\n\n(ns foo.bar)\n(defn x [] |1)"
+      (narrow-to-region (point) (point-max))
+      (cider-ns-clean t)
+      (expect 'cider-sync-request:clean-ns :to-have-been-called-with
+              "(ns foo.bar)\n(defn x [] 1)" 3 "clj")))
+
+  (it "follows up as `cider-ns-edit-actions' asks, and undoes in one step"
+    (setq cider-ns-edit-actions '(sort))
+    (spy-on 'cider-sync-request:clean-ns
+            :and-return-value
+            (nrepl-dict "libspecs" (list (nrepl-dict "ns" "clojure.set" "clause" "require" "remove" "true"))))
+    (with-clojure-buffer "(ns foo.bar\n  (:require [zebra.core :as z]\n            [clojure.set :as set]\n            [apple.core :as a]))\n|"
+      (buffer-enable-undo)
+      (undo-boundary)
+      (cider-ns-clean t)
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [apple.core :as a]\n            [zebra.core :as z]))\n")
+      (undo-boundary)
+      (let ((last-command nil))
+        (undo))
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [zebra.core :as z]\n            [clojure.set :as set]\n            [apple.core :as a]))\n")))
+
+  (it "stays out of the way of saving when called from Lisp"
+    (spy-on 'cider-sync-request:clean-ns :and-call-fake (lambda (&rest _) (user-error "Unreadable code")))
+    (spy-on 'cider-current-repl :and-return-value nil)
+    (spy-on 'nrepl-op-supported-p :and-return-value nil)
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      ;; no REPL
+      (expect (cider-ns-clean) :not :to-throw)
+      ;; one without the op
+      (spy-on 'cider-current-repl :and-return-value 'a-repl)
+      (expect (cider-ns-clean) :not :to-throw)
+      (expect 'cider-sync-request:clean-ns :not :to-have-been-called)
+      (expect 'message :not :to-have-been-called)
+      (spy-on 'nrepl-op-supported-p :and-return-value t)
+      (expect (cider-ns-clean) :not :to-throw)
+      (expect 'message :to-have-been-called-with
+              "Didn't clean the ns form: %s" "Unreadable code")
+      (expect (cider-ns-clean t) :to-throw 'user-error)))
+
+  (it "asks the REPL only when it has the op, and reports code that doesn't read"
+    (spy-on 'cider-current-repl :and-return-value 'a-repl)
+    (spy-on 'nrepl-op-supported-p :and-return-value nil)
+    (expect (cider-sync-request:clean-ns "(ns foo)") :to-throw 'user-error)
+    (spy-on 'nrepl-op-supported-p :and-return-value t)
+    (spy-on 'cider-nrepl-sync-request
+            :and-return-value (nrepl-dict "status" '("done") "libspecs" nil "imports" nil))
+    (cider-sync-request:clean-ns "(ns foo)" 3 "cljs")
+    (expect 'cider-nrepl-sync-request :to-have-been-called-with
+            '("op" "cider/clean-ns" "code" "(ns foo)" "line" 3 "platform" "cljs")
+            :connection 'a-repl)
+    (spy-on 'cider-nrepl-sync-request
+            :and-return-value (nrepl-dict "status" '("done" "cider/clean-ns-error")
+                                          "error" "Unmatched delimiter: )" "line" 12))
+    (expect (cider-sync-request:clean-ns "(ns foo)")
+            :to-throw 'user-error '("Unreadable code at line 12: Unmatched delimiter: )"))))
+
 (describe "cider-ns-edit--default-alias"
   (it "picks the last segment of the namespace"
     (expect (cider-ns-edit--default-alias "clojure.string") :to-equal "string")
