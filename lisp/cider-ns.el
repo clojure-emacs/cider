@@ -510,15 +510,21 @@ the buffer when there's none before point."
   "Return non-nil if a list or a vector starts at POS."
   (memq (char-after pos) '(?\( ?\[)))
 
+(defun cider-ns-edit--clauses (ns-start keyword)
+  "Return the starts of the KEYWORD clauses of the ns form at NS-START.
+KEYWORD is a string like \":require\".  Clauses nested in reader
+conditionals aren't considered."
+  (seq-filter (lambda (pos)
+                (and (eq (char-after pos) ?\()
+                     (when-let* ((head (car (cider-ns-edit--elements pos))))
+                       (equal (cider-ns-edit--text head) keyword))))
+              (cider-ns-edit--elements ns-start)))
+
 (defun cider-ns-edit--clause (ns-start keyword)
   "Return the start of the KEYWORD clause of the ns form at NS-START, or nil.
 KEYWORD is a string like \":require\".  Clauses nested in reader
 conditionals aren't considered."
-  (seq-find (lambda (pos)
-              (and (eq (char-after pos) ?\()
-                   (when-let* ((head (car (cider-ns-edit--elements pos))))
-                     (equal (cider-ns-edit--text head) keyword))))
-            (cider-ns-edit--elements ns-start)))
+  (car (cider-ns-edit--clauses ns-start keyword)))
 
 (defun cider-ns-edit--append (pos text)
   "Insert TEXT as the last element of the list at POS.
@@ -994,6 +1000,238 @@ After a change, do what `cider-ns-edit-actions' asks for."
             (message "Resolved %s with %s" symbol (string-join texts " and "))
           (message "Nothing to add for %s, the ns form has %s"
                    symbol (string-join texts " and ")))))))
+
+;;; Cleaning the ns form
+
+(defun cider-ns-edit--delete-elements (pos indices)
+  "Delete the elements at INDICES of the list or vector at POS.
+INDICES count from 0.  What stays keeps its layout, comments included.
+Each run of consecutive elements goes with
+
+- the lines it's on, when it has them to itself;
+- the blanks up to what follows it on its line, if anything does;
+- the blanks up to the next element, when it comes right after the
+  opening delimiter or the first element;
+- the blanks back to the element before it, otherwise.
+
+A comment that follows a run on its line goes with it."
+  (let* ((elements (vconcat (cider-ns-edit--elements pos)))
+         (count (length elements))
+         runs)
+    ;; Runs of consecutive indices, the last first.
+    (dolist (index (sort (seq-uniq indices) #'<))
+      (if (and runs (= index (1+ (cdar runs))))
+          (setcdr (car runs) index)
+        (push (cons index index) runs)))
+    (pcase-dolist (`(,first . ,last) runs)
+      (let ((beg (aref elements first))
+            (end (scan-sexps (aref elements last) 1))
+            (next (and (< (1+ last) count) (aref elements (1+ last)))))
+        (goto-char end)
+        (skip-chars-forward " \t,")
+        (when (eq (char-after) ?\;)
+          (end-of-line)
+          (setq end (point)))
+        (cond
+         ((and next
+               (eolp)
+               (save-excursion (goto-char beg) (skip-chars-backward " \t,") (bolp)))
+          (setq beg (save-excursion (goto-char beg) (line-beginning-position))
+                end (line-beginning-position 2)))
+         ((and next (not (eolp)))
+          (setq end (point)))
+         ((and next
+               (<= first 1)
+               (progn (skip-chars-forward " \t\n,") (= (point) next)))
+          (setq end next))
+         ((> first 0)
+          (goto-char beg)
+          (skip-chars-backward " \t\n," (scan-sexps (aref elements (1- first)) 1))
+          ;; Never join up with a comment, which would swallow what follows.
+          (unless (nth 4 (syntax-ppss))
+            (setq beg (point)))))
+        (delete-region beg end)))))
+
+(defun cider-ns-edit--locate (ns-start keyword pred)
+  "Return where the first element PRED accepts is in a KEYWORD clause.
+That's (CLAUSE INDEX POS): the start of the clause in the ns form at
+NS-START, the index of the element in it, which counts from the clause's
+head, and the start of the element.  PRED gets the start of an element."
+  (seq-some (lambda (clause)
+              (let ((elements (cider-ns-edit--elements clause)))
+                (when-let* ((index (seq-position (cdr elements) nil
+                                                 (lambda (pos _) (funcall pred pos)))))
+                  (list clause (1+ index) (nth (1+ index) elements)))))
+            (cider-ns-edit--clauses ns-start keyword)))
+
+(defun cider-ns-edit--option-indices (pos keywords)
+  "Return the indices of the KEYWORDS options of the libspec at POS.
+That's the indices of each keyword and of its value."
+  (let ((elements (mapcar #'cider-ns-edit--text (cider-ns-edit--elements pos)))
+        indices)
+    (dotimes (i (/ (1- (length elements)) 2))
+      (let ((key (1+ (* 2 i))))
+        (when (member (nth key elements) keywords)
+          (push key indices)
+          (push (1+ key) indices))))
+    indices))
+
+(defun cider-ns-edit--clean-libspec (ns-start unused)
+  "Remove from the ns form at NS-START what UNUSED says a libspec can lose.
+UNUSED is one of the \"libspecs\" dicts of `cider-sync-request:clean-ns'.
+Return (CLAUSE . REMOVED), CLAUSE being the start of the libspec's clause
+and REMOVED descriptions of what got removed, or nil when there's no such
+libspec."
+  (nrepl-dbind-response unused (ns clause remove as as-alias refer refer-macros)
+    (pcase (cider-ns-edit--locate ns-start (concat ":" clause)
+                                  (lambda (pos)
+                                    (and (cider-ns-edit--seq-p pos)
+                                         (equal (cider-ns-edit--libspec-ns pos) ns))))
+      (`(,clause-start ,index ,pos)
+       (if remove
+           (progn
+             (cider-ns-edit--delete-elements clause-start (list index))
+             (list clause-start ns))
+         (let (drop aliases names)
+           ;; The names first, within their list.
+           (pcase-dolist (`(,option . ,unused-names) `((":refer" . ,refer)
+                                                       (":refer-macros" . ,refer-macros)))
+             (when-let* ((referred (and unused-names (cider-ns-edit--libspec-option pos option)))
+                         ((cider-ns-edit--seq-p referred)))
+               (let* ((texts (mapcar #'cider-ns-edit--text (cider-ns-edit--elements referred)))
+                      (indices (seq-filter (lambda (i) (member (nth i texts) unused-names))
+                                           (number-sequence 0 (1- (length texts))))))
+                 (when indices
+                   (setq names (append names (seq-uniq (mapcar (lambda (i) (nth i texts)) indices))))
+                   (if (= (length indices) (length texts))
+                       (push option drop)
+                     (cider-ns-edit--delete-elements referred indices))))))
+           (pcase-dolist (`(,option . ,alias) `((":as" . ,as) (":as-alias" . ,as-alias)))
+             (when-let* ((value (and alias (cider-ns-edit--libspec-option pos option)))
+                         ((equal (cider-ns-edit--text value) alias)))
+               (push option drop)
+               (push (concat option " " alias) aliases)))
+           (when drop
+             (cider-ns-edit--delete-elements pos (cider-ns-edit--option-indices pos drop)))
+           (cons clause-start (append (nreverse aliases) names))))))))
+
+(defun cider-ns-edit--clean-import (ns-start class)
+  "Remove the import of CLASS from the ns form at NS-START.
+Return (CLAUSE CLASS), CLAUSE being the start of the import's clause, or
+nil when there's no such import."
+  (let* ((dot (string-match-p "\\.[^.]*\\'" class))
+         (package (and dot (substring class 0 dot)))
+         (name (if dot (substring class (1+ dot)) class)))
+    (pcase (cider-ns-edit--locate
+            ns-start ":import"
+            (lambda (pos)
+              (if (cider-ns-edit--seq-p pos)
+                  (let ((texts (mapcar #'cider-ns-edit--text (cider-ns-edit--elements pos))))
+                    (and (equal (car texts) package) (member name (cdr texts))))
+                (equal (cider-ns-edit--text pos) class))))
+      (`(,clause-start ,index ,spec)
+       (let ((classes (and (cider-ns-edit--seq-p spec)
+                           (mapcar #'cider-ns-edit--text (cdr (cider-ns-edit--elements spec))))))
+         (if (cdr classes)
+             ;; one of several classes from the package
+             (cider-ns-edit--delete-elements spec (list (1+ (seq-position classes name))))
+           (cider-ns-edit--delete-elements clause-start (list index))))
+       (list clause-start class)))))
+
+(defun cider-ns-edit--empty-clause-p (pos)
+  "Return non-nil if the clause at POS holds nothing but its head.
+Not even a comment."
+  (save-excursion
+    (goto-char (scan-sexps (car (cider-ns-edit--elements pos)) 1))
+    (skip-chars-forward " \t\n,")
+    (= (point) (1- (scan-sexps pos 1)))))
+
+(defun cider-ns-edit--clean (ns-start unused)
+  "Remove from the ns form at NS-START what UNUSED says it can do without.
+UNUSED is what `cider-sync-request:clean-ns' returns.  A clause left
+empty goes too.  Return (REMOVED . REMOVED), REMOVED being descriptions
+of what got removed, for `cider-ns-edit--edit'."
+  (let* (clauses
+         removed
+         (record (lambda (result)
+                   (when result
+                     ;; The edits that follow move the clauses after them.
+                     (push (copy-marker (car result)) clauses)
+                     (setq removed (append removed (cdr result)))))))
+    (dolist (libspec (nrepl-dict-get unused "libspecs"))
+      (funcall record (cider-ns-edit--clean-libspec ns-start libspec)))
+    (dolist (class (nrepl-dict-get unused "imports"))
+      (funcall record (cider-ns-edit--clean-import ns-start class)))
+    (let* ((elements (cider-ns-edit--elements ns-start))
+           (touched (mapcar #'marker-position clauses))
+           (empty (seq-filter (lambda (i)
+                                (let ((pos (nth i elements)))
+                                  (and (memql pos touched)
+                                       (cider-ns-edit--empty-clause-p pos))))
+                              (number-sequence 0 (1- (length elements))))))
+      (when empty
+        (cider-ns-edit--delete-elements ns-start empty)))
+    (dolist (marker clauses)
+      (set-marker marker nil))
+    (cons removed removed)))
+
+(defun cider-ns-edit--enumerate (items)
+  "Return ITEMS as a phrase like \"a, b and c\"."
+  (if (cdr items)
+      (concat (string-join (butlast items) ", ") " and " (car (last items)))
+    (car items)))
+
+(defun cider-ns-edit--clean-buffer ()
+  "Clean the ns form of the current buffer, and say what got removed.
+Return what got removed."
+  (let* ((start (cider-ns-edit--check))
+         ;; Emacs 28's `line-number-at-pos' rejects a position outside
+         ;; the narrowing, even an absolute one
+         (unused (save-restriction
+                   (widen)
+                   (cider-sync-request:clean-ns
+                    (buffer-substring-no-properties start (point-max))
+                    (line-number-at-pos start)
+                    (cider-ns-edit--platform))))
+         (removed (car (cider-ns-edit--edit
+                        (lambda (start) (cider-ns-edit--clean start unused))))))
+    (when removed
+      (message "Removed %s from the ns form" (cider-ns-edit--enumerate removed)))
+    removed))
+
+;;;###autoload
+(defun cider-ns-clean (&optional interactive)
+  "Remove the requires, refers and imports that the code doesn't use.
+Ask the REPL what the code after the ns form doesn't use, judging by
+reading the code, without loading anything.  A name counts as used
+wherever it comes up, including comment forms and quoted forms, and
+these always count as used:
+
+- a require with no alias and nothing to refer, which might be there
+  for its side effects;
+- `:refer :all' and `:rename', which need the namespace loaded to judge;
+- prefix lists, and what's in reader conditionals.
+
+A libspec whose namespace is still used fully qualified, or defines a
+class that gets imported, stays without what it doesn't need.
+Everything else in the ns form stays as it's written, comments included.
+
+After a change, do what `cider-ns-edit-actions' asks for.
+
+When INTERACTIVE is nil, as it is in `before-save-hook', do nothing
+without a REPL that can tell what's unused, and report problems in the
+echo area, so that saving goes on."
+  (interactive (list t))
+  (cond
+   (interactive
+    (unless (cider-ns-edit--clean-buffer)
+      (message "Nothing to clean in the ns form")))
+   ((and (when-let* ((repl (cider-current-repl 'infer)))
+           (nrepl-op-supported-p "cider/clean-ns" repl))
+         (cider-ns-edit--ns-form-start))
+    (condition-case err
+        (cider-ns-edit--clean-buffer)
+      (error (message "Didn't clean the ns form: %s" (error-message-string err)))))))
 
 ;;; Magic requires
 

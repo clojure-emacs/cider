@@ -2,17 +2,17 @@
 
 CIDER can add requires and imports to the `ns` form of the current buffer,
 so you don't have to jump to the top of the file and back whenever you need
-another namespace.
+another namespace, and remove the ones the code doesn't use.
 
 The edits are plain text manipulation, so adding a require or an import
 works without a REPL. When one is connected, the prompts complete against it.
-Adding what a symbol needs is the exception, since only the REPL knows where
-the symbol could come from.
+Adding what a symbol needs and cleaning the `ns` form are the exceptions,
+since they ask the REPL.
 
 NOTE: If you're coming from clj-refactor, these commands and the magic
 requires cover what `cljr-add-require-to-ns`, `cljr-add-import-to-ns`,
-`cljr-add-missing-libspec` and `cljr-slash` do, without yasnippet or
-refactor-nrepl.
+`cljr-add-missing-libspec`, `cljr-slash` and `cljr-clean-ns` do, without
+yasnippet or refactor-nrepl.
 
 == Adding a Require
 
@@ -170,6 +170,66 @@ it:
   (define-key clj-refactor-map (kbd "/") nil))
 ----
 
+== Cleaning the ns Form
+
+kbd:[C-c M-n c] (`cider-ns-clean`) removes what the `ns` form requires, refers
+and imports, but the code doesn't use. With
+
+[source,clojure]
+----
+(ns my.app
+  (:require [clojure.set :as set]
+            [clojure.string :as str :refer [join split]])
+  (:import (java.util Date List)))
+
+(join ", " [(Date.)])
+----
+
+it leaves
+
+[source,clojure]
+----
+(ns my.app
+  (:require [clojure.string :refer [join]])
+  (:import (java.util Date)))
+----
+
+The REPL tells what goes unused by reading the code after the `ns` form,
+without loading it, so the code doesn't have to compile, only to read. That
+makes it cautious: a name counts as used wherever it comes up, a comment form,
+a quoted form or a local of the same name included. These always count as
+used:
+
+* a require with no alias and nothing to refer, like `[my.app.specs]`, as
+it's likely there for its side effects;
+* `:refer :all` and `:rename`, as telling what they bring in takes loading the
+namespace;
+* prefix lists, like `[clojure [set :as set]]`, and what's in a reader
+conditional.
+
+A namespace that's still used fully qualified, as in `clojure.string/join`,
+or that defines a class the `ns` form imports, stays required, without the
+alias or the referred names it doesn't need. Everything else in the `ns` form
+stays the way it's written, comments included, and `cider-ns-edit-actions`
+applies afterwards, as after any other edit.
+
+To clean the `ns` form whenever you save:
+
+[source,lisp]
+----
+(add-hook 'clojure-mode-hook
+          (lambda () (add-hook 'before-save-hook #'cider-ns-clean nil t)))
+----
+
+(With `clojure-ts-mode`, that's `clojure-ts-mode-hook`.) Run from a hook,
+`cider-ns-clean` does nothing without a REPL that can tell what's unused, and
+code that doesn't read yet gets a message in the echo area rather than
+stopping the save. A `.cljc` file with code that only reads once a platform is
+picked, like `#?@` splicing into a map literal, can't be cleaned.
+
+This needs cider-nrepl 0.64.0 or newer. With an older one, the command says
+the op it needs is missing.
+
 == After an Edit
 
 `cider-ns-edit-actions` says what happens after a change to the `ns` form. By
@@ -183,6 +243,7 @@ To keep the libspecs in the order you wrote them, drop the sorting:
 (setq cider-ns-edit-actions '(eval))
 ----
 
-CIDER never removes anything from the `ns` form on its own.
+CIDER never removes anything from the `ns` form on its own, only when you
+clean it.
 
 Each change, together with the sorting, is a single undo step.
