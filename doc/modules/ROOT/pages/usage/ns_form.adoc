@@ -9,10 +9,8 @@ works without a REPL. When one is connected, the prompts complete against it.
 Adding what a symbol needs and cleaning the `ns` form are the exceptions,
 since they ask the REPL.
 
-NOTE: If you're coming from clj-refactor, these commands and the magic
-requires cover what `cljr-add-require-to-ns`, `cljr-add-import-to-ns`,
-`cljr-add-missing-libspec`, `cljr-slash` and `cljr-clean-ns` do, without
-yasnippet or refactor-nrepl.
+If you're coming from clj-refactor, see <<coming-from-clj-refactor>> for
+what replaces its commands.
 
 == Adding a Require
 
@@ -160,9 +158,10 @@ Clojure buffers of a project you're connected to. Going by the project's source
 files needs cider-nrepl 0.64.0 or newer. With an older one, CIDER uses
 `cider-ns-magic-require-aliases` only.
 
-NOTE: clj-refactor binds kbd:[/] to its own magic requires, so CIDER's don't
-run in buffers where `clj-refactor-mode` is on. To use CIDER's there, unbind
-it:
+NOTE: clj-refactor 4.1 and newer leave kbd:[/] to CIDER when
+`cider-ns-magic-requires` is on. Older versions bind it to their own magic
+requires, so CIDER's don't run in buffers where `clj-refactor-mode` is on. To
+use CIDER's there, unbind it:
 
 [source,lisp]
 ----
@@ -247,3 +246,35 @@ CIDER never removes anything from the `ns` form on its own, only when you
 clean it.
 
 Each change, together with the sorting, is a single undo step.
+
+== Coming from clj-refactor
+
+These commands and the magic requires take over from clj-refactor's, which
+clj-refactor 4.1 deprecates. They don't need yasnippet or refactor-nrepl.
+
+|===
+| clj-refactor | CIDER | Keybinding
+
+| `cljr-add-require-to-ns`
+| `cider-ns-add-require`
+| kbd:[C-c M-n a]
+
+| `cljr-add-import-to-ns`
+| `cider-ns-add-import`
+| kbd:[C-c M-n i]
+
+| `cljr-add-missing-libspec`
+| `cider-ns-add-missing`
+| kbd:[C-c M-n m]
+
+| `cljr-slash`
+| `cider-ns-magic-requires` (an option)
+| kbd:[/]
+
+| `cljr-clean-ns`
+| `cider-ns-clean`
+| kbd:[C-c M-n c]
+|===
+
+Cleaning the `ns` form never happens on its own, unlike with
+`cljr-auto-clean-ns`, though you can <<cleaning-the-ns-form,run it on save>>.
