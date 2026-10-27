@@ -26,6 +26,7 @@
 
 ### Changes
 
+- [#4219](https://github.com/clojure-emacs/cider/pull/4219): Bump the injected `cider-nrepl` to [0.64.0-alpha3](https://github.com/clojure-emacs/cider-nrepl/blob/v0.64.0-alpha3/CHANGELOG.md#0640-alpha3-2026-10-27), which adds the `cider/clean-ns` op behind `cider-ns-clean`, and fixes Java docs that split words at accented letters and markup, or showed `Map<String, Object>` as just `Map`.
 - [#4218](https://github.com/clojure-emacs/cider/pull/4218): Bump the injected `cider-nrepl` to [0.64.0-alpha2](https://github.com/clojure-emacs/cider-nrepl/blob/v0.64.0-alpha2/CHANGELOG.md#0640-alpha2-2026-10-24), which adds the `cider/resolve-alias` op behind magic requires.
 - [#4217](https://github.com/clojure-emacs/cider/pull/4217): Bump the injected `cider-nrepl` to [0.64.0-alpha1](https://github.com/clojure-emacs/cider-nrepl/blob/v0.64.0-alpha1/CHANGELOG.md#0640-alpha1-2026-10-22), which adds the `cider/resolve-missing` op behind `cider-ns-add-missing`.
 - [#4206](https://github.com/clojure-emacs/cider/pull/4206): Bump the injected `cider-nrepl` to [0.63.1](https://github.com/clojure-emacs/cider-nrepl/blob/v0.63.1/CHANGELOG.md#0631-2026-10-03), which streams test progress while the tests run.
