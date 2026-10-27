@@ -36,15 +36,19 @@ https://github.com/bsless/clj-decompiler.el[clj-decompiler] allows you to quickl
 === clj-refactor
 
 https://github.com/clojure-emacs/clj-refactor.el[clj-refactor] builds on top
-of `clojure-mode` and CIDER and adds a ton of extra functionality (e.g. the
-ability to thread/unthread expression, find and replace usages, introduce let
-bindings, extract function and so on).
+of `clojure-mode` and CIDER and adds a ton of extra functionality, most notably
+the refactorings that analyze the whole project (e.g. find and replace usages,
+rename a symbol, change a function's signature, extract a function) and
+managing the project's dependencies.
 
 A full list of features is available
 https://github.com/clojure-emacs/clj-refactor.el/wiki[here].
 
-We hope to incorporate some of its features into `clojure-mode` and CIDER themselves
-down the road.
+Its commands for editing the `ns` form (adding requires, imports and what a
+symbol needs, magic requires and cleaning the `ns` form) have moved into CIDER,
+which doesn't need refactor-nrepl for them. See
+xref:usage/ns_form.adoc#coming-from-clj-refactor[Coming from clj-refactor] for
+what replaces what.
 
 === emidje
 
