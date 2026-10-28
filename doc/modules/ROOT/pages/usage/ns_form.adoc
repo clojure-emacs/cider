@@ -152,7 +152,8 @@ on:
 The slash counts only where an alias can go: not in strings, comments or
 discarded forms, and not after a keyword like `:foo/` (though `::foo/` counts),
 a number, a quoted symbol, a namespace or class name, or a name in a `:keys`
-vector. In ClojureScript, `js/` is left alone. In a `.cljc` file, the namespace
+vector. An alias with dots, like `utils.strings/`, counts too. In
+ClojureScript, `js/` is left alone. In a `.cljc` file, the namespace
 has to work for both Clojure and ClojureScript.
 
 Magic requires work in the buffers where `cider-mode` is on, which is the
