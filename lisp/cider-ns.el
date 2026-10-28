@@ -1312,9 +1312,11 @@ They're the ones nothing got picked for.")
   "Return the alias in front of the slash before point, or nil.
 Nothing in a string, a comment or a discarded form counts, and neither
 does what comes before the slash of a qualified keyword (:foo/), a
-number (1/2), a tagged literal (#foo/), a quoted symbol, a namespace or
-a class name, an array class (long/1), or a name in a :keys vector.  The
-alias of an auto-resolved keyword (::foo/) does."
+number (1/2), a tagged literal (#foo/), a quoted symbol, a class name,
+an array class (long/1), or a name in a :keys vector.  The alias of an
+auto-resolved keyword (::foo/) does.  So does a namespace name, which
+reads the same as an alias with dots (utils.strings/), but no namespace
+turns up for it."
   (let ((slash (1- (point)))
         (case-fold-search nil))
     (when (and (eq (char-after slash) ?/)
@@ -1329,9 +1331,9 @@ alias of an auto-resolved keyword (::foo/) does."
         (when (and (string-match-p (if auto-resolved
                                        ;; nothing but an alias can go there
                                        "\\`[[:alpha:]][^/]*\\'"
-                                     ;; dotted for a namespace, capitalized
-                                     ;; for a class
-                                     "\\`[[:lower:]][^/.]*\\'")
+                                     ;; a capitalized segment makes it a
+                                     ;; class
+                                     "\\`[[:lower:]][^/.]*\\(?:\\.[[:lower:]][^/.]*\\)*\\'")
                                    alias)
                    (not (member alias cider-ns-edit--primitive-types))
                    (not (and (equal alias "js")

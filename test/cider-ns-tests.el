@@ -1068,6 +1068,13 @@
       (expect (buffer-string) :to-equal
               "(ns foo.bar\n  (:require [clojure.string :as str]))\n\n(::str/")))
 
+  (it "takes an alias with dots"
+    (let ((cider-ns-magic-require-aliases '(("utils.strings" . "acme.utils.strings"))))
+      (with-clojure-buffer "(ns foo.bar)\n\n(utils.strings|"
+        (cider-ns-tests--type-slash)
+        (expect (buffer-string) :to-equal
+                "(ns foo.bar\n  (:require [acme.utils.strings :as utils.strings]))\n\n(utils.strings/"))))
+
   (it "asks the REPL when connected"
     (spy-on 'cider-connected-p :and-return-value t)
     (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
@@ -1138,7 +1145,6 @@
                     "(ns foo.bar)\n\n(:str|"
                     "(ns foo.bar)\n\n(1|"
                     "(ns foo.bar)\n\n#str|"
-                    "(ns foo.bar)\n\n(clojure.string|"
                     "(ns foo.bar)\n\n(Math|"
                     "(ns foo.bar)\n\n(let [{:keys [str|]} m])"
                     "(ns foo.bar)\n\n(|"
@@ -1148,11 +1154,17 @@
         (expect (buffer-string) :to-equal (replace-regexp-in-string "|" "/" text))))
     (expect 'cider-ns-edit--alias-candidates :not :to-have-been-called))
 
+  (it "finds nothing for a namespace name, which reads like an alias with dots"
+    (with-clojure-buffer "(ns foo.bar)\n\n(clojure.string|"
+      (cider-ns-tests--type-slash)
+      (expect (buffer-string) :to-equal "(ns foo.bar)\n\n(clojure.string/")))
+
   (it "ignores an alias the ns form has, in a reader conditional too"
     (spy-on 'cider-ns-edit--alias-candidates)
     (dolist (text '("(ns foo.bar\n  (:require [clojure.string :as str]))\n\n(str|"
                     "(ns foo.bar\n  (:require #?(:clj [clojure.string :as str])))\n\n(str|"
-                    "(ns foo.bar\n  (:require [acme.strings :as-alias str]))\n\n(str|"))
+                    "(ns foo.bar\n  (:require [acme.strings :as-alias str]))\n\n(str|"
+                    "(ns foo.bar\n  (:require [acme.utils.strings :as utils.strings]))\n\n(utils.strings|"))
       (with-clojure-buffer text
         (cider-ns-tests--type-slash)
         (expect (buffer-string) :to-equal (replace-regexp-in-string "|" "/" text))))
@@ -1185,6 +1197,9 @@
   (it "takes what's around the slash into account"
     (dolist (case '(("(ns foo.bar)\n\n{:keys [::str/|" . "str")
                     ("(ns foo.bar)\n\n(::db.schema/|" . "db.schema")
+                    ("(ns foo.bar)\n\n(utils.strings/|" . "utils.strings")
+                    ("(ns foo.bar)\n\n(java.util.UUID/|" . nil)
+                    ("(ns foo.bar)\n\n(String/|" . nil)
                     ("(ns foo.bar)\n\n(#'str/|" . "str")
                     ("(ns foo.bar)\n\n'str/|" . nil)
                     ("(ns foo.bar)\n\n(long/|" . nil)
