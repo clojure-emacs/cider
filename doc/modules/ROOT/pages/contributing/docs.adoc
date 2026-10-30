@@ -55,25 +55,20 @@ It can also be triggered manually if needed.
 
 == Updating the Playbook
 
-IMPORTANT: Don't forget to update the manual's version metadata when cutting CIDER releases.
-It lives in `doc/antora.yml`.
+The docs site only builds the release tags listed in its
+https://github.com/clojure-emacs/docs.cider.mx/blob/master/antora-playbook.yml[playbook].
+After cutting a CIDER release, run the site's
+https://github.com/clojure-emacs/docs.cider.mx/actions/workflows/publish.yml[publish workflow]
+manually with `cider` and the new tag (e.g. `v2.1.0`). It adds the tag to the
+playbook and publishes the release's docs. A patch release replaces the docs of
+its minor version.
 
-When cutting new releases you'll have to update `antora-playbook.yml` to mention
-their relevant tags from which the documentation needs to be built. Here's how this
-looks for one of the projects:
+There's nothing to change in `doc/antora.yml` for a release: the docs version
+comes from the tag (`v2.1.0` becomes `2.1`).
 
-[source]
-----
-- url: https://github.com/clojure-emacs/cider.git
-  branches: master
-  tags: ['v1.7.0', 'v1.8.0']
-  start_path: docs
-----
+== Fixing the Docs of a Release
 
-TIP: You need to add one such block for each new CIDER module you're adding to the docs site.
-
-== Troubleshooting
-
-The most common mistake that people make is to forget to update the version of an Antora docs module
-after cutting a release. This will result in an error saying you've got the same version in two branches (e.g. `master`
-and `v1.0`). Fixing this is pretty simple - just update the version to `master` in `antora.yml`.
+A release tag can't be changed, so a fix to the docs of a release that's
+already out goes on an `-antora` tag: a commit with the fix on top of the
+release tag, tagged `vX.Y.Z-antora`, which replaces the release tag in the
+playbook.
