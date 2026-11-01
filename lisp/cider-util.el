@@ -783,54 +783,41 @@ Modern specs are lists of rules like ((:block N)) or ((:inner D))."
 Returns SPEC unchanged if it is not in modern format.
 
 Modern format uses ((:block N)), ((:inner D)), ((:inner D I)).
-Legacy format uses integers, :defn, and positional lists.
+Legacy format uses integers, :defn, and positional lists, where the
+first element is the spec of the form itself and the rest are the specs
+of its arguments, the last one also covering the arguments after it.
+Only the shallowest of several :inner rules without a position is kept,
+and a rule with a position replaces the others for that argument.  Like
+in cljfmt, (:inner 0) does nothing next to a :block rule.  Rules with
+negative numbers are ignored.
 
 This ensures compatibility with clojure-mode versions that don't
 understand the modern format."
   (if (not (cider--modern-indent-spec-p spec))
       spec
-    (let ((block-n nil)
-          (inner-no-idx nil)
-          (inner-with-idx nil))
-      (dolist (rule spec)
-        (pcase rule
-          (`(:block ,n) (setq block-n n))
-          (`(:inner ,d) (push d inner-no-idx))
-          (`(:inner ,d ,i) (push (cons d i) inner-with-idx))))
-      (cond
-       ;; Simple: only (:block N)
-       ((and block-n (null inner-no-idx) (null inner-with-idx))
-        block-n)
-       ;; Simple: only (:inner 0)
-       ((and (null block-n) (null inner-with-idx)
-             (equal inner-no-idx '(0)))
-        :defn)
-       ;; Complex: build positional list
-       (t
-        (let ((result (list))
-              (wrap-defn (lambda (depth)
-                           (let ((s :defn))
-                             (dotimes (_ depth)
-                               (setq s (list s)))
-                             s))))
-          (when block-n
-            (setq result (list block-n)))
-          ;; Place indexed :inner rules at their positions
-          (dolist (ir inner-with-idx)
-            (let* ((depth (car ir))
-                   (idx (cdr ir))
-                   (pos (+ (if block-n 1 0) idx))
-                   (wrapped (funcall wrap-defn depth)))
-              (while (<= (length result) pos)
-                (setq result (append result (list nil))))
-              (setf (nth pos result) wrapped)))
-          ;; Append non-indexed :inner rules (ascending depth)
-          (dolist (depth (sort inner-no-idx #'<))
-            (setq result (append result (list (funcall wrap-defn depth)))))
-          ;; Trailing nil for specs with indexed rules
-          (when inner-with-idx
-            (setq result (append result (list nil))))
-          result))))))
+    (let* ((wrap-defn (lambda (depth)
+                        (let ((s :defn))
+                          (dotimes (_ depth)
+                            (setq s (list s)))
+                          s)))
+           (block (let ((n (cadr (assq :block spec)))) (and (natnump n) n)))
+           (inner (seq-filter (lambda (rule) (eq (car rule) :inner)) spec))
+           (own (or block (and (member '(:inner 0) inner) :defn)))
+           (depths (sort (seq-filter (lambda (depth) (> depth 0))
+                                     (mapcar #'cadr (seq-remove #'cddr inner)))
+                         #'<))
+           (tail (and depths (funcall wrap-defn (car depths))))
+           (indexed (seq-filter (lambda (rule)
+                                  (and (natnump (caddr rule)) (> (cadr rule) 0)))
+                                inner)))
+      (if (not (or tail indexed))
+          own
+        ;; The spec of the form itself, then those of its arguments.
+        (let* ((args (if indexed (+ 2 (apply #'max (mapcar #'caddr indexed))) 1))
+               (result (cons own (make-list args tail))))
+          (pcase-dolist (`(:inner ,depth ,idx) indexed)
+            (setf (nth (1+ idx) result) (funcall wrap-defn depth)))
+          result)))))
 
 
 ;;; Help mode

@@ -474,10 +474,26 @@
             :to-equal '(2 (:defn)))
     (expect (cider--indent-spec-to-legacy '((:block 1) (:inner 1)))
             :to-equal '(1 (:defn)))
-    (expect (cider--indent-spec-to-legacy '((:block 1) (:inner 0)))
-            :to-equal '(1 :defn))
     (expect (cider--indent-spec-to-legacy '((:inner 0) (:inner 1)))
             :to-equal '(:defn (:defn))))
+
+  (it "leaves the spec of the form itself empty without a :block or (:inner 0) rule"
+    (expect (cider--indent-spec-to-legacy '((:inner 1 0)))
+            :to-equal '(nil (:defn) nil))
+    (expect (cider--indent-spec-to-legacy '((:inner 2)))
+            :to-equal '(nil ((:defn)))))
+
+  (it "ignores rules with negative numbers"
+    (expect (cider--indent-spec-to-legacy '((:block 1) (:inner 1 -1)))
+            :to-equal 1)
+    (expect (cider--indent-spec-to-legacy '((:block 1) (:inner -1)))
+            :to-equal 1)
+    (expect (cider--indent-spec-to-legacy '((:block -1)))
+            :to-equal nil))
+
+  (it "drops an (:inner 0) rule next to a :block rule, as it does nothing there"
+    (expect (cider--indent-spec-to-legacy '((:block 1) (:inner 0)))
+            :to-equal 1))
 
   (it "returns legacy specs unchanged"
     (expect (cider--indent-spec-to-legacy 1) :to-equal 1)
