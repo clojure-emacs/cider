@@ -356,7 +356,7 @@ Do it by looping over the open REPL buffers."
                     (when-let* ((params (cider--gather-connect-params))
                                 (dir (plist-get params :project-dir))
                                 (port (plist-get params :port)))
-                      (list dir (prin1-to-string port))))))
+                      (list dir (nrepl--normalize-port port))))))
                (seq-filter #'identity)))
 
 (defcustom cider-running-nrepl-paths-cache-ttl 5.0
