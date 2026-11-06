@@ -226,12 +226,14 @@ these map well onto what the analysis tooling can already tell us.
 A long-standing goal (still listed in our FAQ): move the most useful bits of our
 sibling project [clj-refactor.el](https://github.com/clojure-emacs/clj-refactor.el)
 into CIDER proper - specifically the features that *don't* require building a
-full project AST. Two good candidates:
+full project AST. The `ns` form ones have moved: adding requires, imports and
+what a symbol needs, magic requires and `ns` cleanup are all in CIDER 2.1, and
+clj-refactor deprecates its versions. Still to go:
 
-- **Dependency hotloading.** It's been broken in clj-refactor for a while;
-  reimplementing it in CIDER would be a clear win.
-- **`ns` cleanup.** Useful and self-contained (and potentially doable by shelling
-  out to an external tool).
+- **Dependency hotloading.** On Clojure 1.12, a thin command over
+  `clojure.repl.deps/add-lib` would cover it without refactor-nrepl.
+- **Stubs for an interface or protocol.** A small op on top of what orchard
+  already knows about classes and protocols.
 
 The AST-heavy refactorings can stay in clj-refactor; we only want the things that
 fit CIDER's "lean on the running REPL" model.
