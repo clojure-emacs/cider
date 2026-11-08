@@ -514,7 +514,11 @@ Unlike the synchronous path this never blocks Emacs, so it needs no
                ;; be retired from `nrepl-pending-requests' once done - otherwise
                ;; the table grows unbounded for the whole session.
                (nrepl--mark-id-completed id)
-               (funcall k accumulated))))
+               ;; Like the synchronous `cider-sync-request:eldoc', treat
+               ;; `no-eldoc' as no info, so callers fall back.
+               (funcall k (unless (member "no-eldoc"
+                                          (nrepl-dict-get accumulated "status"))
+                            accumulated)))))
          connection))
     (funcall k nil)))
 
