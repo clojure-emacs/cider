@@ -405,6 +405,19 @@ Relies on the spied `cider-eldoc-info-async' invoking its callback synchronously
       ;; and the accumulated dict is handed to the continuation
       (expect (nrepl-dict-get result "eldoc") :to-equal '(("x")))))
 
+  (it "calls back with nil when the server has no eldoc for the symbol"
+    (spy-on 'cider-current-repl :and-return-value 'conn)
+    (spy-on 'cider-current-ns :and-return-value "user")
+    (spy-on 'cider-completion-get-context :and-return-value "nil")
+    (spy-on 'nrepl--mark-id-completed)
+    (spy-on 'cider-nrepl-send-request :and-call-fake
+            (lambda (_request callback &rest _)
+              (funcall callback '(dict "status" ("done" "no-eldoc") "id" "8"))))
+    (let ((called 'unset))
+      (cider-eldoc--request-async "xs" (lambda (r) (setq called r)))
+      (expect 'nrepl--mark-id-completed :to-have-been-called-with "8")
+      (expect called :to-be nil)))
+
   (it "calls back with nil when there is no connection"
     (spy-on 'cider-current-repl :and-return-value nil)
     (let ((called 'unset))

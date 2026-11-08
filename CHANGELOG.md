@@ -45,6 +45,7 @@
 
 ### Bugs fixed
 
+- [#4224](https://github.com/clojure-emacs/cider/issues/4224): Fix eldoc showing `.nil: ()` for a symbol cider-nrepl knows nothing about (a local, a typo), where it now shows nothing, or the arglists of the enclosing function.
 - [#4226](https://github.com/clojure-emacs/cider/pull/4226): Fix the conversion of modern `:style/indent` specs for `clojure-mode` and `clojure-ts-mode`, where an `:inner` rule with a position but no `:block` rule, like `[[:inner 1 0]]`, broke indentation and `[:inner 0]` next to a `:block` rule indented the arguments instead.
 - [#4219](https://github.com/clojure-emacs/cider/pull/4219): Name only the op in the error a timed-out sync request gives, instead of the whole request, which could carry a whole file.
 - [#4212](https://github.com/clojure-emacs/cider/pull/4212): Finish setting up connections to servers without cider-nrepl (e.g. a plain nREPL server or Babashka), where the attempt to start the debugger stopped `cider-connected-hook`, `cider-repl-init-function` and `cider-auto-mode` from running.
