@@ -526,6 +526,7 @@
 (describe "cider--connection-info"
   (before-each
     (spy-on 'cider--java-version :and-return-value "1.7")
+    (spy-on 'cider--babashka-version :and-return-value nil)
     (spy-on 'cider--clojure-version :and-return-value "1.7.0")
     (spy-on 'cider--nrepl-version :and-return-value "0.2.1"))
 
@@ -544,7 +545,19 @@
         (setq-local nrepl-endpoint '(:host "localhost" :port 4005))
         (setq-local cider-repl-type 'clj)
         (expect (cider--connection-info (current-buffer))
-                :to-equal "CLJ <no project>@localhost:4005 (Java 1.7, Clojure 1.7.0, nREPL 0.2.1)")))))
+                :to-equal "CLJ <no project>@localhost:4005 (Java 1.7, Clojure 1.7.0, nREPL 0.2.1)"))))
+
+  (describe "when connected to Babashka"
+    (it "describes it as Babashka even though it reports a Clojure version"
+      (spy-on 'cider--clojure-version :and-return-value "1.12.6-SCI")
+      (spy-on 'cider--babashka-version :and-return-value "1.13.221")
+      (spy-on 'cider--babashka-nrepl-version :and-return-value "0.0.6")
+      (with-temp-buffer
+        (setq-local nrepl-endpoint '(:host "localhost" :port 4005))
+        (setq-local nrepl-project-dir "proj")
+        (setq-local cider-repl-type 'clj)
+        (expect (cider--connection-info (current-buffer))
+                :to-equal "CLJ proj@localhost:4005 (Babashka 1.13.221, babashka.nrepl 0.0.6)")))))
 
 (describe "cider--close-connection"
   (it "removes the REPL from sesman session"
@@ -732,6 +745,7 @@
   (describe "cider--connection-info with default session"
     (before-each
       (spy-on 'cider--java-version :and-return-value "1.7")
+      (spy-on 'cider--babashka-version :and-return-value nil)
       (spy-on 'cider--clojure-version :and-return-value "1.7.0")
       (spy-on 'cider--nrepl-version :and-return-value "0.2.1"))
 

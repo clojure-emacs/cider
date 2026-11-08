@@ -193,6 +193,19 @@
     (expect 'cider-sessions :to-have-been-called)
     (expect 'cider--sesman-friendly-session-p :to-have-been-called-times 2)))
 
+(describe "cider-runtime"
+  (it "detects Clojure"
+    (spy-on 'cider--clojure-version :and-return-value "1.12.0")
+    (spy-on 'cider--babashka-version :and-return-value nil)
+    (expect (cider-runtime) :to-be 'clojure))
+
+  (it "detects Babashka even when it reports a Clojure version"
+    (spy-on 'cider--clojure-version :and-return-value "1.12.6-SCI")
+    (spy-on 'cider--babashka-version :and-return-value "1.13.221")
+    (expect (cider-runtime) :to-be 'babashka)
+    (expect (cider-runtime-clojure-p) :to-be nil)))
+
 (provide 'cider-session-tests)
 
 ;;; cider-session-tests.el ends here
+
