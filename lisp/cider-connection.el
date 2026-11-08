@@ -344,15 +344,18 @@ about this buffer (like variable `cider-repl-type')."
                              (plist-get nrepl-endpoint :host)
                              (plist-get nrepl-endpoint :port)))
            (runtime (cond
+                     ;; Keep Babashka ahead of Clojure: since 1.13.221
+                     ;; Babashka reports a Clojure version too, so
+                     ;; checking Clojure first misdetects it (#4209).
+                     ((cider--babashka-version)
+                      (format " (Babashka %s, babashka.nrepl %s)"
+                              (cider--babashka-version)
+                              (cider--babashka-nrepl-version)))
                      ((cider--clojure-version)
                       (format " (Java %s, Clojure %s, nREPL %s)"
                               (cider--java-version)
                               (cider--clojure-version)
                               (cider--nrepl-version)))
-                     ((cider--babashka-version)
-                      (format " (Babashka %s, babashka.nrepl %s)"
-                              (cider--babashka-version)
-                              (cider--babashka-nrepl-version)))
                      ((cider--let-go-version)
                       (format " (let-go %s)" (cider--let-go-version)))
                      (t "")))

@@ -296,8 +296,10 @@ splits the version into separate fields rather than a `version-string`."
 (defun cider-runtime ()
   "Return the runtime of the nREPL server."
   (cond
-   ((cider--clojure-version) 'clojure)
+   ;; Keep Babashka ahead of Clojure: since 1.13.221 Babashka reports a
+   ;; Clojure version too, so checking Clojure first misdetects it (#4209).
    ((cider--babashka-version) 'babashka)
+   ((cider--clojure-version) 'clojure)
    ((cider--nbb-nrepl-version) 'nbb)
    ((cider--scittle-nrepl-version) 'scittle)
    ((cider--let-go-version) 'let-go)

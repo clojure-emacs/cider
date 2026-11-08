@@ -361,8 +361,10 @@ rather than dumped into the REPL transcript."
 (defun cider-repl--banner ()
   "Generate the welcome REPL buffer banner."
   (cond
-   ((cider--clojure-version) (cider-repl--clojure-banner))
+   ;; Keep Babashka ahead of Clojure: since 1.13.221 Babashka reports a
+   ;; Clojure version too, so checking Clojure first misdetects it (#4209).
    ((cider--babashka-version) (cider-repl--babashka-banner))
+   ((cider--clojure-version) (cider-repl--clojure-banner))
    (t (cider-repl--basic-banner))))
 
 (defun cider-repl--clojure-banner ()

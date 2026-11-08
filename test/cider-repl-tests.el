@@ -131,6 +131,16 @@
 ;; Babashka 1.3.190
 "))
 
+  (it "uses the Babashka banner when Babashka reports a Clojure version too"
+    (spy-on 'cider--clojure-version :and-return-value "1.12.6-SCI")
+    (spy-on 'cider--babashka-version :and-return-value "1.13.221")
+    (spy-on 'cider--babashka-nrepl-version :and-return-value "0.0.6")
+    (expect (cider-repl--banner) :to-equal
+            ";; Connected to nREPL server - nrepl://localhost:12345
+;; CIDER 2.0.0, babashka.nrepl 0.0.6
+;; Babashka 1.13.221
+"))
+
   (it "falls back to the basic banner without any version info"
     (spy-on 'cider--clojure-version :and-return-value nil)
     (spy-on 'cider--babashka-version :and-return-value nil)
