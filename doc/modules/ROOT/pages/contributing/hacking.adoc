@@ -68,6 +68,55 @@ can open an Emacs Lisp REPL with `M-x ielm`.
 
 You can also quickly evaluate some Emacs Lisp code in the minibuffer with `M-:`.
 
+=== Sending nREPL requests
+
+Requests are flat lists of keys and values, which CIDER encodes with bencode
+before sending them. This applies to your own code too, whether it's a CIDER
+patch, a package built on top of CIDER, or a snippet in your config:
+
+[source,lisp]
+----
+(cider-nrepl-send-request
+ `("op" "cider/info"
+   "ns" ,(cider-current-ns)
+   "sym" "map"
+   "context" ,(when some-condition "...")) ; left out when nil
+ (lambda (response) (message "%S" response)))
+----
+
+Bencode only has strings, integers, lists and dictionaries, so Emacs Lisp
+values are mapped onto those:
+
+|===
+| Emacs Lisp | Sent as
+
+| string | string
+| integer | integer
+| non-empty list or vector | list
+| `[]` | empty list
+| `nrepl-dict` | dictionary
+| `nil` | nothing, the key is left out (at any depth)
+| anything else (`t`, symbols, floats) | the string `format` gives, e.g. `"t"`
+|===
+
+Since a `nil` value drops its key, writing `,(when x ...)` is the way to send a
+key only some of the time, and the server sees the key as not set, so it uses
+its default. Don't use `nil` to mean an empty list. Use `[]` for that.
+
+There are no booleans either. By convention:
+
+* For true, send a non-empty string. CIDER sends `"t"` for flags like
+  `"privates?"`.
+* For false, leave the key out. When the default is true and you want to turn
+  it off, send `[]`, which nREPL reads as false on keys ending in `?`. This
+  always worked for `nrepl.middleware.print/stream?`. For every other `?` key it
+  needs an nREPL newer than 1.8.0. Older servers decode `[]` as an empty vector,
+  which Clojure treats as true.
+
+The nREPL messages buffer (`M-x nrepl-show-messages`) logs each
+request before it's encoded, so keys whose value is `nil` are listed there even
+though they were never sent.
+
 === Testing the code
 
 The code you've written should ideally be covered by specs. We use
