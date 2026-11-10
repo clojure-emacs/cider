@@ -457,6 +457,26 @@
                 :to-throw 'user-error '("str is already the alias of clojure.set"))
         (expect (buffer-string) :to-equal (concat ns-form "\n")))))
 
+  (it "signals an error for an alias a libspec in a reader conditional has"
+    (dolist (ns-form '("(ns foo.bar\n  (:require #?(:clj [clojure.set :as str])))"
+                       "(ns foo.bar\n  (:require #?@(:clj [[clojure.set :as str]])))"
+                       "(ns foo.bar\n  #?(:clj (:require [clojure.set :as str])))"
+                       "(ns foo.bar\n  (:require #?(:cljs [goog.string :as gs] :clj [clojure.set :as str])))"
+                       "(ns foo.bar\n  (:require #?@(:clj [clojure.data [clojure.set :as str]])))"
+                       "(ns foo.bar\n  (:require [a.b])\n  (:require [clojure.set :as str]))"))
+      (with-clojure-buffer (concat ns-form "\n|")
+        (expect (cider-ns-add-require "clojure.string" "str")
+                :to-throw 'user-error '("str is already the alias of clojure.set"))
+        (expect (buffer-string) :to-equal (concat ns-form "\n")))))
+
+  (it "takes an alias a reader conditional gives the same namespace"
+    (with-clojure-buffer "(ns foo.bar\n  (:require #?(:clj [clojure.string :as str])))\n|"
+      (setq cider-ns-edit-actions nil)
+      (cider-ns-add-require "clojure.string" "str")
+      (expect (buffer-string) :to-equal
+              (concat "(ns foo.bar\n  (:require #?(:clj [clojure.string :as str])\n"
+                      "            [clojure.string :as str]))\n"))))
+
   (it "evaluates the edited ns form when connected"
     (spy-on 'cider-connected-p :and-return-value t)
     (spy-on 'cider-interactive-eval)
