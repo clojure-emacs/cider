@@ -288,7 +288,7 @@
     (spy-on 'nrepl--mark-id-completed)
     (spy-on 'message)
     (spy-on 'cider-map-repls :and-call-fake
-            (lambda (_type function) (funcall function 'conn)))
+            (lambda (_type function) (mapcar function '(conn))))
     (spy-on 'cider-nrepl-send-request :and-call-fake
             (lambda (request cb &rest _)
               (setq sent request callback cb)))
@@ -308,6 +308,18 @@
       (cider-test-execute "foo-test")
       (expect (lax-plist-get sent "stream") :to-equal "true")))
 
+  (it "doesn't ask for them when the tests run in more than one REPL"
+    (spy-on 'cider-map-repls :and-call-fake
+            (lambda (_type function) (mapcar function '(clj-conn cljs-conn))))
+    (let ((cider-test-stream-results t)
+          (requests nil))
+      (spy-on 'cider-nrepl-send-request :and-call-fake
+              (lambda (request &rest _) (push request requests)))
+      (cider-test-execute "foo-test")
+      (expect (length requests) :to-equal 2)
+      (dolist (request requests)
+        (expect (member "stream" request) :to-be nil))))
+
   (it "doesn't ask for them when turned off"
     (let ((cider-test-stream-results nil))
       (cider-test-execute "foo-test")
@@ -318,7 +330,7 @@
       (cider-test-execute "foo-test")
       (expect (member "fail-fast" sent) :to-be nil)))
 
-  (it "doesn't select the final report again while the streamed one is on display"
+  (it "shows the streamed report without selecting it, and selects the final one"
     (let ((cider-test-stream-results t)
           (cider-auto-select-test-report-buffer t)
           (failure (cider-test-tests--failure "foo-test" "a")))
@@ -329,13 +341,13 @@
                                        "results" (list failure)
                                        "summary" (nrepl-dict "test" 1 "fail" 1 "error" 0))))
       (expect (spy-calls-args-for 'cider-popup-buffer 0)
-              :to-equal (list cider-test-report-buffer t))
+              :to-equal (list cider-test-report-buffer nil))
       (funcall callback
                (nrepl-dict "summary" (nrepl-dict "ns" 1 "var" 1 "test" 1 "pass" 0 "fail" 1 "error" 0)
                            "results" (nrepl-dict "foo-test" (nrepl-dict "a" (list failure)))
                            "status" '("done")))
       (expect (spy-calls-args-for 'cider-popup-buffer 1)
-              :to-equal (list cider-test-report-buffer nil))
+              :to-equal (list cider-test-report-buffer t))
       (with-current-buffer cider-test-report-buffer
         (expect (buffer-string) :to-match "Test Summary")
         (expect (buffer-string) :not :to-match "Running tests"))))

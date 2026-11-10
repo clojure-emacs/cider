@@ -132,11 +132,15 @@ With `cider-test-stream-results` (on by default), CIDER reports progress while
 a run is under way instead of all at once at the end. The echo area shows the
 running totals after each test var, and a var that fails lands in the test
 report as soon as it's done, so you can start looking at it while the rest of
-the tests keep going. When the run finishes, the report is replaced by the usual
-full one.
+the tests keep going. The report shows up without taking the focus, as the run
+is still going while you work. When the run finishes, the report is replaced by
+the usual full one, which gets selected as `cider-auto-select-test-report-buffer`
+says.
 
 This needs cider-nrepl 0.63.0 or newer. With an older one, or for ClojureScript
-tests, the report still arrives at the end.
+tests, the report still arrives at the end. So does it when a `.cljc` buffer's
+tests run in both a Clojure and a ClojureScript REPL, as the two runs share the
+report.
 
 NOTE: Turning on <<fail-fast,fail-fast>> ends a run at its first failure, so
 there's little progress left to show.
