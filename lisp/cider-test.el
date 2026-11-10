@@ -458,7 +458,9 @@ With the actual value, the outermost `(not ...)' s-expression is removed."
 The echo area shows the running totals after each test var, and a var
 that fails is added to the test report right away, instead of everything
 arriving once the whole run is over.  This needs cider-nrepl 0.63.0 or
-newer; with an older one the report arrives at the end, as usual."
+newer; with an older one the report arrives at the end, as usual.  So
+does it for tests that run in more than one REPL at once, as in a cljc
+buffer with both a Clojure and a ClojureScript REPL."
   :type 'boolean
   :package-version '(cider . "2.1.0"))
 
@@ -741,8 +743,11 @@ NO-SELECT is non-nil."
                             'test-report cider-auto-select-test-report-buffer))))
 
 (defun cider-test--start-streamed-report ()
-  "Pop up an empty test report for the failures of a run in progress."
-  (with-current-buffer (cider-test--popup-report)
+  "Pop up an empty test report for the failures of a run in progress.
+It's shown but not selected, as the run goes on while you work; the
+final report gets selected as `cider-auto-select-test-report-buffer'
+says."
+  (with-current-buffer (cider-test--popup-report t)
     (let ((inhibit-read-only t))
       (cider-test-report-mode)
       (cider-insert "Running tests..." 'bold t "\n"))
@@ -967,9 +972,12 @@ running them."
          (if prompt-for-filters
              (cider-test--prompt-for-selectors
               "Test selectors to exclude (space separated): ")
-           cider-test-default-exclude-selectors)))
+           cider-test-default-exclude-selectors))
+        (single-run (null (cdr (cider-map-repls :auto #'identity)))))
     ;; ClojureScript tests run too, via cider-nrepl's cljs.test support
     ;; (clojure-emacs/cider#555); cljc files dispatch to both REPLs.
+    ;; Those runs share the report buffer, so their streamed failures would
+    ;; land in each other's reports; only a run of its own streams.
     (cider-map-repls :auto
       (lambda (conn)
         (unless silent
@@ -1000,7 +1008,7 @@ running them."
           (when (and cider-test-fail-fast
                      (not retest?))
             (setq request (append request `("fail-fast" ,"true"))))
-          (when cider-test-stream-results
+          (when (and cider-test-stream-results single-run)
             (setq request (append request `("stream" "true"))))
           (cider-nrepl-send-request
            request
@@ -1031,11 +1039,7 @@ running them."
                         (cider-test-echo-summary summary results elapsed-time)
                         (if (or (not (zerop (+ error fail)))
                                 cider-test-show-report-on-success)
-                            ;; don't select the report again if the streamed
-                            ;; one is still on display
-                            (let ((b (cider-test--popup-report
-                                      (and (buffer-live-p streamed-report)
-                                           (get-buffer-window streamed-report t)))))
+                            (let ((b (cider-test--popup-report)))
                               ;; `cider-make-popup-buffer' now pins the report to
                               ;; its originating REPL and adopts that session's
                               ;; project dir, so no `default-directory' override
