@@ -1021,7 +1021,10 @@ What gets added depends on how SYMBOL is written:
 - for alias/foo, require the namespace as alias, as in [some.ns :as alias];
 - for some.ns/foo, require some.ns;
 - for a class, import it, and require the namespace that defines it too
-  when it's made by `deftype' or `defrecord'.
+  when it's made by `deftype' or `defrecord';
+- for an auto-resolved keyword like ::alias/foo, require the namespace
+  alias stands for, going by the same namespaces magic requires do (see
+  `cider-ns-magic-requires').
 
 A namespace that's already required gets the alias or the refer added
 to its libspec.  A second alias for it, or an alias or a refer that
@@ -1040,18 +1043,56 @@ After a change, do what `cider-ns-edit-actions' asks for."
   (let ((symbol (string-trim symbol)))
     (when (string-empty-p symbol)
       (user-error "No symbol given"))
-    (when (string-prefix-p ":" symbol)
-      (user-error "%s is a keyword, not a symbol" symbol))
-    (let* ((candidates (or (cider-sync-request:resolve-missing symbol (cider-current-ns))
-                           (user-error "Found nothing to add for %s" symbol)))
-           (candidate (cider-ns-edit--choose symbol candidates)))
-      (pcase-let ((`(,changed . ,texts)
-                   (cider-ns-edit--edit
-                    (lambda (start) (cider-ns-edit--add-missing start symbol candidate)))))
-        (if changed
-            (message "Resolved %s with %s" symbol (string-join texts " and "))
-          (message "Nothing to add for %s, the ns form has %s"
-                   symbol (string-join texts " and ")))))))
+    (cond
+     ((string-match "\\`::\\([^/]*\\)/" symbol)
+      (cider-ns-edit--add-keyword-alias symbol (match-string 1 symbol)))
+     ((string-prefix-p ":" symbol)
+      (user-error "%s needs no require, only an auto-resolved keyword like ::alias/name does"
+                  symbol))
+     (t (cider-ns-edit--add-missing-symbol symbol)))))
+
+(defun cider-ns-edit--add-keyword-alias (keyword alias)
+  "Require the namespace ALIAS stands for in the auto-resolved KEYWORD.
+The candidates are the ones magic requires go by, see
+`cider-ns-edit--alias-candidates'."
+  (when (string-empty-p alias)
+    (user-error "%s has no alias" keyword))
+  (let* ((ns-start (cider-ns-edit--check))
+         ;; unlike magic requires, a command reaches past the narrowing
+         (taken (save-restriction
+                  (widen)
+                  (cider-ns-edit--has-alias-p
+                   ns-start
+                   (or (ignore-errors (scan-sexps ns-start 1))
+                       (user-error "The ns form isn't balanced"))
+                   alias))))
+    (if taken
+        (message "Nothing to add for %s, the ns form has the alias %s" keyword alias)
+      (let* ((candidates (or (cider-ns-edit--alias-candidates alias)
+                             (user-error "Found no namespace for the alias %s" alias)))
+             (ns (if (cdr candidates)
+                     (cider-ns-edit--read-alias-ns
+                      (format "Require as %s: " alias) candidates)
+                   (nrepl-dict-get (car candidates) "ns"))))
+        (when (or (null ns) (string-empty-p ns))
+          (user-error "Nothing chosen"))
+        (pcase-let ((`(,status . ,libspec)
+                     (cider-ns-edit--edit
+                      (lambda (start) (cider-ns-edit--add-require start ns alias)))))
+          (cider-ns-edit--require-message ns status libspec))))))
+
+(defun cider-ns-edit--add-missing-symbol (symbol)
+  "Require or import what SYMBOL needs, as `cider-ns-add-missing' does."
+  (let* ((candidates (or (cider-sync-request:resolve-missing symbol (cider-current-ns))
+                         (user-error "Found nothing to add for %s" symbol)))
+         (candidate (cider-ns-edit--choose symbol candidates)))
+    (pcase-let ((`(,changed . ,texts)
+                 (cider-ns-edit--edit
+                  (lambda (start) (cider-ns-edit--add-missing start symbol candidate)))))
+      (if changed
+          (message "Resolved %s with %s" symbol (string-join texts " and "))
+        (message "Nothing to add for %s, the ns form has %s"
+                 symbol (string-join texts " and "))))))
 
 ;;; Cleaning the ns form
 
@@ -1445,27 +1486,35 @@ Ask which when there's more than one, or `cider-ns-magic-requires' says
 to ask.  Picking none, or quitting, declines ALIAS for the buffer."
   (if (and (null (cdr candidates)) (eq cider-ns-magic-requires t))
       (nrepl-dict-get (car candidates) "ns")
-    (let* ((table (mapcar (lambda (c) (cons (nrepl-dict-get c "ns") c)) candidates))
-           (annotate (lambda (ns)
-                       (when-let* ((candidate (cdr (assoc ns table))))
-                         (pcase (nrepl-dict-get candidate "source")
-                           ("project" (let ((n (nrepl-dict-get candidate "count")))
-                                        (format " used in %s file%s" n (if (eql n 1) "" "s"))))
-                           (source (concat " " source))))))
-           (choice (condition-case nil
-                       (completing-read
-                        (format "Require as %s (empty for none): " alias)
-                        (lambda (string pred action)
-                          (if (eq action 'metadata)
-                              `(metadata (annotation-function . ,annotate)
-                                         (display-sort-function . identity))
-                            (complete-with-action action table string pred)))
-                        nil t)
-                     (quit ""))))
+    (let ((choice (condition-case nil
+                      (cider-ns-edit--read-alias-ns
+                       (format "Require as %s (empty for none): " alias) candidates)
+                    (quit ""))))
       (if (string-empty-p choice)
           (progn (push alias cider-ns-edit--declined-aliases)
                  nil)
         choice))))
+
+(defun cider-ns-edit--read-alias-ns (prompt candidates)
+  "Read one of the namespaces in CANDIDATES with PROMPT.
+CANDIDATES are dicts like the ones of `cider-ns-edit--alias-candidates',
+kept in their order and annotated with where they come from.  Return the
+namespace, or an empty string when none got picked."
+  (let* ((table (mapcar (lambda (c) (cons (nrepl-dict-get c "ns") c)) candidates))
+         (annotate (lambda (ns)
+                     (when-let* ((candidate (cdr (assoc ns table))))
+                       (pcase (nrepl-dict-get candidate "source")
+                         ("project" (let ((n (nrepl-dict-get candidate "count")))
+                                      (format " used in %s file%s" n (if (eql n 1) "" "s"))))
+                         (source (concat " " source)))))))
+    (completing-read
+     prompt
+     (lambda (string pred action)
+       (if (eq action 'metadata)
+           `(metadata (annotation-function . ,annotate)
+                      (display-sort-function . identity))
+         (complete-with-action action table string pred)))
+     nil t)))
 
 (defun cider-ns-edit--magic-require ()
   "Require the namespace the alias before the slash at point stands for.

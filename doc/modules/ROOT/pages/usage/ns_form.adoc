@@ -108,6 +108,11 @@ already has the alias or refers the name. A type made by `deftype` or
 `defrecord` gets imported, and the namespace that defines it gets required as
 well, because the class doesn't exist until that namespace is loaded.
 
+On an auto-resolved keyword like `::config/aero`, it requires the namespace
+`config` stands for, going by the same namespaces as
+<<magic-requires,magic requires>>. When there's more than one, it asks which.
+A plain keyword like `:config/aero` needs no require, so there's nothing to do.
+
 Only namespaces that are loaded in the REPL count, so load the one you're after
 first if it isn't. In ClojureScript buffers the ClojureScript REPL gets asked,
 and it knows about namespaces but not about JavaScript classes.
@@ -115,6 +120,7 @@ and it knows about namespaces but not about JavaScript classes.
 This needs cider-nrepl 0.64.0 or newer. With an older one, the command says
 the op it needs is missing.
 
+[#magic-requires]
 == Magic Requires
 
 With magic requires on, typing a slash after an alias the `ns` form doesn't
