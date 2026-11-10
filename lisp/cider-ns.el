@@ -510,14 +510,21 @@ the buffer when there's none before point."
   "Return non-nil if a list or a vector starts at POS."
   (memq (char-after pos) '(?\( ?\[)))
 
+(defun cider-ns-edit--clause-p (pos keyword)
+  "Return non-nil if a KEYWORD clause starts at POS.
+KEYWORD is a string like \":require\"."
+  (and (eq (char-after pos) ?\()
+       (save-excursion
+         (goto-char (1+ pos))
+         (cider-ns-edit--skip-blanks)
+         (and (not (eq (char-after) ?\)))
+              (equal (cider-ns-edit--text (point)) keyword)))))
+
 (defun cider-ns-edit--clauses (ns-start keyword)
   "Return the starts of the KEYWORD clauses of the ns form at NS-START.
 KEYWORD is a string like \":require\".  Clauses nested in reader
 conditionals aren't considered."
-  (seq-filter (lambda (pos)
-                (and (eq (char-after pos) ?\()
-                     (when-let* ((head (car (cider-ns-edit--elements pos))))
-                       (equal (cider-ns-edit--text head) keyword))))
+  (seq-filter (lambda (pos) (cider-ns-edit--clause-p pos keyword))
               (cider-ns-edit--elements ns-start)))
 
 (defun cider-ns-edit--clause (ns-start keyword)
@@ -669,6 +676,50 @@ element for a vector or a list."
         (setq elements (cdr elements)))
       aliases)))
 
+(defun cider-ns-edit--reader-conditional (pos)
+  "Return (SPLICING . BRANCHES) for the reader conditional at POS, or nil.
+BRANCHES are the starts of the forms after the platform keywords of
+#?(...) or #?@(...), and SPLICING is non-nil for #?@(...)."
+  (save-excursion
+    (goto-char pos)
+    (when (looking-at "#\\?\\(@\\)?(")
+      (let ((splicing (match-beginning 1))
+            (elements (cider-ns-edit--elements (1- (match-end 0))))
+            branches)
+        (while elements
+          (when (cadr elements)
+            (push (cadr elements) branches))
+          (setq elements (cddr elements)))
+        (cons splicing (nreverse branches))))))
+
+(defun cider-ns-edit--collect-libspecs (pos in-require)
+  "Return the starts of the libspecs in the form at POS.
+IN-REQUIRE non-nil means the form is an element of a :require clause.
+Reader conditionals count with all their branches."
+  (if-let* ((conditional (cider-ns-edit--reader-conditional pos)))
+      (mapcan (lambda (branch)
+                (if (car conditional)
+                    ;; #?@ splices the elements of its branches in
+                    (when (cider-ns-edit--seq-p branch)
+                      (mapcan (lambda (element)
+                                (cider-ns-edit--collect-libspecs element in-require))
+                              (cider-ns-edit--elements branch)))
+                  (cider-ns-edit--collect-libspecs branch in-require)))
+              (cdr conditional))
+    (cond
+     (in-require (list pos))
+     ((cider-ns-edit--clause-p pos ":require")
+      (mapcan (lambda (element) (cider-ns-edit--collect-libspecs element t))
+              (cdr (cider-ns-edit--elements pos)))))))
+
+(defun cider-ns-edit--all-libspecs (ns-start)
+  "Return the starts of all the libspecs of the ns form at NS-START.
+That's the ones of every :require clause, reader conditionals included,
+where the edits only change the first :require clause outside of them.
+An alias or a name taken anywhere can't be taken again, though."
+  (mapcan (lambda (element) (cider-ns-edit--collect-libspecs element nil))
+          (cdr (cider-ns-edit--elements ns-start))))
+
 (defun cider-ns-edit--libspec (ns alias refer)
   "Return a libspec that requires NS as ALIAS and refers REFER from it.
 ALIAS and REFER can be nil."
@@ -767,8 +818,9 @@ nil when NS is already required by LIBSPEC as asked.  Signal an error
 when NS has another alias, or another namespace has ALIAS or REFER."
   (let* ((clause (cider-ns-edit--clause ns-start ":require"))
          (libspecs (and clause (cdr (cider-ns-edit--elements clause))))
-         (others (seq-remove (lambda (pos) (equal (cider-ns-edit--libspec-ns pos) ns))
-                             libspecs))
+         (others (when (or alias refer)
+                   (seq-remove (lambda (pos) (equal (cider-ns-edit--libspec-ns pos) ns))
+                               (cider-ns-edit--all-libspecs ns-start))))
          (existing (seq-find (lambda (pos)
                                (and (equal (cider-ns-edit--libspec-ns pos) ns)
                                     (cider-ns-edit--loads-p pos)))
