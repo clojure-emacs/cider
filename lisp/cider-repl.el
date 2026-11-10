@@ -1104,11 +1104,20 @@ the symbol."
         ((= (point) (marker-position cider-repl-input-start-mark))
          (cider-repl-delete-current-input))))
 
+(defconst cider-repl--opening-form-regexp
+  (rx (* space)
+      (? (or (any "@'`^")
+             (seq "#" (? (or (seq "?" (? "@"))   ; #?( #?@(
+                             (seq ":" (? ":") (* (not (any space "{")))) ; #:ns{ #::{
+                             "_")))))            ; #_
+      (any "([{\""))
+  "Regexp matching input that opens a form, so RET waits for its end.")
+
 (defun cider-repl--input-complete-p (start end)
   "Return t if the region from START to END is a complete sexp."
   (save-excursion
     (goto-char start)
-    (cond ((looking-at-p "\\s *[@'`#^]?[([{\"]")
+    (cond ((looking-at-p cider-repl--opening-form-regexp)
            (ignore-errors
              (save-restriction
                (narrow-to-region start end)

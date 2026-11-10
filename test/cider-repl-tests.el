@@ -736,6 +736,14 @@ PROPERTY should be a symbol of either 'text, 'ansi-context or
     (expect (funcall input-complete-p "#{1 2") :not :to-be-truthy)
     (expect (funcall input-complete-p "^{:x 1} [a") :not :to-be-truthy))
 
+  (it "treats unbalanced reader conditionals, namespaced maps and discards as incomplete"
+    (dolist (input '("#?(:clj 1" "#?@(:clj [1 2]" "#:a{:b 1" "#::{:b 1" "#::s{:b 1"
+                     "#_(foo" "#(inc %" "#\"a+"))
+      (expect (funcall input-complete-p input) :not :to-be-truthy))
+    (dolist (input '("#?(:clj 1 :cljs 2)" "#?@(:clj [1 2])" "#:a{:b 1}" "#::{:b 1}"
+                     "#_(foo) 1" "#(inc %)" "#\"a+\""))
+      (expect (funcall input-complete-p input) :to-be-truthy)))
+
   (it "treats balanced input as complete"
     (expect (funcall input-complete-p "(+ 1 2)") :to-be-truthy)
     (expect (funcall input-complete-p "{:a \"foo\" :b 2}") :to-be-truthy)
