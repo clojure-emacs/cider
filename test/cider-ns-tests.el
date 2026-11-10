@@ -818,11 +818,75 @@
       (expect (cider-ns-add-missing "join") :to-throw 'user-error)
       (expect 'cider-nrepl-sync-request :not :to-have-been-called)))
 
-  (it "signals an error for a keyword"
+  (it "signals an error for a keyword that needs no require"
     (spy-on 'cider-sync-request:resolve-missing)
+    (dolist (keyword '(":clojure.string/join" ":join" "::join"))
+      (with-clojure-buffer "(ns foo.bar)\n|"
+        (expect (cider-ns-add-missing keyword) :to-throw 'user-error)
+        (expect (buffer-string) :to-equal "(ns foo.bar)\n")))
+    (expect 'cider-sync-request:resolve-missing :not :to-have-been-called))
+
+  (it "requires the namespace the alias of an auto-resolved keyword stands for (#4222)"
+    (spy-on 'cider-sync-request:resolve-missing)
+    (spy-on 'message)
     (with-clojure-buffer "(ns foo.bar)\n|"
-      (expect (cider-ns-add-missing "::str/join") :to-throw 'user-error)
-      (expect 'cider-sync-request:resolve-missing :not :to-have-been-called)))
+      (cider-ns-add-missing "::str/join")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [clojure.string :as str]))\n")
+      (expect 'message :to-have-been-called-with
+              "Added %s to the ns form" "[clojure.string :as str]"))
+    (expect 'cider-sync-request:resolve-missing :not :to-have-been-called))
+
+  (it "requires the alias of an auto-resolved keyword typed up to the slash"
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (cider-ns-add-missing "::str/")
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [clojure.string :as str]))\n")))
+
+  (it "requires an auto-resolved keyword's alias in a narrowed buffer"
+    (with-clojure-buffer "(ns foo.bar)\n\n(defn f [] |::str/x)\n"
+      (narrow-to-defun)
+      (cider-ns-add-missing "::str/x")
+      (widen)
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [clojure.string :as str]))\n\n(defn f [] ::str/x)\n")))
+
+  (it "asks which namespace an auto-resolved keyword's alias stands for"
+    (spy-on 'cider-ns-edit--alias-candidates
+            :and-return-value (list (nrepl-dict "ns" "myapp.config" "source" "project" "count" 3)
+                                    (nrepl-dict "ns" "other.config" "source" "project" "count" 1)))
+    (spy-on 'completing-read :and-return-value "myapp.config")
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (cider-ns-add-missing "::config/aero")
+      (expect 'completing-read :to-have-been-called)
+      (expect (buffer-string) :to-equal
+              "(ns foo.bar\n  (:require [myapp.config :as config]))\n")))
+
+  (it "adds nothing for an auto-resolved keyword whose alias the ns form has"
+    (spy-on 'cider-ns-edit--alias-candidates)
+    (spy-on 'message)
+    (let ((contents "(ns foo.bar\n  (:require #?(:clj [myapp.config :as config])))\n"))
+      (with-clojure-buffer contents
+        (cider-ns-add-missing "::config/aero")
+        (expect (buffer-string) :to-equal contents)))
+    (expect 'cider-ns-edit--alias-candidates :not :to-have-been-called)
+    (expect 'message :to-have-been-called-with
+            "Nothing to add for %s, the ns form has the alias %s" "::config/aero" "config"))
+
+  (it "signals an error when nothing stands for an auto-resolved keyword's alias"
+    (spy-on 'cider-ns-edit--alias-candidates :and-return-value nil)
+    (with-clojure-buffer "(ns foo.bar)\n|"
+      (expect (cider-ns-add-missing "::nope/x")
+              :to-throw 'user-error '("Found no namespace for the alias nope"))))
+
+  (it "signals an error for a refer a libspec in a reader conditional has"
+    (spy-on 'cider-sync-request:resolve-missing
+            :and-return-value (list (nrepl-dict "name" "clojure.string" "type" "ns")))
+    (let ((contents "(ns foo.bar\n  (:require #?(:clj [clojure.set :refer [join]])))\n"))
+      (with-clojure-buffer contents
+        (expect (cider-ns-add-missing "join")
+                :to-throw 'user-error '("join is already referred from clojure.set"))
+        (expect (buffer-string) :to-equal contents))))
 
   (it "adds a libspec next to one that only has :as-alias"
     ;; :as-alias doesn't load the namespace, so a refer there would fail
