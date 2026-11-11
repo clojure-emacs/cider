@@ -179,8 +179,8 @@ of remote SSH hosts."
                         (mapcar (lambda (pair)
                                   (when-let* ((published (nrepl--container-published-port
                                                           container-method container
-                                                          (string-to-number (cadr pair)))))
-                                    (list (car pair) (number-to-string published))))
+                                                          (cadr pair))))
+                                    (list (car pair) published)))
                                 (cider-locate-running-nrepl-ports default-directory)))))
                ;; change dir: current file might be remote
                (change-dir-p (file-remote-p default-directory))

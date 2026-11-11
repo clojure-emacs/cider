@@ -757,19 +757,31 @@
   (it "parses the published host port"
     (spy-on 'call-process :and-call-fake
             (lambda (&rest _) (insert "0.0.0.0:12345\n[::]:12345\n") 0))
-    (expect (nrepl--container-published-port "docker" "app" 7888) :to-equal 12345))
+    (expect (nrepl--container-published-port "docker" "app" "7888") :to-equal "12345"))
 
   (it "returns nil when the port is not published"
     (spy-on 'call-process :and-return-value 1)
-    (expect (nrepl--container-published-port "docker" "app" 7888) :to-be nil))
+    (expect (nrepl--container-published-port "docker" "app" "7888") :to-be nil))
 
   (it "returns nil when the CLI is missing"
     (spy-on 'call-process :and-throw-error 'file-missing)
-    (expect (nrepl--container-published-port "docker" "app" 7888) :to-be nil)))
+    (expect (nrepl--container-published-port "docker" "app" "7888") :to-be nil)))
+
+(describe "nrepl-server-filter"
+  (it "stores the port as a string, as nrepl-connect does (#4180)"
+    (with-temp-buffer
+      (let ((proc (make-pipe-process :name "nrepl-test-server"
+                                     :buffer (current-buffer)
+                                     :noquery t)))
+        (unwind-protect
+            (progn
+              (nrepl-server-filter proc "nREPL server started on port 51139 on host localhost - nrepl://localhost:51139\n")
+              (expect (plist-get nrepl-endpoint :port) :to-equal "51139"))
+          (delete-process proc))))))
 
 (describe "nrepl-server-filter in a container context"
   (it "resolves the endpoint to the published localhost port"
-    (spy-on 'nrepl--container-published-port :and-return-value 12345)
+    (spy-on 'nrepl--container-published-port :and-return-value "12345")
     (with-temp-buffer
       (setq-local default-directory "/docker:zz-app:/app/")
       (let ((proc (make-pipe-process :name "nrepl-test-server"
@@ -779,9 +791,9 @@
             (progn
               (nrepl-server-filter proc "nREPL server started on port 7888 on host 0.0.0.0 - nrepl://0.0.0.0:7888\n")
               (expect (plist-get nrepl-endpoint :host) :to-equal "localhost")
-              (expect (plist-get nrepl-endpoint :port) :to-equal 12345)
+              (expect (plist-get nrepl-endpoint :port) :to-equal "12345")
               (expect 'nrepl--container-published-port
-                      :to-have-been-called-with "docker" "zz-app" 7888))
+                      :to-have-been-called-with "docker" "zz-app" "7888"))
           (delete-process proc)))))
 
   (it "keeps the container host when nothing is published (with a warning)"
@@ -795,7 +807,7 @@
         (unwind-protect
             (progn
               (nrepl-server-filter proc "nREPL server started on port 7888 on host 0.0.0.0 - nrepl://0.0.0.0:7888\n")
-              (expect (plist-get nrepl-endpoint :port) :to-equal 7888)
+              (expect (plist-get nrepl-endpoint :port) :to-equal "7888")
               (expect 'message :to-have-been-called))
           (delete-process proc))))))
 
