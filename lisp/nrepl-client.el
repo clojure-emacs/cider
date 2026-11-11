@@ -303,7 +303,7 @@ opened."
     (car (member method '("docker" "podman")))))
 
 (defun nrepl--container-published-port (method container port)
-  "Return the host port CONTAINER publishes PORT on, or nil.
+  "Return the host port CONTAINER publishes PORT on, as a string, or nil.
 METHOD is the container CLI to use (\"docker\" or \"podman\"), run on
 the local machine.  Ports that the container doesn't publish yield nil."
   (with-temp-buffer
@@ -313,7 +313,7 @@ the local machine.  Ports that the container doesn't publish yield nil."
       ;; output looks like "0.0.0.0:12345\n[::]:12345"
       (goto-char (point-min))
       (when (re-search-forward ":\\([0-9]+\\)$" nil t)
-        (string-to-number (match-string 1))))))
+        (match-string 1)))))
 
 (defun nrepl--ssh-file-name-matches-host-p (file-name host)
   "Return t, if FILE-NAME is a tramp-file-name on HOST via ssh."
@@ -1334,7 +1334,7 @@ up."
                        (let* ((printed-host (match-string 2 output))
                               (tramp-host (file-remote-p default-directory 'host))
                               (container-method (nrepl--tramp-container-method))
-                              (port (string-to-number (match-string 1 output)))
+                              (port (match-string 1 output))
                               (published (and container-method tramp-host
                                               (nrepl--container-published-port
                                                container-method tramp-host port)))

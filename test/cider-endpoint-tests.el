@@ -119,7 +119,7 @@
               (if dir '(("app" "7888")) nil)))
     (spy-on 'nrepl--container-published-port :and-call-fake
             (lambda (_method _container port)
-              (when (= port 7888) 12345)))
+              (when (equal port "7888") "12345")))
     (let ((default-directory "/docker:zz-app:/app/"))
       (expect (cider--infer-ports "localhost" nil)
               :to-equal '(("app" "12345")))))
