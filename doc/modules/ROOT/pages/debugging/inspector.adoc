@@ -209,6 +209,18 @@ keyword like `::foo` or `::alias/baz` will be displayed in the same manner by
 the inspector if it was invoked in the code buffer of the same namespace or
 requires respective aliases.
 
+Navigating with kbd:[n] and kbd:[p] (or kbd:[Tab] and kbd:[S-Tab]) skips over
+values that are rarely worth inspecting on their own, like `nil`, numbers and
+keywords. You can still inspect them by clicking on them or moving the point
+there. Set `cider-inspector-skip-uninteresting` to `nil` to stop at every value.
+
+The inspector lists its most important keybindings at the bottom of each page.
+Set `cider-inspector-display-help` to `nil` to hide them (or toggle them with
+kbd:[?]).
+
+If you prefer the inspector to take up the whole frame instead of popping up in
+another window, set `cider-inspector-fill-frame` to `t`.
+
 == Additional Resources
 
 * https://practicalli.github.io/spacemacs/evaluating-clojure/inspect/[Using CIDER's Inspector in Spacemacs]

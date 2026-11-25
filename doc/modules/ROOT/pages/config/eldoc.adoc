@@ -58,6 +58,20 @@ its behavior.
 | Symbol name may be truncated if it will enable the function arglist or documentation string to fit on a single line. Otherwise, behavior is just like `t` case.
 |===
 
+=== Shortening Namespaces in ElDoc
+
+The eldoc for a var starts with its namespace, which can take a lot of space
+for vars in deeply nested namespaces. You can change how the namespace is
+displayed with `cider-eldoc-ns-function`, a function that takes the namespace
+name and returns the string to display. CIDER comes with two such functions:
+`cider-abbreviate-ns` (`clojure.java.io` becomes `c.j.io`) and
+`cider-last-ns-segment` (`clojure.java.io` becomes `io`).
+
+[source,lisp]
+----
+(setq cider-eldoc-ns-function #'cider-abbreviate-ns)
+----
+
 === Context-dependent ElDoc
 
 CIDER will try to add expected function arguments based on the current context

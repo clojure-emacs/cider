@@ -290,6 +290,9 @@ For example, to route CIDER's candidates through `orderless`:
 (add-to-list 'completion-category-overrides '(cider (styles orderless)))
 ----
 
+TIP: The command `cider-enable-flex-completion` adds the `flex` style to the
+`cider` completion category for you.
+
 [IMPORTANT]
 ====
 CIDER's candidates arrive already matched by the backend (see

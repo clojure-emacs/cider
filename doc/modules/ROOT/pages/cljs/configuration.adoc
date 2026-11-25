@@ -81,6 +81,17 @@ If you already have a Clojure REPL running and want to add a
 ClojureScript REPL, you can invoke
 `cider-connect-sibling-cljs` (kbd:[C-c C-x s s]) to add it.
 
+== Opening the Application in a Browser
+
+When you start a ClojureScript REPL with `cider-jack-in-cljs` and the server's
+output mentions a `http://localhost` address (e.g. the one your application is
+served at), CIDER will offer to open it in a browser. You can disable this prompt like this:
+
+[source,lisp]
+----
+(setq cider-offer-to-open-cljs-app-in-browser nil)
+----
+
 == Enhanced Completion
 
 By default CIDER will enrich the ClojureScript completion results using

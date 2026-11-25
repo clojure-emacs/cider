@@ -21,6 +21,10 @@ ignore those.
 
 Starting with CIDER 1.2, `cider-jack-in-clj` works with Babashka projects that are using `bb.edn`.
 
+The command used to start Babashka is controlled by `cider-babashka-command`
+(`bb` by default) and `cider-babashka-parameters` (`nrepl-server localhost:0` by
+default).
+
 == Differences with Clojure
 
 There are a few differences between Babashka and Clojure that you should keep in mind:
