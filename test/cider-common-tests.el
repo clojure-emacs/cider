@@ -260,3 +260,16 @@
       (expect (cider--read-symbol "Sym" "map") :to-equal "via-minibuffer")
       (expect 'cider-read-from-minibuffer :to-have-been-called-with "Sym" "map")
       (expect 'cider-completing-read-symbol :not :to-have-been-called))))
+
+(describe "cider--path-translations-p"
+  (it "accepts an alist of strings, which is what a project may set"
+    (expect (cider--path-translations-p nil) :to-be-truthy)
+    (expect (cider--path-translations-p '(("/app" . "/home/me/app")
+                                          ("/root/.m2" . "~/.m2")))
+            :to-be-truthy))
+
+  (it "rejects anything else"
+    (expect (cider--path-translations-p "/app") :to-be nil)
+    (expect (cider--path-translations-p '(("/app" "/home/me/app"))) :to-be nil)
+    (expect (cider--path-translations-p '(("/app" . (shell-command "x")))) :to-be nil)
+    (expect (cider--path-translations-p '("/app")) :to-be nil)))
