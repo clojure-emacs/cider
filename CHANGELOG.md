@@ -8,6 +8,7 @@
 
 ### New features
 
+- [#4241](https://github.com/clojure-emacs/cider/pull/4241): Add `cider-ns-refresh-dirs`, the directories `cider-ns-refresh` scans in place of the ones on the classpath.
 - [#4241](https://github.com/clojure-emacs/cider/pull/4241): Add `cider-inspect-diff` (`C-c C-i =`), which shows how the values of two expressions differ in the inspector.
 - [#4219](https://github.com/clojure-emacs/cider/pull/4219): Add `cider-ns-clean` (`C-c M-n c`), which removes the requires, aliases, referred names and imports the code doesn't use from the `ns` form, using cider-nrepl's `cider/clean-ns` op, and leaves the rest of the form as it's written.
 - [#4218](https://github.com/clojure-emacs/cider/pull/4218): Add magic requires (`cider-ns-magic-requires`, off by default): typing a slash after an alias the `ns` form lacks adds the require it needs, going by the aliases the project already uses, with `cider-ns-magic-require-aliases` as the fallback.

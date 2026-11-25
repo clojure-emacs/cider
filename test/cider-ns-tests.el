@@ -35,7 +35,36 @@
 (describe "cider-ns-refresh"
   (it "raises a user error if cider is not connected"
     (spy-on 'cider-connected-p :and-return-value nil)
-    (expect (cider-ns-refresh) :to-throw 'user-error)))
+    (expect (cider-ns-refresh) :to-throw 'user-error))
+
+  (describe "the refresh request"
+    :var (request)
+    (before-each
+      (spy-on 'cider-map-repls :and-call-fake
+              (lambda (_which function) (funcall function 'conn)))
+      (spy-on 'cider-ns-refresh--save-modified-buffers)
+      (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
+      (spy-on 'cider-nrepl-send-request :and-call-fake
+              (lambda (req &rest _) (setq request req)))
+      (setq request nil))
+
+    (after-each
+      (when (get-buffer cider-ns-refresh-log-buffer)
+        (kill-buffer cider-ns-refresh-log-buffer)))
+
+    (it "leaves the directories to the server by default"
+      (let ((cider-ns-refresh-dirs nil))
+        (cider-ns-refresh)
+        (expect (lax-plist-get request "op") :to-equal "cider/refresh")
+        (expect (member "dirs" request) :to-be nil)))
+
+    (it "sends `cider-ns-refresh-dirs' when it is set"
+      (let ((cider-ns-refresh-dirs '("src" "dev")))
+        (cider-ns-refresh)
+        (expect (lax-plist-get request "dirs") :to-equal '("src" "dev"))
+        (cider-ns-refresh 'refresh-all)
+        (expect (lax-plist-get request "op") :to-equal "cider/refresh-all")
+        (expect (lax-plist-get request "dirs") :to-equal '("src" "dev"))))))
 
 (defvar cider-ns-tests--sample-file-url
   "file:test/cider_ns_tests.clj")

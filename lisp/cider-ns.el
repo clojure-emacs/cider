@@ -159,6 +159,20 @@ namespace-qualified function of zero arity."
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
+(defcustom cider-ns-refresh-dirs nil
+  "Directories `cider-ns-refresh' scans for namespaces to reload.
+If nil, the REPL decides: the directories set there with
+`clojure.tools.namespace.repl/set-refresh-dirs', or else every directory on
+the classpath.  The paths are used as the REPL sees them, and a relative
+one is resolved against its working directory, normally the project root.
+Being a list of paths within a project, it is best set in `.dir-locals.el'.
+
+Only tools.namespace takes the directories this way; clj-reload has its
+own configuration for them."
+  :type '(repeat directory)
+  :group 'cider
+  :package-version '(cider . "2.1.0"))
+
 (defcustom cider-ns-code-reload-tool 'tools.namespace
   "Which tool to use for ns refresh.
 Current options: tools.namespace and clj-reload."
@@ -409,6 +423,8 @@ inhibit-fns)), which is how `cider-ns-menu' passes its arguments."
             (cider-nrepl-send-request
              `("op" ,(cider-ns--reload-op (if all? "reload-all" "reload"))
                ,@(cider--nrepl-print-request-plist fill-column)
+               ,@(when cider-ns-refresh-dirs
+                   `("dirs" ,cider-ns-refresh-dirs))
                ,@(when (and (not inhibit-refresh-fns) cider-ns-refresh-before-fn)
                    `("before" ,cider-ns-refresh-before-fn))
                ,@(when (and (not inhibit-refresh-fns) cider-ns-refresh-after-fn)
