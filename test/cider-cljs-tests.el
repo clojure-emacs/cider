@@ -170,6 +170,39 @@
       (cider-register-cljs-repl-type 'my-repl "(my-form)")
       (expect (cider-cljs-repl-form 'my-repl) :to-equal "(my-form)"))))
 
+(defconst cider-cljs-tests--pages-dir
+  (expand-file-name "../doc/modules/ROOT/pages"
+                    (file-name-directory
+                     (or load-file-name buffer-file-name default-directory)))
+  "The manual's pages, located relative to this file.")
+
+(defun cider-cljs-tests--manual-page (check)
+  "Return the manual page that the error of the requirement CHECK links to."
+  (let ((message (condition-case err
+                     (progn (funcall check) nil)
+                   (user-error (cadr err)))))
+    (when (string-match "https://docs\\.cider\\.mx/cider/\\([^ #]+\\)\\.html" message)
+      (expand-file-name (concat (match-string 1 message) ".adoc")
+                        cider-cljs-tests--pages-dir))))
+
+(describe "the ClojureScript requirement checks"
+  (before-each
+    (spy-on 'cider-library-present-p :and-return-value nil)
+    (spy-on 'cider-clojurescript-present-p :and-return-value nil))
+
+  (it "link to manual pages that exist when ClojureScript or piggieback is missing"
+    (dolist (check '(cider-verify-clojurescript-is-present
+                     cider-verify-piggieback-is-present))
+      (expect (file-exists-p (cider-cljs-tests--manual-page check)) :to-be-truthy)))
+
+  (it "link to manual pages that exist when a REPL's own library is missing"
+    (spy-on 'cider-verify-piggieback-is-present)
+    (dolist (check '(cider-check-figwheel-requirements
+                     cider-check-figwheel-main-requirements
+                     cider-check-weasel-requirements
+                     cider-check-shadow-cljs-requirements))
+      (expect (file-exists-p (cider-cljs-tests--manual-page check)) :to-be-truthy))))
+
 (provide 'cider-cljs-tests)
 
 ;;; cider-cljs-tests.el ends here

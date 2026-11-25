@@ -66,12 +66,12 @@ Generally you should not disable this unless you run into some faulty check."
 (defun cider-verify-clojurescript-is-present ()
   "Check whether ClojureScript is present."
   (unless (cider-clojurescript-present-p)
-    (user-error "ClojureScript is not available.  See https://docs.cider.mx/cider/basics/clojurescript for details")))
+    (user-error "ClojureScript is not available.  See https://docs.cider.mx/cider/cljs/up_and_running.html for details")))
 
 (defun cider-verify-piggieback-is-present ()
   "Check whether the piggieback middleware is present."
   (unless (cider-library-present-p "cider.piggieback")
-    (user-error "Piggieback 0.4.x (aka cider/piggieback) is not available.  See https://docs.cider.mx/cider/basics/clojurescript for details")))
+    (user-error "Piggieback (cider/piggieback) is not available.  See https://docs.cider.mx/cider/cljs/up_and_running.html#piggieback-setup for details")))
 
 (defun cider-check-node-requirements ()
   "Check whether we can start a Node ClojureScript REPL."
@@ -83,19 +83,19 @@ Generally you should not disable this unless you run into some faulty check."
   "Check whether we can start a Figwheel ClojureScript REPL."
   (cider-verify-piggieback-is-present)
   (unless (cider-library-present-p "figwheel-sidecar.repl")
-    (user-error "Figwheel-sidecar is not available.  Please check https://docs.cider.mx/cider/basics/clojurescript for details")))
+    (user-error "Figwheel-sidecar is not available.  Please check https://docs.cider.mx/cider/cljs/figwheel.html#using-legacy-figwheel-leiningen-only for details")))
 
 (defun cider-check-figwheel-main-requirements ()
   "Check whether we can start a Figwheel Main ClojureScript REPL."
   (cider-verify-piggieback-is-present)
   (unless (cider-library-present-p "figwheel.main")
-    (user-error "Figwheel-main is not available.  Please check https://docs.cider.mx/cider/basics/clojurescript for details")))
+    (user-error "Figwheel-main is not available.  Please check https://docs.cider.mx/cider/cljs/figwheel.html#using-figwheel-main for details")))
 
 (defun cider-check-weasel-requirements ()
   "Check whether we can start a Weasel ClojureScript REPL."
   (cider-verify-piggieback-is-present)
   (unless (cider-library-present-p "weasel.repl.server")
-    (user-error "Weasel in not available.  Please check https://docs.cider.mx/cider/basics/clojurescript/#browser-connected-clojurescript-repl for details")))
+    (user-error "Weasel is not available.  Please check https://docs.cider.mx/cider/cljs/other_repls.html#weasel for details")))
 
 (defun cider-check-krell-requirements ()
   "Check whether we can start a Krell ClojureScript REPL."
@@ -106,7 +106,7 @@ Generally you should not disable this unless you run into some faulty check."
 (defun cider-check-shadow-cljs-requirements ()
   "Check whether we can start a shadow-cljs REPL."
   (unless (cider-library-present-p "shadow.cljs.devtools.api")
-    (user-error "The shadow-cljs ClojureScript REPL is not available.  Please check https://docs.cider.mx/cider/basics/clojurescript for details")))
+    (user-error "The shadow-cljs ClojureScript REPL is not available.  Please check https://docs.cider.mx/cider/cljs/shadow-cljs.html for details")))
 
 (defun cider-normalize-cljs-init-options (options)
   "Normalize the OPTIONS string used for initializing a ClojureScript REPL."
