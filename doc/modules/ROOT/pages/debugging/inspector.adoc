@@ -200,6 +200,11 @@ TIP: There's no need to memorize these keys - pressing kbd:[m] in the
 inspector pops up a https://github.com/magit/transient[transient] menu with
 all the commands, using the same keys.
 
+NOTE: kbd:[q] only buries the inspector buffer, so you can come back to the
+value later, and for as long as the buffer exists the REPL keeps the value
+alive. Kill the buffer after inspecting something huge and CIDER tells the
+REPL to let go of it.
+
 === View modes
 
 The point of the inspector is to display and navigate familiar data structures

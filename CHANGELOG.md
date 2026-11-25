@@ -27,6 +27,7 @@
 
 ### Changes
 
+- [#4241](https://github.com/clojure-emacs/cider/pull/4241): Release the inspected value on the server when the inspector buffer is killed.
 - [#4239](https://github.com/clojure-emacs/cider/pull/4239): Stop marking the executables jack-in runs (`cider-clojure-cli-command`, `cider-shadow-cljs-command`, `cider-gradle-command`, `cider-babashka-command`, `cider-nbb-command`, `cider-basilisp-command`) as safe local variables, so Emacs asks before a project's `.dir-locals.el` sets one; the parameters and the aliases can still be set without a prompt.
 - [#4239](https://github.com/clojure-emacs/cider/pull/4239): Let a project set `cider-path-translations` in `.dir-locals.el` without Emacs asking about it, as long as it is an alist of strings.
 - [#4240](https://github.com/clojure-emacs/cider/pull/4240): Have all the popup buffers follow `cider-auto-select-buffer`, not just the six that used to have an option of their own: apropos, the references and "who" trees, the namespace and spec browsers, the classpath, macroexpansions, ClojureDocs, tracing, taps, the output buffer, the nREPL listings and the REPL help each get a name the option's list form takes. A list naming the buffers to select no longer selects those, so the option also takes a list starting with `not`, naming the buffers to leave alone (e.g. `'(not error)`).

@@ -264,7 +264,21 @@ without memorizing the keys.  The sub-keys match the regular
   (set-syntax-table clojure-mode-syntax-table)
   (setq-local electric-indent-chars nil)
   (setq-local sesman-system 'CIDER)
+  (add-hook 'kill-buffer-hook #'cider-inspector--release-value nil t)
   (visual-line-mode 1))
+
+(defun cider-inspector--release-value ()
+  "Have the server let go of the value the inspector was showing.
+Until told otherwise its session holds on to the value and to every value
+on the way to it, however large they are.  Meant for `kill-buffer-hook':
+with the buffer gone there is nothing left to navigate.  A renamed or
+cloned inspector buffer is left alone, as the value on the server belongs
+to whatever `cider-inspector-buffer' shows now."
+  (ignore-errors
+    (when (and (equal (buffer-name) cider-inspector-buffer)
+               (cider-connected-p)
+               (cider-nrepl-op-supported-p "cider/inspect-clear"))
+      (cider-nrepl-send-request '("op" "cider/inspect-clear") #'ignore))))
 
 (defun cider-inspector--highlight-diff-tags ()
   "Apply distinctive face to #± by manually walking through buffer.
