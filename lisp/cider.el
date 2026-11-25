@@ -329,7 +329,8 @@ instead of specifying the :cljs-repl-type key."
                 (choice (const :host)
                         (const :port)
                         (const :project-dir)))
-  :group 'cider)
+  :group 'cider
+  :package-version '(cider . "1.19.0"))
 
 ;;;###autoload
 (defun cider-connect-clj (&optional params)

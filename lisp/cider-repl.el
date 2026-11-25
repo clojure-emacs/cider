@@ -96,18 +96,21 @@ focused.  Otherwise the buffer is displayed and focused."
   :type '(choice (const :tag "Create the buffer, but don't display it" nil)
                  (const :tag "Create and display the buffer, but don't focus it"
                         display-only)
-                 (const :tag "Create, display, and focus the buffer" t)))
+                 (const :tag "Create, display, and focus the buffer" t))
+  :package-version '(cider . "0.3.0"))
 
 (defcustom cider-repl-display-in-current-window nil
   "Controls whether the REPL buffer is displayed in the current window."
-  :type 'boolean)
+  :type 'boolean
+  :package-version '(cider . "0.3.0"))
 
 (defcustom cider-repl-use-pretty-printing t
   "Control whether results in the REPL are pretty-printed or not.
 The REPL will use the printer specified in `cider-print-fn'.
 The `cider-toggle-pretty-printing' command can be used to interactively
 change the setting's value."
-  :type 'boolean)
+  :type 'boolean
+  :package-version '(cider . "0.3.0"))
 
 (defcustom cider-repl-use-content-types t
   "Control whether REPL results are presented using content-type information.
@@ -153,7 +156,8 @@ like \"=>\" if want results to stand out more."
 The default option is `cider-repl-indent-and-complete-symbol'.  If
 you'd like to use the default Emacs behavior use
 `indent-for-tab-command'."
-  :type 'symbol)
+  :type 'function
+  :package-version '(cider . "0.3.0"))
 
 (defvar cider-repl-require-repl-utils-code
   '((clj . "(when-let [requires (resolve 'clojure.main/repl-requires)]
@@ -165,7 +169,7 @@ you'd like to use the default Emacs behavior use
 Will be evaluated with bindings for set!-able vars in place.
 
 See also `cider-repl-eval-init-code'."
-  :type '(list string)
+  :type '(repeat string)
   :package-version '(cider . "0.21.0"))
 
 (defcustom cider-repl-display-help-banner t
@@ -1739,7 +1743,8 @@ WIN, BUFFER and POS are the window, buffer and point under mouse position."
 
 (defcustom cider-repl-wrap-history nil
   "T to wrap history around when the end is reached."
-  :type 'boolean)
+  :type 'boolean
+  :package-version '(cider . "0.4.0"))
 
 ;; These two vars contain the state of the last history search.  We
 ;; only use them if `last-command' was `cider-repl--history-replace',
@@ -1876,14 +1881,18 @@ If USE-CURRENT-INPUT is non-nil, use the current input."
 (defcustom cider-repl-history-size 5000
   "The maximum number of items to keep in the REPL history."
   :type 'integer
-  :safe #'integerp)
+  :safe #'integerp
+  :package-version '(cider . "0.4.0"))
 
 (defcustom cider-repl-history-file nil
   "File to save the persistent REPL history to.
 If this is set to a path the history will be global to all projects.  If this is
 set to `per-project', the history will be stored in a file (.cider-history) at
 the root of each project."
-  :type '(choice string symbol))
+  :type '(choice (const :tag "Don't save the history" nil)
+                 (const :tag "A file in each project" per-project)
+                 (file :tag "A file for all projects"))
+  :package-version '(cider . "0.4.0"))
 
 (defun cider-repl--history-read-filename ()
   "Ask the user which file to use, defaulting `cider-repl-history-file'."
@@ -2098,7 +2107,8 @@ the history file is rewritten if `cider-repl-history-file' is set."
 ;;; REPL shortcuts
 (defcustom cider-repl-shortcut-dispatch-char ?\,
   "Character used to distinguish REPL commands from Lisp forms."
-  :type '(character))
+  :type '(character)
+  :package-version '(cider . "0.4.0"))
 
 (defvar cider-repl-shortcuts (make-hash-table :test 'equal))
 

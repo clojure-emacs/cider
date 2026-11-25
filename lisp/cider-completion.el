@@ -78,7 +78,7 @@ candidate's namespace."
 Must be a list of elements with the form (TYPE . ABBREVIATION), where TYPE
 is a possible value of the candidate's type returned from the completion
 backend, and ABBREVIATION is a short form of that type."
-  :type '(alist :key-type string :value-type string)
+  :type '(alist :key-type string :value-type (group string))
   :group 'cider
   :package-version '(cider . "0.9.0"))
 

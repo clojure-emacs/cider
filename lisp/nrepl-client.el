@@ -85,21 +85,25 @@
 
 (defcustom nrepl-connected-hook nil
   "List of functions to call when connecting to the nREPL server."
-  :type 'hook)
+  :type 'hook
+  :package-version '(cider . "0.1.2"))
 
 (defcustom nrepl-disconnected-hook nil
   "List of functions to call when disconnected from the nREPL server."
-  :type 'hook)
+  :type 'hook
+  :package-version '(cider . "0.1.6"))
 
 (defcustom nrepl-force-ssh-for-remote-hosts nil
   "If non-nil, do not attempt a direct connection for remote hosts."
-  :type 'boolean)
+  :type 'boolean
+  :package-version '(cider . "0.8.0"))
 
 (defcustom nrepl-use-ssh-fallback-for-remote-hosts nil
   "If non-nil, Use ssh as a fallback to connect to remote hosts.
 It will attempt to connect via ssh to remote hosts when unable to connect
 directly."
-  :type 'boolean)
+  :type 'boolean
+  :package-version '(cider . "0.15.0"))
 
 (defcustom nrepl-ssh-tunnel-timeout 30
   "Maximum number of seconds to wait for an SSH tunnel's forwarding to come up.
@@ -111,12 +115,14 @@ interactive password or 2FA prompt won't trip the timeout."
 (defcustom nrepl-sync-request-timeout 10
   "The number of seconds to wait for a sync response.
 Setting this to nil disables the timeout functionality."
-  :type 'integer)
+  :type 'integer
+  :package-version '(cider . "0.7.0"))
 
 (defcustom nrepl-hide-special-buffers nil
   "Control the display of some special buffers in buffer switching commands.
 When true some special buffers like the server buffer will be hidden."
-  :type 'boolean)
+  :type 'boolean
+  :package-version '(cider . "0.1.7"))
 
 (defcustom nrepl-completed-requests-max-size 1000
   "Maximum number of completed-request handlers retained per connection.
@@ -1408,13 +1414,15 @@ the communication between Emacs and an nREPL server.  Enabling the logging
 might have a negative impact on performance, so it's not recommended to
 keep it enabled unless you need to debug something."
   :type 'boolean
-  :safe #'booleanp)
+  :safe #'booleanp
+  :package-version '(cider . "0.7.0"))
 
 (defcustom nrepl-message-buffer-max-size 1000000
   "Maximum size for the nREPL message buffer.
 Defaults to 1000000 characters, which should be an insignificant
 memory burden, while providing reasonable history."
-  :type 'integer)
+  :type 'integer
+  :package-version '(cider . "1.22.0"))
 
 (defcustom nrepl-message-buffer-reduce-denominator 4
   "Divisor by which to reduce message buffer size.
@@ -1423,7 +1431,8 @@ the buffer is reduced by one over this value.  Defaults to 4, so that 1/4
 of the buffer is removed, which should ensure the buffer's maximum is
 reasonably utilized, while limiting the number of buffer shrinking
 operations."
-  :type 'integer)
+  :type 'integer
+  :package-version '(cider . "1.22.0"))
 
 (defvar nrepl-messages-mode-map
   (let ((map (make-sparse-keymap)))

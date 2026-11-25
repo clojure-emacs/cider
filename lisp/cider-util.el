@@ -135,7 +135,8 @@ file, walking up from the current buffer."
   :group 'cider
   :safe (lambda (value)
           (and (listp value)
-               (seq-every-p #'stringp value))))
+               (seq-every-p #'stringp value)))
+  :package-version '(cider . "1.22.0"))
 
 (defun cider-project-dir (&optional dir)
   "Return the absolute path of the current Clojure project root, or nil.
