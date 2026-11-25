@@ -70,12 +70,9 @@ the current symbol at point."
       (let* ((pref-start (cider-completion-symbol-start-pos))
              (context (cider-defun-at-point))
              (end (cider-completion-symbol-end-pos))
-             (_ (beginning-of-defun-raw))
-             (expr-start (point))
-             (_ (if (derived-mode-p 'cider-repl-mode)
-                    (goto-char (point-max))
-                  (end-of-defun)))
-             (expr-end (point)))
+             (bounds (cider-defun-at-point 'bounds))
+             (expr-start (car bounds))
+             (expr-end (cadr bounds)))
         (string-remove-suffix "\n"
                               (concat (when pref-start (substring context 0 (- pref-start expr-start)))
                                       "__prefix__"
@@ -95,8 +92,10 @@ form, with symbol at point replaced by __prefix__."
                                (cider-completion-symbol-start-pos))
                              pref-end))
              (context (cider-defun-at-point))
-             (_ (beginning-of-defun-raw))
-             (expr-start (point)))
+             ;; The start of that very text, which is not where
+             ;; `beginning-of-defun-raw' lands inside a `comment' form or
+             ;; after a reader conditional or metadata.
+             (expr-start (car (cider-defun-at-point 'bounds))))
         (concat (substring context 0 (- pref-start expr-start))
                 "__prefix__"
                 (substring context (- pref-end expr-start)))))))
