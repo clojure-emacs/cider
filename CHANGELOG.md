@@ -28,6 +28,7 @@
 
 ### Changes
 
+- [#4241](https://github.com/clojure-emacs/cider/pull/4241): Show the Java modifiers of a class member and the protocol a method belongs to in the doc buffer.
 - [#4241](https://github.com/clojure-emacs/cider/pull/4241): Release the inspected value on the server when the inspector buffer is killed.
 - [#4239](https://github.com/clojure-emacs/cider/pull/4239): Stop marking the executables jack-in runs (`cider-clojure-cli-command`, `cider-shadow-cljs-command`, `cider-gradle-command`, `cider-babashka-command`, `cider-nbb-command`, `cider-basilisp-command`) as safe local variables, so Emacs asks before a project's `.dir-locals.el` sets one; the parameters and the aliases can still be set without a prompt.
 - [#4239](https://github.com/clojure-emacs/cider/pull/4239): Let a project set `cider-path-translations` in `.dir-locals.el` without Emacs asking about it, as long as it is an alist of strings.
