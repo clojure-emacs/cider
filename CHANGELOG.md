@@ -41,6 +41,7 @@
 
 ### Bugs fixed
 
+- [#4237](https://github.com/clojure-emacs/cider/pull/4237): Make `cider-eval-last-sexp-and-replace` evaluate the form once instead of twice, and leave it in place when its evaluation fails.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Limit `cider-apropos` to the namespace it was given, which the search had stopped honoring, and make `xref-find-apropos` search every namespace and ignore case.
 - [#4209](https://github.com/clojure-emacs/cider/issues/4209): Recognize Babashka 1.13.221+ as Babashka, not JVM Clojure, now that it reports a Clojure version too; connecting to it ran the cider-nrepl checks and setup and failed with an error about `cider/init-debugger`.
 - [#4224](https://github.com/clojure-emacs/cider/issues/4224): Fix eldoc showing `.nil: ()` for a symbol cider-nrepl knows nothing about (a local, a typo), where it now shows nothing, or the arglists of the enclosing function.

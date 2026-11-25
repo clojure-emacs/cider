@@ -193,6 +193,34 @@
           (clojure-mode)
           (expect (cider-interactive-eval "(+ 1)") :not :to-throw))))))
 
+(describe "cider-eval-last-sexp-and-replace"
+  :var (handler)
+  (before-each
+    (setq handler nil)
+    (spy-on 'cider--nrepl-pr-request-plist :and-return-value nil)
+    (spy-on 'cider-interactive-eval :and-call-fake
+            (lambda (_form callback &rest _) (setq handler callback))))
+
+  (it "evaluates the form once and replaces it with the value"
+    (with-clojure-buffer "(def x (+ 1 2)|)"
+      (cider-eval-last-sexp-and-replace)
+      (expect 'cider-interactive-eval :to-have-been-called-times 1)
+      (expect (car (spy-calls-args-for 'cider-interactive-eval 0))
+              :to-equal "(+ 1 2)")
+      (funcall handler (nrepl-dict "value" "3"))
+      (expect (buffer-string) :to-equal "(def x 3)")
+      (expect (looking-at-p ")") :to-be-truthy)
+      (expect (current-kill 0) :to-equal "(+ 1 2)")))
+
+  (it "leaves the form alone when the evaluation fails"
+    (spy-on 'cider-default-err-handler)
+    (with-clojure-buffer "(def x (/ 1 0)|)"
+      (cider-eval-last-sexp-and-replace)
+      (funcall handler (nrepl-dict "ex" "class java.lang.ArithmeticException"
+                                   "status" '("eval-error")))
+      (expect 'cider-default-err-handler :to-have-been-called)
+      (expect (buffer-string) :to-equal "(def x (/ 1 0))"))))
+
 (describe "the point-based eval commands with no form at point"
   ;; These used to crash with (wrong-type-argument integer-or-marker-p nil)
   ;; when the respective primitive found nothing (e.g. an empty buffer, or
