@@ -86,7 +86,6 @@ using rlwrap."
   :type '(choice (const :tag "Auto-detect" nil)
                  (string :tag "Custom command"))
   :group 'cider
-  :safe (lambda (s) (or (null s) (stringp s)))
   :package-version '(cider . "0.17.0"))
 
 (defcustom cider-clojure-cli-parameters
@@ -147,7 +146,6 @@ then concatenated into the \"-M[your-aliases]:cider/nrepl\" form."
 By default we favor the project-specific shadow-cljs over the system-wide."
   :type 'string
   :group 'cider
-  :safe #'stringp
   :package-version '(cider . "0.17.0"))
 
 (defcustom cider-shadow-cljs-parameters
@@ -163,7 +161,6 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   "The command used to execute Gradle."
   :type 'string
   :group 'cider
-  :safe #'stringp
   :package-version '(cider . "0.10.0"))
 
 (defcustom cider-gradle-parameters
@@ -179,7 +176,6 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   "The command used to execute Babashka."
   :type 'string
   :group 'cider
-  :safe #'stringp
   :package-version '(cider . "1.2.0"))
 
 (defcustom cider-babashka-parameters
@@ -195,7 +191,6 @@ By default we favor the project-specific shadow-cljs over the system-wide."
   "The command used to execute nbb."
   :type 'string
   :group 'cider
-  :safe #'stringp
   :package-version '(cider . "1.6.0"))
 
 (defcustom cider-nbb-parameters
@@ -214,7 +209,6 @@ By default we favor the project-specific shadow-cljs over the system-wide."
    full path of the Basilisp executable within that virtual environment."
   :type 'string
   :group 'cider
-  :safe #'stringp
   :package-version '(cider . "1.14.0"))
 
 (defcustom cider-basilisp-parameters

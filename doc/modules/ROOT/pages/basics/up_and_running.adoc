@@ -274,6 +274,11 @@ so we'll examine them tool by tool.
 TIP: If instead you want to bypass command construction entirely and run a
 command of your own, see <<Overriding the Jack-In Command>> below.
 
+NOTE: The parameters and the aliases can be set per project in `.dir-locals.el`
+without Emacs asking any questions. The commands themselves can be set there as
+well, but as they are what jack-in runs, Emacs will ask you to confirm their
+values the first time it sees them.
+
 ==== Leiningen Options
 
 * `cider-lein-command` - the name of the Leiningen executable (`lein` by default)

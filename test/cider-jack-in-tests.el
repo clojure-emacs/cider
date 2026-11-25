@@ -623,6 +623,19 @@
     (expect (cider--resolve-project-command "command")
             :to-equal (shell-quote-argument "/bin/command"))))
 
+(describe "the commands that jack-in runs"
+  (it "can't be set from a project's local variables without a prompt"
+    ;; They end up in a shell command line, so Emacs has to ask first.
+    (dolist (option '(cider-lein-command
+                      cider-clojure-cli-command
+                      cider-shadow-cljs-command
+                      cider-gradle-command
+                      cider-babashka-command
+                      cider-nbb-command
+                      cider-basilisp-command))
+      (expect (custom-variable-p option) :to-be-truthy)
+      (expect (get option 'safe-local-variable) :to-be nil))))
+
 (provide 'cider-jack-in-tests)
 
 ;;; cider-jack-in-tests.el ends here
