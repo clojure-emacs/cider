@@ -65,7 +65,7 @@
   "If the mode-line lighter should detail the connection."
   :group 'cider
   :type 'boolean
-  :package-version '(cider "0.10.0"))
+  :package-version '(cider . "0.10.0"))
 
 (defun cider--modeline-info ()
   "Return info for the cider mode modeline.
@@ -99,7 +99,7 @@ variable to nil to disable the mode line entirely."
   :group 'cider
   :type 'sexp
   :risky t
-  :package-version '(cider "0.7.0"))
+  :package-version '(cider . "0.7.0"))
 
 
 ;;; Switching between REPL & source buffers
@@ -697,7 +697,7 @@ As it stands Emacs fires these events on <mouse-8> and <mouse-9> on `x' and
   :type 'boolean
   :safe #'booleanp
   :group 'cider
-  :version '(cider . "1.2.0"))
+  :package-version '(cider . "1.2.0"))
 
 (defcustom cider-xref-fn-depth -90
   "The depth to use when adding the CIDER xref function to the relevant hook.
@@ -705,7 +705,7 @@ By convention this is a number between -100 and 100, lower numbers indicating a
 higher precedence."
   :type 'integer
   :group 'cider
-  :version '(cider . "1.2.0"))
+  :package-version '(cider . "1.2.0"))
 
 (defconst cider-mode-map
   (let ((map (make-sparse-keymap)))
@@ -1442,7 +1442,7 @@ SYM and INFO is passed to `cider-docview-render'"
 It does this as well as the `help-echo' mechanism."
   :group 'cider
   :type 'boolean
-  :package-version '(cider "0.12.0"))
+  :package-version '(cider . "0.12.0"))
 
 (defvar cider--debug-mode-response)
 (defvar cider--debug-mode)

@@ -47,7 +47,8 @@ Example values: \"Logback\", \"Timbre\"."
   :group 'cider
   :package-version '(cider . "1.8.0")
   :safe #'stringp
-  :type 'string)
+  :type '(choice (const :tag "None" nil)
+                 string))
 
 (defcustom cider-log-frameworks-buffer "*cider-log-frameworks*"
   "The name of the log frameworks popup buffer."

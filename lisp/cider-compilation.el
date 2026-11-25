@@ -81,7 +81,8 @@ in order to void its effect."
                  (const except-in-repl)
                  (const only-in-repl)
                  (const :tag "never" nil))
-  :group 'cider)
+  :group 'cider
+  :package-version '(cider . "0.7.0"))
 
 (defcustom cider-auto-jump-to-error t
   "Control the cursor jump behavior in compilation error buffer.

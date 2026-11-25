@@ -40,7 +40,7 @@
 When `cider-eval-result-font-lock' is `clojure', this face is applied with
 lower priority than the syntax highlighting."
   :group 'cider
-  :package-version '(cider "0.9.1"))
+  :package-version '(cider . "0.9.1"))
 
 (defface cider-error-overlay-face
   '((((class color) (background light))
@@ -51,7 +51,7 @@ lower priority than the syntax highlighting."
      :extend t))
   "Like `cider-result-overlay-face', but for evaluation errors."
   :group 'cider
-  :package-version '(cider "0.25.0"))
+  :package-version '(cider . "0.25.0"))
 
 (define-obsolete-variable-alias 'cider-result-use-clojure-font-lock 'cider-eval-result-font-lock "2.0.0")
 (define-obsolete-variable-alias 'cider-overlays-use-font-lock 'cider-eval-result-font-lock "2.0.0")

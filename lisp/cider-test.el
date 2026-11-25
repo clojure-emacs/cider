@@ -922,7 +922,7 @@ tested var with a green (all passed) or red (any failure) fringe indicator."
   "Function to infer the test namespace for NS.
 The default implementation uses the simple Leiningen convention of appending
 '-test' to the namespace name."
-  :type 'symbol
+  :type 'function
   :package-version '(cider . "0.7.0"))
 
 (defun cider-test-default-test-ns-fn (ns)

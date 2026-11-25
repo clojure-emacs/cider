@@ -66,14 +66,16 @@
   "lein"
   "The command used to execute Leiningen."
   :type 'string
-  :group 'cider)
+  :group 'cider
+  :package-version '(cider . "0.3.0"))
 
 (defcustom cider-lein-parameters
   "repl :headless :host localhost"
   "Params passed to Leiningen to start an nREPL server via `cider-jack-in'."
   :type 'string
   :group 'cider
-  :safe #'stringp)
+  :safe #'stringp
+  :package-version '(cider . "0.7.0"))
 
 (defcustom cider-clojure-cli-command nil
   "The command used to execute clojure with tools.deps.
@@ -91,7 +93,8 @@ using rlwrap."
 (defcustom cider-clojure-cli-parameters
   nil
   "Params passed to clojure cli to start an nREPL server via `cider-jack-in'."
-  :type 'string
+  :type '(choice (const :tag "None" nil)
+                 string)
   :group 'cider
   :safe #'stringp
   :package-version '(cider . "1.8.0"))
@@ -134,7 +137,8 @@ will be prepended to the value of `cider-clojure-cli-aliases'.
 Alias names should be of the form \":foo:bar\".
 Leading \"-A\" \"-M\" \"-T\" or \"-X\" are stripped from aliases
 then concatenated into the \"-M[your-aliases]:cider/nrepl\" form."
-  :type 'string
+  :type '(choice (const :tag "None" nil)
+                 string)
   :group 'cider
   :safe #'stringp
   :package-version '(cider . "1.14"))
@@ -360,7 +364,8 @@ specifying the artifact ID, and the second element the version number."
                  (list :tag "Artifact ID and Version"
                        (string :tag "Artifact ID")
                        (string :tag "Version")))
-  :group 'cider)
+  :group 'cider
+  :package-version '(cider . "0.13.0"))
 
 (defvar-local cider-jack-in-cmd nil
   "The custom command used to start a nrepl server.

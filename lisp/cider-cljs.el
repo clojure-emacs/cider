@@ -127,7 +127,8 @@ Generally you should not disable this unless you run into some faulty check."
 
 (defcustom cider-shadow-default-options nil
   "Defines default `shadow-cljs' options."
-  :type 'string
+  :type '(choice (const :tag "None" nil)
+                 string)
   :group 'cider
   :safe (lambda (s) (or (null s) (stringp s)))
   :package-version '(cider . "0.18.0"))
@@ -197,7 +198,8 @@ this is a command, not just a string."
 
 Note that figwheel-main/start can also accept a map of options, refer to
 Figwheel for details."
-  :type 'string
+  :type '(choice (const :tag "None" nil)
+                 string)
   :group 'cider
   :safe (lambda (s) (or (null s) (stringp s)))
   :package-version '(cider . "0.18.0"))
@@ -231,7 +233,8 @@ function, which normally prompts for the init form.
 
 This defcustom is mostly intended for use with .dir-locals.el for
 cases where it doesn't make sense to register a new ClojureScript REPL type."
-  :type 'string
+  :type '(choice (const :tag "None" nil)
+                 string)
   :group 'cider
   :safe (lambda (s) (or (null s) (stringp s)))
   :package-version '(cider . "0.23.0"))
@@ -310,7 +313,9 @@ This affects commands like `cider-jack-in-cljs'.  Generally it's
 intended to be set via .dir-locals.el for individual projects, as it's
 relatively unlikely you'd like to use the same type of REPL in each project
 you're working on."
-  :type '(choice (const :tag "Figwheel" figwheel)
+  :type '(choice (const :tag "None (ask each time)" nil)
+                 (const :tag "Figwheel" figwheel)
+                 (const :tag "Figwheel (connected)" figwheel-connected)
                  (const :tag "Figwheel Main" figwheel-main)
                  (const :tag "Browser"  browser)
                  (const :tag "Node"     node)
@@ -380,7 +385,7 @@ nil."
   :type 'boolean
   :group 'cider
   :safe #'booleanp
-  :version '(cider . "0.15.0"))
+  :package-version '(cider . "0.15.0"))
 
 (defun cider--offer-to-open-app-in-browser (server-buf)
   "Look for a server address in SERVER-BUF and offer to open it."
@@ -406,7 +411,8 @@ instead of specifying the :cljs-repl-type key."
                 (choice (const :host)
                         (const :port)
                         (const :project-dir)))
-  :group 'cider)
+  :group 'cider
+  :package-version '(cider . "1.19.0"))
 
 (defun cider--update-cljs-type (params)
   "Update :cljs-repl-type in PARAMS."

@@ -54,7 +54,8 @@ This variable is used by `cider-connect'."
   :type '(repeat (list (string :tag "label")
                        (string :tag "host")
                        (string :tag "port")))
-  :group 'cider)
+  :group 'cider
+  :package-version '(cider . "0.6.0"))
 
 (defvar cider-ps-running-lein-nrepls-command "ps ux | grep leiningen"
   "Process snapshot command used in `cider-locate-running-nrepl-ports'.

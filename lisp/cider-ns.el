@@ -145,7 +145,8 @@ displayed in the echo area."
 If nil, nothing will be invoked before reloading.  Must be a
 namespace-qualified function of zero arity.  Any thrown exception will
 prevent reloading from occurring."
-  :type 'string
+  :type '(choice (const :tag "None" nil)
+                 string)
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
@@ -153,7 +154,8 @@ prevent reloading from occurring."
   "Clojure function for `cider-ns-refresh' to call after reloading.
 If nil, nothing will be invoked after reloading.  Must be a
 namespace-qualified function of zero arity."
-  :type 'string
+  :type '(choice (const :tag "None" nil)
+                 string)
   :group 'cider
   :package-version '(cider . "0.10.0"))
 
