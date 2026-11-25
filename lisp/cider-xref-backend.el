@@ -248,12 +248,9 @@ two are combined, with runtime hits the source search already covers dropped."
 
 (cl-defmethod xref-backend-apropos ((_backend (eql cider)) pattern)
   "Find all symbols that match regexp PATTERN."
-  (when-let* ((ns (cider-current-ns))
-              (results (cider-apropos-request pattern
-                                              :search-ns ns
+  (when-let* ((results (cider-apropos-request pattern
                                               :docs-p t
-                                              :privates-p t
-                                              :case-sensitive-p completion-ignore-case)))
+                                              :privates-p t)))
     (mapcar (lambda (info)
               (let* ((symbol (nrepl-dict-get info "name"))
                      (loc (cider--var-to-xref-location symbol))
