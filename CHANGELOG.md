@@ -46,6 +46,7 @@
 
 ### Bugs fixed
 
+- [#4242](https://github.com/clojure-emacs/cider/pull/4242): Send the form around point as the completion context when there is no symbol at point, where it was dropped.
 - [#4239](https://github.com/clojure-emacs/cider/pull/4239): Fix the Customize types of the options that take a string but default to `nil`, of `cider-repl-init-code`, `cider-repl-history-file`, `cider-default-cljs-repl` and `cider-completion-annotations-alist`, and the missing or malformed version information of some forty options.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Fix the dead manual links in the errors about a ClojureScript REPL's missing requirements.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Fix `cider-test-ediff` opening two empty buffers for a failed comparison of strings, numbers or collections of different kinds.

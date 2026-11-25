@@ -53,4 +53,8 @@
 
 (.foo| \"\")"
       (expect (cider-completion-get-context) :to-equal "(__prefix__ \"\")")
-      (expect (cider-completion-get-context) :to-equal "(__prefix__ \"\")"))))
+      (expect (cider-completion-get-context) :to-equal "(__prefix__ \"\")")))
+
+  (it "Keeps the form when there is no symbol at point"
+    (with-clojure-buffer "(.foo bar |)"
+      (expect (cider-completion-get-context) :to-equal "(.foo bar __prefix__)"))))
