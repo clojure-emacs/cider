@@ -41,6 +41,7 @@
 
 ### Bugs fixed
 
+- [#4237](https://github.com/clojure-emacs/cider/pull/4237): Fix the dead manual links in the errors about a ClojureScript REPL's missing requirements.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Fix `cider-test-ediff` opening two empty buffers for a failed comparison of strings, numbers or collections of different kinds.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Make `cider-profile-clear` confirm that it cleared the data, and `cider-profile-toggle` say when the var is missing or isn't a function.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Show traced calls that throw in the `*cider-trace*` buffer, where their call lines were left without a result.
