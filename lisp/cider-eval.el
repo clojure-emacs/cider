@@ -932,19 +932,37 @@ buffer."
                           (cider--nrepl-pr-request-plist)))
 
 (defun cider-eval-last-sexp-and-replace ()
-  "Evaluate the expression preceding point and replace it with its result."
+  "Evaluate the expression preceding point and replace it with its result.
+The expression stays in place when its evaluation fails.  The replaced
+expression is saved to the kill ring."
   (interactive)
-  (let ((last-sexp (cider-last-sexp)))
-    ;; we have to be sure the evaluation won't result in an error
-    (cider-nrepl-sync-request:eval last-sexp)
-    ;; seems like the sexp is valid, so we can safely kill it
-    (let ((opoint (point)))
-      (clojure-backward-logical-sexp)
-      (kill-region (point) opoint))
-    (cider-interactive-eval last-sexp
-                            (cider-eval-print-handler)
-                            nil
-                            (cider--nrepl-pr-request-plist))))
+  (let* ((buffer (current-buffer))
+         (bounds (cider-last-sexp 'bounds))
+         (form (apply #'buffer-substring-no-properties bounds))
+         (start (copy-marker (car bounds)))
+         (end (copy-marker (cadr bounds))))
+    (cider-interactive-eval
+     form
+     (cider-make-eval-handler
+      :buffer buffer
+      ;; Replace only once a value arrives: a failed evaluation sends none.
+      :on-value (lambda (value)
+                  (with-current-buffer buffer
+                    (let ((follow (<= start (point) end)))
+                      (kill-new (buffer-substring-no-properties start end))
+                      (save-excursion
+                        (goto-char start)
+                        (delete-region start end)
+                        (insert value)
+                        (set-marker end (point)))
+                      (when follow
+                        (goto-char end))
+                      (set-marker start nil)
+                      (set-marker end nil))))
+      :on-stdout #'cider-emit-interactive-eval-output
+      :on-stderr #'cider-emit-interactive-eval-err-output)
+     nil
+     (cider--nrepl-pr-request-plist))))
 
 (defun cider-eval-list-at-point (&optional output-to-current-buffer)
   "Evaluate the list (eg.  a function call, surrounded by parens) around point.
