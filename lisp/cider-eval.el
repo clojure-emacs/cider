@@ -809,14 +809,20 @@ window."
     (when (and cur-ns-form
                (not (cider-ns-form-p form))
                (cider-repl--ns-form-changed-p cur-ns-form connection))
-      (when cider-auto-track-ns-form-changes
-        ;; The first interactive eval on a file can load a lot of libs. This can
-        ;; easily lead to more than 10 sec.
-        (let ((nrepl-sync-request-timeout 30))
-          ;; TODO: check for evaluation errors
-          (cider-nrepl-sync-request:eval cur-ns-form connection)))
-      ;; cache at the end, in case of errors
-      (cider-repl--cache-ns-form cur-ns-form connection))))
+      (let ((response
+             (when cider-auto-track-ns-form-changes
+               ;; The first interactive eval on a file can load a lot of libs.
+               ;; This can easily lead to more than 10 sec.
+               (let ((nrepl-sync-request-timeout 30))
+                 (cider-nrepl-sync-request:eval cur-ns-form connection)))))
+        (if (member "eval-error" (nrepl-dict-get response "status"))
+            ;; Leave the form uncached, so it's tried again once it's fixed,
+            ;; and show its error: otherwise all the user gets is FORM
+            ;; failing on some alias or var the ns form was meant to bring in.
+            (when nrepl-err-handler-function
+              (funcall nrepl-err-handler-function (current-buffer)))
+          ;; cache at the end, in case of errors
+          (cider-repl--cache-ns-form cur-ns-form connection))))))
 
 (defvar-local cider-interactive-eval-override nil
   "Function to call instead of `cider-interactive-eval'.")

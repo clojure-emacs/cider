@@ -193,6 +193,40 @@
           (clojure-mode)
           (expect (cider-interactive-eval "(+ 1)") :not :to-throw))))))
 
+(describe "cider--prep-interactive-eval"
+  :var (reported)
+  (before-each
+    (setq reported nil)
+    (spy-on 'cider--clear-compilation-highlights)
+    (spy-on 'cider--quit-error-window)
+    (spy-on 'cider-repl--ns-form-changed-p :and-return-value t)
+    (spy-on 'cider-repl--cache-ns-form))
+
+  (it "caches the ns form once it has been evaluated"
+    (spy-on 'cider-nrepl-sync-request:eval
+            :and-return-value (nrepl-dict "value" "nil" "status" '("done")))
+    (with-clojure-buffer "(ns my.ns)\n\n(foo)|"
+      (cider--prep-interactive-eval "(foo)" 'conn)
+      (expect 'cider-repl--cache-ns-form :to-have-been-called)))
+
+  (it "reports a failing ns form and doesn't cache it"
+    (spy-on 'cider-nrepl-sync-request:eval
+            :and-return-value (nrepl-dict "ex" "class java.io.FileNotFoundException"
+                                          "status" '("eval-error" "done")))
+    (let ((nrepl-err-handler-function (lambda (buffer) (setq reported buffer))))
+      (with-clojure-buffer "(ns my.ns (:require [no.such.lib]))\n\n(foo)|"
+        (cider--prep-interactive-eval "(foo)" 'conn)
+        (expect 'cider-repl--cache-ns-form :not :to-have-been-called)
+        (expect reported :to-be (current-buffer)))))
+
+  (it "caches the ns form without evaluating it when tracking is off"
+    (spy-on 'cider-nrepl-sync-request:eval)
+    (let ((cider-auto-track-ns-form-changes nil))
+      (with-clojure-buffer "(ns my.ns)\n\n(foo)|"
+        (cider--prep-interactive-eval "(foo)" 'conn)
+        (expect 'cider-nrepl-sync-request:eval :not :to-have-been-called)
+        (expect 'cider-repl--cache-ns-form :to-have-been-called)))))
+
 (describe "cider-eval-last-sexp-and-replace"
   :var (handler)
   (before-each
