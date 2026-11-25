@@ -344,15 +344,17 @@ xref:basics/up_and_running.adoc#enabling-nrepl-jvmti-agent[JVMTI agent] section.
 === Display Spinner During Evaluation
 
 Some evaluation operations take a while to complete, so CIDER will display a
-visual indicator (a spinner) in the modeline to indicate this. The
+visual indicator (a spinner) to indicate this. When the result is going to be
+shown in an overlay (see `cider-eval-result-display`) the spinner appears right
+where the result will go, otherwise it's displayed in the modeline. The
 evaluation-in-progress spinner can be controlled by several variables:
 
-* `cider-eval-spinner-type` (default value `'progress-bar) -
+* `cider-spinner-type` (default value `'progress-bar`) -
 controls the appearance of the spinner. See `spinner-types`
 for all possible options.
-* `cider-eval-spinner-delay` controls the time (in seconds) after which to
+* `cider-spinner-delay` controls the time (in seconds) after which to
 show the spinner. The default value is 1 second.
-* `cider-show-eval-spinner` controls whether to show the spinner at all.
+* `cider-show-spinner` controls whether to show the spinner at all.
 Set this variable to `nil` to disable it.
 
 NOTE: CIDER uses internally the excellent package https://github.com/Malabarba/spinner.el[spinner.el].
@@ -642,24 +644,12 @@ eval command to store its result in the kill ring. This works even when the
 
 === Evaluating code inside comments
 
-By default, when using the defun-level eval commands inside a top-level `comment` form the return value is always `nil`. Calling `cider-eval-defun-up-to-point` with point at `<point>` also returns `nil`:
-
-[source,clojure]
-----
-(comment
-  (let [b "str"]
-    (-> b
-        keyword<point> ;;=> nil
-        name))
-  *e)
-----
-
-That's not a bug, that's simply how the `comment` form works (it simply returns
-`nil` when evaluated).  However, it is often desirable to treat the form the
-point is in as if was not inside a comment. To help with this `clojure-mode`
-supplies the variable `clojure-toplevel-inside-comment-form`. If this variable
-is set to `t` then `defun`-level commands will ignore the `comment`
-wrapper. Let's revisit the previous example:
+Evaluating a whole `comment` form always returns `nil`, which is never what you
+want when you're working in a rich comment block. That's why the defun-level
+commands treat the form the point is in as the top-level one when it's inside a
+`comment` form, and ignore the `comment` wrapper. Calling
+`cider-eval-defun-up-to-point` with point at `<point>` evaluates the code up to
+there:
 
 [source,clojure]
 ----
@@ -682,6 +672,12 @@ With `cider-eval-defun-at-point` we get:
         name)) ;;=> "str"
   *e)
 ----
+
+NOTE: This applies to all the defun-level commands (evaluation, pretty-printing,
+inspecting, formatting, debugging, etc.), and it doesn't depend on the value of
+`clojure-toplevel-inside-comment-form` (or `clojure-ts-toplevel-inside-comment-form`
+if you're using `clojure-ts-mode`). Those variables affect only the commands of
+the major modes themselves.
 
 === Sending forms to a rich comment block
 
@@ -742,7 +738,7 @@ NOTE: Some of you are probably wondering why kbd:[C-c C-v] instead of
 kbd:[C-c C-e], right? Again - legacy. Historically kbd:[C-c C-e]
 was mapped to `cider-eval-last-sexp`, otherwise we would have picked
 this binding. It's still possible to recycle it down the road, as
-most people are probably using kbd:[C-x C-e] for `cider-eval-last-result`
+most people are probably using kbd:[C-x C-e] for `cider-eval-last-sexp`
 and good keybindings are too precious to be wasted like this.
 
 Below is a listing of most keybindings for evaluation commands:

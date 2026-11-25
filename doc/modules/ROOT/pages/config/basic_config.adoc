@@ -253,7 +253,7 @@ within your Docker image.
 == Filter out namespaces in certain namespace-related commands
 
 You can hide all nREPL middleware details from `cider-browse-ns*` and `cider-apropos*`
-commands by customizing the variable `cider-filter-regexps`. The value of this
+commands by customizing the variable `cider-filtered-namespaces-regexps`. The value of this
 variable should be a list of regexps matching the pattern of namespaces you want
 to filter out.
 
@@ -262,16 +262,16 @@ the most commonly used middleware collections/packages.
 
 An important thing to note is that this list of regexps is passed on to the middleware
 without any pre-processing. So, the regexps have to be in Clojure format (with twice the number of backslashes)
-and not Emacs Lisp. For example, to achieve the above effect, you could also set `cider-filter-regexps` to `'(".*nrepl")`.
+and not Emacs Lisp. For example, to achieve the above effect, you could also set `cider-filtered-namespaces-regexps` to `'(".*nrepl")`.
 
-To customize `cider-filter-regexps`, you could use the Emacs customize UI,
-with kbd:[M-x] `customize-variable` kbd:[RET] `cider-filter-regexps`.
+To customize `cider-filtered-namespaces-regexps`, you could use the Emacs customize UI,
+with kbd:[M-x] `customize-variable` kbd:[RET] `cider-filtered-namespaces-regexps`.
 
 An alternative is to set the variable along with the other CIDER configuration.
 
 [source,lisp]
 ----
-(setq cider-filter-regexps '(".*nrepl"))
+(setq cider-filtered-namespaces-regexps '(".*nrepl"))
 ----
 
 == Truncate long lines in special buffers

@@ -20,7 +20,7 @@ Adding a prefix argument, kbd:[C-u C-c M-n r], will reload all
 the namespaces on the classpath unconditionally, regardless of their
 modification status.
 
-Adding a double prefix argument, kbd:[C-u C-u M-n r], will first
+Adding a double prefix argument, kbd:[C-u C-u C-c M-n r], will first
 clear the state of the namespace tracker before reloading. This is
 useful for recovering from some classes of error that normal reloads
 would otherwise not recover from. A good example is circular
@@ -136,7 +136,7 @@ NOTE: After a successful `cider-ns-refresh`, `cider-ns-reload` or `cider-ns-relo
 | `cider-ns-refresh`
 | kbd:[C-c M-n r] +
 kbd:[C-c M-n M-r]
-| Reload all modified Clojure files on the classpath. Adding a prefix argument, kbd:[C-u C-c M-n r], will reload all the namespaces on the classpath unconditionally, regardless of their modification status. Adding a double prefix argument, kbd:[C-u C-u M-n r], will first clear the state of the namespace tracker before reloading.
+| Reload all modified Clojure files on the classpath. Adding a prefix argument, kbd:[C-u C-c M-n r], will reload all the namespaces on the classpath unconditionally, regardless of their modification status. Adding a double prefix argument, kbd:[C-u C-u C-c M-n r], will first clear the state of the namespace tracker before reloading.
 
 | `cider-ns-reload`
 | kbd:[C-c M-n l]

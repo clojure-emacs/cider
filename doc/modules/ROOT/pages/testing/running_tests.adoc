@@ -134,8 +134,7 @@ running totals after each test var, and a var that fails lands in the test
 report as soon as it's done, so you can start looking at it while the rest of
 the tests keep going. The report shows up without taking the focus, as the run
 is still going while you work. When the run finishes, the report is replaced by
-the usual full one, which gets selected as `cider-auto-select-test-report-buffer`
-says.
+the usual full one, which gets selected as `cider-auto-select-buffer` says.
 
 This needs cider-nrepl 0.63.0 or newer. With an older one, or for ClojureScript
 tests, the report still arrives at the end. So does it when a `.cljc` buffer's
