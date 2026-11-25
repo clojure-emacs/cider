@@ -46,4 +46,22 @@
   (it "raises a user-error in a ClojureScript context"
     (spy-on 'cider-connected-p :and-return-value t)
     (spy-on 'cider-runtime-clojure-p :and-return-value nil)
-    (expect (cider-apropos-request "test") :to-throw 'user-error)))
+    (expect (cider-apropos-request "test") :to-throw 'user-error))
+
+  (describe "the request"
+    :var (request)
+    (before-each
+      (setq request nil)
+      (spy-on 'cider-connected-p :and-return-value t)
+      (spy-on 'cider-runtime-clojure-p :and-return-value t)
+      (spy-on 'cider-current-ns :and-return-value "user")
+      (spy-on 'cider-nrepl-sync-request :and-call-fake
+              (lambda (req &rest _) (setq request req) (nrepl-dict))))
+
+    (it "limits the search to SEARCH-NS with the op's ns-query"
+      (cider-apropos-request "test" :search-ns "my.ns")
+      (expect (lax-plist-get request "exactly") :to-equal '("my.ns")))
+
+    (it "searches every namespace without SEARCH-NS"
+      (cider-apropos-request "test")
+      (expect (plist-member request "exactly") :to-be nil))))

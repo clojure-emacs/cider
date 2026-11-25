@@ -174,6 +174,23 @@
     ;; the buffer is a scan side-effect backing a real file, so it is closed.
     (expect (get-buffer dep-buf-name) :to-be nil)))
 
+(describe "xref-backend-apropos"
+  :var (args)
+  (before-each
+    (setq args nil)
+    (spy-on 'cider-apropos-request :and-call-fake
+            (lambda (&rest all) (setq args all) nil)))
+
+  (it "searches every namespace, not just the current one"
+    (xref-backend-apropos 'cider "foo")
+    (expect (plist-get (cdr args) :search-ns) :to-be nil))
+
+  (it "ignores case whatever `completion-ignore-case' says"
+    (dolist (ignore-case '(nil t))
+      (let ((completion-ignore-case ignore-case))
+        (xref-backend-apropos 'cider "foo")
+        (expect (plist-get (cdr args) :case-sensitive-p) :to-be nil)))))
+
 (provide 'cider-xref-backend-tests)
 
 ;;; cider-xref-backend-tests.el ends here

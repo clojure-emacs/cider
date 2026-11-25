@@ -862,7 +862,8 @@ positional shim retained for backward compatibility."
                     `("op" "cider/apropos"
                       "ns" ,(cider-current-ns)
                       "query" ,query
-                      ,@(when search-ns `("search-ns" ,search-ns))
+                      ;; The op takes the namespaces to search as an ns-query.
+                      ,@(when search-ns `("exactly" (,search-ns)))
                       ,@(when docs-p '("docs?" "t"))
                       ,@(when privates-p '("privates?" "t"))
                       ,@(when case-sensitive-p '("case-sensitive?" "t"))
