@@ -412,18 +412,29 @@ N = 1 => 3, N = 2 => 4, etc."
       (clojure-forward-logical-sexp)
       (buffer-substring beg (point)))))
 
+(defun cider-test--ediff-values (expected actual diffs)
+  "Return the expected and actual values to compare, as a list of two strings.
+EXPECTED, ACTUAL and DIFFS are what the test report keeps for a failure.
+The values come as they are, unless ACTUAL is the whole failed assertion,
+as in \"(not (= 3 4))\", in which case both are read out of it."
+  (cond (diffs (list expected (caar diffs)))
+        ((and actual (string-match-p "\\`(not[ \n]+(=[ \n]" actual))
+         (list (cider-test--extract-from-actual actual 1)
+               (cider-test--extract-from-actual actual 2)))
+        (t (list expected actual))))
+
 (defun cider-test-ediff ()
   "Show diff of the expected vs actual value for the test at point.
 With the actual value, the outermost `(not ...)' s-expression is removed."
   (interactive)
   (let* ((expected-buffer (generate-new-buffer " *expected*"))
          (actual-buffer   (generate-new-buffer " *actual*"))
-         (diffs (get-text-property (point) 'diffs))
-         (actual* (get-text-property (point) 'actual))
-         (expected (cond (diffs (get-text-property (point) 'expected))
-                         (actual* (cider-test--extract-from-actual actual* 1))))
-         (actual (cond (diffs (caar diffs))
-                       (actual* (cider-test--extract-from-actual actual* 2)))))
+         (values (cider-test--ediff-values
+                  (get-text-property (point) 'expected)
+                  (get-text-property (point) 'actual)
+                  (get-text-property (point) 'diffs)))
+         (expected (car values))
+         (actual (cadr values)))
     (if (not (and expected actual))
         (message "No test failure at point")
       (with-current-buffer expected-buffer
