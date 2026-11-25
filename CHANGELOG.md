@@ -41,6 +41,7 @@
 
 ### Bugs fixed
 
+- [#4237](https://github.com/clojure-emacs/cider/pull/4237): Make `cider-profile-clear` confirm that it cleared the data, and `cider-profile-toggle` say when the var is missing or isn't a function.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Show traced calls that throw in the `*cider-trace*` buffer, where their call lines were left without a result.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Show the error when the `ns` form evaluated ahead of a buffer's first evaluation fails, and try it again next time, instead of leaving the evaluated form to fail on a missing alias.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Make `cider-eval-last-sexp-and-replace` evaluate the form once instead of twice, and leave it in place when its evaluation fails.

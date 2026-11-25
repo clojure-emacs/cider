@@ -30,6 +30,7 @@
 (require 'cider-eval)
 (require 'cider-inspector)
 (require 'cider-util) ; for `cider-symbol-at-point'
+(require 'seq)
 (require 'transient)
 
 
@@ -75,11 +76,19 @@ retained so existing user bindings into this prefix keep working.")
 
 (defun cider-profile--make-response-handler (handler &optional buffer)
   "Make a response handler that calls HANDLER with the response value.
-HANDLER takes one argument (the value).  BUFFER, defaulting to the
-current buffer, is used by the global nREPL handlers (e.g. error)."
-  (cider-make-eval-handler
-   :buffer (or buffer (current-buffer))
-   :on-value handler))
+HANDLER takes one argument (the value).  Some replies carry no value and
+report their outcome as a \"profile-\" status instead, in which case
+HANDLER is called with that status.  BUFFER, defaulting to the current
+buffer, is used by the global nREPL handlers (e.g. error)."
+  (let ((eval-handler (cider-make-eval-handler
+                       :buffer (or buffer (current-buffer))
+                       :on-value handler)))
+    (lambda (response)
+      (when-let* ((status (seq-find (lambda (status)
+                                      (string-prefix-p "profile-" status))
+                                    (nrepl-dict-get response "status"))))
+        (funcall handler status))
+      (funcall eval-handler response))))
 
 ;;;###autoload
 (defun cider-profile-ns-toggle (&optional query)
@@ -118,7 +127,11 @@ no symbol at point, prompt for the var."
                (lambda (value)
                  (pcase value
                    ("profiled" (message "Profiling enabled for %s/%s" ns sym))
-                   ("unprofiled" (message "Profiling disabled for %s/%s" ns sym))))))))))
+                   ("unprofiled" (message "Profiling disabled for %s/%s" ns sym))
+                   ("profile-no-such-var" (message "Var %s/%s not found" ns sym))
+                   ("profile-invalid-var"
+                    (message "Var %s/%s can't be profiled because it isn't a function"
+                             ns sym))))))))))
     (if-let* ((sym (and (not query) (cider-symbol-at-point))))
         (funcall toggle sym)
       (cider-read-symbol-name "Toggle profiling for var: " toggle))))
@@ -138,7 +151,7 @@ no symbol at point, prompt for the var."
    '("op" "cider/profile-clear")
    (cider-profile--make-response-handler
     (lambda (value)
-      (when (equal value "cleared")
+      (when (equal value "profile-cleared")
         (message "Cleared profile data"))))))
 
 (provide 'cider-profile)

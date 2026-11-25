@@ -54,6 +54,37 @@
     (cider-profile-toggle nil)
     (expect 'cider-read-symbol-name :to-have-been-called)))
 
+(describe "profile replies that carry a status instead of a value"
+  :var (handler)
+  (before-each
+    (setq handler nil)
+    (spy-on 'message)
+    (spy-on 'cider-current-ns :and-return-value "my.ns")
+    (spy-on 'cider-symbol-at-point :and-return-value "my-fn")
+    (spy-on 'cider-nrepl-send-request :and-call-fake
+            (lambda (_request callback &rest _) (setq handler callback))))
+
+  (it "confirms that the profile data was cleared"
+    (cider-profile-clear)
+    (funcall handler (nrepl-dict "status" '("profile-cleared")))
+    (expect 'message :to-have-been-called-with "Cleared profile data"))
+
+  (it "reports a var that doesn't exist"
+    (cider-profile-toggle nil)
+    (funcall handler (nrepl-dict "status" '("profile-no-such-var")))
+    (expect 'message :to-have-been-called-with "Var %s/%s not found" "my.ns" "my-fn"))
+
+  (it "reports a var that can't be profiled"
+    (cider-profile-toggle nil)
+    (funcall handler (nrepl-dict "status" '("profile-invalid-var")))
+    (expect (car (spy-calls-args-for 'message 0)) :to-match "can't be profiled"))
+
+  (it "still reports a toggled var"
+    (cider-profile-toggle nil)
+    (funcall handler (nrepl-dict "value" "profiled"))
+    (expect 'message :to-have-been-called-with
+            "Profiling enabled for %s/%s" "my.ns" "my-fn")))
+
 (provide 'cider-profile-tests)
 
 ;;; cider-profile-tests.el ends here
