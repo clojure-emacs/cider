@@ -133,6 +133,22 @@
     (expect (cider-test--extract-from-actual "(not (= {:a 1} {:a 2}))" 2)
             :to-equal "{:a 2}")))
 
+(describe "cider-test--ediff-values"
+  (it "takes the values as reported when the actual one isn't an assertion"
+    (expect (cider-test--ediff-values "\"hello world\"\n" "\"hello there\"\n" nil)
+            :to-equal '("\"hello world\"\n" "\"hello there\"\n"))
+    (expect (cider-test--ediff-values "{:a 1}\n" "[1 2]\n" nil)
+            :to-equal '("{:a 1}\n" "[1 2]\n")))
+
+  (it "reads the values out of a failed assertion"
+    (expect (cider-test--ediff-values "(= 3 4)\n" "(not (= 3 4))\n" nil)
+            :to-equal '("3" "4")))
+
+  (it "prefers the actual value that comes with the diffs"
+    (expect (cider-test--ediff-values "{:a 1}\n" "{:a 2}\n"
+                                      '(("{:a 2}\n" ("{:a 1}\n" "{:a 2}\n"))))
+            :to-equal '("{:a 1}\n" "{:a 2}\n"))))
+
 (describe "cider-test--var-passed-p"
   (it "is true only when every assertion passed"
     (expect (cider-test--var-passed-p (list (nrepl-dict "type" "pass")
