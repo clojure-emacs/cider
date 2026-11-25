@@ -8,6 +8,7 @@
 
 ### New features
 
+- [#4242](https://github.com/clojure-emacs/cider/pull/4242): Complete resource names inside the string of a `resource` call, e.g. `(io/resource "con|")`.
 - [#4219](https://github.com/clojure-emacs/cider/pull/4219): Add `cider-ns-clean` (`C-c M-n c`), which removes the requires, aliases, referred names and imports the code doesn't use from the `ns` form, using cider-nrepl's `cider/clean-ns` op, and leaves the rest of the form as it's written.
 - [#4218](https://github.com/clojure-emacs/cider/pull/4218): Add magic requires (`cider-ns-magic-requires`, off by default): typing a slash after an alias the `ns` form lacks adds the require it needs, going by the aliases the project already uses, with `cider-ns-magic-require-aliases` as the fallback.
 - [#4217](https://github.com/clojure-emacs/cider/pull/4217), [#4222](https://github.com/clojure-emacs/cider/issues/4222): Add `cider-ns-add-missing` (`C-c M-n m`), which adds the require or import the symbol at point needs, using cider-nrepl's `cider/resolve-missing` op, or the namespace the alias of an auto-resolved keyword like `::config/aero` stands for.

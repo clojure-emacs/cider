@@ -219,14 +219,34 @@ metadata.  See Info node `(elisp) Programmed Completion'."
      ((eq (car-safe action) 'boundaries) nil)
      (t (complete-with-action action (funcall candidates-fn string) string pred)))))
 
+(defun cider-completion--in-resource-call-p ()
+  "Return non-nil if point is in a string passed to a `resource' call.
+That is the one place inside a string the server completes: it offers the
+resources on the classpath there."
+  (save-excursion
+    (when-let* ((string-start (nth 8 (syntax-ppss))))
+      (goto-char string-start)
+      (ignore-errors
+        (backward-up-list)
+        (when (eq (char-after) ?\()
+          (forward-char)
+          (when-let* ((head (thing-at-point 'symbol t)))
+            (string-match-p "\\(?:\\`\\|/\\)resource\\'" head)))))))
+
 (defun cider-complete-at-point ()
-  "Complete the symbol at point."
+  "Complete the symbol at point.
+Inside a string only the argument of a `resource' call is completed, with
+the resources on the classpath."
   (when-let* ((bounds (or (bounds-of-thing-at-point 'symbol)
                           (cons (point) (point))))
               (bounds-string (buffer-substring (car bounds) (cdr bounds))))
     (when (and (cider-connected-p)
-               (not (or (cider-in-string-p) (cider-in-comment-p))))
-      (let* (last-bounds-string
+               (not (cider-in-comment-p))
+               (or (not (cider-in-string-p))
+                   (and (cider-nrepl-op-supported-p "cider/complete")
+                        (cider-completion--in-resource-call-p))))
+      (let* ((in-string (cider-in-string-p))
+             last-bounds-string
              last-result
              (complete
               (lambda (_string)
@@ -238,7 +258,15 @@ metadata.  See Info node `(elisp) Programmed Completion'."
                 ;; ensures that it will not extend across different CIDER sessions.
                 (unless (string= bounds-string last-bounds-string)
                   (setq last-bounds-string bounds-string)
-                  (setq last-result (cider-complete bounds-string)))
+                  (setq last-result
+                        (if in-string
+                            ;; The other sources don't know the prefix sits
+                            ;; in a string and would offer vars for it.
+                            (seq-filter (lambda (candidate)
+                                          (equal (get-text-property 0 'type candidate)
+                                                 "resource"))
+                                        (cider-complete bounds-string))
+                          (cider-complete bounds-string))))
                 last-result)))
         (list (car bounds) (cdr bounds)
               (cider--completion-table complete)

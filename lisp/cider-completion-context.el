@@ -54,7 +54,7 @@ Point is left unchanged."
   (save-mark-and-excursion
     (condition-case _
         (progn
-          (up-list)
+          (up-list nil t)
           (check-parens)
           t)
       (scan-error nil)
@@ -88,7 +88,12 @@ form, with symbol at point replaced by __prefix__."
   (when (cider-completion--point-in-balanced-list-p)
     (save-excursion
       (let* ((pref-end (point))
-             (pref-start (or (cider-completion-symbol-start-pos) pref-end))
+             ;; A prefix inside a string counts here, unlike for the info
+             ;; context: the server completes resource names in strings.
+             (pref-start (or (if (cider-in-string-p)
+                                 (car (bounds-of-thing-at-point 'symbol))
+                               (cider-completion-symbol-start-pos))
+                             pref-end))
              (context (cider-defun-at-point))
              (_ (beginning-of-defun-raw))
              (expr-start (point)))

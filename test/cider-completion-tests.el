@@ -27,6 +27,7 @@
 
 (require 'buttercup)
 (require 'cider-completion)
+(require 'cider-test-utils "test/utils/cider-test-utils")
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
@@ -125,6 +126,37 @@
     (spy-on 'cider-sync-request:lookup :and-return-value
             (nrepl-dict "ns" "clojure.core" "name" "*out*" "arglists-str" ""))
     (expect (cider-company-docsig "*out*") :to-be nil)))
+
+(describe "cider-complete-at-point"
+  (before-each
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
+    (spy-on 'cider-complete :and-return-value
+            (list (propertize "app.edn" 'type "resource")
+                  (propertize "apply" 'type "function"))))
+
+  (it "offers only resources inside the string of a resource call"
+    (with-clojure-buffer "(io/resource \"ap|\")"
+      (let ((capf (cider-complete-at-point)))
+        (expect (buffer-substring (nth 0 capf) (nth 1 capf)) :to-equal "ap")
+        (expect (all-completions "ap" (nth 2 capf)) :to-equal '("app.edn")))))
+
+  (it "stays out of any other string"
+    (with-clojure-buffer "(println \"ap|\")"
+      (expect (cider-complete-at-point) :to-be nil))
+    (with-clojure-buffer "(io/resource [\"ap|\"])"
+      (expect (cider-complete-at-point) :to-be nil)))
+
+  (it "stays out of strings when the server has only nREPL's completions op"
+    (spy-on 'cider-nrepl-op-supported-p :and-call-fake
+            (lambda (op &rest _) (equal op "completions")))
+    (with-clojure-buffer "(io/resource \"ap|\")"
+      (expect (cider-complete-at-point) :to-be nil)))
+
+  (it "offers everything outside strings"
+    (with-clojure-buffer "(ap|)"
+      (expect (all-completions "ap" (nth 2 (cider-complete-at-point)))
+              :to-equal '("app.edn" "apply")))))
 
 (describe "cider-affixate-symbol"
   (it "returns (candidate prefix suffix) triples carrying type/ns"

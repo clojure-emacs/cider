@@ -57,4 +57,10 @@
 
   (it "Keeps the form when there is no symbol at point"
     (with-clojure-buffer "(.foo bar |)"
-      (expect (cider-completion-get-context) :to-equal "(.foo bar __prefix__)"))))
+      (expect (cider-completion-get-context) :to-equal "(.foo bar __prefix__)")))
+
+  (it "Marks a prefix inside a string"
+    (with-clojure-buffer "(io/resource \"templates/in|\")"
+      (expect (cider-completion-get-context) :to-equal "(io/resource \"__prefix__\")"))
+    (with-clojure-buffer "(io/resource \"|\")"
+      (expect (cider-completion-get-context) :to-equal "(io/resource \"__prefix__\")"))))
