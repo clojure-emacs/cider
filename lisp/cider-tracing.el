@@ -170,13 +170,14 @@ Holds calls whose return event hasn't arrived yet.")
 
 (defun cider-trace--render-event (event)
   "Append the trace EVENT to the current buffer, following the tail.
-A call and its return are paired by their shared `id', so the lines
-nested between them become a foldable region (see `cider-trace-toggle-fold').
+A call and its return (or the error it threw) are paired by their shared
+`id', so the lines nested between them become a foldable region (see
+`cider-trace-toggle-fold').
 The operator of each call is a button that jumps to its definition."
   (unless cider-trace--open-calls
     (setq cider-trace--open-calls (make-hash-table :test 'equal)
           cider-trace--folds (make-hash-table :test 'equal)))
-  (nrepl-dbind-response event (id phase name depth args value)
+  (nrepl-dbind-response event (id phase name depth args value error)
     (let ((inhibit-read-only t)
           (indent (cider-trace--indent depth))
           (at-end (= (point) (point-max))))
@@ -204,15 +205,17 @@ The operator of each call is a button that jumps to its definition."
                (put-text-property line-start (point) 'cider-trace-fn name)
                (puthash id (cons (copy-marker line-start) (copy-marker (point)))
                         cider-trace--open-calls))))
-          ("return"
+          ((or "return" "throw")
            (let* ((entry (and id (gethash id cider-trace--open-calls)))
                   (line-start (car entry))
                   (children-start (cdr entry))
                   (children-end (point-marker)))
              (when id (remhash id cider-trace--open-calls))
-             (insert indent "└─→ "
-                     (cider-font-lock-as-clojure (or value "nil"))
-                     "\n")
+             (if (equal phase "throw")
+                 (insert indent "└─✗ " (propertize (or error "error") 'face 'error) "\n")
+               (insert indent "└─→ "
+                       (cider-font-lock-as-clojure (or value "nil"))
+                       "\n"))
              ;; if the call had nested children, make that block foldable and
              ;; mark its call line as interactive (hover + click to fold)
              (when (and children-start (< children-start children-end))

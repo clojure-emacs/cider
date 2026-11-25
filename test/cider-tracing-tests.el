@@ -89,7 +89,25 @@
       (cider-trace--render-event
        (nrepl-dict "phase" "return" "name" "user/foo" "depth" 0 "value" "42"))
       (expect (string-search "└─→" (buffer-string)) :not :to-be nil)
-      (expect (string-search "42" (buffer-string)) :not :to-be nil))))
+      (expect (string-search "42" (buffer-string)) :not :to-be nil)))
+
+  (it "renders a throw event with its error"
+    (with-temp-buffer
+      (cider-trace--render-event
+       (nrepl-dict "phase" "throw" "name" "user/foo" "depth" 0
+                   "error" "ArithmeticException: Divide by zero"))
+      (expect (string-search "└─✗ ArithmeticException: Divide by zero" (buffer-string))
+              :not :to-be nil)))
+
+  (it "closes the fold of a call that threw"
+    (with-temp-buffer
+      (cider-trace-mode)
+      (cider-trace--render-event (nrepl-dict "id" 1 "phase" "call" "name" "outer" "depth" 0 "args" nil))
+      (cider-trace--render-event (nrepl-dict "id" 2 "phase" "call" "name" "inner" "depth" 1 "args" nil))
+      (cider-trace--render-event (nrepl-dict "id" 2 "phase" "throw" "name" "inner" "depth" 1 "error" "boom"))
+      (cider-trace--render-event (nrepl-dict "id" 1 "phase" "throw" "name" "outer" "depth" 0 "error" "boom"))
+      (expect (gethash 1 cider-trace--folds) :not :to-be nil)
+      (expect (hash-table-count cider-trace--open-calls) :to-equal 0))))
 
 (describe "cider-trace--handle"
   (it "stores the subscription id from the initial reply"
