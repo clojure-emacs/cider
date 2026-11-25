@@ -939,6 +939,7 @@ CONTEXT represents a completion context for compliment."
                                     "prefix" ,prefix
                                     "context" ,context
                                     "sort-order" "by-name"
+                                    "extra-metadata" ("arglists")
                                     ,@(when cider-enhanced-cljs-completion-p '("enhanced-cljs-completion?" "t")))
                                   (cider-nrepl-sync-request :connection (cider-current-repl)
                                                            :abort-on-input 'abort-on-input))))

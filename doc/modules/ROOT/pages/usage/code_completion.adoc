@@ -203,6 +203,11 @@ without needing to hit an extra key, please customize:
 
 === Documentation display configuration
 
+The signature a frontend shows for the selected candidate (the echo area line
+of `company-mode`, `corfu-echo-mode`) arrives together with the candidates, so
+moving through the list doesn't take a request per candidate. Without
+`cider-nrepl` the signature comes from nREPL's `lookup` op.
+
 Regardless of the frontend you use, the following CIDER configuration options
 affect the documentation shown while completing:
 

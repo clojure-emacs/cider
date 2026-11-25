@@ -117,12 +117,12 @@ if the candidate is not namespace-qualified."
 
 (defun cider-completion--parse-candidate-map (candidate-map)
   "Get \"candidate\" from CANDIDATE-MAP.
-Put type and ns properties on the candidate."
-  (let ((candidate (nrepl-dict-get candidate-map "candidate"))
-        (type (nrepl-dict-get candidate-map "type"))
-        (ns (nrepl-dict-get candidate-map "ns")))
-    (put-text-property 0 1 'type type candidate)
-    (put-text-property 0 1 'ns ns candidate)
+Put the rest of what the server said about the candidate on it as text
+properties: `type' and `ns', plus `arglists' when present."
+  (let ((candidate (nrepl-dict-get candidate-map "candidate")))
+    (dolist (key '("type" "ns" "arglists"))
+      (when-let* ((value (nrepl-dict-get candidate-map key)))
+        (put-text-property 0 1 (intern key) value candidate)))
     candidate))
 
 (defun cider-complete (prefix)
@@ -301,16 +301,37 @@ in the buffer."
         (forward-line (1- line))
         (cons buffer (point))))))
 
+(defun cider-completion--format-docsig (ns name arglists)
+  "Format the signature of NAME from NS with ARGLISTS, a string."
+  (format "%s: %s" (cider-eldoc-format-thing ns name name 'fn) arglists))
+
 (defun cider-company-docsig (thing)
-  "Return signature for THING."
-  (when-let* ((eldoc-info (cider-eldoc-info thing)))
-    (let* ((ns (cider-plist-get eldoc-info "ns"))
-           (symbol (cider-plist-get eldoc-info "symbol"))
-           (arglists (cider-plist-get eldoc-info "arglists")))
-      (format "%s: %s"
-              (cider-eldoc-format-thing ns symbol thing
-                                        (cider-eldoc-thing-type eldoc-info))
-              (cider-eldoc-format-arglist arglists 0)))))
+  "Return signature for THING.
+The arglists that came with the completion candidates are used when THING
+has them.  Otherwise the signature takes a request: cider-nrepl's eldoc,
+or nREPL's own lookup when that is all the server has."
+  (cond
+   ((get-text-property 0 'arglists thing)
+    (cider-completion--format-docsig
+     (get-text-property 0 'ns thing)
+     (if (string-match "\\`.+?/\\(.+\\)\\'" thing) (match-string 1 thing) thing)
+     (format "(%s)" (string-join (get-text-property 0 'arglists thing) " "))))
+   ((cider-nrepl-op-supported-p "cider/eldoc")
+    (when-let* ((eldoc-info (cider-eldoc-info thing)))
+      (let* ((ns (cider-plist-get eldoc-info "ns"))
+             (symbol (cider-plist-get eldoc-info "symbol"))
+             (arglists (cider-plist-get eldoc-info "arglists")))
+        (format "%s: %s"
+                (cider-eldoc-format-thing ns symbol thing
+                                          (cider-eldoc-thing-type eldoc-info))
+                (cider-eldoc-format-arglist arglists 0)))))
+   ((cider-nrepl-op-supported-p "lookup")
+    (when-let* ((info (cider-sync-request:lookup thing))
+                (arglists (nrepl-dict-get info "arglists-str")))
+      (unless (string-empty-p arglists)
+        (cider-completion--format-docsig (nrepl-dict-get info "ns")
+                                           (nrepl-dict-get info "name")
+                                         arglists))))))
 
 ;; Fuzzy completion for company-mode
 
