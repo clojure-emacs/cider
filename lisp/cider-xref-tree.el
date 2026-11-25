@@ -87,7 +87,8 @@ hint when it can't be.  OP's availability is enforced by the sender when sent."
          ;; expanded the current buffer is the popup, not the source.
          (ns (cider-current-ns))
          (root (cider-xref-tree--node var op ns nil)))
-    (with-current-buffer (cider-popup-buffer buffer-name 'select
+    (with-current-buffer (cider-popup-buffer buffer-name
+                                             (cider-auto-select-buffer-p 'xref 'default)
                                              'cider-tree-view-mode 'ancillary)
       (cider-tree-view-render (list root) (format title-fmt var)))))
 
@@ -245,7 +246,8 @@ no sites are found (no project source, or methods added dynamically)."
                  :on-visit (lambda () (cider-find-var nil var))
                  :expanded t
                  :children-fn (lambda () nodes))))
-      (with-current-buffer (cider-popup-buffer "*cider-who-implements*" 'select
+      (with-current-buffer (cider-popup-buffer "*cider-who-implements*"
+                                               (cider-auto-select-buffer-p 'xref 'default)
                                                'cider-tree-view-mode 'ancillary)
         (cider-tree-view-render (list root) (plist-get plan :title))))))
 
@@ -328,7 +330,8 @@ Signal EMPTY-MSG when NODES is empty."
                :label root-label
                :expanded t
                :children-fn (lambda () nodes))))
-    (with-current-buffer (cider-popup-buffer "*cider-protocols*" 'select
+    (with-current-buffer (cider-popup-buffer "*cider-protocols*"
+                                             (cider-auto-select-buffer-p 'xref 'default)
                                              'cider-tree-view-mode 'ancillary)
       (cider-tree-view-render (list root) title))))
 

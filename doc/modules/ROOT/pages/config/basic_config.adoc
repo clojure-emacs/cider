@@ -100,6 +100,64 @@ With the alternative behavior defined above, the definition of `map` will be
 shown in the existing `core.clj` window; all windows will show the same buffer as
 before the jump, and the current window will now be the one showing `core.clj`.
 
+[#control-whether-popup-buffers-get-selected]
+== Control whether popup buffers get selected
+
+Many commands show their results in a popup buffer (documentation, errors, test
+reports, search results, macroexpansions and so on). By default CIDER selects
+the popup's window, so you can start interacting with it right away. If you'd
+rather stay in the buffer you're in:
+
+[source,lisp]
+----
+(setq cider-auto-select-buffer nil)
+----
+
+You can also be selective about it, by listing either the buffers to select or
+the ones to leave alone:
+
+[source,lisp]
+----
+;; select only the error buffer and the test report
+(setq cider-auto-select-buffer '(error test-report))
+;; select everything but the doc buffer and the inspector
+(setq cider-auto-select-buffer '(not doc inspector))
+----
+
+The buffers go by the following names:
+
+|===
+| Name | Buffers
+
+| `error` | The error (stacktrace) buffer
+| `test-report` | The test report
+| `doc` | The documentation buffer
+| `clojuredocs` | The ClojureDocs buffer
+| `inspector` | The inspector
+| `cheatsheet` | The cheatsheet
+| `apropos` | The apropos results
+| `xref` | The function references and dependencies, and the trees of the "who" commands (e.g. `cider-who-calls`)
+| `browse-ns` | The namespace browser
+| `browse-spec` | The spec browser
+| `classpath` | The classpath listing
+| `macroexpansion` | The macroexpansion buffer
+| `trace` | The trace buffer and the list of traced vars
+| `tap` | The tap viewer
+| `output` | The buffer evaluation output goes to when `cider-eval-output-destination` is `output-buffer`
+| `log-frameworks` | The list of log frameworks
+| `nrepl-info` | The nREPL session and middleware listings
+| `repl-help` | The REPL's quick reference and startup report
+|===
+
+NOTE: If you list the buffers to select, the ones a future CIDER release adds
+to this table won't be selected. Use the `not` form if you only want to exclude
+a few of them.
+
+A few buffers are not affected by `cider-auto-select-buffer`. The ones you have
+to be in to use them (the scratch buffer, the REPL history, the log buffer, the
+macrostep buffer) and the `cider-doctor` report are always selected, while the
+pretty-printed result buffer and the refresh log never are.
+
 == Minibuffer completion
 
 Out-of-the box, CIDER uses the standard `completing-read` Emacs mechanism. While

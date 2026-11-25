@@ -24,6 +24,7 @@
 ;;; Code:
 
 (require 'cider-client)
+(require 'cider-common) ; for `cider-auto-select-buffer-p'
 (require 'cider-popup)
 (require 'subr-x)
 
@@ -90,7 +91,9 @@
   "List all classpath entries."
   (interactive)
   (cider-ensure-session)
-  (with-current-buffer (cider-popup-buffer cider-classpath-buffer 'select nil 'ancillary)
+  (with-current-buffer (cider-popup-buffer cider-classpath-buffer
+                                           (cider-auto-select-buffer-p 'classpath 'default)
+                                           nil 'ancillary)
     (cider-classpath-list (current-buffer)
                           (mapcar (lambda (name)
                                     (cider-classpath-properties name))

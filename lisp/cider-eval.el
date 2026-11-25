@@ -315,9 +315,10 @@ REPL buffer.  This is controlled by `cider-eval-output-destination'.
 REPL-EMIT-FUNCTION emits the OUTPUT."
   (pcase cider-eval-output-destination
     (`output-buffer (let ((output-buffer (or (get-buffer cider-output-buffer)
-                                             (cider-popup-buffer cider-output-buffer t))))
+                                             (cider-popup-buffer cider-output-buffer
+                                                                 (cider-auto-select-buffer-p 'output 'default)))))
                       (cider-emit-into-popup-buffer output-buffer output)
-                      (pop-to-buffer output-buffer)))
+                      (cider-auto-select-pop-to-buffer output-buffer 'output)))
     (`repl-buffer (funcall repl-emit-function output))
     (_ (error "Unsupported value %s for `cider-eval-output-destination'"
               cider-eval-output-destination))))

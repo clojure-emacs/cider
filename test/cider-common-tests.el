@@ -28,6 +28,8 @@
 ;;; Code:
 
 (require 'buttercup)
+(require 'cus-edit)
+(require 'wid-edit)
 (require 'cider-common)
 (require 'cider-session)
 
@@ -238,11 +240,43 @@
       (expect (cider-auto-select-buffer-p 'inspector 'default) :to-be-truthy)
       (expect (cider-auto-select-buffer-p 'test-report 'default) :to-be nil)))
 
+  (it "supports selecting all but the features listed after `not'"
+    (let ((cider-auto-select-buffer '(not error inspector)))
+      (expect (cider-auto-select-buffer-p 'error 'default) :to-be nil)
+      (expect (cider-auto-select-buffer-p 'inspector 'default) :to-be nil)
+      (expect (cider-auto-select-buffer-p 'test-report 'default) :to-be-truthy)
+      (expect (cider-auto-select-buffer-p 'apropos 'default) :to-be-truthy)))
+
   (it "gives precedence to a customized legacy option"
     (let ((cider-auto-select-buffer t))
       (expect (cider-auto-select-buffer-p 'error nil) :to-be nil))
     (let ((cider-auto-select-buffer nil))
       (expect (cider-auto-select-buffer-p 'error t) :to-be-truthy))))
+
+(describe "cider-auto-select-buffer"
+  (it "takes t, nil, a list of features and a list of features to leave out"
+    (let ((widget (widget-convert (custom-variable-type 'cider-auto-select-buffer))))
+      (dolist (value (list t nil '(error apropos) '(not error) cider-auto-select-buffer-features))
+        (expect (widget-apply widget :match value) :to-be-truthy))
+      (dolist (value '(maybe (no-such-buffer) (not no-such-buffer)))
+        (expect (widget-apply widget :match value) :to-be nil)))))
+
+(describe "cider-auto-select-pop-to-buffer"
+  (before-each
+    (spy-on 'pop-to-buffer)
+    (spy-on 'display-buffer))
+
+  (it "selects the buffer of a feature that is to be selected"
+    (let ((cider-auto-select-buffer '(tap)))
+      (expect (cider-auto-select-pop-to-buffer 'a-buffer 'tap) :to-be 'a-buffer)
+      (expect 'pop-to-buffer :to-have-been-called-with 'a-buffer)
+      (expect 'display-buffer :not :to-have-been-called)))
+
+  (it "only displays the buffer of any other feature"
+    (let ((cider-auto-select-buffer '(tap)))
+      (expect (cider-auto-select-pop-to-buffer 'a-buffer 'trace) :to-be 'a-buffer)
+      (expect 'display-buffer :to-have-been-called-with 'a-buffer)
+      (expect 'pop-to-buffer :not :to-have-been-called))))
 
 (describe "cider--read-symbol"
   (before-each

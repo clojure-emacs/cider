@@ -64,31 +64,53 @@ Should be set before loading CIDER."
   :group 'cider
   :package-version '(cider . "0.15.0"))
 
+(defconst cider-auto-select-buffer-features
+  '(error test-report doc inspector cheatsheet log-frameworks
+          apropos xref browse-ns browse-spec classpath macroexpansion
+          clojuredocs trace tap output nrepl-info repl-help)
+  "The popup buffers that `cider-auto-select-buffer' can tell apart.")
+
 (defcustom cider-auto-select-buffer t
   "Whether CIDER should select the auxiliary buffers it displays.
-This is consulted whenever CIDER pops up a buffer in another window (the
-error buffer, the test report, the doc buffer, the inspector, and so on):
-if t, the new window is selected; if nil, the buffer is displayed without
-stealing focus.
+This is consulted whenever CIDER pops up a buffer to show you something
+\(the error buffer, the test report, the doc buffer, the inspector, and so
+on): if t, the new window is selected; if nil, the buffer is displayed
+without stealing focus.
 
-It can also be a list of feature symbols, selecting only those buffers.
-The recognized symbols are `error', `test-report', `doc', `inspector',
-`cheatsheet' and `log-frameworks'.
+It can also be a list of feature symbols, selecting only those buffers, or
+a list of feature symbols that starts with `not', selecting all the buffers
+but those.  The recognized symbols are:
+
+- `error', `test-report', `doc', `inspector', `cheatsheet' and
+  `log-frameworks';
+- `apropos', `classpath', `clojuredocs' and `macroexpansion';
+- `xref' (the function references and dependencies, and the trees of the
+  \"who\" commands);
+- `browse-ns' and `browse-spec' (the namespace and the spec browsers);
+- `trace' (the trace buffer and the list of traced vars) and `tap';
+- `output' (the buffer evaluation output goes to when
+  `cider-eval-output-destination' is `output-buffer');
+- `nrepl-info' (the nREPL session and middleware listings);
+- `repl-help' (the REPL's quick reference and startup report).
+
+A few buffers aren't affected by this option.  The ones you have to be in
+to use them (the scratch buffer, the REPL history, the log buffer, the
+macrostep buffer, the buffer the debugger creates when it can't find the
+code it's stepping through) and the `cider-doctor' report are always
+selected.  The pretty-printed result buffer and the refresh log never are.
 
 This option subsumes the older per-feature options (e.g.
 `cider-auto-select-error-buffer'), which are obsolete, but still take
 precedence when customized."
-  :type '(choice (const :tag "Select all popup buffers" t)
-                 (const :tag "Never select popup buffers" nil)
-                 (repeat :tag "Select only these buffers"
-                         (choice (const error)
-                                 (const test-report)
-                                 (const doc)
-                                 (const inspector)
-                                 (const cheatsheet)
-                                 (const log-frameworks))))
+  :type (let ((features `(choice ,@(mapcar (lambda (feature) `(const ,feature))
+                                          cider-auto-select-buffer-features))))
+          `(choice (const :tag "Select all popup buffers" t)
+                   (const :tag "Never select popup buffers" nil)
+                   (repeat :tag "Select only these buffers" ,features)
+                   (cons :tag "Select all but these buffers"
+                         (const not) (repeat ,features))))
   :group 'cider
-  :package-version '(cider . "2.0.0"))
+  :package-version '(cider . "2.1.0"))
 
 (defun cider-auto-select-buffer-p (feature legacy-value)
   "Whether the FEATURE popup buffer should be selected when displayed.
@@ -96,8 +118,18 @@ Consults `cider-auto-select-buffer', unless LEGACY-VALUE (the value of
 FEATURE's obsolete auto-select option) is something other than the symbol
 `default', in which case LEGACY-VALUE takes precedence."
   (cond ((not (eq legacy-value 'default)) legacy-value)
+        ((eq (car-safe cider-auto-select-buffer) 'not)
+         (not (memq feature (cdr cider-auto-select-buffer))))
         ((listp cider-auto-select-buffer) (memq feature cider-auto-select-buffer))
         (t cider-auto-select-buffer)))
+
+(defun cider-auto-select-pop-to-buffer (buffer feature)
+  "Display BUFFER, the popup buffer of FEATURE, and return it.
+Select its window if `cider-auto-select-buffer' says so."
+  (if (cider-auto-select-buffer-p feature 'default)
+      (pop-to-buffer buffer)
+    (display-buffer buffer))
+  buffer)
 
 (defun cider--should-prompt-for-symbol (&optional invert)
   "Return the value of the variable `cider-prompt-for-symbol'.

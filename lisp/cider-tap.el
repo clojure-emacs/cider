@@ -27,6 +27,7 @@
 ;;; Code:
 
 (require 'cider-client)
+(require 'cider-common) ; for `cider-auto-select-buffer-p'
 (require 'cider-session) ; for `cider-current-repl' and `cider--pinned-repl-buffer'
 (require 'cider-inspector) ; for rendering an inspected tap value
 (require 'cider-util) ; for `cider-font-lock-as-clojure'
@@ -188,7 +189,7 @@ inspect it.  Killing the buffer stops the streaming."
          '("op" "cider/tap-subscribe")
          (lambda (msg) (cider-tap--handle buffer msg))
          connection)))
-    (pop-to-buffer buffer)))
+    (cider-auto-select-pop-to-buffer buffer 'tap)))
 
 (provide 'cider-tap)
 ;;; cider-tap.el ends here

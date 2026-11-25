@@ -532,7 +532,7 @@ code, switching namespaces and moving between the REPL and source."
       (erase-buffer)
       (insert (cider-repl--help-contents))
       (goto-char (point-min))))
-  (pop-to-buffer cider-repl-help-buffer))
+  (cider-auto-select-pop-to-buffer cider-repl-help-buffer 'repl-help))
 
 (defconst cider-repl-startup-buffer "*cider-repl-startup*"
   "Name of the buffer describing how a REPL was started.")
@@ -596,7 +596,7 @@ ring (to paste into a shell or the REPL) and to customize the related options."
                      "Copy the init form to the kill ring (paste it at the REPL)")
                     "\n    " cljs-form "\n")))
         (goto-char (point-min))))
-    (pop-to-buffer cider-repl-startup-buffer)))
+    (cider-auto-select-pop-to-buffer cider-repl-startup-buffer 'repl-help)))
 
 
 ;;; REPL interaction

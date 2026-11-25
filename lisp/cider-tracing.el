@@ -99,7 +99,9 @@ Defaults to the current ns.  With prefix arg QUERY, prompts for a ns."
 
 (defun cider-list-traced--render (nses vars)
   "Render the traced NSES and VARS in `cider-traced-buffer'."
-  (with-current-buffer (cider-popup-buffer cider-traced-buffer 'select (cider--preferred-clojure-mode))
+  (with-current-buffer (cider-popup-buffer cider-traced-buffer
+                                           (cider-auto-select-buffer-p 'trace 'default)
+                                           (cider--preferred-clojure-mode))
     (let ((inhibit-read-only t))
       (erase-buffer)
       (when nses
@@ -366,7 +368,7 @@ cluttering the REPL.  Killing the buffer stops the streaming."
          '("op" "cider/trace-subscribe")
          (lambda (msg) (cider-trace--handle buffer msg))
          connection)))
-    (pop-to-buffer buffer)))
+    (cider-auto-select-pop-to-buffer buffer 'trace)))
 
 
 ;;; Transient menu

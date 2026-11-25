@@ -32,6 +32,7 @@
 ;;; Code:
 
 (require 'cider-client)
+(require 'cider-common) ; for `cider-auto-select-buffer-p'
 (require 'cider-mode)
 (require 'pulse)
 (require 'subr-x)
@@ -198,17 +199,17 @@ is on a bare symbol."
 
 (defun cider-initialize-macroexpansion-buffer (expansion ns)
   "Create a new Macroexpansion buffer with EXPANSION and namespace NS."
-  (pop-to-buffer (cider-create-macroexpansion-buffer))
-  (setq cider-buffer-ns ns)
-  (setq buffer-undo-list nil)
-  (let ((inhibit-read-only t)
-        (buffer-undo-list t))
-    (erase-buffer)
-    (insert (format "%s" expansion))
-    (goto-char (point-max))
-    (font-lock-ensure))
-  (when cider-macroexpansion-highlight-expansion
-    (pulse-momentary-highlight-region (point-min) (point-max))))
+  (with-current-buffer (cider-create-macroexpansion-buffer)
+    (setq cider-buffer-ns ns)
+    (setq buffer-undo-list nil)
+    (let ((inhibit-read-only t)
+          (buffer-undo-list t))
+      (erase-buffer)
+      (insert (format "%s" expansion))
+      (goto-char (point-max))
+      (font-lock-ensure))
+    (when cider-macroexpansion-highlight-expansion
+      (pulse-momentary-highlight-region (point-min) (point-max)))))
 
 (defun cider-redraw-macroexpansion-buffer (expansion buffer start end)
   "Redraw the macroexpansion with new EXPANSION.
@@ -229,7 +230,9 @@ and point is placed after the expanded form."
 
 (defun cider-create-macroexpansion-buffer ()
   "Create a new macroexpansion buffer."
-  (with-current-buffer (cider-popup-buffer cider-macroexpansion-buffer 'select (cider--preferred-clojure-mode) 'ancillary)
+  (with-current-buffer (cider-popup-buffer cider-macroexpansion-buffer
+                                           (cider-auto-select-buffer-p 'macroexpansion 'default)
+                                           (cider--preferred-clojure-mode) 'ancillary)
     (cider-mode -1)
     (cider-macroexpansion-mode 1)
     (current-buffer)))
