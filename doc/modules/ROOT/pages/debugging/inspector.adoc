@@ -37,6 +37,9 @@ arguments:
 
 | kbd:[C-c C-i :]
 | An expression read from the minibuffer (`cider-inspect-expr`).
+
+| kbd:[C-c C-i =]
+| How the values of two expressions differ (`cider-inspect-diff`).
 |===
 
 The sub-keys are the same ones the evaluation menu uses, so `e`, `v` and
@@ -54,6 +57,26 @@ the last result. This behavior can be controlled with the variable
 `cider-auto-inspect-after-eval`, which selects which evaluations trigger
 the refresh: `t` or `interactive` (interactive evaluations only, the
 default), `repl` (REPL evaluations only), `all` (both), or `nil` (never).
+
+=== Comparing two values
+
+`cider-inspect-diff` reads two expressions, compares their values all the
+way down and opens the result in the inspector: one structure, with the
+places where the two differ marked.
+
+[source]
+----
+--- Diff contents:
+  :a = 1
+  :b = #≠[1 #±[2 ~~ 5] 3]
+  :c = #±[3 ~~ ]
+  :d = #±[ ~~ 4]
+----
+
+`#±[2 ~~ 5]` stands for a value that is `2` on the one side and `5` on the
+other, and `#≠` marks a collection that differs somewhere inside. Press
+kbd:[D] to hide the parts that are the same, which is what you want for two
+large values that differ in a couple of places.
 
 TIP: The inspector can also be invoked in the middle of a debugging
 session, see xref:debugging/debugger.adoc[here] for more details.

@@ -317,6 +317,16 @@
       (cider-inspect-last-sexp)
       (expect 'cider-inspect-expr :to-have-been-called-with "(+ 1 2)" "user"))))
 
+(describe "cider-inspect-diff"
+  (it "inspects orchard's diff of the two expressions"
+    (spy-on 'cider-inspect-expr)
+    (cider-inspect-diff "{:a 1}" "(merge m {:a 2})" "my.ns")
+    (expect 'cider-inspect-expr :to-have-been-called-with
+            "(orchard.inspect/diff {:a 1} (merge m {:a 2}))" "my.ns"))
+
+  (it "is on the inspect menu"
+    (expect (transient-get-suffix 'cider-inspect-menu "=") :to-be-truthy)))
+
 (describe "cider-inspector-render*"
   (it "Produces a well-known string without errors"
     (expect
