@@ -816,6 +816,20 @@
     (expect (car (spy-calls-args-for 'cider-nrepl-send-request 0))
             :to-equal '("op" "cider/out-subscribe"))))
 
+(describe "cider--check-required-nrepl-version"
+  (before-each
+    (spy-on 'cider-emit-manual-warning))
+
+  (it "warns about an nREPL older than the 1.0 the manual asks for"
+    (spy-on 'cider--nrepl-version :and-return-value "0.9.0")
+    (cider--check-required-nrepl-version)
+    (expect 'cider-emit-manual-warning :to-have-been-called))
+
+  (it "accepts nREPL 1.0"
+    (spy-on 'cider--nrepl-version :and-return-value "1.0.0")
+    (cider--check-required-nrepl-version)
+    (expect 'cider-emit-manual-warning :not :to-have-been-called)))
+
 (describe "cider--connected-handler"
   :var (init)
   (before-each

@@ -68,7 +68,7 @@ Possible choices are `prompt', `auto', `any', and nil.
   :safe #'symbolp
   :package-version '(cider . "1.8"))
 
-(defconst cider-required-nrepl-version "0.6.0"
+(defconst cider-required-nrepl-version "1.0.0"
   "The minimum nREPL version that's known to work properly with CIDER.")
 
 
