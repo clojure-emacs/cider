@@ -26,6 +26,7 @@
 
 ### Changes
 
+- [#4239](https://github.com/clojure-emacs/cider/pull/4239): Stop marking the executables jack-in runs (`cider-clojure-cli-command`, `cider-shadow-cljs-command`, `cider-gradle-command`, `cider-babashka-command`, `cider-nbb-command`, `cider-basilisp-command`) as safe local variables, so Emacs asks before a project's `.dir-locals.el` sets one; the parameters and the aliases can still be set without a prompt.
 - [#4239](https://github.com/clojure-emacs/cider/pull/4239): Let a project set `cider-path-translations` in `.dir-locals.el` without Emacs asking about it, as long as it is an alist of strings.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Bump the Clojure that `cider-jack-in-auto-inject-clojure` injects as `latest` to 1.12.7.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Warn about nREPL older than 1.0 on connect and in `cider-doctor`, as the manual says CIDER needs it, where the check still let 0.6 through.

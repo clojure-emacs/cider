@@ -93,6 +93,10 @@ This should result in updating or creating a `.dir-locals.el` file like below
 ((clojure-mode . ((cider-basilisp-command . "c:/dev/venvs/312/Scripts/basilisp"))))
 ----
 
+NOTE: Emacs will ask you to confirm the value the first time it sees it, as it
+does for any local variable that ends up in a shell command. Answer with
+kbd:[!] to have it remembered.
+
 ==== 3. https://www.gnu.org/software/emacs/manual/html_node/emacs/Specifying-File-Variables.html[Specifying File Variables]
 
 It is best to put this in the top of your project's `basilisp.edn` file, and always jack-in from there.
