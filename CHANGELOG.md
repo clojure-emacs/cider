@@ -41,6 +41,7 @@
 
 ### Bugs fixed
 
+- [#4237](https://github.com/clojure-emacs/cider/pull/4237): Show traced calls that throw in the `*cider-trace*` buffer, where their call lines were left without a result.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Show the error when the `ns` form evaluated ahead of a buffer's first evaluation fails, and try it again next time, instead of leaving the evaluated form to fail on a missing alias.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Make `cider-eval-last-sexp-and-replace` evaluate the form once instead of twice, and leave it in place when its evaluation fails.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Limit `cider-apropos` to the namespace it was given, which the search had stopped honoring, and make `xref-find-apropos` search every namespace and ignore case.
