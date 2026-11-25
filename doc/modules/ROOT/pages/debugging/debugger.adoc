@@ -206,6 +206,30 @@ plus metadata annotation in your code. Note that you'll have to delete
 this annotation by hand; you cannot simply use kbd:[C-M-x] as you
 can to un-instrument kbd:[C-u C-M-x].
 
+== Configuration
+
+While the debugger is active the keys you can press are listed in an overlay
+above the function you're debugging. `cider-debug-prompt` controls where that
+list goes: `overlay` (the default), `minibuffer` (next to the return value), `t`
+for both, or `nil` to hide it altogether.
+
+[source,lisp]
+----
+(setq cider-debug-prompt 'minibuffer)
+----
+
+The value of the current form is displayed in an overlay at the end of its
+line. Set `cider-debug-use-overlays` to `nil` to display it in the echo area
+instead, or to `both` to get it in both places.
+
+The local variables are not displayed by default. You can toggle them at any
+time with kbd:[L], or have them displayed from the start:
+
+[source,lisp]
+----
+(setq cider-debug-display-locals t)
+----
+
 == Caveats
 
 Due to the way the debugger is currently implemented there are some

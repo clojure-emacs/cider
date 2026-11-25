@@ -177,6 +177,11 @@ The communication log is tremendously valuable for
 debugging CIDER-to-nREPL problems and we recommend you enable it when
 you are facing such issues.
 
+The log is trimmed once it grows past `nrepl-message-buffer-max-size`
+characters (1,000,000 by default). The requests and the responses of an
+exchange share a color, so you can tell the exchanges apart; the colors are
+taken from the faces listed in `nrepl-message-faces`.
+
 == Hide Special nREPL Buffers
 
 If you're finding that `+*nrepl-connection*+` and `+*nrepl-server*+`

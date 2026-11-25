@@ -37,6 +37,19 @@ please customize:
 (setq cider-clojure-compilation-error-phases nil)
 ----
 
+When you load a buffer or evaluate a form that fails to compile, CIDER
+highlights the problematic code and moves the point to it. You can limit that
+to errors (leaving the point alone for warnings) or disable it completely with
+`cider-auto-jump-to-error`:
+
+[source,lisp]
+----
+;; jump only to errors
+(setq cider-auto-jump-to-error 'errors-only)
+;; never jump
+(setq cider-auto-jump-to-error nil)
+----
+
 
 At times, the error being displayed will originate from a bug in CIDER
 itself. These internal errors might frequently occur and interrupt

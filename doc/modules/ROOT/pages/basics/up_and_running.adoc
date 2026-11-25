@@ -253,6 +253,10 @@ You can use kbd:[C-u M-x] `cider-jack-in` kbd:[RET] to specify the exact command
 that `cider-jack-in` would run. This option is very useful if you want to e.g.
 specify extra Leiningen profiles or `deps.edn` aliases.
 
+If you find yourself doing this all the time, you can set
+`cider-edit-jack-in-command` to `t` and CIDER will always let you edit the
+command before running it.
+
 Alternatively you can kbd:[C-u C-u M-x] `cider-jack-in` kbd:[RET], which is a
 variation of the previous command. This command will first prompt you for the
 project you want to launch `cider-jack-in` in, which is pretty handy if you're
