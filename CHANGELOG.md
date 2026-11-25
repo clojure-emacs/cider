@@ -26,6 +26,7 @@
 
 ### Changes
 
+- [#4239](https://github.com/clojure-emacs/cider/pull/4239): Let a project set `cider-path-translations` in `.dir-locals.el` without Emacs asking about it, as long as it is an alist of strings.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Bump the Clojure that `cider-jack-in-auto-inject-clojure` injects as `latest` to 1.12.7.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Warn about nREPL older than 1.0 on connect and in `cider-doctor`, as the manual says CIDER needs it, where the check still let 0.6 through.
 - [#4206](https://github.com/clojure-emacs/cider/pull/4206), [#4217](https://github.com/clojure-emacs/cider/pull/4217), [#4218](https://github.com/clojure-emacs/cider/pull/4218), [#4219](https://github.com/clojure-emacs/cider/pull/4219): Bump the injected `cider-nrepl` to [0.64.1](https://github.com/clojure-emacs/cider-nrepl/blob/v0.64.1/CHANGELOG.md#0641-2026-11-07), which adds the ops behind the new ns editing commands (`cider/resolve-missing`, `cider/resolve-alias` and `cider/clean-ns`), streams test progress while the tests run, and fixes inspecting and testing ClojureScript on shadow-cljs and refreshing namespaces that the REPL refers to.

@@ -379,13 +379,23 @@ otherwise, nil."
         localname)
     name))
 
+(defun cider--path-translations-p (value)
+  "Return non-nil if VALUE is an alist of strings to strings."
+  (and (listp value)
+       (seq-every-p (lambda (entry)
+                      (and (stringp (car-safe entry))
+                           (stringp (cdr-safe entry))))
+                    value)))
+
 (defcustom cider-path-translations nil
   "Alist of path prefixes to path prefixes.
 Useful to intercept the location of a path in a container (or virtual
 machine) and translate to the original location.  If your project is located
 at \"~/projects/foo\" and the src directory of foo is mounted at \"/src\"
-in the container, the alist would be `((\"/src\" \"~/projects/foo/src\"))."
+in the container, the alist would be
+\((\"/src\" . \"~/projects/foo/src\"))."
   :type '(alist :key-type string :value-type string)
+  :safe #'cider--path-translations-p
   :group 'cider
   :package-version '(cider . "0.23.0"))
 
