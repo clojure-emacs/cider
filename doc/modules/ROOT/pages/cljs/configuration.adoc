@@ -79,7 +79,7 @@ For one-off REPLs you can also use the custom REPL init form like this:
 
 If you already have a Clojure REPL running and want to add a
 ClojureScript REPL, you can invoke
-`cider-jack-in-sibling-clojurescript` to add it.
+`cider-connect-sibling-cljs` (kbd:[C-c C-x s s]) to add it.
 
 == Enhanced Completion
 

@@ -328,9 +328,9 @@ ClojureScript).  You can disable the auto-detection logic like this:
 (setq cider-repl-auto-detect-type nil)
 ----
 
-Afterwards you can use `cider-repl-set-type` to set the right type manually.
+Afterwards you can use `cider-set-repl-type` to set the right type manually.
 
-IMPORTANT: Using `cider-repl-set-type` without disabling
+IMPORTANT: Using `cider-set-repl-type` without disabling
 `cider-repl-auto-detect-type` won't do much, as the REPL type will constantly be
 reset automatically by the `track-state` middleware.
 
