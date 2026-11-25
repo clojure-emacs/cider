@@ -35,6 +35,7 @@
 ;;; Code:
 
 (require 'cider-client)
+(require 'cider-common) ; for `cider-auto-select-buffer-p'
 (require 'cider-popup)
 (require 'cider-tree-view)
 (require 'cider-util)
@@ -395,7 +396,9 @@ a more user friendly representation of SPEC-FORM."
   (when-let* ((val (and (string-match-p "^::.+" spec)
                         (nrepl-dict-get (cider-sync-tooling-eval spec (cider-current-ns)) "value"))))
     (setq spec val))
-  (with-current-buffer (cider-popup-buffer cider-browse-spec-buffer 'select #'cider-browse-spec-view-mode 'ancillary)
+  (with-current-buffer (cider-popup-buffer cider-browse-spec-buffer
+                                           (cider-auto-select-buffer-p 'browse-spec 'default)
+                                           #'cider-browse-spec-view-mode 'ancillary)
     (setq-local cider-browse-spec--current-spec spec)
     (cider-browse-spec--draw-spec-buffer (current-buffer)
                                          spec
@@ -421,7 +424,9 @@ property."
   (interactive)
   (if-let* ((spec cider-browse-spec--current-spec))
       (if-let* ((example (cider-sync-request:spec-example spec)))
-          (with-current-buffer (cider-popup-buffer cider-browse-spec-example-buffer 'select #'cider-browse-spec-example-mode 'ancillary)
+          (with-current-buffer (cider-popup-buffer cider-browse-spec-example-buffer
+                                                   (cider-auto-select-buffer-p 'browse-spec 'default)
+                                                   #'cider-browse-spec-example-mode 'ancillary)
             (setq-local cider-browse-spec--current-spec spec)
             (let ((inhibit-read-only t))
               (insert "Example of " (cider-font-lock-as-clojure spec))
@@ -451,7 +456,9 @@ Generates a new example for the current spec."
 Displays all specs when REGEX is nil."
   (cider-ensure-session)
   (let ((filter-regex (or regex "")))
-    (with-current-buffer (cider-popup-buffer cider-browse-spec-buffer 'select nil 'ancillary)
+    (with-current-buffer (cider-popup-buffer cider-browse-spec-buffer
+                                             (cider-auto-select-buffer-p 'browse-spec 'default)
+                                             nil 'ancillary)
       (let ((specs (cider-sync-request:spec-list filter-regex)))
         (cider-browse-spec--draw-list-buffer (current-buffer)
                                              (if (string-empty-p filter-regex)
@@ -511,7 +518,8 @@ shows that spec's full definition."
                                       (cider-sync-request:spec-list))))
   (let ((root (cider-browse-spec--tree-node spec nil)))
     (setf (cider-tree-view-node-expanded root) t)
-    (with-current-buffer (cider-popup-buffer "*cider-spec-tree*" 'select
+    (with-current-buffer (cider-popup-buffer "*cider-spec-tree*"
+                                             (cider-auto-select-buffer-p 'browse-spec 'default)
                                              'cider-tree-view-mode 'ancillary)
       (cider-tree-view-render (list root) (format "Spec tree: %s" spec)))))
 

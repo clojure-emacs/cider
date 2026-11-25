@@ -91,7 +91,8 @@ configure `cider-debug-prompt' instead."
   (interactive)
   (if-let* ((all (thread-first (cider-nrepl-sync-request '("op" "cider/debug-instrumented-defs"))
                                (nrepl-dict-get "list"))))
-      (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer t)
+      (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer
+                                               (cider-auto-select-buffer-p 'browse-ns 'default))
         (let ((inhibit-read-only t))
           (dolist (list all)
             (let* ((ns (car list))

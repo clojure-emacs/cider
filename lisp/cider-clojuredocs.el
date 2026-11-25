@@ -113,7 +113,8 @@ opposite of what that option dictates."
 
 (defun cider-create-clojuredocs-buffer (content)
   "Create a new ClojureDocs buffer with CONTENT."
-  (with-current-buffer (cider-popup-buffer cider-clojuredocs-buffer t)
+  (with-current-buffer (cider-popup-buffer cider-clojuredocs-buffer
+                                           (cider-auto-select-buffer-p 'clojuredocs 'default))
     (read-only-mode -1)
     (set-syntax-table clojure-mode-syntax-table)
     (local-set-key (kbd "C-c C-d C-c") 'cider-clojuredocs)
@@ -192,8 +193,7 @@ is unavailable when there are none."
 (defun cider-clojuredocs-lookup (sym)
   "Look up the ClojureDocs documentation for SYM."
   (if-let* ((docs (cider-sync-request:clojuredocs-lookup (cider-current-ns) sym)))
-      (progn
-        (pop-to-buffer (cider-create-clojuredocs-buffer (cider-clojuredocs--content docs)))
+      (with-current-buffer (cider-create-clojuredocs-buffer (cider-clojuredocs--content docs))
         ;; highlight the symbol in question in the docs buffer
         (highlight-regexp
          (regexp-quote

@@ -32,6 +32,7 @@
 (require 'cider-session) ; for cider-ensure-session
 
 (require 'cider-client)
+(require 'cider-common) ; for `cider-auto-select-buffer-p'
 (require 'cider-popup)
 (require 'nrepl-dict)
 
@@ -113,7 +114,9 @@ and be case-sensitive (based on CASE-SENSITIVE-P)."
 
 (defun cider-show-apropos (summary results query docs-p)
   "Show SUMMARY and RESULTS for QUERY in a pop-up buffer, formatted for DOCS-P."
-  (with-current-buffer (cider-popup-buffer cider-apropos-buffer 'select 'apropos-mode 'ancillary)
+  (with-current-buffer (cider-popup-buffer cider-apropos-buffer
+                                           (cider-auto-select-buffer-p 'apropos 'default)
+                                           'apropos-mode 'ancillary)
     (let ((inhibit-read-only t))
       (setq-local header-line-format summary)
       (dolist (result results)

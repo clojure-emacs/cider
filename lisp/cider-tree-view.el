@@ -206,7 +206,11 @@ displayed the buffer (e.g. via `cider-popup-buffer') before handing it here."
   (cider-tree-view--render)
   (goto-char (point-min))
   (unless (cider-tree-view-node-at-point)
-    (ignore-errors (cider-tree-view-next-node))))
+    (ignore-errors (cider-tree-view-next-node)))
+  ;; A window that shows the buffer without being selected keeps a point of
+  ;; its own, which the rendering has left at the top.
+  (dolist (window (get-buffer-window-list nil nil t))
+    (set-window-point window (point))))
 
 (provide 'cider-tree-view)
 ;;; cider-tree-view.el ends here

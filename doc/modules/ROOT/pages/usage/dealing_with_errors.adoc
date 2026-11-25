@@ -83,14 +83,15 @@ To disable auto-selection of the error buffer when it's displayed:
 
 [source,lisp]
 ----
-(setq cider-auto-select-buffer '(test-report doc inspector cheatsheet log-frameworks)) ; keep selecting the rest
+(setq cider-auto-select-buffer '(not error)) ; keep selecting the rest
 ;; or, to never auto-select any of CIDER's popup buffers:
 (setq cider-auto-select-buffer nil)
 ----
 
 NOTE: `cider-auto-select-buffer` governs all of CIDER's popup buffers (error
-buffer, test report, doc buffer, inspector, etc.).  It can be t, nil, or a
-list of the buffers to select.  The former per-buffer option
+buffer, test report, doc buffer, inspector, etc.), see
+xref:config/basic_config.adoc#control-whether-popup-buffers-get-selected[Control
+whether popup buffers get selected].  The former per-buffer option
 `cider-auto-select-error-buffer` is obsolete as of CIDER 2.0, but still takes
 precedence when customized.
 

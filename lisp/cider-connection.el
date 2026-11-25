@@ -37,6 +37,7 @@
 (require 'sesman-browser)
 (require 'spinner)
 (require 'cider-popup)
+(require 'cider-common) ; for `cider-auto-select-buffer-p'
 (require 'cider-session)
 
 (defcustom cider-redirect-server-output-to-repl  t
@@ -433,7 +434,9 @@ REPL defaults to the current REPL."
                             ((equal session-id (cider-nrepl-eval-session)) "Active eval")
                             ((equal session-id (cider-nrepl-tooling-session)) "Active tooling")
                             (t "Unknown"))))
-        (with-current-buffer (cider-popup-buffer cider-nrepl-session-buffer 'select nil 'ancillary)
+        (with-current-buffer (cider-popup-buffer cider-nrepl-session-buffer
+                                                 (cider-auto-select-buffer-p 'nrepl-info 'default)
+                                                 nil 'ancillary)
           (read-only-mode -1)
           (insert (format "Session: %s\n" session-id)
                   (format "Type: %s session\n" session-type)
@@ -447,7 +450,9 @@ REPL defaults to the current REPL."
   (cider-ensure-session)
   (let* ((repl (cider-current-repl 'infer 'ensure))
          (middleware (nrepl-middleware repl)))
-    (with-current-buffer (cider-popup-buffer "*cider-nrepl-middleware*" 'select nil 'ancillary)
+    (with-current-buffer (cider-popup-buffer "*cider-nrepl-middleware*"
+                                             (cider-auto-select-buffer-p 'nrepl-info 'default)
+                                             nil 'ancillary)
       (read-only-mode -1)
       (insert "Currently loaded middleware:\n")
       (mapc (lambda (mw) (insert (format "  * %s\n" mw))) middleware))

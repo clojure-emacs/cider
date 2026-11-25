@@ -146,6 +146,6 @@ It is possible to control which function is used on a var when it is selected by
 
 By default the cheatsheet buffer is selected when it pops up (per
 `cider-auto-select-buffer`, which governs all of CIDER's popup buffers).
-Remove `cheatsheet` from that option's list form (or set the obsolete
+Set that option to `(not cheatsheet)` (or set the obsolete
 `cider-cheatsheet-auto-select-buffer` to nil) if you'd rather keep focus in
 the current buffer.

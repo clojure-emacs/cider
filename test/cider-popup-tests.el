@@ -87,6 +87,87 @@
                                             #'string<)))
                 (kill-buffer popup)))))))))
 
+(require 'cider-apropos)
+(require 'cider-xref)
+(require 'cider-classpath)
+(require 'cider-clojuredocs)
+(require 'cider-macroexpansion)
+(require 'cider-tracing)
+
+(describe "the popup buffers that commands show their results in"
+  :var (selected)
+  (before-each
+    (setq selected 'not-displayed)
+    (spy-on 'cider-ensure-session)
+    (spy-on 'cider-classpath-entries :and-return-value nil)
+    (spy-on 'cider-popup-buffer :and-call-fake
+            (lambda (_name &optional select &rest _)
+              (setq selected select)
+              (current-buffer))))
+
+  (it "are selected as `cider-auto-select-buffer' says for their feature"
+    (pcase-dolist (`(,feature . ,show)
+                   `((apropos . ,(lambda () (cider-show-apropos "summary" nil "query" nil)))
+                     (xref . ,(lambda () (cider-show-xref "summary" nil)))
+                     (classpath . ,#'cider-classpath)
+                     (clojuredocs . ,(lambda () (cider-create-clojuredocs-buffer "docs")))
+                     (macroexpansion . ,#'cider-create-macroexpansion-buffer)
+                     (trace . ,(lambda () (cider-list-traced--render nil nil)))))
+      (expect (memq feature cider-auto-select-buffer-features) :to-be-truthy)
+      (with-temp-buffer
+        (let ((cider-auto-select-buffer (list feature)))
+          (funcall show)
+          (expect selected :to-be-truthy)))
+      (with-temp-buffer
+        (let ((cider-auto-select-buffer (list 'not feature)))
+          (funcall show)
+          (expect selected :to-be nil))))))
+
+(defconst cider-popup-tests--lisp-dir
+  (expand-file-name "../lisp" (file-name-directory
+                               (or load-file-name buffer-file-name default-directory)))
+  "The project's `lisp' directory, located relative to this file.")
+
+(defun cider-popup-tests--matches (regexp &optional skip-files)
+  "Return the matches of REGEXP's first group in the project's source files.
+Each one comes as a (FILE . MATCH) pair.  Leave out SKIP-FILES."
+  (let (matches)
+    (dolist (file (directory-files cider-popup-tests--lisp-dir t "\\.el\\'"))
+      (let ((name (file-name-nondirectory file)))
+        (unless (or (member name skip-files)
+                    (string-suffix-p "-autoloads.el" name))
+          (with-temp-buffer
+            (insert-file-contents file)
+            (while (re-search-forward regexp nil t)
+              (push (cons name (match-string 1)) matches))))))
+    (nreverse matches)))
+
+(describe "selecting a popup buffer"
+  (it "is asked about a feature that `cider-auto-select-buffer' knows"
+    (let ((features (mapcar #'cdr
+                            (append
+                             (cider-popup-tests--matches
+                              "(cider-auto-select-buffer-p[ \n]+'\\([a-z-]+\\)")
+                             (cider-popup-tests--matches
+                              "(cider-auto-select-pop-to-buffer [^()]+ '\\([a-z-]+\\))")))))
+      (expect (length features) :to-be-greater-than 20)
+      (expect (seq-remove (lambda (feature)
+                            (memq (intern feature) cider-auto-select-buffer-features))
+                          features)
+              :to-equal nil)
+      ;; and the option doesn't promise to tell apart anything it's not asked about
+      (expect (seq-remove (lambda (feature) (member (symbol-name feature) features))
+                          cider-auto-select-buffer-features)
+              :to-equal nil)))
+
+  (it "is left to `cider-auto-select-buffer', a few buffers aside"
+    ;; The buffers that are selected no matter what are the ones you have to
+    ;; be in to use them, and the `cider-doctor' report.
+    (expect (cider-popup-tests--matches
+             "\\((cider-popup-buffer\\(?:-display\\)? [^ ()\n]+ \\(?:'select\\|t\\)\\_>\\)"
+             '("cider-debug.el" "cider-doctor.el" "cider-macrostep.el"))
+            :to-equal nil)))
+
 (provide 'cider-popup-tests)
 
 ;;; cider-popup-tests.el ends here

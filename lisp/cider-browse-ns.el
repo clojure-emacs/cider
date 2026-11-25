@@ -36,6 +36,7 @@
 ;;; Code:
 
 (require 'cider-client)
+(require 'cider-common) ; for `cider-auto-select-buffer-p'
 (require 'cider-popup)
 (require 'cider-tree-view)
 (require 'cider-util)
@@ -428,14 +429,18 @@ var-meta map."
       (user-error "%s" (substitute-command-keys
                         (format "The namespace `%s' isn't loaded yet; evaluate it (e.g. with \\[cider-load-buffer]) and try again"
                                 namespace))))
-    (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer 'select nil 'ancillary)
+    (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer
+                                             (cider-auto-select-buffer-p 'browse-ns 'default)
+                                             nil 'ancillary)
       (cider-browse-ns--list (current-buffer) namespace vars namespace))))
 
 ;;;###autoload
 (defun cider-browse-ns-all ()
   "List all loaded namespaces."
   (interactive)
-  (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer 'select nil 'ancillary)
+  (with-current-buffer (cider-popup-buffer cider-browse-ns-buffer
+                                             (cider-auto-select-buffer-p 'browse-ns 'default)
+                                             nil 'ancillary)
     (let ((names (cider-sync-request:ns-list)))
       (cider-browse-ns--ns-list
        (current-buffer)

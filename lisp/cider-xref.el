@@ -34,6 +34,7 @@
 (require 'subr-x)
 
 (require 'cider-client)
+(require 'cider-common) ; for `cider-auto-select-buffer-p'
 (require 'cider-popup)
 (require 'cider-xref-backend)
 (require 'cider-xref-source)
@@ -107,7 +108,9 @@ the symbol found by the xref search as argument."
 
 (defun cider-show-xref (summary results)
   "Show SUMMARY and RESULTS in a pop-up buffer."
-  (with-current-buffer (cider-popup-buffer cider-xref-buffer 'select 'apropos-mode 'ancillary)
+  (with-current-buffer (cider-popup-buffer cider-xref-buffer
+                                           (cider-auto-select-buffer-p 'xref 'default)
+                                           'apropos-mode 'ancillary)
     (let ((inhibit-read-only t))
       (setq-local header-line-format summary)
       (dolist (result results)
