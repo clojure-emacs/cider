@@ -46,6 +46,7 @@
 
 ### Bugs fixed
 
+- [#4244](https://github.com/clojure-emacs/cider/pull/4244): Fix the `clojure` command line jack-in builds when both `cider-clojure-cli-global-aliases` and `cider-clojure-cli-aliases` are set and the latter starts with `-M` or `-A`.
 - [#4244](https://github.com/clojure-emacs/cider/pull/4244): Fall back to the linked session, with a warning, when the session set with `cider-set-default-session` no longer exists, instead of finding no REPL at all.
 - [#4244](https://github.com/clojure-emacs/cider/pull/4244): Make `cider-use-xref` take effect whenever it is set, not only when it is set before `cider-mode` is turned on.
 - [#4244](https://github.com/clojure-emacs/cider/pull/4244): Enable the `cider` completion style once instead of in every `cider-mode` buffer, so removing it from `completion-category-overrides` or picking other styles for the `cider` category sticks.

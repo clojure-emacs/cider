@@ -99,6 +99,14 @@
     (let ((cider-clojure-cli-global-aliases ":dev")
           (cider-clojure-cli-aliases ":test"))
       (expect (cider--combined-aliases) :to-equal ":dev:test")))
+  (it "strips the exec-opts flag of the local aliases after global ones"
+    (let ((cider-clojure-cli-global-aliases "-A:global")
+          (cider-clojure-cli-aliases "-M:dev:test"))
+      (expect (cider--combined-aliases) :to-equal ":global:dev:test")))
+  (it "skips aliases that are an empty string"
+    (let ((cider-clojure-cli-global-aliases "")
+          (cider-clojure-cli-aliases "-M:dev"))
+      (expect (cider--combined-aliases) :to-equal ":dev")))
   (it "treats the `:nil-no-warn' sentinel as no local aliases"
     (let ((cider-clojure-cli-global-aliases nil)
           (cider-clojure-cli-aliases :nil-no-warn))

@@ -586,24 +586,21 @@ The `:nil-no-warn' value means \"no aliases, and don't hint about it\"."
     cider-clojure-cli-aliases))
 
 (defun cider--combined-aliases ()
-  "Create the combined aliases as a string separated by ':'."
-  (let* ((local-aliases (cider--clojure-cli-aliases))
-         (final-cider-clojure-cli-aliases
-          (cond ((and cider-clojure-cli-global-aliases local-aliases)
-                 ;; both are documented to be of the `:foo:bar' form, so drop a
-                 ;; leading colon from the local aliases before joining, lest the
-                 ;; junction end up with a `::' (a malformed alias keyword).
-                 (concat cider-clojure-cli-global-aliases ":"
-                         (string-remove-prefix ":" local-aliases)))
-                (cider-clojure-cli-global-aliases cider-clojure-cli-global-aliases)
-                (t local-aliases))))
-    (if final-cider-clojure-cli-aliases
-        ;; remove exec-opts flags -A -M -T or -X from cider-clojure-cli-aliases
-        ;; concatenated with :cider/nrepl to ensure :cider/nrepl comes last
-        (let ((aliases (format "%s" (replace-regexp-in-string "^-\\(A\\|M\\|T\\|X\\)" "" final-cider-clojure-cli-aliases))))
-          (if (string-prefix-p ":" aliases)
-              aliases
-            (concat ":" aliases)))
+  "Create the combined aliases as a string separated by ':'.
+The global aliases come first.  Both kinds are of the `:foo:bar' form,
+possibly after one of the exec-opts flags -A, -M, -T and -X, which is
+dropped, as is the leading colon, so that neither ends up in the middle of
+the result."
+  (let ((aliases (delete
+                  ""
+                  (mapcar
+                   (lambda (aliases)
+                     (string-remove-prefix
+                      ":" (replace-regexp-in-string "\\`-[AMTX]" "" (format "%s" aliases))))
+                   (delq nil (list cider-clojure-cli-global-aliases
+                                   (cider--clojure-cli-aliases)))))))
+    (if aliases
+        (concat ":" (string-join aliases ":"))
       "")))
 
 (defun cider--clojure-cli-aliases-hint ()
