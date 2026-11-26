@@ -27,6 +27,7 @@
 
 (require 'buttercup)
 (require 'cider-completion)
+(require 'cider-test-utils "test/utils/cider-test-utils")
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
@@ -65,6 +66,97 @@
         (expect completion-category-overrides
                 :to-equal '((cider (styles basic flex)
                                    (cycle t))))))))
+
+(describe "cider-completion--parse-candidate-map"
+  (it "keeps what the server said about the candidate as text properties"
+    (let ((candidate (cider-completion--parse-candidate-map
+                      (nrepl-dict "candidate" "map" "type" "function" "ns" "clojure.core"
+                                  "arglists" '("[f]" "[f coll]")))))
+      (expect candidate :to-equal "map")
+      (expect (get-text-property 0 'type candidate) :to-equal "function")
+      (expect (get-text-property 0 'ns candidate) :to-equal "clojure.core")
+      (expect (get-text-property 0 'arglists candidate) :to-equal '("[f]" "[f coll]"))))
+
+  (it "leaves out the properties the server didn't send"
+    (let ((candidate (cider-completion--parse-candidate-map
+                      (nrepl-dict "candidate" ":foo" "type" "keyword"))))
+      (expect (get-text-property 0 'arglists candidate) :to-be nil))))
+
+(describe "cider-sync-request:complete"
+  (it "asks for the arglists of the candidates"
+    (spy-on 'cider-current-ns :and-return-value "user")
+    (spy-on 'cider-current-repl :and-return-value nil)
+    (spy-on 'cider-nrepl-sync-request :and-return-value (nrepl-dict "completions" nil))
+    (cider-sync-request:complete "ma" "nil")
+    (let ((request (car (spy-calls-args-for 'cider-nrepl-sync-request 0))))
+      (expect (lax-plist-get request "extra-metadata")
+              :to-equal '("arglists")))))
+
+(describe "cider-company-docsig"
+  (it "uses the arglists that came with the candidate, without a request"
+    (spy-on 'cider-nrepl-sync-request)
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
+    (let ((candidate (cider-completion--parse-candidate-map
+                      (nrepl-dict "candidate" "str/join" "type" "function"
+                                  "ns" "clojure.string"
+                                  "arglists" '("[coll]" "[separator coll]")))))
+      (expect (substring-no-properties (cider-company-docsig candidate))
+              :to-equal "clojure.string/join: ([coll] [separator coll])")
+      (expect 'cider-nrepl-sync-request :not :to-have-been-called)))
+
+  (it "asks cider-nrepl's eldoc when the candidate has no arglists"
+    (spy-on 'cider-nrepl-op-supported-p :and-call-fake
+            (lambda (op &rest _) (equal op "cider/eldoc")))
+    (spy-on 'cider-eldoc-info :and-return-value
+            '("ns" "clojure.core" "symbol" "inc" "arglists" (("x")) "type" "function"))
+    (expect (substring-no-properties (cider-company-docsig "inc"))
+            :to-equal "clojure.core/inc: ([x])"))
+
+  (it "falls back to nREPL's lookup op when cider-nrepl isn't there"
+    (spy-on 'cider-nrepl-op-supported-p :and-call-fake
+            (lambda (op &rest _) (equal op "lookup")))
+    (spy-on 'cider-sync-request:lookup :and-return-value
+            (nrepl-dict "ns" "clojure.core" "name" "inc" "arglists-str" "([x])"))
+    (expect (substring-no-properties (cider-company-docsig "inc"))
+            :to-equal "clojure.core/inc: ([x])"))
+
+  (it "has no signature for something lookup knows no arglists for"
+    (spy-on 'cider-nrepl-op-supported-p :and-call-fake
+            (lambda (op &rest _) (equal op "lookup")))
+    (spy-on 'cider-sync-request:lookup :and-return-value
+            (nrepl-dict "ns" "clojure.core" "name" "*out*" "arglists-str" ""))
+    (expect (cider-company-docsig "*out*") :to-be nil)))
+
+(describe "cider-complete-at-point"
+  (before-each
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
+    (spy-on 'cider-complete :and-return-value
+            (list (propertize "app.edn" 'type "resource")
+                  (propertize "apply" 'type "function"))))
+
+  (it "offers only resources inside the string of a resource call"
+    (with-clojure-buffer "(io/resource \"ap|\")"
+      (let ((capf (cider-complete-at-point)))
+        (expect (buffer-substring (nth 0 capf) (nth 1 capf)) :to-equal "ap")
+        (expect (all-completions "ap" (nth 2 capf)) :to-equal '("app.edn")))))
+
+  (it "stays out of any other string"
+    (with-clojure-buffer "(println \"ap|\")"
+      (expect (cider-complete-at-point) :to-be nil))
+    (with-clojure-buffer "(io/resource [\"ap|\"])"
+      (expect (cider-complete-at-point) :to-be nil)))
+
+  (it "stays out of strings when the server has only nREPL's completions op"
+    (spy-on 'cider-nrepl-op-supported-p :and-call-fake
+            (lambda (op &rest _) (equal op "completions")))
+    (with-clojure-buffer "(io/resource \"ap|\")"
+      (expect (cider-complete-at-point) :to-be nil)))
+
+  (it "offers everything outside strings"
+    (with-clojure-buffer "(ap|)"
+      (expect (all-completions "ap" (nth 2 (cider-complete-at-point)))
+              :to-equal '("app.edn" "apply")))))
 
 (describe "cider-affixate-symbol"
   (it "returns (candidate prefix suffix) triples carrying type/ns"

@@ -53,4 +53,23 @@
 
 (.foo| \"\")"
       (expect (cider-completion-get-context) :to-equal "(__prefix__ \"\")")
-      (expect (cider-completion-get-context) :to-equal "(__prefix__ \"\")"))))
+      (expect (cider-completion-get-context) :to-equal "(__prefix__ \"\")")))
+
+  (it "Keeps the form when there is no symbol at point"
+    (with-clojure-buffer "(.foo bar |)"
+      (expect (cider-completion-get-context) :to-equal "(.foo bar __prefix__)")))
+
+  (it "Marks the prefix in the right place when the form is wrapped"
+    (with-clojure-buffer "(comment\n  (.foo bar |))"
+      (expect (cider-completion-get-context) :to-equal "(.foo bar __prefix__)"))
+    (with-clojure-buffer "#?(:clj (foo ba|r))"
+      (expect (cider-completion-get-context) :to-equal "#?(:clj (foo __prefix__r))")
+      (expect (cider-completion-get-context :info) :to-equal "#?(:clj (foo __prefix__))"))
+    (with-clojure-buffer "^:dev (def x (foo ba|r))"
+      (expect (cider-completion-get-context) :to-equal "^:dev (def x (foo __prefix__r))")))
+
+  (it "Marks a prefix inside a string"
+    (with-clojure-buffer "(io/resource \"templates/in|\")"
+      (expect (cider-completion-get-context) :to-equal "(io/resource \"__prefix__\")"))
+    (with-clojure-buffer "(io/resource \"|\")"
+      (expect (cider-completion-get-context) :to-equal "(io/resource \"__prefix__\")"))))

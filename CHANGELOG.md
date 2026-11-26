@@ -8,6 +8,7 @@
 
 ### New features
 
+- [#4242](https://github.com/clojure-emacs/cider/pull/4242): Complete resource names inside the string of a `resource` call, e.g. `(io/resource "con|")`.
 - [#4219](https://github.com/clojure-emacs/cider/pull/4219): Add `cider-ns-clean` (`C-c M-n c`), which removes the requires, aliases, referred names and imports the code doesn't use from the `ns` form, using cider-nrepl's `cider/clean-ns` op, and leaves the rest of the form as it's written.
 - [#4218](https://github.com/clojure-emacs/cider/pull/4218): Add magic requires (`cider-ns-magic-requires`, off by default): typing a slash after an alias the `ns` form lacks adds the require it needs, going by the aliases the project already uses, with `cider-ns-magic-require-aliases` as the fallback.
 - [#4217](https://github.com/clojure-emacs/cider/pull/4217), [#4222](https://github.com/clojure-emacs/cider/issues/4222): Add `cider-ns-add-missing` (`C-c M-n m`), which adds the require or import the symbol at point needs, using cider-nrepl's `cider/resolve-missing` op, or the namespace the alias of an auto-resolved keyword like `::config/aero` stands for.
@@ -26,6 +27,7 @@
 
 ### Changes
 
+- [#4242](https://github.com/clojure-emacs/cider/pull/4242): Take the signature shown for a completion candidate from the `cider/complete` response, where it took a request per candidate, and from nREPL's `lookup` op when cider-nrepl isn't around.
 - [#4239](https://github.com/clojure-emacs/cider/pull/4239): Stop marking the executables jack-in runs (`cider-clojure-cli-command`, `cider-shadow-cljs-command`, `cider-gradle-command`, `cider-babashka-command`, `cider-nbb-command`, `cider-basilisp-command`) as safe local variables, so Emacs asks before a project's `.dir-locals.el` sets one; the parameters and the aliases can still be set without a prompt.
 - [#4239](https://github.com/clojure-emacs/cider/pull/4239): Let a project set `cider-path-translations` in `.dir-locals.el` without Emacs asking about it, as long as it is an alist of strings.
 - [#4240](https://github.com/clojure-emacs/cider/pull/4240): Have all the popup buffers follow `cider-auto-select-buffer`, not just the six that used to have an option of their own: apropos, the references and "who" trees, the namespace and spec browsers, the classpath, macroexpansions, ClojureDocs, tracing, taps, the output buffer, the nREPL listings and the REPL help each get a name the option's list form takes. A list naming the buffers to select no longer selects those, so the option also takes a list starting with `not`, naming the buffers to leave alone (e.g. `'(not error)`).
@@ -46,6 +48,8 @@
 
 ### Bugs fixed
 
+- [#4242](https://github.com/clojure-emacs/cider/pull/4242): Fix the completion context inside `(comment ...)`, a reader conditional or a form with metadata, where the prefix marker landed in the wrong place.
+- [#4242](https://github.com/clojure-emacs/cider/pull/4242): Send the form around point as the completion context when there is no symbol at point, where it was dropped.
 - [#4239](https://github.com/clojure-emacs/cider/pull/4239): Fix the Customize types of the options that take a string but default to `nil`, of `cider-repl-init-code`, `cider-repl-history-file`, `cider-default-cljs-repl` and `cider-completion-annotations-alist`, and the missing or malformed version information of some forty options.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Fix the dead manual links in the errors about a ClojureScript REPL's missing requirements.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Fix `cider-test-ediff` opening two empty buffers for a failed comparison of strings, numbers or collections of different kinds.

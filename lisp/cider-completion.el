@@ -117,12 +117,12 @@ if the candidate is not namespace-qualified."
 
 (defun cider-completion--parse-candidate-map (candidate-map)
   "Get \"candidate\" from CANDIDATE-MAP.
-Put type and ns properties on the candidate."
-  (let ((candidate (nrepl-dict-get candidate-map "candidate"))
-        (type (nrepl-dict-get candidate-map "type"))
-        (ns (nrepl-dict-get candidate-map "ns")))
-    (put-text-property 0 1 'type type candidate)
-    (put-text-property 0 1 'ns ns candidate)
+Put the rest of what the server said about the candidate on it as text
+properties: `type' and `ns', plus `arglists' when present."
+  (let ((candidate (nrepl-dict-get candidate-map "candidate")))
+    (dolist (key '("type" "ns" "arglists"))
+      (when-let* ((value (nrepl-dict-get candidate-map key)))
+        (put-text-property 0 1 (intern key) value candidate)))
     candidate))
 
 (defun cider-complete (prefix)
@@ -219,14 +219,34 @@ metadata.  See Info node `(elisp) Programmed Completion'."
      ((eq (car-safe action) 'boundaries) nil)
      (t (complete-with-action action (funcall candidates-fn string) string pred)))))
 
+(defun cider-completion--in-resource-call-p ()
+  "Return non-nil if point is in a string passed to a `resource' call.
+That is the one place inside a string the server completes: it offers the
+resources on the classpath there."
+  (save-excursion
+    (when-let* ((string-start (nth 8 (syntax-ppss))))
+      (goto-char string-start)
+      (ignore-errors
+        (backward-up-list)
+        (when (eq (char-after) ?\()
+          (forward-char)
+          (when-let* ((head (thing-at-point 'symbol t)))
+            (string-match-p "\\(?:\\`\\|/\\)resource\\'" head)))))))
+
 (defun cider-complete-at-point ()
-  "Complete the symbol at point."
+  "Complete the symbol at point.
+Inside a string only the argument of a `resource' call is completed, with
+the resources on the classpath."
   (when-let* ((bounds (or (bounds-of-thing-at-point 'symbol)
                           (cons (point) (point))))
               (bounds-string (buffer-substring (car bounds) (cdr bounds))))
     (when (and (cider-connected-p)
-               (not (or (cider-in-string-p) (cider-in-comment-p))))
-      (let* (last-bounds-string
+               (not (cider-in-comment-p))
+               (or (not (cider-in-string-p))
+                   (and (cider-nrepl-op-supported-p "cider/complete")
+                        (cider-completion--in-resource-call-p))))
+      (let* ((in-string (cider-in-string-p))
+             last-bounds-string
              last-result
              (complete
               (lambda (_string)
@@ -238,7 +258,15 @@ metadata.  See Info node `(elisp) Programmed Completion'."
                 ;; ensures that it will not extend across different CIDER sessions.
                 (unless (string= bounds-string last-bounds-string)
                   (setq last-bounds-string bounds-string)
-                  (setq last-result (cider-complete bounds-string)))
+                  (setq last-result
+                        (if in-string
+                            ;; The other sources don't know the prefix sits
+                            ;; in a string and would offer vars for it.
+                            (seq-filter (lambda (candidate)
+                                          (equal (get-text-property 0 'type candidate)
+                                                 "resource"))
+                                        (cider-complete bounds-string))
+                          (cider-complete bounds-string))))
                 last-result)))
         (list (car bounds) (cdr bounds)
               (cider--completion-table complete)
@@ -301,16 +329,37 @@ in the buffer."
         (forward-line (1- line))
         (cons buffer (point))))))
 
+(defun cider-completion--format-docsig (ns name arglists)
+  "Format the signature of NAME from NS with ARGLISTS, a string."
+  (format "%s: %s" (cider-eldoc-format-thing ns name name 'fn) arglists))
+
 (defun cider-company-docsig (thing)
-  "Return signature for THING."
-  (when-let* ((eldoc-info (cider-eldoc-info thing)))
-    (let* ((ns (cider-plist-get eldoc-info "ns"))
-           (symbol (cider-plist-get eldoc-info "symbol"))
-           (arglists (cider-plist-get eldoc-info "arglists")))
-      (format "%s: %s"
-              (cider-eldoc-format-thing ns symbol thing
-                                        (cider-eldoc-thing-type eldoc-info))
-              (cider-eldoc-format-arglist arglists 0)))))
+  "Return signature for THING.
+The arglists that came with the completion candidates are used when THING
+has them.  Otherwise the signature takes a request: cider-nrepl's eldoc,
+or nREPL's own lookup when that is all the server has."
+  (cond
+   ((get-text-property 0 'arglists thing)
+    (cider-completion--format-docsig
+     (get-text-property 0 'ns thing)
+     (if (string-match "\\`.+?/\\(.+\\)\\'" thing) (match-string 1 thing) thing)
+     (format "(%s)" (string-join (get-text-property 0 'arglists thing) " "))))
+   ((cider-nrepl-op-supported-p "cider/eldoc")
+    (when-let* ((eldoc-info (cider-eldoc-info thing)))
+      (let* ((ns (cider-plist-get eldoc-info "ns"))
+             (symbol (cider-plist-get eldoc-info "symbol"))
+             (arglists (cider-plist-get eldoc-info "arglists")))
+        (format "%s: %s"
+                (cider-eldoc-format-thing ns symbol thing
+                                          (cider-eldoc-thing-type eldoc-info))
+                (cider-eldoc-format-arglist arglists 0)))))
+   ((cider-nrepl-op-supported-p "lookup")
+    (when-let* ((info (cider-sync-request:lookup thing))
+                (arglists (nrepl-dict-get info "arglists-str")))
+      (unless (string-empty-p arglists)
+        (cider-completion--format-docsig (nrepl-dict-get info "ns")
+                                           (nrepl-dict-get info "name")
+                                         arglists))))))
 
 ;; Fuzzy completion for company-mode
 

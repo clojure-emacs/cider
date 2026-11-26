@@ -45,6 +45,10 @@ which shows the top completion candidate inline as you type (accept it with
 kbd:[TAB]). It's a lightweight alternative to the popup UIs described below and
 works out-of-the-box with CIDER's completion.
 
+Completion stays out of comments and strings, with one exception: inside the
+string of a `resource` call, such as `(io/resource "templates/")`, you get the
+resources on the classpath. This needs `cider-nrepl`.
+
 == Completion in minibuffer prompts
 
 Some commands ask you for a Clojure symbol in the minibuffer (for example
@@ -202,6 +206,11 @@ without needing to hit an extra key, please customize:
 ----
 
 === Documentation display configuration
+
+The signature a frontend shows for the selected candidate (the echo area line
+of `company-mode`, `corfu-echo-mode`) arrives together with the candidates, so
+moving through the list doesn't take a request per candidate. Without
+`cider-nrepl` the signature comes from nREPL's `lookup` op.
 
 Regardless of the frontend you use, the following CIDER configuration options
 affect the documentation shown while completing:
