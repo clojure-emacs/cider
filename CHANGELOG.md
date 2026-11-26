@@ -8,6 +8,8 @@
 
 ### New features
 
+- [#4241](https://github.com/clojure-emacs/cider/pull/4241): Add `cider-ns-refresh-dirs`, the directories `cider-ns-refresh` scans in place of the ones on the classpath.
+- [#4241](https://github.com/clojure-emacs/cider/pull/4241): Add `cider-inspect-diff` (`C-c C-i =`), which shows how the values of two expressions differ in the inspector.
 - [#4219](https://github.com/clojure-emacs/cider/pull/4219): Add `cider-ns-clean` (`C-c M-n c`), which removes the requires, aliases, referred names and imports the code doesn't use from the `ns` form, using cider-nrepl's `cider/clean-ns` op, and leaves the rest of the form as it's written.
 - [#4218](https://github.com/clojure-emacs/cider/pull/4218): Add magic requires (`cider-ns-magic-requires`, off by default): typing a slash after an alias the `ns` form lacks adds the require it needs, going by the aliases the project already uses, with `cider-ns-magic-require-aliases` as the fallback.
 - [#4217](https://github.com/clojure-emacs/cider/pull/4217), [#4222](https://github.com/clojure-emacs/cider/issues/4222): Add `cider-ns-add-missing` (`C-c M-n m`), which adds the require or import the symbol at point needs, using cider-nrepl's `cider/resolve-missing` op, or the namespace the alias of an auto-resolved keyword like `::config/aero` stands for.
@@ -26,6 +28,8 @@
 
 ### Changes
 
+- [#4241](https://github.com/clojure-emacs/cider/pull/4241): Show the Java modifiers of a class member and the protocol a method belongs to in the doc buffer.
+- [#4241](https://github.com/clojure-emacs/cider/pull/4241): Release the inspected value on the server when the inspector buffer is killed.
 - [#4239](https://github.com/clojure-emacs/cider/pull/4239): Stop marking the executables jack-in runs (`cider-clojure-cli-command`, `cider-shadow-cljs-command`, `cider-gradle-command`, `cider-babashka-command`, `cider-nbb-command`, `cider-basilisp-command`) as safe local variables, so Emacs asks before a project's `.dir-locals.el` sets one; the parameters and the aliases can still be set without a prompt.
 - [#4239](https://github.com/clojure-emacs/cider/pull/4239): Let a project set `cider-path-translations` in `.dir-locals.el` without Emacs asking about it, as long as it is an alist of strings.
 - [#4240](https://github.com/clojure-emacs/cider/pull/4240): Have all the popup buffers follow `cider-auto-select-buffer`, not just the six that used to have an option of their own: apropos, the references and "who" trees, the namespace and spec browsers, the classpath, macroexpansions, ClojureDocs, tracing, taps, the output buffer, the nREPL listings and the REPL help each get a name the option's list form takes. A list naming the buffers to select no longer selects those, so the option also takes a list starting with `not`, naming the buffers to leave alone (e.g. `'(not error)`).

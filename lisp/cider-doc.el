@@ -631,6 +631,24 @@ Same for `jar:file:...!/' segments."
             file))
       result)))
 
+(defconst cider-docview--java-modifiers
+  '("public" "protected" "private" "abstract" "static" "final" "synchronized"
+    "native" "transient" "volatile" "interface" "enum" "annotation" "record")
+  "The Java modifiers the doc buffer shows, in the order Java writes them.")
+
+(defun cider-docview--format-modifiers (modifiers)
+  "Format MODIFIERS, the printed Clojure set of keywords `info' sends.
+Return them the way they appear in Java source, as in \"public static\", or
+nil if there is nothing to show."
+  (when modifiers
+    (let* ((words (split-string modifiers "[]#{}:, []+" t))
+           ;; Every interface is abstract, which Java doesn't write either.
+           (words (if (member "interface" words) (remove "abstract" words) words))
+           (known (seq-filter (lambda (modifier) (member modifier words))
+                              cider-docview--java-modifiers)))
+      (when known
+        (string-join known " ")))))
+
 (defun cider-docview-render-info (buffer info &optional compact for-tooltip)
   "Emit into BUFFER formatted INFO for the Clojure or Java symbol.
 Use a COMPACT format if specified, and FOR-TOOLTIP if specified."
@@ -640,6 +658,9 @@ Use a COMPACT format if specified, and FOR-TOOLTIP if specified."
          (depr    (nrepl-dict-get info "deprecated"))
          (macro   (nrepl-dict-get info "macro"))
          (special (nrepl-dict-get info "special-form"))
+         (protocol (when-let* ((protocol (nrepl-dict-get info "protocol")))
+                     (string-remove-prefix "#'" protocol)))
+         (modifiers (cider-docview--format-modifiers (nrepl-dict-get info "modifiers")))
          (builtin (nrepl-dict-get info "built-in")) ;; babashka specific
          (forms   (when-let* ((str (nrepl-dict-get info "forms-str")))
                     (split-string str "\n")))
@@ -677,6 +698,8 @@ Use a COMPACT format if specified, and FOR-TOOLTIP if specified."
                                 text)
                               (or sep "\n"))))
         (emit (if class java-name clj-name) 'font-lock-function-name-face)
+        (when modifiers
+          (emit modifiers 'font-lock-keyword-face))
         (when super
           (emit (concat "Extends: " (cider-font-lock-as 'java-mode super))))
         (when ifaces
@@ -704,6 +727,14 @@ Use a COMPACT format if specified, and FOR-TOOLTIP if specified."
           (emit "Special Form" 'font-lock-keyword-face))
         (when macro
           (emit "Macro" 'font-lock-variable-name-face))
+        (when protocol
+          (insert "Method of the protocol ")
+          (if for-tooltip
+              (insert protocol)
+            (insert-text-button protocol
+                                'type 'help-xref
+                                'help-function (apply-partially #'cider-doc-lookup protocol)))
+          (insert "\n"))
         (when builtin
           (emit "Built-in" 'font-lock-keyword-face))
         (when added

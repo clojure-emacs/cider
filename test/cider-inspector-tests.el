@@ -317,6 +317,53 @@
       (cider-inspect-last-sexp)
       (expect 'cider-inspect-expr :to-have-been-called-with "(+ 1 2)" "user"))))
 
+(describe "cider-inspect-diff"
+  (it "inspects orchard's diff of the two expressions"
+    (spy-on 'cider-inspect-expr)
+    (cider-inspect-diff "{:a 1}" "(merge m {:a 2})" "my.ns")
+    (expect 'cider-inspect-expr :to-have-been-called-with
+            "(orchard.inspect/diff {:a 1} (merge m {:a 2}))" "my.ns"))
+
+  (it "is on the inspect menu"
+    (expect (transient-get-suffix 'cider-inspect-menu "=") :to-be-truthy)))
+
+(describe "cider-inspector--release-value"
+  :var (kill-inspector)
+  (before-each
+    (spy-on 'cider-nrepl-send-request)
+    ;; `with-temp-buffer' buffers run no hooks, so use a regular one.
+    (setq kill-inspector (lambda ()
+                           (let ((buffer (generate-new-buffer cider-inspector-buffer)))
+                             (with-current-buffer buffer
+                               (cider-inspector-mode))
+                             (kill-buffer buffer)))))
+
+  (it "clears the server's inspector when the inspector buffer is killed"
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
+    (funcall kill-inspector)
+    (expect 'cider-nrepl-send-request :to-have-been-called-times 1)
+    (expect (car (spy-calls-args-for 'cider-nrepl-send-request 0))
+            :to-equal '("op" "cider/inspect-clear")))
+
+  (it "leaves the server alone when a renamed copy is killed"
+    (spy-on 'cider-connected-p :and-return-value t)
+    (spy-on 'cider-nrepl-op-supported-p :and-return-value t)
+    (let ((buffer (generate-new-buffer "*kept-inspection*")))
+      (with-current-buffer buffer
+        (cider-inspector-mode))
+      (kill-buffer buffer))
+    (expect 'cider-nrepl-send-request :not :to-have-been-called))
+
+  (it "sends nothing without a connection"
+    (spy-on 'cider-connected-p :and-return-value nil)
+    (funcall kill-inspector)
+    (expect 'cider-nrepl-send-request :not :to-have-been-called))
+
+  (it "never gets in the way of killing the buffer"
+    (spy-on 'cider-connected-p :and-throw-error 'error)
+    (expect (funcall kill-inspector) :to-be t)))
+
 (describe "cider-inspector-render*"
   (it "Produces a well-known string without errors"
     (expect

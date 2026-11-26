@@ -31,6 +31,61 @@
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
+(describe "cider-docview--format-modifiers"
+  (it "writes the modifiers in Java's order, whatever order the set printed in"
+    (expect (cider-docview--format-modifiers "#{:static :public}")
+            :to-equal "public static")
+    (expect (cider-docview--format-modifiers "#{:final :static :private}")
+            :to-equal "private static final"))
+
+  (it "doesn't call an interface abstract"
+    (expect (cider-docview--format-modifiers "#{:interface :public :abstract}")
+            :to-equal "public interface"))
+
+  (it "leaves out what isn't a Java modifier"
+    (expect (cider-docview--format-modifiers "#{:public :varargs :bridge}")
+            :to-equal "public"))
+
+  (it "returns nil when there is nothing to show"
+    (expect (cider-docview--format-modifiers nil) :to-be nil)
+    (expect (cider-docview--format-modifiers "#{}") :to-be nil)))
+
+(describe "cider-docview-render-info"
+  (it "shows the modifiers of a Java member under its name"
+    (with-temp-buffer
+      (cider-docview-render-info
+       (current-buffer)
+       (nrepl-dict "class" "java.lang.String" "member" "valueOf"
+                   "arglists-str" "[obj]" "modifiers" "#{:public :static}")
+       :compact)
+      (goto-char (point-min))
+      (expect (buffer-substring-no-properties (point) (line-end-position))
+              :to-equal "java.lang.String/valueOf")
+      (forward-line 1)
+      (expect (buffer-substring-no-properties (point) (line-end-position))
+              :to-equal "public static")))
+
+  (it "names the protocol of a protocol method, as a link to its docs"
+    (with-temp-buffer
+      (cider-docview-render-info
+       (current-buffer)
+       (nrepl-dict "ns" "clojure.core.protocols" "name" "coll-reduce"
+                   "arglists-str" "[coll f]\n[coll f val]"
+                   "protocol" "#'clojure.core.protocols/CollReduce")
+       :compact)
+      (goto-char (point-min))
+      (expect (search-forward "Method of the protocol clojure.core.protocols/CollReduce\n" nil t)
+              :to-be-truthy)
+      (expect (button-at (- (point) 2)) :to-be-truthy)))
+
+  (it "says nothing about either for a plain var"
+    (with-temp-buffer
+      (cider-docview-render-info
+       (current-buffer)
+       (nrepl-dict "ns" "clojure.core" "name" "inc" "arglists-str" "[x]")
+       :compact)
+      (expect (buffer-string) :not :to-match "protocol\\|public"))))
+
 (describe "cider-docview--insert-clojuredocs-examples"
   (it "inserts the examples capped at `cider-doc-clojuredocs-max-examples'"
     (with-temp-buffer

@@ -264,7 +264,21 @@ without memorizing the keys.  The sub-keys match the regular
   (set-syntax-table clojure-mode-syntax-table)
   (setq-local electric-indent-chars nil)
   (setq-local sesman-system 'CIDER)
+  (add-hook 'kill-buffer-hook #'cider-inspector--release-value nil t)
   (visual-line-mode 1))
+
+(defun cider-inspector--release-value ()
+  "Have the server let go of the value the inspector was showing.
+Until told otherwise its session holds on to the value and to every value
+on the way to it, however large they are.  Meant for `kill-buffer-hook':
+with the buffer gone there is nothing left to navigate.  A renamed or
+cloned inspector buffer is left alone, as the value on the server belongs
+to whatever `cider-inspector-buffer' shows now."
+  (ignore-errors
+    (when (and (equal (buffer-name) cider-inspector-buffer)
+               (cider-connected-p)
+               (cider-nrepl-op-supported-p "cider/inspect-clear"))
+      (cider-nrepl-send-request '("op" "cider/inspect-clear") #'ignore))))
 
 (defun cider-inspector--highlight-diff-tags ()
   "Apply distinctive face to #± by manually walking through buffer.
@@ -348,7 +362,8 @@ names the same target across CIDER's menus."
     ("d" "Defun at point" cider-inspect-defun-at-point)]
    ["Inspect"
     ("r" "Last result" cider-inspect-last-result)
-    (":" "An expression you type" cider-inspect-expr)]])
+    (":" "An expression you type" cider-inspect-expr)
+    ("=" "How two expressions differ" cider-inspect-diff)]])
 
 (defvar cider-inspector-location-stack nil
   "A stack used to save point locations in inspector buffers.
@@ -369,6 +384,19 @@ current buffer's namespace."
       (cider-inspector--render-value result :next-inspectable))))
 
 (defvar cider-repl-prompt-function)
+
+;;;###autoload
+(defun cider-inspect-diff (expr1 expr2 ns)
+  "Evaluate EXPR1 and EXPR2 in NS and inspect how their values differ.
+The values are compared all the way down, and the inspector shows them as
+one structure with the places where they differ marked.  There
+`cider-inspector-toggle-only-diff' hides the parts that are the same.
+Interactively, the expressions are read from the minibuffer, and NS is the
+current buffer's namespace."
+  (interactive (list (cider-read-from-minibuffer "Diff expression: " (cider-sexp-at-point))
+                     (cider-read-from-minibuffer "Against expression: ")
+                     (cider-current-ns)))
+  (cider-inspect-expr (format "(orchard.inspect/diff %s %s)" expr1 expr2) ns))
 
 (defun cider-inspect-expr-from-inspector ()
   "Run `cider-inspect-expr' in a way that's suitable from the Inspector itself.

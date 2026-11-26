@@ -65,6 +65,21 @@ functions of no arguments. The functions must be synchronous
 (blocking), and are expected to be side-effecting - they will always
 be executed serially, without retries.
 
+By default the refresh looks at every directory on the classpath, or at the
+ones you gave `clojure.tools.namespace.repl/set-refresh-dirs` in the REPL.
+`cider-ns-refresh-dirs` sets them from Emacs instead, which is handy when a
+project wants to keep, say, its `test` or `dev` directory out of the reload.
+It's a per-project setting, so `.dir-locals.el` is the place for it:
+
+[source,lisp]
+----
+((clojure-mode . ((cider-ns-refresh-dirs . ("src" "dev")))))
+----
+
+The paths are used as the REPL sees them: a relative one is resolved against
+its working directory, which is normally the project root. The option applies
+to `tools.namespace` only.
+
 By default, messages regarding the status of the in-progress reload
 will be displayed in the echo area after you call
 `cider-ns-refresh`. The same information will also be recorded in the
