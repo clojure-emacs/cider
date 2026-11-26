@@ -175,7 +175,31 @@
     (it "don't stay open for a key they don't have"
       (expect (replay "C-c C-v C-M-q" 'cider-eval-last-sexp) :to-be nil)
       (expect (replay "C-c C-v e" 'cider-eval-last-sexp)
-              :to-equal '(cider-eval-last-sexp nil)))))
+              :to-equal '(cider-eval-last-sexp nil)))
+
+    (it "take the control-key variants of the jack-in and connect keys"
+      (expect (replay "C-c C-x C-j C-j" 'cider-jack-in-clj)
+              :to-equal '(cider-jack-in-clj nil))
+      (expect (replay "C-c C-x C-j C-s" 'cider-jack-in-cljs)
+              :to-equal '(cider-jack-in-cljs nil))
+      (expect (replay "C-c C-x C-j n" 'cider-start-nrepl-server)
+              :to-equal '(cider-start-nrepl-server nil))
+      (expect (car (replay "C-c C-x C-c C-j" 'cider-connect-clj))
+              :to-be 'cider-connect-clj)
+      (expect (car (replay "C-c C-x C-s C-s" 'cider-connect-sibling-cljs))
+              :to-be 'cider-connect-sibling-cljs)
+      (expect (car (replay "C-c C-x C-s j" 'cider-connect-sibling-clj))
+              :to-be 'cider-connect-sibling-clj))
+
+    (it "take the keys that search the doc strings"
+      (expect (car (replay "C-c C-d f" 'cider-apropos-documentation))
+              :to-be 'cider-apropos-documentation)
+      (expect (car (replay "C-c C-d C-f" 'cider-apropos-documentation))
+              :to-be 'cider-apropos-documentation)
+      (expect (car (replay "C-c C-d e" 'cider-apropos-documentation-select))
+              :to-be 'cider-apropos-documentation-select)
+      (expect (car (replay "C-c C-d C-e" 'cider-apropos-documentation-select))
+              :to-be 'cider-apropos-documentation-select))))
 
 (describe "customize-menu"
   (it "opens without error"

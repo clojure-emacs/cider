@@ -256,6 +256,26 @@ runs.  They only affect this invocation, not your saved configuration."
     ("ss" "ClojureScript" cider-connect-sibling-cljs)]
    ["Other"
     ("x" "Choose connection command..." cider)]]
+  ;; Control-variant duplicates, hidden from the menu, preserving muscle memory.
+  [:hide (lambda () t)
+   ("C-j j" "Clojure" cider-start-menu--jack-in-clj)
+   ("C-j s" "ClojureScript" cider-start-menu--jack-in-cljs)
+   ("C-j m" "Clojure + ClojureScript" cider-start-menu--jack-in-clj&cljs)
+   ("C-j n" "Start server only" cider-start-menu--start-nrepl-server)
+   ("C-j C-j" "Clojure" cider-start-menu--jack-in-clj)
+   ("C-j C-s" "ClojureScript" cider-start-menu--jack-in-cljs)
+   ("C-j C-m" "Clojure + ClojureScript" cider-start-menu--jack-in-clj&cljs)
+   ("C-j C-n" "Start server only" cider-start-menu--start-nrepl-server)
+   ("C-c j" "Clojure" cider-connect-clj)
+   ("C-c s" "ClojureScript" cider-connect-cljs)
+   ("C-c m" "Clojure + ClojureScript" cider-connect-clj&cljs)
+   ("C-c C-j" "Clojure" cider-connect-clj)
+   ("C-c C-s" "ClojureScript" cider-connect-cljs)
+   ("C-c C-m" "Clojure + ClojureScript" cider-connect-clj&cljs)
+   ("C-s j" "Clojure" cider-connect-sibling-clj)
+   ("C-s s" "ClojureScript" cider-connect-sibling-cljs)
+   ("C-s C-j" "Clojure" cider-connect-sibling-clj)
+   ("C-s C-s" "ClojureScript" cider-connect-sibling-cljs)]
   (interactive)
   (cider--setup-menu 'cider-start-menu))
 

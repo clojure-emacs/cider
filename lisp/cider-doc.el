@@ -208,7 +208,11 @@ Without a QUERY prompt for it and for what ARGS would say."
    ("C-c" "ClojureDocs" cider-clojuredocs)
    ("C-w" "ClojureDocs in browser" cider-clojuredocs-web)
    ("C-a" "Search symbols" cider-doc-apropos)
-   ("C-s" "Search & select" cider-doc-apropos-select)]
+   ("C-s" "Search & select" cider-doc-apropos-select)
+   ("f" "Search doc strings" cider-apropos-documentation)
+   ("e" "Search doc strings & select" cider-apropos-documentation-select)
+   ("C-f" "Search doc strings" cider-apropos-documentation)
+   ("C-e" "Search doc strings & select" cider-apropos-documentation-select)]
   (interactive)
   (cider--setup-menu 'cider-doc-menu))
 
