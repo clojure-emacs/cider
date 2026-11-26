@@ -1385,6 +1385,9 @@ command `cider-debug-defun-at-point'."
         (insert-char matching-delimiter)))
     (buffer-string)))
 
+;; `clojure-ts-mode' is optional, so its variable may not be defined.
+(defvar clojure-ts-toplevel-inside-comment-form)
+
 (defun cider-eval-defun-up-to-point (&optional output-to-current-buffer)
   "Evaluate the current toplevel form up to point.
 If invoked with OUTPUT-TO-CURRENT-BUFFER, print the result in the current
@@ -1392,9 +1395,26 @@ buffer.  It constructs an expression to eval in the following manner:
 
 - It find the code between the point and the start of the toplevel expression;
 - It balances this bit of code by closing all open expressions;
-- It evaluates the resulting code using `cider-interactive-eval'."
+- It evaluates the resulting code using `cider-interactive-eval'.
+
+Inside a form enclosed in a `comment' form, the enclosed form is the
+toplevel one, as it is for `cider-eval-defun-at-point'."
   (interactive "P")
-  (let* ((beg-of-defun (save-excursion (beginning-of-defun-raw) (point)))
+  (let* ((origin (point))
+         (beg-of-defun (save-excursion
+                         (let ((clojure-toplevel-inside-comment-form t)
+                               (clojure-ts-toplevel-inside-comment-form t))
+                           (beginning-of-defun-raw))
+                         ;; Between the forms of a `comment', or after it, that
+                         ;; finds a form point isn't in, and the `comment'
+                         ;; itself is the one to take.
+                         (when (< (or (ignore-errors (scan-sexps (point) 1)) origin)
+                                  origin)
+                           (goto-char origin)
+                           (let ((clojure-toplevel-inside-comment-form nil)
+                                 (clojure-ts-toplevel-inside-comment-form nil))
+                             (beginning-of-defun-raw)))
+                         (point)))
          (code (buffer-substring-no-properties beg-of-defun (point)))
          (code (cider--insert-closing-delimiters code)))
     (cider-interactive-eval code

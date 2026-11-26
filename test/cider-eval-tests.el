@@ -773,7 +773,29 @@
       (cider-eval-defun-to-comment)
       (let ((bounds (nth 2 (spy-calls-args-for 'cider-interactive-eval 0))))
         (expect (apply #'buffer-substring-no-properties bounds)
-                :to-equal "(+ 1 2)")))))
+                :to-equal "(+ 1 2)"))))
+
+  (it "cider-eval-defun-up-to-point starts from the enclosed form"
+    (spy-on 'cider-interactive-eval)
+    (with-clojure-buffer "(comment\n  (+ 1 2)\n  (let [b \"str\"]\n    (-> b keyword|)))"
+      (cider-eval-defun-up-to-point)
+      (expect (car (spy-calls-args-for 'cider-interactive-eval 0))
+              :to-equal "(let [b \"str\"]\n    (-> b keyword))"))
+    (with-clojure-buffer "(defn xyz [b]\n  (-> b keyword|))"
+      (cider-eval-defun-up-to-point)
+      (expect (car (spy-calls-args-for 'cider-interactive-eval 1))
+              :to-equal "(defn xyz [b]\n  (-> b keyword))")))
+
+  (it "cider-eval-defun-up-to-point takes the comment form when point is in none of its forms"
+    (spy-on 'cider-interactive-eval)
+    (with-clojure-buffer "(comment\n  (+ 1 2)\n  (* 3 4))|\n(def xyz 2)"
+      (cider-eval-defun-up-to-point)
+      (expect (car (spy-calls-args-for 'cider-interactive-eval 0))
+              :to-equal "(comment\n  (+ 1 2)\n  (* 3 4))"))
+    (with-clojure-buffer "(comment\n  (+ 1 2)\n  |(* 3 4))"
+      (cider-eval-defun-up-to-point)
+      (expect (car (spy-calls-args-for 'cider-interactive-eval 1))
+              :to-equal "(comment\n  (+ 1 2)\n  )"))))
 
 (describe "cider-eval-defun-at-point"
   (it "targets the enclosed form inside a comment form, like cider-eval-dwim"

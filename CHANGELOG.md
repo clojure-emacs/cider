@@ -46,6 +46,7 @@
 
 ### Bugs fixed
 
+- [#4244](https://github.com/clojure-emacs/cider/pull/4244): Fix `cider-eval-defun-up-to-point` inside a `comment` form, where it evaluated the `comment` up to point instead of the form within it.
 - [#4244](https://github.com/clojure-emacs/cider/pull/4244): Fix the Customize types of `cider-print-quota`, `nrepl-sync-request-timeout`, `cider-connection-message-fn`, `cider-eval-result-duration` and `cider-known-endpoints`, which rejected values the manual recommends.
 - [#4239](https://github.com/clojure-emacs/cider/pull/4239): Fix the Customize types of the options that take a string but default to `nil`, of `cider-repl-init-code`, `cider-repl-history-file`, `cider-default-cljs-repl` and `cider-completion-annotations-alist`, and the missing or malformed version information of some forty options.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Fix the dead manual links in the errors about a ClojureScript REPL's missing requirements.
