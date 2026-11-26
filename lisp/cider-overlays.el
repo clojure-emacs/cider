@@ -116,7 +116,7 @@ If nil, overlays last indefinitely.
 If the symbol `command', they're erased after the next command.
 If the symbol `change', they last until the next change to the buffer.
 Also see `cider-eval-result-display'."
-  :type '(choice (integer :tag "Duration in seconds")
+  :type '(choice (number :tag "Duration in seconds")
                  (const :tag "Until next command" command)
                  (const :tag "Until next buffer change" change)
                  (const :tag "Last indefinitely" nil))

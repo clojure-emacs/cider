@@ -624,7 +624,8 @@ canceled the action, signal quit."
   "The function to use to generate the message displayed on connect.
 When set to nil no additional message will be displayed.  A good
 alternative to the default is `cider-random-tip'."
-  :type 'function
+  :type '(choice function
+                 (const :tag "No message" nil))
   :group 'cider
   :package-version '(cider . "0.11.0"))
 

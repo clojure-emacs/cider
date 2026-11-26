@@ -51,9 +51,13 @@
 For example: \\='((\"label\" \"host\" \"port\")).
 The label is optional so that \\='(\"host\" \"port\") will suffice.
 This variable is used by `cider-connect'."
-  :type '(repeat (list (string :tag "label")
-                       (string :tag "host")
-                       (string :tag "port")))
+  :type '(repeat (choice (list :tag "Labeled"
+                               (string :tag "label")
+                               (string :tag "host")
+                               (string :tag "port"))
+                         (list :tag "Unlabeled"
+                               (string :tag "host")
+                               (string :tag "port"))))
   :group 'cider
   :package-version '(cider . "0.6.0"))
 
