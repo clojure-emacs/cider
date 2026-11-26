@@ -265,7 +265,15 @@
 
   (it "passes nil for a plain smart reload when no switches are set"
     (cider-ns-menu--refresh nil)
-    (expect 'cider-ns-refresh :to-have-been-called-with nil)))
+    (expect 'cider-ns-refresh :to-have-been-called-with nil))
+
+  (it "passes a prefix argument on as cider-ns-refresh reads it"
+    (let ((current-prefix-arg '(4)))
+      (cider-ns-menu--refresh nil))
+    (expect 'cider-ns-refresh :to-have-been-called-with '(4))
+    (let ((current-prefix-arg '(16)))
+      (cider-ns-menu--refresh '("--inhibit-fns")))
+    (expect 'cider-ns-refresh :to-have-been-called-with '(inhibit-fns 16))))
 
 (describe "cider-ns-add-require"
   :var (cider-ns-edit-actions)

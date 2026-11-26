@@ -446,7 +446,9 @@ type implements, and the protocols declaring a given method.")
    ("C-m" "Macro use sites" cider-who-macroexpands)
    ("C-i" "Protocol/multimethod implementations" cider-who-implements)
    ("C-t" "Protocols a type implements" cider-type-protocols)
-   ("C-p" "Protocols declaring a method" cider-protocols-with-method)])
+   ("C-p" "Protocols declaring a method" cider-protocols-with-method)]
+  (interactive)
+  (cider--setup-menu 'cider-references-menu))
 
 (provide 'cider-xref-tree)
 ;;; cider-xref-tree.el ends here

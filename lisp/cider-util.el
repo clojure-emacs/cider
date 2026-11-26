@@ -1052,6 +1052,32 @@ Falls back to the raw HTML when Emacs lacks libxml support."
             (string-trim (buffer-string)))))
     html))
 
+;;; Menus
+
+(declare-function transient-setup "transient")
+
+(defvar cider--menu-stashed-prefix-arg nil
+  "The prefix argument the last menu was invoked with.")
+
+(defun cider--setup-menu (menu)
+  "Show the transient MENU, handing the prefix argument on to its commands.
+The menus sit on keys that used to be prefix keys, so a prefix argument
+typed before one of them is meant for the command picked from the menu.
+Transient would drop it."
+  (setq cider--menu-stashed-prefix-arg current-prefix-arg)
+  (setq prefix-arg current-prefix-arg)
+  (transient-setup menu))
+
+(defun cider--menu-prefix-arg ()
+  "Return the prefix argument for a command picked from a menu.
+That is the one typed in the menu, or else the one the menu was invoked
+with.  The latter doesn't always get to the command by itself: setting a
+menu argument uses it up, and so does the first key of a two-key binding
+with the transient of Emacs 29."
+  (or current-prefix-arg
+      (prog1 cider--menu-stashed-prefix-arg
+        (setq cider--menu-stashed-prefix-arg nil))))
+
 (provide 'cider-util)
 
 ;;; cider-util.el ends here

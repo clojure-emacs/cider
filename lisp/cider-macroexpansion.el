@@ -343,7 +343,8 @@ PROMPT, INITIAL-INPUT and HISTORY are as for `completing-read'."
 (defun cider-macroexpand-menu--apply-args (args command)
   "Call macroexpand COMMAND with the `cider-macroexpand-menu' ARGS applied.
 The display arguments are `let'-bound around the call, so the popup
-macroexpansion honors them for this invocation only."
+macroexpansion honors them for this invocation only.  COMMAND is called
+interactively, so it sees the prefix argument."
   (let ((cider-macroexpansion-display-namespaces
          (if-let* ((ns (transient-arg-value "--ns=" args)))
              (intern ns)
@@ -351,7 +352,8 @@ macroexpansion honors them for this invocation only."
         (cider-macroexpansion-print-metadata
          (or (and (member "--meta" args) t)
              cider-macroexpansion-print-metadata)))
-    (funcall command)))
+    (let ((current-prefix-arg (cider--menu-prefix-arg)))
+      (call-interactively command))))
 
 (transient-define-suffix cider-macroexpand-menu--expand-1 (args)
   "Macroexpand-1 into a popup buffer, applying the menu's ARGS."
@@ -390,7 +392,9 @@ namespaces and metadata for this invocation."
    ["Inline (macrostep)"
     ("e" "Expand-1 inline" cider-macrostep-expand)
     ("E" "Expand all inline" cider-macrostep-expand-all)
-    ("b" "Stepping session in popup" cider-macrostep-expand-in-buffer)]])
+    ("b" "Stepping session in popup" cider-macrostep-expand-in-buffer)]]
+  (interactive)
+  (cider--setup-menu 'cider-macroexpand-menu))
 
 (provide 'cider-macroexpansion)
 

@@ -209,17 +209,17 @@ commands filter by them for this invocation only."
 (transient-define-suffix cider-test-menu--run-ns (args)
   "Run the current namespace's tests, applying the menu's selector ARGS."
   (interactive (list (transient-args 'cider-test-menu)))
-  (cider-test-menu--apply-args args (lambda () (cider-test-run-ns-tests nil))))
+  (cider-test-menu--apply-args args (lambda () (cider-test-run-ns-tests (cider--menu-prefix-arg)))))
 
 (transient-define-suffix cider-test-menu--run-loaded (args)
   "Run the loaded namespaces' tests, applying the menu's selector ARGS."
   (interactive (list (transient-args 'cider-test-menu)))
-  (cider-test-menu--apply-args args (lambda () (cider-test-run-loaded-tests nil))))
+  (cider-test-menu--apply-args args (lambda () (cider-test-run-loaded-tests (cider--menu-prefix-arg)))))
 
 (transient-define-suffix cider-test-menu--run-project (args)
   "Run the project's tests, applying the menu's selector ARGS."
   (interactive (list (transient-args 'cider-test-menu)))
-  (cider-test-menu--apply-args args (lambda () (cider-test-run-project-tests nil))))
+  (cider-test-menu--apply-args args (lambda () (cider-test-run-project-tests (cider--menu-prefix-arg)))))
 
 ;;;###autoload (autoload 'cider-test-menu "cider-test" "Menu for CIDER's test commands." t)
 (transient-define-prefix cider-test-menu ()
@@ -250,7 +250,9 @@ project run commands execute, without prompting."
    ("C-r" "Rerun failed" cider-test-rerun-failed-tests)
    ("C-a" "Rerun last test" cider-test-rerun-test)
    ("C-b" "Show report" cider-test-show-report)
-   ("C-f" "Toggle fail-fast" cider-test-toggle-fail-fast)])
+   ("C-f" "Toggle fail-fast" cider-test-toggle-fail-fast)]
+  (interactive)
+  (cider--setup-menu 'cider-test-menu))
 
 (defvar cider-test-report-mode-map
   (let ((map (make-sparse-keymap)))
