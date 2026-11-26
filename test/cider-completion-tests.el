@@ -30,6 +30,54 @@
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
+(describe "cider-completion--enable-default-style"
+  (it "enables the cider style once, however many buffers ask for it"
+    (let ((completion-category-overrides nil)
+          (cider-completion--style-configured nil))
+      (cider-completion--enable-default-style)
+      (cider-completion--enable-default-style)
+      (expect completion-category-overrides :to-equal '((cider (styles cider basic))))))
+
+  (it "leaves the style off once it was turned off"
+    (let ((completion-category-overrides nil)
+          (cider-completion--style-configured nil))
+      (cider-enable-cider-completion-style -1)
+      (cider-completion--enable-default-style)
+      (expect completion-category-overrides :to-equal nil)))
+
+  (it "leaves the styles chosen for the cider category alone"
+    (let ((completion-category-overrides '((cider (styles orderless))))
+          (cider-completion--style-configured nil))
+      (cider-completion--enable-default-style)
+      (expect completion-category-overrides :to-equal '((cider (styles orderless)))))
+    (let ((completion-category-overrides nil)
+          (cider-completion--style-configured nil))
+      (cider-enable-flex-completion)
+      (cider-completion--enable-default-style)
+      (expect completion-category-overrides :to-equal '((cider (styles flex basic))))))
+
+  (it "enables the style again when the overrides were reset, or have no styles"
+    (let ((completion-category-overrides nil)
+          (cider-completion--style-configured nil))
+      (cider-completion--enable-default-style)
+      (setq completion-category-overrides '((file (styles basic))))
+      (cider-completion--enable-default-style)
+      (expect (alist-get 'cider completion-category-overrides)
+              :to-equal '((styles cider basic))))
+    (let ((completion-category-overrides '((cider (cycle . 3))))
+          (cider-completion--style-configured nil))
+      (cider-completion--enable-default-style)
+      (expect (alist-get 'cider completion-category-overrides)
+              :to-equal '((styles cider basic) (cycle . 3))))))
+
+(describe "cider-enable-cider-completion-style"
+  (it "doesn't list the cider style twice"
+    (let ((completion-category-overrides nil)
+          (cider-completion--style-configured nil))
+      (cider-enable-cider-completion-style)
+      (cider-enable-cider-completion-style)
+      (expect completion-category-overrides :to-equal '((cider (styles cider basic)))))))
+
 (describe "cider-enable-flex-completion"
   (when (>= emacs-major-version 27)
     (it "adds `flex' and `basic' as a fallback"
