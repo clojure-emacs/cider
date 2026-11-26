@@ -73,7 +73,9 @@ clojure-lsp be the sole ElDoc source, remove CIDER's function:
 
 [source,lisp]
 ----
-(remove-hook 'eldoc-documentation-functions #'cider-eldoc)
+(add-hook 'cider-mode-hook
+          (lambda ()
+            (remove-hook 'eldoc-documentation-functions #'cider-eldoc t)))
 ----
 
 TIP: Emacs 28+ can merge multiple ElDoc sources, so you can see, say, a linter

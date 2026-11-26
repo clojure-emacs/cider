@@ -228,7 +228,7 @@ For reference, the same specs in the legacy positional format:
 | `defn` | `:defn` or `[[:inner 0]]` | `:defn`
 | `defrecord` | `[[:block 2] [:inner 1]]` | `[2 nil nil [:defn]]`
 | `defprotocol` | `[[:block 1] [:inner 1]]` | `[1 [:defn]]`
-| `extend-protocol` | `[[:block 1] [:inner 0]]` | `[1 :defn]`
+| `extend-protocol` | `[[:block 1] [:inner 1]]` | `[1 [:defn]]`
 | `reify` | `[[:inner 0] [:inner 1]]` | `[:defn [:defn]]`
 | `letfn` | `[[:block 1] [:inner 2 0]]` | `[1 [[:defn]] :form]`
 |===

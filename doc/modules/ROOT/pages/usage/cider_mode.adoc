@@ -129,7 +129,7 @@ defined.  Just rebind the prefix key back to its keymap:
   (keymap-set cider-mode-map "C-c M-n" 'cider-ns-map)             ; namespace
   (keymap-set cider-mode-map "C-c C-j" 'cider-insert-commands-map) ; insert in REPL
   (keymap-set cider-mode-map "C-c M-m" 'cider-macroexpand-map)    ; macroexpansion
-  (keymap-set cider-mode-map "C-c C-=" 'cider-profile-menu)       ; profiling
+  (keymap-set cider-mode-map "C-c C-=" 'cider-profile-map)        ; profiling
   (keymap-set cider-mode-map "C-c C-w" 'cider-who-map))           ; call-graph queries
 ----
 
@@ -153,7 +153,7 @@ xref:keybindings.adoc[Keybindings] reference page.
 ====
 There's no need to memorize these bindings. If you're in a Clojure buffer with `cider-mode`
 active you'll have a CIDER menu available. The menu lists all the most important
-commands and their keybindings. You can also invoke kbd:[C-h f RET cider-mode] to
+commands and their keybindings. You can also invoke kbd:[C-h f cider-mode RET] to
 get a list of the keybindings for `cider-mode`.
 
 image::menu_example.png[CIDER interactions menu]

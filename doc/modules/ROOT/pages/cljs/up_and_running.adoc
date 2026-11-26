@@ -59,7 +59,7 @@ build.gradle::
 dependencies {
   devImplementation 'nrepl:nrepl:{nrepl-version}'
   devImplementation 'cider:cider-nrepl:{cider-nrepl-version}'
-  devImplementation 'cider:cider-piggieback:{piggieback-version}'
+  devImplementation 'cider:piggieback:{piggieback-version}'
 }
 
 tasks.named('clojureRepl') {
@@ -155,7 +155,7 @@ If you would prefer to evaluate `cljc` files in only one of the matching REPLs, 
 (setq cider-clojurec-eval-destination 'cljs)
 ----
 
-Note: This variable can also be set on a per-buffer basis using `setq-local`, or project-wide in `dir-locals.el`.
+Note: This variable can also be set on a per-buffer basis using `setq-local`, or project-wide in `.dir-locals.el`.
 
 You can also switch the destination interactively in a single buffer with
 kbd:[C-c C-M-d] (`cider-cycle-eval-destination`), which cycles through `clj`,

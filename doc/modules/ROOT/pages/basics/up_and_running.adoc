@@ -91,7 +91,7 @@ this looks for `tools.deps`:
 
 [source,sh,subs="attributes+"]
 ----
-$ clojure -Sdeps '{:deps {nrepl {:mvn/version "{nrepl-version}"} cider/cider-nrepl {:mvn/version "{cider-nrepl-version}"}}}' -m nrepl.cmdline --middleware '["cider.nrepl/cider-middleware"]'
+$ clojure -Sdeps '{:deps {nrepl/nrepl {:mvn/version "{nrepl-version}"} cider/cider-nrepl {:mvn/version "{cider-nrepl-version}"}} :aliases {:cider/nrepl {:main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"]}}}' -M:cider/nrepl
 ----
 
 TIP: If you don't want `cider-jack-in` to inject dependencies automatically, set
@@ -111,6 +111,7 @@ Here's how you can modify the injected dependencies for `cider-jack-in-clj`:
 (cider-add-to-alist 'cider-jack-in-dependencies
                     "foo/bar" "1.0")
 ;; if you want to have full control over the coordinate description set it as an alist
+;; (only the Clojure CLI understands such a coordinate)
 ;; auto-inject {:git/sha "6ae2b6f71773de7549d7f22759e8b09fec27f0d9" for library org.clojure/tools.deps
 ;;              :git/url "https://github.com/clojure/tools.deps/"}
 (cider-add-to-alist 'cider-jack-in-dependencies
@@ -289,7 +290,7 @@ values the first time it sees them.
 * `cider-clojure-cli-command` - the name of the `clojure` executable (`clojure` by default)
 * `cider-clojure-cli-parameters` - the command-line parameters to start a REPL
 * `cider-clojure-cli-aliases` - a list of project-specific aliases to be used at jack-in time (it's meant to be set via `.dir-locals.el`)
-* `cider-clojure-cli-global-aliases` - a list of global aliases that are appended to project-specific `cider-clojure-cli-aliases`
+* `cider-clojure-cli-global-aliases` - a list of global aliases that go before the project-specific `cider-clojure-cli-aliases`
 
 TIP: When `cider-clojure-cli-aliases` is unset, CIDER hints at jack-in time that you may want to activate an alias (e.g. `:dev` or `:test`). If you deliberately jack in without aliases, set `cider-clojure-cli-aliases` to `:nil-no-warn` to silence the hint.
 
@@ -327,7 +328,7 @@ invokes it with `-M`.  A typical jack-in command ends up looking like this:
 Aliases you add via `cider-clojure-cli-aliases` (project-local, usually set in
 `.dir-locals.el`) or `cider-clojure-cli-global-aliases` (global) are
 concatenated into that `-M...:cider/nrepl` form.  A leading `-A`, `-M`, `-T`,
-or `-X` is stripped from each alias, since CIDER picks the exec flag and you
+or `-X` is stripped from both, since CIDER picks the exec flag and you
 only supply the alias names.
 
 For example, to enable your project's `:dev` alias at jack-in:
@@ -443,7 +444,7 @@ prompt you for the host and port information, which should have been
 printed when the previous commands started the nREPL server in your
 project.
 
-TIP: In Clojure(Script) buffers the command `cider-connect` is bound to kbd:[C-c C-x c s].
+TIP: In Clojure(Script) buffers the command `cider-connect` is bound to kbd:[C-c C-x c j].
 
 === How CIDER Finds Ports
 
@@ -502,12 +503,17 @@ on a per-project basis using https://www.gnu.org/software/emacs/manual/html_node
 The following configuration allows you to type kbd:[M-x] `cider-connect-clj&cljs` kbd:[RET] and instantly connect to both JVM and shadow-cljs REPLs without answering any prompts – useful when the project always uses the same fixed endpoints for its nREPL servers.
 
 [source,lisp]
----
+----
 ((clojure-mode
   . ((cider-connect-default-params . (:host "localhost" :port 1234))
      (cider-connect-default-cljs-params . (:host "localhost" :port 5678))
-     (cider-default-cljs-repl . shadow))))
----
+     (cider-default-cljs-repl . shadow)
+     (cider-shadow-default-options . "app"))))
+----
+
+`cider-shadow-default-options` names the shadow-cljs build to connect to; without
+it CIDER asks for one. Emacs will ask once whether to trust the connection
+parameters, as they aren't marked as safe local variables.
 
 Note that the universal argument kbd:[C-u] can be used before a command to override these settings and force the prompts to be displayed.
 

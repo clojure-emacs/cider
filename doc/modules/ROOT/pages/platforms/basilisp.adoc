@@ -103,7 +103,7 @@ It is best to put this in the top of your project's `basilisp.edn` file, and alw
 
 For example, setting `cider-basilisp-command` to start basilisp from within a virtual environment:
 
-- kbd:[M-x add-dir-local-variable]
+- kbd:[M-x add-file-local-variable]
 - Add file-local variable: `cider-basilisp-command`
 - Add cider-basilisp-command with value: `"c:/dev/venvs/312/Scripts/basilisp"`
 

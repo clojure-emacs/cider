@@ -49,12 +49,13 @@ you want to pin evaluations to a specific REPL instead of the
 
 == Browsing Namespaces
 
-kbd:[M-x] `cider-browse-ns` displays the vars of a namespace (defaulting to
-the current one) in a browsable buffer, along with the first sentence of each
+kbd:[M-x] `cider-browse-ns` prompts for a namespace and displays its vars in a
+browsable buffer, along with the first sentence of each
 var's docstring; `cider-browse-ns-all` lists all loaded namespaces instead.
 The entries can be grouped (by type or visibility) and filtered from the
 header, groups fold with kbd:[TAB], kbd:[n]/kbd:[p] move between entries, and
-kbd:[RET] (or kbd:[.]) visits the definition of the var at point.
+kbd:[RET] (or kbd:[.]) shows the documentation of the var at point, while
+kbd:[s] visits its definition.
 
 image::cider-browse-ns.png[The namespace browser]
 
@@ -67,8 +68,9 @@ spec name and then drop you into the spec browser.
 image::spec_browser.png[Spec Browser]
 
 If you aren't quite sure which spec you want, you can type
-kbd:[M-x] `cider-browse-spec-all`. CIDER will then prompt you for
-a regex and will filter out all the spec names that don't match.
+kbd:[M-x] `cider-browse-spec-all`, which lists all the specs. With a prefix
+argument CIDER will prompt you for a regex and will filter out all the spec
+names that don't match.
 
 image::spec_browser_all.png[Spec Browser]
 
@@ -88,7 +90,7 @@ navigate deeper.
 | Browse the spec at point.
 
 | kbd:[^]
-| Go up in the navigation stack.
+| List all the specs.
 
 | kbd:[n]
 | Go to next spec.

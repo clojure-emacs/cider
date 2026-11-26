@@ -59,7 +59,7 @@ By using `M-x cider-log-show`, all setup and rendering will be performed for you
 
 * A framework will be set up, automatically
 ** You may be prompted for a framework
-** You can prevent the prompt by customizing `cider-log-framework-name` (best done in `dir-locals.el`)
+** You can prevent the prompt by customizing `cider-log-framework-name` (best done in `.dir-locals.el`)
 * A log appender and a log consumer will be setup, automatically
 * The `+*cider-log*+` buffer will be rendered.
 
@@ -74,7 +74,7 @@ The intended workflow for this function is as follows:
 * Run `M-x cider-log-event`
 * A framework will be set up, automatically
 ** You may be prompted for a framework
-** You can prevent the prompt by customizing `cider-log-framework-name` (best done in `dir-locals.el`)
+** You can prevent the prompt by customizing `cider-log-framework-name` (best done in `.dir-locals.el`)
 * A log appender and a log consumer will be setup, automatically
 * The `+*cider-log*+` buffer will _not_ be rendered
 ** For it to be rendered, press `s` (`Search log events`) within the transient-mode menu.

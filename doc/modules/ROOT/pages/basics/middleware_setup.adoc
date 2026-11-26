@@ -42,7 +42,7 @@ tools.deps::
 --
 You can add the following aliases to your deps.edn in order to launch
 a standalone Clojure(Script) nREPL server with CIDER middleware from
-the commandline with something like `clj -A:cider-clj`. Then from emacs
+the commandline with something like `clj -M:cider-clj`. Then from emacs
 run `cider-connect` or `cider-connect-cljs`.
 
 [source,clojure,subs="attributes+"]

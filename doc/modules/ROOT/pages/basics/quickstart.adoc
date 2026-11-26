@@ -29,9 +29,9 @@ Visit any Clojure source file that belongs to your project (for example
 `src/my_app/core.clj`). CIDER keys off the project that file lives in, so it's
 important to start from inside a real project rather than a stray buffer.
 
-`cider-mode` turns on automatically in Clojure buffers once CIDER is loaded, and
-it's what adds all the "talk to a running Clojure" commands on top of ordinary
-editing.
+`cider-mode` turns on automatically in Clojure buffers once you're connected to
+a REPL (the next step), and it's what adds all the "talk to a running Clojure"
+commands on top of ordinary editing.
 
 == 3. Jack in
 

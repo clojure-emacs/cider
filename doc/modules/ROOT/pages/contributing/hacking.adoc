@@ -146,7 +146,8 @@ A few suite conventions worth knowing:
 
 If you prefer running all tests outside Emacs that's also an option.
 
-There are two test types, `main` (unit tests) and `integration`. By
+The main test types are `main` (unit tests) and `integration`; `clojure-ts-mode`
+runs the specs that need `clojure-ts-mode`, and `all` runs everything. By
 default only main tests are run.
 
 Run all unit tests with:
@@ -190,7 +191,7 @@ report. To see which lines the unit tests reach:
 Don't pass `-p` here: coverage instrumentation needs the sources loaded as they
 are, not byte-compiled.
 
-You can also check for compliance with a variety of coding standards in batch mode (including docstrings):
+You can also check the docstrings with `checkdoc` in batch mode:
 
  $ eldev lint
  # Or:
@@ -235,35 +236,11 @@ $ circleci config process .circleci/config.yml > .circleci/config.yml.tmp && \
 Now, we're finally ready to
 https://circleci.com/docs/2.0/local-cli/#run-a-job-in-a-container-on-your-machine[run a CircleCI container on our machine].
 Run `circleci local execute --job=<job>` where `<job>` is one of those listed
-in `.circleci/config.yml`, e.g. `test-emacs-26`.
+in `.circleci/config.yml`, e.g. `test-ubuntu-emacs-30`.
 
 [source,shell]
 ----
-$ circleci local execute --job=test-emacs-26
-Docker image digest: sha256:65b2102646d5658f892e0ad8253b7912c676126c857c87c8c12460f0aa4f5aa1
-====>> Spin up Environment
-Build-agent version 1.0.8563-43047892 (2019-03-06T15:11:54+0000)
-Starting container silex/emacs:26-dev
-  image cache not found on this host, downloading silex/emacs:26-dev
-26-dev: Pulling from silex/emacs
-6cf436f81810: Already exists
-987088a85b96: Already exists
-e58f362a948a: Waiting
-...
-====>> make elpa
-  #!/bin/bash -eo pipefail
-make elpa
-Compute dependencies
-cask install
-Loading package information... done
-Package operations: 10 installs, 0 removals
-...
-Indenting region...
-Indenting region...done
-* Run indent-character
-* Run trailing-whitespace
-** ELISP-LINT: cider-overlays.el OK
-Success!
+$ circleci local execute --job=test-ubuntu-emacs-30
 ----
 
 This may take a while to download the CircleCI build agent and the build containers
@@ -323,12 +300,9 @@ xref:testing/running_tests.adoc[CIDER documentation] for all the details.
 
 ==== Running the tests in batch mode
 
-You can also run the tests in an external shell. Running `lein test` won't run
-pretty much anything, though. (perhaps we should change this?) To run the
-Clojure and ClojureScript tests you should specify some profile like this:
+You can also run the tests in an external shell, using the project's `Makefile`:
 
- $ lein with-profile +1.8,+test-clj test
- $ lein with-profile +1.8,+test-cljs test
+ $ make test
+ $ make cljs-test
 
-This will run all Clojure and ClojureScript tests against version 1.8 of both
-languages.
+The first runs the Clojure tests and the second the ClojureScript ones.

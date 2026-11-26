@@ -26,7 +26,7 @@ other Clojure REPLs. Some examples of such things would be:
 
 * You can close an incomplete expression with kbd:[C-RET]
 * You can enter a multi-line expression by pressing kbd:[C-j] at the end of each line
-* You can quickly jump to the definition of a symbol (kbd:[.]) or to its documentation (kbd:[C-c C-d d])
+* You can quickly jump to the definition of a symbol (kbd:[M-.]) or to its documentation (kbd:[C-c C-d d])
 * You can clear the output of the last expression with kbd:[C-c C-o]
 * You can clear the REPL buffer with kbd:[C-u C-c C-o]
 * You can jump between your source buffers and the REPL with kbd:[C-c C-z]
@@ -60,7 +60,7 @@ namely kbd:[C-c C-b].
 
 When you're done with a REPL you can dispose of it with kbd:[C-c C-q].
 
-TIP: Avoid killing REPL buffers with kbd:[C-c C-k]. This will forgo
+TIP: Avoid killing REPL buffers with kbd:[C-x k]. This will forgo
 some of the operations needed to properly dispose of a REPL buffer.
 
 == Loading REPL Utility Functions

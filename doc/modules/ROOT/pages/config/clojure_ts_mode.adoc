@@ -10,8 +10,9 @@ NOTE: `clojure-ts-mode` support was introduced in CIDER 1.14.
 
 == Enabling cider-mode
 
-Just as with `clojure-mode`, CIDER's minor mode isn't forced on you - enable it
-by adding it to the mode hook:
+Just as with `clojure-mode`, CIDER enables its minor mode in `clojure-ts-mode`
+buffers once you connect to a REPL (see `cider-auto-mode`). If you want it
+before that, add it to the mode hook:
 
 [source,lisp]
 ----

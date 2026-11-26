@@ -122,7 +122,7 @@ kbd:[C-c C-t C-b]
 | Show the REPL command reference (`cider-repl-help`).
 
 | kbd:[C-c C-q]
-| Quit the current nREPL connection. With a prefix argument it will quit all connections.
+| Quit the current nREPL connection.
 |===
 
 NOTE: kbd:[C-x C-e] is intentionally a no-op in the REPL: there's no "evaluate
@@ -140,7 +140,8 @@ In the REPL you can also use "shortcut commands" by pressing `,` at the
 beginning of a REPL line. You'll be presented with a list of commands you can
 quickly run (like quitting, displaying some info, clearing the REPL, etc). The
 character used to trigger the shortcuts is configurable via
-`cider-repl-shortcut-dispatch-char`. Here's how you can change it to `;`:
+`cider-repl-shortcut-dispatch-char`, which has to be set before CIDER is loaded.
+Here's how you can change it to `;`:
 
 [source,lisp]
 ----

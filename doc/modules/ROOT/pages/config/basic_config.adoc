@@ -54,7 +54,8 @@ accept a prefix argument that flips the behavior configured via
 
 == Control what window to use when jumping to a definition
 
-By default kbd:[M-.] and other commands that jump to a definition have the following behavior:
+By default the commands that jump to a definition (`cider-find-var`, `cider-find-ns`,
+the jumps from stacktraces and doc buffers, etc.) have the following behavior:
 
 * If the definition buffer is visible simply switch to it.
 * Otherwise, use the current window to show the definition.
@@ -62,6 +63,9 @@ By default kbd:[M-.] and other commands that jump to a definition have the follo
 Other behavior is possible, and is controlled with
 `cider-jump-to-pop-to-buffer-actions`; the value of this is passed as the
 `action` argument to `pop-to-buffer`.
+
+NOTE: With `cider-use-xref` enabled (the default) kbd:[M-.] in a source buffer is
+`xref-find-definitions`, which picks the window on its own and doesn't consult this option.
 
 The default value is `\((display-buffer-reuse-window display-buffer-same-window))`.
 
@@ -92,13 +96,13 @@ definition of `map` will be shown in the current window.
 You jump to `map` in `core.clj` when `core.clj` *_is_* being displayed in another window
 in the current frame.
 
-With the default behavior, the definition of `map` will be shown in the current
-window; you will now have two windows showing `core.clj`, and the existing
-`core.clj` window will be unchanged.
+With the default behavior, the definition of `map` will be shown in the existing
+`core.clj` window; all windows will show the same buffer as before the jump, and
+the current window will now be the one showing `core.clj`.
 
 With the alternative behavior defined above, the definition of `map` will be
-shown in the existing `core.clj` window; all windows will show the same buffer as
-before the jump, and the current window will now be the one showing `core.clj`.
+shown in the current window; you will now have two windows showing `core.clj`,
+and the existing `core.clj` window will be unchanged.
 
 [#control-whether-popup-buffers-get-selected]
 == Control whether popup buffers get selected
@@ -170,7 +174,7 @@ are, however, ways to improve upon the standard completion if you wish to.
 
 [source,lisp]
 ----
-(require 'icomplete)
+(icomplete-mode 1)
 ----
 
 You can learn more about `icomplete`
@@ -181,7 +185,7 @@ https://www.gnu.org/software/emacs/manual/html_node/emacs/Icomplete.html[here].
 `ido` is also bundled with Emacs and offers more features than `icomplete`.
 If you are using `ido`, be sure to use both `ido-everywhere`
 and https://github.com/DarwinAwardWinner/ido-completing-read-plus[`ido-completing-read+`].
-You might also want to install https://github.com/lewang/flx[`ido-flex`].
+You might also want to install https://github.com/lewang/flx[`flx-ido`].
 
 === ivy (recommended)
 
@@ -242,7 +246,7 @@ taken from the faces listed in `nrepl-message-faces`.
 
 == Hide Special nREPL Buffers
 
-If you're finding that `+*nrepl-connection*+` and `+*nrepl-server*+`
+If you're finding that the `+*nrepl-server*+` and `+*nrepl-tunnel*+`
 buffers are cluttering up your development environment, you can
 suppress them from appearing in some buffer switching commands like
 `switch-to-buffer`(kbd:[C-x b]):

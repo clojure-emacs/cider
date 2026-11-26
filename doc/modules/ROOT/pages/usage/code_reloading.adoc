@@ -109,7 +109,7 @@ from `tools.namespace`.
 ----
 
 With `clj-reload` you should set the source dirs as described in
-https://github.com/tonsky/clj-reload/blob/469da68/README.md##usage[the usage docs]
+https://github.com/tonsky/clj-reload/blob/469da68/README.md#usage[the usage docs]
 . If you don't set them manually, it will default to the current project's resource dirs in the same
 way `tools.namespace` does.
 

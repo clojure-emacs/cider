@@ -90,8 +90,13 @@ If you're using CIDER alongside `clojure-lsp` you might prefer to use `clojure-l
 
 [source,lisp]
 ----
-(remove-hook 'eldoc-documentation-functions #'cider-eldoc)
+(add-hook 'cider-mode-hook
+          (lambda ()
+            (remove-hook 'eldoc-documentation-functions #'cider-eldoc t)))
 ----
+
+CIDER adds its function to each buffer, so it has to be removed there too, which
+is what the hook does. Do the same on `cider-repl-mode-hook` for the REPL.
 
 TIP: If you're dealing with a lot of packages providing some ElDoc integration
 it's a good idea to learn about

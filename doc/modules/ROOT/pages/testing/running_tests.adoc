@@ -164,12 +164,15 @@ to look for `some.test-ns` instead of `some.ns-test`:
 ----
 (defun cider-custom-test-ns-fn (ns)
   "For a NS, return the test namespace, which may be the argument itself.
-This uses the convention of prepending 'test-' to the namespace name."
+This uses the convention of prepending `test-' to the last segment of
+the namespace name."
   (when ns
-    (let ((prefix "test-"))
-      (if (string-prefix-p prefix ns)
+    (let* ((segments (split-string ns "\\."))
+           (name (car (last segments))))
+      (if (string-prefix-p "test-" name)
           ns
-        (concat prefix ns)))))
+        (string-join (append (butlast segments) (list (concat "test-" name)))
+                     ".")))))
 
 (setq cider-test-infer-test-ns #'cider-custom-test-ns-fn)
 ----
