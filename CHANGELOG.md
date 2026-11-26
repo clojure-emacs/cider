@@ -46,6 +46,7 @@
 
 ### Bugs fixed
 
+- [#4244](https://github.com/clojure-emacs/cider/pull/4244): Make `cider-use-xref` take effect whenever it is set, not only when it is set before `cider-mode` is turned on.
 - [#4244](https://github.com/clojure-emacs/cider/pull/4244): Enable the `cider` completion style once instead of in every `cider-mode` buffer, so removing it from `completion-category-overrides` or picking other styles for the `cider` category sticks.
 - [#4244](https://github.com/clojure-emacs/cider/pull/4244): Fix `cider-eval-defun-up-to-point` inside a `comment` form, where it evaluated the `comment` up to point instead of the form within it.
 - [#4244](https://github.com/clojure-emacs/cider/pull/4244): Fix the Customize types of `cider-print-quota`, `nrepl-sync-request-timeout`, `cider-connection-message-fn`, `cider-eval-result-duration` and `cider-known-endpoints`, which rejected values the manual recommends.

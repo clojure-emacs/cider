@@ -29,6 +29,28 @@
 
 ;; Please, for each `describe', ensure there's an `it' block, so that its execution is visible in CI.
 
+(describe "cider-use-xref"
+  (it "decides what M-. and M-, run, whenever it is set"
+    (with-temp-buffer
+      (clojure-mode)
+      (cider-mode 1)
+      (let ((cider-use-xref t))
+        (expect (key-binding (kbd "M-.")) :to-be 'xref-find-definitions))
+      (let ((cider-use-xref nil))
+        (expect (key-binding (kbd "M-.")) :to-be 'cider-find-var)
+        (expect (key-binding (kbd "M-,")) :to-be 'cider-pop-back))))
+
+  (it "is applied to a buffer by toggling cider-mode"
+    (with-temp-buffer
+      (clojure-mode)
+      (let ((cider-use-xref t))
+        (cider-mode 1))
+      (expect (memq 'cider--xref-backend xref-backend-functions) :to-be-truthy)
+      (let ((cider-use-xref nil))
+        (cider-mode -1)
+        (cider-mode 1))
+      (expect (memq 'cider--xref-backend xref-backend-functions) :to-be nil))))
+
 (describe "cider--var-namespace"
   (it "returns the namespace of a var"
     (expect (cider--var-namespace "#'a/var-two") :to-equal "a")
