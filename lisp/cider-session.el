@@ -85,6 +85,9 @@ All other values do not combine any sessions."
   "When non-nil, bypass sesman and use this session for all REPL lookups.
 Set interactively with `cider-set-default-session'.")
 
+(defvar cider--missing-default-session nil
+  "The `cider-default-session' last warned about for not existing.")
+
 (defun cider--default-session ()
   "Return the session named by `cider-default-session', or nil.
 Nil when no default session is set, or when the named one no longer exists
@@ -739,7 +742,8 @@ filters out all the REPLs that do not support the designated ops.
 
 If the buffer is pinned to a REPL via `cider--pinned-repl-buffer', that
 REPL's session is used instead of the current one (taking precedence over
-`cider-default-session'); a stale pin falls through to normal resolution."
+`cider-default-session'); a stale pin falls through to normal resolution,
+and so does a default session that no longer exists."
   (let* ((type (cond
                 ((listp type)
                  (mapcar #'cider-maybe-intern type))
@@ -754,18 +758,22 @@ REPL's session is used instead of the current one (taking precedence over
          ;; working.  Takes precedence over `cider-default-session', matching
          ;; `cider-current-repl', which checks the pin first.
          (pinned-session (cider--pinned-session))
+         (default-session (cider--default-session))
          (repls (cond
                  (pinned-session (cdr pinned-session))
                  ;; A pinned default session bypasses sesman entirely and serves
-                 ;; every buffer.  If it has been quit since being pinned, warn
-                 ;; and treat it as having no REPLs, so the `ensure' check below
-                 ;; reports the missing session.
-                 (cider-default-session
-                  (if-let* ((session (cider--default-session)))
-                      (cdr session)
-                    (message "Default CIDER session '%s' no longer exists, ignoring" cider-default-session)
-                    nil))
+                 ;; every buffer.
+                 (default-session (cdr default-session))
                  (t
+                  ;; A default session that doesn't exist, having been quit
+                  ;; since being pinned, say, gets a warning, once, and
+                  ;; resolution goes on as if there was none.
+                  (when (and cider-default-session
+                             (not (equal cider-default-session
+                                         cider--missing-default-session)))
+                    (message "Default CIDER session '%s' doesn't exist, ignoring it"
+                             cider-default-session)
+                    (setq cider--missing-default-session cider-default-session))
                   (pcase cider-merge-sessions
                     ;; Merge every linked session sharing the current session's
                     ;; host into one pool of REPLs.

@@ -115,7 +115,8 @@ interactive password or 2FA prompt won't trip the timeout."
 (defcustom nrepl-sync-request-timeout 10
   "The number of seconds to wait for a sync response.
 Setting this to nil disables the timeout functionality."
-  :type 'integer
+  :type '(choice (number :tag "Seconds")
+                 (const :tag "No timeout" nil))
   :package-version '(cider . "0.7.0"))
 
 (defcustom nrepl-hide-special-buffers nil

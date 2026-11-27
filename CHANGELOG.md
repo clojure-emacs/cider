@@ -46,6 +46,12 @@
 
 ### Bugs fixed
 
+- [#4244](https://github.com/clojure-emacs/cider/pull/4244): Fix the `clojure` command line jack-in builds when both `cider-clojure-cli-global-aliases` and `cider-clojure-cli-aliases` are set and the latter starts with `-M` or `-A`.
+- [#4244](https://github.com/clojure-emacs/cider/pull/4244): Fall back to the linked session, with a warning, when the session set with `cider-set-default-session` no longer exists, instead of finding no REPL at all.
+- [#4244](https://github.com/clojure-emacs/cider/pull/4244): Make `cider-use-xref` take effect whenever it is set, not only when it is set before `cider-mode` is turned on.
+- [#4244](https://github.com/clojure-emacs/cider/pull/4244): Enable the `cider` completion style once instead of in every `cider-mode` buffer, so removing it from `completion-category-overrides` or picking other styles for the `cider` category sticks.
+- [#4244](https://github.com/clojure-emacs/cider/pull/4244): Fix `cider-eval-defun-up-to-point` inside a `comment` form, where it evaluated the `comment` up to point instead of the form within it.
+- [#4244](https://github.com/clojure-emacs/cider/pull/4244): Fix the Customize types of `cider-print-quota`, `nrepl-sync-request-timeout`, `cider-connection-message-fn`, `cider-eval-result-duration` and `cider-known-endpoints`, which rejected values the manual recommends.
 - [#4239](https://github.com/clojure-emacs/cider/pull/4239): Fix the Customize types of the options that take a string but default to `nil`, of `cider-repl-init-code`, `cider-repl-history-file`, `cider-default-cljs-repl` and `cider-completion-annotations-alist`, and the missing or malformed version information of some forty options.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Fix the dead manual links in the errors about a ClojureScript REPL's missing requirements.
 - [#4237](https://github.com/clojure-emacs/cider/pull/4237): Fix `cider-test-ediff` opening two empty buffers for a failed comparison of strings, numbers or collections of different kinds.

@@ -693,7 +693,10 @@ As it stands Emacs fires these events on <mouse-8> and <mouse-9> on `x' and
 `w32' systems while on macOS it presents them on <mouse-4> and <mouse-5>.")
 
 (defcustom cider-use-xref t
-  "Enable xref integration."
+  "Enable xref integration.
+When nil, the keys of `xref-find-definitions' and `xref-go-back' run
+`cider-find-var' and `cider-pop-back' instead.  A buffer that already has `cider-mode'
+enabled keeps its xref backend until the mode is toggled."
   :type 'boolean
   :safe #'booleanp
   :group 'cider
@@ -707,12 +710,19 @@ higher precedence."
   :group 'cider
   :package-version '(cider . "1.2.0"))
 
+(defun cider--unless-xref (command)
+  "Return COMMAND unless `cider-use-xref' is on.
+As the filter of a key binding it hides the binding while xref is in use."
+  (unless cider-use-xref
+    command))
+
 (defconst cider-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-d") #'cider-doc-menu)
-    (unless cider-use-xref
-      (define-key map (kbd "M-.") #'cider-find-var)
-      (define-key map (kbd "M-,") #'cider-pop-back))
+    ;; Looked up when the key is pressed, so that `cider-use-xref' doesn't
+    ;; have to be set before this file is loaded.
+    (define-key map (kbd "M-.") '(menu-item "" cider-find-var :filter cider--unless-xref))
+    (define-key map (kbd "M-,") '(menu-item "" cider-pop-back :filter cider--unless-xref))
     (let ((xref-back (if (fboundp 'xref-go-back) 'xref-go-back 'xref-pop-marker-stack)))
       (define-key map (kbd (if cider--has-many-mouse-buttons "<mouse-8>" "<mouse-4>")) xref-back))
     (define-key map (kbd (if cider--has-many-mouse-buttons "<mouse-9>" "<mouse-5>")) #'cider-find-dwim-at-mouse)
@@ -1535,7 +1545,7 @@ property."
         (setq-local clojure-expected-ns-function #'cider-expected-ns)
         (when cider-use-xref
           (add-hook 'xref-backend-functions #'cider--xref-backend cider-xref-fn-depth 'local))
-        (cider-enable-cider-completion-style 1)
+        (cider-completion--enable-default-style)
         (setq next-error-function #'cider-jump-to-compilation-error))
     ;; Mode cleanup
     (cider-ns-state-teardown)
@@ -1546,8 +1556,7 @@ property."
                                   clojure-ts-get-indent-function))
     (remove-hook 'completion-at-point-functions #'cider-complete-at-point t)
     (remove-hook 'post-self-insert-hook #'cider--magic-require-after-slash t)
-    (when cider-use-xref
-      (remove-hook 'xref-backend-functions #'cider--xref-backend 'local))
+    (remove-hook 'xref-backend-functions #'cider--xref-backend 'local)
     (remove-hook 'font-lock-mode-hook #'cider-refresh-dynamic-font-lock 'local)
     (font-lock-remove-keywords nil cider--reader-conditionals-font-lock-keywords)
     (font-lock-remove-keywords nil cider--dynamic-font-lock-keywords)

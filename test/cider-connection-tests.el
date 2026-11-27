@@ -721,12 +721,18 @@
                   (expect (cider-repls 'clj) :to-equal (list b1))
                   (expect (cider-repls 'cljs) :to-equal (list b2)))))))))
 
-    (it "returns nil and warns when default session no longer exists"
+    (it "warns and falls back to the linked session when the default one no longer exists"
       (let ((default-directory (expand-file-name "/tmp/a-dir")))
-        (with-repl-buffer ses-name 'clj _b1
+        (with-repl-buffer ses-name 'clj b1
           (setq cider-default-session "nonexistent-session")
-          ;; Should warn and return nil (stale default session yields no REPLs)
-          (expect (cider-repls) :to-be nil)))))
+          (spy-on 'message)
+          (expect (cider-repls) :to-equal (list b1))
+          (expect 'message :to-have-been-called-times 1)
+          ;; the warning comes once, and the name is kept for when the
+          ;; session shows up
+          (expect cider-default-session :to-equal "nonexistent-session")
+          (expect (cider-repls) :to-equal (list b1))
+          (expect 'message :to-have-been-called-times 1)))))
 
   (describe "cider-set-default-session"
     (it "sets the default session from active sessions"

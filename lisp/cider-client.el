@@ -488,7 +488,8 @@ Here's an example for `pprint':
 (defcustom cider-print-quota (* 1024 1024)
   "A hard limit on the number of bytes to return from any printing operation.
 Set to nil for no limit."
-  :type 'integer
+  :type '(choice (integer :tag "Bytes")
+                 (const :tag "No limit" nil))
   :group 'cider
   :package-version '(cider . "0.21.0"))
 

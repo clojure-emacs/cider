@@ -52,6 +52,62 @@
   "Return non-nil if SYMBOL is a variable that defining a mode creates."
   (string-match-p "-mode\\(?:-hook\\)?\\'" (symbol-name symbol)))
 
+;; The manual
+
+(defconst cider-custom-lint-tests--doc-dir
+  (expand-file-name "../doc/modules/ROOT/pages" cider-custom-lint-tests--lisp-dir)
+  "The directory holding the pages of the manual.")
+
+(defun cider-custom-lint-tests--doc-forms ()
+  "Return the forms of the Emacs Lisp listings in the manual.
+Each element is (FORM . WHERE).  A listing that doesn't read is left out
+from the form that fails on."
+  (let (forms)
+    (dolist (file (directory-files-recursively cider-custom-lint-tests--doc-dir "\\.adoc\\'"))
+      (with-temp-buffer
+        (insert-file-contents file)
+        (while (re-search-forward "^\\[source,\\(?:lisp\\|emacs-lisp\\)[^]]*]\n----\n" nil t)
+          (let ((where (format "%s:%d" (file-name-nondirectory file) (line-number-at-pos)))
+                (end (save-excursion (re-search-forward "^----$" nil t))))
+            (when end
+              (save-restriction
+                (narrow-to-region (point) (match-beginning 0))
+                (ignore-errors
+                  (while t
+                    (push (cons (read (current-buffer)) where) forms)))))))))
+    forms))
+
+(defun cider-custom-lint-tests--settings (form)
+  "Return the (OPTION . VALUE) pairs FORM sets to a constant.
+It looks for `setq', `setopt' and their kin anywhere in FORM."
+  (let (settings)
+    (when (consp form)
+      (when (memq (car form) '(setq setopt setq-default setq-local))
+        (let ((args (cdr form)))
+          (while (consp (cdr-safe args))
+            (let ((value (cadr args)))
+              (cond ((eq (car-safe value) 'quote)
+                     (push (cons (car args) (cadr value)) settings))
+                    ((or (stringp value) (numberp value) (keywordp value) (memq value '(nil t)))
+                     (push (cons (car args) value) settings))))
+            (setq args (cddr args)))))
+      (while (consp form)
+        (setq settings (nconc (cider-custom-lint-tests--settings (car form)) settings))
+        (setq form (cdr form))))
+    settings))
+
+(describe "the manual"
+  (it "sets the user options to values that fit their type"
+    (let ((options (cider-custom-lint-tests--options))
+          misfits)
+      (pcase-dolist (`(,form . ,where) (cider-custom-lint-tests--doc-forms))
+        (pcase-dolist (`(,option . ,value) (cider-custom-lint-tests--settings form))
+          (when (and (memq option options)
+                     (not (widget-apply (widget-convert (custom-variable-type option))
+                                        :match value)))
+            (push (list where option value) misfits))))
+      (expect misfits :to-equal nil))))
+
 (describe "the user options"
   (it "have a default value that fits their type"
     (expect (seq-remove

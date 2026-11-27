@@ -338,6 +338,10 @@ DEPRECATED: please use `cider-enable-cider-completion-style' instead."
   (interactive)
   (cider-enable-cider-completion-style))
 
+(defvar cider-completion--style-configured nil
+  "Non-nil once the user called `cider-enable-cider-completion-style'.
+From then on the styles of the `cider' completion category are left alone.")
+
 (defun cider-enable-cider-completion-style (&optional arg)
   "Enable or disable `cider' completion style for CIDER in all buffers.
 
@@ -345,13 +349,14 @@ This style supports non-prefix completion candidates returned by the
 completion backend.  Only affects the `cider' completion category.  If ARG
 is `1' or nil, enables the custom completion style; if `-1', disables it."
   (interactive)
+  (setq cider-completion--style-configured t)
   (if (eq arg -1)
       (setq completion-category-overrides
             (assq-delete-all 'cider completion-category-overrides))
     (let* ((cider (assq 'cider completion-category-overrides))
            (found-styles (assq 'styles cider))
            (new-styles (if found-styles
-                           (cons 'styles (cons 'cider (cdr found-styles)))
+                           (cons 'styles (cons 'cider (remq 'cider (cdr found-styles))))
                          '(styles cider basic)))
            (new-cider (if cider
                           (cons 'cider
@@ -365,6 +370,17 @@ is `1' or nil, enables the custom completion style; if `-1', disables it."
       (setq completion-category-overrides new-overrides))))
 
 (make-obsolete 'cider-company-enable-fuzzy-completion 'cider-enable-cider-completion-style "1.17.0")
+
+(defun cider-completion--enable-default-style ()
+  "Enable the `cider' completion style, unless that's been settled already.
+It is once the user turned the style on or off, or the `cider' completion
+category has styles in `completion-category-overrides', so that neither
+gets undone by the next buffer `cider-mode' is enabled in."
+  (unless (or cider-completion--style-configured
+              (assq 'styles (cdr (assq 'cider completion-category-overrides))))
+    ;; not the user's doing, so it doesn't settle anything
+    (let ((cider-completion--style-configured nil))
+      (cider-enable-cider-completion-style 1))))
 
 (defun cider-enable-flex-completion ()
   "Enable `flex' (fuzzy) completion for CIDER in all buffers.
