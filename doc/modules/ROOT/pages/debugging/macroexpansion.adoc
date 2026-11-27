@@ -140,7 +140,7 @@ functions. They differ in how deep they go:
   kbd:[m] with a prefix in the expansion buffer) - there's no separate binding.
 * `macroexpand-all` (really `clojure.walk/macroexpand-all`) walks the *whole
   form recursively*, expanding every macro it finds, nested ones included. This
-  is what kbd:[C-c M-m] uses.
+  is what kbd:[C-c M-m a] uses.
 
 `macroexpand-1` is literally a single step, so it can leave a macro behind - here
 `cond` expands one clause-pair at a time:
@@ -203,7 +203,7 @@ touching your configuration: the macroexpand menu that pops up when you pause
 after kbd:[C-c M-m] has a kbd:[-n] (`--ns=`) argument to pick the
 namespace-display style (`tidy`, `qualified` or `none`) and a kbd:[-m]
 (`--meta`) toggle for the metadata, honored by the popup expansion commands
-(kbd:[1] and kbd:[a]) invoked from the menu.
+(kbd:[1], kbd:[a], kbd:[v] and kbd:[V]) invoked from the menu.
 
 [#inline]
 == Inline macroexpansion

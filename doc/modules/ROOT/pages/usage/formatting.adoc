@@ -21,7 +21,9 @@ on each save operation your buffers are properly formatted:
 
 [source,lisp]
 ----
-(add-hook 'before-save-hook 'cider-format-buffer t t)
+(add-hook 'cider-mode-hook
+          (lambda ()
+            (add-hook 'before-save-hook #'cider-format-buffer t t)))
 ----
 
 Notice that you want to apply `cljfmt` **prior** to saving the buffer in question.
@@ -34,7 +36,7 @@ You can supply additional configuration to `cljfmt` via the configuration variab
 ;; Let's assume you want to pass the following config
 ;;
 ;;   {:indents {org.me/foo [[:inner 0]]}
-;;    :alias-map {\"me\" \"org.me\"}}
+;;    :alias-map {"me" "org.me"}}
 ;;
 ;; You'll need to encode it as an Emacs Lisp plist:
 

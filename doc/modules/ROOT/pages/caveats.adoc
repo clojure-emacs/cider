@@ -15,7 +15,6 @@ Currently, the following features are not supported for ClojureScript
 development:
 
 * Reloading
-* Running tests
 * Tracing
 * Debugging (check out https://github.com/clojure-emacs/cider/issues/1416[this ticket] dedicated to porting the debugger to ClojureScript)
 * Enlighten

@@ -76,7 +76,8 @@ how to reach a host:
 WARNING: If you go through a bastion host, beware that TRAMP injects its own
 connection-sharing options, which can conflict with a `ProxyJump` (or
 `ProxyCommand`) in your ssh config. Set `tramp-use-connection-share` to `nil`
-(or `suppress`) so TRAMP defers to your `~/.ssh/config`.
+(or `suppress`) so TRAMP defers to your `~/.ssh/config`. Before Emacs 30 the
+option is called `tramp-use-ssh-controlmaster-options` and only takes `nil`.
 
 === Known TRAMP caveats
 
@@ -90,7 +91,8 @@ A few things still need attention when jacking in over TRAMP:
   to the exact command line you want to run.
 - *Endpoint discovery for `cider-connect`* (`cider-locate-running-nrepl-ports`)
   runs on the host given by the buffer's `default-directory`, so from a
-  TRAMP buffer CIDER queries the remote host.  Port files (`.nrepl-port`
+  container buffer (`/docker:`, `/podman:`) CIDER queries the container.  For
+  an ssh host it only does so with `cider-infer-remote-nrepl-ports` enabled.  Port files (`.nrepl-port`
   and friends) are read over TRAMP and work without any extra tooling;
   the *process scan* additionally needs `ps` and `lsof` installed on the
   remote (in a container that usually means `apt-get install procps
@@ -253,7 +255,7 @@ examples),
 
 [source,sh]
 ----
-$ clj -R:nREPL -m nrepl.cmdline --socket nrepl.sock
+$ clj -M:nREPL -m nrepl.cmdline --socket nrepl.sock
 ----
 
 you can then connect CIDER by using the `local-unix-domain-socket`

@@ -36,12 +36,13 @@ many prefix keys:
 | List all key bindings active in the current buffer.
 
 | _prefix_ kbd:[C-h]
-| Show every binding that starts with _prefix_ (e.g. kbd:[C-c C-d C-h]).
+| Show every binding that starts with _prefix_ (e.g. kbd:[C-c C-s C-h]).
 |===
 
-TIP: Install https://github.com/justbur/emacs-which-key[which-key] and CIDER's
-prefixes become self-documenting - pause after a prefix like kbd:[C-c C-d] and a
-popup lists the keys that follow. See xref:usage/cider_mode.adoc[Using cider-mode]
+TIP: Most of CIDER's prefixes open a menu - pause after a prefix like
+kbd:[C-c C-d] and a popup lists the keys that follow. Install
+https://github.com/justbur/emacs-which-key[which-key] and the few plain prefix
+keys (like kbd:[C-c C-s]) get the same. See xref:usage/cider_mode.adoc[Using cider-mode]
 for more.
 
 == Starting and stopping CIDER
@@ -181,12 +182,12 @@ commands and their prefix-argument variations.
 | Keyboard shortcut | Command | Description
 
 | kbd:[M-.]
-| `cider-find-var`
-| Jump to the definition of the symbol at point.
+| `xref-find-definitions`
+| Jump to the definition of the symbol at point, through CIDER's xref backend (`cider-find-var` when `cider-use-xref` is off).
 
 | kbd:[M-,]
-| `cider-pop-back`
-| Return to where you were before the last jump.
+| `xref-go-back`
+| Return to where you were before the last jump (`cider-pop-back` when `cider-use-xref` is off).
 
 | kbd:[C-c C-.]
 | `cider-find-ns`
@@ -310,7 +311,7 @@ are its suffixes, so kbd:[C-c M-m a] means "open the menu, then press kbd:[a]".
 
 | kbd:[C-c M-m e]
 | `cider-macrostep-expand`
-| Step through the expansion inline in the source buffer (requires `macrostep`).
+| Step through the expansion inline in the source buffer.
 
 | kbd:[C-c M-m E]
 | `cider-macrostep-expand-all`

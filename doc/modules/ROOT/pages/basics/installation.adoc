@@ -77,8 +77,8 @@ development, you can always pin CIDER to use NonGNU ELPA or MELPA Stable like th
 ----
 
 NOTE: CIDER has dependencies (e.g. `queue` & `seq`) that are only available in the
-https://elpa.gnu.org/[GNU ELPA repository]. It's the only package repository
-enabled by default in Emacs and you should not disable it!
+https://elpa.gnu.org/[GNU ELPA repository]. It's enabled by default in Emacs
+and you should not disable it!
 
 == Installation via use-package
 

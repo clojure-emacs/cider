@@ -191,7 +191,7 @@ project, then the session linked to the directory is the current session. Thus,
 again, there is no ambiguity.
 
 By default https://github.com/vspinu/sesman[Sesman] allows multiple simultaneous links to projects and
-directories, but only one link per buffer. See `sesman-single-link-contexts` if
+directories, but only one link per buffer. See `sesman-single-link-context-types` if
 you would like to change that.
 
 == Default Session
@@ -241,9 +241,9 @@ destination from the file type alone. The behavior is controlled by
 * `clj` - always dispatch to the Clojure REPL.
 * `cljs` - always dispatch to the ClojureScript REPL.
 
-If the session only has one of the two REPL types, that one is used regardless
-of the setting; the missing half is simply skipped until a matching REPL joins
-the session.
+If the session only has one of the two REPL types, `multi` uses that one; the
+missing half is simply skipped until a matching REPL joins the session. `clj`
+and `cljs` only ever dispatch to a REPL of that type.
 
 ==== Overriding the Destination per Buffer
 
@@ -262,7 +262,8 @@ no inherent file type to dispatch on, like the scratch buffer.
 TIP: To make the choice stick for a whole project, set the underlying
 variable in
 https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html[.dir-locals.el],
-e.g. `((clojurec-mode . ((cider-repl-type-override . cljs))))`.
+e.g. `((clojurec-mode . ((cider-repl-type-override . cljs))))`. Emacs will ask
+whether to trust the value, as the variable isn't marked as safe.
 
 == Context Links
 
@@ -410,7 +411,7 @@ the connection.
 By default session names consist of abbreviated project name, host and port
 (e.g. `project/dir:localhost:1234`). REPL buffer name consist of the session
 name and the REPL type specification post-fix
-(e.g. `+*project/dir:localhost:1234(cljs:node)*+`).
+(e.g. `+*cider-repl project/dir:localhost:1234(cljs:node)*+`).
 
 You can customize session names with `cider-session-name-template` and REPL
 names with `nrepl-repl-buffer-name-template`. See also

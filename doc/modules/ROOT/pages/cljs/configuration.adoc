@@ -73,7 +73,7 @@ For one-off REPLs you can also use the custom REPL init form like this:
 ----
 ;; modify the list of known REPLs and set some default
 ((nil
-  (cider-custom-cljs-repl-init-form . "(do (foo) (bar))"
+  (cider-custom-cljs-repl-init-form . "(do (foo) (bar))")
   (cider-default-cljs-repl . custom)))
 ----
 

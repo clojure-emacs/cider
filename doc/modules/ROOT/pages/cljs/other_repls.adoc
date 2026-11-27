@@ -23,7 +23,7 @@ Using https://github.com/nrepl/weasel[Weasel], you can have a browser-connected 
 
 . Add `[weasel "0.7.1"]` to your project's `:dependencies`.
 . Type kbd:[M-x] `cider-jack-in-cljs` kbd:[RET] and choose
-the `Weasel` option when prompted about the ClojureScript REPL type you want
+the `weasel` option when prompted about the ClojureScript REPL type you want
 to use.
 . Add this to your ClojureScript code:
 +

@@ -68,8 +68,7 @@ namespace. Here is an example function that will do exactly that:
 ----
 (defun cider-repl-prompt-show-two (namespace)
   "Return a prompt string with the last 2 segments of NAMESPACE."
-  (let ((names (reverse (subseq (reverse (split-string namespace "\\.")) 0 2))))
-    (concat (car names) "." (cadr names) "> ")))
+  (concat (string-join (last (split-string namespace "\\.") 2) ".") "> "))
 ----
 
 == TAB Completion
@@ -114,7 +113,7 @@ built-in option `scroll-conservatively`, for example:
 
 [source,lisp]
 ----
-(add-hook 'cider-repl-mode-hook '(lambda () (setq scroll-conservatively 101)))
+(add-hook 'cider-repl-mode-hook (lambda () (setq-local scroll-conservatively 101)))
 ----
 
 == Display Output Preceding the REPL Window Boundaries
@@ -196,7 +195,7 @@ section of your Leiningen project configuration:
 
 [source,clojure]
 ----
-:repl-options {:init-ns 'my-ns}
+:repl-options {:init-ns my-ns}
 ----
 
 == Customize the REPL Buffer's Name

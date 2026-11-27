@@ -56,7 +56,7 @@ Alternatively you can start the server manually with something like:
 $ shadow-cljs watch app
 ----
 
-And connect to it with `cider-connect`.
+And connect to it with `cider-connect-cljs`.
 
 ...For that to work, `shadow-cljs.edn` contents like the following are assumed:
 
@@ -131,7 +131,8 @@ via the following configuration variables:
 * `cider-shadow-cljs-command` (its default value is `npx shadow-cljs`)
 * `cider-shadow-cljs-parameters` (its default value is `server`)
 
-All of this results in the following default command to start the shadow-cljs server:
+All of this results in the following default command to start the shadow-cljs server,
+plus a `-d` option for each dependency CIDER injects:
 
   $ npx shadow-cljs server
 

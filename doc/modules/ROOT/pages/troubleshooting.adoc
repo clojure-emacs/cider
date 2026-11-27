@@ -239,25 +239,30 @@ effect of changes you have to restart Emacs.
 This is a warning displayed on the REPL buffer when it starts, and usually looks like this:
 
 ____
-*WARNING:* CIDER 0.18.0 requires cider-nrepl x.y.z, but you're currently using cider-nrepl a.b.c. Some functionality may not work properly!
+*WARNING:* CIDER 2.0.0 requires cider-nrepl x.y.z, but you're currently using cider-nrepl a.b.c. The version mismatch might break some functionality! Run M-x cider-doctor to see how this REPL was started.
 ____
 
-where `a.b.c` might be an actual version, like `0.17.0`, or it might be `not installed` or `nil`.
+When the middleware is missing altogether, the warning reads:
+
+____
+*WARNING:* CIDER requires cider-nrepl to be fully functional. Some features will not be available without it!
+____
+
 The solution to this depends on what you see and on what you're doing.
 
-==== You see a number like `X.X.X`, and you're starting the REPL with `cider-connect`
+==== You see the version mismatch, and you're starting the REPL with `cider-connect`
 
 Your project specifies the wrong version for the cider-nrepl middleware. See the
 xref:basics/middleware_setup.adoc[instructions]
 in the "Middleware Setup" section.
 
-==== You see `not installed` or `nil`, and you're starting the REPL with `cider-connect`
+==== The middleware is missing, and you're starting the REPL with `cider-connect`
 
 To use `cider-connect` you need to add the cider-nrepl middleware to your project. See the
 xref:basics/middleware_setup.adoc[instructions]
 in the "Middleware Setup" section.
 
-==== You see `not installed` or `nil`, and you're starting the REPL with `cider-jack-in`
+==== The middleware is missing, and you're starting the REPL with `cider-jack-in`
 
 * Do `C-h v cider-inject-dependencies-at-jack-in`, and check that this variable is non-nil.
 * Make sure your project depends on at least Clojure `{clojure-min-version}`.
@@ -313,19 +318,21 @@ You can turn off the optimization by adding the JVM flag `-XX:-OmitStackTraceInF
 command you're using to start nREPL.
 
 In particular, by adding it to a `deps.edn` file under an alias (eg. `:dev`)
-[source,lisp]
----
+
+[source,clojure]
+----
 {:aliases
  {:dev
   {:jvm-opts ["-XX:-OmitStackTraceInFastThrow"]
   ...}}}
----
+----
 
-Or by customising the jack-in options.
+and having jack-in use that alias:
+
 [source,lisp]
----
-(setq cider-clojure-cli-parameters "-J-XX:-OmitStackTraceInFastThrow")
----
+----
+(setq cider-clojure-cli-aliases ":dev")
+----
 
 NOTE: Leiningen disables `OmitStackTraceInFastThrow` by default.
 
@@ -400,7 +407,7 @@ macroexpansion, `cider-find-var` (kbd:[M-.]), `cider-doc`, the ClojureDocs
 lookups, `cider-xref-fn-refs`/`cider-xref-fn-deps` and `cider-browse-ns`.  When
 that resolution fails they tell you why, and the wording matters:
 
-* `The namespace ... isn't loaded yet` means just that: the buffer's namespace
+* `Can't resolve ... - the namespace ... isn't loaded yet` means just that: the buffer's namespace
   hasn't been evaluated into the REPL.  Load it with kbd:[C-c C-k]
   (`cider-load-buffer`) and run the command again.
 * `Can't resolve ... - check for a typo, a missing require, or a definition you

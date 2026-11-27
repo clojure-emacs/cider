@@ -107,7 +107,7 @@ toggled by pressing kbd:[?].
 | Set a new maximum size above which nested collections are truncated
 
 | kbd:[C]
-| `cider-inspector-set-max-nested-depth
+| `cider-inspector-set-max-nested-depth`
 | Set a new maximum nesting level above which the collections are truncated
 
 | kbd:[a]

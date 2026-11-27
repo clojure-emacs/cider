@@ -30,7 +30,7 @@ of functions and variables from any namespace, do:
 
 [source,lisp]
 ----
-(setq cider-font-lock-dynamically '(macro core function var))
+(setq cider-font-lock-dynamically '(macro core function var deprecated))
 ----
 
 Here's how code looks without dynamic syntax highlighting.
