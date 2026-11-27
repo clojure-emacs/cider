@@ -72,7 +72,9 @@ retained so existing user bindings into this prefix keep working.")
    ("C-t" "Toggle var profiling" cider-profile-toggle)
    ("C-n" "Toggle namespace profiling" cider-profile-ns-toggle)
    ("C-s" "Display summary" cider-profile-summary)
-   ("C-c" "Clear data" cider-profile-clear)])
+   ("C-c" "Clear data" cider-profile-clear)]
+  (interactive)
+  (cider--setup-menu 'cider-profile-menu))
 
 (defun cider-profile--make-response-handler (handler &optional buffer)
   "Make a response handler that calls HANDLER with the response value.

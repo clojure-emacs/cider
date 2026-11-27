@@ -151,19 +151,37 @@ Return a list of (NS DOCS-P PRIVATES-P CASE-SENSITIVE-P)."
         (and (member "--private" args) t)
         (and (member "--case-sensitive" args) t)))
 
-(transient-define-suffix cider-doc-apropos (query &optional args)
-  "Search for Clojure symbols matching QUERY and show them in a pop-up.
-ARGS are the transient arguments controlling the apropos search."
-  (interactive (list (read-string "Search for Clojure symbol (a regular expression): ")
-                     (transient-args 'cider-doc-menu)))
-  (apply #'cider-apropos query (cider-doc--apropos-args args)))
+(defun cider-doc--read-apropos ()
+  "Read the arguments of the apropos commands of `cider-doc-menu'.
+Return (QUERY ARGS), ARGS being the menu's arguments.  With a prefix
+argument and no menu arguments return nil, for the command to prompt for
+all of them, as it does outside of the menu."
+  (let ((args (transient-args 'cider-doc-menu)))
+    (unless (and (not args) (cider--menu-prefix-arg))
+      (list (read-string "Search for Clojure symbol (a regular expression): ")
+            args))))
 
-(transient-define-suffix cider-doc-apropos-select (query &optional args)
+(defun cider-doc--call-apropos (command query args)
+  "Call the apropos COMMAND with QUERY and the transient ARGS.
+Without a QUERY have it prompt for everything, as with a prefix argument."
+  (if query
+      (apply command query (cider-doc--apropos-args args))
+    (let ((current-prefix-arg '(4)))
+      (call-interactively command))))
+
+(transient-define-suffix cider-doc-apropos (&optional query args)
+  "Search for Clojure symbols matching QUERY and show them in a pop-up.
+ARGS are the transient arguments controlling the apropos search.
+Without a QUERY prompt for it and for what ARGS would say."
+  (interactive (cider-doc--read-apropos))
+  (cider-doc--call-apropos #'cider-apropos query args))
+
+(transient-define-suffix cider-doc-apropos-select (&optional query args)
   "Search for Clojure symbols matching QUERY and pick one via `completing-read'.
-ARGS are the transient arguments controlling the apropos search."
-  (interactive (list (read-string "Search for Clojure symbol (a regular expression): ")
-                     (transient-args 'cider-doc-menu)))
-  (apply #'cider-apropos-select query (cider-doc--apropos-args args)))
+ARGS are the transient arguments controlling the apropos search.
+Without a QUERY prompt for it and for what ARGS would say."
+  (interactive (cider-doc--read-apropos))
+  (cider-doc--call-apropos #'cider-apropos-select query args))
 
 ;;;###autoload (autoload 'cider-doc-menu "cider-doc" "Menu for CIDER's documentation commands." t)
 (transient-define-prefix cider-doc-menu ()
@@ -190,7 +208,13 @@ ARGS are the transient arguments controlling the apropos search."
    ("C-c" "ClojureDocs" cider-clojuredocs)
    ("C-w" "ClojureDocs in browser" cider-clojuredocs-web)
    ("C-a" "Search symbols" cider-doc-apropos)
-   ("C-s" "Search & select" cider-doc-apropos-select)])
+   ("C-s" "Search & select" cider-doc-apropos-select)
+   ("f" "Search doc strings" cider-apropos-documentation)
+   ("e" "Search doc strings & select" cider-apropos-documentation-select)
+   ("C-f" "Search doc strings" cider-apropos-documentation)
+   ("C-e" "Search doc strings & select" cider-apropos-documentation-select)]
+  (interactive)
+  (cider--setup-menu 'cider-doc-menu))
 
 
 ;;; cider-docview-mode

@@ -249,7 +249,9 @@ With a prefix argument, prompt for function to run instead of -main."
    ("C-r" "Region" cider-insert-region-in-repl)
    ("C-n" "Namespace form" cider-insert-ns-form-in-repl)
    ("C-c" "Send to comment" cider-send-defun-to-comment)
-   ("C-j" "Jump to comment" cider-jump-to-comment)])
+   ("C-j" "Jump to comment" cider-jump-to-comment)]
+  (interactive)
+  (cider--setup-menu 'cider-insert-menu))
 
 (defcustom cider-switch-to-repl-on-insert t
   "Whether to switch to the REPL when inserting a form into the REPL."
@@ -581,12 +583,15 @@ That's when `cider-ns-magic-requires' is on."
 (transient-define-suffix cider-ns-menu--refresh (args)
   "Refresh namespaces, applying the menu's refresh ARGS.
 `--all', `--clear' and `--inhibit-fns' map to the corresponding
-`cider-ns-refresh' modes; with none set it does a smart reload."
+`cider-ns-refresh' modes, and a prefix argument means what it means to
+`cider-ns-refresh'; with none of them it does a smart reload."
   (interactive (list (transient-args 'cider-ns-menu)))
   (cider-ns-refresh
    (delq nil (list (and (member "--all" args) 'refresh-all)
                    (and (member "--clear" args) 'clear)
-                   (and (member "--inhibit-fns" args) 'inhibit-fns)))))
+                   (and (member "--inhibit-fns" args) 'inhibit-fns)
+                   (when-let* ((arg (cider--menu-prefix-arg)))
+                     (prefix-numeric-value arg))))))
 
 (transient-define-prefix cider-ns-menu ()
   "Transient menu for CIDER's namespace commands.
@@ -621,7 +626,9 @@ via prefix arguments) explicit toggles."
    ("M-a" "Add require" cider-ns-add-require)
    ("M-i" "Add import" cider-ns-add-import)
    ("M-m" "Add require or import for symbol" cider-ns-add-missing)
-   ("M-c" "Remove unused requires and imports" cider-ns-clean)])
+   ("M-c" "Remove unused requires and imports" cider-ns-clean)]
+  (interactive)
+  (cider--setup-menu 'cider-ns-menu))
 
 ;;;###autoload (autoload 'cider-menu "cider-mode" "Top-level transient menu for CIDER." t)
 (transient-define-prefix cider-menu ()
@@ -644,7 +651,9 @@ This command is not bound to a key by default; invoke it with
    ["Diagnostics"
     ("r" "Trace..." cider-trace-menu)
     ("p" "Profile..." cider-profile-menu)
-    ("l" "Log..." cider-log)]])
+    ("l" "Log..." cider-log)]]
+  (interactive)
+  (cider--setup-menu 'cider-menu))
 
 ;; Those declares are needed, because we autoload all those commands when first
 ;; used. That optimizes CIDER's initial load time.

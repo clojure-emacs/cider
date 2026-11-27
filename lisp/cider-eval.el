@@ -1605,12 +1605,14 @@ any other value (a custom var name) is kept as a string."
 
 (defun cider-eval-pprint-menu--apply-args (args command)
   "Call pretty-print COMMAND with the `cider-eval-pprint-menu' ARGS applied.
-The chosen printer is `let'-bound around the call, for this invocation only."
+The chosen printer is `let'-bound around the call, for this invocation only.
+COMMAND is called interactively, so it sees the prefix argument."
   (let ((cider-print-fn
          (if-let* ((fn (transient-arg-value "--print-fn=" args)))
              (cider-eval-pprint-menu--print-fn fn)
            cider-print-fn)))
-    (funcall command)))
+    (let ((current-prefix-arg (cider--menu-prefix-arg)))
+      (call-interactively command))))
 
 (transient-define-suffix cider-eval-pprint-menu--last-sexp (args)
   "Pretty-print the last sexp, applying the menu's ARGS."
@@ -1660,7 +1662,9 @@ zprint, or a custom var) for this invocation only."
   [:hide (lambda () t)
    ("C-e" "Last sexp" cider-eval-pprint-menu--last-sexp)
    ("C-v" "Sexp at point" cider-eval-pprint-menu--sexp-at-point)
-   ("C-d" "Defun at point" cider-eval-pprint-menu--defun)])
+   ("C-d" "Defun at point" cider-eval-pprint-menu--defun)]
+  (interactive)
+  (cider--setup-menu 'cider-eval-pprint-menu))
 
 ;;;###autoload (autoload 'cider-eval-menu "cider-eval" "Menu for CIDER's evaluation commands." t)
 (transient-define-prefix cider-eval-menu ()
@@ -1711,7 +1715,9 @@ zprint, or a custom var) for this invocation only."
    ("C-q" "Tap last sexp" cider-tap-last-sexp)
    ("C-t" "Tap sexp at point" cider-tap-sexp-at-point)
    ("C-." "Read & eval defun at point" cider-read-and-eval-defun-at-point)
-   ("C-f" "Pretty-print..." cider-eval-pprint-menu)])
+   ("C-f" "Pretty-print..." cider-eval-pprint-menu)]
+  (interactive)
+  (cider--setup-menu 'cider-eval-menu))
 
 (defun cider--file-string (file)
   "Read the contents of a FILE and return as a string."

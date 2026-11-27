@@ -382,7 +382,9 @@ cluttering the REPL.  Killing the buffer stops the streaming."
    ["Manage"
     ("l" "List traced" cider-list-traced)
     ("u" "Untrace all" cider-untrace-all)
-    ("b" "Trace events buffer" cider-trace)]])
+    ("b" "Trace events buffer" cider-trace)]]
+  (interactive)
+  (cider--setup-menu 'cider-trace-menu))
 
 (provide 'cider-tracing)
 ;;; cider-tracing.el ends here

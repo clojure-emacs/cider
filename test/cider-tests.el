@@ -91,6 +91,116 @@
         (expect (command-at (car pair) "v") :to-be (cdr pair)))
       (expect (command-at 'cider-insert-menu "j") :to-be 'cider-jump-to-comment))))
 
+;; The menus sit on keys that used to be prefix keys, so the key sequences
+;; people typed before the menus existed have to keep doing what they did.
+(describe "the menus on the former prefix keys"
+  :var (calls)
+  (cl-flet ((replay (keys &rest commands)
+              ;; Type KEYS in a `cider-mode' buffer and return the arguments
+              ;; the first of COMMANDS to run was called with, the prefix
+              ;; argument for those that read it themselves.
+              (setq calls nil)
+              (let ((stubs (mapcar
+                            (lambda (command)
+                              (let ((stub (lambda (&rest args)
+                                            (interactive (list current-prefix-arg))
+                                            (push (cons command args) calls))))
+                                (advice-add command :override stub)
+                                (cons command stub)))
+                            commands)))
+                (unwind-protect
+                    (with-temp-buffer
+                      (clojure-mode)
+                      (cider-mode 1)
+                      (switch-to-buffer (current-buffer))
+                      (execute-kbd-macro (kbd keys)))
+                  ;; A menu left open would swallow the keys of the next
+                  ;; replay, so a key that isn't in a menu fails just the
+                  ;; expectation it is in.
+                  (dotimes (_ 3)
+                    (when (bound-and-true-p transient--prefix)
+                      (condition-case nil
+                          (execute-kbd-macro (kbd "C-g"))
+                        ((quit error) nil))))
+                  (dolist (stub stubs)
+                    (advice-remove (car stub) (cdr stub)))))
+              (car calls)))
+
+    (it "hand a prefix argument typed before the key to the command"
+      (expect (replay "C-u C-c C-v e" 'cider-eval-last-sexp)
+              :to-equal '(cider-eval-last-sexp (4)))
+      (expect (replay "C-u C-u C-c C-v C-e" 'cider-eval-last-sexp)
+              :to-equal '(cider-eval-last-sexp (16)))
+      (expect (replay "C-u C-c C-d d" 'cider-doc)
+              :to-equal '(cider-doc (4)))
+      (expect (replay "C-u C-c C-j c" 'cider-send-defun-to-comment)
+              :to-equal '(cider-send-defun-to-comment (4)))
+      (expect (replay "C-c C-v e" 'cider-eval-last-sexp)
+              :to-equal '(cider-eval-last-sexp nil)))
+
+    (it "hand it to the commands that go through the menu's arguments"
+      (expect (replay "C-u C-c C-x j j" 'cider-jack-in-clj)
+              :to-equal '(cider-jack-in-clj (4)))
+      (expect (replay "M-5 C-c C-x j u" 'cider-jack-in-universal)
+              :to-equal '(cider-jack-in-universal 5))
+      (expect (replay "C-u C-c C-t l" 'cider-test-run-loaded-tests)
+              :to-equal '(cider-test-run-loaded-tests (4)))
+      (expect (replay "C-u C-c C-t C-n" 'cider-test-run-ns-tests)
+              :to-equal '(cider-test-run-ns-tests (4)))
+      (expect (replay "C-u C-c C-t p" 'cider-test-run-project-tests)
+              :to-equal '(cider-test-run-project-tests (4)))
+      (expect (replay "C-u C-c M-n r" 'cider-ns-refresh)
+              :to-equal '(cider-ns-refresh (4)))
+      (expect (replay "C-u C-c C-v C-f v" 'cider-pprint-eval-sexp-at-point)
+              :to-equal '(cider-pprint-eval-sexp-at-point (4)))
+      (expect (replay "C-u C-c M-m 1" 'cider-macroexpand-1)
+              :to-equal '(cider-macroexpand-1 (4))))
+
+    (it "hand it to them after a menu argument was set too"
+      (expect (replay "C-u C-c C-x - e j j" 'cider-jack-in-clj)
+              :to-equal '(cider-jack-in-clj (4)))
+      (expect (replay "C-u C-c M-n - a r" 'cider-ns-refresh)
+              :to-equal '(cider-ns-refresh (refresh-all 4))))
+
+    (it "have the apropos commands prompt for everything with a prefix argument"
+      (spy-on 'read-string :and-return-value "xyz")
+      (expect (replay "C-c C-d a" 'cider-apropos)
+              :to-equal '(cider-apropos "xyz" nil nil nil nil))
+      ;; the stub takes the prefix argument for its only one
+      (expect (replay "C-u C-c C-d a" 'cider-apropos)
+              :to-equal '(cider-apropos (4)))
+      (expect (replay "C-u C-c C-d C-s" 'cider-apropos-select)
+              :to-equal '(cider-apropos-select (4))))
+
+    (it "don't stay open for a key they don't have"
+      (expect (replay "C-c C-v C-M-q" 'cider-eval-last-sexp) :to-be nil)
+      (expect (replay "C-c C-v e" 'cider-eval-last-sexp)
+              :to-equal '(cider-eval-last-sexp nil)))
+
+    (it "take the control-key variants of the jack-in and connect keys"
+      (expect (replay "C-c C-x C-j C-j" 'cider-jack-in-clj)
+              :to-equal '(cider-jack-in-clj nil))
+      (expect (replay "C-c C-x C-j C-s" 'cider-jack-in-cljs)
+              :to-equal '(cider-jack-in-cljs nil))
+      (expect (replay "C-c C-x C-j n" 'cider-start-nrepl-server)
+              :to-equal '(cider-start-nrepl-server nil))
+      (expect (car (replay "C-c C-x C-c C-j" 'cider-connect-clj))
+              :to-be 'cider-connect-clj)
+      (expect (car (replay "C-c C-x C-s C-s" 'cider-connect-sibling-cljs))
+              :to-be 'cider-connect-sibling-cljs)
+      (expect (car (replay "C-c C-x C-s j" 'cider-connect-sibling-clj))
+              :to-be 'cider-connect-sibling-clj))
+
+    (it "take the keys that search the doc strings"
+      (expect (car (replay "C-c C-d f" 'cider-apropos-documentation))
+              :to-be 'cider-apropos-documentation)
+      (expect (car (replay "C-c C-d C-f" 'cider-apropos-documentation))
+              :to-be 'cider-apropos-documentation)
+      (expect (car (replay "C-c C-d e" 'cider-apropos-documentation-select))
+              :to-be 'cider-apropos-documentation-select)
+      (expect (car (replay "C-c C-d C-e" 'cider-apropos-documentation-select))
+              :to-be 'cider-apropos-documentation-select))))
+
 (describe "customize-menu"
   (it "opens without error"
     (let ((inhibit-message t)) (customize-group 'cider))))

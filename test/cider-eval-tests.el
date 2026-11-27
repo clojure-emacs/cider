@@ -601,14 +601,14 @@
     (let (captured)
       (cider-eval-pprint-menu--apply-args
        '("--print-fn=fipp")
-       (lambda () (setq captured cider-print-fn)))
+       (lambda () (interactive) (setq captured cider-print-fn)))
       (expect captured :to-equal 'fipp)))
 
   (it "keeps the configured printer when no argument is set"
     (let ((cider-print-fn 'pprint) captured)
       (cider-eval-pprint-menu--apply-args
        nil
-       (lambda () (setq captured cider-print-fn)))
+       (lambda () (interactive) (setq captured cider-print-fn)))
       (expect captured :to-equal 'pprint))))
 
 (describe "cider--external-body-url"

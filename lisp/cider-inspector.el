@@ -348,7 +348,9 @@ names the same target across CIDER's menus."
     ("d" "Defun at point" cider-inspect-defun-at-point)]
    ["Inspect"
     ("r" "Last result" cider-inspect-last-result)
-    (":" "An expression you type" cider-inspect-expr)]])
+    (":" "An expression you type" cider-inspect-expr)]]
+  (interactive)
+  (cider--setup-menu 'cider-inspect-menu))
 
 (defvar cider-inspector-location-stack nil
   "A stack used to save point locations in inspector buffers.
